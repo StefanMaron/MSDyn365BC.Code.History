@@ -34,7 +34,7 @@ report 751 "Save as Standard Item Journal"
 
                             StdItemJnls.LookupMode := true;
                             StdItemJnls.Editable := false;
-                            if StdItemJnls.RunModal = ACTION::LookupOK then begin
+                            if StdItemJnls.RunModal() = ACTION::LookupOK then begin
                                 StdItemJnls.GetRecord(StdItemJnl);
                                 Code := StdItemJnl.Code;
                                 Description := StdItemJnl.Description;
@@ -78,12 +78,10 @@ report 751 "Save as Standard Item Journal"
             Error(Text000);
 
         StdJournalCreated := false;
-        SaveItemJnlAsStandardJnl;
+        SaveItemJnlAsStandardJnl();
     end;
 
     var
-        Text000: Label 'Enter a code for Standard Item Journal.';
-        Text001: Label 'Standard Item Journal %1 already exists. Do you want to overwrite?';
         ItemJnlLine: Record "Item Journal Line";
         ItemJnlBatch: Record "Item Journal Batch";
         StdItemJnl: Record "Standard Item Journal";
@@ -92,6 +90,9 @@ report 751 "Save as Standard Item Journal"
         SaveUnitAmount: Boolean;
         SaveQuantity: Boolean;
         StdJournalCreated: Boolean;
+
+        Text000: Label 'Enter a code for Standard Item Journal.';
+        Text001: Label 'Standard Item Journal %1 already exists. Do you want to overwrite?';
 
     procedure Initialise(var SelectedItemJnlLines: Record "Item Journal Line"; SelectedItemJnlBatch: Record "Item Journal Batch")
     begin
@@ -117,14 +118,14 @@ report 751 "Save as Standard Item Journal"
         StdItemJnl.Code := Code;
         StdItemJnl.Description := Description;
 
-        if StdItemJnlExists then
+        if StdItemJnlExists() then
             if not Confirm(Text001, false, StdItemJnl.Code) then
                 exit;
 
         StdItemJnlLine.LockTable();
         StdItemJnl.LockTable();
 
-        if StdItemJnlExists then begin
+        if StdItemJnlExists() then begin
             StdItemJnl.Modify(true);
             StdItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
             StdItemJnlLine.SetRange("Standard Journal Code", StdItemJnl.Code);
@@ -149,6 +150,7 @@ report 751 "Save as Standard Item Journal"
                 end;
                 if not SaveQuantity then
                     StdItemJnlLine.Validate(Quantity, 0);
+                OnBeforeInsertStandardItemJournalLine(StdItemJnlLine, ItemJnlLine);
                 StdItemJnlLine.Insert(true);
             until ItemJnlLine.Next() = 0;
 
@@ -162,7 +164,7 @@ report 751 "Save as Standard Item Journal"
         StdItemJnl.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         StdItemJnl.SetRange(Code, Code);
 
-        exit(StdItemJnl.FindFirst);
+        exit(StdItemJnl.FindFirst());
     end;
 
     procedure GetStdItemJournal(var StdItemJnl1: Record "Standard Item Journal"): Boolean
@@ -171,6 +173,11 @@ report 751 "Save as Standard Item Journal"
             StdItemJnl1.Copy(StdItemJnl);
 
         exit(StdJournalCreated);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertStandardItemJournalLine(var StdItemJnlLine: Record "Standard Item Journal Line"; ItemJnlLine: Record "Item Journal Line")
+    begin
     end;
 }
 

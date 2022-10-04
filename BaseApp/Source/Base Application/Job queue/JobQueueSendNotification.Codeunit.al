@@ -90,7 +90,7 @@ codeunit 454 "Job Queue - Send Notification"
     var
         SystemWebHttpUtility: DotNet HttpUtility;
     begin
-        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility;
+        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility();
         exit(SystemWebHttpUtility.HtmlEncode(InText));
     end;
 

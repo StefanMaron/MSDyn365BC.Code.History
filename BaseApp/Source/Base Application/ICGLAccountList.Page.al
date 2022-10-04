@@ -15,7 +15,7 @@ page 607 "IC G/L Account List"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Intercompany;
                     Style = Strong;
@@ -29,12 +29,12 @@ page 607 "IC G/L Account List"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the IC general ledger account.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether a general ledger account is an income statement account or a balance sheet account.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the purpose of the account. Total: Used to total a series of balances on accounts from many different account groupings. To use Total, leave this field blank. Begin-Total: A marker for the beginning of a series of accounts to be totaled that ends with an End-Total account. End-Total: A total of a series of accounts that starts with the preceding Begin-Total account. The total is defined in the Totaling field.';
@@ -63,7 +63,7 @@ page 607 "IC G/L Account List"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLine;
+        FormatLine();
     end;
 
     trigger OnInit()

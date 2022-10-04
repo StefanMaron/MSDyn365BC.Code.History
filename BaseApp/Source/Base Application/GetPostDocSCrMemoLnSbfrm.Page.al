@@ -13,7 +13,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     HideValue = DocumentNoHideValue;
@@ -27,19 +27,19 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     Caption = 'Posting Date';
                     ToolTip = 'Specifies the posting date of the record.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the customer.';
@@ -50,18 +50,18 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Item Reference No."; "Item Reference No.")
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -78,44 +78,44 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location in which the credit memo line was registered.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -125,13 +125,13 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item specified on the line.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
@@ -168,55 +168,55 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
                     Visible = false;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
                     Visible = false;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
                     Visible = false;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Blanket Order No."; "Blanket Order No.")
+                field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
-                field("Blanket Order Line No."; "Blanket Order Line No.")
+                field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
-                field("Appl.-from Item Entry"; "Appl.-from Item Entry")
+                field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
@@ -244,7 +244,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ShowDocument;
+                        ShowDocument();
                     end;
                 }
                 action(Dimensions)
@@ -271,7 +271,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ItemTrackingLines;
+                        ItemTrackingLines();
                     end;
                 }
             }
@@ -281,7 +281,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
     trigger OnAfterGetRecord()
     begin
         DocumentNoHideValue := false;
-        DocumentNoOnFormat;
+        DocumentNoOnFormat();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -326,7 +326,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := SalesCrMemoLine;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 
@@ -404,12 +404,12 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
         FromSalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         GetSelectedLine(FromSalesCrMemoLine);
-        FromSalesCrMemoLine.ShowItemTrackingLines;
+        FromSalesCrMemoLine.ShowItemTrackingLines();
     end;
 
     local procedure DocumentNoOnFormat()
     begin
-        if not IsFirstDocLine then
+        if not IsFirstDocLine() then
             DocumentNoHideValue := true;
     end;
 

@@ -227,7 +227,7 @@ codeunit 137303 "SCM Order Reports"
         Commit();
         LibraryVariableStorage.Enqueue(Item[1]."No.");
         LibraryVariableStorage.Enqueue(Item[2]."No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Compare List", true, false);
 
         // Verify: Check that the value of Unit Cost in Compare List is equal to the value of Unit Cost in corresponding Production
@@ -272,7 +272,7 @@ codeunit 137303 "SCM Order Reports"
         Commit();
         LibraryVariableStorage.Enqueue(Item1."No.");
         LibraryVariableStorage.Enqueue(Item2."No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         Report.Run(Report::"Compare List", true, false);
     end;
 

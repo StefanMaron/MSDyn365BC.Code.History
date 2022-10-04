@@ -15,24 +15,24 @@ page 384 "Bank Account Statement Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transaction Date"; "Transaction Date")
+                field("Transaction Date"; Rec."Transaction Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the bank account or check ledger entry that the transaction on this line has been applied to.';
                 }
-                field("Value Date"; "Value Date")
+                field("Value Date"; Rec."Value Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value date of the transaction on this line.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number of this line.';
                     Visible = false;
                 }
-                field("Check No."; "Check No.")
+                field("Check No."; Rec."Check No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check number for the transaction on this line.';
@@ -48,19 +48,19 @@ page 384 "Bank Account Statement Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the transaction on this line.';
                 }
-                field("Statement Amount"; "Statement Amount")
+                field("Statement Amount"; Rec."Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the transaction on the bank''s statement on this line.';
                 }
-                field("Applied Amount"; "Applied Amount")
+                field("Applied Amount"; Rec."Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on the bank account or check ledger entry that the transaction on this line has been applied to.';
 
                     trigger OnDrillDown()
                     begin
-                        DisplayApplication;
+                        DisplayApplication();
                     end;
                 }
                 field(Difference; Difference)
@@ -68,7 +68,7 @@ page 384 "Bank Account Statement Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the amount in the Statement Amount field and Applied Amount field on this line.';
                 }
-                field("Applied Entries"; "Applied Entries")
+                field("Applied Entries"; Rec."Applied Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the transaction on this line has been applied to one or more ledger entries.';
@@ -76,7 +76,7 @@ page 384 "Bank Account Statement Lines"
 
                     trigger OnDrillDown()
                     begin
-                        DisplayApplication;
+                        DisplayApplication();
                     end;
                 }
             }

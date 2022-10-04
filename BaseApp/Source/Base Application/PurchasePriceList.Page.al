@@ -2,7 +2,6 @@ page 7018 "Purchase Price List"
 {
     Caption = 'Purchase Price List';
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Price List Header";
     SourceTableView = WHERE("Price Type" = CONST(Purchase));
@@ -283,8 +282,6 @@ page 7018 "Purchase Price List"
                 Enabled = PriceListIsEditable;
                 Ellipsis = true;
                 Image = SuggestItemPrice;
-                Promoted = true;
-                PromotedCategory = Process;
                 Caption = 'Suggest Lines';
                 ToolTip = 'Creates the purchase price list lines based on the unit cost in the product cards, like item or resource. Change the price list status to ''Draft'' to run this action.';
 
@@ -301,8 +298,6 @@ page 7018 "Purchase Price List"
                 Enabled = PriceListIsEditable and CopyLinesEnabled;
                 Ellipsis = true;
                 Image = CopyWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
                 Caption = 'Copy Lines';
                 ToolTip = 'Copies the lines from the existing price list. New prices can be adjusted by a factor and rounded differently. Change the price list status to ''Draft'' to run this action.';
 
@@ -319,8 +314,6 @@ page 7018 "Purchase Price List"
                 Visible = PriceListIsEditable and (Rec.Status = Rec.Status::Active);
                 Ellipsis = true;
                 Image = CheckDuplicates;
-                Promoted = true;
-                PromotedCategory = Process;
                 Caption = 'Verify Lines';
                 ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
 
@@ -332,9 +325,34 @@ page 7018 "Purchase Price List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SuggestLines_Promoted; SuggestLines)
+                {
+                }
+                actionref(CopyLines_Promoted; CopyLines)
+                {
+                }
+                actionref(VerifyLines_Promoted; VerifyLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+        }
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

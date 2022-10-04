@@ -10,9 +10,9 @@ codeunit 485 "Change Global Dim Err. Handler"
         Status := Status::Incomplete;
         "Session ID" := -1;
         "Server Instance ID" := -1;
-        Modify;
+        Modify();
         LogError(Rec);
-        SendTraceTagOnError;
+        SendTraceTagOnError();
     end;
 
     local procedure LogError(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")

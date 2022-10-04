@@ -12,7 +12,7 @@ report 5980 "Maintenance Visit - Planning"
         {
             DataItemTableView = SORTING("Responsibility Center", "Service Zone Code", Status, "Contract Group Code") WHERE("Contract Type" = CONST(Contract), Status = CONST(Signed));
             RequestFilterFields = "Responsibility Center", "Service Zone Code", "Contract Group Code", "Contract No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -134,8 +134,8 @@ report 5980 "Maintenance Visit - Planning"
 
     trigger OnPreReport()
     begin
-        ServContractFilter := "Service Contract Header".GetFilters;
-        ServContractLineFilter := "Service Contract Line".GetFilters;
+        ServContractFilter := "Service Contract Header".GetFilters();
+        ServContractLineFilter := "Service Contract Line".GetFilters();
     end;
 
     var

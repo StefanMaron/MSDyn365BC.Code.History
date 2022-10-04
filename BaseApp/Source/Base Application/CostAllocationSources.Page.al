@@ -31,38 +31,38 @@ page 1102 "Cost Allocation Sources"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the variant of the cost allocation sources.';
                 }
-                field("Valid From"; "Valid From")
+                field("Valid From"; Rec."Valid From")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the date that the cost allocation source starts.';
                 }
-                field("Valid To"; "Valid To")
+                field("Valid To"; Rec."Valid To")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the date that the cost allocation source ends.';
                 }
-                field("Cost Type Range"; "Cost Type Range")
+                field("Cost Type Range"; Rec."Cost Type Range")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a cost type range to define which cost types are allocated. If all costs that are incurred by the cost center are allocated, you do not have to set a cost type range.';
                     Visible = false;
                 }
-                field("Cost Center Code"; "Cost Center Code")
+                field("Cost Center Code"; Rec."Cost Center Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost center code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Cost Object Code"; "Cost Object Code")
+                field("Cost Object Code"; Rec."Cost Object Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost object code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Credit to Cost Type"; "Credit to Cost Type")
+                field("Credit to Cost Type"; Rec."Credit to Cost Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost type to which the credit posting is posted. The costs that are allocated are credited to the source cost center. It is useful to set up a helping cost type to later identify the allocation postings in the statistics and reports.';
                 }
-                field("Total Share"; "Total Share")
+                field("Total Share"; Rec."Total Share")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the sum of the shares of the cost allocation targets.';
@@ -74,7 +74,7 @@ page 1102 "Cost Allocation Sources"
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                     Visible = false;
                 }
-                field("Allocation Source Type"; "Allocation Source Type")
+                field("Allocation Source Type"; Rec."Allocation Source Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies if the allocation comes from both budgeted and actual costs, only budgeted costs, or only actual costs.';
@@ -125,8 +125,6 @@ page 1102 "Cost Allocation Sources"
                 ApplicationArea = CostAccounting;
                 Caption = 'Allocations';
                 Image = Allocations;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Cost Allocations";
                 ToolTip = 'Verify and print the allocation source and targets that are defined in the Cost Allocation window for controlling purposes.';
             }
@@ -153,6 +151,17 @@ page 1102 "Cost Allocation Sources"
                     Image = Calculate;
                     RunObject = Codeunit "Cost Account Allocation";
                     ToolTip = 'Recalculate the dynamic shares of all allocation keys.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(Allocations_Promoted; Allocations)
+                {
                 }
             }
         }

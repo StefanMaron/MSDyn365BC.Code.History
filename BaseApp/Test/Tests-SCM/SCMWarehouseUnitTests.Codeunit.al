@@ -84,7 +84,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Commit();
         WhseGetBinContent.UseRequestPage(false);
         WhseInternalPutAwayHeaderDummy.Init();
-        WhseGetBinContent.InitializeReport(WhseWorksheetLine, WhseInternalPutAwayHeaderDummy, 0);
+        WhseGetBinContent.SetParameters(WhseWorksheetLine, WhseInternalPutAwayHeaderDummy, 0);
         WhseGetBinContent.Run();
 
         // VERIFY: Make sure the warehouse worksheet line appears with the quantity on the bin content
@@ -1065,7 +1065,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
               WarehouseActivityLine."Unit of Measure Code", 'Same UOM in sales and pick.');
             WarehouseActivityLine."Qty. to Handle" := WarehouseActivityLine.Quantity;
             WarehouseActivityLine."Qty. to Handle (Base)" := WarehouseActivityLine."Qty. (Base)";
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
 
         // EXERCISE: Register pick
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
@@ -1275,7 +1275,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         with Location do begin
             Get(CreateSimpleLocation);
             "Use As In-Transit" := true;
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -1528,7 +1528,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure CreateTransHeader(var TransHeader: Record "Transfer Header"; TransFromCode: Code[10]; TransToCode: Code[10]; InTransitCode: Code[10])
     begin
         with TransHeader do begin
-            Init;
+            Init();
             "Transfer-from Code" := TransFromCode;
             "Transfer-to Code" := TransToCode;
             "In-Transit Code" := InTransitCode;
@@ -1552,12 +1552,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Quantity (Base)" := Qty * "Qty. per Unit of Measure";
             "Outstanding Quantity" := Quantity;
             "Outstanding Qty. (Base)" := "Quantity (Base)";
-            "Receipt Date" := WorkDate;
+            "Receipt Date" := WorkDate();
             "Transfer-from Code" := TransHeader."Transfer-from Code";
             "Transfer-to Code" := TransHeader."Transfer-to Code";
-            "Shipment Date" := WorkDate;
-            "Receipt Date" := WorkDate;
-            Insert;
+            "Shipment Date" := WorkDate();
+            "Receipt Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -1567,7 +1567,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         with ReservEntry do begin
             FindLast();
-            Init;
+            Init();
             "Item No." := ItemUOM."Item No.";
             "Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
             "Reservation Status" := "Reservation Status"::Surplus;
@@ -1594,9 +1594,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure MockItem(var Item: Record Item)
     begin
         with Item do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1629,7 +1629,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Item No." := ItemNo;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Unit of Measure");
             "Qty. per Unit of Measure" := QtyPerUOM;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1646,12 +1646,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         TransferLine: Record "Transfer Line";
     begin
         with TransferLine do begin
-            Init;
+            Init();
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Transfer Line");
             "Line No." := 10000;
             "Item No." := ItemNo;
             "Outstanding Qty. (Base)" := OutstandingQty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1660,7 +1660,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ServiceHeader: Record "Service Header";
     begin
         with ServiceHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Service Header");
             Insert(true);
@@ -1671,7 +1671,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure MockServiceLine(var ServiceLine: Record "Service Line")
     begin
         with ServiceLine do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "Document No." := MockServiceHeader;
             "Line No." := 10000;
@@ -1685,18 +1685,18 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     local procedure MockWhseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     begin
         with WarehouseActivityHeader do begin
-            Init;
+            Init();
             Type := ActivityType;
             "No." := LibraryUtility.GenerateGUID();
             "Location Code" := LocationCode;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; LineNo: Integer; ActionType: Enum "Warehouse Action Type")
     begin
         with WarehouseActivityLine do begin
-            Init;
+            Init();
             "Activity Type" := WarehouseActivityHeader.Type;
             "No." := WarehouseActivityHeader."No.";
             "Line No." := LineNo;
@@ -1705,14 +1705,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             Quantity := LibraryRandom.RandIntInRange(10, 20);
             "Qty. Outstanding" := Quantity;
             "Qty. to Handle" := LibraryRandom.RandInt(5);
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockWhseActivityLineWithBinAndShelf(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20]; ShelfNo: Code[10])
     begin
         with WarehouseActivityLine do begin
-            Init;
+            Init();
             "Activity Type" := WarehouseActivityHeader.Type;
             "No." := WarehouseActivityHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, FieldNo("Line No."));
@@ -1721,7 +1721,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Item No." := ItemNo;
             "Bin Code" := BinCode;
             "Shelf No." := ShelfNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1752,7 +1752,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             Quantity := Round("Quantity (Base)" / QtyPerUOM, 0.00001);
             "Qty. to Handle (Base)" := "Quantity (Base)";
             "Qty. to Invoice (Base)" := "Quantity (Base)";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2559,9 +2559,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Location: Record Location;
     begin
         with Location do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location);
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -2571,13 +2571,13 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Location: Record Location;
     begin
         with Location do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location);
             "Require Pick" := NewRequirePick;
             "Require Shipment" := NewRequireShipment;
             "Bin Mandatory" := NewBinMandatory;
             "Directed Put-away and Pick" := NewDirectedPutAwayAndPick;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -2591,7 +2591,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Entry Type" := "Entry Type"::"Positive Adjmt.";
             "Location Code" := LocationCode;
             Quantity := Qty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2603,7 +2603,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Variant Code" := VariantCode;
             "Global Dimension 1 Code" := GlobalDim1Value;
             "Global Dimension 2 Code" := GlobalDim2Value;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2624,7 +2624,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         for i := 1 to NoOfLines do begin
             Evaluate(LineNo, SelectStr(i, ExpectedLineNos));
             WarehouseActivityLine.TestField("Line No.", LineNo);
-            WarehouseActivityLine.Next;
+            WarehouseActivityLine.Next();
         end;
     end;
 

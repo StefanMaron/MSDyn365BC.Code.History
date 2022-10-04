@@ -86,7 +86,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         LibraryLowerPermissions.AddJobs;
         GLPostingPreview.Trap;
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
         LibraryLowerPermissions.SetO365Full;
 
         // Verify
@@ -130,7 +130,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
                         UserIDRequired := true;
                     end;
                 end;
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
         Assert.IsTrue(UserIDRequired, UserIDIsNotRequiredErr);
 
         // [WHEN] Enabling Workflow
@@ -169,7 +169,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
                         UserIDRequired := true;
                     end;
                 end;
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
         Assert.IsTrue(UserIDRequired, UserIDIsNotRequiredErr);
 
         // [WHEN] Enabling Workflow

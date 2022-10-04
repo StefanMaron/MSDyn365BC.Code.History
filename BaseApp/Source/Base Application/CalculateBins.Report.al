@@ -25,7 +25,7 @@ report 7310 "Calculate Bins"
                             CurrReport.Break();
 
                         OnLevel2OnAfterGetRecordOnBeforeBinCreateWksh(Level);
-                        BinCreateWksh;
+                        BinCreateWksh();
 
                         Level := IncStr(Level);
                     end;
@@ -51,7 +51,7 @@ report 7310 "Calculate Bins"
                         CurrReport.Break();
 
                     if (FromLevel = '') and (ToLevel = '') then
-                        BinCreateWksh;
+                        BinCreateWksh();
                 end;
 
                 trigger OnPostDataItem()
@@ -75,7 +75,7 @@ report 7310 "Calculate Bins"
                     CurrReport.Break();
 
                 if (FromSection = '') and (ToSection = '') then
-                    BinCreateWksh;
+                    BinCreateWksh();
             end;
 
             trigger OnPreDataItem()
@@ -115,7 +115,7 @@ report 7310 "Calculate Bins"
                             BinTemplates.SetTableView(BinTemplateFilter);
                             BinTemplates.Editable(false);
                             BinTemplates.LookupMode(true);
-                            if BinTemplates.RunModal = ACTION::LookupOK then begin
+                            if BinTemplates.RunModal() = ACTION::LookupOK then begin
                                 BinTemplates.GetRecord(BinTemplateFilter);
                                 BinTemplateFilter.Validate(Code);
                                 BinTemplateFilter.TestField("Location Code");

@@ -15,7 +15,7 @@ report 6080 "Serv. Pricing Profitability"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServPriceGrFilterCaption; TableCaption + ':' + ServPriceGrFilter)
@@ -145,7 +145,7 @@ report 6080 "Serv. Pricing Profitability"
                             Customer.Name := '';
                         SetRange("Customer No.", "Customer No.");
                         repeat
-                            GetServShipmentHeader;
+                            GetServShipmentHeader();
                             if NewHeader then begin
                                 ServLedgerEntry.Reset();
                                 ServLedgerEntry.SetCurrentKey(
@@ -168,7 +168,7 @@ report 6080 "Serv. Pricing Profitability"
                             if ServInvHeader.Find('-') then
                                 repeat
                                     with ServInvLine do begin
-                                        Reset;
+                                        Reset();
                                         SetCurrentKey("Document No.", "Service Item Line No.", Type, "No.");
                                         SetRange("Document No.", ServInvHeader."No.");
                                         SetRange("Service Item Line No.", "Service Shipment Item Line"."Line No.");
@@ -250,9 +250,9 @@ report 6080 "Serv. Pricing Profitability"
     var
         FormatDocument: Codeunit "Format Document";
     begin
-        Currency.InitRoundingPrecision;
-        ServPriceGrFilter := "Service Price Group".GetFilters;
-        ServPriceGrSetupFilter := "Serv. Price Group Setup".GetFilters;
+        Currency.InitRoundingPrecision();
+        ServPriceGrFilter := "Service Price Group".GetFilters();
+        ServPriceGrSetupFilter := "Serv. Price Group Setup".GetFilters();
         CustomerFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
     end;
 

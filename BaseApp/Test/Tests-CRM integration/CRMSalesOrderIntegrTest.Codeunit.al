@@ -162,7 +162,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         ItemNo := '';
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Invoice, Customer."No.", ItemNo, 1, '', WorkDate);
+          SalesHeader."Document Type"::Invoice, Customer."No.", ItemNo, 1, '', WorkDate());
 
         Assert.IsTrue(CRMPost.IsEmpty, 'CRMPost should be empty');
 
@@ -193,7 +193,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         ItemNo := '';
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::"Credit Memo", Customer."No.", ItemNo, 1, '', WorkDate);
+          SalesHeader."Document Type"::"Credit Memo", Customer."No.", ItemNo, 1, '', WorkDate());
 
         Assert.IsTrue(CRMPost.IsEmpty, 'CRMPost should be empty');
 
@@ -497,7 +497,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
           StrSubstNo(
             FieldMustHaveAValueErr,
             SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."),
-            SalesReceivablesSetup.TableCaption));
+            SalesReceivablesSetup.TableCaption()));
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // JobQueueEntry is inserted and executed
         SalesInvoiceHeader.SetRange(SystemId, SalesInvoiceHeader.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::"Sales Invoice Header", SalesInvoiceHeader.GetView, IntegrationTableMapping);
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader.GetView(), IntegrationTableMapping);
 
         // [THEN] CRM Invoice created, with 2 Item lines:
         CRMIntegrationRecord.FindByRecordID(SalesInvoiceHeader.RecordId);
@@ -767,7 +767,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [THEN] All 3 CRM Sales Orders' "State" is 'Invoiced', "Status" is 'Invoiced'
         for i := 1 to 3 do begin
-            CRMSalesorder[i].Find;
+            CRMSalesorder[i].Find();
             VerifyCRMSalesorderStateAndStatus(
               CRMSalesorder[i], CRMSalesorder[i].StateCode::Invoiced, CRMSalesorder[i].StatusCode::Invoiced);
         end;
@@ -1485,7 +1485,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [GIVEN] We have a Sales Order created to that Customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Order, Customer."No.", ItemNo, 1, '', WorkDate);
+          SalesHeader."Document Type"::Order, Customer."No.", ItemNo, 1, '', WorkDate());
 
         // [WHEN] The Sales Order is posted
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1508,6 +1508,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Unit Group Mapping Enabled" := false;
         CRMConnectionSetup.Modify();
 
         // [GIVEN] Created NAV Order from CRM Order
@@ -1809,7 +1810,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     var
         OutStream: OutStream;
     begin
-        CRMAnnotation.AnnotationId := CreateGuid;
+        CRMAnnotation.AnnotationId := CreateGuid();
         CRMAnnotation.IsDocument := false;
         CRMAnnotation.FileSize := 0;
         CRMAnnotation.ObjectId := CRMSalesorder.SalesOrderId;
@@ -1940,7 +1941,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Currency: Record Currency;
         "Code": Code[10];
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandIntInRange(10, 20), 1));
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandIntInRange(10, 20), 1));
         Code := LibraryUtility.GenerateGUID();
         Currency.Rename('.' + CopyStr(Code, StrLen(Code) - 3));
         exit(Currency.Code);
@@ -1953,7 +1954,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesOrderListPage.OpenView;
         if CRMSalesOrderListPage.First then
             OrderIsVisible := CRMSalesOrderListPage.OrderNumber.Value = CRMSalesorder.OrderNumber;
-        CRMSalesOrderListPage.Close;
+        CRMSalesOrderListPage.Close();
     end;
 
     local procedure VerifySalesLineFromCRM(CRMSalesOrderId: Guid; SalesHeaderNo: Code[20])
@@ -1976,7 +1977,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
     local procedure VerifyCRMSalesorderStateAndStatus(var CRMSalesorder: Record "CRM Salesorder"; ExpectedState: Integer; ExpectedStatus: Integer)
     begin
-        CRMSalesorder.Find;
+        CRMSalesorder.Find();
         CRMSalesorder.TestField(StateCode, ExpectedState);
         CRMSalesorder.TestField(StatusCode, ExpectedStatus);
     end;
@@ -1989,7 +1990,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindSet();
         repeat
-            SalesLine.Next;
+            SalesLine.Next();
             VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         until StrLen(ProductDescription) = 0;
     end;
@@ -2003,7 +2004,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine.FindSet();
         VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         repeat
-            SalesLine.Next;
+            SalesLine.Next();
             VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         until StrLen(ProductDescription) = 0;
     end;
@@ -2030,7 +2031,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
             ActualText := RecordLinkManagement.ReadNote(RecordLink);
             if ActualText = AnnotationText then
                 exit;
-        until RecordLink.Next = 0;
+        until RecordLink.Next() = 0;
         Error(StrSubstNo(SalesOrdernoteNotFoundErr, SalesHeader."No.", AnnotationText));
     end;
 
@@ -2051,7 +2052,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
             InStream.Read(ActualText);
             if ActualText = AnnotationText then
                 exit;
-        until CRMAnnotation.Next = 0;
+        until CRMAnnotation.Next() = 0;
         Error(StrSubstNo(CRMSalesOrdernoteNotFoundErr, CRMSalesorderID, AnnotationText));
     end;
 
@@ -2092,13 +2093,13 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CDSConnectionSetup.SetClientSecret('ClientSecret');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
-        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
-        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
-        CRMConnectionSetup.Get();
         CRMConnectionSetup."Is CRM Solution Installed" := true;
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Unit Group Mapping Enabled" := false;
         CRMConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 
     [ConfirmHandler]

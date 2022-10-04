@@ -7,7 +7,7 @@ codeunit 6724 "Booking Appointment - Modify"
         InvoicedBookingItem: Record "Invoiced Booking Item";
         BookingManager: Codeunit "Booking Manager";
     begin
-        BookingManager.RegisterAppointmentConnection;
+        BookingManager.RegisterAppointmentConnection();
 
         InvoicedBookingItem.SetRange("Document No.", "Document No.");
         if InvoicedBookingItem.FindSet(true, true) then

@@ -52,7 +52,7 @@ codeunit 132556 "Assisted Setup Demodata UT"
                 Assert.IsTrue(VATBusinessPostingGroup.Get(VATAssistedSetupBusGrp.Code), 'VAT business code does not exist');
                 Assert.AreEqual(VATBusinessPostingGroup.Description, VATAssistedSetupBusGrp.Description
                   , 'VAT business description is not correct');
-            until VATAssistedSetupBusGrp.Next = 0;
+            until VATAssistedSetupBusGrp.Next() = 0;
     end;
 
     [Test]
@@ -72,7 +72,7 @@ codeunit 132556 "Assisted Setup Demodata UT"
         if VATSetupPostingGroups.FindSet() then
             repeat
                 Assert.IsTrue(VATProductPostingGroup.Get(VATSetupPostingGroups."VAT Prod. Posting Group"), 'VAT product code does not exist');
-            until VATSetupPostingGroups.Next = 0;
+            until VATSetupPostingGroups.Next() = 0;
     end;
 }
 

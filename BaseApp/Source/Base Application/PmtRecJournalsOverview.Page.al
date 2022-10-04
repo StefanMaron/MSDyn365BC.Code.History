@@ -17,12 +17,12 @@ page 1293 "Pmt. Rec. Journals Overview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
                 }
-                field("Total Difference"; "Total Difference")
+                field("Total Difference"; Rec."Total Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining Amount to Apply';
@@ -41,9 +41,6 @@ page 1293 "Pmt. Rec. Journals Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Account Card';
                 Image = BankAccount;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Payment Bank Account Card";
                 RunPageLink = "No." = FIELD("Bank Account No.");
                 ToolTip = 'View or edit information about the bank account that is related to the payment reconciliation journal.';
@@ -53,9 +50,6 @@ page 1293 "Pmt. Rec. Journals Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'View Journal';
                 Image = OpenWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'View the payment reconciliation lines from the bank statement for the account. This information can help when posting the transactions recorded by the bank that have not yet been recorded.';
 
@@ -68,6 +62,20 @@ page 1293 "Pmt. Rec. Journals Overview"
 
                     OpenList(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Bank Account Card_Promoted"; "Bank Account Card")
+                {
+                }
+                actionref(ViewJournal_Promoted; ViewJournal)
+                {
+                }
             }
         }
     }

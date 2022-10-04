@@ -28,13 +28,13 @@ page 7353 "Whse. Worksheet Templates"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies information about the activity you can plan in the warehouse worksheets that will be defined by this template.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = Warehouse;
                     DrillDown = false;

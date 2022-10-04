@@ -6,17 +6,7 @@ page 5503 "Income Statement Entity"
     InsertAllowed = false;
     ModifyAllowed = false;
     SourceTable = "Acc. Schedule Line Entity";
-#if not CLEAN18
-    EntityName = 'incomeStatement';
-    EntitySetName = 'incomeStatement';
-    PageType = API;
-    DelayedInsert = true;
-#else
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
-    ObsoleteTag = '18.0';
     PageType = List;
-#endif
     SourceTableTemporary = true;
 
     layout

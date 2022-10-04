@@ -30,7 +30,7 @@ codeunit 1431 "Forward Link Mgt."
         NamedForwardLink: Record "Named Forward Link";
     begin
         if not NamedForwardLink.Get(NewName) then begin
-            NamedForwardLink.Init;
+            NamedForwardLink.Init();
             NamedForwardLink.Name := NewName;
             NamedForwardLink.Description := NewDescription;
             NamedForwardLink.Link := NewLink;

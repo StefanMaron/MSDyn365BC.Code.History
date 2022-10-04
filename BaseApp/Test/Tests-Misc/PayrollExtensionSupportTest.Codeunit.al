@@ -706,7 +706,7 @@ codeunit 134165 "Payroll Extension Support Test"
         Customer: Record Customer;
     begin
         TempServiceConnection.Init();
-        TempServiceConnection."No." := Format(CreateGuid);
+        TempServiceConnection."No." := Format(CreateGuid());
         TempServiceConnection.Name := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(TempServiceConnection.Name));
         TempServiceConnection.Status := ServiceStatus;
         TempServiceConnection."Page ID" := PAGE::"Customer Card";
@@ -757,7 +757,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GenJournalLine.Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
         GenJournalLine.Validate(
           Description, CopyStr(StrSubstNo('%1:%2', GenJournalLine."Line No.", CreateGuid), 1, MaxStrLen(GenJournalLine.Description)));
-        GenJournalLine.Validate(Comment, Format(CreateGuid));
+        GenJournalLine.Validate(Comment, Format(CreateGuid()));
         GenJournalLine.Modify(true);
         GenJournalLine.Reset();
     end;
@@ -803,7 +803,7 @@ codeunit 134165 "Payroll Extension Support Test"
                 Found := true;
                 CompareRecordAndJournal(TempGenJournalLine, GeneralJournal);
             end;
-        until not GeneralJournal.Next;
+        until not GeneralJournal.Next();
         Assert.AreEqual(true, Found, IncorrectLinesInJournalErr);
     end;
 
@@ -812,7 +812,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal.First;
         repeat
             Assert.AreNotEqual(TempGenJournalLine."Document No.", GeneralJournal."Document No.".Value, IncorrectLinesInJournalErr);
-        until not GeneralJournal.Next;
+        until not GeneralJournal.Next();
     end;
 
     [StrMenuHandler]

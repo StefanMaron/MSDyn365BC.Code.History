@@ -112,7 +112,7 @@ table 1206 "Credit Transfer Entry"
             "Entry No." += 1;
         end else
             "Entry No." := EntryNo;
-        Init;
+        Init();
         GenJnlLine.Init();
         case GenJnlAccountType of
             GenJnlLine."Account Type"::Customer:
@@ -177,7 +177,7 @@ table 1206 "Credit Transfer Entry"
                 begin
                     if "Recipient Name" = '' then
                         if Employee.Get("Account No.") then
-                            "Recipient Name" := Employee.FullName;
+                            "Recipient Name" := Employee.FullName();
                     if ("Recipient IBAN" = '') and ("Recipient Bank Account No." = '') then begin
                         "Recipient IBAN" := Employee.IBAN;
                         "Recipient Bank Account No." := Employee."Bank Account No.";

@@ -17,7 +17,7 @@ page 591 "Payment Tolerance Warning"
 
                 trigger OnValidate()
                 begin
-                    UpdateAmounts;
+                    UpdateAmounts();
                 end;
             }
             group(Details)
@@ -104,22 +104,18 @@ page 591 "Payment Tolerance Warning"
     begin
         Posting := Posting::"Remaining Amount";
 
-        UpdateAmounts;
+        UpdateAmounts();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::No then
-            NoOnPush;
+            NoOnPush();
         if CloseAction = ACTION::Yes then
-            YesOnPush;
+            YesOnPush();
     end;
 
     var
-        PostingDate: Date;
-        CustVendNo: Code[20];
-        DocNo: Code[20];
-        CurrencyCode: Code[10];
         OriginalApplyingAmount: Decimal;
         OriginalAppliedAmount: Decimal;
         ApplyingAmount: Decimal;
@@ -128,6 +124,12 @@ page 591 "Payment Tolerance Warning"
         Posting: Option " ","Payment Tolerance Accounts","Remaining Amount";
         NewPostingAction: Integer;
         AccountName: Text;
+
+    protected var
+        CustVendNo: Code[20];
+        PostingDate: Date;
+        DocNo: Code[20];
+        CurrencyCode: Code[10];
 
     procedure SetValues(ShowPostingDate: Date; ShowCustVendNo: Code[20]; ShowDocNo: Code[20]; ShowCurrencyCode: Code[10]; ShowAmount: Decimal; ShowAppliedAmount: Decimal; ShowBalance: Decimal)
     var

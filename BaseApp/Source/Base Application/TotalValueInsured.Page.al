@@ -12,7 +12,7 @@ page 5649 "Total Value Insured"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

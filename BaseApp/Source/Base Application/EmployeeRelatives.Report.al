@@ -15,7 +15,7 @@ report 5208 "Employee - Relatives"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_Relative__TABLECAPTION__________RelativeFilter; TableCaption + ': ' + RelativeFilter)
@@ -27,7 +27,7 @@ report 5208 "Employee - Relatives"
             column(Employee_Relative__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Employee.FullName)
+            column(Employee_FullName; Employee.FullName())
             {
             }
             column(Employee_Relative__Relative_Code_; "Relative Code")
@@ -86,7 +86,7 @@ report 5208 "Employee - Relatives"
 
     trigger OnPreReport()
     begin
-        RelativeFilter := "Employee Relative".GetFilters;
+        RelativeFilter := "Employee Relative".GetFilters();
     end;
 
     var

@@ -257,7 +257,7 @@ codeunit 134322 "General Journal Line Approval"
         UpdateApprovalEntryWithCurrUser(ApprovalEntry, GenJournalLine.RecordId);
 
         // Exercise
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Approve(ApprovalEntry);
 
         // Verify
@@ -316,7 +316,7 @@ codeunit 134322 "General Journal Line Approval"
         UpdateApprovalEntryWithCurrUser(ApprovalEntry, GenJournalLine.RecordId);
 
         // Exercise
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         Approve(ApprovalEntry);
 
         // Verify
@@ -1002,7 +1002,7 @@ codeunit 134322 "General Journal Line Approval"
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.PrintCheck.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // Verify
         // RequestPageHandler
@@ -1050,7 +1050,7 @@ codeunit 134322 "General Journal Line Approval"
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.PrintCheck.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // Verify
         // RequestPageHandler
@@ -1077,7 +1077,7 @@ codeunit 134322 "General Journal Line Approval"
         // Setup
         CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(GenJournalBatch, GenJournalLine);
 
-        RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, CheckLedgerEntry.TableCaption);
+        RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, CheckLedgerEntry.TableCaption());
 
         // Exercise
         Commit();
@@ -1113,7 +1113,7 @@ codeunit 134322 "General Journal Line Approval"
         CheckLedgerEntry.Init();
         CheckMgt.InsertCheck(CheckLedgerEntry, GenJournalLine.RecordId);
 
-        RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, CheckLedgerEntry.TableCaption);
+        RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, CheckLedgerEntry.TableCaption());
 
         // Exercise
         Commit();
@@ -1365,7 +1365,7 @@ codeunit 134322 "General Journal Line Approval"
         PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account");
 
         // [THEN] "Check Printed" is set for "PL".
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Check Printed", true);
 
         // [THEN] "Batch" is posted.
@@ -1730,7 +1730,7 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalEntry: Record "Approval Entry";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         ApprovalsMgmt.TrySendJournalLineApprovalRequests(GenJournalLine);
         UpdateApprovalEntryWithCurrUser(ApprovalEntry, RecID);
         Approve(ApprovalEntry);
@@ -1831,12 +1831,12 @@ codeunit 134322 "General Journal Line Approval"
         VerifyApprovalEntrySenderID(ApprovalEntry, RequestorUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, RequestorUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, RequestorUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -1853,12 +1853,12 @@ codeunit 134322 "General Journal Line Approval"
         VerifyApprovalEntrySenderID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
@@ -1875,12 +1875,12 @@ codeunit 134322 "General Journal Line Approval"
         VerifyApprovalEntrySenderID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, IntermediateApproverUserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
@@ -1918,7 +1918,7 @@ codeunit 134322 "General Journal Line Approval"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange(Open, true);
-        Assert.IsFalse(CustLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, CustLedgerEntry.TableCaption));
+        Assert.IsFalse(CustLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntryExists(GenJournalLine: Record "Gen. Journal Line")
@@ -1928,7 +1928,7 @@ codeunit 134322 "General Journal Line Approval"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
-        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption));
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntryExistsWithExternalDocNo(GenJournalLine: Record "Gen. Journal Line")
@@ -1939,7 +1939,7 @@ codeunit 134322 "General Journal Line Approval"
         VendorLedgerEntry.SetRange("External Document No.", GenJournalLine."Document No.");
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
-        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption));
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption()));
     end;
 
     [PageHandler]
@@ -2000,7 +2000,7 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalCommentLine.SetRange("Document Type", ApprovalEntry."Document Type");
         ApprovalCommentLine.SetRange("Document No.", ApprovalEntry."Document No.");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
-        exit(ApprovalCommentLine.FindFirst);
+        exit(ApprovalCommentLine.FindFirst())
     end;
 
     [RequestPageHandler]

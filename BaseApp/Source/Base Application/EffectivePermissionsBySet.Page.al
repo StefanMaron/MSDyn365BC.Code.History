@@ -28,7 +28,7 @@ page 9853 "Effective Permissions By Set"
                             exit;
                         OpenPermissionsPage(true);
                         if Rec.Type = Rec.Type::"User-Defined" then begin
-                            TenantPermission.Get(GetAppID, Rec."Permission Set", CurrObjectType, CurrObjectID);
+                            TenantPermission.Get(GetAppID(), Rec."Permission Set", CurrObjectType, CurrObjectID);
                             Rec."Read Permission" := TenantPermission."Read Permission";
                             Rec."Insert Permission" := TenantPermission."Insert Permission";
                             Rec."Modify Permission" := TenantPermission."Modify Permission";
@@ -136,7 +136,7 @@ page 9853 "Effective Permissions By Set"
         UserPermissions: Codeunit "User Permissions";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        CurrentUserCanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
+        CurrentUserCanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
         IsSaaS := EnvironmentInfo.IsSaaS();
     end;
 
@@ -221,7 +221,7 @@ page 9853 "Effective Permissions By Set"
         if TempPermissionBuffer.FindSet() then
             repeat
                 Rec := TempPermissionBuffer;
-                Insert;
+                Insert();
                 if TempPermissionBuffer.Source = TempPermissionBuffer.Source::Entitlement then
                     EntitlementPermissionBuffer := TempPermissionBuffer;
             until TempPermissionBuffer.Next() = 0;

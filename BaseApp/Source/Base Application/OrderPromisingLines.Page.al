@@ -1,7 +1,7 @@
 page 99000959 "Order Promising Lines"
 {
     Caption = 'Order Promising Lines';
-    DataCaptionExpression = AvailabilityMgt.GetCaption;
+    DataCaptionExpression = AvailabilityMgt.GetCaption();
     InsertAllowed = false;
     PageType = Worksheet;
     RefreshOnActivate = true;
@@ -28,7 +28,7 @@ page 99000959 "Order Promising Lines"
             {
                 Editable = true;
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
@@ -40,29 +40,29 @@ page 99000959 "Order Promising Lines"
                     Editable = false;
                     ToolTip = 'Specifies the description of the entry.';
                 }
-                field("Requested Delivery Date"; "Requested Delivery Date")
+                field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
                     ToolTip = 'Specifies the requested delivery date for the entry.';
                 }
-                field("Requested Shipment Date"; "Requested Shipment Date")
+                field("Requested Shipment Date"; Rec."Requested Shipment Date")
                 {
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies the delivery date that the customer requested, minus the shipping time.';
                 }
-                field("Planned Delivery Date"; "Planned Delivery Date")
+                field("Planned Delivery Date"; Rec."Planned Delivery Date")
                 {
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies the planned date that the shipment will be delivered at the customer''s address. If the customer requests a delivery date, the program calculates whether the items will be available for delivery on this date. If the items are available, the planned delivery date will be the same as the requested delivery date. If not, the program calculates the date that the items are available for delivery and enters this date in the Planned Delivery Date field.';
                 }
-                field("Original Shipment Date"; "Original Shipment Date")
+                field("Original Shipment Date"; Rec."Original Shipment Date")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
                     ToolTip = 'Specifies the shipment date of the entry.';
                 }
-                field("Earliest Shipment Date"; "Earliest Shipment Date")
+                field("Earliest Shipment Date"; Rec."Earliest Shipment Date")
                 {
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies the Capable to Promise function as the earliest possible shipment date for the item.';
@@ -73,32 +73,32 @@ page 99000959 "Order Promising Lines"
                     Editable = false;
                     ToolTip = 'Specifies the number of units, calculated by subtracting the reserved quantity from the outstanding quantity in the Sales Line table.';
                 }
-                field("Required Quantity"; "Required Quantity")
+                field("Required Quantity"; Rec."Required Quantity")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
                     ToolTip = 'Specifies the quantity required for order promising lines.';
                 }
-                field(CalcAvailability; CalcAvailability)
+                field(CalcAvailability; CalcAvailability())
                 {
                     ApplicationArea = OrderPromising;
                     Caption = 'Availability';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies how many units of the item on the order promising line are available.';
                 }
-                field("Unavailability Date"; "Unavailability Date")
+                field("Unavailability Date"; Rec."Unavailability Date")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
                     ToolTip = 'Specifies the date when the order promising line is no longer available.';
                 }
-                field("Unavailable Quantity"; "Unavailable Quantity")
+                field("Unavailable Quantity"; Rec."Unavailable Quantity")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
                     ToolTip = 'Specifies the quantity of items that are not available for the requested delivery date on the order.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = false;
@@ -134,14 +134,11 @@ page 99000959 "Order Promising Lines"
                     ApplicationArea = OrderPromising;
                     Caption = 'Available-to-Promise';
                     Image = AvailableToPromise;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Calculate the delivery date of the customer''s order because the items are available, either in inventory or on planned receipts, based on the reservation system. The function performs an availability check of the unreserved quantities in inventory with regard to planned production, purchases, transfers, and sales returns.';
 
                     trigger OnAction()
                     begin
-                        CheckCalculationDone;
+                        CheckCalculationDone();
                         AvailabilityMgt.CalcAvailableToPromise(Rec);
                     end;
                 }
@@ -150,14 +147,11 @@ page 99000959 "Order Promising Lines"
                     ApplicationArea = OrderPromising;
                     Caption = 'Capable-to-Promise';
                     Image = CapableToPromise;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Calculate the earliest date that the item can be available if it is to be produced, purchased, or transferred, assuming that the item is not in inventory and no orders are scheduled. This function is useful for "what if" scenarios.';
 
                     trigger OnAction()
                     begin
-                        CheckCalculationDone;
+                        CheckCalculationDone();
                         AvailabilityMgt.CalcCapableToPromise(Rec, CrntSourceID);
                     end;
                 }
@@ -171,10 +165,6 @@ page 99000959 "Order Promising Lines"
                 Caption = '&Accept';
                 Enabled = AcceptButtonEnable;
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Accept the earliest shipment date available.';
 
                 trigger OnAction()
@@ -187,8 +177,25 @@ page 99000959 "Order Promising Lines"
                     ReqLine.SetRange("Order Promising ID", CrntSourceID);
                     ReqLine.ModifyAll("Accept Action Message", true);
                     OnAcceptButtonOnActionOnBeforeClosePage(Rec, CrntSourceType, CrntSourceID, OrderPromisingCalculationDone);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(AcceptButton_Promoted; AcceptButton)
+                {
+                }
+                actionref(AvailableToPromise_Promoted; AvailableToPromise)
+                {
+                }
+                actionref(CapableToPromise_Promoted; CapableToPromise)
+                {
+                }
             }
         }
     }
@@ -222,20 +229,20 @@ page 99000959 "Order Promising Lines"
                     begin
                         ServHeader."Document Type" := ServHeader."Document Type"::Order;
                         ServHeader."No." := GetRangeMin("Source ID");
-                        ServHeader.Find;
+                        ServHeader.Find();
                         SetServHeader(ServHeader);
                     end;
                 "Source Type"::Job:
                     begin
                         Job.Status := Job.Status::Open;
                         Job."No." := GetRangeMin("Source ID");
-                        Job.Find;
+                        Job.Find();
                         SetJob(Job);
                     end;
                 else
                     SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
                     SalesHeader."No." := GetRangeMin("Source ID");
-                    SalesHeader.Find;
+                    SalesHeader.Find();
                     SetSalesHeader(SalesHeader);
                     AcceptButtonEnable := SalesHeader.Status = SalesHeader.Status::Open;
             end;

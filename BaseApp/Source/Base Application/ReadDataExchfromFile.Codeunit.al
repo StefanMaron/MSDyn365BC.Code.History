@@ -10,7 +10,7 @@ codeunit 1240 "Read Data Exch. from File"
     begin
         OnBeforeFileImport(TempBlob, "File Name");
 
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             "File Name" := CopyStr(
                 FileMgt.BLOBImportWithFilter(TempBlob, ImportBankStmtTxt, '', FileFilterTxt, FileFilterExtensionTxt), 1, 250);
 

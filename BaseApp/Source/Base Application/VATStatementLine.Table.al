@@ -145,8 +145,9 @@ table 256 "VAT Statement Line"
     }
 
     var
-        Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
+
+        Text000: Label 'must not be %1';
 }
 

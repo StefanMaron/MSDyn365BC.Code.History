@@ -832,7 +832,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Exercise: Create and Post General Journal Lines with Random Amount. Apply the later created Journal Line on previously created
         // Journal Lines and Post them. Take Posting Date in Payment Discount Period.
-        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate, NoOfLines);
+        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate(), NoOfLines);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -856,7 +856,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Exercise: Create and Post General Journal Lines with Random Amount. Apply the later created Journal Line on previously created
         // Journal Lines and Post them. Take Posting Date within Payment Discount Period.
-        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate, NoOfLines);
+        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate(), NoOfLines);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -879,7 +879,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Exercise: Create and Post General Journal Lines with Random Amount. Apply the later created Journal Line on previously created
         // Journal Lines and Post them. Take Posting Date after Payment Discount Period.
-        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate, NoOfLines);
+        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate(), NoOfLines);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -976,7 +976,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         repeat
             TempGenJournalLine := GenJournalLine;
             TempGenJournalLine.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -1020,7 +1020,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GLAccount.FindSet();
         CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
-        GLAccount.Next;
+        GLAccount.Next();
         CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
         CustomerPostingGroup.Modify(true);
@@ -1070,7 +1070,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         repeat
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
         Commit();
         GenJnlApply.Run(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1090,7 +1090,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.Get(GetPaymentTerms);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure GetDiscountPercent(): Decimal
@@ -1159,8 +1159,8 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
             Assert.AreNearlyEqual(
               OriginalPmtDiscPossible, CustLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
               StrSubstNo(AmountError, CustLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), OriginalPmtDiscPossible,
-                CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
-        until TempGenJournalLine.Next = 0;
+                CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+        until TempGenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyDetldCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; AmountLCY: Decimal)
@@ -1175,7 +1175,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(AmountLCY, DetailedCustLedgEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), AmountLCY, DetailedCustLedgEntry.TableCaption,
+          StrSubstNo(AmountError, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), AmountLCY, DetailedCustLedgEntry.TableCaption(),
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 

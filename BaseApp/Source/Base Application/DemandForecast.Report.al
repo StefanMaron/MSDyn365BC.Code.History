@@ -12,7 +12,7 @@ report 99003804 "Demand Forecast"
         {
             DataItemTableView = SORTING("Production Forecast Name", "Item No.", "Variant Code", "Location Code", "Forecast Date", "Component Forecast");
             RequestFilterFields = "Production Forecast Name", "Item No.", "Forecast Date";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ForecastEntryTblCaptFilt; TableCaption + ': ' + ForecastFilter)
@@ -171,7 +171,7 @@ report 99003804 "Demand Forecast"
 
     trigger OnPreReport()
     begin
-        ForecastFilter := "Production Forecast Entry".GetFilters;
+        ForecastFilter := "Production Forecast Entry".GetFilters();
     end;
 
     var

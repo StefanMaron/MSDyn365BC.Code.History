@@ -260,12 +260,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control ReportName - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2855939321 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Approve</source>
-          <target state="translated">Ny,Prosess,Rapport,Godkjenn</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 2855939321 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Report Layouts</source>
           <target state="translated">Rapportoppsett</target>
@@ -279,8 +273,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Property AdditionalSearchTerms</note>
         </trans-unit>
         <trans-unit id="Page 2855939321 - NamedType 3716366059" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Extension layouts info cannot be modified. Do you want to edit a copy of the layout instead ?</source>
-          <target state="translated">Informasjon om utvidelsesoppsett kan ikke endres. Vil du redigere en kopi av oppsettet i stedet?</target>
+          <source>It is not possible to modify the layout info for this layout because it is provided by an extension. Do you want to edit a copy of the layout instead ?</source>
+          <target state="translated">Det er ikke mulig å endre oppsettsinformasjonen for dette oppsettet fordi den leveres av en utvidelse. Vil du redigere en kopi av oppsettet i stedet?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - NamedType EditInfoExtensionLayoutTxt</note>
         </trans-unit>

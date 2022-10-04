@@ -58,23 +58,23 @@ table 7327 "Whse. Worksheet Name"
 
     trigger OnInsert()
     begin
-        TestWMSLocation;
+        TestWMSLocation();
     end;
 
     trigger OnModify()
     begin
-        TestWMSLocation;
+        TestWMSLocation();
     end;
 
     trigger OnRename()
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        TestWMSLocation;
+        TestWMSLocation();
         WhseWkshLine.SetRange("Worksheet Template Name", xRec."Worksheet Template Name");
         WhseWkshLine.SetRange(Name, xRec.Name);
         WhseWkshLine.SetRange("Location Code", xRec."Location Code");
-        while WhseWkshLine.FindFirst do
+        while WhseWkshLine.FindFirst() do
             WhseWkshLine.Rename("Worksheet Template Name", Name, "Location Code", WhseWkshLine."Line No.");
     end;
 
@@ -87,7 +87,7 @@ table 7327 "Whse. Worksheet Name"
         WMSMgt: Codeunit "WMS Management";
     begin
         if UserId <> '' then
-            GetLocation(WMSMgt.GetDefaultLocation);
+            GetLocation(WMSMgt.GetDefaultLocation());
 
         "Location Code" := Location.Code;
     end;
@@ -95,7 +95,7 @@ table 7327 "Whse. Worksheet Name"
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);

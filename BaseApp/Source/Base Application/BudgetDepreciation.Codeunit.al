@@ -28,7 +28,7 @@ codeunit 5615 "Budget Depreciation"
             if DeprBook."Use Custom 1 Depreciation" then
                 Error(
                   Text000,
-                  DeprBook.FieldCaption("Use Custom 1 Depreciation"), false, DeprBook.TableCaption);
+                  DeprBook.FieldCaption("Use Custom 1 Depreciation"), false, DeprBook.TableCaption());
         end;
 
         IsHandled := false;
@@ -44,7 +44,7 @@ codeunit 5615 "Budget Depreciation"
                 "Depreciation Method"::"DB1/SL",
                 "Depreciation Method"::"DB2/SL":
                     if NoOfErrors = 0 then begin
-                        CreateMessage;
+                        CreateMessage();
                         NoOfErrors := 1;
                     end;
                 else begin
@@ -91,14 +91,14 @@ codeunit 5615 "Budget Depreciation"
         FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Depreciation;
         FALedgEntry.Amount := DeprAmount;
         BudgetText :=
-          StrSubstNo('%1 %2: %3', FA.TableCaption, FADeprBook."FA No.", FALedgEntry."FA Posting Type");
+          StrSubstNo('%1 %2: %3', FA.TableCaption(), FADeprBook."FA No.", FALedgEntry."FA Posting Type");
         if FALedgEntry.Amount <> 0 then
             CopyFAToBudget(FALedgEntry, BudgetNameCode, BalAccount, BudgetText);
 
         FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 1";
         FALedgEntry.Amount := Custom1Amount;
         BudgetText :=
-          StrSubstNo('%1 %2: %3', FA.TableCaption, FADeprBook."FA No.", FALedgEntry."FA Posting Type");
+          StrSubstNo('%1 %2: %3', FA.TableCaption(), FADeprBook."FA No.", FALedgEntry."FA Posting Type");
 
         if FALedgEntry.Amount <> 0 then
             CopyFAToBudget(FALedgEntry, BudgetNameCode, BalAccount, BudgetText);
@@ -121,7 +121,7 @@ codeunit 5615 "Budget Depreciation"
         GLBudgetEntry.Init();
         GLBudgetEntry."Budget Name" := BudgetNameCode;
         FALedgEntry."G/L Entry No." := NextEntryNo;
-        FAInsertGLAcc.DeleteAllGLAcc;
+        FAInsertGLAcc.DeleteAllGLAcc();
         FAInsertGLAcc.Run(FALedgEntry);
         if BalAccount then
             FAInsertGLAcc.InsertBalAcc(FALedgEntry);

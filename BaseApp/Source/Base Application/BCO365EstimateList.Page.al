@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2302 "BC O365 Estimate List"
 {
     // NB! The name of the 'New' action has to be "_NEW_TEMP_" in order for the phone client to show the '+' sign in the list.
@@ -9,6 +10,9 @@ page 2302 "BC O365 Estimate List"
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Sell-to Customer Name");
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,32 +21,32 @@ page 2302 "BC O365 Estimate List"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Estimate No.';
                     ToolTip = 'Specifies the number of the estimate, according to the specified number series.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Recipient';
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Total Invoiced Amount"; "Total Invoiced Amount")
+                field("Total Invoiced Amount"; Rec."Total Invoiced Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Amount';
                     ToolTip = 'Specifies the total estimated amount.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the due date of the document.';
                 }
-                field("Outstanding Status"; "Outstanding Status")
+                field("Outstanding Status"; Rec."Outstanding Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Status';
                     StyleExpr = OutStandingStatusStyle;
                     ToolTip = 'Specifies the outstanding amount, meaning the amount not paid.';
@@ -57,19 +61,16 @@ page 2302 "BC O365 Estimate List"
         {
             action(_NEW_TEMP_)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = NewInvoice;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "BC O365 Sales Quote";
                 RunPageMode = Create;
                 ToolTip = 'Create a new estimate.';
             }
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -79,8 +80,19 @@ page 2302 "BC O365 Estimate List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument;
+                    OpenDocument();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(_NEW_TEMP__Promoted; _NEW_TEMP_)
+                {
+                }
             }
         }
     }
@@ -101,7 +113,7 @@ page 2302 "BC O365 Estimate List"
 
     trigger OnInit()
     begin
-        SetSortByDocDate;
+        SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -112,10 +124,10 @@ page 2302 "BC O365 Estimate List"
     trigger OnOpenPage()
     begin
         SetRange("Document Type", "Document Type"::Quote);
-        IgnoreInvoices;
+        IgnoreInvoices();
     end;
 
     var
         OutStandingStatusStyle: Text[30];
 }
-
+#endif

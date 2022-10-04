@@ -1264,6 +1264,14 @@ table 5341 "CRM Account"
             ExternalName = 'nav_accountstatiticsidname';
             ExternalType = 'String';
             FieldClass = FlowField;
+            ObsoleteReason = 'This field is obsolete. Get CRMAccountStatistics via AccountStatiticsId, then use its name.';
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#endif
         }
         field(202; CompanyId; Guid)
         {

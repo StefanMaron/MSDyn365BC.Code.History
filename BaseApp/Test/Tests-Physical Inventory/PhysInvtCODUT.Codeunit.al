@@ -271,7 +271,7 @@ codeunit 137461 "Phys. Invt. COD UT"
         PhysInventoryOrderLines.FILTER.SetFilter("Item No.", ItemNo);
         repeat
             LineCount += 1;
-        until not PhysInventoryOrderLines.Next;
+        until not PhysInventoryOrderLines.Next();
         Assert.IsTrue(LineCount > 1, 'No of Lines must be greater than one');  // Verify more than one Phys. Inventory Order lines.
     end;
 

@@ -49,7 +49,7 @@ table 5320 "Exchange Folder"
     procedure GetUniqueID() Return: Text
     begin
         CalcFields("Unique ID");
-        Return := ReadUniqueID;
+        Return := ReadUniqueID();
     end;
 
     procedure SetUniqueID(UniqueID: Text)

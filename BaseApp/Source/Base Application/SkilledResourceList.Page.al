@@ -2,7 +2,7 @@ page 6023 "Skilled Resource List"
 {
     Caption = 'Skilled Resource List';
     CardPageID = "Resource Card";
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     Editable = false;
     PageType = List;
     SourceTable = Resource;
@@ -21,7 +21,7 @@ page 6023 "Skilled Resource List"
                     Editable = false;
                     ToolTip = 'Specifies that there are skills required to service the service item, service item group or item, if you have opened the Skilled Resource List window.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

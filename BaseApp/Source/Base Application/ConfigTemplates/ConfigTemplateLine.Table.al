@@ -48,7 +48,7 @@ table 8619 "Config. Template Line"
 
             trigger OnLookup()
             begin
-                SelectFieldName;
+                SelectFieldName();
             end;
 
             trigger OnValidate()
@@ -91,7 +91,7 @@ table 8619 "Config. Template Line"
 
                 ConfigTemplateList.LookupMode := true;
                 ConfigTemplateList.Editable := false;
-                if ConfigTemplateList.RunModal = ACTION::LookupOK then begin
+                if ConfigTemplateList.RunModal() = ACTION::LookupOK then begin
                     ConfigTemplateList.GetRecord(ConfigTemplateHeader);
                     if ConfigTemplateHeader.Code = "Data Template Code" then
                         Error(TemplateRelationErr);

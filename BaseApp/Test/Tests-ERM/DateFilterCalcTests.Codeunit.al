@@ -27,7 +27,7 @@ codeunit 135050 "DateFilter-Calc Tests"
         AccountingPeriod.DeleteAll();
 
         // [WHEN] CreateAccountingPeriodFilter function is called
-        DateFilterCalc.CreateFiscalYearFilter(Filter, Name, WorkDate, 0);
+        DateFilterCalc.CreateFiscalYearFilter(Filter, Name, WorkDate(), 0);
 
         // [THEN] The Filter returned is empty
         Assert.AreEqual('', Filter, 'Filter was expected empty');
@@ -49,7 +49,7 @@ codeunit 135050 "DateFilter-Calc Tests"
         AccountingPeriod.DeleteAll();
 
         // [WHEN] CreateAccountingPeriodFilter function is called
-        DateFilterCalc.CreateAccountingPeriodFilter(Filter, Name, WorkDate, 0);
+        DateFilterCalc.CreateAccountingPeriodFilter(Filter, Name, WorkDate(), 0);
 
         // [THEN] The Filter returned is empty
         Assert.AreEqual('', Filter, 'Filter was expected empty');

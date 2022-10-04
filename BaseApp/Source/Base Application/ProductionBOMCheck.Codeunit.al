@@ -88,7 +88,7 @@ codeunit 99000769 "Production BOM-Check"
         end;
     end;
 
-    local procedure CheckBOMStructure(BOMHeaderNo: Code[20]; VersionCode: Code[20]; Level: Integer)
+    procedure CheckBOMStructure(BOMHeaderNo: Code[20]; VersionCode: Code[20]; Level: Integer)
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMComponent: Record "Production BOM Line";
@@ -115,7 +115,7 @@ codeunit 99000769 "Production BOM-Check"
                             if not RtngLine.FindFirst() then
                                 Error(
                                   Text003,
-                                  RtngLine.TableCaption,
+                                  RtngLine.TableCaption(),
                                   RtngLine.FieldCaption("Routing Link Code"),
                                   ProdBOMComponent."Routing Link Code",
                                   ProdBOMComponent.FieldCaption("Production BOM No."),
@@ -126,7 +126,7 @@ codeunit 99000769 "Production BOM-Check"
                     ProdBOMComponent.Type::"Production BOM":
                         CheckBOMStructure(
                           ProdBOMComponent."No.",
-                          VersionMgt.GetBOMVersion(ProdBOMComponent."No.", WorkDate, true), Level + 1);
+                          VersionMgt.GetBOMVersion(ProdBOMComponent."No.", WorkDate(), true), Level + 1);
                 end;
             until ProdBOMComponent.Next() = 0;
     end;

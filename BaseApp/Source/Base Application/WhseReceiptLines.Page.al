@@ -12,52 +12,52 @@ page 7342 "Whse. Receipt Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Source Line No."; "Source Line No.")
+                field("Source Line No."; Rec."Source Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the line number of the source document that the entry originates from.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the items should be received.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone in which the items are being received.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for information use.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that is expected to be received.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -67,7 +67,7 @@ page 7342 "Whse. Receipt Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item in the line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a second description of the item on the line.';
@@ -77,40 +77,40 @@ page 7342 "Whse. Receipt Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be received.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity to be received, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Received"; "Qty. Received")
+                field("Qty. Received"; Rec."Qty. Received")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity for this line that has been posted as received.';
                 }
-                field("Qty. Received (Base)"; "Qty. Received (Base)")
+                field("Qty. Received (Base)"; Rec."Qty. Received (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity received, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure, that are in the unit of measure specified for the item on the line.';
@@ -120,12 +120,12 @@ page 7342 "Whse. Receipt Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the status of the warehouse receipt.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the line number.';
@@ -161,8 +161,6 @@ page 7342 "Whse. Receipt Lines"
                     Caption = 'Show &Whse. Document';
                     Image = ViewOrder;
                     ShortCutKey = 'Shift+F7';
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the related warehouse document.';
 
                     trigger OnAction()
@@ -187,6 +185,17 @@ page 7342 "Whse. Receipt Lines"
                         WMSMgt.ShowSourceDocLine(
                           "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0)
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Show &Whse. Document_Promoted"; "Show &Whse. Document")
+                {
                 }
             }
         }

@@ -33,7 +33,7 @@ table 7335 "Bin Template"
 
             trigger OnValidate()
             begin
-                SetUpNewLine;
+                SetUpNewLine();
             end;
         }
         field(10; "Bin Type Code"; Code[10])

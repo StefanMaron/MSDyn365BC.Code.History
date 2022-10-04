@@ -117,7 +117,7 @@ codeunit 137305 "SCM Warehouse Reports"
         FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
         Assert.AreEqual(
           Item."No.", WhseWorksheetLine."Item No.",
-          StrSubstNo(ValidationErr, WhseWorksheetLine.FieldCaption("Item No."), Item."No.", WhseWorksheetLine.TableCaption));
+          StrSubstNo(ValidationErr, WhseWorksheetLine.FieldCaption("Item No."), Item."No.", WhseWorksheetLine.TableCaption()));
 
         // Tear down.
         WarehouseEmployee.Delete(true);
@@ -288,10 +288,10 @@ codeunit 137305 "SCM Warehouse Reports"
         FindBinContent(BinContent, Location.Code, Item."No.");
         Bin.Get(Location.Code, BinContent."Bin Code");
         Assert.AreEqual(
-          Bin.Code, WhseWorksheetLine."From Bin Code", StrSubstNo(ValidationErr, Bin.FieldCaption(Code), Bin.Code, Bin.TableCaption));
+          Bin.Code, WhseWorksheetLine."From Bin Code", StrSubstNo(ValidationErr, Bin.FieldCaption(Code), Bin.Code, Bin.TableCaption()));
         FindLastRankingBin(Bin, Location.Code, Zone.Code);
         Assert.AreEqual(
-          Bin.Code, WhseWorksheetLine."To Bin Code", StrSubstNo(ValidationErr, Bin.FieldCaption(Code), Bin.Code, Bin.TableCaption));
+          Bin.Code, WhseWorksheetLine."To Bin Code", StrSubstNo(ValidationErr, Bin.FieldCaption(Code), Bin.Code, Bin.TableCaption()));
         Assert.AreEqual(
           Quantity, WhseWorksheetLine."Qty. to Handle", StrSubstNo(ValidationErr, 'Quantity', Quantity, 'Movement Worksheet'));
 
@@ -368,7 +368,7 @@ codeunit 137305 "SCM Warehouse Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode_Bin', Location.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('BinRanking_Bin', Bin."Bin Ranking");
             LibraryReportDataset.AssertCurrentRowValueEquals('BinTypeCode_Code', Bin."Bin Type Code");
-        until Bin.Next = 0;
+        until Bin.Next() = 0;
 
         // Tear down.
         WarehouseEmployee.Delete(true);
@@ -407,7 +407,7 @@ codeunit 137305 "SCM Warehouse Reports"
         FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
         Assert.AreEqual(
           Item."No.", WhseWorksheetLine."Item No.",
-          StrSubstNo(ValidationErr, WhseWorksheetLine.FieldCaption("Item No."), Item."No.", WhseWorksheetLine.TableCaption));
+          StrSubstNo(ValidationErr, WhseWorksheetLine.FieldCaption("Item No."), Item."No.", WhseWorksheetLine.TableCaption()));
 
         // Tear down.
         WarehouseEmployee.Delete(true);
@@ -997,7 +997,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // Exercise.
         Commit();
         Item.SetRange("No.", ProductionOrder."Source No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Inventory - Availability Plan", true, false, Item);
@@ -1250,7 +1250,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // [GIVEN] Overwrite Sales Line "L2" with "Type" = "Item", "No." = "X"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         with SalesLine do begin
-            Find;
+            Find();
             Validate(Type, Type::Item);
             Validate("No.", Item."No.");
             Validate(Quantity, Quantity2);
@@ -1445,13 +1445,13 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", SalesHeader[1]."No.");
         SalesOrder."Combine Shipments".SetValue(false);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [WHEN] Run "Combine Shipments" batch job for both shipped sales orders.
         SalesHeader[1].SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
         SalesShipmentHeader.SetFilter("No.", '%1|%2', SalesShipmentNo[1], SalesShipmentNo[2]);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);
-        LibrarySales.CombineShipments(SalesHeader[1], SalesShipmentHeader, WorkDate, WorkDate, false, false, false, false);
+        LibrarySales.CombineShipments(SalesHeader[1], SalesShipmentHeader, WorkDate(), WorkDate, false, false, false, false);
 
         // [THEN] One sales invoice is created.
         SalesHeaderInvoice.SetRange("Document Type", SalesHeaderInvoice."Document Type"::Invoice);
@@ -1459,7 +1459,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.RecordCount(SalesHeaderInvoice, 1);
 
         // [THEN] Only sales order "SO2" is included to the combined invoice.
-        SalesHeader[2].Find;
+        SalesHeader[2].Find();
         SalesHeader[2].CalcFields(Amount);
         SalesHeaderInvoice.FindFirst();
         SalesHeaderInvoice.CalcFields(Amount);
@@ -1536,7 +1536,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // [GIVEN] Create and release sales order.
         // [GIVEN] Create warehouse shipment from the sales order.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
@@ -1582,7 +1582,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // [GIVEN] Create and release sales order.
         // [GIVEN] Create warehouse shipment from the sales order.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
@@ -2423,7 +2423,7 @@ codeunit 137305 "SCM Warehouse Reports"
         RecRef: RecordRef;
     begin
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             RecRef.GetTable(SalesLine);
@@ -2624,7 +2624,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryCosting.CreateSalesPrice(SalesPrice, "Sales Price Type"::"All Customers", '',
-          Item."No.", WorkDate, '', '', '', LibraryRandom.RandDec(100, 2));
+          Item."No.", WorkDate(), '', '', '', LibraryRandom.RandDec(100, 2));
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
@@ -2660,7 +2660,8 @@ codeunit 137305 "SCM Warehouse Reports"
         WhseWorksheetLine.Name := WhseWorksheetName.Name;
         WhseWorksheetLine."Location Code" := LocationCode;
         WhseInternalPutAwayHeader.Init();
-        LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 0);  // Value for destination Type.
+        LibraryWarehouse.WhseGetBinContent(
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
 
         // Find and Update the created Whse. Worksheet Line.
         FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
@@ -2708,7 +2709,7 @@ codeunit 137305 "SCM Warehouse Reports"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate(), false));
     end;
 
     local procedure FindWarehouseEntryNo(ItemNo: Code[20]) FromEntryNo: Integer
@@ -2726,7 +2727,7 @@ codeunit 137305 "SCM Warehouse Reports"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate(), false));
     end;
 
     local procedure FindWhseWorkSheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Record "Whse. Worksheet Name")
@@ -2814,7 +2815,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.FindFirst();
-        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate, LibraryUtility.GenerateGUID, false);
+        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate(), LibraryUtility.GenerateGUID, false);
     end;
 
     local procedure RunWhseCalculateInventoryReportWithBatchAndRequestPage(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10])
@@ -2828,7 +2829,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseJournalLine.Validate("Location Code", LocationCode);
         WhseCalculateInventory.SetWhseJnlLine(WarehouseJournalLine);
         WhseCalculateInventory.UseRequestPage(true);
-        EnqueueValuesForWhseCalculateInventoryRequestPage(WorkDate, LibraryUtility.GenerateGUID, false);
+        EnqueueValuesForWhseCalculateInventoryRequestPage(WorkDate(), LibraryUtility.GenerateGUID, false);
 
         Commit();
 
@@ -2847,7 +2848,7 @@ codeunit 137305 "SCM Warehouse Reports"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, ItemsNotOnInvt, false);
+        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate(), ItemsNotOnInvt, false);
     end;
 
     local procedure RunCombineShipments(CustomerNoFilter: Text; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
@@ -2859,7 +2860,7 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesShipmentHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
         LibrarySales.CombineShipments(
-          SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+          SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
     end;
 
     local procedure RunCombineShipmentsByBillToCustomer(CustomerNo: Code[20]; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
@@ -2871,7 +2872,7 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesShipmentHeader.SetRange("Bill-to Customer No.", CustomerNo);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
         LibrarySales.CombineShipments(
-          SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+          SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
     end;
 
     local procedure CreateTransferOrderLocations(var FromLocation: Record Location; var ToLocation: Record Location; var IntransitLocation: Record Location)
@@ -2967,8 +2968,8 @@ codeunit 137305 "SCM Warehouse Reports"
                 BinRanking += 10;  // Value Used for incrementing rank in Bin.
                 Bin.Validate("Bin Ranking", BinRanking);
                 Bin.Modify(true);
-            until Bin.Next = 0;
-        until Zone.Next = 0;
+            until Bin.Next() = 0;
+        until Zone.Next() = 0;
     end;
 
     local procedure CreateBinContentForBin(Zone: Record Zone; Item: Record Item; MaxQty: Decimal)
@@ -2988,7 +2989,7 @@ codeunit 137305 "SCM Warehouse Reports"
             BinContent.Validate("Bin Type Code", Bin."Bin Type Code");
             BinContent.Validate(Fixed, true);
             BinContent.Modify(true);
-        until Bin.Next = 0;
+        until Bin.Next() = 0;
     end;
 
     local procedure FindWhseJnlTemplateAndBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10]; TemplateType: Enum "Warehouse Journal Template Type")
@@ -3002,7 +3003,7 @@ codeunit 137305 "SCM Warehouse Reports"
 
     local procedure UpdateDateInSalesCommentLine(var SalesCommentLine: Record "Sales Comment Line")
     begin
-        SalesCommentLine.Validate(Date, WorkDate);
+        SalesCommentLine.Validate(Date, WorkDate());
         SalesCommentLine.Modify(true);
     end;
 
@@ -3035,7 +3036,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseJournalLine.FindFirst();
         Assert.AreEqual(
           Quantity, WarehouseJournalLine."Qty. (Calculated)",
-          StrSubstNo(ValidationErr, WarehouseJournalLine.FieldCaption("Qty. (Calculated)"), Quantity, WarehouseJournalLine.TableCaption));
+          StrSubstNo(ValidationErr, WarehouseJournalLine.FieldCaption("Qty. (Calculated)"), Quantity, WarehouseJournalLine.TableCaption()));
         WarehouseJournalLine.TestField("Reason Code", ReasonCode);
     end;
 
@@ -3138,7 +3139,7 @@ codeunit 137305 "SCM Warehouse Reports"
             SetRange(Quantity, Quantity2);
             FindFirst();
             Assert.AreEqual(Type::Item, Type, CombineShipmentErr);
-            Reset;
+            Reset();
             SetRange(Description, SalesLineDescription);
             FindFirst();
             Assert.AreEqual(Type::" ", Type, CombineShipmentErr);

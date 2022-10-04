@@ -24,7 +24,7 @@ page 1381 "Customer Templ. List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the template.';
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of contact that will be used to create a customer with the template.';

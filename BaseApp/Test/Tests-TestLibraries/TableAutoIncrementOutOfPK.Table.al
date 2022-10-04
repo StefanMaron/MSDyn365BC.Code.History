@@ -1,5 +1,7 @@
 table 132908 "Table AutoIncrement Out Of PK"
 {
+    ReplicateData = false;
+
     fields
     {
         field(1; ID; Integer)

@@ -34,7 +34,7 @@ table 780 "Certificate of Supply"
                     "No." := "Document No.";
 
                 if Status = Status::Received then
-                    "Receipt Date" := WorkDate
+                    "Receipt Date" := WorkDate()
                 else
                     "Receipt Date" := 0D;
 
@@ -62,7 +62,7 @@ table 780 "Certificate of Supply"
 
             trigger OnValidate()
             begin
-                CheckRcptDate
+                CheckRcptDate();
             end;
         }
         field(6; Printed; Boolean)
@@ -136,7 +136,7 @@ table 780 "Certificate of Supply"
             SetRequired("Document No.");
         Printed := true;
 
-        Modify;
+        Modify();
     end;
 
     procedure SetRequired(CertificateNo: Code[20])
@@ -144,7 +144,7 @@ table 780 "Certificate of Supply"
         Status := Status::Required;
         "No." := CertificateNo;
         "Receipt Date" := 0D;
-        Modify
+        Modify();
     end;
 
     local procedure CheckRcptDate()
@@ -162,7 +162,7 @@ table 780 "Certificate of Supply"
     procedure InitFromSales(var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
         if not Get("Document Type"::"Sales Shipment", SalesShipmentHeader."No.") then begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::"Sales Shipment";
             "Document No." := SalesShipmentHeader."No.";
             "Customer/Vendor Name" := SalesShipmentHeader."Ship-to Name";
@@ -178,7 +178,7 @@ table 780 "Certificate of Supply"
     procedure InitFromPurchase(var ReturnShipmentHeader: Record "Return Shipment Header")
     begin
         if not Get("Document Type"::"Return Shipment", ReturnShipmentHeader."No.") then begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::"Return Shipment";
             "Document No." := ReturnShipmentHeader."No.";
             "Customer/Vendor Name" := ReturnShipmentHeader."Ship-to Name";
@@ -194,7 +194,7 @@ table 780 "Certificate of Supply"
     procedure InitFromService(var ServiceShipmentHeader: Record "Service Shipment Header")
     begin
         if not Get("Document Type"::"Service Shipment", ServiceShipmentHeader."No.") then begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::"Service Shipment";
             "Document No." := ServiceShipmentHeader."No.";
             "Customer/Vendor Name" := ServiceShipmentHeader."Ship-to Name";

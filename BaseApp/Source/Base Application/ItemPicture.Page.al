@@ -13,7 +13,7 @@ page 346 "Item Picture"
         {
             field(Picture; Picture)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 ShowCaption = false;
                 ToolTip = 'Specifies the picture that has been inserted for the item.';
             }
@@ -37,7 +37,7 @@ page 346 "Item Picture"
 
                 trigger OnAction()
                 begin
-                    TakeNewPicture;
+                    TakeNewPicture();
                 end;
             }
             action(ImportPicture)
@@ -50,7 +50,7 @@ page 346 "Item Picture"
 
                 trigger OnAction()
                 begin
-                    ImportFromDevice;
+                    ImportFromDevice();
                 end;
             }
             action(ExportFile)
@@ -66,15 +66,18 @@ page 346 "Item Picture"
                 var
                     DummyPictureEntity: Record "Picture Entity";
                     FileManagement: Codeunit "File Management";
+                    StringConversionManager: Codeunit StringConversionManagement;
                     ToFile: Text;
+                    ConvertedCodeType: Text;
                     ExportPath: Text;
                 begin
                     TestField("No.");
                     TestField(Description);
-
+                    ConvertedCodeType := Format("No.");
                     ToFile := DummyPictureEntity.GetDefaultMediaDescription(Rec);
-                    ExportPath := TemporaryPath + "No." + Format(Picture.MediaId);
-                    Picture.ExportFile(ExportPath + '.' + DummyPictureEntity.GetDefaultExtension);
+                    ConvertedCodeType := StringConversionManager.RemoveNonAlphaNumericCharacters(ConvertedCodeType);
+                    ExportPath := TemporaryPath + ConvertedCodeType + Format(Picture.MediaId);
+                    Picture.ExportFile(ExportPath + '.' + DummyPictureEntity.GetDefaultExtension());
 
                     FileManagement.ExportImage(ExportPath, ToFile);
                 end;
@@ -90,7 +93,7 @@ page 346 "Item Picture"
 
                 trigger OnAction()
                 begin
-                    DeleteItemPicture;
+                    DeleteItemPicture();
                 end;
             }
         }
@@ -98,7 +101,7 @@ page 346 "Item Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()
@@ -134,7 +137,7 @@ page 346 "Item Picture"
         FileName: Text;
         ClientFileName: Text;
     begin
-        Find;
+        Find();
         TestField("No.");
         if Description = '' then
             Error(MustSpecifyDescriptionErr);

@@ -204,6 +204,10 @@ table 5802 "Value Entry"
         {
             Caption = 'Document Line No.';
         }
+        field(86; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+        }
         field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
@@ -561,7 +565,7 @@ table 5802 "Value Entry"
                 FromDate := 0D;
 
             QtyFactor := 1;
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", ValueEntry."Item No.");
             SetRange("Valuation Date", FromDate, ToDate);
@@ -575,9 +579,9 @@ table 5802 "Value Entry"
             OnSumCostsTillValuationDateOnAfterCalcSums(Rec);
 
             "Item Ledger Entry Quantity" :=
-              Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision) + PrevValueEntrySum."Item Ledger Entry Quantity";
+              Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision()) + PrevValueEntrySum."Item Ledger Entry Quantity";
             "Invoiced Quantity" :=
-              Round("Invoiced Quantity" * QtyFactor, UOMMgt.QtyRndPrecision) + PrevValueEntrySum."Invoiced Quantity";
+              Round("Invoiced Quantity" * QtyFactor, UOMMgt.QtyRndPrecision()) + PrevValueEntrySum."Invoiced Quantity";
             "Cost Amount (Actual)" :=
               "Cost Amount (Actual)" * QtyFactor + PrevValueEntrySum."Cost Amount (Actual)";
             "Cost Amount (Expected)" :=
@@ -622,7 +626,7 @@ table 5802 "Value Entry"
         CostAmtExpected: Decimal;
         CostAmtExpectedACY: Decimal;
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         if Find('-') then
@@ -645,12 +649,12 @@ table 5802 "Value Entry"
 
     procedure NotInvdRevaluationExists(ItemLedgEntryNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         SetRange("Entry Type", "Entry Type"::Revaluation);
         SetRange("Applies-to Entry", 0);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure CalcQtyFactor(FromDate: Date; ToDate: Date) QtyFactor: Decimal
@@ -724,7 +728,7 @@ table 5802 "Value Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure GetAvgToDate(ToDate: Date): Date
@@ -777,7 +781,7 @@ table 5802 "Value Entry"
 
     procedure FindFirstValueEntryByItemLedgerEntryNo(ItemLedgerEntryNo: Integer)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
         FindFirst();

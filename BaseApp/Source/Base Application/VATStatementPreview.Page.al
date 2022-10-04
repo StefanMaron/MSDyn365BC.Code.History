@@ -23,11 +23,11 @@ page 474 "VAT Statement Preview"
                     trigger OnValidate()
                     begin
                         if Selection = Selection::"Open and Closed" then
-                            OpenandClosedSelectionOnValida;
+                            OpenandClosedSelectionOnValida();
                         if Selection = Selection::Closed then
-                            ClosedSelectionOnValidate;
+                            ClosedSelectionOnValidate();
                         if Selection = Selection::Open then
-                            OpenSelectionOnValidate;
+                            OpenSelectionOnValidate();
                     end;
                 }
                 field(PeriodSelection; PeriodSelection)
@@ -39,9 +39,9 @@ page 474 "VAT Statement Preview"
                     trigger OnValidate()
                     begin
                         if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            BeforeandWithinPeriodSelection;
+                            BeforeandWithinPeriodSelection();
                         if PeriodSelection = PeriodSelection::"Within Period" then
-                            WithinPeriodPeriodSelectionOnV;
+                            WithinPeriodPeriodSelectionOnV();
                     end;
                 }
                 field(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -53,8 +53,21 @@ page 474 "VAT Statement Preview"
 
                     trigger OnValidate()
                     begin
-                        UseAmtsInAddCurrOnPush;
+                        UseAmtsInAddCurrOnPush();
                     end;
+                }
+                field(VATDateType; VATDateType) 
+                {
+                    ApplicationArea = VAT;
+                    Caption = 'VAT Date Type';
+                    ToolTip = 'Specifies what date will be used to filter the amounts in the window.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateSubForm();
+                        CurrPage.Update();
+                    end;
+
                 }
                 field(DateFilter; DateFilter)
                 {
@@ -67,7 +80,7 @@ page 474 "VAT Statement Preview"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        SetFilter("Date Filter", DateFilter);
+                        Rec.SetFilter("Date Filter", DateFilter);
                         UpdateSubForm();
                         CurrPage.Update();
                     end;
@@ -107,6 +120,7 @@ page 474 "VAT Statement Preview"
 
     trigger OnOpenPage()
     begin
+        VATDateType := VATDateType::"Posting Date";
         if ValuesPassed then begin
             Selection := PassedSelection;
             PeriodSelection := PassedPeriodSelection;
@@ -128,10 +142,11 @@ page 474 "VAT Statement Preview"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
+        VATDateType: Enum "VAT Date Type";
 
     procedure UpdateSubForm()
     begin
-        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr);
+        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, VATDateType);
     end;
 
     procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)
@@ -182,27 +197,27 @@ page 474 "VAT Statement Preview"
 
     local procedure OpenSelectionOnValidate()
     begin
-        OpenSelectionOnPush;
+        OpenSelectionOnPush();
     end;
 
     local procedure ClosedSelectionOnValidate()
     begin
-        ClosedSelectionOnPush;
+        ClosedSelectionOnPush();
     end;
 
     local procedure OpenandClosedSelectionOnValida()
     begin
-        OpenandClosedSelectionOnPush;
+        OpenandClosedSelectionOnPush();
     end;
 
     local procedure WithinPeriodPeriodSelectionOnV()
     begin
-        WithinPeriodPeriodSelectOnPush;
+        WithinPeriodPeriodSelectOnPush();
     end;
 
     local procedure BeforeandWithinPeriodSelection()
     begin
-        BeforeandWithinPeriodSelOnPush;
+        BeforeandWithinPeriodSelOnPush();
     end;
 }
 

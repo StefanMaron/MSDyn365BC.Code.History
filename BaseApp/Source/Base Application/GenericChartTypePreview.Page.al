@@ -63,7 +63,7 @@ page 9184 "Generic Chart Type Preview"
         if not ChartAddInInitialized then
             exit;
 
-        chartDefinition := chartDefinition.BusinessChartData;
+        chartDefinition := chartDefinition.BusinessChartData();
         chartDataTable := chartDataTable.DataTable(Text000);
         // chartBuilder -> chartDef
         if chartBuilder.HasXDimension then begin
@@ -85,7 +85,7 @@ page 9184 "Generic Chart Type Preview"
         end;
 
         for i := 0 to 10 do begin
-            chartDataRow := chartDataTable.NewRow;
+            chartDataRow := chartDataTable.NewRow();
             if chartBuilder.HasXDimension and (chartBuilder.XDimensionName <> '') then
                 chartDataRow.Item(chartBuilder.XDimensionName, Text003 + Format(i));
             if chartBuilder.HasZDimension and (chartBuilder.ZDimensionName <> '') then

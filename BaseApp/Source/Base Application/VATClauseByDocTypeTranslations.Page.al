@@ -12,7 +12,7 @@ page 735 "VAT Clause by Doc. Type Trans."
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
@@ -22,7 +22,7 @@ page 735 "VAT Clause by Doc. Type Trans."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the translation of the VAT clause description. The translated version of the description is displayed as the VAT clause, based on the Language Code setting on the customer card.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the translation of the additional VAT clause description.';

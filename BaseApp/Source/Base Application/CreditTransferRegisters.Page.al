@@ -15,7 +15,7 @@ page 1205 "Credit Transfer Registers"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -34,7 +34,7 @@ page 1205 "Credit Transfer Registers"
                     Editable = false;
                     ToolTip = 'Specifies when the credit transfer was made.';
                 }
-                field("Created by User"; "Created by User")
+                field("Created by User"; Rec."Created by User")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -45,19 +45,19 @@ page 1205 "Credit Transfer Registers"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the payment file export for this credit transfer. The field is read-only.';
                 }
-                field("No. of Transfers"; "No. of Transfers")
+                field("No. of Transfers"; Rec."No. of Transfers")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies how many credit transfers the exported file covers.';
                 }
-                field("From Bank Account No."; "From Bank Account No.")
+                field("From Bank Account No."; Rec."From Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of your bank account from which the credit transfer was made.';
                 }
-                field("From Bank Account Name"; "From Bank Account Name")
+                field("From Bank Account Name"; Rec."From Bank Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -87,8 +87,6 @@ page 1205 "Credit Transfer Registers"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Entries';
                 Image = List;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Credit Transfer Reg. Entries";
                 RunPageLink = "Credit Transfer Register No." = FIELD("No.");
                 ShortCutKey = 'Return';
@@ -99,8 +97,6 @@ page 1205 "Credit Transfer Registers"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reexported Payments History';
                 Image = History;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Credit Trans Re-export History";
                 RunPageLink = "Credit Transfer Register No." = FIELD("No.");
                 ToolTip = 'View a list of payment files that have already been re-exported.';
@@ -113,15 +109,29 @@ page 1205 "Credit Transfer Registers"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reexport Payments to File';
                 Image = ExportElectronicDocument;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Export payments for the selected credit transfers to a bank file. The payments were originally exported from the Payment Journal window.';
 
                 trigger OnAction()
                 begin
-                    Reexport
+                    Reexport();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Reexport Payments to File_Promoted"; "Reexport Payments to File")
+                {
+                }
+                actionref(Entries_Promoted; Entries)
+                {
+                }
+                actionref(ReexportHistory_Promoted; ReexportHistory)
+                {
+                }
             }
         }
     }

@@ -41,11 +41,11 @@ codeunit 134929 "ERM MIR Test"
 
         // [GIVEN] Finance Charge Terms and Finance Charge Terms Interest Rate (Start Date = 31.01)
         CreateFinanceChargeTerm(FinanceChargeTerms);
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<1D>', WorkDate));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<1D>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 28.01 and Due Date 29.01 (before Interest Rate Starting Date)
         CreateAndPostSalesInvoice(
-          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate),
+          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()),
           LibraryRandom.RandInt(10));
 
         // [GIVEN] Create Finance Charge Memo before an Interest Rate Starting Date and before Sales invoice Due Date
@@ -56,7 +56,7 @@ codeunit 134929 "ERM MIR Test"
         asserterror MIRHelperFunctions.SuggestFinChargeMemoLines(FinanceChargeMemoHeader);
 
         // [THEN] Expected error "Create interest rate with start date prior to 29.01"
-        Assert.ExpectedError(StrSubstNo(FinChrgIntRateDateMsg, WorkDate));
+        Assert.ExpectedError(StrSubstNo(FinChrgIntRateDateMsg, WorkDate()));
     end;
 
     [Test]
@@ -74,11 +74,11 @@ codeunit 134929 "ERM MIR Test"
 
         // [GIVEN] Finance Charge Terms and Finance Charge Terms Interest Rate (Start Date = 28.01)
         CreateFinanceChargeTerm(FinanceChargeTerms);
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 28.01 and Due Date 29.01 (after Interest Rate Starting Date)
         CreateAndPostSalesInvoice(
-          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate), LibraryRandom.RandInt(10));
+          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // [GIVEN] Create Finance Charge Memo after an Interest Rate Starting Date and before Sales invoice Due Date
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -111,20 +111,20 @@ codeunit 134929 "ERM MIR Test"
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE1 (Start Date = 20.01)
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate));
+          FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE2 (Start Date = 30.07)
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate));
+          FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 28.01 and Due Date 29.01 (after Interest Rate Starting Date)
         SalesInvoiceNo :=
           CreateAndPostSalesInvoice(
-            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate), LibraryRandom.RandInt(10));
+            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // [GIVEN] Create Finance Charge Memo on a Date After Finance Charge Interest Rate Start Date (Document Date = 31.01).
         MIRHelperFunctions.CreateFinanceChargeMemo(
-          FinanceChargeMemoHeader, SalesHeader."Sell-to Customer No.", CalcDate('<1D>', WorkDate));
+          FinanceChargeMemoHeader, SalesHeader."Sell-to Customer No.", CalcDate('<1D>', WorkDate()));
 
         // [WHEN] Suggest Finance Charge Memo Lines is being run
         MIRHelperFunctions.SuggestFinChargeMemoLines(FinanceChargeMemoHeader);
@@ -159,15 +159,15 @@ codeunit 134929 "ERM MIR Test"
         CreateFinanceChargeTerm(FinanceChargeTerms);
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE1 (Start Date = 20.01)
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE2 (Start Date = 30.07)
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 28.01 and Due Date 29.01 (after Interest Rate Starting Date)
         SalesInvoiceNo :=
           CreateAndPostSalesInvoice(
-            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate), LibraryRandom.RandInt(10));
+            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // [GIVEN] Create Finance Charge Memo on Last Date of First Finance Charge Interest Rate Period (29.07).
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -206,15 +206,15 @@ codeunit 134929 "ERM MIR Test"
         CreateFinanceChargeTerm(FinanceChargeTerms);
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE1 (Start Date = 20.01)
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE2 (Start Date = 30.07)
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 28.01 and Due Date 29.01 (after Interest Rate Starting Date)
         SalesInvoiceNo :=
           CreateAndPostSalesInvoice(
-            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate), LibraryRandom.RandInt(10));
+            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // [GIVEN] Create Finance Charge Memo on first Date of Second Finance Charge Interest Rate INT_RATE2 Period (30.07).
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -261,16 +261,16 @@ codeunit 134929 "ERM MIR Test"
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE1 (Start Date = 20.01)
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate));
+          FinanceChargeInterestRate[1], FinanceChargeTerms.Code, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] Finance Charge Terms Interest Rate INT_RATE2 (Start Date = 30.07)
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate));
+          FinanceChargeInterestRate[2], FinanceChargeTerms.Code, CalcDate('<6M>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 28.01 and Due Date 29.01 (after Interest Rate Starting Date)
         SalesInvoiceNo :=
           CreateAndPostSalesInvoice(
-            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate), LibraryRandom.RandInt(10));
+            SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // [GIVEN] Create Finance Charge Memo on a date after Second Finance Charge Interest Rate Period (30.08).
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -310,11 +310,11 @@ codeunit 134929 "ERM MIR Test"
         // [GIVEN] Create Fincance Charge Terms with grace period <7D>
         CreateFinChargeTermWithGracePeriod(FinanceChargeTerms);
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate));
+          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Posting Date 31.01 and Due Date 01.02 (after Interest Rate Starting Date)
         CreateAndPostSalesInvoice(
-          SalesHeader, FinanceChargeTerms.Code, CalcDate('<1D>', WorkDate), CalcDate('<2D>', WorkDate), LibraryRandom.RandInt(10));
+          SalesHeader, FinanceChargeTerms.Code, CalcDate('<1D>', WorkDate()), CalcDate('<2D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // Test Case Specific Setup Steps: Create a Finance Charge Memo on Last Date of Grace Period (07.02).
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -344,7 +344,7 @@ codeunit 134929 "ERM MIR Test"
         // [GIVEN] Create and post sales invoice with Posting Date 31.01 and Due Date 01.02 (after Interest Rate Starting Date)
         // [GIVEN] Create Finance Charge Memo on First Date after Grace Period ends (09.02).
         PrepareGracePeriodScenario(
-          FinanceChargeTerms, FinanceChargeMemoHeader, SalesInvoiceNo, FinanceChargeInterestRate, CalcDate('<-2D>', WorkDate));
+          FinanceChargeTerms, FinanceChargeMemoHeader, SalesInvoiceNo, FinanceChargeInterestRate, CalcDate('<-2D>', WorkDate()));
 
         // [WHEN] Suggest Finance Charge Memo Lines is being run
         MIRHelperFunctions.SuggestFinChargeMemoLines(FinanceChargeMemoHeader);
@@ -373,7 +373,7 @@ codeunit 134929 "ERM MIR Test"
         // [GIVEN] Create a Finance Charge Memo on First Date after Finance Charge Grace Period Ends (09.02).
         // Interest period starts between Sales Invoice Posting Date and Grace Period End
         PrepareGracePeriodScenario(
-          FinanceChargeTerms, FinanceChargeMemoHeader, SalesInvoiceNo, FinanceChargeInterestRate, CalcDate('<-2D>', WorkDate));
+          FinanceChargeTerms, FinanceChargeMemoHeader, SalesInvoiceNo, FinanceChargeInterestRate, CalcDate('<-2D>', WorkDate()));
 
         // [WHEN] Suggest Finance Charge Memo Lines is being run
         MIRHelperFunctions.SuggestFinChargeMemoLines(FinanceChargeMemoHeader);
@@ -405,11 +405,11 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeTerms.Modify(true);
 
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate));
+          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Unit Price 10 to cause interest amount less than Minimum Amount
         CreateAndPostSalesInvoice(
-          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate), LibraryRandom.RandInt(10));
+          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()), LibraryRandom.RandInt(10));
 
         // [GIVEN] Create a Finance Charge Memo
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -439,11 +439,11 @@ codeunit 134929 "ERM MIR Test"
         CreateFinChargeTermWithAdditionalFee(FinanceChargeTerms, LibraryRandom.RandInt(10)); // Passing RANDOM value to generate Minimum Amount.
 
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate));
+          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
 
         // [GIVEN] Create and post sales invoice with Unit Price 1000 to cause interest amount greater than Minimum Amount
         CreateAndPostSalesInvoice(
-          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate), CalcDate('<-1D>', WorkDate),
+          SalesHeader, FinanceChargeTerms.Code, CalcDate('<-2D>', WorkDate()), CalcDate('<-1D>', WorkDate()),
           LibraryRandom.RandInt(10) + 1000); // Pass Unit Price greater than 1000 Using RANDOM.
         // [GIVEN] Create a Finance Charge Memo
         MIRHelperFunctions.CreateFinanceChargeMemo(
@@ -476,7 +476,7 @@ codeunit 134929 "ERM MIR Test"
         // [GIVEN] Finance Charge Terms and Finance Charge Terms Interest Rate (Start Date = 28.01)
         CreateFinanceChargeTerm(FinanceChargeTerms);
         CreateFinanceChargeInterestRates(
-          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate));
+          FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
 
         // [GIVEN] Create Customer with fincnce charge term created before
         Customer.Get(MIRHelperFunctions.UpdateFinChargeTermsOnCustomer(FinanceChargeTerms.Code));
@@ -487,8 +487,8 @@ codeunit 134929 "ERM MIR Test"
             MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(Customer."No.");
 
         // [WHEN] The Create Finance Charge Memos report is being run
-        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate);
-        Customer.SetRecFilter;
+        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate());
+        Customer.SetRecFilter();
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.InitializeRequest(CreationDate, CreationDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
@@ -524,7 +524,7 @@ codeunit 134929 "ERM MIR Test"
         CreateReminderLevel(Customer."Reminder Terms Code");
         MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
         ReminderHeader.Init();
-        ReminderHeader."Document Date" := WorkDate;
+        ReminderHeader."Document Date" := WorkDate();
         ReminderMake.Set(Customer, CustLedgerEntry, ReminderHeader, false, false, CustLedgEntryLineFeeOn);  // Overdue Entries Only - False and  Include Entries On Hold - False.
 
         // [WHEN] function MakeReminder of Codeunit - Reminder-Make is being run
@@ -613,7 +613,7 @@ codeunit 134929 "ERM MIR Test"
         CreateCustomer(Customer);
         MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
         CreateReminder(ReminderHeader, Customer, ReminderLine.Type::"Customer Ledger Entry", '', CustLedgerEntry."Entry No.");  // Using blank value for Reminder Line Number.
-        ReminderIssue.Set(ReminderHeader, false, WorkDate);  // New Replace Posting Date - False and New Posting Date - WORKDATE.
+        ReminderIssue.Set(ReminderHeader, false, WorkDate());  // New Replace Posting Date - False and New Posting Date - WORKDATE.
 
         // [WHEN] Reminder is being issued
         LibraryERM.RunReminderIssue(ReminderIssue);
@@ -643,7 +643,7 @@ codeunit 134929 "ERM MIR Test"
         CreateCustomer(Customer);
         GLAccountNo := CreateReminder(ReminderHeader, Customer, ReminderLine.Type::"G/L Account", CreateGLAccount, 0);  // Entry No - 0.
         CreateVATPostingSetup(ReminderHeader."VAT Bus. Posting Group", ReminderLine."VAT Prod. Posting Group");
-        ReminderIssue.Set(ReminderHeader, false, WorkDate);  // New Replace Posting Date - False and New Posting Date - WORKDATE.
+        ReminderIssue.Set(ReminderHeader, false, WorkDate());  // New Replace Posting Date - False and New Posting Date - WORKDATE.
 
         // [WHEN] Codeunit - Reminder-Issue is being run
         LibraryERM.RunReminderIssue(ReminderIssue);
@@ -762,7 +762,7 @@ codeunit 134929 "ERM MIR Test"
         MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
         CreateFinanceChargeMemo(
           FinanceChargeMemoHeader, Customer, FinanceChargeMemoLine.Type::"Customer Ledger Entry", '', CustLedgerEntry."Entry No.");  // Using blank value for Finance Charge Memo Line Number.
-        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate);  // New Replace Posting Date - False and New Posting Date - WORKDATE.
+        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate());  // New Replace Posting Date - False and New Posting Date - WORKDATE.
 
         // [WHEN] Finance Charge Memo is being issued
         LibraryERM.RunFinChrgMemoIssue(FinChrgMemoIssue);
@@ -794,7 +794,7 @@ codeunit 134929 "ERM MIR Test"
         GLAccountNumber :=
           CreateFinanceChargeMemo(FinanceChargeMemoHeader, Customer, FinanceChargeMemoLine.Type::"G/L Account", CreateGLAccount, 0);  // Entry No - 0.
         CreateVATPostingSetup(FinanceChargeMemoHeader."VAT Bus. Posting Group", FinanceChargeMemoLine."VAT Prod. Posting Group");
-        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate);  // New Replace Posting Date - False and New Posting Date - WORKDATE.
+        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate());  // New Replace Posting Date - False and New Posting Date - WORKDATE.
 
         // [WHEN] Finance Charge Memo is being issued
         LibraryERM.RunFinChrgMemoIssue(FinChrgMemoIssue);
@@ -819,7 +819,7 @@ codeunit 134929 "ERM MIR Test"
 
         // [GIVEN] Finance Charge Terms 'T' with Finance Charge Interest Rate 'R'
         CreateFinanceChargeTerm(FinanceChargeTerms);
-        CreateFinanceChargeInterestRates(FinChargeInterestRate, FinanceChargeTerms.Code, WorkDate);
+        CreateFinanceChargeInterestRates(FinChargeInterestRate, FinanceChargeTerms.Code, WorkDate());
         FinChargeInterestRate.SetRange("Fin. Charge Terms Code", FinanceChargeTerms.Code);
 
         // [WHEN] Finance Charge Terms 'T' is being deleted
@@ -844,7 +844,7 @@ codeunit 134929 "ERM MIR Test"
 
         // [GIVEN] Finance Charge Terms 'T' with Finance Charge Interest Rate 'R'
         CreateFinanceChargeTerm(FinanceChargeTerms);
-        CreateFinanceChargeInterestRates(FinChargeInterestRate, FinanceChargeTerms.Code, WorkDate);
+        CreateFinanceChargeInterestRates(FinChargeInterestRate, FinanceChargeTerms.Code, WorkDate());
 
         // [WHEN] "Interest Rate" of Finance Charge Terms 'T' is being changed
         // [THEN] Notification message displayed
@@ -990,7 +990,7 @@ codeunit 134929 "ERM MIR Test"
 
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgerEntryFeeLine);
 
-        asserterror ReminderMake.Code();
+        asserterror ReminderMake.Code;
 
         Assert.ExpectedError(StrSubstNo(ReminderHeaderReminderTermsCodeErr, ReminderHeader."No."));
     end;
@@ -1017,7 +1017,7 @@ codeunit 134929 "ERM MIR Test"
 
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgerEntryFeeLine);
 
-        ReminderMake.Code();
+        ReminderMake.Code;
 
         ReminderLine.SetRange("Entry No.", CustLedgerEntry."Entry No.");
         ReminderLine.FindFirst();
@@ -1049,7 +1049,7 @@ codeunit 134929 "ERM MIR Test"
 
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgerEntryFeeLine);
 
-        asserterror ReminderMake.Code();
+        asserterror ReminderMake.Code;
 
         Assert.ExpectedError(StrSubstNo(ReminderHeaderReminderTermsCodeErr, ReminderHeader."No."));
     end;
@@ -1068,7 +1068,7 @@ codeunit 134929 "ERM MIR Test"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         IsInitialized := true;
@@ -1197,7 +1197,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        FinanceChargeMemoHeader."Document Date" := WorkDate;
+        FinanceChargeMemoHeader."Document Date" := WorkDate();
         FinanceChargeMemoHeader."Customer No." := Customer."No.";
         FinanceChargeMemoHeader."Customer Posting Group" := Customer."Customer Posting Group";
         FinanceChargeMemoHeader."Due Date" := FinanceChargeMemoHeader."Document Date";
@@ -1238,7 +1238,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
         FinanceChargeMemoHeader."Customer No." := LibraryUTUtility.GetNewCode;
-        FinanceChargeMemoHeader."Document Date" := WorkDate;
+        FinanceChargeMemoHeader."Document Date" := WorkDate();
         FinanceChargeMemoHeader."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
         FinanceChargeMemoHeader."Fin. Charge Terms Code" := FinChargeTermsCode;
         FinanceChargeMemoHeader.Insert();
@@ -1259,7 +1259,7 @@ codeunit 134929 "ERM MIR Test"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
-        CustLedgerEntry."Due Date" := WorkDate;
+        CustLedgerEntry."Due Date" := WorkDate();
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
     end;
@@ -1271,7 +1271,7 @@ codeunit 134929 "ERM MIR Test"
         ReminderHeader.Init();
         ReminderHeader."No." := LibraryUTUtility.GetNewCode;
         ReminderHeader."Customer No." := LibraryUTUtility.GetNewCode;
-        ReminderHeader."Document Date" := WorkDate;
+        ReminderHeader."Document Date" := WorkDate();
         ReminderHeader."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
         ReminderHeader."Reminder Terms Code" := CreateReminderTerms;
         ReminderHeader."Fin. Charge Terms Code" := FinChargeTermsCode;
@@ -1293,7 +1293,7 @@ codeunit 134929 "ERM MIR Test"
     begin
         ReminderHeader.Init();
         ReminderHeader."No." := LibraryUTUtility.GetNewCode;
-        ReminderHeader."Document Date" := WorkDate;
+        ReminderHeader."Document Date" := WorkDate();
         ReminderHeader."Customer No." := Customer."No.";
         ReminderHeader."Customer Posting Group" := Customer."Customer Posting Group";
         ReminderHeader."Due Date" := ReminderHeader."Document Date";
@@ -1360,7 +1360,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", MemoNo);
         FinanceChargeMemoLine.SetRange("Detailed Interest Rates Entry", true);
         FinanceChargeMemoLine.SetRange("Interest Rate", InterestRate);
-        exit(FinanceChargeMemoLine.FindFirst);
+        exit(FinanceChargeMemoLine.FindFirst())
     end;
 
     local procedure InterestRateMethodFinanceChargeMemoLine(InterestCalculationMethod: Enum "Interest Calculation Method")
@@ -1440,7 +1440,7 @@ codeunit 134929 "ERM MIR Test"
         // Setup: Create Finance Charge Terms, Finance Charge Memo and Finance Charge Interest Rate.
         CreateFinanceChargeTermsWithCalcMethod(FinanceChargeTerms, InterestCalculationMethod);
         CreateDummyFinanceChargeMemo(FinanceChargeMemoLine, FinanceChargeTerms.Code);
-        CreateFinanceChargeInterestRates(FinChargeInterestRate, FinanceChargeTerms.Code, WorkDate);
+        CreateFinanceChargeInterestRates(FinChargeInterestRate, FinanceChargeTerms.Code, WorkDate());
 
         // Exercise.
         FinanceChargeMemoLine.Validate("Interest Rate");
@@ -1462,7 +1462,7 @@ codeunit 134929 "ERM MIR Test"
         UpdateFinanceChargeTermsDescription(FinanceChargeTerms, Customer."Fin. Charge Terms Code", Description);
         MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
         FinanceChargeMemoHeader.Init();
-        FinanceChargeMemoHeader."Document Date" := WorkDate;
+        FinanceChargeMemoHeader."Document Date" := WorkDate();
         FinChrgMemoMake.Set(Customer, CustLedgerEntry, FinanceChargeMemoHeader);
 
         // Exercise: Execute function MakeReminder by function Code of Codeunit - FinChrgMemo-Make
@@ -1480,7 +1480,7 @@ codeunit 134929 "ERM MIR Test"
         if CustLedgerEntry2.FindLast() then;
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Due Date" :=
           CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandIntInRange(1, 10)), CustLedgerEntry."Posting Date");  // Due Date Before Posting Date.
         CustLedgerEntry.Open := true;
@@ -1500,7 +1500,7 @@ codeunit 134929 "ERM MIR Test"
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
-        DetailedCustLedgEntry."Posting Date" := WorkDate;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
         DetailedCustLedgEntry.Insert(true);
     end;
 
@@ -1513,7 +1513,7 @@ codeunit 134929 "ERM MIR Test"
         // Setup: Create Customer and Reminder. Execute Set function of Codeunit - Reminder-Issue.
         CreateCustomer(Customer);
         CreateReminder(ReminderHeader, Customer, Type, '', 0);  // Reminder Line Number - Blank and Entry No - 0.
-        ReminderIssue.Set(ReminderHeader, false, WorkDate);  // New Replace Posting Date - False and New Posting Date - WORKDATE.
+        ReminderIssue.Set(ReminderHeader, false, WorkDate());  // New Replace Posting Date - False and New Posting Date - WORKDATE.
 
         // Exercise: Execute OnRun Trigger of Codeunit - Reminder-Issue.
         asserterror LibraryERM.RunReminderIssue(ReminderIssue);
@@ -1528,7 +1528,7 @@ codeunit 134929 "ERM MIR Test"
         // Setup: Create Customer, Finance Charge Memo. Execute Set function of Codeunit - FinChrgMemo-Issue.
         CreateCustomer(Customer);
         CreateFinanceChargeMemo(FinanceChargeMemoHeader, Customer, Type, '', 0);  // Finance Charge Memo Line Number - Blank and Entry No - 0.
-        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate);  // New Replace Posting Date - False and New Posting Date - WORKDATE.
+        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate());  // New Replace Posting Date - False and New Posting Date - WORKDATE.
 
         // Exercise: Execute Trigger - OnRun of Codeunit - FinChrgMemo-Issue.
         asserterror LibraryERM.RunFinChrgMemoIssue(FinChrgMemoIssue);
@@ -1547,7 +1547,7 @@ codeunit 134929 "ERM MIR Test"
 
         SalesInvoiceNo :=
           CreateAndPostSalesInvoice(
-            SalesHeader, FinanceChargeTerms.Code, CalcDate('<1D>', WorkDate), CalcDate('<2D>', WorkDate), LibraryRandom.RandInt(10));
+            SalesHeader, FinanceChargeTerms.Code, CalcDate('<1D>', WorkDate()), CalcDate('<2D>', WorkDate()), LibraryRandom.RandInt(10));
 
         MIRHelperFunctions.CreateFinanceChargeMemo(
           FinanceChargeMemoHeader, SalesHeader."Sell-to Customer No.", CalcDate('<8D>', SalesHeader."Due Date"));

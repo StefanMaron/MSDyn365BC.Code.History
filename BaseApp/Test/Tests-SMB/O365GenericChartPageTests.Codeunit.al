@@ -189,7 +189,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         AccountSchedulesChartSetup.Modify();
         ChartDefinition.Get(CODEUNIT::"Acc. Sched. Chart Management", XIncomeAndExpenseChartNameTxt);
         ChartMgt.SetPeriodLength(ChartDefinition, BusinessChartBuffer, BusinessChartBuffer."Period Length", true);
-        BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+        BusinessChartBuffer."Period Filter Start Date" := WorkDate();
         StartDate := Format(BusinessChartBuffer."Period Filter Start Date");
         ChartMgt.UpdateStatusText(ChartDefinition, BusinessChartBuffer, StatusText);
         Assert.IsTrue(
@@ -320,7 +320,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         DatapointClicked(
           CODEUNIT::"Aged Acc. Receivable", AgedAccReceivableNameTxt, BusinessChartBuffer);
         Assert.AreNotEqual(
-          0, StrPos(CustLedgEntries.FILTER.GetFilter("Due Date"), Format(WorkDate)),
+          0, StrPos(CustLedgEntries.FILTER.GetFilter("Due Date"), Format(WorkDate())),
           'Working Date should be part of the filter on Due Date for Cust. Ledger Entries.');
     end;
 
@@ -341,7 +341,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         DatapointClicked(
           CODEUNIT::"Aged Acc. Payable", AgedAccPayableNameTxt, BusinessChartBuffer);
         Assert.AreNotEqual(
-          0, StrPos(VendLedgEntries.FILTER.GetFilter("Due Date"), Format(WorkDate)),
+          0, StrPos(VendLedgEntries.FILTER.GetFilter("Due Date"), Format(WorkDate())),
           'Working Date should be part of the filter on Due Date for Vend. Ledger Entries.');
     end;
 
@@ -388,7 +388,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         // [GIVEN] Cassie selected chart type "Cash Flow" on Business Assistance part of "Business Manager" role center
         BusinessManagerRoleCenter.OpenView;
         BusinessManagerRoleCenter.Control55."Select Chart".Invoke;
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
 
         // [GIVEN] "Last Used Chart" entry for "UID" = "Cassie" has "Chart Name" = "Cash Flow" and "Code Unit ID" = 762
         SavedLastUsedChart.Get(UserId);
@@ -424,7 +424,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
             repeat
                 ChartDefinition.Enabled := true;
                 ChartDefinition.Modify();
-            until ChartDefinition.Next = 0;
+            until ChartDefinition.Next() = 0;
 
         LastUsedChart.DeleteAll();
 
@@ -473,7 +473,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
 
         CustLedgEntry.Init();
         CustLedgEntry."Entry No." := EntryNo;
-        CustLedgEntry."Due Date" := WorkDate;
+        CustLedgEntry."Due Date" := WorkDate();
         CustLedgEntry."Amount (LCY)" := 100;
         CustLedgEntry.Open := true;
         if CustPostingGroup.FindFirst() then
@@ -492,7 +492,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
 
         VendLedgEntry.Init();
         VendLedgEntry."Entry No." := EntryNo;
-        VendLedgEntry."Due Date" := WorkDate;
+        VendLedgEntry."Due Date" := WorkDate();
         VendLedgEntry."Amount (LCY)" := 100;
         VendLedgEntry.Open := true;
         VendLedgEntry.Insert();
@@ -549,7 +549,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
     procedure CustListPageHndl(var CustomerList: TestPage "Customer List")
     begin
         Assert.AreNotEqual(
-          0, StrPos(CustomerList.FILTER.GetFilter("Date Filter"), Format(WorkDate)),
+          0, StrPos(CustomerList.FILTER.GetFilter("Date Filter"), Format(WorkDate())),
           'Working Date should be part of the filter on Date Filter in Customer List.');
     end;
 

@@ -1505,7 +1505,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Make Order is Successful
-        SalesHeader.Find;
+        SalesHeader.Find();
         // update Qty. to Ship
         ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
 
@@ -1589,7 +1589,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Sales Order Posted Successfully.
-        SalesOrderHeader.Find;
+        SalesOrderHeader.Find();
         LibrarySales.PostSalesDocument(SalesOrderHeader, true, true);
 
         // Cleanup: Delete Groups.
@@ -1933,7 +1933,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             DimensionSetID := LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue."Dimension Code", DimensionValue.Code);
             SalesLine.Validate("Dimension Set ID", DimensionSetID);
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure AddLineWithNegativeQty(SalesHeader: Record "Sales Header")
@@ -1955,7 +1955,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine3.FindLast();
 
         with SalesLine do begin
-            Init;
+            Init();
             Validate("Document Type", SalesHeader."Document Type");
             Validate("Document No.", SalesHeader."No.");
             Validate("Line No.", SalesLine3."Line No." + 1);
@@ -2130,7 +2130,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
     local procedure GetSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindSet();
@@ -2261,7 +2261,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
               SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
 
-        SalesLine.Find;
+        SalesLine.Find();
         RecRef.GetTable(SalesLine);
         ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
 
@@ -2269,7 +2269,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // If Item Charge should not be shipped, change Qty. to Ship to 0.
         if not Ship then begin
-            SalesLine.Find;
+            SalesLine.Find();
             SalesLine.Validate("Qty. to Ship", 0);
             SalesLine.Modify(true);
         end;
@@ -2360,13 +2360,13 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
     begin
         // Mandatory field for IT
-        SalesHeader.Validate("Prepayment Due Date", WorkDate);
+        SalesHeader.Validate("Prepayment Due Date", WorkDate());
         SalesHeader.Modify(true);
         GetSalesLine(SalesHeader, SalesLine);
 
         repeat
             UpdateSalesLinePrepayment(SalesLine);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         SalesPostPrepayments.Invoice(SalesHeader);
     end;
@@ -2376,11 +2376,11 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // SETTABLE call required for each record of the temporary table.
         TempRecRef.Reset();
         if TempRecRef.FindSet() then begin
-            TempSalesLn.SetView(TempRecRef.GetView);
+            TempSalesLn.SetView(TempRecRef.GetView());
             repeat
                 TempRecRef.SetTable(TempSalesLn);
                 TempSalesLn.Insert(false);
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
         end;
     end;
 
@@ -2422,7 +2422,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         GetSalesLine(SalesHeader, SalesLine);
         QtyShipped := SalesLine."Qty. Shipped Not Invoiced";
-        SalesLine.Next;
+        SalesLine.Next();
         SalesLine.Validate("Qty. to Ship", SalesLine.Quantity - QtyShipped);
         SalesLine.Modify(true);
     end;
@@ -2466,7 +2466,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         repeat
             CopySalesLine(SalesHeader3, SalesLine3, SalesLine);
             VerifySalesLineAmount(SalesLine, SalesLine3);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesLineAmount(SalesLine: Record "Sales Line"; SalesLine3: Record "Sales Line")
@@ -2492,7 +2492,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempSalesLn.FindSet();
         QtyItem := TempSalesLn.Quantity;
         QtyShippedItem := TempSalesLn."Qty. to Ship";
-        TempSalesLn.Next;
+        TempSalesLn.Next();
         QtyItem += TempSalesLn.Quantity;
 
         with ItemChargeAssignmentSales do begin
@@ -2526,7 +2526,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
                 Assert.AreEqual(SalesLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate)
             else
                 Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
 
@@ -2537,7 +2537,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
             Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesLnPartShipped(TempRecRef: RecordRef)
@@ -2571,8 +2571,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
                 VerifySplitNewLineSales(TempSalesLn, SalesLn, VATProdPostingGroupNew, GenProdPostingGroupNew)
             else
                 VerifySplitOldLineSales(TempSalesLn, SalesLn);
-            SalesLn.Next;
-        until TempSalesLn.Next = 0;
+            SalesLn.Next();
+        until TempSalesLn.Next() = 0;
     end;
 
     local procedure VerifySplitOldLineSales(var SalesLn1: Record "Sales Line"; SalesLn2: Record "Sales Line")

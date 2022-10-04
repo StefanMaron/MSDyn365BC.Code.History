@@ -5,18 +5,19 @@ codeunit 5654 "Insurance Jnl.-Post"
     trigger OnRun()
     begin
         InsuranceJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(InsuranceJnlLine);
     end;
 
     var
-        Text000: Label 'Do you want to post the journal lines?';
-        Text001: Label 'There is nothing to post.';
-        Text002: Label 'The journal lines were successfully posted.';
-        Text003: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlLine: Record "Insurance Journal Line";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         TempJnlBatchName: Code[10];
+
+        Text000: Label 'Do you want to post the journal lines?';
+        Text002: Label 'The journal lines were successfully posted.';
+        Text003: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
 
     local procedure "Code"()
     begin
@@ -32,7 +33,7 @@ codeunit 5654 "Insurance Jnl.-Post"
             CODEUNIT.Run(CODEUNIT::"Insurance Jnl.-Post Batch", InsuranceJnlLine);
 
             if "Line No." = 0 then
-                Message(Text001)
+                Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
             else
                 if TempJnlBatchName = "Journal Batch Name" then
                     Message(Text002)
@@ -42,7 +43,7 @@ codeunit 5654 "Insurance Jnl.-Post"
                       "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

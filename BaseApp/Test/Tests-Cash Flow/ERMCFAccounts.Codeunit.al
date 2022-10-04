@@ -297,7 +297,7 @@ codeunit 134555 "ERM CF Accounts"
         repeat
             CashFlowAccount2.Get(CashFlowAccount."No.");
             CashFlowAccount2.TestField(Indentation, CashFlowAccount.Indentation);
-        until CashFlowAccount.Next = 0;
+        until CashFlowAccount.Next() = 0;
     end;
 
     [Normal]
@@ -310,7 +310,7 @@ codeunit 134555 "ERM CF Accounts"
 
         repeat
             CashFlowForecastEntry.TestField("Cash Flow Account No.", CashFlowAccount."No.");
-        until CashFlowForecastEntry.Next = 0;
+        until CashFlowForecastEntry.Next() = 0;
     end;
 
     [ConfirmHandler]

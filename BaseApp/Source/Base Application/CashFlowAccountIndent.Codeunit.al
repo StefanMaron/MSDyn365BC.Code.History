@@ -10,19 +10,20 @@ codeunit 849 "Cash Flow Account - Indent"
         then
             exit;
 
-        Indentation;
+        Indentation();
     end;
 
     var
+        CFAccount: Record "Cash Flow Account";
+        Window: Dialog;
+        AccNo: array[10] of Code[20];
+        i: Integer;
+
         Text1000: Label 'This function updates the indentation of all the cash flow accounts in the chart of cash flow accounts. All accounts between a Begin-Total and the matching End-Total are indented one level. The Totaling for each End-total is also updated.\\';
         Text1003: Label 'Do you want to indent the chart of accounts?';
         Text1004: Label 'Indenting the Chart of Accounts #1##########';
         Text1005: Label 'End-Total %1 is missing a matching Begin-Total.';
         ArrayExceededErr: Label 'You can only indent %1 levels for accounts of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
-        CFAccount: Record "Cash Flow Account";
-        Window: Dialog;
-        AccNo: array[10] of Code[20];
-        i: Integer;
 
     local procedure Indentation()
     begin
@@ -43,7 +44,7 @@ codeunit 849 "Cash Flow Account - Indent"
                     end;
 
                     Validate(Indentation, i);
-                    Modify;
+                    Modify();
 
                     if "Account Type" = "Account Type"::"Begin-Total" then begin
                         i := i + 1;
@@ -53,7 +54,7 @@ codeunit 849 "Cash Flow Account - Indent"
                     end;
                 until Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 }
 

@@ -51,11 +51,11 @@ codeunit 136215 "Marketing Interactions UI"
         Assert.IsTrue(
           InteractionLogEntriesPage.CreateOpportunity.Enabled,
           'Should be enabled for blank Opportunity No.');
-        InteractionLogEntriesPage.Next;
+        InteractionLogEntriesPage.Next();
         Assert.IsFalse(
           InteractionLogEntriesPage.CreateOpportunity.Enabled,
           'Should be disabled for cancelled entry');
-        InteractionLogEntriesPage.Next;
+        InteractionLogEntriesPage.Next();
         Assert.IsFalse(
           InteractionLogEntriesPage.CreateOpportunity.Enabled,
           'Should be disabled for filled Opportunity No.');
@@ -86,7 +86,7 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntriesPage.CreateOpportunity.Invoke;
 
         // [THEN] Interaction Log Entry, where "Opportunity No." is defined
-        InteractionLogEntry.Find;
+        InteractionLogEntry.Find();
         InteractionLogEntry.TestField("Opportunity No.");
         // [THEN] New opportunity is created
         VerifyOpportunity(Contact, InteractionLogEntry."Opportunity No.");
@@ -801,7 +801,7 @@ codeunit 136215 "Marketing Interactions UI"
         ContactListPage.OpenView;
         ContactListPage.GotoRecord(Contact);
         ContactListPage.MakePhoneCall.Invoke;
-        ContactListPage.Close;
+        ContactListPage.Close();
     end;
 
     local procedure UpdateMarketingSetupDefaultCorrType(CorrespondenceType: Enum "Correspondence Type")
@@ -979,7 +979,7 @@ codeunit 136215 "Marketing Interactions UI"
         if OpportunityListPage.First then
             repeat
                 LibraryVariableStorage.Enqueue(OpportunityListPage."No.".Value);
-            until not OpportunityListPage.Next;
+            until not OpportunityListPage.Next();
     end;
 
     [ConfirmHandler]
@@ -1032,11 +1032,11 @@ codeunit 136215 "Marketing Interactions UI"
     procedure ModalPageHandlerContactThrough(var ContactThrough: TestPage "Contact Through")
     begin
         LibraryVariableStorage.Enqueue(ContactThrough.Number.Value);
-        ContactThrough.Next;
+        ContactThrough.Next();
         LibraryVariableStorage.Enqueue(ContactThrough.Number.Value);
-        ContactThrough.Next;
+        ContactThrough.Next();
         LibraryVariableStorage.Enqueue(ContactThrough.Number.Value);
-        ContactThrough.Next;
+        ContactThrough.Next();
         LibraryVariableStorage.Enqueue(ContactThrough.Number.Value);
         ContactThrough.OK.Invoke;
     end;

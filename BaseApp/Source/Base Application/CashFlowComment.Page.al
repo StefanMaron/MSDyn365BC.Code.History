@@ -46,7 +46,7 @@ page 848 "Cash Flow Comment"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 }
 

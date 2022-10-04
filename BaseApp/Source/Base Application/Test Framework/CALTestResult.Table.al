@@ -20,7 +20,7 @@ table 130405 "CAL Test Result"
 
             trigger OnValidate()
             begin
-                SetCodeunitName;
+                SetCodeunitName();
             end;
         }
         field(4; "Codeunit Name"; Text[30])
@@ -113,16 +113,16 @@ table 130405 "CAL Test Result"
 
     procedure Initialize(TestRunNo: Integer; CodeunitId: Integer; FunctionName: Text[128]; StartTime: DateTime): Boolean
     begin
-        Init;
-        "No." := GetNextNo;
+        Init();
+        "No." := GetNextNo();
         "Test Run No." := TestRunNo;
         Validate("Codeunit ID", CodeunitId);
         "Function Name" := FunctionName;
         "Start Time" := StartTime;
-        "User ID" := UserId;
+        "User ID" := UserId();
         Result := Result::Incomplete;
         Platform := Platform::ServiceTier;
-        Insert;
+        Insert();
     end;
 
     [Scope('OnPrem')]
@@ -132,7 +132,7 @@ table 130405 "CAL Test Result"
     begin
         if Success then begin
             Result := Result::Passed;
-            ClearLastError;
+            ClearLastError();
         end else begin
             "Error Code" := CropTo(GetLastErrorCode, 250);
             "Error Message" := CropTo(GetLastErrorText, 250);
@@ -146,7 +146,7 @@ table 130405 "CAL Test Result"
 
         "Finish Time" := FinishTime;
         "Execution Time" := "Finish Time" - "Start Time";
-        Modify;
+        Modify();
     end;
 
     local procedure GetNextNo(): Integer

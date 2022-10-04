@@ -28,7 +28,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure InitGlobalDimChange()
     begin
-        ChangeGlobalDimensions.ResetState;
+        ChangeGlobalDimensions.ResetState();
     end;
 
     procedure RunChangeGlobalDimensions(GlobalDimension1Code: Code[20]; GlobalDimension2Code: Code[20])
@@ -61,7 +61,7 @@ codeunit 131001 "Library - Dimension"
         if ChangeGlobalDimensions.FindTablesForScheduling(ChangeGlobalDimLogEntry) then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Change Global Dimensions", ChangeGlobalDimLogEntry);
-            until ChangeGlobalDimLogEntry.Next = 0;
+            until ChangeGlobalDimLogEntry.Next() = 0;
         InitGlobalDimChange;
     end;
 
@@ -245,7 +245,7 @@ codeunit 131001 "Library - Dimension"
     procedure CreateDimensionsTemplate(var DimensionsTemplate: Record "Dimensions Template"; TemplateCode: Code[10]; TableID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20])
     begin
         with DimensionsTemplate do begin
-            Init;
+            Init();
             Validate(
               Code,
               CopyStr(
@@ -337,7 +337,7 @@ codeunit 131001 "Library - Dimension"
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        exit(DefaultDimension.FindSet);
+        exit(DefaultDimension.FindSet());
     end;
 
     procedure FindDimension(var Dimension: Record Dimension)
@@ -371,7 +371,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure GetNextDimensionValue(var DimensionValue: Record "Dimension Value")
     begin
-        DimensionValue.Next;
+        DimensionValue.Next();
     end;
 
     [Scope('OnPrem')]
@@ -448,9 +448,6 @@ codeunit 131001 "Library - Dimension"
         AddTable(TableBuffer, DATABASE::"Cash Flow Manual Revenue");
         AddTable(TableBuffer, DATABASE::"Cash Flow Manual Expense");
         AddTable(TableBuffer, DATABASE::Campaign);
-#if not CLEAN18
-        AddTable(TableBuffer, DATABASE::"Customer Template");
-#endif
         AddTable(TableBuffer, DATABASE::Employee);
         AddTable(TableBuffer, DATABASE::"Fixed Asset");
         AddTable(TableBuffer, DATABASE::Insurance);
@@ -473,7 +470,7 @@ codeunit 131001 "Library - Dimension"
     local procedure OnBeforeScheduleTask(TableNo: Integer; var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
         DoNotScheduleTask := true;
-        TaskID := CreateGuid;
+        TaskID := CreateGuid();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnCountingActiveSessions', '', false, false)]

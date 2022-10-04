@@ -16,7 +16,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
             column(FilterPeriod_BankAccLedg; StrSubstNo(Text000, DateFilter_BankAccount))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ExcludeBalanceOnly; ExcludeBalanceOnly)
@@ -34,7 +34,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
             column(PrintOnlyOnePerPage; PrintOnlyOnePerPage)
             {
             }
-            column(ReportFilter; StrSubstNo('%1: %2', TableCaption, BankAccFilter))
+            column(ReportFilter; StrSubstNo('%1: %2', TableCaption(), BankAccFilter))
             {
             }
             column(No_BankAccount; "No.")
@@ -235,7 +235,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
 
     trigger OnPreReport()
     begin
-        BankAccFilter := "Bank Account".GetFilters;
+        BankAccFilter := "Bank Account".GetFilters();
         DateFilter_BankAccount := "Bank Account".GetFilter("Date Filter");
     end;
 

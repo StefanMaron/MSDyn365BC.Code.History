@@ -12,18 +12,18 @@ page 5083 "Job Responsibility Contacts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the contact you assign the job responsibility.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the contact person to whom you are assigning job responsibilities.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

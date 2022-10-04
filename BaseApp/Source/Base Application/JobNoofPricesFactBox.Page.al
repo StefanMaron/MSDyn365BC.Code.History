@@ -8,7 +8,7 @@ page 9098 "Job No. of Prices FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job No.';
@@ -16,10 +16,10 @@ page 9098 "Job No. of Prices FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
-#if not CLEAN19
+#if not CLEAN21
             field(NoOfResourcePrices; NoOfResourcePrices)
             {
                 ApplicationArea = Jobs;
@@ -157,7 +157,7 @@ page 9098 "Job No. of Prices FactBox"
     var
         PriceListLine: Record "Price List Line";
     begin
-#if not CLEAN19
+#if not CLEAN21
         if CalcOldNoOfRecords() then
             exit;
 #endif
@@ -175,7 +175,7 @@ page 9098 "Job No. of Prices FactBox"
         NoOfAccountPrices := PriceListLine.Count();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CalcOldNoOfRecords(): Boolean;
     var
         JobResourcePrice: Record "Job Resource Price";

@@ -45,28 +45,28 @@ report 99001048 "Planning Availability"
             begin
                 if Selection then begin
                     NewRecordWithDetails("Shipment Date", "No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Sales Order";
-                    PlanningBuffer."Document No." := "Document No.";
-                    PlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Sales Order";
+                    TempPlanningBuffer."Document No." := "Document No.";
+                    TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "No.");
-                    PlanningBuffer.SetRange(Date, "Shipment Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Gross Requirement" := PlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "No.");
+                    TempPlanningBuffer.SetRange(Date, "Shipment Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Shipment Date", "No.", Description);
-                        PlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
-                ModifyForecast("No.", "Shipment Date", PlanningBuffer."Document Type"::"Production Forecast-Sales", "Outstanding Qty. (Base)");
+                ModifyForecast("No.", "Shipment Date", TempPlanningBuffer."Document Type"::"Production Forecast-Sales", "Outstanding Qty. (Base)");
             end;
 
             trigger OnPreDataItem()
             begin
-                PlanningBuffer.DeleteAll();
+                TempPlanningBuffer.DeleteAll();
                 SetRange("Document Type", "Document Type"::Order);
                 SetRange(Type, Type::Item);
             end;
@@ -79,20 +79,20 @@ report 99001048 "Planning Availability"
             begin
                 if Selection then begin
                     NewRecordWithDetails("Needed by Date", "No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Service Order";
-                    PlanningBuffer."Document No." := "Document No.";
-                    PlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Service Order";
+                    TempPlanningBuffer."Document No." := "Document No.";
+                    TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "No.");
-                    PlanningBuffer.SetRange(Date, "Needed by Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Gross Requirement" := PlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "No.");
+                    TempPlanningBuffer.SetRange(Date, "Needed by Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Posting Date", "No.", Description);
-                        PlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
             end;
@@ -111,20 +111,20 @@ report 99001048 "Planning Availability"
             begin
                 if Selection then begin
                     NewRecordWithDetails("Planning Date", "No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Job Order";
-                    PlanningBuffer."Document No." := "Job No.";
-                    PlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Job Order";
+                    TempPlanningBuffer."Document No." := "Job No.";
+                    TempPlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "No.");
-                    PlanningBuffer.SetRange(Date, "Planning Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Gross Requirement" := PlanningBuffer."Gross Requirement" + "Remaining Qty. (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "No.");
+                    TempPlanningBuffer.SetRange(Date, "Planning Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Remaining Qty. (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Planning Date", "No.", Description);
-                        PlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
             end;
@@ -148,20 +148,20 @@ report 99001048 "Planning Availability"
 
                 if Selection then begin
                     NewRecordWithDetails("Expected Receipt Date", "No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Purchase Order";
-                    PlanningBuffer."Document No." := "Document No.";
-                    PlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Purchase Order";
+                    TempPlanningBuffer."Document No." := "Document No.";
+                    TempPlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "No.");
-                    PlanningBuffer.SetRange(Date, "Expected Receipt Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Scheduled Receipts" := PlanningBuffer."Scheduled Receipts" + "Outstanding Qty. (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "No.");
+                    TempPlanningBuffer.SetRange(Date, "Expected Receipt Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Scheduled Receipts" := TempPlanningBuffer."Scheduled Receipts" + "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Expected Receipt Date", "No.", Description);
-                        PlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
             end;
@@ -183,37 +183,37 @@ report 99001048 "Planning Availability"
             begin
                 if Selection then begin
                     NewRecordWithDetails("Shipment Date", "Item No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::Transfer;
-                    PlanningBuffer."Document No." := "Document No.";
-                    PlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::Transfer;
+                    TempPlanningBuffer."Document No." := "Document No.";
+                    TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
+                    TempPlanningBuffer.Insert();
                     NewRecordWithDetails("Receipt Date", "Item No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::Transfer;
-                    PlanningBuffer."Document No." := "Document No.";
-                    PlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)" + "Qty. in Transit (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::Transfer;
+                    TempPlanningBuffer."Document No." := "Document No.";
+                    TempPlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)" + "Qty. in Transit (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "Item No.");
-                    PlanningBuffer.SetRange(Date, "Shipment Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Gross Requirement" := PlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "Item No.");
+                    TempPlanningBuffer.SetRange(Date, "Shipment Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Shipment Date", "Item No.", Description);
-                        PlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
-                    PlanningBuffer.SetRange(Date, "Receipt Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Scheduled Receipts" :=
-                          PlanningBuffer."Scheduled Receipts" +
+                    TempPlanningBuffer.SetRange(Date, "Receipt Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Scheduled Receipts" :=
+                          TempPlanningBuffer."Scheduled Receipts" +
                           "Outstanding Qty. (Base)" +
                           "Qty. in Transit (Base)";
-                        PlanningBuffer.Modify();
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Receipt Date", "Item No.", Description);
-                        PlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)" + "Qty. in Transit (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Scheduled Receipts" := "Outstanding Qty. (Base)" + "Qty. in Transit (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
             end;
@@ -238,46 +238,46 @@ report 99001048 "Planning Availability"
 
                     if Selection then begin
                         NewRecordWithDetails("Due Date", "Item No.", Description);
-                        PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Purchase Order";
-                        PlanningBuffer."Document No." := "Prod. Order No.";
+                        TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Purchase Order";
+                        TempPlanningBuffer."Document No." := "Prod. Order No.";
                         case Status of
                             Status::"Firm Planned":
                                 begin
-                                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Firm Planned Prod. Order";
-                                    PlanningBuffer."Scheduled Receipts" := "Remaining Qty. (Base)";
+                                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Firm Planned Prod. Order";
+                                    TempPlanningBuffer."Scheduled Receipts" := "Remaining Qty. (Base)";
                                 end;
                             Status::Released:
                                 begin
-                                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Released Prod. Order";
-                                    PlanningBuffer."Scheduled Receipts" := "Remaining Qty. (Base)";
+                                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Released Prod. Order";
+                                    TempPlanningBuffer."Scheduled Receipts" := "Remaining Qty. (Base)";
                                 end;
                             Status::Planned:
                                 begin
-                                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Planned Prod. Order";
-                                    PlanningBuffer."Planned Receipts" := "Remaining Qty. (Base)";
+                                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Planned Prod. Order";
+                                    TempPlanningBuffer."Planned Receipts" := "Remaining Qty. (Base)";
                                 end;
                         end;
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer.Insert();
                     end else begin
-                        PlanningBuffer.SetRange("Item No.", "Item No.");
-                        PlanningBuffer.SetRange(Date, "Due Date");
-                        if PlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer.SetRange("Item No.", "Item No.");
+                        TempPlanningBuffer.SetRange(Date, "Due Date");
+                        if TempPlanningBuffer.Find('-') then begin
                             if Status = Status::Planned then
-                                PlanningBuffer."Planned Receipts" :=
-                                  PlanningBuffer."Planned Receipts" +
+                                TempPlanningBuffer."Planned Receipts" :=
+                                  TempPlanningBuffer."Planned Receipts" +
                                   "Remaining Qty. (Base)"
                             else
-                                PlanningBuffer."Scheduled Receipts" :=
-                                  PlanningBuffer."Scheduled Receipts" +
+                                TempPlanningBuffer."Scheduled Receipts" :=
+                                  TempPlanningBuffer."Scheduled Receipts" +
                                   "Remaining Qty. (Base)";
-                            PlanningBuffer.Modify();
+                            TempPlanningBuffer.Modify();
                         end else begin
                             NewRecordWithDetails("Due Date", "Item No.", Description);
                             if Status = Status::Planned then
-                                PlanningBuffer."Planned Receipts" := "Remaining Qty. (Base)"
+                                TempPlanningBuffer."Planned Receipts" := "Remaining Qty. (Base)"
                             else
-                                PlanningBuffer."Scheduled Receipts" := "Remaining Qty. (Base)";
-                            PlanningBuffer.Insert();
+                                TempPlanningBuffer."Scheduled Receipts" := "Remaining Qty. (Base)";
+                            TempPlanningBuffer.Insert();
                         end;
                     end;
                 end;
@@ -298,20 +298,20 @@ report 99001048 "Planning Availability"
             begin
                 if Selection then begin
                     NewRecordWithDetails("Due Date", "No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Requisition Line";
-                    PlanningBuffer."Document No." := "Prod. Order No.";
-                    PlanningBuffer."Planned Receipts" := "Quantity (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Requisition Line";
+                    TempPlanningBuffer."Document No." := "Prod. Order No.";
+                    TempPlanningBuffer."Planned Receipts" := "Quantity (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "No.");
-                    PlanningBuffer.SetRange(Date, "Due Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Planned Receipts" := PlanningBuffer."Planned Receipts" + "Quantity (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "No.");
+                    TempPlanningBuffer.SetRange(Date, "Due Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Planned Receipts" := TempPlanningBuffer."Planned Receipts" + "Quantity (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Due Date", "No.", Description);
-                        PlanningBuffer."Planned Receipts" := "Quantity (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Planned Receipts" := "Quantity (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
             end;
@@ -336,32 +336,32 @@ report 99001048 "Planning Availability"
 
                     if Selection then begin
                         NewRecordWithDetails("Due Date", "Item No.", Description);
-                        PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Purchase Order";
-                        PlanningBuffer."Document No." := "Prod. Order No.";
-                        PlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
+                        TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Purchase Order";
+                        TempPlanningBuffer."Document No." := "Prod. Order No.";
+                        TempPlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
                         case Status of
                             Status::"Firm Planned":
-                                PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Firm Planned Prod. Order Comp.";
+                                TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Firm Planned Prod. Order Comp.";
                             Status::Released:
-                                PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Released Prod. Order Comp.";
+                                TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Released Prod. Order Comp.";
                             Status::Planned:
-                                PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Planned Prod. Order Comp.";
+                                TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Planned Prod. Order Comp.";
                         end;
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer.Insert();
                     end else begin
-                        PlanningBuffer.SetRange("Item No.", "Item No.");
-                        PlanningBuffer.SetRange(Date, "Due Date");
-                        if PlanningBuffer.Find('-') then begin
-                            PlanningBuffer."Gross Requirement" := PlanningBuffer."Gross Requirement" + "Remaining Qty. (Base)";
-                            PlanningBuffer.Modify();
+                        TempPlanningBuffer.SetRange("Item No.", "Item No.");
+                        TempPlanningBuffer.SetRange(Date, "Due Date");
+                        if TempPlanningBuffer.Find('-') then begin
+                            TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Remaining Qty. (Base)";
+                            TempPlanningBuffer.Modify();
                         end else begin
                             NewRecordWithDetails("Due Date", "Item No.", Description);
-                            PlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
-                            PlanningBuffer.Insert();
+                            TempPlanningBuffer."Gross Requirement" := "Remaining Qty. (Base)";
+                            TempPlanningBuffer.Insert();
                         end;
                     end;
                 end;
-                ModifyForecast("Item No.", "Due Date", PlanningBuffer."Document Type"::"Production Forecast-Component", "Remaining Qty. (Base)");
+                ModifyForecast("Item No.", "Due Date", TempPlanningBuffer."Document Type"::"Production Forecast-Component", "Remaining Qty. (Base)");
             end;
 
             trigger OnPreDataItem()
@@ -379,23 +379,23 @@ report 99001048 "Planning Availability"
             begin
                 if Selection then begin
                     NewRecordWithDetails("Due Date", "Item No.", Description);
-                    PlanningBuffer."Document Type" := PlanningBuffer."Document Type"::"Planning Comp.";
-                    PlanningBuffer."Document No." := ReqLine."Ref. Order No.";
-                    PlanningBuffer."Gross Requirement" := "Expected Quantity (Base)";
-                    PlanningBuffer.Insert();
+                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Planning Comp.";
+                    TempPlanningBuffer."Document No." := ReqLine."Ref. Order No.";
+                    TempPlanningBuffer."Gross Requirement" := "Expected Quantity (Base)";
+                    TempPlanningBuffer.Insert();
                 end else begin
-                    PlanningBuffer.SetRange("Item No.", "Item No.");
-                    PlanningBuffer.SetRange(Date, "Due Date");
-                    if PlanningBuffer.Find('-') then begin
-                        PlanningBuffer."Gross Requirement" := PlanningBuffer."Gross Requirement" + "Expected Quantity (Base)";
-                        PlanningBuffer.Modify();
+                    TempPlanningBuffer.SetRange("Item No.", "Item No.");
+                    TempPlanningBuffer.SetRange(Date, "Due Date");
+                    if TempPlanningBuffer.Find('-') then begin
+                        TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Expected Quantity (Base)";
+                        TempPlanningBuffer.Modify();
                     end else begin
                         NewRecordWithDetails("Due Date", "Item No.", Description);
-                        PlanningBuffer."Gross Requirement" := "Expected Quantity (Base)";
-                        PlanningBuffer.Insert();
+                        TempPlanningBuffer."Gross Requirement" := "Expected Quantity (Base)";
+                        TempPlanningBuffer.Insert();
                     end;
                 end;
-                ModifyForecast("Item No.", "Due Date", PlanningBuffer."Document Type"::"Production Forecast-Component", "Expected Quantity (Base)");
+                ModifyForecast("Item No.", "Due Date", TempPlanningBuffer."Document Type"::"Production Forecast-Component", "Expected Quantity (Base)");
             end;
         }
         dataitem("Planning Buffer"; "Planning Buffer")
@@ -406,13 +406,13 @@ report 99001048 "Planning Availability"
         dataitem("Integer"; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(PlngBuffTableCaptFilter; PlanningBuffer.TableCaption + ': ' + PlanningFilter)
+            column(PlngBuffTableCaptFilter; TempPlanningBuffer.TableCaption + ': ' + PlanningFilter)
             {
             }
             column(PlanningFilter; PlanningFilter)
@@ -421,35 +421,35 @@ report 99001048 "Planning Availability"
             column(ItemInventory; Item.Inventory)
             {
             }
-            column(PlanningBuffItemNo; PlanningBuffer."Item No.")
+            column(PlanningBuffItemNo; TempPlanningBuffer."Item No.")
             {
             }
-            column(PlanningBuffDesc; PlanningBuffer.Description)
+            column(PlanningBuffDesc; TempPlanningBuffer.Description)
             {
             }
             column(ShowIntBody1; PrintBoolean and Selection)
             {
             }
-            column(PlanningBuffDocNo; PlanningBuffer."Document No.")
+            column(PlanningBuffDocNo; TempPlanningBuffer."Document No.")
             {
             }
-            column(PlanningBuffDocType; Format(PlanningBuffer."Document Type"))
+            column(PlanningBuffDocType; Format(TempPlanningBuffer."Document Type"))
             {
             }
             column(ProjectedBalance; ProjectedBalance)
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(PlngBuffScheduledReceipts; PlanningBuffer."Scheduled Receipts")
+            column(PlngBuffScheduledReceipts; TempPlanningBuffer."Scheduled Receipts")
             {
             }
-            column(PlngBuffPlannedReceipts; PlanningBuffer."Planned Receipts")
+            column(PlngBuffPlannedReceipts; TempPlanningBuffer."Planned Receipts")
             {
             }
-            column(PlngBuffGrossRequirement; PlanningBuffer."Gross Requirement")
+            column(PlngBuffGrossRequirement; TempPlanningBuffer."Gross Requirement")
             {
             }
-            column(PlanningBuffDate; Format(PlanningBuffer.Date))
+            column(PlanningBuffDate; Format(TempPlanningBuffer.Date))
             {
             }
             column(ShowIntBody2; Selection and PrintBoolean2)
@@ -495,28 +495,28 @@ report 99001048 "Planning Availability"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    PlanningBuffer.Find('-')
+                    TempPlanningBuffer.Find('-')
                 else
-                    if PlanningBuffer.Next() = 0 then
+                    if TempPlanningBuffer.Next() = 0 then
                         CurrReport.Break();
 
-                Item.SetRange("Date Filter", 0D, PlanningBuffer.Date);
-                if Item.Get(PlanningBuffer."Item No.") then begin
+                Item.SetRange("Date Filter", 0D, TempPlanningBuffer.Date);
+                if Item.Get(TempPlanningBuffer."Item No.") then begin
                     PrintBoolean2 := true;
-                    if PlanningBuffer."Item No." = OldItem then
+                    if TempPlanningBuffer."Item No." = OldItem then
                         PrintBoolean := false
                     else begin
                         PrintBoolean := true;
-                        OldItem := PlanningBuffer."Item No.";
+                        OldItem := TempPlanningBuffer."Item No.";
                         Item.CalcFields(Inventory);
                         ProjectedBalance := Item.Inventory;
                     end;
 
                     ProjectedBalance :=
                       ProjectedBalance -
-                      PlanningBuffer."Gross Requirement" +
-                      PlanningBuffer."Planned Receipts" +
-                      PlanningBuffer."Scheduled Receipts";
+                      TempPlanningBuffer."Gross Requirement" +
+                      TempPlanningBuffer."Planned Receipts" +
+                      TempPlanningBuffer."Scheduled Receipts";
                 end else
                     PrintBoolean2 := false;
             end;
@@ -528,27 +528,27 @@ report 99001048 "Planning Availability"
                 if TempForecastPlanningBuffer.FindSet() then
                     repeat
                         if Selection then begin
-                            NewRecord;
-                            PlanningBuffer := TempForecastPlanningBuffer;
-                            PlanningBuffer."Buffer No." := BufferCounter;
-                            PlanningBuffer.Insert();
+                            NewRecord();
+                            TempPlanningBuffer := TempForecastPlanningBuffer;
+                            TempPlanningBuffer."Buffer No." := BufferCounter;
+                            TempPlanningBuffer.Insert();
                         end else begin
-                            PlanningBuffer.SetRange("Item No.", TempForecastPlanningBuffer."Item No.");
-                            PlanningBuffer.SetRange(Date, TempForecastPlanningBuffer.Date);
-                            if PlanningBuffer.FindSet(true) then begin
-                                PlanningBuffer."Gross Requirement" += TempForecastPlanningBuffer."Gross Requirement";
-                                PlanningBuffer.Modify();
+                            TempPlanningBuffer.SetRange("Item No.", TempForecastPlanningBuffer."Item No.");
+                            TempPlanningBuffer.SetRange(Date, TempForecastPlanningBuffer.Date);
+                            if TempPlanningBuffer.FindSet(true) then begin
+                                TempPlanningBuffer."Gross Requirement" += TempForecastPlanningBuffer."Gross Requirement";
+                                TempPlanningBuffer.Modify();
                             end else begin
-                                NewRecord;
-                                PlanningBuffer := TempForecastPlanningBuffer;
-                                PlanningBuffer."Buffer No." := BufferCounter;
-                                PlanningBuffer.Insert();
+                                NewRecord();
+                                TempPlanningBuffer := TempForecastPlanningBuffer;
+                                TempPlanningBuffer."Buffer No." := BufferCounter;
+                                TempPlanningBuffer.Insert();
                             end;
                         end;
                     until TempForecastPlanningBuffer.Next() = 0;
 
-                PlanningBuffer.SetCurrentKey("Item No.", Date);
-                PlanningBuffer.CopyFilters("Planning Buffer");
+                TempPlanningBuffer.SetCurrentKey("Item No.", Date);
+                TempPlanningBuffer.CopyFilters("Planning Buffer");
             end;
         }
     }
@@ -590,11 +590,11 @@ report 99001048 "Planning Availability"
 
     trigger OnPreReport()
     begin
-        PlanningFilter := "Planning Buffer".GetFilters;
+        PlanningFilter := "Planning Buffer".GetFilters();
     end;
 
     var
-        PlanningBuffer: Record "Planning Buffer" temporary;
+        TempPlanningBuffer: Record "Planning Buffer" temporary;
         TempForecastPlanningBuffer: Record "Planning Buffer" temporary;
         Item: Record Item;
         ReqLine: Record "Requisition Line";
@@ -619,24 +619,24 @@ report 99001048 "Planning Availability"
 
     local procedure NewRecord()
     begin
-        PlanningBuffer.SetRange("Item No.");
-        PlanningBuffer.SetRange(Date);
+        TempPlanningBuffer.SetRange("Item No.");
+        TempPlanningBuffer.SetRange(Date);
 
-        if not PlanningBuffer.Find('+') then
+        if not TempPlanningBuffer.Find('+') then
             BufferCounter := 1
         else begin
-            BufferCounter := PlanningBuffer."Buffer No." + 1;
-            Clear(PlanningBuffer);
+            BufferCounter := TempPlanningBuffer."Buffer No." + 1;
+            Clear(TempPlanningBuffer);
         end;
-        PlanningBuffer."Buffer No." := BufferCounter;
+        TempPlanningBuffer."Buffer No." := BufferCounter;
     end;
 
     local procedure NewRecordWithDetails(NewDate: Date; NewItemNo: Code[20]; NewDescription: Text[100])
     begin
-        NewRecord;
-        PlanningBuffer.Date := NewDate;
-        PlanningBuffer."Item No." := NewItemNo;
-        PlanningBuffer.Description := NewDescription;
+        NewRecord();
+        TempPlanningBuffer.Date := NewDate;
+        TempPlanningBuffer."Item No." := NewItemNo;
+        TempPlanningBuffer.Description := NewDescription;
     end;
 
     local procedure InsertNewForecast(ProdForecastEntry: Record "Production Forecast Entry")

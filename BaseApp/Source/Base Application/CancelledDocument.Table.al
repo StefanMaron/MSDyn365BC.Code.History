@@ -56,7 +56,7 @@ table 1900 "Cancelled Document"
     procedure InsertSalesCrMemoToInvCancelledDocument(CrMemoNo: Code[20]; InvNo: Code[20])
     begin
         InsertEntry(DATABASE::"Sales Cr.Memo Header", CrMemoNo, InvNo);
-        RemoveSalesInvCancelledDocument;
+        RemoveSalesInvCancelledDocument();
     end;
 
     procedure InsertPurchInvToCrMemoCancelledDocument(InvNo: Code[20]; CrMemoNo: Code[20])
@@ -67,12 +67,12 @@ table 1900 "Cancelled Document"
     procedure InsertPurchCrMemoToInvCancelledDocument(CrMemoNo: Code[20]; InvNo: Code[20])
     begin
         InsertEntry(DATABASE::"Purch. Cr. Memo Hdr.", CrMemoNo, InvNo);
-        RemovePurchInvCancelledDocument;
+        RemovePurchInvCancelledDocument();
     end;
 
     local procedure InsertEntry(SourceID: Integer; CanceledDocNo: Code[20]; CanceledByDocNo: Code[20])
     begin
-        Init;
+        Init();
         Validate("Source ID", SourceID);
         Validate("Cancelled Doc. No.", CanceledDocNo);
         Validate("Cancelled By Doc. No.", CanceledByDocNo);
@@ -138,10 +138,10 @@ table 1900 "Cancelled Document"
 
     local procedure FindWithCancelledByDocNo(SourceID: Integer; CanceledByDocNo: Code[20]): Boolean
     begin
-        Reset;
+        Reset();
         SetRange("Source ID", SourceID);
         SetRange("Cancelled By Doc. No.", CanceledByDocNo);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 }
 

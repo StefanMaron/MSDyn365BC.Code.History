@@ -11,7 +11,7 @@ report 5853 "Copy Standard Cost Worksheet"
 
             trigger OnAfterGetRecord()
             begin
-                InsertStdCostWksh;
+                InsertStdCostWksh();
                 if CurrentDateTime - WindowUpdateDateTime >= 750 then begin
                     Window.Update(1, Type);
                     Window.Update(2, "No.");
@@ -22,7 +22,7 @@ report 5853 "Copy Standard Cost Worksheet"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if not NoMessage then
                     Message(Text010);
@@ -86,22 +86,23 @@ report 5853 "Copy Standard Cost Worksheet"
             Error(Text004);
         FromStdCostWkshName.Get(FromStdCostWkshName.Name);
 
-        ToStdCostWksh.LockTable
+        ToStdCostWksh.LockTable();
     end;
 
     var
-        Text003: Label 'You must specify a worksheet name to copy to.';
-        Text004: Label 'You must specify a worksheet name to copy from.';
-        Text007: Label 'Copying worksheet...\\';
-        Text008: Label 'Type               #1##########\';
-        Text009: Label 'No.             #2##########\';
-        Text010: Label 'The worksheet has been successfully copied.';
         ToStdCostWksh: Record "Standard Cost Worksheet";
         FromStdCostWkshName: Record "Standard Cost Worksheet Name";
         Window: Dialog;
         ToStdCostWkshName: Code[10];
         NoMessage: Boolean;
         WindowUpdateDateTime: DateTime;
+
+        Text003: Label 'You must specify a worksheet name to copy to.';
+        Text004: Label 'You must specify a worksheet name to copy from.';
+        Text007: Label 'Copying worksheet...\\';
+        Text008: Label 'Type               #1##########\';
+        Text009: Label 'No.             #2##########\';
+        Text010: Label 'The worksheet has been successfully copied.';
 
     local procedure InsertStdCostWksh()
     begin

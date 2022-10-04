@@ -33,7 +33,7 @@ page 9901 "Export Data"
 
                         trigger OnValidate()
                         begin
-                            MarkAll;
+                            MarkAll();
                         end;
                     }
                     field(IncludeGlobalData; IncludeGlobalData)
@@ -67,12 +67,12 @@ page 9901 "Export Data"
                         trigger OnValidate()
                         begin
                             if Selected then begin
-                                SelectedCompany := Rec;
-                                if SelectedCompany.Insert() then;
+                                TempSelectedCompany := Rec;
+                                if TempSelectedCompany.Insert() then;
                             end else begin
                                 IncludeAllCompanies := false;
-                                if SelectedCompany.Get(Name) then
-                                    SelectedCompany.Delete();
+                                if TempSelectedCompany.Get(Name) then
+                                    TempSelectedCompany.Delete();
                             end;
                         end;
                     }
@@ -94,14 +94,14 @@ page 9901 "Export Data"
 
     trigger OnAfterGetRecord()
     begin
-        Selected := SelectedCompany.Get(Name);
+        Selected := TempSelectedCompany.Get(Name);
     end;
 
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             error(OnPremiseOnlyErr);
         FileName := 'ExportData.navdata';
     end;
@@ -118,10 +118,10 @@ page 9901 "Export Data"
         if Company.FindSet() then
             repeat
                 Rec := Company;
-                Insert;
+                Insert();
             until Company.Next() = 0;
 
-        MarkAll;
+        MarkAll();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -136,7 +136,7 @@ page 9901 "Export Data"
                  IncludeApplication,
                  IncludeApplicationData,
                  IncludeGlobalData,
-                 SelectedCompany)
+                 TempSelectedCompany)
             then begin
                 Message(CompletedMsg);
                 exit(true)
@@ -148,7 +148,7 @@ page 9901 "Export Data"
     end;
 
     var
-        SelectedCompany: Record Company temporary;
+        TempSelectedCompany: Record Company temporary;
         FileName: Text;
         Description: Text;
         IncludeApplication: Boolean;
@@ -162,14 +162,13 @@ page 9901 "Export Data"
 
     local procedure MarkAll()
     begin
-        SelectedCompany.DeleteAll();
-        if IncludeAllCompanies then begin
+        TempSelectedCompany.DeleteAll();
+        if IncludeAllCompanies then
             if FindSet() then
                 repeat
-                    SelectedCompany := Rec;
-                    SelectedCompany.Insert();
+                    TempSelectedCompany := Rec;
+                    TempSelectedCompany.Insert();
                 until Next() = 0;
-        end;
 
         CurrPage.Update(false);
     end;

@@ -1462,13 +1462,13 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     local procedure GetPostSalesInvURL(): Text
     begin
         exit(GetFullURL(StrSubstNo('/documents/dispatcher?documentId=%1&documentProfileId=tradeshift.invoice.ubl.1.0',
-              GetGUID)));
+              GetGUID())));
     end;
 
     local procedure GetPostSalesCrMemoURL(): Text
     begin
         exit(GetFullURL(StrSubstNo('/documents/dispatcher?documentId=%1&documentProfileId=tradeshift.creditnote.ubl.1.0',
-              GetGUID)));
+              GetGUID())));
     end;
 
     local procedure GetDocStatusURL(DocIdentifier: Text): Text
@@ -1547,32 +1547,32 @@ codeunit 1410 "Doc. Exch. Service Mgt."
 
     local procedure GetErrorXPath(): Text
     begin
-        exit(StrSubstNo('//%1:Message', GetPrefix));
+        exit(StrSubstNo('//%1:Message', GetPrefix()));
     end;
 
     local procedure GetStatusXPath(): Text
     begin
-        exit(StrSubstNo('//%1:DeliveryState', GetPrefix));
+        exit(StrSubstNo('//%1:DeliveryState', GetPrefix()));
     end;
 
     local procedure GetDocumentIDXPath(): Text
     begin
-        exit(StrSubstNo('.//%1:DocumentId', GetPrefix));
+        exit(StrSubstNo('.//%1:DocumentId', GetPrefix()));
     end;
 
     local procedure GetDocumentTypeXPath(): Text
     begin
-        exit(StrSubstNo('.//%1:DocumentType', GetPrefix));
+        exit(StrSubstNo('.//%1:DocumentType', GetPrefix()));
     end;
 
     local procedure GetDocumentIDForDescriptionXPath(): Text
     begin
-        exit(StrSubstNo('.//%1:ID', GetPrefix));
+        exit(StrSubstNo('.//%1:ID', GetPrefix()));
     end;
 
     local procedure GetEmbeddedDocXPath(): Text
     begin
-        exit(StrSubstNo('//%1:EmbeddedDocumentBinaryObject', GetPrefix));
+        exit(StrSubstNo('//%1:EmbeddedDocumentBinaryObject', GetPrefix()));
     end;
 
     local procedure GetPrefix(): Text

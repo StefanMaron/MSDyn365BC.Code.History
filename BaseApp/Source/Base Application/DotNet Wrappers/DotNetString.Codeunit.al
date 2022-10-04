@@ -56,7 +56,7 @@ codeunit 3007 DotNet_String
 
     procedure ToString(): Text
     begin
-        exit(DotNetString.ToString);
+        exit(DotNetString.ToString());
     end;
 
     procedure IsDotNetNull(): Boolean
@@ -108,7 +108,7 @@ codeunit 3007 DotNet_String
 
     procedure Trim(): Text
     begin
-        exit(DotNetString.Trim);
+        exit(DotNetString.Trim());
     end;
 
     procedure TrimStart(var DotNet_ArrayTrimChars: Codeunit DotNet_Array): Text

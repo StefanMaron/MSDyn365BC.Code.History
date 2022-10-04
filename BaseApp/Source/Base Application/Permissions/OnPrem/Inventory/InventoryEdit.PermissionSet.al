@@ -82,7 +82,7 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Purch. Rcpt. Line" = r,
                   tabledata "Purchase Discount Access" = RIMD,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif
@@ -100,7 +100,7 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Sales Discount Access" = RimD,
                   tabledata "Sales Invoice Line" = r,
                   tabledata "Sales Line" = Rm,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = RimD,
                   tabledata "Sales Price" = RIMD,
 #endif

@@ -11,17 +11,17 @@ page 478 "Currencies for Reminder Level"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the currency in which you want to set up additional fees for reminders.';
                 }
-                field("Additional Fee"; "Additional Fee")
+                field("Additional Fee"; Rec."Additional Fee")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of the additional fee in foreign currency that will be added on the reminder.';
                 }
-                field("Add. Fee per Line"; "Add. Fee per Line")
+                field("Add. Fee per Line"; Rec."Add. Fee per Line")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that the fee is distributed on individual reminder lines.';

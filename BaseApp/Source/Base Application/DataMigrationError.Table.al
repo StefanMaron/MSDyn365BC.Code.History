@@ -53,7 +53,7 @@ table 1797 "Data Migration Error"
     var
         DataMigrationError: Record "Data Migration Error";
     begin
-        Init;
+        Init();
         if DataMigrationError.FindLast() then
             Id := DataMigrationError.Id + 1
         else
@@ -103,7 +103,7 @@ table 1797 "Data Migration Error"
     procedure FindEntry(MigrationType: Text[250]; DestinationTableId: Integer; SourceStagingTableRecordId: RecordID): Boolean
     begin
         FilterOnParameters(MigrationType, DestinationTableId, SourceStagingTableRecordId);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure ExistsEntry(MigrationType: Text[250]; DestinationTableId: Integer; SourceStagingTableRecordId: RecordID): Boolean

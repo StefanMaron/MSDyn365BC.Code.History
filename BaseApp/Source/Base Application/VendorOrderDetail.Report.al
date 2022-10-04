@@ -15,7 +15,7 @@ report 308 "Vendor - Order Detail"
             column(ReceivingDatePeriodText; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsinLCY; PrintAmountsInLCY)
@@ -24,7 +24,7 @@ report 308 "Vendor - Order Detail"
             column(PageGroupNo; PageGroupNo)
             {
             }
-            column(VendFilterTableCaption; StrSubstNo('%1: %2', TableCaption, VendFilter))
+            column(VendFilterTableCaption; StrSubstNo('%1: %2', TableCaption(), VendFilter))
             {
             }
             column(VendFilter; VendFilter)
@@ -143,11 +143,11 @@ report 308 "Vendor - Order Detail"
                     NewOrder := "Document No." <> PurchOrderHeader."No.";
                     if NewOrder then
                         PurchOrderHeader.Get(PurchOrderHeader."Document Type"::Order, "Document No.");
-                    if "Expected Receipt Date" <= WorkDate then
+                    if "Expected Receipt Date" <= WorkDate() then
                         BackOrderQty := "Outstanding Quantity"
                     else
                         BackOrderQty := 0;
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                     if "VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"] then
                         PurchOrderAmount :=
                           Round(
@@ -161,13 +161,13 @@ report 308 "Vendor - Order Detail"
                             PurchOrderAmountLCY :=
                               Round(
                                 CurrExchRate.ExchangeAmtFCYToLCY(
-                                  WorkDate, PurchOrderHeader."Currency Code",
+                                  WorkDate(), PurchOrderHeader."Currency Code",
                                   PurchOrderAmountLCY, PurchOrderHeader."Currency Factor"));
                         if PrintAmountsInLCY then begin
                             "Direct Unit Cost" :=
                               Round(
                                 CurrExchRate.ExchangeAmtFCYToLCY(
-                                  WorkDate, PurchOrderHeader."Currency Code",
+                                  WorkDate(), PurchOrderHeader."Currency Code",
                                   "Direct Unit Cost", PurchOrderHeader."Currency Factor"));
                             PurchOrderAmount := PurchOrderAmountLCY;
                         end;
@@ -180,7 +180,7 @@ report 308 "Vendor - Order Detail"
                     CurrencyCode2 := PurchOrderHeader."Currency Code";
                     if PrintAmountsInLCY then
                         CurrencyCode2 := '';
-                    CurrencyTotalBuffer.UpdateTotal(
+                    TempCurrencyTotalBuffer.UpdateTotal(
                       CurrencyCode2,
                       PurchOrderAmount,
                       Counter1,
@@ -196,31 +196,31 @@ report 308 "Vendor - Order Detail"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                column(TotalAmtCurrTotalBuffer; CurrencyTotalBuffer."Total Amount")
+                column(TotalAmtCurrTotalBuffer; TempCurrencyTotalBuffer."Total Amount")
                 {
-                    AutoFormatExpression = CurrencyTotalBuffer."Currency Code";
+                    AutoFormatExpression = TempCurrencyTotalBuffer."Currency Code";
                     AutoFormatType = 1;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        OK := CurrencyTotalBuffer.Find('-')
+                        OK := TempCurrencyTotalBuffer.Find('-')
                     else
-                        OK := CurrencyTotalBuffer.Next <> 0;
+                        OK := TempCurrencyTotalBuffer.Next() <> 0;
                     if not OK then
                         CurrReport.Break();
 
-                    CurrencyTotalBuffer2.UpdateTotal(
-                      CurrencyTotalBuffer."Currency Code",
-                      CurrencyTotalBuffer."Total Amount",
+                    TempCurrencyTotalBuffer2.UpdateTotal(
+                      TempCurrencyTotalBuffer."Currency Code",
+                      TempCurrencyTotalBuffer."Total Amount",
                       Counter1,
                       Counter1);
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll();
+                    TempCurrencyTotalBuffer.DeleteAll();
                 end;
             }
 
@@ -240,12 +240,12 @@ report 308 "Vendor - Order Detail"
         dataitem(Integer2; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-            column(TotalAmtCurrTotalBuffer2; CurrencyTotalBuffer2."Total Amount")
+            column(TotalAmtCurrTotalBuffer2; TempCurrencyTotalBuffer2."Total Amount")
             {
-                AutoFormatExpression = CurrencyTotalBuffer2."Currency Code";
+                AutoFormatExpression = TempCurrencyTotalBuffer2."Currency Code";
                 AutoFormatType = 1;
             }
-            column(CurrTotalBuffer2CurrCode; CurrencyTotalBuffer2."Currency Code")
+            column(CurrTotalBuffer2CurrCode; TempCurrencyTotalBuffer2."Currency Code")
             {
             }
             column(TotalCaption; TotalCaptionLbl)
@@ -255,16 +255,16 @@ report 308 "Vendor - Order Detail"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    OK := CurrencyTotalBuffer2.Find('-')
+                    OK := TempCurrencyTotalBuffer2.Find('-')
                 else
-                    OK := CurrencyTotalBuffer2.Next <> 0;
+                    OK := TempCurrencyTotalBuffer2.Next() <> 0;
                 if not OK then
                     CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll();
+                TempCurrencyTotalBuffer2.DeleteAll();
             end;
         }
     }
@@ -310,16 +310,14 @@ report 308 "Vendor - Order Detail"
         FormatDocument: Codeunit "Format Document";
     begin
         VendFilter := FormatDocument.GetRecordFiltersWithCaptions(Vendor);
-        PurchLineFilter := "Purchase Line".GetFilters;
+        PurchLineFilter := "Purchase Line".GetFilters();
         PeriodText := "Purchase Line".GetFilter("Expected Receipt Date");
     end;
 
     var
-        Text000: Label 'Receiving Date: %1';
-        Text001: Label 'Purchase Order Line: %1';
         CurrExchRate: Record "Currency Exchange Rate";
-        CurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
-        CurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         PurchOrderHeader: Record "Purchase Header";
         Currency: Record Currency;
         PrintAmountsInLCY: Boolean;
@@ -345,6 +343,9 @@ report 308 "Vendor - Order Detail"
         OutstandingOrdersCaptionLbl: Label 'Outstanding Orders';
         OrderNoCaptionLbl: Label 'Order No.';
         TotalCaptionLbl: Label 'Total';
+
+        Text000: Label 'Receiving Date: %1';
+        Text001: Label 'Purchase Order Line: %1';
 
     procedure InitializeRequest(NewPrintAmountsInLCY: Boolean; NewPrintOnlyOnePerPage: Boolean)
     begin

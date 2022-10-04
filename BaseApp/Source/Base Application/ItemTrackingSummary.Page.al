@@ -241,11 +241,11 @@ page 6500 "Item Tracking Summary"
         xEntrySummary.Copy(Rec);
         OnSetSourcesOnAfterxEntrySummarySetview(xEntrySummary);
 
-        Rec.Reset;
+        Rec.Reset();
         Rec.DeleteAll();
         if EntrySummary.FindSet() then
             repeat
-                if EntrySummary.HasQuantity then begin
+                if EntrySummary.HasQuantity() then begin
                     Rec := EntrySummary;
                     Rec.Insert();
                 end;
@@ -304,7 +304,7 @@ page 6500 "Item Tracking Summary"
 
                 AvailableQty := Rec."Total Available Quantity";
                 if Rec."Bin Active" then
-                    AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, Rec."Total Available Quantity");
+                    AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin(), Rec."Total Available Quantity");
 
                 AvailableQty -= Rec."Non-specific Reserved Qty.";
 
@@ -330,7 +330,7 @@ page 6500 "Item Tracking Summary"
     begin
         if not SelectedQuantityVisible then
             exit;
-        if Rec.Modify then; // Ensure that changes to current rec are included in CALCSUMS
+        if Rec.Modify() then; // Ensure that changes to current rec are included in CALCSUMS
         xEntrySummary := Rec;
         Rec.CalcSums("Selected Quantity");
         SelectedQuantity := Rec."Selected Quantity";

@@ -24,7 +24,7 @@ codeunit 490 "Parallel Session Management"
             exit(false);
         TempParallelSessionEntry."Record ID to Process" := RecordIDToRun;
         TempParallelSessionEntry.Modify();
-        StartNewSessions;
+        StartNewSessions();
         exit(true);
     end;
 
@@ -51,7 +51,7 @@ codeunit 490 "Parallel Session Management"
         TempIntegerFreeMemMapFile.Delete();
         NoOfMemMappedFiles += 1;
 
-        StartNewSessions;
+        StartNewSessions();
         exit(true);
     end;
 
@@ -60,7 +60,7 @@ codeunit 490 "Parallel Session Management"
     begin
         if not CreateNewPSEntry(CodeunitId, Parameter) then
             exit(false);
-        StartNewSessions;
+        StartNewSessions();
         exit(true);
     end;
 
@@ -68,7 +68,7 @@ codeunit 490 "Parallel Session Management"
     begin
         NoOfPSEntries += 1;
         TempParallelSessionEntry.Init();
-        TempParallelSessionEntry.ID := CreateGuid;
+        TempParallelSessionEntry.ID := CreateGuid();
         TempParallelSessionEntry."Object ID to Run" := CodeunitId;
         TempParallelSessionEntry.Parameter := CopyStr(Parameter, 1, MaxStrLen(TempParallelSessionEntry.Parameter));
         TempParallelSessionEntry.Insert();
@@ -94,12 +94,12 @@ codeunit 490 "Parallel Session Management"
             Window.Open(RemainingTasksMsg);
         while (NoOfPSEntries > 0) and (CurrentDateTime < T0) do begin
             if GuiAllowed then
-                Window.Update(1, NoOfActiveJobs);
-            WaitForFreeSessions(TimeOutInSeconds, GetMaxNoOfSessions - 1);
-            StartNewSessions;
+                Window.Update(1, NoOfActiveJobs());
+            WaitForFreeSessions(TimeOutInSeconds, GetMaxNoOfSessions() - 1);
+            StartNewSessions();
         end;
         if GuiAllowed then
-            Window.Close;
+            Window.Close();
         exit(WaitForFreeSessions(TimeOutInSeconds, 0));
     end;
 
@@ -109,19 +109,19 @@ codeunit 490 "Parallel Session Management"
             exit(true);
         if TimeOutInSeconds = 0 then
             TimeOutInSeconds := 3600;
-        RefreshActiveSessions;
+        RefreshActiveSessions();
         while (NoOfActiveSessions > NoOfRemainingSessions) and (TimeOutInSeconds > 0) do begin
             Sleep(2000);
             TimeOutInSeconds -= 2;
-            RefreshActiveSessions;
+            RefreshActiveSessions();
         end;
         exit(NoOfActiveSessions <= NoOfRemainingSessions);
     end;
 
     local procedure StartNewSessions()
     begin
-        RefreshActiveSessions;
-        if NoOfActiveSessions >= GetMaxNoOfSessions then
+        RefreshActiveSessions();
+        if NoOfActiveSessions >= GetMaxNoOfSessions() then
             exit;
 
         TempParallelSessionEntry.Reset();
@@ -136,13 +136,13 @@ codeunit 490 "Parallel Session Management"
                 TempParallelSessionEntry.Modify();
                 NoOfActiveSessions += 1;
                 NoOfPSEntries -= 1;
-            until (TempParallelSessionEntry.Next() = 0) or (NoOfActiveSessions >= GetMaxNoOfSessions);
+            until (TempParallelSessionEntry.Next() = 0) or (NoOfActiveSessions >= GetMaxNoOfSessions());
     end;
 
     [Scope('OnPrem')]
     procedure RunHeartbeat()
     begin
-        StartNewSessions;
+        StartNewSessions();
     end;
 
     local procedure RefreshActiveSessions()
@@ -153,7 +153,7 @@ codeunit 490 "Parallel Session Management"
         TempParallelSessionEntry.Reset();
         if TempInteger.FindSet() then
             repeat
-                if not ActiveSession.Get(ServiceInstanceId, TempInteger.Number) then begin
+                if not ActiveSession.Get(ServiceInstanceId(), TempInteger.Number) then begin
                     TempInteger.Delete();
                     NoOfActiveSessions -= 1;
                     TempParallelSessionEntry.SetRange("Session ID", TempInteger.Number);
@@ -163,8 +163,8 @@ codeunit 490 "Parallel Session Management"
                             MemMappedFileFound := false;
                             while (i < ArrayLen(MemoryMappedFile)) and (not MemMappedFileFound) do begin
                                 if not TempIntegerFreeMemMapFile.Get(i) then
-                                    if MemoryMappedFile[i].GetName = Format(TempParallelSessionEntry.ID) then begin
-                                        MemoryMappedFile[i].Dispose;
+                                    if MemoryMappedFile[i].GetName() = Format(TempParallelSessionEntry.ID) then begin
+                                        MemoryMappedFile[i].Dispose();
                                         TempIntegerFreeMemMapFile.Number := i;
                                         TempIntegerFreeMemMapFile.Insert();
                                         NoOfMemMappedFiles -= 1;

@@ -6,7 +6,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
     trigger OnRun()
     begin
         CostJnlLine.Copy(Rec);
-        Code;
+        Code();
         Rec := CostJnlLine;
     end;
 
@@ -66,7 +66,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
             NoOfRecords := LineCount;
 
             // CheckBalance
-            CheckBalance;
+            CheckBalance();
 
             CostReg.LockTable();
             if CostReg.FindLast() then
@@ -84,9 +84,9 @@ codeunit 1103 "CA Jnl.-Post Batch"
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
             until Next() = 0;
 
-            if not CostReg.FindLast or (CostReg."No." <> CostRegNo) then
+            if not CostReg.FindLast() or (CostReg."No." <> CostRegNo) then
                 CostRegNo := 0;
-            Init;
+            Init();
             "Line No." := CostRegNo;
             OnAfterAssignCostRegNo(CostJnlLine, CostReg, CostRegNo);
 

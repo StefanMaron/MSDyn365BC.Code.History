@@ -93,7 +93,7 @@ table 7316 "Warehouse Receipt Header"
             trigger OnValidate()
             begin
                 if "Sorting Method" <> xRec."Sorting Method" then
-                    SortWhseDoc;
+                    SortWhseDoc();
             end;
         }
         field(7; "No. Series"; Code[20])
@@ -213,7 +213,7 @@ table 7316 "Warehouse Receipt Header"
                               StrSubstNo(
                                 Text005,
                                 Location.FieldCaption("Adjustment Bin Code"),
-                                Location.TableCaption));
+                                Location.TableCaption()));
 
                         Bin.Get("Location Code", "Cross-Dock Bin Code");
                         Bin.TestField("Cross-Dock Bin", true);
@@ -298,7 +298,7 @@ table 7316 "Warehouse Receipt Header"
         GetLocation("Location Code");
         Validate("Bin Code", Location."Receipt Bin Code");
         Validate("Cross-Dock Bin Code", Location."Cross-Dock Bin Code");
-        "Posting Date" := WorkDate;
+        "Posting Date" := WorkDate();
 
         OnAfterOnInsert(Rec, xRec, Location);
     end;
@@ -365,12 +365,10 @@ table 7316 "Warehouse Receipt Header"
             "Sorting Method"::Document:
                 WhseRcptLine.SetCurrentKey("No.", "Source Document", "Source No.");
             "Sorting Method"::"Shelf or Bin":
-                begin
-                    if Location."Bin Mandatory" then
-                        WhseRcptLine.SetCurrentKey("No.", "Bin Code")
-                    else
-                        WhseRcptLine.SetCurrentKey("No.", "Shelf No.");
-                end;
+                if Location."Bin Mandatory" then
+                    WhseRcptLine.SetCurrentKey("No.", "Bin Code")
+                else
+                    WhseRcptLine.SetCurrentKey("No.", "Shelf No.");
             "Sorting Method"::"Due Date":
                 WhseRcptLine.SetCurrentKey("No.", "Due Date");
             else
@@ -554,7 +552,7 @@ table 7316 "Warehouse Receipt Header"
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
             Rec := WhseRcptHeader;
-            if not Find then;
+            if not Find() then;
         end;
         exit(RealSteps);
     end;
@@ -576,6 +574,13 @@ table 7316 "Warehouse Receipt Header"
         end;
     end;
 
+    procedure ReceiptLinesEditable() IsEditable: Boolean;
+    begin
+        IsEditable := true;
+
+        OnAfterReceiptLinesEditable(Rec, IsEditable);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistEdit(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
@@ -583,6 +588,11 @@ table 7316 "Warehouse Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnInsert(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var xWarehouseReceiptHeader: Record "Warehouse Receipt Header"; Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReceiptLinesEditable(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsEditable: Boolean);
     begin
     end;
 

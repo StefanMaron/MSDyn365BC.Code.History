@@ -16,7 +16,7 @@ page 9326 "Released Production Orders"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;
@@ -27,12 +27,12 @@ page 9326 "Released Production Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing number used for this production order.';
@@ -42,19 +42,19 @@ page 9326 "Released Production Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item or the family to produce (production quantity).';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
@@ -102,27 +102,27 @@ page 9326 "Released Production Orders"
                     ObsoleteTag = '17.0';
                 }
 #endif
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and starting time of the production order.';
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and ending time of the production order.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the due date of the production order.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Finished Date"; "Finished Date")
+                field("Finished Date"; Rec."Finished Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the actual finishing date of a finished production order.';
@@ -133,18 +133,18 @@ page 9326 "Released Production Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production order.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the search description.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the production order card was last modified.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a bin to which you want to post the finished items.';
@@ -247,7 +247,7 @@ page 9326 "Released Production Orders"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action(Statistics)
@@ -255,8 +255,6 @@ page 9326 "Released Production Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Production Order Statistics";
                     RunPageLink = Status = FIELD(Status),
                                   "No." = FIELD("No."),
@@ -278,8 +276,6 @@ page 9326 "Released Production Orders"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Prod. Order Status Management";
                     ToolTip = 'Change the production order to another status, such as Released.';
                 }
@@ -289,8 +285,6 @@ page 9326 "Released Production Orders"
                     Caption = '&Update Unit Cost';
                     Ellipsis = true;
                     Image = UpdateUnitCost;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Update the cost of the parent item per changes to the production BOM or routing.';
 
                     trigger OnAction()
@@ -309,13 +303,11 @@ page 9326 "Released Production Orders"
                     Caption = 'Create Inventor&y Put-away/Pick/Movement';
                     Ellipsis = true;
                     Image = CreatePutAway;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Prepare to create inventory put-aways, picks, or movements for the parent item or components on the production order.';
 
                     trigger OnAction()
                     begin
-                        CreateInvtPutAwayPick;
+                        CreateInvtPutAwayPick();
                     end;
                 }
             }
@@ -327,7 +319,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Prod. Order - Detail Calc.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Prod. Order - Detailed Calc.";
@@ -338,7 +329,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Prod. Order - Precalc. Time';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Prod. Order - Precalc. Time";
@@ -349,8 +339,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Comp. and Routing';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Prod. Order Comp. and Routing";
                 ToolTip = 'View information about components and operations in production orders. For released production orders, the report shows the remaining quantity if parts of the quantity have been posted as output.';
             }
@@ -359,7 +347,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order Job Card';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View a list of the work in progress of a production order. Output, Scrapped Quantity and Production Lead Time are shown or printed depending on the operation.';
@@ -374,7 +361,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Picking List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Prod. Order - Picking List";
@@ -385,8 +371,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Material Requisition';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'View a list of material requirements per production order. The report shows you the status of the production order, the quantity of end items and components with the corresponding required quantity. You can view the due date and location code of each component.';
 
                 trigger OnAction()
@@ -399,8 +383,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order List';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Prod. Order - List";
                 ToolTip = 'View a list of the production orders contained in the system. Information such as order number, number of the item to be produced, starting/ending date and other data are shown or printed.';
             }
@@ -409,8 +391,6 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Shortage List';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'View a list of the missing quantity per production order. You are shown how the inventory development is planned from today until the set day - for example whether orders are still open.';
 
                 trigger OnAction()
@@ -423,10 +403,48 @@ page 9326 "Released Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order Statistics';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Production Order Statistics";
                 ToolTip = 'View statistical information about the production order''s direct material and capacity costs and overhead as well as its capacity need in the time unit of measure.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Change &Status_Promoted"; "Change &Status")
+                {
+                }
+                actionref("&Update Unit Cost_Promoted"; "&Update Unit Cost")
+                {
+                }
+                actionref("Create Inventor&y Put-away/Pick/Movement_Promoted"; "Create Inventor&y Put-away/Pick/Movement")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Production Order - Comp. and Routing_Promoted"; "Production Order - Comp. and Routing")
+                {
+                }
+                actionref(ProdOrderMaterialRequisition_Promoted; ProdOrderMaterialRequisition)
+                {
+                }
+                actionref("Production Order List_Promoted"; "Production Order List")
+                {
+                }
+                actionref(ProdOrderShortageList_Promoted; ProdOrderShortageList)
+                {
+                }
+                actionref("Production Order Statistics_Promoted"; "Production Order Statistics")
+                {
+                }
             }
         }
     }

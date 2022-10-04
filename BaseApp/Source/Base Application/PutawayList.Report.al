@@ -16,7 +16,7 @@ report 5751 "Put-away List"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -259,7 +259,7 @@ report 5751 "Put-away List"
                 else
                     BreakbulkFilter := "Breakbulk Filter";
 
-                if not IsReportInPreviewMode then
+                if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Whse.-Printed", "Warehouse Activity Header");
             end;
         }
@@ -339,34 +339,36 @@ report 5751 "Put-away List"
 
     trigger OnPreReport()
     begin
-        PutAwayFilter := "Warehouse Activity Header".GetFilters;
+        PutAwayFilter := "Warehouse Activity Header".GetFilters();
     end;
 
     var
         Location: Record Location;
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
         PutAwayFilter: Text;
-        BreakbulkFilter: Boolean;
-        SumUpLines: Boolean;
-        HideOptions: Boolean;
         InvtPutAway: Boolean;
-        ShowLotSN: Boolean;
         Counter: Integer;
         CrossDockMark: Text[1];
-        [InDataSet]
-        BreakbulkEditable: Boolean;
-        [InDataSet]
-        SumUpLinesEditable: Boolean;
         CurrReportPAGENOCaptionLbl: Label 'Page';
         PutawayListCaptionLbl: Label 'Put-away List';
         WhseActLineDueDateCaptionLbl: Label 'Due Date';
         QtyHandledCaptionLbl: Label 'Quantity Handled';
         EmptyStringCaptionLbl: Label '____________';
 
+    protected var
+        BreakbulkFilter: Boolean;
+        HideOptions: Boolean;
+        ShowLotSN: Boolean;
+        SumUpLines: Boolean;
+        [InDataSet]
+        BreakbulkEditable: Boolean;
+        [InDataSet]
+        SumUpLinesEditable: Boolean;
+
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
@@ -376,7 +378,7 @@ report 5751 "Put-away List"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure SetBreakbulkFilter(BreakbulkFilter2: Boolean)

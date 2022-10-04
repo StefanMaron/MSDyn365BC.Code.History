@@ -1,7 +1,7 @@
 page 5203 "Alternative Address Card"
 {
     Caption = 'Alternative Address Card';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     PageType = Card;
     PopulateAllFields = true;
     SourceTable = "Alternative Address";
@@ -28,7 +28,7 @@ page 5203 "Alternative Address Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate address for the employee.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
@@ -42,7 +42,7 @@ page 5203 "Alternative Address Card"
                         ApplicationArea = Basic, Suite;
                     }
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -52,7 +52,7 @@ page 5203 "Alternative Address Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the alternate address.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -62,7 +62,7 @@ page 5203 "Alternative Address Card"
                         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
                     end;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s telephone number at the alternate address.';
@@ -71,18 +71,18 @@ page 5203 "Alternative Address Card"
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Phone No.2"; "Phone No.")
+                field("Phone No.2"; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s telephone number at the alternate address.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the employee''s fax number at the alternate address.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
@@ -134,15 +134,16 @@ page 5203 "Alternative Address Card"
     end;
 
     var
-        Text000: Label 'untitled';
         Employee: Record Employee;
         FormatAddress: Codeunit "Format Address";
         IsCountyVisible: Boolean;
 
+        Text000: Label 'untitled';
+
     procedure Caption(): Text
     begin
         if Employee.Get("Employee No.") then
-            exit("Employee No." + ' ' + Employee.FullName + ' ' + Code);
+            exit("Employee No." + ' ' + Employee.FullName() + ' ' + Code);
 
         exit(Text000);
     end;

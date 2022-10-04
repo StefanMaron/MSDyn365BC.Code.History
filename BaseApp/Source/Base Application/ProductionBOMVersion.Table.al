@@ -125,7 +125,7 @@ table 99000779 "Production BOM Version"
     trigger OnRename()
     begin
         if Status = Status::Certified then
-            Error(Text001, TableCaption, FieldCaption(Status), Format(Status));
+            Error(Text001, TableCaption(), FieldCaption(Status), Format(Status));
     end;
 
     var

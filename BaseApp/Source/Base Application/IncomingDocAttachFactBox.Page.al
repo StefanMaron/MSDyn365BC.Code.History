@@ -22,7 +22,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        NameDrillDown;
+                        NameDrillDown();
                     end;
                 }
                 field(Type; Type)
@@ -30,7 +30,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the attached file.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the incoming document line was created.';
@@ -58,7 +58,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                 begin
                     IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
                     if GlobalRecordID.TableNo <> 0 then
-                        MainRecordRef := GlobalRecordID.GetRecord
+                        MainRecordRef := GlobalRecordID.GetRecord()
                     else begin
                         if GlobalDocumentNo <> '' then
                             IncomingDocumentAttachment.SetRange("Document No.", GlobalDocumentNo);
@@ -107,7 +107,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                 Caption = 'Open in OneDrive';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
-                Enabled = ShareOptionsEnabled;
+                Visible = ShareOptionsEnabled;
                 Promoted = true;
                 Scope = Repeater;
                 trigger OnAction()
@@ -134,7 +134,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                 Caption = 'Share';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
-                Enabled = ShareOptionsEnabled;
+                Visible = ShareOptionsEnabled;
                 Promoted = true;
                 Scope = Repeater;
                 trigger OnAction()
@@ -168,7 +168,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
                 trigger OnAction()
                 begin
-                    NameDrillDown;
+                    NameDrillDown();
                 end;
             }
         }
@@ -179,7 +179,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         DocumentSharing: Codeunit "Document Sharing";
     begin
-        StyleExpressionTxt := GetStyleTxt;
+        StyleExpressionTxt := GetStyleTxt();
 
         ShareOptionsEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.")) and (DocumentSharing.ShareEnabled());
         DownloadEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No."));

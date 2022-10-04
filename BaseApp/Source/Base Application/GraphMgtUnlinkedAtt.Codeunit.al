@@ -33,6 +33,7 @@ codeunit 5502 "Graph Mgt - Unlinked Att."
         NullGuid: Guid;
         SystemId: Guid;
         IDField: Guid;
+        ID: Guid;
     begin
         if not IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then
             exit;
@@ -50,7 +51,8 @@ codeunit 5502 "Graph Mgt - Unlinked Att."
                 if SystemId <> IDField then
                     SourceRecordRef.Rename(SystemId);
 
-                if not IntegrationRecord.Get(IDFieldRef.Value) then begin
+                ID := IDFieldRef.Value();
+                if not IntegrationRecord.Get(ID) then begin
                     IntegrationManagement.InsertUpdateIntegrationRecord(SourceRecordRef, CurrentDateTime);
                     if IsNullGuid(Format(IDFieldRef.Value)) then begin
                         UpdatedIntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);

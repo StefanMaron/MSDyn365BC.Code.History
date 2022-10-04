@@ -136,13 +136,13 @@ codeunit 2000 "Time Series Management"
             exit;
         end;
 
-        CreateTimeSeriesInput;
+        CreateTimeSeriesInput();
         CreateTimeSeriesParameters(ForecastingPeriods, ConfidenceLevel, TimeSeriesModel);
 
         if not AzureMLConnector.SendToAzureMLInternal(UseStandardCredentials) then
             Error(GetLastErrorText);
 
-        LoadTimeSeriesForecast;
+        LoadTimeSeriesForecast();
         TimeSeriesCalculationState := TimeSeriesCalculationState::Done;
     end;
 
@@ -270,7 +270,7 @@ codeunit 2000 "Time Series Management"
         if ValueFieldRef.Class <> FieldClass::Normal then
             exit(0);
 
-        ValueFieldRef.CalcSum;
+        ValueFieldRef.CalcSum();
         Value := ValueFieldRef.Value;
     end;
 
@@ -283,7 +283,7 @@ codeunit 2000 "Time Series Management"
 
         if RecRef.FindSet() then
             repeat
-                ValueFieldRef.CalcField;
+                ValueFieldRef.CalcField();
                 CurrentValue := ValueFieldRef.Value;
                 Value += CurrentValue;
             until RecRef.Next() = 0;
@@ -297,7 +297,7 @@ codeunit 2000 "Time Series Management"
 
         if TempTimeSeriesBuffer.FindSet() then
             repeat
-                AzureMLConnector.AddInputRow;
+                AzureMLConnector.AddInputRow();
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer."Group ID"));
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer."Period No."));
                 AzureMLConnector.AddInputValue(Format(TempTimeSeriesBuffer.Value, 0, 9));
@@ -322,7 +322,7 @@ codeunit 2000 "Time Series Management"
         GroupID: Code[50];
         PeriodNo: Integer;
     begin
-        for LineNo := 1 to GetOutputLength do begin
+        for LineNo := 1 to GetOutputLength() do begin
             TempTimeSeriesForecast.Init();
 
             Evaluate(GroupID, GetOutput(LineNo, 1));
@@ -383,9 +383,9 @@ codeunit 2000 "Time Series Management"
     procedure HasMinimumHistoricalData(var NumberOfPeriodsWithHistory: Integer; SourceRecord: Variant; PeriodFieldNo: Integer; PeriodType: Option Day,Week,Month,Quarter,Year; ForecastStartDate: Date): Boolean
     var
         DataTypeManagement: Codeunit "Data Type Management";
+        SourceRecordRef: RecordRef;
         PeriodFieldRef: FieldRef;
         HistoryStartDate: Variant;
-        SourceRecordRef: RecordRef;
         HistoryEndDate: Date;
     begin
         // SourceRecord Should already contain all the necessary filters

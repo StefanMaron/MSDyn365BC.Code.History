@@ -35,9 +35,6 @@ page 563 "G/L Entries Dimension Overview"
                 ApplicationArea = Dimensions;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -58,10 +55,6 @@ page 563 "G/L Entries Dimension Overview"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -74,15 +67,29 @@ page 563 "G/L Entries Dimension Overview"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }

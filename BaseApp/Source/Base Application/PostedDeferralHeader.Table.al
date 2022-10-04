@@ -116,7 +116,7 @@ table 1704 "Posted Deferral Header"
     begin
         if LineNo <> 0 then
             if Get(DeferralDocType, GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo) then begin
-                Delete;
+                Delete();
                 DeleteLines("Deferral Document Type".FromInteger(DeferralDocType), GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo);
             end;
     end;
@@ -149,7 +149,7 @@ table 1704 "Posted Deferral Header"
 
     procedure InitFromDeferralHeader(DeferralHeader: Record "Deferral Header"; GenJnlDocNo: Code[20]; AccountNo: Code[20]; NewDocumentType: Integer; NewDocumentNo: Code[20]; NewLineNo: Integer; DeferralAccount: Code[20]; CustVendNo: Code[20]; PostingDate: Date)
     begin
-        Init;
+        Init();
         TransferFields(DeferralHeader);
         "Gen. Jnl. Document No." := GenJnlDocNo;
         "Account No." := AccountNo;

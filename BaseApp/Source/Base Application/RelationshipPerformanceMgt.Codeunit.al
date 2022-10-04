@@ -49,7 +49,7 @@ codeunit 783 "Relationship Performance Mgt."
         with BusinessChartBuffer do begin
             Initialize();
             AddDecimalMeasure(TempOpportunity.FieldCaption("Estimated Value (LCY)"), 1, "Chart Type"::StackedColumn);
-            SetXAxis(TempOpportunity.TableCaption, "Data Type"::String);
+            SetXAxis(TempOpportunity.TableCaption(), "Data Type"::String);
             CalcTopFiveOpportunities(TempOpportunity);
             TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
             OnUpdateDataOnAfterTempOpportunitySetFilters(TempOpportunity);
@@ -80,17 +80,17 @@ codeunit 783 "Relationship Performance Mgt."
         InteractionLogEntry: Record "Interaction Log Entry";
         CreateOpportunityNotification: Notification;
     begin
-        CreateOpportunityNotification.Id := CreateGuid;
+        CreateOpportunityNotification.Id := CreateGuid();
         CreateOpportunityNotification.Message := StrSubstNo(CreateOpportunityQst, SegmentLine."Contact No.");
         InteractionLogEntry.SetRange("User ID", UserId);
         InteractionLogEntry.SetRange("Contact No.", SegmentLine."Contact No.");
         InteractionLogEntry.FindFirst();
         CreateOpportunityNotification.SetData(
-          GetSegmentLineNotificationDataItemID, RecordsToXml(SegmentLine, InteractionLogEntry));
+          GetSegmentLineNotificationDataItemID(), RecordsToXml(SegmentLine, InteractionLogEntry));
         CreateOpportunityNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         CreateOpportunityNotification.AddAction(
           CreateOpportunityCaptionTxt, CODEUNIT::"Relationship Performance Mgt.", 'CreateOpportunityFromSegmentLineNotification');
-        CreateOpportunityNotification.Send;
+        CreateOpportunityNotification.Send();
     end;
 
     [Scope('OnPrem')]
@@ -102,8 +102,8 @@ codeunit 783 "Relationship Performance Mgt."
         TempSegmentLine.Init();
         TempSegmentLine.Insert();
         XmlToRecords(
-          CreateOpportunityNotification.GetData(GetSegmentLineNotificationDataItemID), TempSegmentLine, InteractionLogEntry);
-        InteractionLogEntry."Opportunity No." := TempSegmentLine.CreateOpportunity;
+          CreateOpportunityNotification.GetData(GetSegmentLineNotificationDataItemID()), TempSegmentLine, InteractionLogEntry);
+        InteractionLogEntry."Opportunity No." := TempSegmentLine.CreateOpportunity();
         InteractionLogEntry.Modify();
     end;
 
@@ -115,7 +115,7 @@ codeunit 783 "Relationship Performance Mgt."
         XmlRootNode: DotNet XmlNode;
         XmlNode: DotNet XmlNode;
     begin
-        DotNetXmlDocument := DotNetXmlDocument.XmlDocument;
+        DotNetXmlDocument := DotNetXmlDocument.XmlDocument();
 
         XMLDOMManagement.AddRootElement(DotNetXmlDocument, 'Notification', XmlRootNode);
 
@@ -127,12 +127,12 @@ codeunit 783 "Relationship Performance Mgt."
         AddFieldToXml(XmlNode, RecRef.Field(SegmentLine.FieldNo("Salesperson Code")));
         AddFieldToXml(XmlNode, RecRef.Field(SegmentLine.FieldNo("Contact No.")));
         AddFieldToXml(XmlNode, RecRef.Field(SegmentLine.FieldNo("Contact Company No.")));
-        RecRef.Close;
+        RecRef.Close();
 
         RecRef.GetTable(InteractionLogEntry);
         XMLDOMManagement.AddElement(XmlRootNode, GetXmlTableName(RecRef), '', '', XmlNode);
         AddFieldToXml(XmlNode, RecRef.Field(InteractionLogEntry.FieldNo("Entry No.")));
-        RecRef.Close;
+        RecRef.Close();
 
         exit(DotNetXmlDocument.OuterXml);
     end;
@@ -156,12 +156,12 @@ codeunit 783 "Relationship Performance Mgt."
         SetFieldFromXml(RecRef, SegmentLine.FieldNo("Contact Company No."), XmlRootNode);
         RecRef.Modify();
         RecRef.SetTable(SegmentLine);
-        RecRef.Close;
+        RecRef.Close();
 
         RecRef.Open(DATABASE::"Interaction Log Entry");
         XMLDOMManagement.FindNode(DotNetXmlDocument.DocumentElement, GetXmlTableName(RecRef), XmlRootNode);
         SetFieldFromXml(RecRef, InteractionLogEntry.FieldNo("Entry No."), XmlRootNode);
-        RecRef.Find;
+        RecRef.Find();
         RecRef.SetTable(InteractionLogEntry);
     end;
 

@@ -92,11 +92,11 @@ codeunit 5900 ServOrderManagement
             if "Customer No." <> '' then
                 Error(
                   Text000,
-                  Cust.TableCaption, FieldCaption("Customer No."));
+                  Cust.TableCaption(), FieldCaption("Customer No."));
             if (Name = '') or (Address = '') or (City = '') then
                 Error(
                   Text001,
-                  FieldCaption(Name), FieldCaption(Address), FieldCaption(City), TableCaption, "No.", Cust.TableCaption);
+                  FieldCaption(Name), FieldCaption(Address), FieldCaption(City), TableCaption(), "No.", Cust.TableCaption());
 
             Cust.Reset();
             Cust.SetCurrentKey(Name, Address, City);
@@ -105,7 +105,7 @@ codeunit 5900 ServOrderManagement
             Cust.SetRange(City, City);
             if Cust.FindFirst() then
                 if not ConfirmManagement.GetResponseOrDefault(
-                     StrSubstNo(NewCustomerQst, Cust.TableCaption), false)
+                     StrSubstNo(NewCustomerQst, Cust.TableCaption()), false)
                 then begin
                     Validate("Customer No.", Cust."No.");
                     exit;
@@ -127,7 +127,7 @@ codeunit 5900 ServOrderManagement
         IsHandled: Boolean;
     begin
         if ServiceLine.Quantity <> 1 then
-            Error(Text005, ServiceLine.FieldCaption(Quantity), FromServItem.TableCaption, FromServItem."No.");
+            Error(Text005, ServiceLine.FieldCaption(Quantity), FromServItem.TableCaption(), FromServItem."No.");
 
         SerialNo := '';
         TempTrackingSpecification.Reset();
@@ -153,7 +153,7 @@ codeunit 5900 ServOrderManagement
                 if NewServItem.FindFirst() then
                     Error(
                       Text006,
-                      NewServItem.TableCaption, NewServItem."No.", NewServItem.FieldCaption("Serial No."), NewServItem."Serial No.");
+                      NewServItem.TableCaption(), NewServItem."No.", NewServItem.FieldCaption("Serial No."), NewServItem."Serial No.");
         end;
 
         IsHandled := false;
@@ -206,7 +206,7 @@ codeunit 5900 ServOrderManagement
         if not IsHandled then
             Message(
                 Text007,
-                NewServItem.TableCaption, NewServItem."No.");
+                NewServItem.TableCaption(), NewServItem."No.");
     end;
 
     procedure InsertServCost(ServInvLine: Record "Service Line"; CostType: Integer; LinktoServItemLine: Boolean): Boolean
@@ -226,7 +226,7 @@ codeunit 5900 ServOrderManagement
 
         NextLine := ServInvLine.GetNextLineNo(ServInvLine, false);
         if NextLine = 0 then
-            Error(Text008, ServInvLine.TableCaption);
+            Error(Text008, ServInvLine.TableCaption());
 
         case CostType of
             0: // Travel Fee
@@ -239,7 +239,7 @@ codeunit 5900 ServOrderManagement
                     if not ServCost.FindFirst() then
                         Error(
                           Text009,
-                          ServCost.TableCaption, ServCost.FieldCaption("Service Zone Code"), ServHeader."Service Zone Code");
+                          ServCost.TableCaption(), ServCost.FieldCaption("Service Zone Code"), ServHeader."Service Zone Code");
 
                     ServInvLine2.Init();
                     if LinktoServItemLine then begin
@@ -419,7 +419,7 @@ codeunit 5900 ServOrderManagement
             OnLookupServItemNoOnAfterServItemSetFilters(ServItemLine, ServItem, ServHeader);
             ServItemList.SetTableView(ServItem);
             ServItemList.LookupMode(true);
-            if ServItemList.RunModal = ACTION::LookupOK then begin
+            if ServItemList.RunModal() = ACTION::LookupOK then begin
                 ServItemList.GetRecord(ServItem);
                 ServItemLine.Validate("Service Item No.", ServItem."No.");
             end;
@@ -442,7 +442,7 @@ codeunit 5900 ServOrderManagement
             ServContractLine.SetRange("Ship-to Code", ServHeader."Ship-to Code");
             ServContractLineList.SetTableView(ServContractLine);
             ServContractLineList.LookupMode(true);
-            if ServContractLineList.RunModal = ACTION::LookupOK then begin
+            if ServContractLineList.RunModal() = ACTION::LookupOK then begin
                 ServContractLineList.GetRecord(ServContractLine);
                 ServItemLine.Validate("Service Item No.", ServContractLine."Service Item No.");
             end;
@@ -485,7 +485,7 @@ codeunit 5900 ServOrderManagement
         OldSIComponent.Reset();
         OldSIComponent.SetRange(Active, true);
         OldSIComponent.SetRange("Parent Service Item No.", OldServItem."No.");
-        if OldSIComponent.Find('-') then begin
+        if OldSIComponent.Find('-') then
             repeat
                 Clear(ServItemComponent);
                 ServItemComponent.Init();
@@ -494,11 +494,11 @@ codeunit 5900 ServOrderManagement
                 if not CopySerialNo then
                     ServItemComponent."Serial No." := '';
                 ServItemComponent.Insert();
-            until OldSIComponent.Next() = 0;
-        end else
+            until OldSIComponent.Next() = 0
+        else
             Error(
               Text011,
-              ServItemComponent.TableCaption, OldServItem.FieldCaption("No."), OldServItem."No.");
+              ServItemComponent.TableCaption(), OldServItem.FieldCaption("No."), OldServItem."No.");
     end;
 
     local procedure CopyComponentsFromBOM(var NewServItem: Record "Service Item")
@@ -528,8 +528,8 @@ codeunit 5900 ServOrderManagement
                 if not RepairStatus."Posting Allowed" then
                     Error(
                       Text012,
-                      ServHeader.TableCaption, ServHeader."No.", ServItemLine.FieldCaption("Repair Status Code"),
-                      ServItemLine."Repair Status Code", ServItemLine.TableCaption, ServItemLine."Line No.")
+                      ServHeader.TableCaption(), ServHeader."No.", ServItemLine.FieldCaption("Repair Status Code"),
+                      ServItemLine."Repair Status Code", ServItemLine.TableCaption(), ServItemLine."Line No.")
             end;
     end;
 
@@ -590,7 +590,7 @@ codeunit 5900 ServOrderManagement
                 ServContractLine."Last Service Date" := ServHeader."Posting Date";
             ServContractLine."Last Planned Service Date" :=
               ServContractLine."Next Planned Service Date";
-            ServContractLine.CalculateNextServiceVisit;
+            ServContractLine.CalculateNextServiceVisit();
             ServContractLine."Last Preventive Maint. Date" := ServContractLine."Last Service Date";
         end;
         ServContractLine.Modify();

@@ -368,16 +368,16 @@ page 1315 "Accountant Portal Finance Cues"
 
     trigger OnAfterGetRecord()
     begin
-        SetAccountantPortalFields;
-        GetLastLoginDate;
+        SetAccountantPortalFields();
+        GetLastLoginDate();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
             Commit();
         end;
         SetFilter("Due Date Filter", '<=%1', Today);
@@ -527,7 +527,7 @@ page 1315 "Accountant Portal Finance Cues"
         OCRCompletedAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Finance Cue", FinanceCue.FieldNo("OCR Completed"), "OCR Completed", OCRCompletedStyle);
 
-        "Cash Accounts Balance" := ActivitiesMgt.CalcCashAccountsBalances;
+        "Cash Accounts Balance" := ActivitiesMgt.CalcCashAccountsBalances();
         CashAccountsBalanceAmountDecimal := "Cash Accounts Balance";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString("Cash Accounts Balance");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
@@ -555,7 +555,7 @@ page 1315 "Accountant Portal Finance Cues"
                 RegisterTime := UserSetup."Register Time";
             end;
             if not UserSetupFound then
-                if GLSetup.Get then
+                if GLSetup.Get() then
                     RegisterTime := GLSetup."Register Time";
 
             if RegisterTime then begin

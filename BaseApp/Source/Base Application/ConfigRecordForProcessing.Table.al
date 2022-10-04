@@ -38,12 +38,12 @@ table 8632 "Config. Record For Processing"
 
     procedure AddRecord(ConfigPackageRecord: Record "Config. Package Record"; ProcessingRuleNo: Integer)
     begin
-        Init;
+        Init();
         "Package Code" := ConfigPackageRecord."Package Code";
         "Table ID" := ConfigPackageRecord."Table ID";
         "Rule No." := ProcessingRuleNo;
         "Record No." := ConfigPackageRecord."No.";
-        Insert;
+        Insert();
     end;
 
     procedure FindConfigRecord(var ConfigPackageRecord: Record "Config. Package Record"): Boolean
@@ -74,7 +74,7 @@ table 8632 "Config. Record For Processing"
                     FieldRef.SetFilter('%1', '');
             until ConfigPackageField.Next() = 0;
         if RecRef.HasFilter then
-            exit(RecRef.FindFirst);
+            exit(RecRef.FindFirst());
         exit(false);
     end;
 
@@ -83,7 +83,7 @@ table 8632 "Config. Record For Processing"
         ConfigPackageField.SetRange("Package Code", "Package Code");
         ConfigPackageField.SetRange("Table ID", "Table ID");
         ConfigPackageField.SetRange("Primary Key", true);
-        exit(ConfigPackageField.FindSet);
+        exit(ConfigPackageField.FindSet());
     end;
 
     local procedure GetFieldValue(FieldId: Integer): Text[2048]

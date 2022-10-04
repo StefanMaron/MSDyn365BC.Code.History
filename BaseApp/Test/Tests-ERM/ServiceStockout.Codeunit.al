@@ -410,19 +410,19 @@ codeunit 136133 "Service Stockout"
     local procedure CreatePurchaseSupply(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
     begin
         // Creates a Purchase order for the given item at the specified location.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyForVariant(ItemNo: Code[20]; ItemQuantity: Integer; VariantNo: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', GetVariant(ItemNo, VariantNo), WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', GetVariant(ItemNo, VariantNo), WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAfter(ItemNo: Code[20]; Quantity: Integer; ReceiptDate: Date): Code[20]
@@ -461,7 +461,7 @@ codeunit 136133 "Service Stockout"
 
     local procedure CreateServiceDemand(ItemNo: Code[20]; Quantity: Integer): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', '', WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', '', WorkDate()));
     end;
 
     local procedure CreateServiceDemandAfter(ItemNo: Code[20]; Quantity: Integer; NeededByDate: Date): Code[20]
@@ -565,7 +565,7 @@ codeunit 136133 "Service Stockout"
     begin
         OpenFirstServiceLines(ServiceLinesToReturn, ServiceOrderNo);
         ServiceLines := ServiceLinesToReturn;
-        ServiceLinesToReturn."Needed by Date".Value(Format(WorkDate));
+        ServiceLinesToReturn."Needed by Date".Value(Format(WorkDate()));
     end;
 
     local procedure FindServiceItem(var ServiceItem: Record "Service Item")
@@ -580,7 +580,7 @@ codeunit 136133 "Service Stockout"
                 Item.Get(ServiceItem."Item No.");
                 if (Customer.Blocked = Customer.Blocked::" ") and not Item.Blocked then
                     exit;
-            until ServiceItem.Next = 0;
+            until ServiceItem.Next() = 0;
         Error(NoDataForExecutionError);
     end;
 

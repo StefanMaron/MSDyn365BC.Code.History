@@ -78,7 +78,7 @@ table 6507 "Item Entry Relation"
 
     procedure InitFromTrackingSpec(TrackingSpecification: Record "Tracking Specification")
     begin
-        Init;
+        Init();
         "Item Entry No." := TrackingSpecification."Entry No.";
         "Serial No." := TrackingSpecification."Serial No.";
         "Lot No." := TrackingSpecification."Lot No.";

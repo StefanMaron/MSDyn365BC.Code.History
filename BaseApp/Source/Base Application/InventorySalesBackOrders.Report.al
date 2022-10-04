@@ -13,7 +13,7 @@ report 718 "Inventory - Sales Back Orders"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Statistics Group", "Bin Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptItemFilter; TableCaption + ': ' + ItemFilter)
@@ -100,7 +100,7 @@ report 718 "Inventory - Sales Back Orders"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if "Shipment Date" >= WorkDate then
+                    if "Shipment Date" >= WorkDate() then
                         CurrReport.Skip();
                     Cust.Get("Bill-to Customer No.");
 
@@ -114,7 +114,7 @@ report 718 "Inventory - Sales Back Orders"
                     SalesOrderLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
                     SalesOrderLine.SetRange("Document Type", SalesOrderLine."Document Type"::Order);
                     SalesOrderLine.SetRange(Type, SalesOrderLine.Type::Item);
-                    SalesOrderLine.SetRange("Shipment Date", 0D, WorkDate - 1);
+                    SalesOrderLine.SetRange("Shipment Date", 0D, WorkDate() - 1);
                     SalesOrderLine.SetFilter("Outstanding Quantity", '<>0');
                 end;
             }
@@ -140,17 +140,18 @@ report 718 "Inventory - Sales Back Orders"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        SalesLineFilter := "Sales Line".GetFilters;
+        ItemFilter := Item.GetFilters();
+        SalesLineFilter := "Sales Line".GetFilters();
     end;
 
     var
-        Text000: Label 'Sales Order Line: %1';
         Cust: Record Customer;
         SalesOrderLine: Record "Sales Line";
         OtherBackOrders: Boolean;
         ItemFilter: Text;
         SalesLineFilter: Text;
+
+        Text000: Label 'Sales Order Line: %1';
         InvSalesBackOrdersCaptionLbl: Label 'Inventory - Sales Back Orders';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CustNameCaptionLbl: Label 'Customer';

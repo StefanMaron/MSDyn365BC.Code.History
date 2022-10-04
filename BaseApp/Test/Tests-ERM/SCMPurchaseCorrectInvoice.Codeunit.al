@@ -135,7 +135,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryCosting.AdjustCostItemEntries('', '');
 
         InvtPeriod.Init();
-        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
+        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate());
         InvtPeriod.Closed := true;
         InvtPeriod.Insert();
         Commit();
@@ -225,7 +225,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, '', 'LOT1', 1);
         GLEntry.FindLast();
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
@@ -641,7 +641,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(RelatedNoSeriesLine, RelatedNoSeries.Code, '', '');
         LibraryVariableStorage.Enqueue(RelatedNoSeries.Code);
-        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(RelatedNoSeries.Code, WorkDate);
+        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(RelatedNoSeries.Code, WorkDate());
 
         // [GIVEN] No. Series "X" with "Default Nos" = No and related No. series "Y". Next "No." in no. series is "X1"
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
@@ -650,7 +650,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [GIVEN] "Credit Memo Nos." in Purchase Setup is "X"
         SetCreditMemoNosInPurchSetup(NoSeries.Code);
 
-        // [WHEN] Create Corrective Credit Memo for Purchase Invoice "A" and specify "No. Series" = "Y" from "No. Series List" page
+        // [WHEN] Create Corrective Credit Memo for Purchase Invoice "A" and specify "No. Series" = "Y" from "No. Series" page
         // No. Series selection handles by NoSeriesListModalPageHandler
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchHeader);
 
@@ -680,7 +680,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
         // [GIVEN] Next no. in no. series "Credit Memo Nos." of Purchase Setup is "X1"
         PurchasesPayablesSetup.Get();
-        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(PurchasesPayablesSetup."Credit Memo Nos.", WorkDate);
+        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(PurchasesPayablesSetup."Credit Memo Nos.", WorkDate());
 
         // [WHEN] Create Corrective Credit Memo for Purchase Invoice "A"
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchHeader);
@@ -746,7 +746,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         // [GIVEN] "Credit Memo Nos." in Purchase Setup is "X"
         SetCreditMemoNosInPurchSetup(NoSeries.Code);
 
-        // [WHEN] Create Corrective Credit Memo for Purchase Invoice "A" and do not specify any no. series from "No. Series List" page
+        // [WHEN] Create Corrective Credit Memo for Purchase Invoice "A" and do not specify any no. series from "No. Series" page
         // No. Series selection cancellation handles by NoSeriesListSelectNothingModalPageHandler
         asserterror CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchHeader);
 
@@ -1098,7 +1098,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         InvNo: Code[20];
     begin
         with PurchHeader do begin
-            Init;
+            Init();
             Validate("Document Type", "Document Type"::"Credit Memo");
             Insert(true);
         end;
@@ -1207,7 +1207,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(0, TotalQty, '');
         Assert.AreEqual(0, TotalCost, '');
 
@@ -1220,7 +1220,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         Assert.AreEqual(TotalDebit, TotalCredit, '');
     end;
@@ -1229,7 +1229,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.SetRange("Pay-to Vendor No.", Vendor."No.");
         Assert.IsTrue(PurchaseHeader.IsEmpty, 'The Credit Memo should not have been created');
@@ -1288,7 +1288,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         NoSeriesList.OK.Invoke;

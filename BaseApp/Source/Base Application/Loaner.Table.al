@@ -137,7 +137,7 @@ table 5913 Loaner
             Error(Text000);
 
         if not Blocked then
-            Error(Text001, TableCaption, FieldCaption(Blocked));
+            Error(Text001, TableCaption(), FieldCaption(Blocked));
 
         Clear(LoanerEntry);
         LoanerEntry.SetCurrentKey("Loaner No.");

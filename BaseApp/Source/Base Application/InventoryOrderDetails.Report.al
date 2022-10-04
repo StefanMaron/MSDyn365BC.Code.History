@@ -12,7 +12,7 @@ report 708 "Inventory Order Details"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Statistics Group", "Bin Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptItemFilter; TableCaption + ': ' + ItemFilter)
@@ -130,9 +130,9 @@ report 708 "Inventory Order Details"
                         "Outstanding Amount" :=
                           Round(
                             CurrExchRate.ExchangeAmtFCYToLCY(
-                              WorkDate, SalesHeader."Currency Code", "Outstanding Amount",
+                              WorkDate(), SalesHeader."Currency Code", "Outstanding Amount",
                               SalesHeader."Currency Factor"));
-                    if "Shipment Date" < WorkDate then
+                    if "Shipment Date" < WorkDate() then
                         BackOrderQty := "Outstanding Quantity"
                     else
                         BackOrderQty := 0;
@@ -159,16 +159,17 @@ report 708 "Inventory Order Details"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        SalesLineFilter := "Sales Line".GetFilters;
+        ItemFilter := Item.GetFilters();
+        SalesLineFilter := "Sales Line".GetFilters();
     end;
 
     var
-        Text000: Label 'Sales Order Line: %1';
         CurrExchRate: Record "Currency Exchange Rate";
         BackOrderQty: Decimal;
         ItemFilter: Text;
         SalesLineFilter: Text;
+
+        Text000: Label 'Sales Order Line: %1';
         InvntryOrderDetailCaptLbl: Label 'Inventory Order Details';
         CurrReportPageNoCaptionLbl: Label 'Page';
         SalesHeaderBilltoNameCaptLbl: Label 'Customer';

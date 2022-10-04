@@ -5,6 +5,11 @@ codeunit 599 "Exch. Rate Adjmt. Run Handler"
         RunExchangeRateAdjustment();
     end;
 
+#if not CLEAN20
+    var
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
+
     local procedure RunExchangeRateAdjustment()
     var
         IsHandled: Boolean;
@@ -15,7 +20,13 @@ codeunit 599 "Exch. Rate Adjmt. Run Handler"
             exit;
 
 #if not CLEAN20
-        Report.Run(Report::"Adjust Exchange Rates");
+        IsHandled := FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled();
+        Commit();
+
+        if IsHandled then
+            Report.Run(Report::"Exch. Rate Adjustment")
+        else
+            Report.Run(Report::"Adjust Exchange Rates");
 #else
         Report.Run(Report::"Exch. Rate Adjustment");
 #endif
@@ -25,16 +36,18 @@ codeunit 599 "Exch. Rate Adjmt. Run Handler"
     var
 #if not CLEAN20
         AdjustExchangeRates: Report "Adjust Exchange Rates";
-#else
-        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
 #endif
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeRunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry, IsHandled);
         if not IsHandled then
 #if not CLEAN20
-            AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
+            if FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then
+                ExchRateAdjmtProcess.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry)
+            else
+                AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
 #else
             ExchRateAdjmtProcess.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
 #endif
@@ -44,16 +57,18 @@ codeunit 599 "Exch. Rate Adjmt. Run Handler"
     var
 #if not CLEAN20
         AdjustExchangeRates: Report "Adjust Exchange Rates";
-#else
-        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
 #endif
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeRunVendExchRateAdjustment(GenJnlLine, TempVendorLedgerEntry, IsHandled);
         if not IsHandled then
 #if not CLEAN20
-            AdjustExchangeRates.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
+            if FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then
+                ExchRateAdjmtProcess.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry)
+            else
+                AdjustExchangeRates.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
 #else
             ExchRateAdjmtProcess.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
 #endif

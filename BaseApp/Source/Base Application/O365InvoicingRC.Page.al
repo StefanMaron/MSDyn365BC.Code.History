@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 9031 "O365 Invoicing RC"
 {
     Caption = 'Invoicing', Comment = 'Use same translation as ''Profile Description'' (if applicable)';
     PageType = RoleCenter;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -72,3 +76,4 @@ page 9031 "O365 Invoicing RC"
         }
     }
 }
+#endif

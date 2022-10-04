@@ -10,7 +10,7 @@ page 8623 "Config. Package Filters"
         {
             repeater(Group)
             {
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the field on which you want to filter records in the configuration table.';
@@ -28,17 +28,17 @@ page 8623 "Config. Package Filters"
                         end;
                     end;
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the field on which you want to filter records in the configuration table.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the field caption of the field on which you want to filter records in the configuration table.';
                 }
-                field("Field Filter"; "Field Filter")
+                field("Field Filter"; Rec."Field Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the field filter value for a configuration package filter. By setting a value, you specify that only records with that value are included in the configuration package.';

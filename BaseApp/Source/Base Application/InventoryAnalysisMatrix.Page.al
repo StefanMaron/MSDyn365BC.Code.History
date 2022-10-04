@@ -13,7 +13,7 @@ page 9201 "Inventory Analysis Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Row Ref. No."; "Row Ref. No.")
+                field("Row Ref. No."; Rec."Row Ref. No.")
                 {
                     ApplicationArea = InventoryAnalysis;
                     Style = Strong;
@@ -530,7 +530,7 @@ page 9201 "Inventory Analysis Matrix"
                         CellValue := AnalysisReportMgt.CalcCell(Rec, AnalysisColumn, false);
                     MatrixData[i] := MatrixMgt.RoundAmount(CellValue, AnalysisColumn."Rounding Factor");
                     MatrixRounding[i] := AnalysisColumn."Rounding Factor";
-                    CachedContainsError[i] := FindError;
+                    CachedContainsError[i] := FindError();
                 end;
                 SetStyle(i);
                 i := i + 1;
@@ -582,7 +582,7 @@ page 9201 "Inventory Analysis Matrix"
         AnalysisColumn.SetRange("Line No.", FirstLineNo, LastLineNo);
         AnalysisColumn.SetFilter(Show, '<>%1', AnalysisColumn.Show::Never);
 
-        SetVisible;
+        SetVisible();
     end;
 
     var
@@ -744,16 +744,16 @@ page 9201 "Inventory Analysis Matrix"
         if HorizontalRecord.Find('-') then
             while n <> HorizontalRecordOrdinal do begin
                 n := n + 1;
-                HorizontalRecord.Next;
+                HorizontalRecord.Next();
             end;
     end;
 
     local procedure FindError(): Boolean
     begin
-        if AnalysisReportMgt.GetDivisionError or
-           AnalysisReportMgt.GetPeriodError or
-           AnalysisReportMgt.GetFormulaError or
-           AnalysisReportMgt.GetCyclicError
+        if AnalysisReportMgt.GetDivisionError() or
+           AnalysisReportMgt.GetPeriodError() or
+           AnalysisReportMgt.GetFormulaError() or
+           AnalysisReportMgt.GetCyclicError()
         then
             exit(true);
 

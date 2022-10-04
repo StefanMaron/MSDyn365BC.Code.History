@@ -13,31 +13,31 @@ page 93 "Job Ledger Entries Preview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the type of the entry. There are two types of entries:';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the document number on the job ledger entry.';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the number of the job.';
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
@@ -47,7 +47,7 @@ page 93 "Job Ledger Entries Preview"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of account to which the job ledger entry is posted.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -58,42 +58,42 @@ page 93 "Job Ledger Entries Preview"
                     Editable = false;
                     ToolTip = 'Specifies the description of the job ledger entry.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the posting group that was used when the entry was posted. The value depends on the account type. For inventoriable items, the field contains the Inventory Posting Group. For other account types the field is blank.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the relevant location code if an item is posted.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -103,122 +103,122 @@ page 93 "Job Ledger Entries Preview"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the quantity that was posted on the entry.';
                 }
-                field("Direct Unit Cost (LCY)"; "Direct Unit Cost (LCY)")
+                field("Direct Unit Cost (LCY)"; Rec."Direct Unit Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost, in the local currency, of one unit of the selected item or resource.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                 }
-                field("Total Cost"; "Total Cost")
+                field("Total Cost"; Rec."Total Cost")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the total cost for the posted entry, in the currency specified for the job.';
                 }
-                field("Total Cost (LCY)"; "Total Cost (LCY)")
+                field("Total Cost (LCY)"; Rec."Total Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total cost of the posted entry in local currency. If you update the job ledger costs for item ledger cost adjustments, this field will be adjusted to include the item cost adjustments.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Unit Price (LCY)"; "Unit Price (LCY)")
+                field("Unit Price (LCY)"; Rec."Unit Price (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the price, in LCY, of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                     Visible = false;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the value of products on the entry.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount amount for the posted entry, in the currency specified for the job.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the line discount percent of the posted entry.';
                 }
-                field("Total Price"; "Total Price")
+                field("Total Price"; Rec."Total Price")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the total price for the posted entry, in the currency specified for the job.';
                     Visible = false;
                 }
-                field("Total Price (LCY)"; "Total Price (LCY)")
+                field("Total Price (LCY)"; Rec."Total Price (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total price (in local currency) of the posted entry.';
                     Visible = false;
                 }
-                field("Line Amount (LCY)"; "Line Amount (LCY)")
+                field("Line Amount (LCY)"; Rec."Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the value in the local currency of products on the entry.';
                     Visible = false;
                 }
-                field("Amt. to Post to G/L"; "Amt. to Post to G/L")
+                field("Amt. to Post to G/L"; Rec."Amt. to Post to G/L")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the amount that will be posted to the general ledger.';
                     Visible = false;
                 }
-                field("Amt. Posted to G/L"; "Amt. Posted to G/L")
+                field("Amt. Posted to G/L"; Rec."Amt. Posted to G/L")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the amount that has been posted to the general ledger.';
                     Visible = false;
                 }
-                field("Original Unit Cost"; "Original Unit Cost")
+                field("Original Unit Cost"; Rec."Original Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the unit cost for the posted entry at the time of posting, in the currency specified for the job. No item cost adjustments are included.';
                     Visible = false;
                 }
-                field("Original Unit Cost (LCY)"; "Original Unit Cost (LCY)")
+                field("Original Unit Cost (LCY)"; Rec."Original Unit Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the unit cost of the posted entry in local currency at the time the entry was posted. It does not include any item cost adjustments.';
                     Visible = false;
                 }
-                field("Original Total Cost"; "Original Total Cost")
+                field("Original Total Cost"; Rec."Original Total Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total cost for the posted entry at the time of posting, in the currency specified for the job. No item cost adjustments are included.';
                     Visible = false;
                 }
-                field("Original Total Cost (LCY)"; "Original Total Cost (LCY)")
+                field("Original Total Cost (LCY)"; Rec."Original Total Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total cost of the posted entry in local currency at the time the entry was posted. It does not include any item cost adjustments.';
                     Visible = false;
                 }
-                field("Original Total Cost (ACY)"; "Original Total Cost (ACY)")
+                field("Original Total Cost (ACY)"; Rec."Original Total Cost (ACY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total cost of the posted entry in the additional reporting currency at the time of posting. No item cost adjustments are included.';
                     Visible = false;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -232,34 +232,34 @@ page 93 "Job Ledger Entries Preview"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number if the job ledger entry Specifies an item usage that was posted with serial number tracking.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the lot number if the job ledger entry Specifies an item usage that was posted with lot number tracking.';
                     Visible = false;
                 }
-                field("Ledger Entry Type"; "Ledger Entry Type")
+                field("Ledger Entry Type"; Rec."Ledger Entry Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the entry type that the job ledger entry is linked to.';
@@ -269,65 +269,65 @@ page 93 "Job Ledger Entries Preview"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether a job ledger entry has been modified or adjusted. The value in this field is inserted by the Adjust Cost - Item Entries batch job. The Adjusted check box is selected if applicable.';
                 }
-                field("DateTime Adjusted"; "DateTime Adjusted")
+                field("DateTime Adjusted"; Rec."DateTime Adjusted")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the time stamp of a job ledger entry adjustment or modification.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -370,7 +370,7 @@ page 93 "Job Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
                 action("<Action28>")

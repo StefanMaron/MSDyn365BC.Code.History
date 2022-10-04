@@ -138,7 +138,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
         Assert.AreNearlyEqual(
           -GenJournalLine."Amount (LCY)", GLEntry."Debit Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, GLEntry.FieldCaption("Debit Amount"), -GenJournalLine."Amount (LCY)",
-            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
         Assert.AreEqual(0, CalculateAccountBalance(GenJournalLine."Account No."), EqualAmountError);
     end;
 
@@ -152,7 +152,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
         Assert.AreNearlyEqual(
           GenJournalLine."Amount (LCY)", GLEntry."Credit Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, GLEntry.FieldCaption("Credit Amount"), GenJournalLine."Amount (LCY)",
-            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
         Assert.AreEqual(0, CalculateAccountBalance(GenJournalLine."Account No."), EqualAmountError);
     end;
 

@@ -15,7 +15,7 @@ page 7315 "Warehouse Movement"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'No.';
@@ -36,41 +36,41 @@ page 7315 "Warehouse Movement"
                     Lookup = false;
                     ToolTip = 'Specifies the code for the location where the warehouse activity takes place.';
                 }
-                field("Breakbulk Filter"; "Breakbulk Filter")
+                field("Breakbulk Filter"; Rec."Breakbulk Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the intermediate Take and Place lines will not show as put-away, pick, or movement lines, when the quantity in the larger unit of measure is being put-away, picked or moved completely.';
 
                     trigger OnValidate()
                     begin
-                        BreakbulkFilterOnAfterValidate;
+                        BreakbulkFilterOnAfterValidate();
                     end;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the lines are sorted on the warehouse header, such as Item or Document.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
@@ -179,7 +179,7 @@ page 7315 "Warehouse Movement"
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandle;
+                        AutofillQtyToHandle();
                     end;
                 }
                 action("&Delete Qty. to Handle")
@@ -191,7 +191,7 @@ page 7315 "Warehouse Movement"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
             }
@@ -204,15 +204,12 @@ page 7315 "Warehouse Movement"
                     ApplicationArea = Warehouse;
                     Caption = '&Register Movement';
                     Image = RegisterPutAway;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Register the movement of items between bins in an advanced warehouse configuration.';
 
                     trigger OnAction()
                     begin
-                        RegisterActivityYesNo;
+                        RegisterActivityYesNo();
                     end;
                 }
             }
@@ -222,14 +219,38 @@ page 7315 "Warehouse Movement"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
                 begin
                     WhseActPrint.PrintMovementHeader(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Register Movement_Promoted"; "&Register Movement")
+                {
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("&Autofill Qty. to Handle_Promoted"; "&Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("&Delete Qty. to Handle_Promoted"; "&Delete Qty. to Handle")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
             }
         }
     }
@@ -248,7 +269,7 @@ page 7315 "Warehouse Movement"
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard
@@ -260,17 +281,17 @@ page 7315 "Warehouse Movement"
 
     local procedure AutofillQtyToHandle()
     begin
-        CurrPage.WhseMovLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseMovLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseMovLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseMovLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure RegisterActivityYesNo()
     begin
-        CurrPage.WhseMovLines.PAGE.RegisterActivityYesNo;
+        CurrPage.WhseMovLines.PAGE.RegisterActivityYesNo();
     end;
 
     local procedure SortingMethodOnAfterValidate()

@@ -1,4 +1,4 @@
-﻿codeunit 96 "Purch.-Quote to Order"
+codeunit 96 "Purch.-Quote to Order"
 {
     TableNo = "Purchase Header";
 
@@ -24,7 +24,7 @@
 
         ValidatePurchaserOnPurchHeader(Rec, true, false);
 
-        CheckForBlockedLines;
+        CheckForBlockedLines();
 
         CreatePurchHeader(Rec, Vend."Prepayment %");
 
@@ -51,8 +51,8 @@
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
-            DeleteLinks;
-            Delete;
+            DeleteLinks();
+            Delete();
             PurchQuoteLine.DeleteAll();
         end;
 
@@ -99,7 +99,7 @@
 
             PurchOrderHeader."Prepayment %" := PrepmtPercent;
             if PurchOrderHeader."Posting Date" = 0D then
-                PurchOrderHeader."Posting Date" := WorkDate;
+                PurchOrderHeader."Posting Date" := WorkDate();
             OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Modify();
         end;
@@ -132,7 +132,7 @@
         ItemChargeAssgntPurch.Reset();
         ItemChargeAssgntPurch.SetRange("Document Type", FromDocType);
         ItemChargeAssgntPurch.SetRange("Document No.", FromDocNo);
-        while ItemChargeAssgntPurch.FindFirst do begin
+        while ItemChargeAssgntPurch.FindFirst() do begin
             ItemChargeAssgntPurch.Delete();
             ItemChargeAssgntPurch."Document Type" := PurchOrderHeader."Document Type";
             ItemChargeAssgntPurch."Document No." := PurchOrderHeader."No.";
@@ -178,7 +178,7 @@
                         PurchOrderLine."Prepayment %" := Vend."Prepayment %";
                     PrepmtMgt.SetPurchPrepaymentPct(PurchOrderLine, PurchOrderHeader."Posting Date");
                     ValidatePurchOrderLinePrepaymentPct(PurchOrderLine);
-                    PurchOrderLine.DefaultDeferralCode;
+                    PurchOrderLine.DefaultDeferralCode();
                     OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchQuoteLine, PurchQuoteHeader);
                     PurchOrderLine.Insert();
                     OnAfterInsertPurchOrderLine(PurchQuoteLine, PurchOrderLine);

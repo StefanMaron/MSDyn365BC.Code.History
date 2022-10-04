@@ -13,7 +13,7 @@ page 5943 "Service Order Status Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Service Order Status"; "Service Order Status")
+                field("Service Order Status"; Rec."Service Order Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status to which you are assigning a priority.';

@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138914 "O365 Sales Invoice Attachments"
 {
     // The order of taking picture and importing file matters, as a new incoming document has to be created by the first attachment.
@@ -176,7 +177,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         Assert.AreEqual(
           StrSubstNo(AttachmentsTxt, 2), O365PostedSalesInvoiceTestPage.NoOfAttachments.Value,
           'Added picture not correctly handled as second attachment, or wrong label.');
-        O365PostedSalesInvoiceTestPage.Close;
+        O365PostedSalesInvoiceTestPage.Close();
     end;
 
     [Test]
@@ -206,7 +207,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         Assert.AreEqual(
           StrSubstNo(AttachmentsTxt, 2), O365PostedSalesInvoiceTestPage.NoOfAttachments.Value,
           'Imported file not correctly handled as second attachment, or wrong label.');
-        O365PostedSalesInvoiceTestPage.Close;
+        O365PostedSalesInvoiceTestPage.Close();
     end;
 
     [Test]
@@ -225,7 +226,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [WHEN] User imports file and page refreshes
         O365SalesDocAttachmentsTestPage.Trap; // call the page to perform some initialization
         O365SalesInvoiceTestPage.NoOfAttachments.DrillDown;
-        O365SalesDocAttachmentsTestPage.Close;
+        O365SalesDocAttachmentsTestPage.Close();
         SalesHeader.FindFirst();
         ImportFileAsAttachmentForDraft(SalesHeader."Incoming Document Entry No.");
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
@@ -242,7 +243,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         Assert.AreEqual(
           StrSubstNo(AttachmentsTxt, 2), O365SalesInvoiceTestPage.NoOfAttachments.Value,
           'Added picture not correctly handled as second attachment, or wrong label.');
-        O365SalesInvoiceTestPage.Close;
+        O365SalesInvoiceTestPage.Close();
     end;
 
     [Test]
@@ -261,7 +262,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [WHEN] User takes picture and page refreshes
         O365SalesDocAttachmentsTestPage.Trap; // call the page to perform some initialization
         O365SalesInvoiceTestPage.NoOfAttachments.DrillDown;
-        O365SalesDocAttachmentsTestPage.Close;
+        O365SalesDocAttachmentsTestPage.Close();
         SalesHeader.FindFirst();
         AddTakenPictureAsAttachmentForDraft(SalesHeader."Incoming Document Entry No.");
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
@@ -278,7 +279,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         Assert.AreEqual(
           StrSubstNo(AttachmentsTxt, 2), O365SalesInvoiceTestPage.NoOfAttachments.Value,
           'Imported file not correctly handled as second attachment, or wrong label.');
-        O365SalesInvoiceTestPage.Close;
+        O365SalesInvoiceTestPage.Close();
     end;
 
     [Test]
@@ -406,7 +407,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -631,8 +632,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         MockAzureKeyVaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
         TestSecret: Text;
     begin
-        if AzureADMgtSetup.Delete then;
-        if GraphMailSetup.Delete then;
+        if AzureADMgtSetup.Delete() then;
+        if GraphMailSetup.Delete() then;
 
         MockAzureKeyVaultSecretProvider := MockAzureKeyVaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyVaultSecretProvider.AddSecretMapping('AllowedApplicationSecrets',
@@ -692,8 +693,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, SalesHeader."No.");
         O365SalesDocAttachments.Trap;
         BCO365SalesInvoice.NoOfAttachments.DrillDown;
-        O365SalesDocAttachments.Close;
-        BCO365SalesInvoice.Close;
+        O365SalesDocAttachments.Close();
+        BCO365SalesInvoice.Close();
     end;
 
     local procedure OpenAndCloseAttachmentListForPosted(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -705,8 +706,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365PostedSalesInvoice.GotoKey(SalesInvoiceHeader."No.");
         O365PostedSalesInvAtt.Trap;
         BCO365PostedSalesInvoice.NoOfAttachments.DrillDown;
-        O365PostedSalesInvAtt.Close;
-        BCO365PostedSalesInvoice.Close;
+        O365PostedSalesInvAtt.Close();
+        BCO365PostedSalesInvoice.Close();
     end;
 
     local procedure OpenAndCloseAttachmentListForEstimates(SalesHeader: Record "Sales Header")
@@ -718,8 +719,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, SalesHeader."No.");
         O365SalesDocAttachments.Trap;
         BCO365SalesQuote.NoOfAttachmentsValueTxt.DrillDown;
-        O365SalesDocAttachments.Close;
-        BCO365SalesQuote.Close;
+        O365SalesDocAttachments.Close();
+        BCO365SalesQuote.Close();
     end;
 }
-
+#endif

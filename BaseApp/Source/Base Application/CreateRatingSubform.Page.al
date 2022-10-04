@@ -25,13 +25,13 @@ page 5191 "Create Rating Subform"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the profile question or answer.';
                 }
-                field("From Value"; "From Value")
+                field("From Value"; Rec."From Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'From';
                     ToolTip = 'Specifies the value from which the automatic classification of your contacts starts.';
                 }
-                field("To Value"; "To Value")
+                field("To Value"; Rec."To Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'To';
@@ -66,13 +66,13 @@ page 5191 "Create Rating Subform"
 
         Rec := ProfileLineQuestion;
         "Line No." := -1;
-        Insert;
+        Insert();
 
         if ProfileLineAnswer.Find('-') then
             repeat
                 Rec := ProfileLineAnswer;
                 "Profile Questionnaire Code" := ProfileLineQuestion."Profile Questionnaire Code";
-                Insert;
+                Insert();
             until ProfileLineAnswer.Next() = 0;
     end;
 

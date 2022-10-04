@@ -69,7 +69,7 @@ codeunit 134221 "WFWH Customer Approval"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -303,7 +303,7 @@ codeunit 134221 "WFWH Customer Approval"
         MakeCurrentUserAnApprover;
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
 
         // Exercise.
         Commit();
@@ -336,7 +336,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
 
         SendApprovalRequestForCustomer(Customer);
 
@@ -369,7 +369,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
 
         SendApprovalRequestForCustomer(Customer);
 
@@ -410,7 +410,7 @@ codeunit 134221 "WFWH Customer Approval"
         Assert.IsTrue(CustomerCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -441,7 +441,7 @@ codeunit 134221 "WFWH Customer Approval"
         Assert.IsTrue(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        CustomerList.Close;
+        CustomerList.Close();
     end;
 
     [Test]
@@ -471,7 +471,7 @@ codeunit 134221 "WFWH Customer Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -501,7 +501,7 @@ codeunit 134221 "WFWH Customer Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        CustomerList.Close;
+        CustomerList.Close();
     end;
 
     local procedure Initialize()
@@ -559,7 +559,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerCard.OpenEdit;
         CustomerCard.GotoRecord(Customer);
         CustomerCard.SendApprovalRequest.Invoke;
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     local procedure VerifyWorkflowWebhookEntryResponse(Id: Guid; ResponseArgument: Option)

@@ -79,11 +79,11 @@ table 7114 "Analysis Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor
             ELSE
-            IF (Type = CONST("Item Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"),Blocked = CONST(false))
+            IF (Type = CONST("Item Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"), Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("Customer Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"),Blocked = CONST(false))
+            IF (Type = CONST("Customer Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"), Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("Sales/Purchase person")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"),Blocked = CONST(false));
+            IF (Type = CONST("Sales/Purchase person")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"), Blocked = CONST(false));
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
@@ -266,6 +266,10 @@ table 7114 "Analysis Line"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        ItemAnalysisView: Record "Item Analysis View";
+        HasGLSetup: Boolean;
+
         Text001: Label 'The parenthesis at position %1 is misplaced.';
         Text002: Label 'You cannot have two consecutive operators. The error occurred at position %1.';
         Text003: Label 'There is an operand missing after position %1.';
@@ -274,9 +278,6 @@ table 7114 "Analysis Line"
         Text009: Label '1,6,,Dimension %1 Filter';
         Text010: Label ',, Totaling';
         Text011: Label '1,5,,Dimension %1 Totaling';
-        GLSetup: Record "General Ledger Setup";
-        ItemAnalysisView: Record "Item Analysis View";
-        HasGLSetup: Boolean;
 
     procedure CheckFormula(Formula: Code[250])
     var
@@ -377,24 +378,24 @@ table 7114 "Analysis Line"
             Type::Item:
                 begin
                     ItemList.LookupMode(true);
-                    if ItemList.RunModal = ACTION::LookupOK then begin
-                        Text := ItemList.GetSelectionFilter;
+                    if ItemList.RunModal() = ACTION::LookupOK then begin
+                        Text := ItemList.GetSelectionFilter();
                         exit(true);
                     end;
                 end;
             Type::Customer:
                 begin
                     CustList.LookupMode(true);
-                    if CustList.RunModal = ACTION::LookupOK then begin
-                        Text := CustList.GetSelectionFilter;
+                    if CustList.RunModal() = ACTION::LookupOK then begin
+                        Text := CustList.GetSelectionFilter();
                         exit(true);
                     end;
                 end;
             Type::Vendor:
                 begin
                     VendList.LookupMode(true);
-                    if VendList.RunModal = ACTION::LookupOK then begin
-                        Text := VendList.GetSelectionFilter;
+                    if VendList.RunModal() = ACTION::LookupOK then begin
+                        Text := VendList.GetSelectionFilter();
                         exit(true);
                     end;
                 end;
@@ -429,15 +430,15 @@ table 7114 "Analysis Line"
         DimVal.FilterGroup := 0;
         DimValList.SetTableView(DimVal);
         DimValList.LookupMode(true);
-        if DimValList.RunModal = ACTION::LookupOK then begin
-            Text := DimValList.GetSelectionFilter;
+        if DimValList.RunModal() = ACTION::LookupOK then begin
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
     end;
 
     procedure GetCaptionClass(DimNo: Integer): Text[250]
     begin
-        GetItemAnalysisView;
+        GetItemAnalysisView();
 
         case DimNo of
             1:

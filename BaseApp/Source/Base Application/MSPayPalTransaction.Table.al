@@ -4,6 +4,7 @@ table 7862 "MS- PayPal Transaction"
     ObsoleteReason = 'This table is no longer used by any user.';
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {

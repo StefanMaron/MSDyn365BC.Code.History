@@ -30,7 +30,7 @@ table 9000 "User Group"
                 UserGroup: Record "User Group";
                 EnvironmentInfo: Codeunit "Environment Information";
             begin
-                if not EnvironmentInfo.IsSaaS then
+                if not EnvironmentInfo.IsSaaS() then
                     exit;
 
                 if "Assign to All New Users" = true then
@@ -145,7 +145,7 @@ table 9000 "User Group"
         TempBlob.CreateOutStream(OutStr);
         ExportImportUserGroups.SetTableView(Rec);
         ExportImportUserGroups.SetDestination(OutStr);
-        ExportImportUserGroups.Export;
+        ExportImportUserGroups.Export();
         if FileName = '' then
             exit(FileManagement.BLOBExport(TempBlob, TableCaption + '.xml', true));
         exit(FileManagement.BLOBExport(TempBlob, FileName, false));
@@ -163,7 +163,7 @@ table 9000 "User Group"
             exit;
         TempBlob.CreateInStream(InStr);
         ExportImportUserGroups.SetSource(InStr);
-        ExportImportUserGroups.Import;
+        ExportImportUserGroups.Import();
     end;
 }
 

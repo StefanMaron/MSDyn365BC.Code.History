@@ -1,5 +1,6 @@
 table 136603 "Table With Removed Field"
 {
+    ReplicateData = false;
 
     fields
     {

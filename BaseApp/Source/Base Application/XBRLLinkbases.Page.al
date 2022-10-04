@@ -65,9 +65,6 @@ page 589 "XBRL Linkbases"
                     Caption = 'Import';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import an XBRL taxonomy into your company database by first importing one or more linkbases in .xml format. After you have completed the import of both schemas and linkbases and have applied the linkbases to the schema, you can set up the lines and map the general ledger accounts in the chart of accounts to the appropriate taxonomy lines.';
 
                     trigger OnAction()
@@ -90,7 +87,7 @@ page 589 "XBRL Linkbases"
                         if XMLExists then
                             if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
                                 exit;
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
                         if ConfirmManagement.GetResponseOrDefault(Text002, true) then
                             case Type of
@@ -119,7 +116,7 @@ page 589 "XBRL Linkbases"
                         FileMgt: Codeunit "File Management";
                     begin
                         CalcFields(XML);
-                        if XML.HasValue then begin
+                        if XML.HasValue() then begin
                             TempBlob.FromRecord(Rec, FieldNo(XML));
                             FileMgt.BLOBExport(TempBlob, '*.xml', true);
                         end;
@@ -165,6 +162,17 @@ page 589 "XBRL Linkbases"
                                     until Next() = 0;
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Import_Promoted; Import)
+                {
                 }
             }
         }

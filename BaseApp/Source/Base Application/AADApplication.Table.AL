@@ -21,22 +21,18 @@ table 9012 "AAD Application"
             var
                 User: Record User;
                 UserPermission: codeunit "User Permissions";
-                ConfirmManagement: Codeunit "Confirm Management";
                 ErrorTxt: Text;
-                ConfirmQuestion: Text;
+
             begin
                 if xRec.State = state then
                     exit;
-
                 If not UserExists() and (Rec.State = Rec.State::Enabled) then begin
                     Rec.TestField(Description);
-                    ConfirmQuestion := StrSubstNo(UserNameCannotbeChangedQst, Rec.Description);
-                    If ConfirmManagement.GetResponseOrDefault(ConfirmQuestion, true) then
+                    If Confirm(UserNameCannotbeChangedQst, true, Rec.Description) then
                         CreateUserFromAADApplication()
                     else
                         error('');
                 end;
-
                 User.Get("User Id");
                 ErrorTxt := StrSubstNo(NoPermissionToChangeUserErr, SuperPermissionSetTxt, SECURITYPermissionSetTxt);
                 if not UserPermission.CanManageUsersOnTenant(UserSecurityId()) then
@@ -90,6 +86,7 @@ table 9012 "AAD Application"
         {
             Caption = 'User Id';
         }
+
     }
 
     keys
@@ -122,7 +119,7 @@ table 9012 "AAD Application"
         User.SetRange("License Type", User."License Type"::"Full User");
         User.SetRange(State, User.State::Enabled);
         if User.IsEmpty() then begin
-            ErrText := StrSubstNo(UserMustExistErr, Rec.TableCaption);
+            ErrText := StrSubstNo(UserMustExistErr, Rec.TableCaption());
             Error(ErrText);
         end;
 

@@ -79,7 +79,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         Assert.AreNearlyEqual(
           DebitAmountLCY, DetailedCustLedgEntry."Debit Amount (LCY)", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmountError, DetailedCustLedgEntry.FieldCaption("Debit Amount (LCY)"), DebitAmountLCY,
-            DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+            DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         Assert.AreNearlyEqual(
           CreditAmountLCY, DetailedCustLedgEntry."Credit Amount (LCY)", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmountError, DetailedCustLedgEntry.FieldCaption("Credit Amount (LCY)"), CreditAmountLCY,
-            DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+            DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
     local procedure Initialize()
@@ -147,7 +147,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
     begin
         // Setup: Create Customer, Create Genenral Journal Line with different Document Types, new Currency and Post it.
         CreateGeneralJournalLine(GenJournalLine, DocumentType, Amount, CreateCurrency);
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse posted Transaction.

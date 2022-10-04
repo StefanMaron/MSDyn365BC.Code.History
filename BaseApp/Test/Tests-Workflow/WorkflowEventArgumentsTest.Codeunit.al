@@ -113,8 +113,8 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStep.ConvertEventConditionsToFilters(PurchaseLineRecRef);
 
         // Verify
-        Assert.AreEqual('', PurchaseHeaderRecRef.GetFilters, StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption));
-        Assert.AreEqual('', PurchaseLineRecRef.GetFilters, StrSubstNo(FilterNotBlankErr, PurchaseLine.TableCaption));
+        Assert.AreEqual('', PurchaseHeaderRecRef.GetFilters, StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption()));
+        Assert.AreEqual('', PurchaseLineRecRef.GetFilters, StrSubstNo(FilterNotBlankErr, PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         // Setup
         // <DataItem name="Purchase Header">VERSION(1) SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(28-01-16),Amount=FILTER(&gt;1.000))</DataItem>
         PurchaseHeader.SetRange("Buy-from Vendor No.", '10000');
-        PurchaseHeader.SetRange("Document Date", WorkDate);
+        PurchaseHeader.SetRange("Document Date", WorkDate());
         PurchaseHeader.SetFilter(Amount, '>%1', 1000);
         // <DataItem name="Purchase Line">VERSION(1) SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem>
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -141,7 +141,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseLine.SetFilter("Unit Cost", '>%1', 500);
 
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
-        WorkflowStepArgument.SetEventFilters(StrSubstNo(ParametersTxt, WorkDate, 1000));
+        WorkflowStepArgument.SetEventFilters(StrSubstNo(ParametersTxt, WorkDate(), 1000));
 
         // Exercise
         PurchaseHeaderRecRef.Open(DATABASE::"Purchase Header");
@@ -169,7 +169,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Setup
         // <DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem>
-        SalesHeader.SetRange("Document Date", WorkDate);
+        SalesHeader.SetRange("Document Date", WorkDate());
         SalesHeader.SetFilter(Amount, '>%1', 1000);
         // <DataItem name="Table37">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem>
         SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -177,7 +177,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         SalesLine.SetFilter("Unit Cost", '>%1', 500);
 
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
-        WorkflowStepArgument.SetEventFilters(StrSubstNo(SalesParametersTxt, WorkDate, 1000));
+        WorkflowStepArgument.SetEventFilters(StrSubstNo(SalesParametersTxt, WorkDate(), 1000));
 
         // Exercise
         SalesHeaderRecRef.Open(DATABASE::"Sales Header");
@@ -213,7 +213,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         // no need to set filters on IncomingDocumentAttachment, as the xml only describes sorting on the primary key
 
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
-        WorkflowStepArgument.SetEventFilters(StrSubstNo(IncomingDocumentTxt, WorkDate, 1000));
+        WorkflowStepArgument.SetEventFilters(StrSubstNo(IncomingDocumentTxt, WorkDate(), 1000));
 
         // Exercise
         IncomingDocumentRecRef.Open(DATABASE::"Incoming Document");
@@ -412,13 +412,13 @@ codeunit 134304 "Workflow Event Arguments Test"
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
         WorkflowStepArgument.SetEventFilters(LibraryUtility.GenerateRandomXMLText(1024));
 
-        Assert.IsFalse(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotCreatedErr, WorkflowStepArgument.TableCaption));
+        Assert.IsFalse(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotCreatedErr, WorkflowStepArgument.TableCaption()));
 
         // Exercise
         WorkflowStep.DeleteEventConditions;
 
         // Verify
-        Assert.IsTrue(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotDeletedErr, WorkflowStepArgument.TableCaption));
+        Assert.IsTrue(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotDeletedErr, WorkflowStepArgument.TableCaption()));
     end;
 
     [Test]
@@ -433,8 +433,8 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Setup
         CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
-        WorkflowStepArgument.SetEventFilters(StrSubstNo(ParametersTxt, WorkDate, 1000));
-        Assert.IsFalse(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotCreatedErr, WorkflowStepArgument.TableCaption));
+        WorkflowStepArgument.SetEventFilters(StrSubstNo(ParametersTxt, WorkDate(), 1000));
+        Assert.IsFalse(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotCreatedErr, WorkflowStepArgument.TableCaption()));
         WorkflowStepBuffer.PopulateTable(WorkflowStep."Workflow Code");
         WorkflowStepBuffer.FindFirst();
 
@@ -442,8 +442,8 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStepBuffer.DeleteEventConditions;
 
         // Verify
-        WorkflowStep.Find;
-        Assert.IsTrue(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotDeletedErr, WorkflowStepArgument.TableCaption));
+        WorkflowStep.Find();
+        Assert.IsTrue(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotDeletedErr, WorkflowStepArgument.TableCaption()));
     end;
 
     [Test]
@@ -541,7 +541,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStep.OpenEventConditions;
 
         // Verify
-        WorkflowStep.Find;
+        WorkflowStep.Find();
         Assert.IsTrue(IsNullGuid(WorkflowStep.Argument), NullArgumentErr);
     end;
 
@@ -602,7 +602,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Result := RequestPageParametersHelper.BuildDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header");
 
         // Verify
-        Assert.IsTrue(Result, StrSubstNo(DynamicRequestPageNotPreparedErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(Result, StrSubstNo(DynamicRequestPageNotPreparedErr, PurchaseHeader.TableCaption()));
         VerifyDynamicRequestPageBlankParametersForPurchaseInvoice(FilterPageBuilder, EntityName);
     end;
 
@@ -693,7 +693,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         // Exercise
         Result :=
           RequestPageParametersHelper.SetViewOnDynamicRequestPage(FilterPageBuilder,
-            StrSubstNo(ParametersTxt, WorkDate, 100), EntityName, DATABASE::"Purchase Header");
+            StrSubstNo(ParametersTxt, WorkDate(), 100), EntityName, DATABASE::"Purchase Header");
 
         // Verify
         Assert.IsTrue(Result, DynamicRequestPageFiltersNotSetErr);
@@ -732,7 +732,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Verify
         Assert.AreEqual(
-          StrSubstNo(DynamicRequestPageParametersTxt, VendorNo, Format(WorkDate, 0, 9), Format(Amount, 0, 9), ItemNo,
+          StrSubstNo(DynamicRequestPageParametersTxt, VendorNo, Format(WorkDate(), 0, 9), Format(Amount, 0, 9), ItemNo,
             Format(DirectUnitCost, 0, 9)), Filters, FilterMismatchErr);
     end;
 
@@ -769,7 +769,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Verify
         Assert.AreEqual(
-          StrSubstNo(DynamicRequestPageParametersTxt, VendorNo, Format(WorkDate, 0, 9), Format(Amount, 0, 9), ItemNo,
+          StrSubstNo(DynamicRequestPageParametersTxt, VendorNo, Format(WorkDate(), 0, 9), Format(Amount, 0, 9), ItemNo,
             Format(DirectUnitCost, 0, 9)), Filters, FilterMismatchErr);
     end;
 
@@ -812,7 +812,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Verify
         Assert.AreEqual(
-          StrSubstNo(DynamicRequestPageParametersTxt, VendorNo, Format(WorkDate, 0, 9), Format(Amount, 0, 9), ItemNo,
+          StrSubstNo(DynamicRequestPageParametersTxt, VendorNo, Format(WorkDate(), 0, 9), Format(Amount, 0, 9), ItemNo,
             Format(DirectUnitCost, 0, 9)), Filters, FilterMismatchErr);
     end;
 
@@ -938,9 +938,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         RecRef.SetTable(PurchaseHeader);
 
         Assert.AreEqual(Format(PurchaseHeader."Document Type"::Invoice), PurchaseHeader.GetFilter("Document Type"),
-          StrSubstNo(WrongFieldFilterErr, PurchaseHeader.FieldCaption("Document Type"), PurchaseHeader.TableCaption));
+          StrSubstNo(WrongFieldFilterErr, PurchaseHeader.FieldCaption("Document Type"), PurchaseHeader.TableCaption()));
         Assert.AreNotEqual('', PurchaseHeader.GetFilter("Buy-from Vendor No."),
-          StrSubstNo(WrongFieldFilterErr, PurchaseHeader.FieldCaption("Buy-from Vendor No."), PurchaseHeader.TableCaption));
+          StrSubstNo(WrongFieldFilterErr, PurchaseHeader.FieldCaption("Buy-from Vendor No."), PurchaseHeader.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLineFilters(WorkflowStep: Record "Workflow Step"; Amount: Decimal; UnitOfMeasure: Text[10])
@@ -957,9 +957,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseLine2.SetRange("Unit of Measure", UnitOfMeasure);
 
         Assert.AreEqual(PurchaseLine2.GetFilter(Amount), PurchaseLine1.GetFilter(Amount),
-          StrSubstNo(WrongFieldFilterErr, PurchaseLine1.FieldCaption(Amount), PurchaseLine1.TableCaption));
+          StrSubstNo(WrongFieldFilterErr, PurchaseLine1.FieldCaption(Amount), PurchaseLine1.TableCaption()));
         Assert.AreEqual(PurchaseLine2.GetFilter("Unit of Measure"), PurchaseLine1.GetFilter("Unit of Measure"),
-          StrSubstNo(WrongFieldFilterErr, PurchaseLine1.FieldCaption("Unit of Measure"), PurchaseLine1.TableCaption));
+          StrSubstNo(WrongFieldFilterErr, PurchaseLine1.FieldCaption("Unit of Measure"), PurchaseLine1.TableCaption()));
     end;
 
     local procedure DeletePurhcaseHeaderRelatedEntities()
@@ -1075,9 +1075,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseHeaderDataItem: Text;
     begin
         // <DataItem name="Purchase Header">VERSION(1) SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(28-01-16),Amount=FILTER(&gt;1.000))</DataItem>
-        PurchaseHeaderDataItem := FilterPageBuilder.AddTable(PurchaseHeader.TableCaption, DATABASE::"Purchase Header");
+        PurchaseHeaderDataItem := FilterPageBuilder.AddTable(PurchaseHeader.TableCaption(), DATABASE::"Purchase Header");
         FilterPageBuilder.ADdField(PurchaseHeaderDataItem, PurchaseHeader."Buy-from Vendor No.", VendorNo);
-        FilterPageBuilder.ADdField(PurchaseHeaderDataItem, PurchaseHeader."Due Date", Format(WorkDate));
+        FilterPageBuilder.ADdField(PurchaseHeaderDataItem, PurchaseHeader."Due Date", Format(WorkDate()));
         FilterPageBuilder.ADdField(PurchaseHeaderDataItem, PurchaseHeader.Amount, StrSubstNo('>%1', Amount));
     end;
 
@@ -1087,7 +1087,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseLineDataItem: Text;
     begin
         // <DataItem name="Purchase Line">VERSION(1) SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem>
-        PurchaseLineDataItem := FilterPageBuilder.AddTable(PurchaseLine.TableCaption, DATABASE::"Purchase Line");
+        PurchaseLineDataItem := FilterPageBuilder.AddTable(PurchaseLine.TableCaption(), DATABASE::"Purchase Line");
         FilterPageBuilder.ADdField(PurchaseLineDataItem, PurchaseLine.Type, Format(PurchaseLine.Type::Item));
         FilterPageBuilder.ADdField(PurchaseLineDataItem, PurchaseLine."No.", ItemNo);
         FilterPageBuilder.ADdField(PurchaseLineDataItem, PurchaseLine."Direct Unit Cost", StrSubstNo('>%1', DirectUnitCost));
@@ -1099,7 +1099,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         VendorDataItem: Text;
     begin
         // <DataItem name="Vendor">VERSION(1) SORTING(No.) WHERE(Vendor Posting Group=(DOMESTIC),VAT Bus. Posting Group=(NATIONAL))</DataItem>
-        VendorDataItem := FilterPageBuilder.AddTable(Vendor.TableCaption, DATABASE::Vendor);
+        VendorDataItem := FilterPageBuilder.AddTable(Vendor.TableCaption(), DATABASE::Vendor);
         FilterPageBuilder.ADdField(VendorDataItem, Vendor."Vendor Posting Group", VendorPostingGroup);
         FilterPageBuilder.ADdField(VendorDataItem, Vendor."VAT Bus. Posting Group", VATBusPostingGroup);
     end;
@@ -1124,7 +1124,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Workflow.Get(WorkflowStep."Workflow Code");
         Workflow.Validate(Enabled, false);
         Workflow.Modify(true);
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
 
         Workflow.Delete(true);
@@ -1149,9 +1149,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseLine: Record "Purchase Line";
     begin
         Assert.AreEqual(Format(PurchaseHeaderBlankParametersTxt),
-          FilterPageBuilder.GetView(PurchaseHeader.TableCaption), StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption));
-        Assert.AreEqual('', FilterPageBuilder.GetView(PurchaseLine.TableCaption),
-          StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption));
+          FilterPageBuilder.GetView(PurchaseHeader.TableCaption()), StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption()));
+        Assert.AreEqual('', FilterPageBuilder.GetView(PurchaseLine.TableCaption()),
+          StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption()));
     end;
 
     local procedure VerifyDynamicRequestPageBlankParametersForPurchaseInvoice(FilterPageBuilder: FilterPageBuilder; EntityName: Code[20])
@@ -1161,12 +1161,12 @@ codeunit 134304 "Workflow Event Arguments Test"
         RequestPageParametersHelper: Codeunit "Request Page Parameters Helper";
     begin
         Assert.AreEqual(Format(PurchaseHeaderBlankParametersTxt),
-          FilterPageBuilder.GetView(PurchaseHeader.TableCaption), StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption));
+          FilterPageBuilder.GetView(PurchaseHeader.TableCaption()), StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption()));
         Assert.AreEqual(Format(PurchaseLineBlankParametersTxt),
-          FilterPageBuilder.GetView(PurchaseLine.TableCaption), StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption));
+          FilterPageBuilder.GetView(PurchaseLine.TableCaption()), StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption()));
         Assert.AreEqual(Format(DynamicRequestPageBlankParametersTxt),
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header"),
-          StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption));
+          StrSubstNo(FilterNotBlankErr, PurchaseHeader.TableCaption()));
     end;
 
     local procedure VerifyDynamicRequestPageParametersForPurchaseInvoice(FilterPageBuilder: FilterPageBuilder)
@@ -1175,10 +1175,10 @@ codeunit 134304 "Workflow Event Arguments Test"
         PurchaseLine: Record "Purchase Line";
     begin
         Assert.AreEqual(
-          StrSubstNo(PurchaseHeaderParametersTxt, Format(WorkDate, 0, 9), 100),
-          FilterPageBuilder.GetView(PurchaseHeader.TableCaption), FilterMismatchErr);
+          StrSubstNo(PurchaseHeaderParametersTxt, Format(WorkDate(), 0, 9), 100),
+          FilterPageBuilder.GetView(PurchaseHeader.TableCaption()), FilterMismatchErr);
         Assert.AreEqual(
-          Format(PurchaseLineParametersTxt), FilterPageBuilder.GetView(PurchaseLine.TableCaption), FilterMismatchErr);
+          Format(PurchaseLineParametersTxt), FilterPageBuilder.GetView(PurchaseLine.TableCaption()), FilterMismatchErr);
     end;
 
     local procedure EnableWorkflow("Code": Code[20])

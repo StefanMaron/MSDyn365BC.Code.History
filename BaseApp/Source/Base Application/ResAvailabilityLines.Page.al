@@ -17,13 +17,13 @@ page 361 "Res. Availability Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies a series of dates according to the selected time interval.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -36,7 +36,7 @@ page 361 "Res. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the total capacity for the corresponding time period.';
                 }
-                field("Resource.""Qty. on Order (Job)"""; "Qty. on Order (Job)")
+                field("Resource.""Qty. on Order (Job)"""; Rec."Qty. on Order (Job)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Order (Job)';
@@ -50,7 +50,7 @@ page 361 "Res. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies capacity minus the quantity on order.';
                 }
-                field("Resource.""Qty. Quoted (Job)"""; "Job Quotes Allocation")
+                field("Resource.""Qty. Quoted (Job)"""; Rec."Job Quotes Allocation")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Job Quotes Allocation';
@@ -64,7 +64,7 @@ page 361 "Res. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies capacity, minus quantity on order (Job), minus quantity on service order, minus job quotes allocation. ';
                 }
-                field("Resource.""Qty. on Service Order"""; "Qty. on Service Order")
+                field("Resource.""Qty. on Service Order"""; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';

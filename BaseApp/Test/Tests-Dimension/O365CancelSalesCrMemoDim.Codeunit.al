@@ -352,11 +352,11 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         DimCombination: Record "Dimension Combination";
     begin
         with DimCombination do begin
-            Init;
+            Init();
             Validate("Dimension 1 Code", DimCode1);
             Validate("Dimension 2 Code", DimCode2);
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
-            Insert;
+            Insert();
         end;
         Commit();
     end;

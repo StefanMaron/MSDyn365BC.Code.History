@@ -50,14 +50,14 @@ codeunit 138043 "O365 Standard Document Reports"
 
         // [GIVEN] Sales Quote with item line and comment line
         ItemNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [WHEN] Run "Standard Sales - Quote" report
         CommitAndRunReportOnSalesDocument(REPORT::"Standard Sales - Quote", SalesHeader);
 
         // [THEN] Dataset for item has values for Unit Price, Quantity, VAT, Line Amount
         // [THEN] Dataset for comment line has blank values for Unit Price, Quantity, VAT, Line Amount
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(1, SalesHeader."No. Printed", '');
         VerifyPrintedReport(SalesHeader."No.", ItemNo);
     end;
@@ -80,7 +80,7 @@ codeunit 138043 "O365 Standard Document Reports"
         CommitAndRunReportOnSalesDocument(REPORT::"Standard Sales - Quote", SalesHeader);
 
         // Verify
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(1, SalesHeader."No. Printed", '');
         VerifyPrintedReportWithWorkDescription(WorkDescription);
     end;
@@ -105,7 +105,7 @@ codeunit 138043 "O365 Standard Document Reports"
         CommitAndRunReportOnSalesDocument(REPORT::"Standard Sales - Order Conf.", SalesHeader);
 
         // [THEN] Value of WorkDescriptionLine = 'Hello World!'
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(1, SalesHeader."No. Printed", '');
         VerifyPrintedReportWithWorkDescription(WorkDescription);
     end;
@@ -123,14 +123,14 @@ codeunit 138043 "O365 Standard Document Reports"
 
         // [GIVEN] Sales Order with item line and comment line
         ItemNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [WHEN] Run "Standard Sales - Order Conf." report
         CommitAndRunReportOnSalesDocument(REPORT::"Standard Sales - Order Conf.", SalesHeader);
 
         // [THEN] Dataset for item has values for Unit Price, Quantity, VAT, Line Amount
         // [THEN] Dataset for comment line has blank values for Unit Price, Quantity, VAT, Line Amount
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(1, SalesHeader."No. Printed", '');
         VerifyPrintedReport(SalesHeader."No.", ItemNo);
     end;
@@ -151,14 +151,14 @@ codeunit 138043 "O365 Standard Document Reports"
         // [GIVEN] Sales Invoice with item line and comment line
         PostedDocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesInvoiceHeader.Get(PostedDocNo);
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run "Standard Sales - Invoice" report
         CommitAndRunReportOnPostedSalesInvoice(REPORT::"Standard Sales - Invoice", SalesInvoiceHeader);
 
         // [THEN] Dataset for item has values for Unit Price, Quantity, VAT, Line Amount
         // [THEN] Dataset for comment line has blank values for Unit Price, Quantity, VAT, Line Amount
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.FindFirst();
@@ -182,14 +182,14 @@ codeunit 138043 "O365 Standard Document Reports"
         // [GIVEN] Sales Credit Memo with item line and comment line
         PostedDocNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         SalesCrMemoHeader.Get(PostedDocNo);
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
 
         // [WHEN] Run "Standard Sales - Credit Memo" report
         CommitAndRunReportOnPostedSalesCreditMemo(REPORT::"Standard Sales - Credit Memo", SalesCrMemoHeader);
 
         // [THEN] Dataset for item has values for Unit Price, Quantity, VAT, Line Amount
         // [THEN] Dataset for comment line has blank values for Unit Price, Quantity, VAT, Line Amount
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
         SalesCrMemoLine.FindFirst();
@@ -210,14 +210,14 @@ codeunit 138043 "O365 Standard Document Reports"
 
         // [GIVEN] Sales Invoice with item line and comment line
         ItemNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [WHEN] Run "Standard Sales - Draft Invoice" report
         CommitAndRunReportOnSalesDocument(REPORT::"Standard Sales - Draft Invoice", SalesHeader);
 
         // [THEN] Dataset for item has values for Unit Price, Quantity, VAT, Line Amount
         // [THEN] Dataset for comment line has blank values for Unit Price, Quantity, VAT, Line Amount
-        SalesHeader.Find;
+        SalesHeader.Find();
         VerifyPrintedReport(SalesHeader."No.", ItemNo);
     end;
 
@@ -240,14 +240,14 @@ codeunit 138043 "O365 Standard Document Reports"
 
         // Prepare
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // Execute
         SalesInvoice.OpenView;
         SalesInvoice.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
         SalesInvoice.DraftInvoice.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
         // Verify - see report request handler
     end;
 
@@ -263,13 +263,13 @@ codeunit 138043 "O365 Standard Document Reports"
 
         // Prepare
         ItemNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         // Execute
         CommitAndRunReportOnPurchaseDocument(REPORT::"Standard Purchase - Order", PurchaseHeader);
 
         // Verify
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.AreEqual(1, PurchaseHeader."No. Printed", '');
         VerifyPrintedPurchaseReport(PurchaseHeader."No.", ItemNo);
     end;
@@ -295,7 +295,7 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryERMCountryData.CreateVATData();
 
         with CompanyInformation do begin
-            Get;
+            Get();
             if "Giro No." = '' then
                 "Giro No." := '1234567';
             if IBAN = '' then
@@ -306,7 +306,7 @@ codeunit 138043 "O365 Standard Document Reports"
                 "Bank Account No." := '12431243';
             if "SWIFT Code" = '' then
                 "SWIFT Code" := 'GBBAKKXX';
-            Modify;
+            Modify();
         end;
 
         IsInitialized := true;
@@ -354,7 +354,7 @@ codeunit 138043 "O365 Standard Document Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, DocumentType, '', '', LibraryRandom.RandDec(10, 2), '', WorkDate);
+          PurchaseHeader, PurchaseLine, DocumentType, '', '', LibraryRandom.RandDec(10, 2), '', WorkDate());
         PurchaseHeader.SetHideValidationDialog(true);
         PurchaseHeader.Validate("Tax Area Code", '');  // Required for CA.
         PurchaseHeader.Modify(true);
@@ -373,7 +373,7 @@ codeunit 138043 "O365 Standard Document Reports"
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesHeader.SetWorkDescription(WorkDescription);
         SalesHeader.Modify();
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
     end;
 
     local procedure CommitAndRunReportOnSalesDocument(ReportNumber: Integer; var SalesHeader: Record "Sales Header")

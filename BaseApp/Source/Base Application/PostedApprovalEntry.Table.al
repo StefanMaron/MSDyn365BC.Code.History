@@ -157,7 +157,7 @@ table 456 "Posted Approval Entry"
     begin
         if not RecRef.Get("Posted Record ID") then
             exit;
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
         PageManagement.PageRun(RecRef);
     end;
 }

@@ -7,8 +7,7 @@ page 5469 "API Setup"
     SaveValues = true;
     SourceTable = "Config. Tmpl. Selection Rules";
     SourceTableView = SORTING(Order)
-                      ORDER(Ascending)
-                      WHERE("Page ID" = FILTER(<> 0));
+                      ORDER(Ascending);
     UsageCategory = Administration;
 
     layout
@@ -21,19 +20,19 @@ page 5469 "API Setup"
                 {
                     ApplicationArea = All;
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the table that the template applies to.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = All;
                     TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page),
                                                                          "Object Subtype" = CONST('API'));
                     ToolTip = 'Specifies the API web service page that the template applies to.';
                 }
-                field("Template Code"; "Template Code")
+                field("Template Code"; Rec."Template Code")
                 {
                     ApplicationArea = All;
                     TableRelation = "Config. Template Header".Code WHERE("Table ID" = FIELD("Table ID"));
@@ -51,7 +50,7 @@ page 5469 "API Setup"
 
                     trigger OnAssistEdit()
                     begin
-                        SetSelectionCriteria;
+                        SetSelectionCriteria();
                         CurrPage.Update(false);
                     end;
                 }
@@ -68,8 +67,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Integrate APIs';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = SetupActionVisible;
                 ObsoleteReason = 'This functionality will be removed because APIs are refactored in Integration Management to not use integration records.';
                 ObsoleteState = Pending;
@@ -88,7 +85,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix Sales and Purchase API Records';
                 Image = Setup;
-                Promoted = false;
                 ObsoleteReason = 'This action will be removed together with the upgrade code.';
                 ObsoleteState = Pending;
                 ObsoleteTag = '18.0';
@@ -112,7 +108,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix Sales Shipment Line API Records';
                 Image = Setup;
-                Promoted = false;
                 ObsoleteReason = 'This action will be removed together with the upgrade code.';
                 ObsoleteState = Pending;
                 ObsoleteTag = '18.0';
@@ -131,7 +126,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix Purchase Recepit Line API Records';
                 Image = Setup;
-                Promoted = false;
                 ObsoleteReason = 'This action will be removed together with the upgrade code.';
                 ObsoleteState = Pending;
                 ObsoleteTag = '18.0';
@@ -150,7 +144,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix Purchase Order API Records';
                 Image = Setup;
-                Promoted = false;
                 ToolTip = 'Updates records that are used by the purchaseOrders API';
                 Visible = false;
 
@@ -167,7 +160,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix Sales Credit Memo API Records Reason Codes';
                 Image = Setup;
-                Promoted = false;
                 ToolTip = 'Updates reason codes of the records that are used by the salesCreditMemos API';
                 ObsoleteReason = 'This action will be removed together with the upgrade code.';
                 ObsoleteState = Pending;
@@ -185,7 +177,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix document API records Shortcut Dimensions';
                 Image = Setup;
-                Promoted = false;
                 ToolTip = 'Updates shortcut dimension codes of the records that are used by the salesInvoices, salesOrders, salesCreditMemos, salesQuotes, purchaseOrders and purchaseInvoices API';
                 ObsoleteReason = 'This action will be removed together with the upgrade code.';
                 ObsoleteState = Pending;
@@ -203,7 +194,6 @@ page 5469 "API Setup"
                 ApplicationArea = All;
                 Caption = 'Fix Item Category Codes of Items';
                 Image = Setup;
-                Promoted = false;
                 ToolTip = 'Updates the item category codes of the item records';
 
                 trigger OnAction()
@@ -214,16 +204,30 @@ page 5469 "API Setup"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(IntegrateAPIs_Promoted; IntegrateAPIs)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be removed because APIs are refactored in Integration Management to not use integration records.';
+                    ObsoleteTag = '17.0';
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        ConditionsText := GetFiltersAsTextDisplay;
+        ConditionsText := GetFiltersAsTextDisplay();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ConditionsText := GetFiltersAsTextDisplay;
+        ConditionsText := GetFiltersAsTextDisplay();
     end;
 
     trigger OnOpenPage()

@@ -1,7 +1,7 @@
 page 5150 "Contact Segment List"
 {
     Caption = 'Contact Segment List';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     Editable = false;
     PageType = List;
     SourceTable = "Segment Line";
@@ -13,7 +13,7 @@ page 5150 "Contact Segment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Segment No."; "Segment No.")
+                field("Segment No."; Rec."Segment No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the segment to which this segment line belongs.';
@@ -28,12 +28,12 @@ page 5150 "Contact Segment List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date the segment line was created.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact to which this segment line applies.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Name';
@@ -99,7 +99,7 @@ page 5150 "Contact Segment List"
                     Result := StrSubstNo('%1 %2', Contact."No.", Contact.Name);
         end;
 
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
             Result := StrSubstNo('%1 %2', CurrPage.Caption, Result);
     end;
 }

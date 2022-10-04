@@ -48,32 +48,32 @@ page 1254 "Text-to-Account Mapping Wksh."
                 ShowCaption = false;
                 repeater("Mapping Rules")
                 {
-                    field("Mapping Text"; "Mapping Text")
+                    field("Mapping Text"; Rec."Mapping Text")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the text on the payment that is used to map the payment to a customer, vendor, or general ledger account when you choose the Apply Automatically function in the Payment Reconciliation Journal window.';
                     }
-                    field("Vendor No."; "Vendor No.")
+                    field("Vendor No."; Rec."Vendor No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the number of the vendor that incoming documents containing the mapping text will be created for, or that payments will be posted to.';
                     }
-                    field("Debit Acc. No."; "Debit Acc. No.")
+                    field("Debit Acc. No."; Rec."Debit Acc. No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the debit account that payments with this text-to-account mapping are matched with when you choose the Apply Automatically function in the Payment Reconciliation Journal window.';
                     }
-                    field("Credit Acc. No."; "Credit Acc. No.")
+                    field("Credit Acc. No."; Rec."Credit Acc. No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the credit account that payments with this text-to-account mapping are applied to when you choose the Apply Automatically function in the Payment Reconciliation Journal window.';
                     }
-                    field("Bal. Source Type"; "Bal. Source Type")
+                    field("Bal. Source Type"; Rec."Bal. Source Type")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the type of balancing account that amounts on payments or incoming documents that have this text to account mapping are posted to. The Bank Account option is used only for incoming documents and cannot be used in payment reconciliation journals.';
                     }
-                    field("Bal. Source No."; "Bal. Source No.")
+                    field("Bal. Source No."; Rec."Bal. Source No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the balancing account to post amounts on payments or incoming documents that have this text to account mapping. The Bank Account option in the Bal. Source Type cannot be used in payment reconciliation journals.';
@@ -92,18 +92,26 @@ page 1254 "Text-to-Account Mapping Wksh."
                 ApplicationArea = Basic, Suite;
                 Caption = 'Set Up Default Accounts for Non-Item Lines';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Purchases & Payables Setup";
                 ToolTip = 'Set up debit and credit accounts that are inserted on purchase credit memo lines by default, for example, when the product on the line can not be identified for text-to-account mapping.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenPurchaseSetup_Promoted; OpenPurchaseSetup)
+                {
+                }
             }
         }
     }
 
     trigger OnInit()
     begin
-        UpdateDefaultGLAccounts
+        UpdateDefaultGLAccounts();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -117,7 +125,7 @@ page 1254 "Text-to-Account Mapping Wksh."
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        exit(CheckEntriesAreConsistent);
+        exit(CheckEntriesAreConsistent());
     end;
 
     var
@@ -159,7 +167,7 @@ page 1254 "Text-to-Account Mapping Wksh."
                         PurchasesPayablesSetup."Credit Acc. for Non-Item Lines" := GLAccount."No.";
                 end;
                 PurchasesPayablesSetup.Modify();
-                UpdateDefaultGLAccounts;
+                UpdateDefaultGLAccounts();
             end;
     end;
 }

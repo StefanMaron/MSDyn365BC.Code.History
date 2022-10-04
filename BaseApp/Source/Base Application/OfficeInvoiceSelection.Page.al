@@ -32,20 +32,20 @@ page 1632 "Office Invoice Selection"
                     Customer: Record Customer;
                 begin
                     Customer.Get(CurrentCustomerNo);
-                    Customer.CreateAndShowNewInvoice;
-                    CurrPage.Close;
+                    Customer.CreateAndShowNewInvoice();
+                    CurrPage.Close();
                 end;
             }
             repeater("Existing Sales Invoices")
             {
-                field("No."; "Document No.")
+                field("No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the related document.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowInvoice;
+                        ShowInvoice();
                     end;
                 }
                 field("Sell-to Customer Name"; SellToCustomer)

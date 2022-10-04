@@ -122,7 +122,7 @@ table 9009 "Permission Set Buffer"
             exit;
         if xRec."Role ID" = "Role ID" then
             exit;
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
         if Type = Type::"User-Defined" then begin
             AccessControl.SetRange("App ID", xRec."App ID");
             AccessControl.SetRange("Role ID", xRec."Role ID");

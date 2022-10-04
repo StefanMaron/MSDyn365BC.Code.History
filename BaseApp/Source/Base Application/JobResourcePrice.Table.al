@@ -1,7 +1,7 @@
 table 1012 "Job Resource Price"
 {
     Caption = 'Job Resource Price';
-#if not CLEAN19
+#if not CLEAN21
     DrillDownPageID = "Job Resource Prices";
     LookupPageID = "Job Resource Prices";
     ObsoleteState = Pending;
@@ -22,7 +22,7 @@ table 1012 "Job Resource Price"
 
             trigger OnValidate()
             begin
-                GetJob;
+                GetJob();
                 "Currency Code" := Job."Currency Code";
             end;
         }
@@ -175,9 +175,10 @@ table 1012 "Job Resource Price"
     end;
 
     var
-        Text000: Label '%1 cannot be specified when %2 is %3.';
         Job: Record Job;
         JT: Record "Job Task";
+
+        Text000: Label '%1 cannot be specified when %2 is %3.';
 
     local procedure GetJob()
     begin

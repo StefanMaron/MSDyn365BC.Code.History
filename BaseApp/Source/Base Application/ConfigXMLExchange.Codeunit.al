@@ -1,4 +1,4 @@
-﻿codeunit 8614 "Config. XML Exchange"
+codeunit 8614 "Config. XML Exchange"
 {
 
     trigger OnRun()
@@ -210,14 +210,14 @@
         ConfigPackageField: Record "Config. Package Field";
         ConfigPackage: Record "Config. Package";
         ConfigProgressBarRecord: Codeunit "Config. Progress Bar";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
         DocumentElement: DotNet XmlNode;
         FieldNode: DotNet XmlNode;
         RecordNode: DotNet XmlNode;
         TableNode: DotNet XmlNode;
         TableIDNode: DotNet XmlNode;
         PackageCodeNode: DotNet XmlNode;
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
         RecordCount: Integer;
         ProcessedRecordCount: Integer;
         StepCount: Integer;
@@ -413,13 +413,13 @@
 
         if not CalledFromCode then
             XMLDataFile := FileManagement.ServerTempFileName('');
-        FileFilter := GetFileDialogFilter;
+        FileFilter := GetFileDialogFilter();
         if ToFile = '' then
             ToFile := StrSubstNo(PackageFileNameTxt, ConfigPackage.Code);
         OnExportPackageXMLOnAfterAssignToFile(ConfigPackage, ToFile);
 
         SetWorkingFolder(FileManagement.GetDirectoryName(XMLDataFile));
-        PackageXML := PackageXML.XmlDocument;
+        PackageXML := PackageXML.XmlDocument();
         ExportPackageXMLDocument(PackageXML, ConfigPackageTable, ConfigPackage, Advanced);
 
         PackageXML.Save(XMLDataFile);
@@ -458,15 +458,15 @@
         XMLDOMMgt.LoadXMLDocumentFromText(
           StrSubstNo(
             '<?xml version="1.0" encoding="UTF-16" standalone="yes"?><%1>%2</%1>',
-            GetPackageTag,
+            GetPackageTag(),
             LocXML),
           PackageXML);
 
         CleanUpConfigPackageData(ConfigPackage);
 
         if not ExcelMode then begin
-            InitializeMediaTempFolder;
-            DocumentElement := PackageXML.DocumentElement;
+            InitializeMediaTempFolder();
+            DocumentElement := PackageXML.DocumentElement();
             XMLDOMMgt.AddAttribute(
               DocumentElement, GetElementName(ConfigPackage.FieldName("Min. Count For Async Import")),
               Format(ConfigPackage."Min. Count For Async Import"));
@@ -569,10 +569,9 @@
         PackageXML: DotNet XmlDocument;
     begin
         XMLDOMMgt.LoadXMLDocumentFromInStream(InStream, PackageXML);
-        if PackageCode <> '' then begin
+        if PackageCode <> '' then
             if PackageCode <> GetPackageCode(PackageXML) then
                 Error(PackageCodesMustMatchErr);
-        end;
 
         exit(ImportPackageXMLDocument(PackageXML, PackageCode));
     end;
@@ -723,7 +722,7 @@
         Commit(); // to ensure no deadlock occurs when waiting for background processes
 
         if not HideDialog then
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
         if not ExcelMode then
             ParallelSessionManagement.WaitForAllToFinish(0);
 
@@ -831,7 +830,7 @@
                             if GetNodeValue(RecordNode, GetElementName(ConfigPackageField."Field Name")) <> '' then
                                 exit(true);
                     until ConfigPackageField.Next() = 0;
-                RecRef.Close;
+                RecRef.Close();
             end;
         end;
 
@@ -992,7 +991,7 @@
                 OnFillPackageDataFromXMLOnAfterCalcShouldShowTableContainsRecordsQst(ConfigPackageTable, PackageCode, TableID, HideDialog, ShouldShowTableContainsRecordsQst);
                 if ShouldShowTableContainsRecordsQst then
                     if Confirm(TableContainsRecordsQst, true, TableID, PackageCode, ConfigPackageTable."No. of Package Records") then
-                        ConfigPackageTable.DeletePackageData
+                        ConfigPackageTable.DeletePackageData()
                     else
                         exit;
             end;
@@ -1022,7 +1021,7 @@
                 if RecordNode.HasChildNodes then begin
                     ConfigPackageMgt.InitPackageRecord(ConfigPackageRecord, PackageCode, ConfigPackageTable."Table ID");
 
-                    RecRef.Close;
+                    RecRef.Close();
                     RecRef.Open(ConfigPackageTable."Table ID");
                     if TempConfigPackageField.FindSet() then
                         repeat
@@ -1063,7 +1062,7 @@
                 end;
             end;
             if not HideDialog and (RecordCount > 1000) then
-                ConfigProgressBarRecord.Close;
+                ConfigProgressBarRecord.Close();
         end;
     end;
 
@@ -1101,7 +1100,7 @@
         if not ((FieldRef.Type in [FieldType::Integer, FieldType::BLOB]) and
                 (FieldRef.Relation <> 0) and (Format(FieldRef.Value) = '0'))
         then
-            InnerText := Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat);
+            InnerText := Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat());
 
         if not ExcelMode then
             case FieldRef.Type of
@@ -1109,7 +1108,7 @@
                     InnerText := Format(FieldRef.Value, 0, 2);
                 FieldType::DateFormula:
                     if Format(FieldRef.Value) <> '' then
-                        InnerText := '<' + Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat) + '>';
+                        InnerText := '<' + Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat()) + '>';
                 FieldType::BLOB:
                     InnerText := ConvertBLOBToBase64String(FieldRef);
                 FieldType::MediaSet:
@@ -1233,8 +1232,8 @@
     local procedure GetPrimaryKeyFieldNumber(TableID: Integer): Integer
     var
         RecRef: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
     begin
         RecRef.Open(TableID);
         KeyRef := RecRef.KeyIndex(1);
@@ -1252,7 +1251,7 @@
         if WorkingFolder = '' then
             exit;
 
-        MediaFolder := GetCurrentMediaFolderPath;
+        MediaFolder := GetCurrentMediaFolderPath();
         if FileManagement.ServerDirectoryExists(MediaFolder) then
             FileManagement.ServerRemoveDirectory(MediaFolder, true);
 
@@ -1261,7 +1260,7 @@
 
     local procedure GetCurrentMediaFolderPath(): Text
     begin
-        exit(FileManagement.CombinePath(WorkingFolder, GetMediaFolderName));
+        exit(FileManagement.CombinePath(WorkingFolder, GetMediaFolderName()));
     end;
 
     [Scope('OnPrem')]
@@ -1278,7 +1277,7 @@
         if SourceDirectory = '' then
             exit(false);
 
-        MediaFolderPath := FileManagement.CombinePath(SourceDirectory, GetMediaFolderName);
+        MediaFolderPath := FileManagement.CombinePath(SourceDirectory, GetMediaFolderName());
         exit(FileManagement.ServerDirectoryExists(MediaFolderPath));
     end;
 
@@ -1382,7 +1381,7 @@
 
     local procedure UploadXMLPackage(ServerFileName: Text): Boolean
     begin
-        exit(Upload(ImportFileTxt, '', GetFileDialogFilter, '', ServerFileName));
+        exit(Upload(ImportFileTxt, '', GetFileDialogFilter(), '', ServerFileName));
     end;
 
     procedure GetFileDialogFilter(): Text
@@ -1396,7 +1395,7 @@
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
-        TempBlob.FromRecordRef(FieldRef.Record, FieldRef.Number);
+        TempBlob.FromRecordRef(FieldRef.Record(), FieldRef.Number);
         TempBlob.CreateInStream(InStream);
         exit(Base64Convert.ToBase64(InStream));
     end;
@@ -1446,7 +1445,7 @@
         ConfigMediaBuffer.Init();
         ConfigMediaBuffer."Package Code" := ConfigPackage.Code;
         ConfigMediaBuffer."Media ID" := MediaIDGuidText;
-        ConfigMediaBuffer."No." := ConfigMediaBuffer.GetNextNo;
+        ConfigMediaBuffer."No." := ConfigMediaBuffer.GetNextNo();
         ConfigMediaBuffer.Insert();
 
         ConfigMediaBuffer."Media Blob".CreateOutStream(MediaOutStream);
@@ -1529,7 +1528,7 @@
 
         ConfigMediaBuffer."Package Code" := ConfigPackage.Code;
         ConfigMediaBuffer."Media Set ID" := CopyStr(FileManagement.GetFileNameWithoutExtension(FileName), 1, StrLen(Format(DummyGuid)));
-        ConfigMediaBuffer."No." := ConfigMediaBuffer.GetNextNo;
+        ConfigMediaBuffer."No." := ConfigMediaBuffer.GetNextNo();
         ConfigMediaBuffer.Insert();
     end;
 

@@ -1,7 +1,7 @@
 page 99000772 "Capacity Absence"
 {
     Caption = 'Capacity Absence';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Calendar Absence Entry";
@@ -18,24 +18,24 @@ page 99000772 "Capacity Absence"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date associated with this absence entry.';
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the starting time, which are combined in a format called "starting date-time".';
                     Visible = false;
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting time of the absence entry.';
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the ending time, which are combined in a format called "ending date-time".';
                     Visible = false;
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending time of the absence entry.';
@@ -93,7 +93,7 @@ page 99000772 "Capacity Absence"
                     begin
                         CalendarAbsenceEntry.Copy(Rec);
                         CalendarAbsenceEntry.SetRange(Updated, false);
-                        if CalendarAbsenceEntry.Find then
+                        if CalendarAbsenceEntry.Find() then
                             CalAbsenceMgt.UpdateAbsence(CalendarAbsenceEntry);
                     end;
                 }

@@ -1,7 +1,7 @@
-﻿page 5129 "Update Opportunity"
+page 5129 "Update Opportunity"
 {
     Caption = 'Update Opportunity';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -12,7 +12,7 @@
     {
         area(content)
         {
-            field("Action type"; "Action Type")
+            field("Action type"; Rec."Action Type")
             {
                 ApplicationArea = RelationshipMgmt;
                 ToolTip = 'Specifies options that you can take when you reenter an opportunity to update it in the Update Opportunity window. Certain options are not available, depending on what stage you are in for your opportunity. For example, if you are in stage 1, you cannot select the Previous option.';
@@ -21,23 +21,23 @@
                 trigger OnValidate()
                 begin
                     if "Action Type" = "Action Type"::Update then
-                        UpdateActionTypeOnValidate;
+                        UpdateActionTypeOnValidate();
                     if "Action Type" = "Action Type"::Jump then
-                        JumpActionTypeOnValidate;
+                        JumpActionTypeOnValidate();
                     if "Action Type" = "Action Type"::Skip then
-                        SkipActionTypeOnValidate;
+                        SkipActionTypeOnValidate();
                     if "Action Type" = "Action Type"::Previous then
-                        PreviousActionTypeOnValidate;
+                        PreviousActionTypeOnValidate();
                     if "Action Type" = "Action Type"::Next then
-                        NextActionTypeOnValidate;
+                        NextActionTypeOnValidate();
                     if "Action Type" = "Action Type"::First then
-                        FirstActionTypeOnValidate;
+                        FirstActionTypeOnValidate();
 
-                    WizardActionTypeValidate2;
-                    UpdateCntrls;
+                    WizardActionTypeValidate2();
+                    UpdateCntrls();
                 end;
             }
-            field("Sales Cycle Stage"; "Sales Cycle Stage")
+            field("Sales Cycle Stage"; Rec."Sales Cycle Stage")
             {
                 ApplicationArea = RelationshipMgmt;
                 Editable = SalesCycleStageEditable;
@@ -45,46 +45,46 @@
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    LookupSalesCycleStage;
-                    ValidateSalesCycleStage;
+                    LookupSalesCycleStage();
+                    ValidateSalesCycleStage();
                 end;
 
                 trigger OnValidate()
                 begin
-                    WizardSalesCycleStageValidate2;
-                    SalesCycleStageOnAfterValidate;
+                    WizardSalesCycleStageValidate2();
+                    SalesCycleStageOnAfterValidate();
                 end;
             }
-            field("Sales Cycle Stage Description"; "Sales Cycle Stage Description")
+            field("Sales Cycle Stage Description"; Rec."Sales Cycle Stage Description")
             {
                 ApplicationArea = RelationshipMgmt;
                 Editable = false;
                 ToolTip = 'Specifies a description of the sales cycle stage.';
             }
-            field("Date of Change"; "Date of Change")
+            field("Date of Change"; Rec."Date of Change")
             {
                 ApplicationArea = RelationshipMgmt;
                 ToolTip = 'Specifies the date this opportunity entry was last changed.';
             }
-            field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+            field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Estimated sales value (LCY)';
                 ToolTip = 'Specifies the estimated value of the opportunity entry.';
             }
-            field("Chances of Success %"; "Chances of Success %")
+            field("Chances of Success %"; Rec."Chances of Success %")
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Chances of Success (%)';
                 ToolTip = 'Specifies the chances of success of the opportunity entry.';
             }
-            field("Estimated Close Date"; "Estimated Close Date")
+            field("Estimated Close Date"; Rec."Estimated Close Date")
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Estimated Closing Date';
                 ToolTip = 'Specifies the estimated date when the opportunity entry will be closed.';
             }
-            field("Cancel Old To Do"; "Cancel Old To Do")
+            field("Cancel Old To Do"; Rec."Cancel Old To Do")
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Cancel Existing Open Tasks';
@@ -104,14 +104,13 @@
                 Caption = '&Finish';
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Finish updating the opportunity.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    FinishPage;
-                    CurrPage.Close;
+                    FinishPage();
+                    CurrPage.Close();
                 end;
             }
             action(SalesQuote)
@@ -121,21 +120,34 @@
                 Enabled = SalesQuoteEnable;
                 Image = Quote;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Create a sales quote based on the opportunity.';
 
                 trigger OnAction()
                 var
                     SalesHeader: Record "Sales Header";
                 begin
-                    if Opp.Get("Opportunity No.") then begin
-                        Opp.ShowQuote;
-                        if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opp."Sales Document No.") then begin
+                    if Opportunity.Get("Opportunity No.") then begin
+                        Opportunity.ShowQuote();
+                        if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opportunity."Sales Document No.") then begin
                             "Estimated Value (LCY)" := GetSalesDocValue(SalesHeader);
                             CurrPage.Update();
                         end;
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(Finish_Promoted; Finish)
+                {
+                }
+                actionref(SalesQuote_Promoted; SalesQuote)
+                {
+                }
             }
         }
     }
@@ -155,17 +167,17 @@
 
     trigger OnOpenPage()
     begin
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
-        CreateStageList;
-        UpdateEditable;
-        if Opp.Get("Opportunity No.") then
-            if Opp."Sales Document No." <> '' then
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
+        CreateStageList();
+        UpdateEditable();
+        if Opportunity.Get("Opportunity No.") then
+            if Opportunity."Sales Document No." <> '' then
                 SalesQuoteEnable := true
             else
                 SalesQuoteEnable := false;
 
-        UpdateCntrls;
-        UpdateEstimatedValues;
+        UpdateCntrls();
+        UpdateEstimatedValues();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -176,14 +188,12 @@
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            FinishPage;
+            FinishPage();
     end;
 
     var
-        Text000: Label 'untitled';
         Cont: Record Contact;
         SalesCycleStage: Record "Sales Cycle Stage";
-        Opp: Record Opportunity;
         ClientTypeManagement: Codeunit "Client Type Management";
         [InDataSet]
         SalesCycleStageEditable: Boolean;
@@ -200,11 +210,16 @@
         [InDataSet]
         OptionSixEnable: Boolean;
         [InDataSet]
-        SalesQuoteEnable: Boolean;
-        [InDataSet]
         CancelOldTaskEnable: Boolean;
-        Text666: Label '%1 is not a valid selection.';
         IsOnMobile: Boolean;
+
+        Text000: Label 'untitled';
+        Text666: Label '%1 is not a valid selection.';
+
+    protected var
+        Opportunity: Record Opportunity;
+        [InDataSet]
+        SalesQuoteEnable: Boolean;
 
     procedure Caption(): Text
     var
@@ -222,12 +237,12 @@
 
     local procedure UpdateEditable()
     begin
-        OptionOneEnable := NoOfSalesCyclesFirst > 0;
-        OptionTwoEnable := NoOfSalesCyclesNext > 0;
-        OptionThreeEnable := NoOfSalesCyclesPrev > 0;
-        OptionFourEnable := NoOfSalesCyclesSkip > 1;
-        OptionFiveEnable := NoOfSalesCyclesUpdate > 0;
-        OptionSixEnable := NoOfSalesCyclesJump > 1;
+        OptionOneEnable := NoOfSalesCyclesFirst() > 0;
+        OptionTwoEnable := NoOfSalesCyclesNext() > 0;
+        OptionThreeEnable := NoOfSalesCyclesPrev() > 0;
+        OptionFourEnable := NoOfSalesCyclesSkip() > 1;
+        OptionFiveEnable := NoOfSalesCyclesUpdate() > 0;
+        OptionSixEnable := NoOfSalesCyclesJump() > 1;
     end;
 
     local procedure UpdateCntrls()
@@ -271,7 +286,7 @@
         Task.SetRange("Opportunity No.", "Opportunity No.");
         if Task.FindFirst() then
             CancelOldTaskEnable := true;
-        Modify;
+        Modify();
     end;
 
     local procedure SalesCycleStageOnAfterValidate()
@@ -318,8 +333,8 @@
 
     local procedure FinishPage()
     begin
-        CheckStatus2;
-        FinishWizard2;
+        CheckStatus2();
+        FinishWizard2();
     end;
 
     local procedure UpdateEstimatedValues()
@@ -329,7 +344,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateEstimatedValues(Opp, Rec, IsHandled);
+        OnBeforeUpdateEstimatedValues(Opportunity, Rec, IsHandled);
         if IsHandled then
             exit;
 
@@ -337,11 +352,11 @@
             "Estimated Close Date" := CalcDate(SalesCycleStage."Date Formula", "Date of Change");
             "Chances of Success %" := SalesCycleStage."Chances of Success %";
         end;
-        if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opp."Sales Document No.") then
+        if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opportunity."Sales Document No.") then
             "Estimated Value (LCY)" := GetSalesDocValue(SalesHeader);
 
         OnUpdateEstimatedValuesOnBeforeModify(Rec, SalesHeader);
-        Modify;
+        Modify();
     end;
 
     [IntegrationEvent(false, false)]

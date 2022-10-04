@@ -207,7 +207,7 @@ codeunit 138005 "O365 ExtendedTexts"
 
         repeat
             Assert.AreEqual(1, StrPos(ExtendedTextLine.Text, ExtendedLineTextTxt), 'Text value was lost');
-        until ExtendedTextLine.Next = 0;
+        until ExtendedTextLine.Next() = 0;
     end;
 
     local procedure CalculateCaption(No: Code[20]; Description: Text[100]; LanguageCode: Code[20]; TxtNo: Integer): Text

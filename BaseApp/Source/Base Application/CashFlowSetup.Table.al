@@ -122,7 +122,7 @@ table 843 "Cash Flow Setup"
                 if "Automatic Update Frequency" = xRec."Automatic Update Frequency" then
                     exit;
 
-                CashFlowManagement.DeleteJobQueueEntries;
+                CashFlowManagement.DeleteJobQueueEntries();
                 CashFlowManagement.CreateAndStartJobQueueEntry("Automatic Update Frequency");
             end;
         }
@@ -173,7 +173,7 @@ table 843 "Cash Flow Setup"
             trigger OnValidate()
             begin
                 if not IsNullGuid("Service Pass API Key ID") then
-                    EnableEncryption;
+                    EnableEncryption();
                 SaveUserDefinedAPIKey("API Key");
             end;
         }
@@ -274,8 +274,9 @@ table 843 "Cash Flow Setup"
     }
 
     var
-        Text001: Label 'Cash Flow Forecast %1 %2 is shown in the chart on the Role Center. Do you want to show this Cash Flow Forecast instead?', Comment = 'Cash Flow <No.> <Description> is shown in the chart on the Role Center.';
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+
+        Text001: Label 'Cash Flow Forecast %1 %2 is shown in the chart on the Role Center. Do you want to show this Cash Flow Forecast instead?', Comment = 'Cash Flow <No.> <Description> is shown in the chart on the Role Center.';
 
     procedure CheckAccountType("Code": Code[20])
     var
@@ -289,14 +290,14 @@ table 843 "Cash Flow Setup"
 
     procedure SetChartRoleCenterCFNo(CashFlowNo: Code[20])
     begin
-        Get;
+        Get();
         "CF No. on Chart in Role Center" := CashFlowNo;
-        Modify;
+        Modify();
     end;
 
     procedure GetChartRoleCenterCFNo(): Code[20]
     begin
-        Get;
+        Get();
         exit("CF No. on Chart in Role Center");
     end;
 
@@ -318,21 +319,21 @@ table 843 "Cash Flow Setup"
     var
         EndOfTaxPeriod: Date;
     begin
-        Get;
+        Get();
         EndOfTaxPeriod := CalculateTaxableDate(ReferenceDate, true);
         exit(CalcDate("Tax Payment Window", EndOfTaxPeriod));
     end;
 
     procedure GetTaxPeriodStartEndDates(TaxDueDate: Date; var StartDate: Date; var EndDate: Date)
     begin
-        Get;
+        Get();
         EndDate := GetTaxPeriodEndDate(TaxDueDate);
         StartDate := CalculateTaxableDate(EndDate, false);
     end;
 
     procedure GetTaxPaymentStartDate(TaxDueDate: Date): Date
     begin
-        Get;
+        Get();
         exit(CalcDate('<1D>', GetTaxPeriodEndDate(TaxDueDate)));
     end;
 
@@ -340,28 +341,28 @@ table 843 "Cash Flow Setup"
     var
         ReverseDateFormula: DateFormula;
     begin
-        Get;
-        Evaluate(ReverseDateFormula, ReverseDateFormulaAsText);
+        Get();
+        Evaluate(ReverseDateFormula, ReverseDateFormulaAsText());
         exit(CalcDate(ReverseDateFormula, TaxDueDate));
     end;
 
     procedure GetCurrentPeriodStartDate(): Date
     begin
-        Get;
-        exit(CalculateTaxableDate(WorkDate, false));
+        Get();
+        exit(CalculateTaxableDate(WorkDate(), false));
     end;
 
     procedure GetCurrentPeriodEndDate(): Date
     begin
-        Get;
-        exit(CalculateTaxableDate(WorkDate, true));
+        Get();
+        exit(CalculateTaxableDate(WorkDate(), true));
     end;
 
     procedure UpdateTaxPaymentInfo(NewTaxablePeriod: Option; NewPaymentWindow: DateFormula; NewTaxBalAccountType: Option; NewTaxBalAccountNum: Code[20])
     var
         Modified: Boolean;
     begin
-        Get;
+        Get();
         if "Taxable Period" <> NewTaxablePeriod then begin
             "Taxable Period" := NewTaxablePeriod;
             Modified := true;
@@ -383,7 +384,7 @@ table 843 "Cash Flow Setup"
         end;
 
         if Modified then
-            Modify;
+            Modify();
     end;
 
     local procedure CalculateTaxableDate(ReferenceDate: Date; FindLastRec: Boolean) Result: Date
@@ -472,7 +473,7 @@ table 843 "Cash Flow Setup"
     procedure SaveUserDefinedAPIKey(APIKeyValue: Text[250])
     begin
         if IsNullGuid("Service Pass API Key ID") then
-            "Service Pass API Key ID" := CreateGuid;
+            "Service Pass API Key ID" := CreateGuid();
 
         IsolatedStorageManagement.Set("Service Pass API Key ID", APIKeyValue, DATASCOPE::Company);
     end;
@@ -485,7 +486,7 @@ table 843 "Cash Flow Setup"
         Value: Text;
     begin
         // user-defined credentials
-        if IsAPIUserDefined then begin
+        if IsAPIUserDefined() then begin
             IsolatedStorageManagement.Get("Service Pass API Key ID", DATASCOPE::Company, Value);
             APIKey := CopyStr(Value, 1, 200);
             if (APIKey = '') or ("API URL" = '') then
@@ -497,7 +498,7 @@ table 843 "Cash Flow Setup"
 
         UsingStandardCredentials := true;
         // if credentials not user-defined retrieve it from Azure Key Vault
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit(RetrieveSaaSMLCredentials(APIURL, APIKey, LimitValue));
     end;
 
@@ -514,7 +515,7 @@ table 843 "Cash Flow Setup"
     var
         CryptographyManagement: Codeunit "Cryptography Management";
     begin
-        if not CryptographyManagement.IsEncryptionEnabled then
+        if not CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.EnableEncryption(false);
     end;
 

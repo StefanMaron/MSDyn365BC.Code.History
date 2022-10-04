@@ -7,11 +7,9 @@ table 5945 "Troubleshooting Setup"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Troubleshooting Item Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Service Item Group,Item,Service Item';
-            OptionMembers = "Service Item Group",Item,"Service Item";
 
             trigger OnValidate()
             begin

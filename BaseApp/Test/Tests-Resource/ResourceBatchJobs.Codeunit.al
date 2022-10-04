@@ -311,7 +311,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResourceRegister: Record "Resource Register";
     begin
         ResourceRegister.SetRange("Journal Batch Name", JournalBatchName);
-        exit(ResourceRegister.FindFirst);
+        exit(ResourceRegister.FindFirst())
     end;
 
     local procedure RunDeleteEmptyResourceRegisters()
@@ -409,7 +409,7 @@ codeunit 136402 "Resource Batch Jobs"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
-        until not DimensionSelectionMultiple.Next;
+        until not DimensionSelectionMultiple.Next();
         DimensionSelectionMultiple.OK.Invoke;
     end;
 }

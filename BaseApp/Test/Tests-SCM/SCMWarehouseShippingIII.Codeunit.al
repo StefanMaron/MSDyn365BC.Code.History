@@ -818,7 +818,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         // [GIVEN] Sales order for 10 pcs of item "I", reserved from the purchase.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", LibraryRandom.RandInt(10), LocationWhite.Code, LibraryRandom.RandDateFromInRange(WorkDate, 10, 20));
+          Item."No.", LibraryRandom.RandInt(10), LocationWhite.Code, LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         LibraryVariableStorage.Enqueue(ReservationMode::ReserveFromCurrentLine);
         SalesLine.ShowReservation();
 
@@ -871,7 +871,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         // [GIVEN] 1st line - item "I1", and it is reserved from the purchase.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item[1]."No.", LibraryRandom.RandInt(10), LocationWhite.Code, LibraryRandom.RandDateFromInRange(WorkDate, 10, 20));
+          Item[1]."No.", LibraryRandom.RandInt(10), LocationWhite.Code, LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         LibraryVariableStorage.Enqueue(ReservationMode::ReserveFromCurrentLine);
         SalesLine.ShowReservation();
 
@@ -956,7 +956,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
         // [GIVEN] Create sales order and reserve it from the inventory.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
         // [GIVEN] Create warehouse shipment from the sales order.
@@ -994,7 +994,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
         // [GIVEN] Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [GIVEN] Two Items in two Sales Lines with Two Location Codes "A" and "B"
         // [GIVEN] Each Location Code Require Shipment
@@ -1017,7 +1017,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         repeat
             WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
             LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-        until WarehouseShipmentLine.Next = 0;
+        until WarehouseShipmentLine.Next() = 0;
 
         // [GIVEN] Shipment for the Line 2 with Location Code "B" is being Undo
         SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
@@ -1122,6 +1122,65 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         Assert.AreEqual(
           TransferHeader."External Document No.",
           WarehouseShipmentHeader."External Document No.", WhsShpmtHeaderExternalDocumentNoIsWrongErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerSimple')]
+    procedure DirectTransferOrderWithWarehouseShipmentAndPickDirectTransferPosting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        InventorySetup: Record "Inventory Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+        FromLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        DirectTransferHeader: Record "Direct Trans. Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseActivityRegister: Codeunit "Whse.-Activity-Register";
+    begin
+        // [FEATURE] [Direct Transfer] [Warehouse Shipment]
+        // [SCENARIO 325564] Direct Transfer from Required Shipment location (GREEN) to non warehouse location (BLUE) can be completely posted by posting of warehouse shipment
+        Initialize();
+
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        WarehouseSetup.Get();
+        WarehouseSetup."Shipment Posting Policy" :=
+            WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error";
+        WarehouseSetup.Modify();
+
+        // [GIVEN] Released Direct Transfer Order "T1"
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, true, false, true);
+
+        // [GIVEN] Post 10 pcs to inventory.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", FromLocation.Code, '', 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateAndReleaseDirectTransferOrder(TransferHeader, FromLocation.Code, LocationBlue.Code, Item."No.", 1);
+
+        // [WHEN] Create Warehouse Shipment for this Transfer Order
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        // [WHEN] Find Warehouse Shipment, create and register Pick and post Warehouse Shipment
+        FindWarehouseShipmentHeaderBySource(WarehouseShipmentHeader, DATABASE::"Transfer Line", 0, TransferHeader."No.", -1);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+        WhseActivityRegister.Run(WarehouseActivityLine);
+
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Direct transfer order is fully posted to posted direct transfer
+        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        DirectTransferHeader.FindFirst();
+        asserterror TransferHeader.Get(TransferHeader."No.");
     end;
 
     [Test]
@@ -1666,15 +1725,18 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        CreateLocationSetup;
-        CreateTransferRoute;
+        CreateLocationSetup();
+        CreateTransferRoute();
         NoSeriesSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(Database::"General Ledger Setup");
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
+        LibrarySetupStorage.Save(Database::"Warehouse Setup");
 
         isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Shipping III");
     end;
 
@@ -1694,7 +1756,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         Quantity := LibraryRandom.RandInt(5);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignAutoSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
         CreateAndRegisterPutAwayFromPurchaseOrder(
-          Bin, ItemTrackingMode::AssignAutoSerialNo, Item."No.", LocationWhite.Code, Quantity + Quantity, WorkDate, true,
+          Bin, ItemTrackingMode::AssignAutoSerialNo, Item."No.", LocationWhite.Code, Quantity + Quantity, WorkDate(), true,
           DifferentExpirationDate);  // Value required for test and Tracking as True.
 
         // Exercise.
@@ -1736,13 +1798,13 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         CreateItemWithLotAndSerialItemTrackingCodeUsingStrictExpiration(Item);
         FindBinForPickZone(Bin, LocationWhite.Code, true);  // PICK Zone.
         Quantity := LibraryRandom.RandInt(5);
-        ExpirationDate := WorkDate;
+        ExpirationDate := WorkDate();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignAutoLotAndSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
         CreateAndRegisterPutAwayFromPurchaseOrder(
           Bin, ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", LocationWhite.Code, Quantity, ExpirationDate, true, true);  // Use DifferentExpirationDate and Tracking as True.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignAutoLotAndSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
         if DifferentExpirationDate then
-            ExpirationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+            ExpirationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         CreateAndRegisterPutAwayFromPurchaseOrder(
           Bin, ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", LocationWhite.Code, Quantity, ExpirationDate, true, true);  // Use DifferentExpirationDate and Tracking as True.
 
@@ -1820,12 +1882,12 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
         CreateItemWithLotAndSerialItemTrackingCodeUsingStrictExpiration(Item);
         Quantity := LibraryRandom.RandInt(5);
-        ExpirationDate := WorkDate;
+        ExpirationDate := WorkDate();
         CreateAndPostItemJournalLineWithItemTracking(
           Bin."Location Code", Bin.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", Quantity,
           ExpirationDate, true, false);  // Use DifferentExpirationDate as True.
         if DifferentExpirationDate then
-            ExpirationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+            ExpirationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         CreateAndPostItemJournalLineWithItemTracking(
           Bin."Location Code", Bin.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", Quantity,
           ExpirationDate, true, false);  // Use DifferentExpirationDate as True.
@@ -1862,12 +1924,12 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
         CreateItemWithLotItemTrackingCodeUsingStrictExpiration(Item);
         Quantity := LibraryRandom.RandInt(5);
-        ExpirationDate := WorkDate;
+        ExpirationDate := WorkDate();
         CreateAndPostItemJournalLineWithItemTracking(
           Bin."Location Code", Bin.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, ExpirationDate,
           true, false);  // Use DifferentExpirationDate as True.
         if DifferentExpirationDate then
-            ExpirationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+            ExpirationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         CreateAndPostItemJournalLineWithItemTracking(
           Bin."Location Code", Bin.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, ExpirationDate,
           true, false);  // Use DifferentExpirationDate as True.
@@ -1911,9 +1973,9 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
         FindBinForPickZone(Bin, LocationWhite.Code, true);  // PICK Zone.
         Quantity := LibraryRandom.RandInt(5);
-        ExpirationDate := WorkDate;
+        ExpirationDate := WorkDate();
         if DifferentExpirationDate then
-            ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+            ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
 
         case true of
             UseLotNo and UseSerialNo:
@@ -1923,7 +1985,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                       Bin, ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", LocationWhite.Code, Quantity, ExpirationDate, true, false);  // Use Tracking as True.
                     LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignAutoLotAndSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
                     CreateAndRegisterPutAwayFromPurchaseOrder(
-                      Bin, ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);  // Use Tracking as True.
+                      Bin, ItemTrackingMode::AssignAutoLotAndSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);  // Use Tracking as True.
                 end;
             UseLotNo and not UseSerialNo:
                 begin
@@ -1932,7 +1994,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                       Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, ExpirationDate, true, false);  // Use Tracking as True.
                     LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
                     CreateAndRegisterPutAwayFromPurchaseOrder(
-                      Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);  // Use Tracking as True.
+                      Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);  // Use Tracking as True.
                 end;
             not UseLotNo and UseSerialNo:
                 begin
@@ -1941,7 +2003,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                       Bin, ItemTrackingMode::AssignAutoSerialNo, Item."No.", LocationWhite.Code, Quantity, ExpirationDate, true, false);  // Use Tracking as True.
                     LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignAutoSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
                     CreateAndRegisterPutAwayFromPurchaseOrder(
-                      Bin, ItemTrackingMode::AssignAutoSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);  // Use Tracking as True.
+                      Bin, ItemTrackingMode::AssignAutoSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);  // Use Tracking as True.
                 end;
         end;
 
@@ -2019,7 +2081,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                 Validate("Serial No.", ItemLedgerEntry."Serial No.");
                 Validate("Lot No.", ItemLedgerEntry."Lot No.");
                 Modify(true);
-                ItemLedgerEntry.Next;
+                ItemLedgerEntry.Next();
             until Next = 0;
         end;
     end;
@@ -2066,8 +2128,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
           WarehouseActivityLine."Activity Type"::"Put-away");
 
         // Create Sales Document.Realease ant Pick created Assembly Order.
-        LibraryVariableStorage.Enqueue(StrSubstNo(AssemblyOrderMsg, WorkDate - 1, WorkDate));
-        LibraryVariableStorage.Enqueue(StrSubstNo(AssemblyOrderMsg, WorkDate - 1, WorkDate));
+        LibraryVariableStorage.Enqueue(StrSubstNo(AssemblyOrderMsg, WorkDate() - 1, WorkDate()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(AssemblyOrderMsg, WorkDate() - 1, WorkDate()));
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, '',
           AssemblyItem."No.", ShipmentQuantity, LocationWhite.Code, '', false, ReservationMode);
@@ -2222,7 +2284,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         ReservationEntry: Record "Reservation Entry";
         DequeueVariable: Variant;
     begin
-        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, Quantity, WorkDate, BinCode, ItemUnitOfMeasure);
+        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, Quantity, WorkDate(), BinCode, ItemUnitOfMeasure);
         LibraryVariableStorage.Enqueue(ItemTrackingMode);  // Enqueue for ItemTrackingLinesPageHandler.
         ItemJournalLine.OpenItemTrackingLines(false);
         UpdateExpirationDateOnReservationEntry(ItemNo, ExpirationDate, DifferentExpirationDate);
@@ -2330,6 +2392,17 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         TransferLine: Record "Transfer Line";
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, LocationInTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+    end;
+
+    local procedure CreateAndReleaseDirectTransferOrder(var TransferHeader: Record "Transfer Header"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify();
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
@@ -2448,7 +2521,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         for i := 1 to 2 do begin
             LibrarySales.CreateSalesDocumentWithItem(
               SalesHeader[i], SalesLine[i], SalesHeader[i]."Document Type"::Order, LibrarySales.CreateCustomerNo,
-              ItemNo, Quantity, LocationCode, CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
+              ItemNo, Quantity, LocationCode, CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
             SalesLine[i].Validate("Qty. to Assemble to Order", Quantity);
             SalesLine[i].Modify(true);
             LibrarySales.ReleaseSalesDocument(SalesHeader[i]);
@@ -2991,7 +3064,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                 ReservationEntry.Validate("Expiration Date", CalcDate('<-' + Format(DateDifference) + 'D>', ExpirationDate));
             end;
             ReservationEntry.Modify(true);
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure UpdateExpirationDateOnWhseItemTrackingLine(ItemNo: Code[20]; ExpirationDate: Date)
@@ -3054,7 +3127,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Credit Warnings", CreditWarnings);
             Validate("Stockout Warning", StockoutWarning);
             Modify(true);
@@ -3120,7 +3193,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         ItemLedgerEntry.FindFirst();
         repeat
             Assert.AreEqual(Correction, ItemLedgerEntry.Correction, ValueMustBeEqualTxt);
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyWarehouseActivityLinesWithLotAndSerialNoAccordingToFEFO(ActivityType: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; ExpectedQuantity: Decimal; NextCount: Integer)
@@ -3143,8 +3216,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
             WarehouseActivityLine.TestField("Expiration Date", ItemLedgerEntry."Expiration Date");
             WarehouseActivityLine.TestField(Quantity, ItemLedgerEntry.Quantity);
             ActualQuantity += WarehouseActivityLine.Quantity;
-            ItemLedgerEntry.Next;
-        until WarehouseActivityLine.Next = 0;
+            ItemLedgerEntry.Next();
+        until WarehouseActivityLine.Next() = 0;
         Assert.AreEqual(ExpectedQuantity, ActualQuantity, ValueMustBeEqualTxt);
     end;
 
@@ -3247,7 +3320,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                     Quantity := ItemTrackingLines.Quantity3.AsDEcimal;
                     repeat
                         CreateItemTrackingLine(ItemTrackingLines);
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                         Quantity -= 1;
                     until Quantity = 0;
                 end;
@@ -3276,7 +3349,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                 begin
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal / 2);
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal);
                 end;
@@ -3289,7 +3362,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
             ItemTrackingMode::SelectEntriesForMultipleLines:
                 begin
                     ItemTrackingLines."Select Entries".Invoke;
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     ItemTrackingLines."Select Entries".Invoke;
                 end;
             ItemTrackingMode::UpdateQty:
@@ -3302,7 +3375,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                 begin
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal / 4);
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal / 3);
                 end;

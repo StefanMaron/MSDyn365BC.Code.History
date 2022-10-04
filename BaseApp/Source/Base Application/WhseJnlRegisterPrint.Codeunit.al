@@ -5,21 +5,22 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
     trigger OnRun()
     begin
         WhseJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(WhseJnlLine);
     end;
 
     var
-        Text001: Label 'Do you want to register the journal lines?';
-        Text002: Label 'There is nothing to register.';
-        Text003: Label 'The journal lines were successfully registered.';
-        Text004: Label 'You are now in the %1 journal.';
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlLine: Record "Warehouse Journal Line";
         WarehouseReg: Record "Warehouse Register";
         WhseJnlRegisterBatch: Codeunit "Whse. Jnl.-Register Batch";
         TempJnlBatchName: Code[10];
         IsHandled: Boolean;
+
+        Text001: Label 'Do you want to register the journal lines?';
+        Text002: Label 'There is nothing to register.';
+        Text003: Label 'The journal lines were successfully registered.';
+        Text004: Label 'You are now in the %1 journal.';
 
     local procedure "Code"()
     begin
@@ -40,8 +41,8 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
             WhseJnlRegisterBatch.Run(WhseJnlLine);
             OnAfterRegisterBatch(WhseJnlLine);
 
-            if WarehouseReg.Get(WhseJnlRegisterBatch.GetWhseRegNo) then begin
-                WarehouseReg.SetRecFilter;
+            if WarehouseReg.Get(WhseJnlRegisterBatch.GetWhseRegNo()) then begin
+                WarehouseReg.SetRecFilter();
                 REPORT.Run(WhseJnlTemplate."Registering Report ID", false, false, WarehouseReg);
             end;
 
@@ -57,7 +58,7 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
                       "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

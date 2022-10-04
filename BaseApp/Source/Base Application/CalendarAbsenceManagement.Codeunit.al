@@ -115,7 +115,7 @@ codeunit 99000759 "Calendar Absence Management"
                    ("Ending Date-Time" = CalendarEntry2."Starting Date-Time")
                 then begin
                     CalendarEntry2.Delete();
-                    Delete;
+                    Delete();
                     CalendarEntry2.Validate("Starting Date-Time", "Starting Date-Time");
                     CalendarEntry2.Insert();
                 end;

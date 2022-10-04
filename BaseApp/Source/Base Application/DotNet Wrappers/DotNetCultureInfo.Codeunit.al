@@ -36,7 +36,7 @@ codeunit 3002 DotNet_CultureInfo
 
     procedure ToString(): Text
     begin
-        exit(DotNetCultureInfo.ToString)
+        exit(DotNetCultureInfo.ToString())
     end;
 
     procedure TwoLetterISOLanguageName(): Text

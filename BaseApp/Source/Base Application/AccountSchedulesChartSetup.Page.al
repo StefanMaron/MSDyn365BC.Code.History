@@ -1,6 +1,6 @@
 page 763 "Account Schedules Chart Setup"
 {
-    Caption = 'Account Schedules Chart Setup';
+    Caption = 'Financial Report Chart Setup';
     SourceTable = "Account Schedules Chart Setup";
 
     layout
@@ -17,7 +17,7 @@ page 763 "Account Schedules Chart Setup"
 
                     trigger OnValidate()
                     begin
-                        SetEnabled;
+                        SetEnabled();
                     end;
                 }
                 field(Description; Description)
@@ -25,38 +25,40 @@ page 763 "Account Schedules Chart Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the specific chart.';
                 }
-                field("Account Schedule Name"; "Account Schedule Name")
+                field("Account Schedule Name"; Rec."Account Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the account schedule that is used to generate the chart that is shown in the Finance Performance window.';
+                    Caption = 'Row Definition';
+                    ToolTip = 'Specifies the name of the row definition that is used to generate the chart that is shown in the Finance Performance window.';
 
                     trigger OnValidate()
                     begin
-                        SetEnabled;
+                        SetEnabled();
                         SetAccScheduleName("Account Schedule Name");
                         CurrPage.Update(false);
                     end;
                 }
-                field("Column Layout Name"; "Column Layout Name")
+                field("Column Layout Name"; Rec."Column Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Column Definition';
                     ToolTip = 'Specifies the name of the column layout in the account schedule that is used to generate the advanced chart that is shown in the Finance Performance window.';
 
                     trigger OnValidate()
                     begin
-                        SetEnabled;
+                        SetEnabled();
                         SetColumnLayoutName("Column Layout Name");
                         CurrPage.Update(false);
                     end;
                 }
-                field("Base X-Axis on"; "Base X-Axis on")
+                field("Base X-Axis on"; Rec."Base X-Axis on")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the values from the selected account schedule are displayed in the specific chart.';
 
                     trigger OnValidate()
                     begin
-                        SetEnabled;
+                        SetEnabled();
                         SetShowPer("Base X-Axis on");
                         CurrPage.Update(false);
                     end;
@@ -64,23 +66,23 @@ page 763 "Account Schedules Chart Setup"
                 group(Control15)
                 {
                     ShowCaption = false;
-                    field("Start Date"; "Start Date")
+                    field("Start Date"; Rec."Start Date")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the first date on which account schedule values are included in the chart.';
+                        ToolTip = 'Specifies the first date on which financial report values are included in the chart.';
                     }
-                    field("End Date"; "End Date")
+                    field("End Date"; Rec."End Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = IsEndDateEnabled;
-                        ToolTip = 'Specifies the last date on which account schedule values are included in the chart.';
+                        ToolTip = 'Specifies the last date on which financial report values are included in the chart.';
                     }
-                    field("Period Length"; "Period Length")
+                    field("Period Length"; Rec."Period Length")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the length of periods in the chart.';
                     }
-                    field("No. of Periods"; "No. of Periods")
+                    field("No. of Periods"; Rec."No. of Periods")
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = IsNoOfPeriodsEnabled;
@@ -117,18 +119,18 @@ page 763 "Account Schedules Chart Setup"
 
     trigger OnAfterGetRecord()
     begin
-        SetEnabled;
+        SetEnabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Start Date" := WorkDate;
+        "Start Date" := WorkDate();
         "User ID" := UserId;
     end;
 
     trigger OnOpenPage()
     begin
-        SetEnabled;
+        SetEnabled();
     end;
 
     var

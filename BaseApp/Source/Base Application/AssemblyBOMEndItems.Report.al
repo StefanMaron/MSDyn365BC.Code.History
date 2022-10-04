@@ -12,7 +12,7 @@ report 812 "Assembly BOM - End Items"
         dataitem(Item; Item)
         {
             RequestFilterFields = "No.", "Base Unit of Measure", "Shelf No.", "Assembly BOM";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaption; TableCaption + ': ' + ItemFilter)
@@ -82,7 +82,7 @@ report 812 "Assembly BOM - End Items"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

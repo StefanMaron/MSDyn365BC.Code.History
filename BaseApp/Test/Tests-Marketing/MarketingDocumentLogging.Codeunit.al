@@ -6,8 +6,6 @@ codeunit 136202 "Marketing Document Logging"
     trigger OnRun()
     begin
         // [FEATURE] [Archive] [Marketing]
-        IsInitialized := false;
-        Initialize();
     end;
 
     var
@@ -35,6 +33,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesLine: Record "Sales Line";
     begin
+        Initialize();
+
         // Covers document number TC0046 - refer to TFS ID 21739.
         // Test Sales Line Archive after Archived Sales Quote.
 
@@ -48,6 +48,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesLine: Record "Sales Line";
     begin
+        Initialize();
+
         // Covers document number TC0046 - refer to TFS ID 21739.
         // Test Sales Line Archive after Archived Sales Order.
 
@@ -61,6 +63,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesLine: Record "Sales Line";
     begin
+        Initialize();
+
         // Covers document number TC0046 - refer to TFS ID 21739.
         // Test Sales Line Archive after Archived Sales Return Order.
 
@@ -90,6 +94,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesLine: Record "Sales Line";
     begin
+        Initialize();
+
         // Covers document number TC0046 - refer to TFS ID 21739.
         // Test Sales Line Archive after Archived Sales Quote in Multiple Steps.
 
@@ -103,6 +109,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesLine: Record "Sales Line";
     begin
+        Initialize();
+
         // Covers document number TC0046 - refer to TFS ID 21739.
         // Test Sales Line Archive after Archived Sales Order in Multiple Steps.
 
@@ -116,6 +124,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesLine: Record "Sales Line";
     begin
+        Initialize();
+
         // Covers document number TC0046 - refer to TFS ID 21739.
         // Test Sales Line Archive after Archived Sales Return Order in Multiple Steps.
 
@@ -130,6 +140,8 @@ codeunit 136202 "Marketing Document Logging"
         LibraryResource: Codeunit "Library - Resource";
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
+        Initialize();
+
         // 1. Setup: Create Sales Header and Sales Line with Type Item.
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType);
 
@@ -156,6 +168,8 @@ codeunit 136202 "Marketing Document Logging"
         SalesQuote: Report "Standard Sales - Quote";
         FilePath: Text[1024];
     begin
+        Initialize();
+
         // Covers document number TC0047 - refer to TFS ID 21739.
         // Test Sales Quote Report and Interaction Log entry.
 
@@ -187,6 +201,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Covers document number TC0048 - refer to TFS ID 21739.
         // Test Sales Quote Successfully Restored from Archived Sales Quote.
 
@@ -200,6 +216,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Covers document number TC0049 - refer to TFS ID 21739.
         // Test Sales Order Successfully Restored from Archived Sales Order.
 
@@ -213,6 +231,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Covers document number TC0049 - refer to TFS ID 21739.
         // Test Sales Return Order Successfully Restored from Archived Sales Return Order.
 
@@ -228,6 +248,8 @@ codeunit 136202 "Marketing Document Logging"
         LibraryResource: Codeunit "Library - Resource";
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
+        Initialize();
+
         // 1. Setup: Create Sales Header, Sales Line with Type Item, Archive the Sales Document, Create new Sales Line for Type Resource and
         // again Archive Sales Document.
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType);
@@ -255,6 +277,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Covers document number TC0050 - refer to TFS ID 21739.
         // Test Comments on Sales Quote Restored from Archived Sales Quote.
 
@@ -268,6 +292,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Covers document number TC0050 - refer to TFS ID 21739.
         // Test Comments on Sales Order Restored from Archived Sales Order.
 
@@ -281,6 +307,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Covers document number TC0050 - refer to TFS ID 21739.
         // Test Comments on Sales Return Order Restored from Archived Sales Return Order.
 
@@ -297,6 +325,8 @@ codeunit 136202 "Marketing Document Logging"
         Comment: Text[80];
         Comment2: Text[80];
     begin
+        Initialize();
+
         // 1. Setup: Create Sales Header, Sales Line with Type Item, Create Comments for Sales Header and Sales Line, Archive the Sales
         // Document.
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType);
@@ -328,6 +358,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        Initialize();
+
         // Covers document number TC0050 - refer to TFS ID 21739.
         // Test Comments on Archived Purchase Quote.
 
@@ -341,6 +373,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        Initialize();
+
         // Covers document number TC0050 - refer to TFS ID 21739.
         // Test Comments on Archived Purchase Order.
 
@@ -354,6 +388,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        Initialize();
+
         // Covers document number TC0050 - refer to TFS ID 21739.
         // Test Comments on Archived Purchase Return Order.
 
@@ -394,6 +430,8 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
+        Initialize();
+
         // Covers document number TC0051 - refer to TFS ID 21739.
         // Test No Archive Sales Quote created after make Order from Sales Quote with Archive Quotes and Orders False.
 
@@ -407,7 +445,7 @@ codeunit 136202 "Marketing Document Logging"
         Assert.IsFalse(
           SalesHeaderArchive.FindFirst,
           StrSubstNo(
-            ArchivedSalesHeaderError, SalesHeaderArchive.TableCaption, SalesHeaderArchive.FieldCaption("Document Type"),
+            ArchivedSalesHeaderError, SalesHeaderArchive.TableCaption(), SalesHeaderArchive.FieldCaption("Document Type"),
             SalesHeaderArchive."Document Type", SalesHeaderArchive.FieldCaption("No."), SalesHeaderArchive."No."));
     end;
 
@@ -418,6 +456,8 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
+        Initialize();
+
         // Covers document number TC0051 - refer to TFS ID 21739.
         // Test Archive Sales Quote created after make Order from Sales Quote with Archive Quotes and Orders True.
 
@@ -441,6 +481,8 @@ codeunit 136202 "Marketing Document Logging"
         SalesLine: Record "Sales Line";
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
+        Initialize();
+
         // Covers document number TC0052 - refer to TFS ID 21739.
         // Test No Archive Sales Order created on Posting Service Order as Ship with Archive Quotes and Orders False.
 
@@ -458,7 +500,7 @@ codeunit 136202 "Marketing Document Logging"
         Assert.IsFalse(
           SalesHeaderArchive.FindFirst,
           StrSubstNo(
-            ArchivedSalesHeaderError, SalesHeaderArchive.TableCaption, SalesHeaderArchive.FieldCaption("Document Type"),
+            ArchivedSalesHeaderError, SalesHeaderArchive.TableCaption(), SalesHeaderArchive.FieldCaption("Document Type"),
             SalesHeaderArchive."Document Type", SalesHeaderArchive.FieldCaption("No."), SalesHeaderArchive."No."));
     end;
 
@@ -470,6 +512,8 @@ codeunit 136202 "Marketing Document Logging"
         SalesLine: Record "Sales Line";
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
+        Initialize();
+
         // Covers document number TC0052 - refer to TFS ID 21739.
         // Test Archive Sales Order created on Posting Service Order as Ship with Archive Quotes and Orders True.
 
@@ -499,6 +543,8 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement: Codeunit ArchiveManagement;
         FilePath: Text[1024];
     begin
+        Initialize();
+
         // Covers document number TC0053 - refer to TFS ID 21739.
         // Test Archived Sales Quote Report successfully created.
 
@@ -529,6 +575,8 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement: Codeunit ArchiveManagement;
         FilePath: Text[1024];
     begin
+        Initialize();
+
         // Covers document number TC0053 - refer to TFS ID 21739.
         // Test Archived Sales Order Report successfully created.
 
@@ -559,6 +607,8 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement: Codeunit ArchiveManagement;
         FilePath: Text[1024];
     begin
+        Initialize();
+
         // Covers document number TC0053 - refer to TFS ID 21739.
         // Test Arch. Sales Return Order Report successfully created.
 
@@ -586,6 +636,8 @@ codeunit 136202 "Marketing Document Logging"
         CustomerTemplate: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Test Create a Sales Quote from Contact.
 
         // 1. Setup: Create Contact, Customer Template.
@@ -637,45 +689,6 @@ codeunit 136202 "Marketing Document Logging"
         VerifySalesLineQuoteValues(SalesLine, Item."No.", Quantity);
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('ConfirmMessageHandlerSpecific,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ArchiveSalesQuoteFromContact()
-    var
-        Contact: Record Contact;
-        CustomerTemplate: Record "Customer Templ.";
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ArchiveManagement: Codeunit ArchiveManagement;
-    begin
-        // Test Create Archive Document from Sales Quote Document with Contact.
-        Initialize();
-        // 1. Setup: Create Contact, Customer Template, Create Sales Quote Document from Contact with Customer Template and Random Quantity.
-        LibraryMarketing.CreateCompanyContact(Contact);
-        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(true);
-        SalesHeader.Init();
-        SalesHeader.Insert(true);
-        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
-        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplate.Code);
-        SalesHeader.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
-
-        // 2. Exercise: Archive the Sales Document.
-        ArchiveManagement.ArchiveSalesDocument(SalesHeader);
-
-        // 3. Verify: Verify Values on Sales Archive Document and Number of Archive Versions on Sales Header.
-        VerifySalesHeaderArchive(SalesHeader);
-        VerifySalesLineArchive(SalesLine);
-        VerifyArchivedVersions(SalesHeader);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-#endif
     [Test]
     [HandlerFunctions('ConfirmMessageHandlerSpecific,MessageHandler')]
     [Scope('OnPrem')]
@@ -748,6 +761,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Test Report Archived Sales Quote shows "VAT Amount Specification" when VAT Amount <> 0.
         ArchivedSalesReportWithVAT(SalesHeader."Document Type"::Quote);
     end;
@@ -759,6 +774,8 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesHeader: Record "Sales Header";
     begin
+        Initialize();
+
         // Test Report Archived Sales Return Order shows "VAT Amount Specification" when VAT Amount <> 0.
         ArchivedSalesReportWithVAT(SalesHeader."Document Type"::"Return Order");
     end;
@@ -832,6 +849,8 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
+        Initialize();
+
         // [FEATURE] [Quote] [Invoice]
         // [SCENARIO 366380] Archive Sales Quote created after "Make Invoice" from Sales Quote with Archive Quotes set True
         // [WHEN] Created Sales Quote and ran "Make Invoice" with Archive Quotes set True
@@ -1044,20 +1063,6 @@ codeunit 136202 "Marketing Document Logging"
         LibrarySales.SetArchiveOrders(ArchiveOrders);
     end;
 
-#if not CLEAN18
-    local procedure FindUpdateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        LibraryMarketing.FindCustomerTemplate(CustomerTemplate);
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CustomerTemplate.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-        CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        CustomerTemplate.Modify(true);
-    end;
-#endif
     local procedure RunReportArchivedSalesQuote(SalesHeader: Record "Sales Header")
     var
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -1132,30 +1137,16 @@ codeunit 136202 "Marketing Document Logging"
             SalesLine.TestField("No.", SalesLineArchive."No.");
             SalesLine.TestField(Quantity, SalesLineArchive.Quantity);
             SalesLine.TestField("Location Code", SalesLineArchive."Location Code");
-        until SalesLineArchive.Next = 0;
+        until SalesLineArchive.Next() = 0;
     end;
 
-#if not CLEAN18
-    local procedure VerifySalesHeaderArchive(SalesHeader: Record "Sales Header")
-    var
-        SalesHeaderArchive: Record "Sales Header Archive";
-    begin
-        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
-        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst();
-        SalesHeaderArchive.TestField("Sell-to Contact No.", SalesHeader."Sell-to Contact No.");
-        SalesHeaderArchive.TestField("Sell-to Customer Template Code", SalesHeader."Sell-to Customer Template Code");
-        SalesHeaderArchive.TestField("Order Date", SalesHeader."Order Date");
-        SalesHeaderArchive.TestField("Document Date", SalesHeader."Document Date");
-    end;
-#endif
     local procedure VerifySalesHeaderQuoteValues(SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[20])
     begin
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         SalesHeader.TestField("Sell-to Contact No.", SellToContactNo);
         SalesHeader.TestField("Sell-to Customer Templ. Code", SellToCustomerTemplateCode);
-        SalesHeader.TestField("Order Date", WorkDate);
-        SalesHeader.TestField("Document Date", WorkDate);
+        SalesHeader.TestField("Order Date", WorkDate());
+        SalesHeader.TestField("Document Date", WorkDate());
     end;
 
     local procedure VerifySalesLineArchive(SalesLine: Record "Sales Line")
@@ -1178,7 +1169,7 @@ codeunit 136202 "Marketing Document Logging"
             SalesLineArchive.TestField(Type, SalesLine.Type);
             SalesLineArchive.TestField("No.", SalesLine."No.");
             SalesLineArchive.TestField(Quantity, SalesLine.Quantity);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesLineQuoteValues(SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)

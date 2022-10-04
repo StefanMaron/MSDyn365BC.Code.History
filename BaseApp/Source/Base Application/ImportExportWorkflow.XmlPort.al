@@ -209,7 +209,7 @@ xmlport 1501 "Import / Export Workflow"
                                 Encoding: DotNet Encoding;
                                 Conditions: Text;
                             begin
-                                if not "Workflow Step Argument"."Event Conditions".HasValue then
+                                if not "Workflow Step Argument"."Event Conditions".HasValue() then
                                     currXMLport.Skip();
 
                                 "Workflow Step Argument".CalcFields("Event Conditions");

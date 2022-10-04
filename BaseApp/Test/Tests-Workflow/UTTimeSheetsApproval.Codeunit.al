@@ -408,7 +408,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine.FindSet();
         repeat
             TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        until TimeSheetLine.Next = 0;
+        until TimeSheetLine.Next() = 0;
     end;
 
     local procedure CreateTimeSheetWithOneLine(var TimeSheetLine: Record "Time Sheet Line")
@@ -437,7 +437,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine."Line No." := LineNo;
         TimeSheetLine.Type := TimeSheetLine.Type::Resource;
-        TimeSheetLine.Description := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine.Description));
+        TimeSheetLine.Description := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine.Description));
         TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
         TimeSheetLine."Approver ID" := UserId;
         TimeSheetLine.Insert();
@@ -458,7 +458,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine.Type := TimeSheetLine.Type::Job;
         TimeSheetLine."Job No." := JobTask."Job No.";
         TimeSheetLine."Job Task No." := JobTask."Job Task No.";
-        TimeSheetLine.Description := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine.Description));
+        TimeSheetLine.Description := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine.Description));
         TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
         TimeSheetLine."Approver ID" := UserId;
         TimeSheetLine.Insert();
@@ -530,8 +530,8 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine.FindSet();
         repeat
             TimeSheetLineBuffer.TestField(Description, TimeSheetLine.Description);
-            TimeSheetLineBuffer.Next;
-        until TimeSheetLine.Next = 0;
+            TimeSheetLineBuffer.Next();
+        until TimeSheetLine.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]

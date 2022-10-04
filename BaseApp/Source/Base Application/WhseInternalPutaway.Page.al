@@ -3,7 +3,6 @@ page 7354 "Whse. Internal Put-away"
     Caption = 'Whse. Internal Put-away';
     PageType = Document;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Release,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Whse. Internal Put-away Header";
 
@@ -14,7 +13,7 @@ page 7354 "Whse. Internal Put-away"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,29 +24,29 @@ page 7354 "Whse. Internal Put-away"
                             CurrPage.Update();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the internal put-away is being performed.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         LookupLocation(Rec);
                         CurrPage.Update(true);
                     end;
                 }
-                field("From Zone Code"; "From Zone Code")
+                field("From Zone Code"; Rec."From Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone from which the items to be put away should be taken.';
                 }
-                field("From Bin Code"; "From Bin Code")
+                field("From Bin Code"; Rec."From Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin from which the items to be put away should be taken.';
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the status of the internal put-away.';
@@ -57,36 +56,36 @@ page 7354 "Whse. Internal Put-away"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the status of the internal put-away.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the warehouse internal put-always are sorted.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
@@ -163,8 +162,6 @@ page 7354 "Whse. Internal Put-away"
                     ApplicationArea = Warehouse;
                     Caption = 'Put-away Lines';
                     Image = PutawayLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST("Internal Put-away"),
                                   "Whse. Document No." = FIELD("No.");
@@ -186,8 +183,6 @@ page 7354 "Whse. Internal Put-away"
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
@@ -203,8 +198,6 @@ page 7354 "Whse. Internal Put-away"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -221,8 +214,6 @@ page 7354 "Whse. Internal Put-away"
                     Caption = 'Get Bin Content';
                     Ellipsis = true;
                     Image = GetBinContent;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Use a function to create transfer lines with items to put away or pick based on the actual content in the specified bin.';
 
                     trigger OnAction()
@@ -233,7 +224,7 @@ page 7354 "Whse. Internal Put-away"
                     begin
                         BinContent.SetRange("Location Code", "Location Code");
                         GetBinContent.SetTableView(BinContent);
-                        GetBinContent.InitializeReport(DummyRec, Rec, 1);
+                        GetBinContent.SetParameters(DummyRec, Rec, "Warehouse Destination Type 2"::"WhseInternalPutawayHeader");
                         GetBinContent.Run();
                     end;
                 }
@@ -243,15 +234,50 @@ page 7354 "Whse. Internal Put-away"
                     Caption = 'Create Put-away';
                     Ellipsis = true;
                     Image = CreatePutAway;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a warehouse put-away document.';
 
                     trigger OnAction()
                     begin
                         CurrPage.Update(true);
-                        CurrPage.WhseInternalPutAwayLines.PAGE.PutAwayCreate;
+                        CurrPage.WhseInternalPutAwayLines.PAGE.PutAwayCreate();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Get Bin Content_Promoted"; "Get Bin Content")
+                {
+                }
+                actionref(CreatePutAway_Promoted; CreatePutAway)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Re&lease_Promoted"; "Re&lease")
+                {
+                }
+                actionref("Re&open_Promoted"; "Re&open")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Put-away Lines_Promoted"; "Put-away Lines")
+                {
                 }
             }
         }
@@ -259,7 +285,7 @@ page 7354 "Whse. Internal Put-away"
 
     trigger OnOpenPage()
     begin
-        SetWhseLocationFilter;
+        SetWhseLocationFilter();
     end;
 
     local procedure SortingMethodOnAfterValidate()

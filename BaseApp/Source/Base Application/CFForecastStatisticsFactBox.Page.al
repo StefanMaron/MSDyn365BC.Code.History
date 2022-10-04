@@ -183,8 +183,9 @@ page 840 "CF Forecast Statistics FactBox"
     end;
 
     var
-        Text1000: Label 'Liquid Funds at %1';
         CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
         CurrentDate: Date;
+
+        Text1000: Label 'Liquid Funds at %1';
 }
 

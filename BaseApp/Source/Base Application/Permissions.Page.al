@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 9803 Permissions
 {
     Caption = 'Permissions';
@@ -7,10 +8,12 @@ page 9803 Permissions
     ModifyAllowed = false;
     PageType = Worksheet;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Read,Insert,Modify,Delete,Execute';
     ShowFilter = false;
     SourceTable = Permission;
     SourceTableTemporary = true;
+    ObsoleteReason = 'Replaced by the Expanded Permissions page.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -49,7 +52,7 @@ page 9803 Permissions
                     ToolTip = 'Specifies the ID of the permission sets that exist in the current database.';
                     Visible = false;
                 }
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AllowChangePrimaryKey;
@@ -57,7 +60,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies the type of object that the permissions apply to in the current database.';
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AllowChangePrimaryKey;
@@ -92,7 +95,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies the caption of the object that the permissions apply to.';
                 }
-                field("Read Permission"; "Read Permission")
+                field("Read Permission"; Rec."Read Permission")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = IsTableData;
@@ -100,7 +103,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies information about whether the permission set has read permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have read permission.';
                 }
-                field("Insert Permission"; "Insert Permission")
+                field("Insert Permission"; Rec."Insert Permission")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = IsTableData;
@@ -108,7 +111,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies information about whether the permission set has insert permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have insert permission.';
                 }
-                field("Modify Permission"; "Modify Permission")
+                field("Modify Permission"; Rec."Modify Permission")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = IsTableData;
@@ -116,7 +119,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies information about whether the permission set has modify permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have modify permission.';
                 }
-                field("Delete Permission"; "Delete Permission")
+                field("Delete Permission"; Rec."Delete Permission")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = IsTableData;
@@ -124,7 +127,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies information about whether the permission set has delete permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have delete permission.';
                 }
-                field("Execute Permission"; "Execute Permission")
+                field("Execute Permission"; Rec."Execute Permission")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = NOT IsTableData;
@@ -132,7 +135,7 @@ page 9803 Permissions
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies information about whether the permission set has execute permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have execute permission.';
                 }
-                field("Security Filter"; "Security Filter")
+                field("Security Filter"; Rec."Security Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = IsTableData;
@@ -197,8 +200,35 @@ page 9803 Permissions
                     AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
                     AddSubtractPermissionSet.RunModal();
                     Reset();
-                    FillTempPermissions;
+                    FillTempPermissions();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Read', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Insert', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Modify', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Delete', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Execute', Comment = 'Generated from the PromotedActionCategories property index 7.';
             }
         }
     }
@@ -207,11 +237,11 @@ page 9803 Permissions
     var
         Permission: Record Permission;
     begin
-        ActivateControls;
+        ActivateControls();
         SetObjectZeroName(Rec);
         if not IsNewRecord then begin
             Permission := Rec;
-            PermissionRecExists := Permission.Find;
+            PermissionRecExists := Permission.Find();
         end else
             PermissionRecExists := false;
         AllowChangePrimaryKey := not PermissionRecExists and (Show = Show::"Only In Permission Set");
@@ -231,7 +261,7 @@ page 9803 Permissions
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
         EnvironmentInformation: Codeunit "Environment Information";
     begin
-        PermissionPagesMgt.RaiseNotificationThatSecurityFilterNotEditableForSystemAndExtension;
+        PermissionPagesMgt.RaiseNotificationThatSecurityFilterNotEditableForSystemAndExtension();
         IsOnPrem := EnvironmentInformation.IsOnPrem();
 
         if CurrentRoleID = '' then
@@ -240,8 +270,8 @@ page 9803 Permissions
             else
                 if PermissionSet.FindFirst() then
                     CurrentRoleID := PermissionSet."Role ID";
-        Reset;
-        FillTempPermissions;
+        Reset();
+        FillTempPermissions();
     end;
 
     var
@@ -344,3 +374,4 @@ page 9803 Permissions
     end;
 }
 
+#endif

@@ -128,7 +128,7 @@ codeunit 30201 "Shpfy Guided Experience"
             BusinessCentralLovesShopifyDescriptionTxt, 2, BusinessCentralLovesShopifyVideoLinkTxt, "Video Category"::GettingStarted);
 
         if Company."Evaluation Company" then begin
-            GuidedExperience.InsertAssistedSetup(ConnectYourShopEvalTitleTxt, ConnectYourShopEvalShortTitleTxt, ConnectYourShopEvalDescriptionTxt, 0, ObjectType::Page, Page::"Shpfy Connector Guide", "Assisted Setup Group"::Connect, '', "Video Category"::Connect, '');
+            GuidedExperience.InsertAssistedSetup(ConnectYourShopEvalTitleTxt, ConnectYourShopEvalShortTitleTxt, ConnectYourShopEvalDescriptionTxt, 0, ObjectType::Page, Page::"Shpfy Connector Guide", "Assisted Setup Group"::Connect, '', "Video Category"::Connect, '', true);
             CurrentGlobalLanguage := GlobalLanguage();
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
             GuidedExperience.AddTranslationForSetupObjectTitle("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Shpfy Connector Guide", Language.GetDefaultApplicationLanguageId(), ConnectYourShopEvalTitleTxt);
@@ -136,7 +136,7 @@ codeunit 30201 "Shpfy Guided Experience"
             GlobalLanguage(CurrentGlobalLanguage);
             GuidedExperience.InsertApplicationFeature(ItemListTitleTxt, ItemListShortTitleTxt, ItemListDescriptionTxt, 2, ObjectType::Codeunit, Codeunit::"Shpfy Checklist Item List");
         end else begin
-            GuidedExperience.InsertAssistedSetup(ConnectYourShopTitleTxt, ConnectYourShopShortTitleTxt, ConnectYourShopDescriptionTxt, 0, ObjectType::Page, Page::"Shpfy Connector Guide", "Assisted Setup Group"::Connect, '', "Video Category"::Connect, '');
+            GuidedExperience.InsertAssistedSetup(ConnectYourShopTitleTxt, ConnectYourShopShortTitleTxt, ConnectYourShopDescriptionTxt, 0, ObjectType::Page, Page::"Shpfy Connector Guide", "Assisted Setup Group"::Connect, '', "Video Category"::Connect, '', true);
             CurrentGlobalLanguage := GlobalLanguage();
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
             GuidedExperience.AddTranslationForSetupObjectTitle("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Shpfy Connector Guide", Language.GetDefaultApplicationLanguageId(), ConnectYourShopTitleTxt);

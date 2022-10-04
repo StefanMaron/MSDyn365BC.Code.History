@@ -5,7 +5,7 @@ codeunit 5979 "Service-Post and Send"
     trigger OnRun()
     begin
         ServiceHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := ServiceHeader;
     end;
 
@@ -30,7 +30,7 @@ codeunit 5979 "Service-Post and Send"
                     Error(NotSupportedDocumentTypeErr, "Document Type");
             end;
 
-        TempDocumentSendingProfile.CheckElectronicSendingEnabled;
+        TempDocumentSendingProfile.CheckElectronicSendingEnabled();
         ValidateElectronicFormats(TempDocumentSendingProfile);
 
         CODEUNIT.Run(CODEUNIT::"Service-Post", ServiceHeader);

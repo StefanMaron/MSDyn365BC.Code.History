@@ -5,7 +5,6 @@ page 7351 "Movement Worksheet"
     DataCaptionFields = Name;
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Item';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Whse. Worksheet Line";
@@ -25,7 +24,7 @@ page 7351 "Movement Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     LookupWhseWkshName(Rec, CurrentWkshName, CurrentLocationCode);
                     CurrPage.Update(false);
                 end;
@@ -33,7 +32,7 @@ page 7351 "Movement Worksheet"
                 trigger OnValidate()
                 begin
                     CheckWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
-                    CurrentWkshNameOnAfterValidate;
+                    CurrentWkshNameOnAfterValidate();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -58,7 +57,7 @@ page 7351 "Movement Worksheet"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that the line concerns.';
@@ -69,7 +68,7 @@ page 7351 "Movement Worksheet"
                         ItemNoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -80,29 +79,29 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item on the line.';
                 }
-                field("From Zone Code"; "From Zone Code")
+                field("From Zone Code"; Rec."From Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone from which the items should be taken.';
                 }
-                field("From Bin Code"; "From Bin Code")
+                field("From Bin Code"; Rec."From Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin from which the items should be taken.';
                 }
-                field("To Zone Code"; "To Zone Code")
+                field("To Zone Code"; Rec."To Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone in which the items should be placed.';
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin into which the items should be placed.';
 
                     trigger OnValidate()
                     begin
-                        ToBinCodeOnAfterValidate;
+                        ToBinCodeOnAfterValidate();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -115,66 +114,66 @@ page 7351 "Movement Worksheet"
                         QuantityOnAfterValidate();
                     end;
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be handled in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, expressed in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Handle"; "Qty. to Handle")
+                field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units of the item you want to move.';
 
                     trigger OnValidate()
                     begin
-                        QtytoHandleOnAfterValidate;
+                        QtytoHandleOnAfterValidate();
                     end;
                 }
-                field("Qty. to Handle (Base)"; "Qty. to Handle (Base)")
+                field("Qty. to Handle (Base)"; Rec."Qty. to Handle (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity you want to handle, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Handled"; "Qty. Handled")
+                field("Qty. Handled"; Rec."Qty. Handled")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that has been handled and registered.';
                 }
-                field("Qty. Handled (Base)"; "Qty. Handled (Base)")
+                field("Qty. Handled (Base)"; Rec."Qty. Handled (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that has been handled and registered, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the due date of the line.';
 
                     trigger OnValidate()
                     begin
-                        DueDateOnAfterValidate;
+                        DueDateOnAfterValidate();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("ROUND(CheckAvailQtytoMove / ItemUOM.""Qty. per Unit of Measure"",UOMMgt.QtyRndPrecision)"; Round(CheckAvailQtytoMove / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision))
+                field("ROUND(CheckAvailQtytoMove / ItemUOM.""Qty. per Unit of Measure"",UOMMgt.QtyRndPrecision)"; Round(CheckAvailQtytoMove() / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()))
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Available Qty. to Move';
@@ -238,9 +237,7 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -258,8 +255,6 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -270,8 +265,6 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Warehouse Entries';
                     Image = BinLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Warehouse Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -285,8 +278,6 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -299,8 +290,6 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -321,8 +310,6 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Autofill Qty. to Handle';
                     Image = AutofillQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
 
                     trigger OnAction()
@@ -338,8 +325,6 @@ page 7351 "Movement Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Delete Qty. to Handle';
                     Image = DeleteQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Have the system clear the value in the Qty. To Handle field. ';
 
                     trigger OnAction()
@@ -359,8 +344,6 @@ page 7351 "Movement Worksheet"
                     Caption = 'Calculate Bin &Replenishment';
                     Ellipsis = true;
                     Image = CalculateBinReplenishment;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Calculate the movement of items from bulk storage bins with lower bin rankings to bins with a high bin ranking in the picking areas.';
 
                     trigger OnAction()
@@ -386,8 +369,6 @@ page 7351 "Movement Worksheet"
                     Caption = 'Get Bin Content';
                     Ellipsis = true;
                     Image = GetBinContent;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Use a function to create transfer lines with items to put away or pick based on the actual content in the specified bin.';
 
                     trigger OnAction()
@@ -398,7 +379,7 @@ page 7351 "Movement Worksheet"
                     begin
                         BinContent.SetRange("Location Code", "Location Code");
                         GetBinContent.SetTableView(BinContent);
-                        GetBinContent.InitializeReport(Rec, DummyRec, 0);
+                        GetBinContent.SetParameters(Rec, DummyRec, "Warehouse Destination Type 2"::"MovementWorksheet");
                         GetBinContent.Run();
                     end;
                 }
@@ -411,9 +392,6 @@ page 7351 "Movement Worksheet"
                     Caption = 'Create Movement';
                     Ellipsis = true;
                     Image = CreateMovement;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create the specified warehouse movement documents.';
 
                     trigger OnAction()
@@ -436,6 +414,82 @@ page 7351 "Movement Worksheet"
                         FilterGroup(0);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create Movement_Promoted"; "Create Movement")
+                {
+                }
+                actionref("Get Bin Content_Promoted"; "Get Bin Content")
+                {
+                }
+                actionref("Calculate Bin &Replenishment_Promoted"; "Calculate Bin &Replenishment")
+                {
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ItemTrackingLines_Promoted; ItemTrackingLines)
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("Warehouse Entries_Promoted"; "Warehouse Entries")
+                {
+                }
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -531,7 +585,7 @@ page 7351 "Movement Worksheet"
 
     protected procedure CurrentWkshNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

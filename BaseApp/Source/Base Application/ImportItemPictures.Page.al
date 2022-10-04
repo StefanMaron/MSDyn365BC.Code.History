@@ -36,7 +36,7 @@ page 348 "Import Item Pictures"
                         ReplaceModeEditable := ZipFileName <> '';
                         FindFirst();
 
-                        UpdateCounters;
+                        UpdateCounters();
                     end;
                 }
                 field(ReplaceMode; ReplaceMode)
@@ -51,7 +51,7 @@ page 348 "Import Item Pictures"
                         if ZipFileName = '' then
                             Error(SelectZIPFilenameErr);
 
-                        Reset;
+                        Reset();
                         SetRange("Picture Already Exists", true);
                         if ReplaceMode then
                             ModifyAll("Import Status", "Import Status"::Pending)
@@ -59,7 +59,7 @@ page 348 "Import Item Pictures"
                             ModifyAll("Import Status", "Import Status"::Skip);
                         SetRange("Picture Already Exists");
 
-                        UpdateCounters;
+                        UpdateCounters();
                         CurrPage.Update();
                     end;
                 }
@@ -107,51 +107,51 @@ page 348 "Import Item Pictures"
             {
                 Caption = 'Pictures';
                 Editable = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that the picture is for.';
                 }
-                field("Item Description"; "Item Description")
+                field("Item Description"; Rec."Item Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the item that the picture is for.';
                 }
-                field("Picture Already Exists"; "Picture Already Exists")
+                field("Picture Already Exists"; Rec."Picture Already Exists")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a picture already exists for the item card.';
                 }
-                field("File Name"; "File Name")
+                field("File Name"; Rec."File Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the picture file. It must be the same as the item number.';
                     Width = 20;
                 }
-                field("File Extension"; "File Extension")
+                field("File Extension"; Rec."File Extension")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the picture file.';
                     Width = 10;
                 }
-                field("File Size (KB)"; "File Size (KB)")
+                field("File Size (KB)"; Rec."File Size (KB)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the size of the picture file.';
                     Width = 10;
                 }
-                field("Modified Date"; "Modified Date")
+                field("Modified Date"; Rec."Modified Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
-                field("Modified Time"; "Modified Time")
+                field("Modified Time"; Rec."Modified Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the picture was last modified.';
                     Visible = false;
                 }
-                field("Import Status"; "Import Status")
+                field("Import Status"; Rec."Import Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the last import of the picture was been skipped, is pending, or is completed.';
@@ -172,30 +172,36 @@ page 348 "Import Item Pictures"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import Pictures';
                     Image = ImportExport;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Import pictures into items cards. Existing pictures will be replaced if the Replace Pictures check box is selected.';
 
                     trigger OnAction()
                     begin
                         ImportPictures(ReplaceMode);
-                        AddedCount := GetAddedCount;
-                        ReplacedCount := GetReplacedCount;
+                        AddedCount := GetAddedCount();
+                        ReplacedCount := GetReplacedCount();
                     end;
                 }
                 action(ShowItemCard)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Item Card';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ToolTip = 'Open the item card that contains the picture.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ImportPictures_Promoted; ImportPictures)
+                {
+                }
+                actionref(ShowItemCard_Promoted; ShowItemCard)
+                {
                 }
             }
         }
@@ -227,10 +233,10 @@ page 348 "Import Item Pictures"
 
     local procedure UpdateCounters()
     begin
-        AddCount := GetAddCount;
-        ReplaceCount := GetReplaceCount;
-        AddedCount := GetAddedCount;
-        ReplacedCount := GetReplacedCount;
+        AddCount := GetAddCount();
+        ReplaceCount := GetReplaceCount();
+        AddedCount := GetAddedCount();
+        ReplacedCount := GetReplacedCount();
     end;
 }
 

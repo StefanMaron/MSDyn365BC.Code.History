@@ -1,7 +1,7 @@
 page 5147 "Make Phone Call"
 {
     Caption = 'Make Phone Call';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -242,7 +242,7 @@ page 5147 "Make Phone Call"
 
                 trigger OnAction()
                 begin
-                    Rec.CheckPhoneCallStatus;
+                    Rec.CheckPhoneCallStatus();
                     HyperLink(StrSubstNo('tel:%1', Rec."Contact Via"));
                 end;
             }
@@ -258,9 +258,9 @@ page 5147 "Make Phone Call"
                 begin
                     if Rec."Opportunity No." = '' then
                         if Confirm(CreateOpportunityQst) then
-                            Rec.Validate("Opportunity No.", Rec.CreateOpportunity);
-                    LogCall;
-                    CurrPage.Close;
+                            Rec.Validate("Opportunity No.", Rec.CreateOpportunity());
+                    LogCall();
+                    CurrPage.Close();
                 end;
             }
             action(OpenCommentsPage)
@@ -273,7 +273,7 @@ page 5147 "Make Phone Call"
 
                 trigger OnAction()
                 begin
-                    Rec.ShowComment;
+                    Rec.ShowComment();
                 end;
             }
             action(Back)

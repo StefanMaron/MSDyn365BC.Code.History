@@ -6,7 +6,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
         OnBeforeOnRun(Rec);
         PhysInvtOrderHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PhysInvtOrderHeader;
 
         OnAfterOnRun(Rec);
@@ -49,7 +49,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             if not HideProgressWindow then begin
                 Window.Open(
                 '#1#################################\\' + FinishingLinesMsg);
-                Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+                Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "No."));
             end;
 
             LockTable();
@@ -65,7 +65,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                     if not HideProgressWindow then
                         Window.Update(2, LineCount);
 
-                    if not PhysInvtOrderLine.EmptyLine then begin
+                    if not PhysInvtOrderLine.EmptyLine() then begin
                         CheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item);
 
                         if PhysInvtOrderLine."Qty. Recorded (Base)" - PhysInvtOrderLine."Qty. Expected (Base)" >= 0 then begin
@@ -94,7 +94,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                             else
                                 PhysInvtOrderLine."Neg. Qty. (Base)" := PhysInvtOrderLine."Quantity (Base)";
 
-                        PhysInvtOrderLine.CalcCosts;
+                        PhysInvtOrderLine.CalcCosts();
 
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
                         PhysInvtOrderLine.Modify();
@@ -161,7 +161,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                                 PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
                                                 PhysInvtOrderLine2."Quantity (Base)");
                                     end;
-                                    PhysInvtOrderLine2.CalcCosts;
+                                    PhysInvtOrderLine2.CalcCosts();
                                     PhysInvtOrderLine2.Modify();
                                 until PhysInvtOrderLine2.Next() = 0;
                         end;
@@ -169,7 +169,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 until PhysInvtOrderLine.Next() = 0;
 
             Status := Status::Finished;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -183,7 +183,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             exit;
 
         with PhysInvtOrderLine do begin
-            CheckLine;
+            CheckLine();
             Item.Get("Item No.");
             Item.TestField(Blocked, false);
 
@@ -265,7 +265,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                     ReservEntry."Qty. to Invoice (Base)" := ReservEntry.Quantity;
                     ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Prospect;
                     ReservEntry."Created By" := UserId;
-                    ReservEntry.Validate("Creation Date", WorkDate);
+                    ReservEntry.Validate("Creation Date", WorkDate());
                     if QtyToTransfer > 0 then begin
                         ReservEntry."Expected Receipt Date" := PhysInvtOrderHeader."Posting Date";
                         PhysInvtOrderLine."Pos. Qty. (Base)" += ReservEntry.Quantity;
@@ -314,7 +314,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey(
               "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
             SetRange("Item No.", PhysInvtOrderLine."Item No.");
@@ -333,15 +333,15 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
         with TempPhysInvtTrackingBuffer do
             if not Get(SerialNo, LotNo) then begin
-                Init;
+                Init();
                 "Serial No." := SerialNo;
                 "Lot No" := LotNo;
                 "Qty. Expected (Base)" := QtyBase;
                 "Line No." := LineNo;
-                Insert;
+                Insert();
             end else begin
                 "Qty. Expected (Base)" += QtyBase;
-                Modify;
+                Modify();
             end;
     end;
 
@@ -349,15 +349,15 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
         with TempPhysInvtTrackingBuffer do
             if not Get(SerialNo, LotNo) then begin
-                Init;
+                Init();
                 "Serial No." := SerialNo;
                 "Lot No" := LotNo;
                 "Qty. Recorded (Base)" := QtyBase;
                 "Line No." := LineNo;
-                Insert;
+                Insert();
             end else begin
                 "Qty. Recorded (Base)" += QtyBase;
-                Modify;
+                Modify();
             end;
     end;
 

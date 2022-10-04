@@ -6,7 +6,7 @@ codeunit 134767 "Test OData Wizard US"
     trigger OnRun()
     begin
         // [FEATURE] [Report Simplicity]
-        Init;
+        Init();
     end;
 
     var
@@ -56,7 +56,7 @@ codeunit 134767 "Test OData Wizard US"
         ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
         Assert.AreEqual('No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No. field');
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
         ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
@@ -70,7 +70,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         Assert.IsTrue(TenantWebServiceColumns.Find('-'), 'Missing TenantWebServiceColumns record on FindFirst');
         Assert.AreEqual('No', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.IsTrue(TenantWebServiceColumns.Next <> 0, 'Missing TenantWebServiceColumns record on Next');
+        Assert.IsTrue(TenantWebServiceColumns.Next() <> 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('Name', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
 
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Page, PAGE::"Customer List", TenantWebService);
@@ -108,7 +108,7 @@ codeunit 134767 "Test OData Wizard US"
         ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
         ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
         Assert.AreEqual('No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No. field');
@@ -127,7 +127,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         Assert.IsTrue(TenantWebServiceColumns.FindFirst, 'Missing TenantWebServiceColumns record on FindFirst');
         Assert.AreEqual('Name', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.IsTrue(TenantWebServiceColumns.Next <> 0, 'Missing TenantWebServiceColumns record on Next');
+        Assert.IsTrue(TenantWebServiceColumns.Next() <> 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('No', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
         Assert.IsTrue(TenantWebServiceColumns.FindLast, 'Missing TenantWebServiceColumns record on FindLast');
         Assert.AreEqual('CountryRegionName', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
@@ -174,12 +174,12 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
         Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
         Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual(
           'Responsibility Center', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Responsibility_Center', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
@@ -249,12 +249,12 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
         Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
         Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual(
           'Responsibility Center', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Responsibility_Center', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
@@ -321,7 +321,7 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual('Entry_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
         Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Document No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Document_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
         Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
@@ -359,7 +359,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         Assert.AreEqual(TenantWebServiceColumns.Find('-'), true, 'Missing TenantWebServiceColumns record on FindFirst');
         Assert.AreEqual('Posting_Date', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.IsTrue(TenantWebServiceColumns.Next <> 0, 'Missing TenantWebServiceColumns record on Next');
+        Assert.IsTrue(TenantWebServiceColumns.Next() <> 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('Entry_Type', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
 
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Query, QUERY::"Sales Dashboard", TenantWebService);
@@ -424,7 +424,7 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual('Entry_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
         Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Next;
+        ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Document No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Document_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
         Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
@@ -464,7 +464,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         Assert.AreEqual(TenantWebServiceColumns.Find('-'), true, 'Missing TenantWebServiceColumns record on FindFirst');
         Assert.AreEqual('Posting_Date', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.IsTrue(TenantWebServiceColumns.Next <> 0, 'Missing TenantWebServiceColumns record on Next');
+        Assert.IsTrue(TenantWebServiceColumns.Next() <> 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('Entry_Type', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
 
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Query, QUERY::"Sales Dashboard", TenantWebService);
@@ -720,22 +720,6 @@ codeunit 134767 "Test OData Wizard US"
         ODataSetupWizard.FinishAction.Invoke;
     end;
 
-#If not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestOnCompanyInitialization()
-    var
-        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
-        ODataUtility: Codeunit ODataUtility;
-    begin
-        // [SCENARIO]  Company is create or initialized
-        AssistedSetupTestLibrary.DeleteAll();
-        // [WHEN] CreateAssistedSetup is run.
-        ODataUtility.CreateAssistedSetup;
-        // [THEN] A record is created in the Assisted Setup table.
-        Assert.IsTrue(AssistedSetupTestLibrary.Exists(PAGE::"OData Setup Wizard"), 'Missing Assisted Setup Record');
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure TestWizardNextValidation()
@@ -839,21 +823,21 @@ codeunit 134767 "Test OData Wizard US"
         Assert.IsTrue((StrPos(Url, HostName) <> 0) or (HostName in [ExcelAddinProviderUrlPPETxt, ExcelAddinProviderUrlTxt]),
           'Unexpected ConnectionInfo.HostName');
 
-        DataEntityInfoEnum := DataEntityExportInfo.Entities.GetEnumerator;
-        DataEntityInfoEnum.MoveNext;
+        DataEntityInfoEnum := DataEntityExportInfo.Entities.GetEnumerator();
+        DataEntityInfoEnum.MoveNext();
         DataEntityInfo := DataEntityInfoEnum.Current;
         Assert.AreEqual(TenantWebService."Service Name", DataEntityInfo.Name, 'Unexpected value in DataEntityInfo.Name');
         Assert.AreEqual(TenantWebService."Service Name", DataEntityInfo.PublicName, 'Unexpected value in DataEntityInfo.PublicName');
 
-        BindingInfoEnum := DataEntityExportInfo.Bindings.GetEnumerator;
-        BindingInfoEnum.MoveNext;
+        BindingInfoEnum := DataEntityExportInfo.Bindings.GetEnumerator();
+        BindingInfoEnum.MoveNext();
         BindingInfo := BindingInfoEnum.Current;
         Assert.AreEqual(TenantWebService."Service Name", BindingInfo.EntityName, 'Unexpected value in BindingInfo.EntityName');
         Assert.AreEqual(6, BindingInfo.Fields.Count, 'Unexpected number of Fields');
 
         Assert.IsTrue(TenantWebServiceColumns.FindFirst, 'Expected TenantWebServiceColumns not found');
-        FieldInfoEnum := BindingInfo.Fields.GetEnumerator;
-        FieldInfoEnum.MoveNext;
+        FieldInfoEnum := BindingInfo.Fields.GetEnumerator();
+        FieldInfoEnum.MoveNext();
         FieldInfo := FieldInfoEnum.Current;
         Assert.AreEqual(TenantWebServiceColumns."Field Name", FieldInfo.Name, 'Unexpected FieldInfo.Name');
         Assert.AreEqual(TenantWebServiceColumns."Field Name", FieldInfo.Label, 'Unexpected FieldInfo.Label');
@@ -891,8 +875,8 @@ codeunit 134767 "Test OData Wizard US"
         // [WHEN] CreateDataEntityExportInfo is run.
         DataEntityExportInfo := DataEntityExportInfo.DataEntityExportInfo;
         EditinExcelTestLibrary.CreateDataEntityExportInfo(TenantWebService, DataEntityExportInfo, TenantWebServiceColumns, '', '');
-        DataEntityInfoEnum := DataEntityExportInfo.Entities.GetEnumerator;
-        DataEntityInfoEnum.MoveNext;
+        DataEntityInfoEnum := DataEntityExportInfo.Entities.GetEnumerator();
+        DataEntityInfoEnum.MoveNext();
         DataEntityInfo := DataEntityInfoEnum.Current;
 
         // [THEN] The service name is transformed when added to the workbook.
@@ -940,7 +924,7 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual(ODataExpectedName, ODataActualName, 'Object name conversion did not match the expected value.');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SalesPriceFilterPageHandler')]
     [Scope('OnPrem')]
@@ -1226,7 +1210,7 @@ codeunit 134767 "Test OData Wizard US"
         VerifyNavContact(NavContact, ExchangeContact);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [FilterPageHandler]
     [Scope('OnPrem')]
     procedure SalesPriceFilterPageHandler(var SalesLineRecordRef: RecordRef): Boolean

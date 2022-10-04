@@ -13,33 +13,33 @@ page 5209 "Employee Relatives"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Relative Code"; "Relative Code")
+                field("Relative Code"; Rec."Relative Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a relative code for the employee.';
                 }
-                field("First Name"; "First Name")
+                field("First Name"; Rec."First Name")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the first name of the employee''s relative.';
                 }
-                field("Middle Name"; "Middle Name")
+                field("Middle Name"; Rec."Middle Name")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the middle name of the employee''s relative.';
                     Visible = false;
                 }
-                field("Birth Date"; "Birth Date")
+                field("Birth Date"; Rec."Birth Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the relative''s date of birth.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the relative''s telephone number.';
                 }
-                field("Relative's Employee No."; "Relative's Employee No.")
+                field("Relative's Employee No."; Rec."Relative's Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the relative''s employee number, if the relative also works at the company.';

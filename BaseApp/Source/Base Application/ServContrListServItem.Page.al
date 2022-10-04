@@ -13,17 +13,17 @@ page 6075 "Serv. Contr. List (Serv. Item)"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contract Status"; "Contract Status")
+                field("Contract Status"; Rec."Contract Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the status of the contract.';
                 }
-                field("Contract Type"; "Contract Type")
+                field("Contract Type"; Rec."Contract Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the contract.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract or service contract quote associated with the service contract line.';
@@ -34,7 +34,7 @@ page 6075 "Serv. Contr. List (Serv. Item)"
                     Caption = 'Contract Description';
                     ToolTip = 'Specifies billable prices for the job task that are related to G/L accounts.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item that is subject to the service contract.';
@@ -46,39 +46,39 @@ page 6075 "Serv. Contr. List (Serv. Item)"
                     Caption = 'Contract Line Description';
                     ToolTip = 'Specifies billable profits for the job task that are related to G/L accounts, expressed in the local currency.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Response Time (Hours)"; "Response Time (Hours)")
+                field("Response Time (Hours)"; Rec."Response Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the response time for the service item associated with the service contract.';
                 }
-                field("Line Cost"; "Line Cost")
+                field("Line Cost"; Rec."Line Cost")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the calculated cost of the service item line in the service contract or contract quote.';
                 }
-                field("Line Value"; "Line Value")
+                field("Line Value"; Rec."Line Value")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the value of the service item line in the contract or contract quote.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
@@ -88,45 +88,45 @@ page 6075 "Serv. Contr. List (Serv. Item)"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the profit, expressed as the difference between the Line Amount and Line Cost fields on the service contract line.';
                 }
-                field("Service Period"; "Service Period")
+                field("Service Period"; Rec."Service Period")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the period of time that must pass between each servicing of an item.';
                 }
-                field("Next Planned Service Date"; "Next Planned Service Date")
+                field("Next Planned Service Date"; Rec."Next Planned Service Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date of the next planned service on the item included in the contract.';
                 }
-                field("Last Planned Service Date"; "Last Planned Service Date")
+                field("Last Planned Service Date"; Rec."Last Planned Service Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date of the last planned service on this item.';
                     Visible = false;
                 }
-                field("Last Preventive Maint. Date"; "Last Preventive Maint. Date")
+                field("Last Preventive Maint. Date"; Rec."Last Preventive Maint. Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the last time preventative service was performed on this item.';
                     Visible = false;
                 }
-                field("Last Service Date"; "Last Service Date")
+                field("Last Service Date"; Rec."Last Service Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service item on the line was last serviced.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service contract.';
                 }
-                field("Contract Expiration Date"; "Contract Expiration Date")
+                field("Contract Expiration Date"; Rec."Contract Expiration Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when an item should be removed from the contract.';
                 }
-                field("Credit Memo Date"; "Credit Memo Date")
+                field("Credit Memo Date"; Rec."Credit Memo Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when you can create a credit memo for the service item that needs to be removed from the service contract.';

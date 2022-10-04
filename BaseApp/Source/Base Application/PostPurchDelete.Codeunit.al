@@ -130,7 +130,7 @@ codeunit 364 "PostPurch-Delete"
             repeat
                 OnBeforeDeletePurchInvLines(PurchInvLine);
                 PurchInvLine.Delete();
-                ItemTrackingMgt.DeleteValueEntryRelation(PurchInvLine.RowID1);
+                ItemTrackingMgt.DeleteValueEntryRelation(PurchInvLine.RowID1());
             until PurchInvLine.Next() = 0;
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Purch. Inv. Header", PurchInvHeader."No.");

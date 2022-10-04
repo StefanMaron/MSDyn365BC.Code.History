@@ -93,7 +93,7 @@ table 5127 "Deferral Header Archive"
     procedure DeleteHeader(DeferralDocType: Integer; DocumentType: Integer; DocumentNo: Code[20]; DocNoOcurrence: Integer; VersionNo: Integer; LineNo: Integer)
     begin
         if Get(DeferralDocType, DocumentType, DocumentNo, LineNo) then begin
-            Delete;
+            Delete();
             DeleteLines("Deferral Document Type".FromInteger(DeferralDocType), DocumentType, DocumentNo, DocNoOcurrence, VersionNo, LineNo);
         end;
     end;

@@ -15,7 +15,7 @@ page 6056 "Service Contract Template List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -30,12 +30,12 @@ page 6056 "Service Contract Template List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that this service contract is prepaid.';
                 }
-                field("Serv. Contract Acc. Gr. Code"; "Serv. Contract Acc. Gr. Code")
+                field("Serv. Contract Acc. Gr. Code"; Rec."Serv. Contract Acc. Gr. Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code associated with the service contract account group.';
                 }
-                field("Invoice Period"; "Invoice Period")
+                field("Invoice Period"; Rec."Invoice Period")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the invoice period for the service contract.';

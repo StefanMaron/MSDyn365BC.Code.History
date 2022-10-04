@@ -27,7 +27,7 @@ page 7506 "Filter Items by Attribute"
 
                     trigger OnAssistEdit()
                     begin
-                        ValueAssistEdit;
+                        ValueAssistEdit();
                     end;
                 }
             }

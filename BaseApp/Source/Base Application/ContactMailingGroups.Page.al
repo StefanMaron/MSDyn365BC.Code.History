@@ -12,12 +12,12 @@ page 5064 "Contact Mailing Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Mailing Group Code"; "Mailing Group Code")
+                field("Mailing Group Code"; Rec."Mailing Group Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the mailing group code. This field is not editable.';
                 }
-                field("Mailing Group Description"; "Mailing Group Description")
+                field("Mailing Group Description"; Rec."Mailing Group Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

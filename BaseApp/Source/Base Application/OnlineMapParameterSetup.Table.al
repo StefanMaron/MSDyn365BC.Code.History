@@ -97,7 +97,7 @@ table 801 "Online Map Parameter Setup"
         if not OnlineMapParameterSetup.IsEmpty() then
             if not ConfirmManagement.GetResponseOrDefault(Text001, false) then
                 exit;
-        OnlineMapMgt.SetupDefault;
+        OnlineMapMgt.SetupDefault();
     end;
 }
 

@@ -18,7 +18,7 @@ page 373 "Bank Account Posting Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the G/L account that bank transactions, such as bank payment reconciliations, are posted to when the bank account card contains this code.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account to which bank account entries in this posting group are posted.';

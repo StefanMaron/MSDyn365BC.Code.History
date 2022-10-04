@@ -413,7 +413,7 @@ codeunit 136101 "Service Orders"
         ServiceItemLine.Validate("Item No.", Item."No.");
         ServiceItemLine.Modify(true);
 
-        Item.Next;
+        Item.Next();
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLine."Line No.");
@@ -426,7 +426,7 @@ codeunit 136101 "Service Orders"
         // [THEN] Verify that the Service Quote not Exist.
         Assert.IsFalse(
           ServiceHeader.Get(ServiceHeader."Document Type"::Quote, ServiceQuoteNo),
-          StrSubstNo(RecordExistErr, ServiceHeader.TableCaption, ServiceHeader.FieldCaption("No."), ServiceQuoteNo));
+          StrSubstNo(RecordExistErr, ServiceHeader.TableCaption(), ServiceHeader.FieldCaption("No."), ServiceQuoteNo));
     end;
 
     [Test]
@@ -544,7 +544,7 @@ codeunit 136101 "Service Orders"
 
         // [THEN] Verify that the Customer not Exist.
         Assert.IsFalse(
-          Customer.Get(CustomerNo), StrSubstNo(RecordExistErr, Customer.TableCaption, Customer.FieldCaption("No."), CustomerNo));
+          Customer.Get(CustomerNo), StrSubstNo(RecordExistErr, Customer.TableCaption(), Customer.FieldCaption("No."), CustomerNo));
     end;
 
     [Test]
@@ -602,7 +602,7 @@ codeunit 136101 "Service Orders"
         // [THEN] Verify that the Service Item not Exist.
         Assert.IsFalse(
           ServiceItem.Get(ServiceItemNo),
-          StrSubstNo(RecordExistErr, ServiceItem.TableCaption, ServiceItem.FieldCaption("No."), ServiceItemNo));
+          StrSubstNo(RecordExistErr, ServiceItem.TableCaption(), ServiceItem.FieldCaption("No."), ServiceItemNo));
     end;
 
     [Test]
@@ -993,7 +993,7 @@ codeunit 136101 "Service Orders"
 
         // [WHEN] Change Resource No. on Service Order Allocation.
         ServiceOrderAllocation.Get(LibraryVariableStorage.DequeueInteger);
-        Resource.Next;
+        Resource.Next();
         ServiceOrderAllocation.Validate("Resource No.", Resource."No.");
 
         // [THEN] Verify Service Document Log for Change Resource Allocation.
@@ -1240,7 +1240,7 @@ codeunit 136101 "Service Orders"
         // [THEN] Verify Service Item Line successfully deleted.
         Assert.IsFalse(
           ServiceItemLine.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.", ServiceItemLine."Line No."),
-          StrSubstNo(ServiceItemLineExistErr, ServiceItemLine.TableCaption));
+          StrSubstNo(ServiceItemLineExistErr, ServiceItemLine.TableCaption()));
     end;
 
     [Test]
@@ -1872,12 +1872,12 @@ codeunit 136101 "Service Orders"
 
         // [THEN] Verify VAT Entry.
         VATEntry.SetRange("Document No.", FindServiceInvoiceHeader(ServiceHeader."No."));
-        Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfLinesErr, VATEntry.TableCaption, 1));  // Only one VAT Entry should be created.
+        Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfLinesErr, VATEntry.TableCaption(), 1));  // Only one VAT Entry should be created.
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           -VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            VATAmountErr, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."),
+            VATAmountErr, VATEntry.FieldCaption(Amount), VATEntry.Amount, VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."),
             VATEntry."Entry No.", VATAmount));
     end;
 
@@ -1994,7 +1994,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] Create Service Item and Service Order .
         Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
-        ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate);
+        ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate());
         ServiceItem.Modify(true);
         CreateServiceOrderWithWarranty(ServiceHeader, ServiceItem);
 
@@ -2068,7 +2068,7 @@ codeunit 136101 "Service Orders"
         ServiceContractHeader: Record "Service Contract Header";
     begin
         // [SCENARIO 312261] Verify Amount Per Period and Next Invoice Date on Service Contract Header When Invoice Period is Year.
-        VerifyNextInvoiceDateAndAmountToPeriod(ServiceContractHeader."Invoice Period"::Year, 1, CalcDate('<CY+1Y>', WorkDate));  // Amount Per Period for Year calculated using Amount divided by 1.
+        VerifyNextInvoiceDateAndAmountToPeriod(ServiceContractHeader."Invoice Period"::Year, 1, CalcDate('<CY+1Y>', WorkDate()));  // Amount Per Period for Year calculated using Amount divided by 1.
     end;
 
     [Test]
@@ -2079,7 +2079,7 @@ codeunit 136101 "Service Orders"
         ServiceContractHeader: Record "Service Contract Header";
     begin
         // [SCENARIO 312261] Verify Amount Per Period and Next Invoice Date on Service Contract Header When Invoice Period is Month.
-        VerifyNextInvoiceDateAndAmountToPeriod(ServiceContractHeader."Invoice Period"::Month, 12, CalcDate('<CY+1M>', WorkDate));  // Amount Per Period for Month calculated using Amount divided by 12.
+        VerifyNextInvoiceDateAndAmountToPeriod(ServiceContractHeader."Invoice Period"::Month, 12, CalcDate('<CY+1M>', WorkDate()));  // Amount Per Period for Month calculated using Amount divided by 12.
     end;
 
     [Test]
@@ -2090,7 +2090,7 @@ codeunit 136101 "Service Orders"
         ServiceContractHeader: Record "Service Contract Header";
     begin
         // [SCENARIO 312261] Verify Amount Per Period and Next Invoice Date on Service Contract Header When Invoice Period is Quarter.
-        VerifyNextInvoiceDateAndAmountToPeriod(ServiceContractHeader."Invoice Period"::Quarter, 4, CalcDate('<CY+3M>', WorkDate));  // Amount Per Period for Quarter calculated using Amount divided by 4.
+        VerifyNextInvoiceDateAndAmountToPeriod(ServiceContractHeader."Invoice Period"::Quarter, 4, CalcDate('<CY+3M>', WorkDate()));  // Amount Per Period for Quarter calculated using Amount divided by 4.
     end;
 
     [Test]
@@ -2108,7 +2108,7 @@ codeunit 136101 "Service Orders"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
-        ServiceContractHeader.Validate("Starting Date", CalcDate('<CY+1D>', WorkDate));  // Starting Date should be First Day of the Next Year.
+        ServiceContractHeader.Validate("Starting Date", CalcDate('<CY+1D>', WorkDate()));  // Starting Date should be First Day of the Next Year.
         ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
         ServiceContractHeader.Modify(true);
         Evaluate(PriceUpdatePeriod, StrSubstNo('<%1M>', LibraryRandom.RandInt(11)));
@@ -2424,8 +2424,8 @@ codeunit 136101 "Service Orders"
     begin
         // Setup: Create and signed service contract.
         Initialize();
-        SavedDate := WorkDate;
-        WorkDate := CalcDate('<CY+1D>', WorkDate); // First day of the year.
+        SavedDate := WorkDate();
+        WorkDate := CalcDate('<CY+1D>', WorkDate()); // First day of the year.
         CreateServiceContractHeader(ServiceContractHeader, InvoicePeriod);
         CreateServiceContractLineWithPriceUpdatePeriod(ServiceContractHeader, ServiceContractLine);
         CreateServiceContractLineWithPriceUpdatePeriod(ServiceContractHeader, ServiceContractLine2);
@@ -2519,13 +2519,13 @@ codeunit 136101 "Service Orders"
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Close;
+        ServiceOrder.Close();
         // [GIVEN] Credit Limit warning page is opened for customer "C"
         // "CheckCreditLimit_ReplyYes_MPH" handler
 
         // [WHEN] Close credit limit warning page with "OK" action.
         // [THEN] No error occurs and Service Line "Unit Price" = "X" + 0.01
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreEqual(
           UnitPrice + LibraryERM.GetAmountRoundingPrecision,
           ServiceLine."Unit Price",
@@ -2597,10 +2597,10 @@ codeunit 136101 "Service Orders"
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Close;
+        ServiceOrder.Close();
 
         // [THEN] Credit Limit warning page is not opened and ServiceLine."Unit Price" = "X"
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreEqual(UnitPrice, ServiceLine."Unit Price", ServiceLine.FieldCaption("Unit Price"));
     end;
 
@@ -2635,14 +2635,14 @@ codeunit 136101 "Service Orders"
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Close;
+        ServiceOrder.Close();
         // [GIVEN] Credit Limit warning page is opened
 
         // [WHEN] Close credit limit warning page with "OK" action.
         // "CheckCreditLimit_ReplyYes_MPH" handler
 
         // [THEN] No error occurs and Service Line "Quantity" = 2. No more credit limit warning page is shown.
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreEqual(
           Quantity + LibraryERM.GetAmountRoundingPrecision,
           ServiceLine.Quantity,
@@ -2758,7 +2758,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Service Item Line with Loaner to be inserted
         with ServiceItemLine do begin
-            Init;
+            Init();
             Validate("Document Type", ServiceHeader."Document Type");
             Validate("Document No.", ServiceHeader."No.");
             Validate("Service Item No.", ServiceItem."No.");
@@ -2846,7 +2846,7 @@ codeunit 136101 "Service Orders"
         // [WHEN] User adds Service Line for each Service Item Line
         for i := 1 to NoOfServiceItemLines do begin
             ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
-            ServiceOrder.ServItemLines.Next;
+            ServiceOrder.ServItemLines.Next();
         end;
         ServiceOrder.OK.Invoke;
         // [THEN] No error message appears and Service Line linked with last Service Item Line exists
@@ -2880,7 +2880,7 @@ codeunit 136101 "Service Orders"
         // [WHEN] User inserts 16 Travel Fees, 16th Line "Line No." should have value of already existing line
         asserterror ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
         // [THEN] Error message appears that user cannot anymore insert lines at current position, not that the line already exists
-        Assert.ExpectedError(StrSubstNo(ThereIsNotEnoughSpaceToInsertErr, ServiceLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ThereIsNotEnoughSpaceToInsertErr, ServiceLine.TableCaption()));
     end;
 
     [Test]
@@ -3013,7 +3013,7 @@ codeunit 136101 "Service Orders"
         OpenServiceItemWorksheetPage(ServiceLine."Document No.");
 
         // [THEN] Line Discount must be equal to 50. (must not be changed)
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreEqual(LineDiscountPercent, ServiceLine."Line Discount %", ServiceLine.FieldCaption("Line Discount %"));
     end;
 
@@ -3040,7 +3040,7 @@ codeunit 136101 "Service Orders"
         OpenServiceItemWorksheetPage(ServiceLine."Document No.");
 
         // [THEN] Line Discount must be equal to 0. (must be reset)
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreEqual(0, ServiceLine."Line Discount %", ServiceLine.FieldCaption("Line Discount %"));
     end;
 
@@ -3063,7 +3063,7 @@ codeunit 136101 "Service Orders"
         OpenServiceItemWorksheetPage(ServiceLine."Document No.");
 
         // [THEN] Line Discount must be equal to 0. (must be reset)
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreEqual(0, ServiceLine."Line Discount %", ServiceLine.FieldCaption("Line Discount %"));
     end;
 
@@ -3092,7 +3092,7 @@ codeunit 136101 "Service Orders"
         ServiceHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
 
         // [THEN] Field "Gen. Bus. Posting Group" in Service Order line is "B"
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
     end;
 
@@ -3125,7 +3125,7 @@ codeunit 136101 "Service Orders"
 
         // [THEN] Field "Gen. Bus. Posting Group" in Service Order line is not changed because of error message
         Assert.AreEqual('', GetLastErrorText, 'Unexpected error');
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("Gen. Bus. Posting Group", OldGenBusPostingGroup);
     end;
 
@@ -3324,7 +3324,7 @@ codeunit 136101 "Service Orders"
         // [THEN] Line2: Type = "", "No." = "", Description = "ET2"
         VerifyServiceLineCount(ServiceHeader, 2);
         VerifyServiceLineDescription(ServiceLine, ServiceLine.Type::" ", StandardText.Code, StandardText.Description);
-        ServiceLine.Next;
+        ServiceLine.Next();
         VerifyServiceLineDescription(ServiceLine, ServiceLine.Type::" ", '', ExtendedText);
     end;
 
@@ -3534,7 +3534,7 @@ codeunit 136101 "Service Orders"
         ServiceOrder.Post.Invoke;
 
         // [THEN] Service Order's "Customer No." = "X"
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceHeader.TestField("Customer No.", CustomerNo);
     end;
 
@@ -3833,12 +3833,12 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
         // [GIVEN] Service Order's "Starting Time" is on the same day before starting hours
         StartingTime := 000000T + LibraryRandom.RandInt(ServiceHour."Starting Time" - 000000T);
 
         // [WHEN] Calculating Actual Response Hours
-        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, WorkDate, ServiceHour."Ending Time", '', false);
+        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate(), StartingTime, WorkDate(), ServiceHour."Ending Time", '', false);
 
         // [THEN] Only service hours are counted
         Assert.AreEqual(Round((ServiceHour."Ending Time" - ServiceHour."Starting Time") / 3600000, 0.01), ActualResponseHours, '');
@@ -3859,12 +3859,12 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
         // [GIVEN] Service Order's "Starting Time" is on the same day during starting hours
         StartingTime := 000000T + LibraryRandom.RandIntInRange(ServiceHour."Starting Time" - 000000T, ServiceHour."Ending Time" - 000000T);
 
         // [WHEN] Calculating Actual Response Hours
-        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, WorkDate, ServiceHour."Ending Time", '', false);
+        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate(), StartingTime, WorkDate(), ServiceHour."Ending Time", '', false);
 
         // [THEN] Only service hours are counted
         Assert.AreEqual(Round((ServiceHour."Ending Time" - StartingTime) / 3600000, 0.01), ActualResponseHours, '');
@@ -3885,13 +3885,13 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
 
         // [GIVEN] Service Order's "Starting Time" and "Finishing Time" are before service hours
         StartingTime := 000000T + LibraryRandom.RandInt(ServiceHour."Starting Time" - 000000T);
 
         // [WHEN] Calculating Actual Response Hours, finishing time doesn't matter
-        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, CalcDate('<+1D>', WorkDate), StartingTime, '', false);
+        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate(), StartingTime, CalcDate('<+1D>', WorkDate()), StartingTime, '', false);
 
         // [THEN] Only service hours are counted
         Assert.AreEqual(Round((ServiceHour."Ending Time" - ServiceHour."Starting Time") / 3600000, 0.01), ActualResponseHours, '');
@@ -3912,12 +3912,12 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
         // [GIVEN] Service Order's "Starting Time" is on the same day during starting hours
         StartingTime := 000000T + LibraryRandom.RandIntInRange(ServiceHour."Starting Time" - 000000T, ServiceHour."Ending Time" - 000000T);
 
         // [WHEN] Calculating Actual Response Hours, finishing time doesn't matter
-        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, CalcDate('<+1D>', WorkDate), StartingTime, '', false);
+        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate(), StartingTime, CalcDate('<+1D>', WorkDate()), StartingTime, '', false);
 
         // [THEN] Only service hours are counted
         Assert.AreEqual(Round((ServiceHour."Ending Time" - StartingTime) / 3600000, 0.01), ActualResponseHours, '');
@@ -4000,14 +4000,14 @@ codeunit 136101 "Service Orders"
         ServiceHeader.Insert();
 
         with ServiceLine do begin
-            Init;
+            Init();
             "Document Type" := ServiceHeader."Document Type";
             "Document No." := ServiceHeader."No.";
             "Line No." := GetLineNo;
-            Insert;
+            Insert();
             TestField("Line No.", 10000);
 
-            Init;
+            Init();
             "Document Type" := ServiceHeader."Document Type";
             "Document No." := ServiceHeader."No.";
             "Line No." := GetLineNo;
@@ -4072,7 +4072,7 @@ codeunit 136101 "Service Orders"
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 0);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure CorrectCalculationLineDiscountForServiceLineWithSalesPrice()
@@ -4098,7 +4098,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Sales Price with Item for Customer 
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.", WorkDate, '', '', '', 0, LibraryRandom.RandInt(20));
+          SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.", WorkDate(), '', '', '', 0, LibraryRandom.RandInt(20));
         SalesPrice.Validate("Allow Line Disc.", false);
         SalesPrice.Modify(true);
 
@@ -5048,7 +5048,7 @@ codeunit 136101 "Service Orders"
         InventorySetup: Record "Inventory Setup";
     begin
         with InventorySetup do begin
-            Get;
+            Get();
             Result := "Automatic Cost Posting";
             if Result = NewValue then
                 exit;
@@ -5089,7 +5089,7 @@ codeunit 136101 "Service Orders"
         GetServiceLine(ServiceLine, ServiceHeader);
         repeat
             TotalAmount += ServiceLine."Unit Price" * ServiceLine.Quantity;
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
         exit(Round(TotalAmount * VATPct / 100));
     end;
 
@@ -5189,9 +5189,9 @@ codeunit 136101 "Service Orders"
         ServiceHeader: Record "Service Header";
         ServContractManagement: Codeunit ServContractManagement;
     begin
-        ServContractManagement.InitCodeUnit;
+        ServContractManagement.InitCodeUnit();
         ServContractManagement.CreateInvoice(ServiceContractHeader);
-        ServContractManagement.FinishCodeunit;
+        ServContractManagement.FinishCodeunit();
 
         with ServiceHeader do begin
             SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -5335,7 +5335,7 @@ codeunit 136101 "Service Orders"
         ExtendedTextLine: Record "Extended Text Line";
     begin
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        ExtendedTextHeader.Validate("Starting Date", WorkDate);
+        ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
 
@@ -5398,7 +5398,7 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
-    local procedure CreateServiceContract(var ServiceContractHeader: Record "Service Contract Header"; var ServiceContractLine: Record "Service Contract Line"; ContractType: Option)
+    local procedure CreateServiceContract(var ServiceContractHeader: Record "Service Contract Header"; var ServiceContractLine: Record "Service Contract Line"; ContractType: Enum "Service Contract Type")
     begin
         // Create Service Item, Service Contract Header, Service Contract Line.
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ContractType, '');
@@ -5438,8 +5438,8 @@ codeunit 136101 "Service Orders"
         Evaluate(PriceUpdatePeriod, StrSubstNo('<%1M>', LibraryRandom.RandInt(11)));
         with ServiceContractLine do begin
             Validate("Line Value", 12 * LibraryRandom.RandDecInRange(50, 100, 2));
-            Validate("Next Planned Service Date", WorkDate);
-            Validate("Starting Date", WorkDate);
+            Validate("Next Planned Service Date", WorkDate());
+            Validate("Starting Date", WorkDate());
             Validate("Service Period", PriceUpdatePeriod);
             Modify(true);
         end;
@@ -5896,7 +5896,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
-        ServiceHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Use Random for Date.
+        ServiceHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Use Random for Date.
         ServiceHeader.Modify(true);
         ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         ServiceLine.Validate("Posting Date", ServiceHeader."Posting Date");
@@ -6062,7 +6062,7 @@ codeunit 136101 "Service Orders"
             "Document Type" := ServiceHeader."Document Type";
             "Document No." := ServiceHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(ServiceLine, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -6138,7 +6138,7 @@ codeunit 136101 "Service Orders"
             ServiceLineOld := ServiceLine;
             ServiceLineOld.Insert();
             LibraryVariableStorage.Enqueue(ServiceLine.Description);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure DeleteUserSetup(var UserSetup: Record "User Setup"; ResponsibilityCenterCode: Code[10])
@@ -6269,7 +6269,7 @@ codeunit 136101 "Service Orders"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;
@@ -6283,7 +6283,7 @@ codeunit 136101 "Service Orders"
         repeat
             TransferExtendedText.ServCheckIfAnyExtText(ServiceLine, true);
             TransferExtendedText.InsertServExtText(ServiceLine);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure ReceiveLoanerOnServiceShipment(OrderNo: Code[20])
@@ -6319,7 +6319,7 @@ codeunit 136101 "Service Orders"
         repeat
             ServiceCommentLineOld := ServiceCommentLine;
             ServiceCommentLineOld.Insert();
-        until ServiceCommentLine.Next = 0;
+        until ServiceCommentLine.Next() = 0;
     end;
 
     local procedure SelectDifferentShiptoCode(var ShipToAddress: Record "Ship-to Address")
@@ -6433,8 +6433,8 @@ codeunit 136101 "Service Orders"
             repeat
                 ServiceItemLine.Validate("Service Item Group Code", ServiceItemGroup.Code);
                 ServiceItemLine.Modify(true);
-                ServiceItemGroup.Next;
-            until ServiceItemLine.Next = 0;
+                ServiceItemGroup.Next();
+            until ServiceItemLine.Next() = 0;
     end;
 
     local procedure UpdateSalesReceivablesSetup()
@@ -6450,7 +6450,7 @@ codeunit 136101 "Service Orders"
         with ServiceLine do begin
             Validate("Qty. to Invoice", QtyToShipInvoice);
             Validate("Qty. to Ship", QtyToShipInvoice);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -6528,8 +6528,8 @@ codeunit 136101 "Service Orders"
         repeat
             ServiceCommentLine.TestField(Type, ServiceCommentLineOld.Type);
             ServiceCommentLine.TestField(Comment, ServiceCommentLineOld.Comment);
-            ServiceCommentLineOld.Next;
-        until ServiceCommentLine.Next = 0;
+            ServiceCommentLineOld.Next();
+        until ServiceCommentLine.Next() = 0;
     end;
 
     local procedure VerifyDescOnPostedInvoiceLine(var ServiceLine: Record "Service Line")
@@ -6543,7 +6543,7 @@ codeunit 136101 "Service Orders"
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", ServiceLine."Line No.");
             ServiceInvoiceLine.TestField(Description, ServiceLine.Description);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -6554,11 +6554,11 @@ codeunit 136101 "Service Orders"
         FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
         repeat
             TotalAmount += DetailedCustLedgEntry.Amount;
-        until DetailedCustLedgEntry.Next = 0;
+        until DetailedCustLedgEntry.Next() = 0;
         Assert.AreEqual(
           0, TotalAmount,
           StrSubstNo(
-            TotalAmountErr, 0, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry Type"),
+            TotalAmountErr, 0, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry Type"),
             DetailedCustLedgEntry."Entry Type"));
     end;
 
@@ -6583,9 +6583,9 @@ codeunit 136101 "Service Orders"
         GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreEqual(
-          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
+          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption(), GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
     end;
 
     local procedure VerifyGLEntriesByAccount(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
@@ -6598,11 +6598,11 @@ codeunit 136101 "Service Orders"
         GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreEqual(
           ExpectedAmount, TotalAmount,
           StrSubstNo(
-            GlAccountTotalAmountErr, 0, GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), GLEntry."Document No.",
+            GlAccountTotalAmountErr, 0, GLEntry.TableCaption(), GLEntry.FieldCaption("Document No."), GLEntry."Document No.",
             GLEntry.FieldCaption("G/L Account No."), GLEntry."G/L Account No."));
     end;
 
@@ -6619,8 +6619,8 @@ codeunit 136101 "Service Orders"
             OutStandingAmount := (1 + ServiceLine."VAT %" / 100) * Quantity * UnitPrice;
             Assert.AreNearlyEqual(
               OutStandingAmount, ServiceLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(WrongValueErr, ServiceLine.FieldCaption("Outstanding Amount"), OutStandingAmount, ServiceLine.TableCaption));
-        until ServiceLine.Next = 0;
+              StrSubstNo(WrongValueErr, ServiceLine.FieldCaption("Outstanding Amount"), OutStandingAmount, ServiceLine.TableCaption()));
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyOutstandingAmountOnGLEntry(DocumentNo: Code[20]; TotalOutStandingAmount: Decimal)
@@ -6637,10 +6637,10 @@ codeunit 136101 "Service Orders"
         if GLEntry.FindSet() then
             repeat
                 GLAmt += GLEntry.Amount;
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           TotalOutStandingAmount, GLAmt, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(WrongValueErr, GLEntry.FieldCaption(Amount), GLAmt, GLEntry.TableCaption));
+          StrSubstNo(WrongValueErr, GLEntry.FieldCaption(Amount), GLAmt, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntries(DocumentNo: Code[20]; ExpectedAmount: Decimal)
@@ -6652,10 +6652,10 @@ codeunit 136101 "Service Orders"
         VATEntry.FindSet();
         repeat
             TotalAmount += VATEntry.Amount;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         Assert.AreEqual(
           ExpectedAmount, TotalAmount,
-          StrSubstNo(TotalAmountErr, ExpectedAmount, VATEntry.TableCaption, VATEntry.FieldCaption("Document No."), VATEntry."Document No."));
+          StrSubstNo(TotalAmountErr, ExpectedAmount, VATEntry.TableCaption(), VATEntry.FieldCaption("Document No."), VATEntry."Document No."));
     end;
 
     local procedure VerifyVATAmountOnServiceStatistics(DocumentType: Enum "Service Document Type")
@@ -6686,7 +6686,7 @@ codeunit 136101 "Service Orders"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           DiscountAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(DiscountAmountErr, GLEntry.FieldCaption(Amount), DiscountAmount, GLEntry.TableCaption));
+          StrSubstNo(DiscountAmountErr, GLEntry.FieldCaption(Amount), DiscountAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyLinkedServiceLineExists(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; ServiceItemLineNo: Integer)
@@ -6739,7 +6739,7 @@ codeunit 136101 "Service Orders"
         repeat
             ServiceItem.Get(ServiceShipmentItemLine."Service Item No.");
             ServiceShipmentItemLine.TestField("Ship-to Code", ServiceItem."Ship-to Code");
-        until ServiceShipmentItemLine.Next = 0;
+        until ServiceShipmentItemLine.Next() = 0;
     end;
 
     local procedure VerifyServiceDocumentLocationCode(DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; LocationCode: Code[10])
@@ -6879,7 +6879,7 @@ codeunit 136101 "Service Orders"
         if ServiceItemLine.FindSet() then
             repeat
                 ServiceItemLine.TestField("Service Item Group Code");
-            until ServiceItemLine.Next = 0;
+            until ServiceItemLine.Next() = 0;
     end;
 
     local procedure VerifyVATAmountOnGLEntry(OrderNo: Code[20]; VATAmount: Decimal)
@@ -6929,7 +6929,7 @@ codeunit 136101 "Service Orders"
         ServiceInvStatistics.GotoRecord(ServiceInvHeader);
 
         ServiceInvStatistics.VATAmount.AssertEquals(VATAmount);
-        ServiceInvStatistics.Close;
+        ServiceInvStatistics.Close();
     end;
 
     local procedure VerifyAmountExclVATOnPostedCrMemoStatistics(CustomerNo: Code[20])
@@ -6967,7 +6967,7 @@ codeunit 136101 "Service Orders"
         // Exercise: Create Service Contract Header With Expiration Date.
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, ServiceItem."Customer No.");
-        ServiceContractHeader.Validate("Starting Date", CalcDate('<CY+1D>', WorkDate));  // Starting Date should be First Day of the Next Year.
+        ServiceContractHeader.Validate("Starting Date", CalcDate('<CY+1D>', WorkDate()));  // Starting Date should be First Day of the Next Year.
         ServiceContractHeader.Validate("Expiration Date", CalcDate('<CY+1D>', ServiceContractHeader."Starting Date"));
         ServiceContractHeader.Modify(true);
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
@@ -7012,7 +7012,7 @@ codeunit 136101 "Service Orders"
         ServiceLine: Record "Service Line";
     begin
         with ServiceLine do begin
-            Init;
+            Init();
             Validate("Document Type", DocumentType);
             Validate("Document No.", DocumentNo);
 
@@ -7044,7 +7044,7 @@ codeunit 136101 "Service Orders"
     begin
         with ServiceInvoiceLine do begin
             SetRange("Document No.", FindServiceInvoiceHeader(ServiceOrderNo));
-            Assert.AreEqual(2, Count, StrSubstNo(NoOfLinesErr, TableCaption, 2));
+            Assert.AreEqual(2, Count, StrSubstNo(NoOfLinesErr, TableCaption(), 2));
 
             SetRange(Type, Type::Item);
             FindFirst();
@@ -7119,7 +7119,7 @@ codeunit 136101 "Service Orders"
         REPEAT
             GLEntry.SETRANGE(Description, TempServiceLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
-        UNTIL TempServiceLine.NEXT = 0;
+        UNTIL TempServiceLine.Next() = 0;
     end;
 
 #if not CLEAN19
@@ -7166,10 +7166,10 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
-        SalesLineDiscount.Init;
+        SalesLineDiscount.Init();
         SalesLineDiscount.Validate(Type, SalesLineDiscount.Type::Item);
         SalesLineDiscount.Validate(Code, ItemNo);
         SalesLineDiscount.Validate("Sales Type", SalesLineDiscount."Sales Type"::Customer);
@@ -7290,7 +7290,7 @@ codeunit 136101 "Service Orders"
         ResourceAllocations.GetRecord(ServiceOrderAllocation);
         ServiceOrderAllocation.Validate(
           "Resource No.", CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(ServiceOrderAllocation."Resource No.")));
-        ServiceOrderAllocation.Validate("Allocation Date", WorkDate);
+        ServiceOrderAllocation.Validate("Allocation Date", WorkDate());
         ServiceOrderAllocation.Modify(true);
 
         LibraryVariableStorage.Enqueue(ServiceOrderAllocation."Entry No.");
@@ -7393,7 +7393,7 @@ codeunit 136101 "Service Orders"
         // Verify sequence of Service Lines.
         repeat
             ServiceLines.Description.AssertEquals(LibraryVariableStorage.DequeueText);
-        until ServiceLines.Next = true;
+        until ServiceLines.Next() = true;
     end;
 
     [ModalPageHandler]
@@ -7435,7 +7435,7 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Dequeue(ItemNo);
         ServiceLines."Service Item No.".AssertEquals(ServiceItemNo);
         ServiceLines."No.".AssertEquals(ItemNo);
-        while ServiceLines.Next do
+        while ServiceLines.Next() do
             Counter := Counter + 1;
         Assert.AreEqual(1, Counter, StrSubstNo(ServiceLineErr, ServiceItemNo));
     end;

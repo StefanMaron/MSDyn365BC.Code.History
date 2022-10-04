@@ -18,7 +18,7 @@ page 9818 "User Security Status List"
         {
             repeater(Group)
             {
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -26,7 +26,7 @@ page 9818 "User Security Status List"
                     StyleExpr = NOT Reviewed;
                     ToolTip = 'Specifies the user''s name. If the user is required to present credentials when starting the client, this is the name that the user must present.';
                 }
-                field("Full Name"; "Full Name")
+                field("Full Name"; Rec."Full Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -51,7 +51,7 @@ page 9818 "User Security Status List"
                     ToolTip = 'Specifies that the user is covered by a subscription plan.';
                     Visible = SoftwareAsAService;
                 }
-                field("Belongs to User Group"; "Belongs to User Group")
+                field("Belongs to User Group"; Rec."Belongs to User Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -90,10 +90,6 @@ page 9818 "User Security Status List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Get Users from Office 365';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Gets updated information about users from the Office portal.';
                 Visible = SoftwareAsAService;
 
@@ -101,7 +97,7 @@ page 9818 "User Security Status List"
                 var
                     AzureADUserManagement: Codeunit "Azure AD User Management";
                 begin
-                    AzureADUserManagement.CreateNewUsersFromAzureAD;
+                    AzureADUserManagement.CreateNewUsersFromAzureAD();
                     CurrPage.Update();
                 end;
             }
@@ -110,10 +106,6 @@ page 9818 "User Security Status List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Set as reviewed';
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Set the Reviewed field to Yes for this user.';
 
                 trigger OnAction()
@@ -126,10 +118,6 @@ page 9818 "User Security Status List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Set as not reviewed';
                 Image = Cancel;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Set the Reviewed field to No for this user.';
 
                 trigger OnAction()
@@ -142,10 +130,6 @@ page 9818 "User Security Status List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Group Members';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "User Group Members";
                 RunPageMode = View;
                 ToolTip = 'View or edit the members of the user group.';
@@ -155,10 +139,6 @@ page 9818 "User Security Status List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Manage plan assignments';
                 Image = Reconcile;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View or edit the user''s service plan.';
                 Visible = SoftwareAsAService;
 
@@ -166,8 +146,31 @@ page 9818 "User Security Status List"
                 var
                     PermissionManager: Codeunit "Permission Manager";
                 begin
-                    HyperLink(PermissionManager.GetOfficePortalUserAdminUrl);
+                    HyperLink(PermissionManager.GetOfficePortalUserAdminUrl());
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Get Users from Office 365_Promoted"; "Get Users from Office 365")
+                {
+                }
+                actionref("Set as reviewed_Promoted"; "Set as reviewed")
+                {
+                }
+                actionref("Set as not reviewed_Promoted"; "Set as not reviewed")
+                {
+                }
+                actionref("User Group Members_Promoted"; "User Group Members")
+                {
+                }
+                actionref("Manage plan assignments_Promoted"; "Manage plan assignments")
+                {
+                }
             }
         }
     }
@@ -176,7 +179,7 @@ page 9818 "User Security Status List"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        SoftwareAsAService := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnAfterGetRecord()
@@ -200,7 +203,7 @@ page 9818 "User Security Status List"
         repeat
             UserSecurityStatus.Reviewed := ReviewStatus;
             UserSecurityStatus.Modify(true);
-            UserSecurityStatus.LogUserReviewActivity;
+            UserSecurityStatus.LogUserReviewActivity();
         until UserSecurityStatus.Next() = 0;
         CurrPage.Update();
     end;

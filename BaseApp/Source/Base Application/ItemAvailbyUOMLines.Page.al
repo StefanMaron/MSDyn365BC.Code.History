@@ -23,7 +23,7 @@ page 5417 "Item Avail. by UOM Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify the unit of measure.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -347,7 +347,7 @@ page 5417 "Item Avail. by UOM Lines"
 
     local procedure ShowItemAvailLineList(What: Integer)
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.SetQtyByUnitOfMeasure("Qty. per Unit of Measure");
         ItemAvailFormsMgt.ShowItemAvailLineList(Item, What);
     end;
@@ -356,7 +356,7 @@ page 5417 "Item Avail. by UOM Lines"
     var
         DummyQtyAvailable: Decimal;
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.CalcAvailQuantities(
           Item, AmountType = AmountType::"Balance at Date",
           GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,

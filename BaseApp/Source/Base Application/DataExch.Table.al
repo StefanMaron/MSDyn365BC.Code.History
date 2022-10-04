@@ -80,7 +80,7 @@ table 1220 "Data Exch."
         DataExchLineDef: Record "Data Exch. Line Def";
         OutStream: OutStream;
     begin
-        Init;
+        Init();
         Validate("File Name", FileName);
         "File Content".CreateOutStream(OutStream);
         CopyStream(OutStream, FileContent);
@@ -88,7 +88,7 @@ table 1220 "Data Exch."
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         if DataExchLineDef.FindFirst() then
             Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
-        Insert;
+        Insert();
     end;
 
     procedure ImportFileContent(DataExchDef: Record "Data Exch. Def"): Boolean
@@ -100,7 +100,7 @@ table 1220 "Data Exch."
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         if DataExchLineDef.FindFirst() then;
 
-        Init;
+        Init();
         "Data Exch. Def Code" := DataExchDef.Code;
         "Data Exch. Line Def Code" := DataExchLineDef.Code;
         "Related Record" := RelatedRecord;
@@ -108,10 +108,10 @@ table 1220 "Data Exch."
         DataExchDef.TestField("Ext. Data Handling Codeunit");
         CODEUNIT.Run(DataExchDef."Ext. Data Handling Codeunit", Rec);
 
-        if not "File Content".HasValue then
+        if not "File Content".HasValue() then
             exit(false);
 
-        Insert;
+        Insert();
         exit(true);
     end;
 
@@ -120,7 +120,7 @@ table 1220 "Data Exch."
         Source: InStream;
         ProgressWindow: Dialog;
     begin
-        if not "File Content".HasValue then
+        if not "File Content".HasValue() then
             if not ImportFileContent(DataExchDef) then
                 exit(false);
 
@@ -135,7 +135,7 @@ table 1220 "Data Exch."
             XMLPORT.Import(DataExchDef."Reading/Writing XMLport", Source, Rec);
         end;
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
 
         exit(true);
     end;

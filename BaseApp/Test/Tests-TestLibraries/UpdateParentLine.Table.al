@@ -1,5 +1,6 @@
 table 139142 "Update Parent Line"
 {
+    ReplicateData = false;
 
     fields
     {

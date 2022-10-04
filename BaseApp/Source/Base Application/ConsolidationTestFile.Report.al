@@ -68,7 +68,7 @@ report 15 "Consolidation - Test File"
         dataitem(Header; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text009_ConsolidStartDate_ConsolidEndDate_; StrSubstNo(Text009, ConsolidStartDate, ConsolidEndDate))
@@ -128,7 +128,7 @@ report 15 "Consolidation - Test File"
 
                 trigger OnPostDataItem()
                 begin
-                    ClearErrors;
+                    ClearErrors();
                 end;
 
                 trigger OnPreDataItem()
@@ -186,7 +186,7 @@ report 15 "Consolidation - Test File"
 
                     trigger OnPreDataItem()
                     begin
-                        SetRange(Number, 1, Consolidate.GetNumSubsidGLEntry);
+                        SetRange(Number, 1, Consolidate.GetNumSubsidGLEntry());
                     end;
                 }
                 dataitem(ErrorLoop; "Integer")
@@ -202,7 +202,7 @@ report 15 "Consolidation - Test File"
 
                     trigger OnPostDataItem()
                     begin
-                        ClearErrors;
+                        ClearErrors();
                     end;
 
                     trigger OnPreDataItem()
@@ -222,7 +222,7 @@ report 15 "Consolidation - Test File"
 
                 trigger OnPreDataItem()
                 begin
-                    SetRange(Number, 1, Consolidate.GetNumSubsidGLAcc);
+                    SetRange(Number, 1, Consolidate.GetNumSubsidGLAcc());
                 end;
             }
         }
@@ -255,7 +255,7 @@ report 15 "Consolidation - Test File"
 
                         trigger OnAssistEdit()
                         begin
-                            UploadFile;
+                            UploadFile();
                         end;
                     }
                 }
@@ -292,7 +292,7 @@ report 15 "Consolidation - Test File"
               ProductVersion, FormatVersion, BusUnit."Company Name",
               SubsidCurrencyCode, AdditionalCurrencyCode, ParentCurrencyCode,
               CheckSum, ConsolidStartDate, ConsolidEndDate);
-            CalculatedCheckSum := Consolidate.CalcCheckSum;
+            CalculatedCheckSum := Consolidate.CalcCheckSum();
             if CheckSum <> CalculatedCheckSum then
                 AddError(StrSubstNo(Text036, CheckSum, CalculatedCheckSum));
             TransferPerDay := true;
@@ -315,7 +315,7 @@ report 15 "Consolidation - Test File"
         BusUnit.SetCurrentKey("Company Name");
         BusUnit.SetRange("Company Name", BusUnit."Company Name");
         BusUnit.Find('-');
-        if BusUnit.Next <> 0 then
+        if BusUnit.Next() <> 0 then
             AddError(StrSubstNo(
                 Text005 +
                 Text006,
@@ -324,20 +324,20 @@ report 15 "Consolidation - Test File"
             AddError(StrSubstNo(
                 Text017,
                 BusUnit.FieldCaption(Consolidate),
-                BusUnit.TableCaption, BusUnit.Code));
+                BusUnit.TableCaption(), BusUnit.Code));
 
         BusUnit2."File Format" := FileFormat;
         if BusUnit."File Format" <> FileFormat then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
                    FileFormatQst, BusUnit.FieldCaption("File Format"), BusUnit2."File Format",
-                   BusUnit.TableCaption, BusUnit."File Format"), true)
+                   BusUnit.TableCaption(), BusUnit."File Format"), true)
             then
-                CurrReport.Quit
+                CurrReport.Quit()
             else
                 AddError(StrSubstNo(
                     Text037, BusUnit.FieldCaption("File Format"), BusUnit2."File Format",
-                    BusUnit.TableCaption, BusUnit."File Format"));
+                    BusUnit.TableCaption(), BusUnit."File Format"));
 
         if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
             if SubsidCurrencyCode = '' then
@@ -350,22 +350,13 @@ report 15 "Consolidation - Test File"
                     AddError(StrSubstNo(
                         Text002,
                         BusUnit.FieldCaption("Currency Code"), SubsidCurrencyCode,
-                        BusUnit.TableCaption, BusUnit."Currency Code"));
+                        BusUnit.TableCaption(), BusUnit."Currency Code"));
             end
         else
             SubsidCurrencyCode := BusUnit."Currency Code";
     end;
 
     var
-        Text000: Label 'Enter the file name.';
-        Text001: Label 'The file to be imported has an unknown format.';
-        Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
-        Text005: Label 'The business unit %1 %2 is not unique.\\';
-        Text006: Label 'Delete %1 in the extra records.';
-        Text009: Label 'Period: %1..%2';
-        Text017: Label '%1 must be Yes in %2 %3.';
-        Text018: Label 'There are more than %1 errors.';
-        Text031: Label 'Import from Text File';
         BusUnit: Record "Business Unit";
         TempGLEntry: Record "G/L Entry" temporary;
         Consolidate: Codeunit Consolidate;
@@ -379,15 +370,25 @@ report 15 "Consolidation - Test File"
         TransferPerDay: Boolean;
         CheckSum: Decimal;
         CalculatedCheckSum: Decimal;
-        Text034: Label 'Import from XML File';
         ParentCurrencyCode: Code[10];
         SubsidCurrencyCode: Code[10];
         AdditionalCurrencyCode: Code[10];
         ProductVersion: Code[10];
         FormatVersion: Code[10];
-        Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         NextErrorIndex: Integer;
         ErrorText: array[100] of Text[250];
+
+        Text000: Label 'Enter the file name.';
+        Text001: Label 'The file to be imported has an unknown format.';
+        Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
+        Text005: Label 'The business unit %1 %2 is not unique.\\';
+        Text006: Label 'Delete %1 in the extra records.';
+        Text009: Label 'Period: %1..%2';
+        Text017: Label '%1 must be Yes in %2 %3.';
+        Text018: Label 'There are more than %1 errors.';
+        Text031: Label 'Import from Text File';
+        Text034: Label 'Import from XML File';
+        Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         Text037: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.';
         Text039: Label 'The file was successfully uploaded to server.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
@@ -398,9 +399,9 @@ report 15 "Consolidation - Test File"
 
     local procedure AddError(Text: Text[250])
     begin
-        if NextErrorIndex = ArrayLen(ErrorText) then begin
-            ErrorText[NextErrorIndex] := StrSubstNo(Text018, ArrayLen(ErrorText));
-        end else begin
+        if NextErrorIndex = ArrayLen(ErrorText) then
+            ErrorText[NextErrorIndex] := StrSubstNo(Text018, ArrayLen(ErrorText))
+        else begin
             NextErrorIndex := NextErrorIndex + 1;
             ErrorText[NextErrorIndex] := Text;
         end;

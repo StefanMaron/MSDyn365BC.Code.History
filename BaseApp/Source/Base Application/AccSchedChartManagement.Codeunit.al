@@ -6,14 +6,15 @@ codeunit 762 "Acc. Sched. Chart Management"
     end;
 
     var
-        Text001: Label 'Account Schedule %1 has duplicate Description values.';
-        Text002: Label 'Column Layout %1 has duplicate Column Header values.';
         GeneralLedgerSetup: Record "General Ledger Setup";
         AccSchedManagement: Codeunit AccSchedManagement;
-        Text003: Label 'Column formula: %1.';
-        Text005: Label 'DEFAULT', Comment = 'The default name of the chart setup.';
-        Text006: Label 'The account schedule or column layout definition has been modified since the chart setup was created. Please reset your chart setup.';
         GLSetupLoaded: Boolean;
+
+        DuplicateRowDescriptionsMsg: Label 'Row Definition %1 has duplicate Description values.';
+        DuplicateColumnHeaderMsg: Label 'Column Definition %1 has duplicate Column Header values.';
+        ColumnFormulaMsg: Label 'Column formula: %1.';
+        DefaultAccSchedTok: Label 'DEFAULT', Comment = 'The default name of the chart setup.';
+        DefinitionsModifiedMsg: Label 'The row definition or column definition has been modified since the chart setup was created. Please reset your chart setup.';
 
     procedure GetSetupRecordset(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; ChartName: Text[60]; Move: Integer)
     begin
@@ -23,11 +24,11 @@ codeunit 762 "Acc. Sched. Chart Management"
 
         if AccountSchedulesChartSetup.Next(Move) = 0 then
             if Move < 0 then
-                AccountSchedulesChartSetup.FindLast
+                AccountSchedulesChartSetup.FindLast()
             else
                 AccountSchedulesChartSetup.FindFirst();
 
-        AccountSchedulesChartSetup.SetLastViewed;
+        AccountSchedulesChartSetup.SetLastViewed();
     end;
 
     local procedure FindRecordset(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; ChartName: Text[60])
@@ -38,7 +39,7 @@ codeunit 762 "Acc. Sched. Chart Management"
             SetFilter("User ID", '%1|%2', UserId, '');
 
             if Get(UserId, ChartName) or Get('', ChartName) then begin
-                SetLastViewed;
+                SetLastViewed();
                 exit;
             end;
 
@@ -49,18 +50,18 @@ codeunit 762 "Acc. Sched. Chart Management"
                 exit;
 
             if FindFirst() then begin
-                SetLastViewed;
+                SetLastViewed();
                 exit;
             end;
 
-            Init;
+            Init();
             "User ID" := UserId;
-            Name := Text005;
+            Name := DefaultAccSchedTok;
             "Base X-Axis on" := "Base X-Axis on"::Period;
-            "Start Date" := WorkDate;
+            "Start Date" := WorkDate();
             "Period Length" := "Period Length"::Day;
             "Last Viewed" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -73,7 +74,7 @@ codeunit 762 "Acc. Sched. Chart Management"
         GetAccScheduleAndColumnLayoutForDrillDown(AccScheduleLine, ColumnLayout, BusChartBuf, AccountSchedulesChartSetup);
 
         if ColumnLayout."Column Type" = ColumnLayout."Column Type"::Formula then begin
-            Message(Text003, ColumnLayout.Formula);
+            Message(ColumnFormulaMsg, ColumnLayout.Formula);
             exit;
         end;
 
@@ -83,6 +84,7 @@ codeunit 762 "Acc. Sched. Chart Management"
             AccScheduleOverview.SetAccSchedName(AccScheduleLine."Schedule Name");
             AccScheduleOverview.SetTableView(AccScheduleLine);
             AccScheduleOverview.SetRecord(AccScheduleLine);
+            AccScheduleOverview.SetViewOnlyMode(true);
             AccScheduleOverview.SetPeriodType(BusChartBuf."Period Length");
             AccScheduleOverview.Run();
             exit;
@@ -125,29 +127,25 @@ codeunit 762 "Acc. Sched. Chart Management"
 
             case AccountSchedulesChartSetup."Base X-Axis on" of
                 AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                    begin
-                        if Period = Period::" " then begin
-                            FromDate := 0D;
-                            ToDate := 0D;
-                        end else
-                            if FindMidColumn(BusChartMapColumn) then
-                                GetPeriodFromMapColumn(BusChartMapColumn.Index, FromDate, ToDate);
-                    end;
+                    if Period = Period::" " then begin
+                        FromDate := 0D;
+                        ToDate := 0D;
+                    end else
+                        if FindMidColumn(BusChartMapColumn) then
+                            GetPeriodFromMapColumn(BusChartMapColumn.Index, FromDate, ToDate);
                 AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
                 AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
-                    begin
-                        if ("Period Filter Start Date" = 0D) and (AccountSchedulesChartSetup."Start Date" <> 0D) then
-                            InitializePeriodFilter(AccountSchedulesChartSetup."Start Date", AccountSchedulesChartSetup."End Date")
-                        else
-                            RecalculatePeriodFilter("Period Filter Start Date", "Period Filter End Date", Period);
-                    end;
+                    if ("Period Filter Start Date" = 0D) and (AccountSchedulesChartSetup."Start Date" <> 0D) then
+                        InitializePeriodFilter(AccountSchedulesChartSetup."Start Date", AccountSchedulesChartSetup."End Date")
+                    else
+                        RecalculatePeriodFilter("Period Filter Start Date", "Period Filter End Date", Period);
             end;
 
             Initialize();
             case AccountSchedulesChartSetup."Base X-Axis on" of
                 AccountSchedulesChartSetup."Base X-Axis on"::Period:
                     begin
-                        SetPeriodXAxis;
+                        SetPeriodXAxis();
                         NoOfPeriods := AccountSchedulesChartSetup."No. of Periods";
                         CalcAndInsertPeriodAxis(BusChartBuf, AccountSchedulesChartSetup, Period, NoOfPeriods, FromDate, ToDate);
                     end;
@@ -175,7 +173,7 @@ codeunit 762 "Acc. Sched. Chart Management"
                                        (not ColumnLayout.Get(
                                           AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No."))
                                     then
-                                        Error(Text006);
+                                        Error(DefinitionsModifiedMsg);
                                     SetValue(
                                       AccSchedChartSetupLine."Measure Name", PeriodCounter - 1,
                                       RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
@@ -196,13 +194,13 @@ codeunit 762 "Acc. Sched. Chart Management"
                                 if not AccScheduleLine.Get(
                                      AccSchedChartSetupLine."Account Schedule Name", AccSchedChartSetupLine."Account Schedule Line No.")
                                 then
-                                    Error(Text006);
+                                    Error(DefinitionsModifiedMsg);
                                 if AccSchedChartSetupLine2.FindSet() then
                                     repeat
                                         if not ColumnLayout.Get(
                                              AccSchedChartSetupLine2."Column Layout Name", AccSchedChartSetupLine2."Column Layout Line No.")
                                         then
-                                            Error(Text006);
+                                            Error(DefinitionsModifiedMsg);
                                         SetValue(
                                           AccSchedChartSetupLine2."Measure Name", XCounter,
                                           RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
@@ -222,13 +220,13 @@ codeunit 762 "Acc. Sched. Chart Management"
                             repeat
                                 AddColumn(AccSchedChartSetupLine."Measure Name");
                                 if not ColumnLayout.Get(AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No.") then
-                                    Error(Text006);
+                                    Error(DefinitionsModifiedMsg);
                                 if AccSchedChartSetupLine2.FindSet() then
                                     repeat
                                         if not AccScheduleLine.Get(
                                              AccSchedChartSetupLine2."Account Schedule Name", AccSchedChartSetupLine2."Account Schedule Line No.")
                                         then
-                                            Error(Text006);
+                                            Error(DefinitionsModifiedMsg);
                                         SetValue(
                                           AccSchedChartSetupLine2."Measure Name", XCounter,
                                           RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
@@ -270,10 +268,10 @@ codeunit 762 "Acc. Sched. Chart Management"
         PeriodDate: Date;
     begin
         if (StartDate = 0D) and (AccountSchedulesChartSetup."Start Date" <> 0D) then
-            PeriodDate := CalcDate(StrSubstNo('<-1%1>', BusChartBuf.GetPeriodLength), AccountSchedulesChartSetup."Start Date")
+            PeriodDate := CalcDate(StrSubstNo('<-1%1>', BusChartBuf.GetPeriodLength()), AccountSchedulesChartSetup."Start Date")
         else begin
             BusChartBuf.RecalculatePeriodFilter(StartDate, EndDate, Period);
-            PeriodDate := CalcDate(StrSubstNo('<-%1%2>', MaxPeriodNo - (MaxPeriodNo div 2), BusChartBuf.GetPeriodLength), EndDate);
+            PeriodDate := CalcDate(StrSubstNo('<-%1%2>', MaxPeriodNo - (MaxPeriodNo div 2), BusChartBuf.GetPeriodLength()), EndDate);
         end;
 
         BusChartBuf.AddPeriods(GetCorrectedDate(BusChartBuf, PeriodDate, 1), GetCorrectedDate(BusChartBuf, PeriodDate, MaxPeriodNo));
@@ -281,9 +279,9 @@ codeunit 762 "Acc. Sched. Chart Management"
 
     procedure GetCorrectedDate(BusChartBuf: Record "Business Chart Buffer"; InputDate: Date; PeriodNo: Integer) OutputDate: Date
     begin
-        OutputDate := CalcDate(StrSubstNo('<%1%2>', PeriodNo, BusChartBuf.GetPeriodLength), InputDate);
+        OutputDate := CalcDate(StrSubstNo('<%1%2>', PeriodNo, BusChartBuf.GetPeriodLength()), InputDate);
         if BusChartBuf."Period Length" <> BusChartBuf."Period Length"::Day then
-            OutputDate := CalcDate(StrSubstNo('<C%1>', BusChartBuf.GetPeriodLength), OutputDate);
+            OutputDate := CalcDate(StrSubstNo('<C%1>', BusChartBuf.GetPeriodLength()), OutputDate);
     end;
 
     local procedure GetAccScheduleAndColumnLayoutForDrillDown(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var BusChartBuf: Record "Business Chart Buffer"; AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
@@ -342,9 +340,9 @@ codeunit 762 "Acc. Sched. Chart Management"
         AccScheduleLineQuery: Query "Acc. Sched. Line Desc. Count";
     begin
         AccScheduleLineQuery.SetRange(Schedule_Name, AccScheduleName);
-        AccScheduleLineQuery.Open;
-        if AccScheduleLineQuery.Read then
-            Error(Text001, AccScheduleName);
+        AccScheduleLineQuery.Open();
+        if AccScheduleLineQuery.Read() then
+            Error(DuplicateRowDescriptionsMsg, AccScheduleName);
     end;
 
     procedure CheckDuplicateColumnLayoutColumnHeader(ColumnLayoutName: Code[10])
@@ -354,9 +352,9 @@ codeunit 762 "Acc. Sched. Chart Management"
         ColumnLayoutQuery.SetRange(Column_Layout_Name, ColumnLayoutName);
         ColumnLayoutQuery.SetFilter(Column_Header, '<>''''');
 
-        ColumnLayoutQuery.Open;
-        if ColumnLayoutQuery.Read then
-            Error(Text002, ColumnLayoutName);
+        ColumnLayoutQuery.Open();
+        if ColumnLayoutQuery.Read() then
+            Error(DuplicateColumnHeaderMsg, ColumnLayoutName);
     end;
 
     local procedure DrillDownOnCFAccount(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")

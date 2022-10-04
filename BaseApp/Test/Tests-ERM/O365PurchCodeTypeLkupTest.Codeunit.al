@@ -86,7 +86,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
 
             // [THEN] The SaaS type is set to service
             StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         // [WHEN] Setting the saas type on the standard Purchase Line to co
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(CopyStr(StandardPurchaseLine.FormatType, 1, 2));
         // [THEN] The SaaS type is set to Comment
-        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType);
+        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType());
     end;
 
     [Test]
@@ -143,12 +143,12 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         // [WHEN] Setting the saas type on the standard Purchase Line to ' '
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(' ');
         // [THEN] The SaaS type is set to Blank
-        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType);
+        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType());
 
         // [WHEN] Setting the saas type on the standard Purchase Line to ''
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue('');
         // [THEN] The SaaS type is set to Blank
-        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType);
+        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType());
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(Format(StandardPurchaseLine.Type::"G/L Account"));
         GLAccNo := LibraryERM.CreateGLAccountWithPurchSetup;
         StandardPurchaseCodeCard.StdPurchaseLines."No.".SetValue(GLAccNo);
-        StandardPurchaseCodeCard.Close;
+        StandardPurchaseCodeCard.Close();
 
         // [THEN] Standard Purchase Line with code "X", Type = "G/L Account" and "No." = "Y"
         StandardPurchaseLine.Get(StandardPurchaseCodeValue, 10000);
@@ -241,7 +241,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

@@ -37,14 +37,14 @@ table 1805 "Encrypted Key/Value"
         InStr: InStream;
         Result: Text;
     begin
-        if not Value.HasValue then
+        if not Value.HasValue() then
             exit('');
 
         CalcFields(Value);
         Value.CreateInStream(InStr);
         InStr.Read(Result);
 
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             exit(CryptographyManagement.Decrypt(Result));
 
         exit('');

@@ -4,7 +4,6 @@ page 7020 "Purchase Job Price Lists"
     CardPageID = "Purchase Price List";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report';
     QueryCategory = 'Purchase Job Price Lists';
     RefreshOnActivate = true;
     SourceTable = "Price List Header";
@@ -107,8 +106,15 @@ page 7020 "Purchase Job Price Lists"
             }
         }
     }
-
-#if not CLEAN19
+actions{        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
+}
+#if not CLEAN21
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

@@ -71,11 +71,11 @@ codeunit 137107 "SCM Kitting - Able To Make"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         LibraryTrees.CreateMixedTree(Item, Item."Replenishment System"::Assembly, Item."Costing Method"::Standard, Depth, ChildLeaves, 2);
         LibraryTrees.AddTreeVariants(Item."No.");
-        LibraryTrees.CreateNodeSupply(Item."No.", Location.Code, WorkDate, SourceType, AbleToMake, BottleneckFactor, DirectAvailFactor);
+        LibraryTrees.CreateNodeSupply(Item."No.", Location.Code, WorkDate(), SourceType, AbleToMake, BottleneckFactor, DirectAvailFactor);
 
         Item.SetRange("No.", Item."No.");
         Evaluate(DueDateDelayDateFormula, DueDateDelay);
-        Item.SetRange("Date Filter", 0D, CalcDate(DueDateDelayDateFormula, WorkDate));
+        Item.SetRange("Date Filter", 0D, CalcDate(DueDateDelayDateFormula, WorkDate()));
 
         if TestVariant then
             LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
@@ -200,7 +200,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
             AssemblyQty := Round(BOMBuffer."Able to Make Top Item", 1, '<') + AvailabilityCorrection;
 
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, CalcDate(DueDateDelayDateFormula, WorkDate), BOMBuffer."No.", BOMBuffer."Location Code",
+          AssemblyHeader, CalcDate(DueDateDelayDateFormula, WorkDate()), BOMBuffer."No.", BOMBuffer."Location Code",
           AssemblyQty, BOMBuffer."Variant Code");
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
         LibraryWarehouse.CreateLocation(Location);
@@ -365,7 +365,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     begin
         SetupAbleToMake(BOMBuffer, false, false, SupplyType::Inventory, 1, true, '<0D>', 1, 1, 0.6);
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, WorkDate, BOMBuffer."No.", BOMBuffer."Location Code", BOMBuffer."Able to Make Top Item", BOMBuffer."Variant Code");
+          AssemblyHeader, WorkDate(), BOMBuffer."No.", BOMBuffer."Location Code", BOMBuffer."Able to Make Top Item", BOMBuffer."Variant Code");
         LibraryAssembly.CreateAssemblyLine(
           AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, AssemblyHeader."Item No.",
           AssemblyHeader."Unit of Measure Code", LibraryRandom.RandInt(5), 1, '');
@@ -407,7 +407,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         LibraryManufacturing.UpdateProdOrderLine(ProdOrderLine, ProdOrderLine.FieldNo("Location Code"), BOMBuffer."Location Code");
         LibraryManufacturing.UpdateProdOrderLine(ProdOrderLine, ProdOrderLine.FieldNo("Variant Code"), BOMBuffer."Variant Code");
         LibraryManufacturing.UpdateProdOrderLine(
-          ProdOrderLine, ProdOrderLine.FieldNo("Due Date"), CalcDate(DueDateDelayDateFormula, WorkDate));
+          ProdOrderLine, ProdOrderLine.FieldNo("Due Date"), CalcDate(DueDateDelayDateFormula, WorkDate()));
 
         LibraryManufacturing.CreateProductionOrderComponent(
           ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
@@ -416,7 +416,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandInt(5));
         ProdOrderComponent.Modify(true);
         LibraryTrees.CreateSupply(
-          Item."No.", '', BOMBuffer."Location Code", WorkDate, SupplyType::Inventory,
+          Item."No.", '', BOMBuffer."Location Code", WorkDate(), SupplyType::Inventory,
           ProductionOrder.Quantity * ProdOrderComponent."Quantity per");
 
         if TestLocation then begin
@@ -537,35 +537,35 @@ codeunit 137107 "SCM Kitting - Able To Make"
           BOMComponent.Type::Item, ItemC."No.", ItemD."No.", '', BOMComponent."Resource Usage Type"::Direct, d1, true);
 
         // Not able to make 1 PCS of rootItem:
-        LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate, SupplyType::Inventory, ItemXDemand / 2);
-        LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate, SupplyType::Inventory, ItemYDemand / 2);
+        LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate(), SupplyType::Inventory, ItemXDemand / 2);
+        LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate(), SupplyType::Inventory, ItemYDemand / 2);
 
         // Exercise.
         CalculateBOMTree.SetShowTotalAvailability(true);
         rootItem.SetRange("No.", rootItem."No.");
-        rootItem.SetRange("Date Filter", 0D, WorkDate);
+        rootItem.SetRange("Date Filter", 0D, WorkDate());
         CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
 
         // Verify: Able to make is a fraction of 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 0.5, 1, 1);
 
         // Able to make 1 PCS of rootItem:
-        LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate, SupplyType::Inventory, ItemXDemand / 2);
-        LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate, SupplyType::Inventory, ItemYDemand / 2);
+        LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate(), SupplyType::Inventory, ItemXDemand / 2);
+        LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate(), SupplyType::Inventory, ItemYDemand / 2);
         CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
 
         // Verify: Able to make is 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 1, 1, 1);
 
         // Able to make 1 PCS of rootItem, different supply for X and Y.
-        LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate, SupplyType::Inventory, ItemXDemand);
+        LibraryTrees.CreateSupply(ItemX."No.", '', '', WorkDate(), SupplyType::Inventory, ItemXDemand);
         CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
 
         // Verify: Able to make is 1.
         VerifyNode(BOMBuffer, rootItem."No.", 0, 1, 1, 1);
 
         // Able to make more than 1 PCS of rootItem:
-        LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate, SupplyType::Inventory, ItemYDemand);
+        LibraryTrees.CreateSupply(ItemY."No.", '', '', WorkDate(), SupplyType::Inventory, ItemYDemand);
         CalculateBOMTree.GenerateTreeForItems(rootItem, BOMBuffer, TreeType::Availability);
 
         // Verify: Able to make is 1.
@@ -602,7 +602,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         // Exercise
         CalculateBOMTree.SetShowTotalAvailability(true);
         RootItem.SetRange("No.", RootItem."No.");
-        RootItem.SetRange("Date Filter", 0D, WorkDate);
+        RootItem.SetRange("Date Filter", 0D, WorkDate());
         CalculateBOMTree.GenerateTreeForItems(RootItem, BOMBuffer, TreeType::Availability);
 
         // Verify: Inventory Item is bottleneck
@@ -720,15 +720,15 @@ codeunit 137107 "SCM Kitting - Able To Make"
         Item.Modify(true);
 
         with ProductionBOMLine do begin
-            Init;
+            Init();
             Type := Type::Item;
             "No." := Item."No.";
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
 
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
-        BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate, '', Item, 1);
+        BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate(), '', Item, 1);
 
         BOMBuffer.TestField(Description, ProductionBOMLine.Description);
     end;
@@ -752,15 +752,15 @@ codeunit 137107 "SCM Kitting - Able To Make"
         WorkCenter.Insert();
 
         with RoutingLine do begin
-            Init;
+            Init();
             Type := Type::"Work Center";
             "No." := WorkCenter."No.";
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
 
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
-        BOMBuffer.TransferFromProdRouting(EntryNo, RoutingLine, 0, 0, WorkDate, '');
+        BOMBuffer.TransferFromProdRouting(EntryNo, RoutingLine, 0, 0, WorkDate(), '');
 
         BOMBuffer.TestField(Description, RoutingLine.Description);
     end;
@@ -783,15 +783,15 @@ codeunit 137107 "SCM Kitting - Able To Make"
         Item.Modify(true);
 
         with BOMComponent do begin
-            Init;
+            Init();
             Type := Type::Item;
             "No." := Item."No.";
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
 
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
-        BOMBuffer.TransferFromBOMComp(EntryNo, BOMComponent, 0, 0, 0, WorkDate, '');
+        BOMBuffer.TransferFromBOMComp(EntryNo, BOMComponent, 0, 0, 0, WorkDate(), '');
 
         BOMBuffer.TestField(Description, BOMComponent.Description);
     end;
@@ -901,7 +901,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
                   BOMBuffer, BOMComponent."No.", ShowTotalAvailability, 1,
                   ExpAbleToMakeParent * BottleneckFactor * BOMComponent."Quantity per" * (1 - DirectAvailabilityFactor),
                   ParentQtyPer * BOMComponent."Quantity per", DirectAvailabilityFactor, 0);
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
     end;
 
     [Normal]
@@ -949,7 +949,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
                   BOMBuffer, AssemblyLine."No.", ShowTotalAvailability, 1,
                   InitAbleToMakeParent * BottleneckFactor * AssemblyLine."Quantity per" * (1 - DirectAvailabilityFactor),
                   ParentQtyPer * AssemblyLine."Quantity per", DirectAvailabilityFactor, 0);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
     end;
 
     [Normal]

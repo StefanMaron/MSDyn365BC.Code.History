@@ -7,6 +7,8 @@ codeunit 249 "VAT Registration Log Mgt."
     end;
 
     var
+        DataTypeManagement: Codeunit "Data Type Management";
+
         ValidPathTxt: Label 'descendant::vat:valid', Locked = true;
         NamePathTxt: Label 'descendant::vat:traderName', Locked = true;
         AddressPathTxt: Label 'descendant::vat:traderAddress', Locked = true;
@@ -14,7 +16,6 @@ codeunit 249 "VAT Registration Log Mgt."
         PostcodePathTxt: Label 'descendant::vat:traderPostcode', Locked = true;
         StreetPathTxt: Label 'descendant::vat:traderStreet', Locked = true;
         CityPathTxt: Label 'descendant::vat:traderCity', Locked = true;
-        DataTypeManagement: Codeunit "Data Type Management";
         ValidVATNoMsg: Label 'The specified VAT registration number is valid.';
         InvalidVatRegNoMsg: Label 'We didn''t find a match for this VAT registration number. Please verify that you specified the right number.';
         NotVerifiedVATRegMsg: Label 'We couldn''t verify the VAT registration number. Please try again later.';

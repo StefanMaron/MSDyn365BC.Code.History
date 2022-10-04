@@ -350,7 +350,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         end;
     end;
 
-    local procedure SearchValueEntries()
+    procedure SearchValueEntries()
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -388,7 +388,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         if SalesInvHeader.ReadPermission then
             if SalesInvHeader.Get(DocumentNo) then begin
                 RecRef.GetTable(SalesInvHeader);
-                InsertBufferRecFromItemLedgEntry;
+                InsertBufferRecFromItemLedgEntry();
                 TempSalesInvHeader := SalesInvHeader;
                 if TempSalesInvHeader.Insert() then;
             end;
@@ -401,7 +401,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         if SalesCrMemoHeader.ReadPermission then
             if SalesCrMemoHeader.Get(DocumentNo) then begin
                 RecRef.GetTable(SalesCrMemoHeader);
-                InsertBufferRecFromItemLedgEntry;
+                InsertBufferRecFromItemLedgEntry();
                 TempSalesCrMemoHeader := SalesCrMemoHeader;
                 if TempSalesCrMemoHeader.Insert() then;
             end;
@@ -416,12 +416,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if SalesShptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(SalesShptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempSalesShptHeader := SalesShptHeader;
             if TempSalesShptHeader.Insert() then;
-            FindPostedWhseShptLine;
+            FindPostedWhseShptLine();
             // Find Invoice if it exists
-            SearchValueEntries;
+            SearchValueEntries();
         end;
     end;
 
@@ -435,7 +435,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if SalesLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then begin
                 RecRef.GetTable(SalesLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempSalesLine := SalesLine;
                 if TempSalesLine.Insert() then;
             end;
@@ -451,7 +451,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if ServLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then begin
                 RecRef.GetTable(ServLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempServLine := ServLine;
                 if TempServLine.Insert() then;
             end;
@@ -467,7 +467,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if PurchLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then begin
                 RecRef.GetTable(PurchLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempPurchLine := PurchLine;
                 if TempPurchLine.Insert() then;
             end;
@@ -483,7 +483,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if ReqLine.Get("Source ID", "Source Batch Name", "Source Ref. No.") then begin
                 RecRef.GetTable(ReqLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempReqLine := ReqLine;
                 if TempReqLine.Insert() then;
             end;
@@ -499,7 +499,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if PlanningComponent.Get("Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.") then begin
                 RecRef.GetTable(PlanningComponent);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempPlanningComponent := PlanningComponent;
                 if TempPlanningComponent.Insert() then;
             end;
@@ -515,7 +515,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if ItemJnlLine.Get("Source ID", "Source Batch Name", "Source Ref. No.") then begin
                 RecRef.GetTable(ItemJnlLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempItemJnlLine := ItemJnlLine;
                 if TempItemJnlLine.Insert() then;
             end;
@@ -531,7 +531,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if AssemblyHeader.Get("Source Subtype", "Source ID") then begin
                 RecRef.GetTable(AssemblyHeader);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempAssemblyHeader := AssemblyHeader;
                 if TempAssemblyHeader.Insert() then;
             end;
@@ -547,7 +547,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if AssemblyLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then begin
                 RecRef.GetTable(AssemblyLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempAssemblyLine := AssemblyLine;
                 if TempAssemblyLine.Insert() then;
             end;
@@ -563,7 +563,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if ProdOrderLine.Get("Source Subtype", "Source ID", "Source Prod. Order Line") then begin
                 RecRef.GetTable(ProdOrderLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempProdOrderLine := ProdOrderLine;
                 if TempProdOrderLine.Insert() then;
             end;
@@ -579,7 +579,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if ProdOrderComp.Get("Source Subtype", "Source ID", "Source Prod. Order Line", "Source Ref. No.") then begin
                 RecRef.GetTable(ProdOrderComp);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempProdOrderComp := ProdOrderComp;
                 if TempProdOrderComp.Insert() then;
             end;
@@ -595,7 +595,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         with ReservEntry do
             if TransLine.Get("Source ID", "Source Ref. No.") then begin
                 RecRef.GetTable(TransLine);
-                InsertBufferRecFromReservEntry;
+                InsertBufferRecFromReservEntry();
                 TempTransLine := TransLine;
                 if TempTransLine.Insert() then;
             end;
@@ -610,7 +610,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if ServInvHeader.Get(DocumentNo) then begin
             RecRef.GetTable(ServInvHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempServInvHeader := ServInvHeader;
             if TempServInvHeader.Insert() then;
         end;
@@ -625,7 +625,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if ServCrMemoHeader.Get(DocumentNo) then begin
             RecRef.GetTable(ServCrMemoHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempServCrMemoHeader := ServCrMemoHeader;
             if TempServCrMemoHeader.Insert() then;
         end;
@@ -640,11 +640,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if ServShptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(ServShptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempServShptHeader := ServShptHeader;
             if TempServShptHeader.Insert() then;
             // Find Invoice if it exists
-            SearchValueEntries;
+            SearchValueEntries();
         end;
     end;
 
@@ -657,7 +657,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if PurchInvHeader.Get(DocumentNo) then begin
             RecRef.GetTable(PurchInvHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempPurchInvHeader := PurchInvHeader;
             if TempPurchInvHeader.Insert() then;
         end;
@@ -672,7 +672,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if PurchCrMemoHeader.Get(DocumentNo) then begin
             RecRef.GetTable(PurchCrMemoHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempPurchCrMemoHeader := PurchCrMemoHeader;
             if TempPurchCrMemoHeader.Insert() then;
         end;
@@ -687,12 +687,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if PurchRcptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(PurchRcptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempPurchRcptHeader := PurchRcptHeader;
             if TempPurchRcptHeader.Insert() then;
-            FindPostedWhseRcptLine;
+            FindPostedWhseRcptLine();
             // Find Invoice if it exists
-            SearchValueEntries;
+            SearchValueEntries();
         end;
     end;
 
@@ -705,13 +705,13 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if PostedAssemblyHeader.Get(DocumentNo) then begin
             RecRef.GetTable(PostedAssemblyHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempPostedAssemblyHeader := PostedAssemblyHeader;
             if TempPostedAssemblyHeader.Insert() then;
         end;
     end;
 
-    local procedure FindPostedWhseShptLine()
+    procedure FindPostedWhseShptLine()
     var
         PostedWhseShptLine: Record "Posted Whse. Shipment Line";
     begin
@@ -728,7 +728,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetRange("Source Line No.", ItemLedgEntry."Document Line No.");
             if FindFirst() then begin
                 RecRef.GetTable(PostedWhseShptLine);
-                InsertBufferRecFromItemLedgEntry;
+                InsertBufferRecFromItemLedgEntry();
                 TempPostedWhseShptLine := PostedWhseShptLine;
                 if TempPostedWhseShptLine.Insert() then;
             end;
@@ -752,7 +752,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetRange("Source Line No.", ItemLedgEntry."Document Line No.");
             if FindFirst() then begin
                 RecRef.GetTable(PostedWhseRcptLine);
-                InsertBufferRecFromItemLedgEntry;
+                InsertBufferRecFromItemLedgEntry();
                 TempPostedWhseRcptLine := PostedWhseRcptLine;
                 if TempPostedWhseRcptLine.Insert() then;
             end;
@@ -826,7 +826,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         ProdOrder.SetRange("No.", DocumentNo);
         if ProdOrder.FindFirst() then begin
             RecRef.GetTable(ProdOrder);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempProdOrder := ProdOrder;
             if TempProdOrder.Insert() then;
         end;
@@ -936,12 +936,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if ReturnRcptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(ReturnRcptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempReturnRcptHeader := ReturnRcptHeader;
             if TempReturnRcptHeader.Insert() then;
-            FindPostedWhseRcptLine;
+            FindPostedWhseRcptLine();
             // Find CreditMemo if it exists
-            SearchValueEntries;
+            SearchValueEntries();
         end;
     end;
 
@@ -954,12 +954,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if ReturnShptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(ReturnShptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempReturnShipHeader := ReturnShptHeader;
             if TempReturnShipHeader.Insert() then;
-            FindPostedWhseShptLine;
+            FindPostedWhseShptLine();
             // Find CreditMemo if it exists
-            SearchValueEntries;
+            SearchValueEntries();
         end;
     end;
 
@@ -972,10 +972,10 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if TransShptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(TransShptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempTransShipHeader := TransShptHeader;
             if TempTransShipHeader.Insert() then;
-            FindPostedWhseShptLine;
+            FindPostedWhseShptLine();
         end;
     end;
 
@@ -988,10 +988,10 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         if TransRcptHeader.Get(DocumentNo) then begin
             RecRef.GetTable(TransRcptHeader);
-            InsertBufferRecFromItemLedgEntry;
+            InsertBufferRecFromItemLedgEntry();
             TempTransRcptHeader := TransRcptHeader;
             if TempTransRcptHeader.Insert() then;
-            FindPostedWhseRcptLine;
+            FindPostedWhseRcptLine();
         end;
     end;
 
@@ -1055,27 +1055,27 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                     if not IsHandled then
                         case "Source Type" of
                             DATABASE::"Sales Line":
-                                FindSalesLines;
+                                FindSalesLines();
                             DATABASE::"Service Line":
-                                FindServiceLines;
+                                FindServiceLines();
                             DATABASE::"Purchase Line":
-                                FindPurchaseLines;
+                                FindPurchaseLines();
                             DATABASE::"Requisition Line":
-                                FindRequisitionLines;
+                                FindRequisitionLines();
                             DATABASE::"Planning Component":
-                                FindPlanningComponent;
+                                FindPlanningComponent();
                             DATABASE::"Item Journal Line":
-                                FindItemJournalLines;
+                                FindItemJournalLines();
                             DATABASE::"Assembly Line":
-                                FindAssemblyLines;
+                                FindAssemblyLines();
                             DATABASE::"Assembly Header":
-                                FindAssemblyHeaders;
+                                FindAssemblyHeaders();
                             DATABASE::"Prod. Order Line":
-                                FindProdOrderLines;
+                                FindProdOrderLines();
                             DATABASE::"Prod. Order Component":
-                                FindProdOrderComponents;
+                                FindProdOrderComponents();
                             DATABASE::"Transfer Line":
-                                FindTransferLines;
+                                FindTransferLines();
                         end;
                 until Next() = 0;
         end;

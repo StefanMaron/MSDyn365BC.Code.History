@@ -7,7 +7,7 @@ codeunit 578 "Run Template CashFlow Stmt."
         ObjectTypeParam: Option ,,,,,,,,"Page","Query";
         StatementType: Option BalanceSheet,SummaryTrialBalance,CashFlowStatement,StatementOfRetainedEarnings,AgedAccountsReceivable,AgedAccountsPayable,IncomeStatement;
     begin
-        if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet]) then
+        if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet]) then
             ODataUtility.GenerateExcelTemplateWorkBook(ObjectTypeParam::Page, 'ExcelTemplateCashFlowStatement', true,
               StatementType::CashFlowStatement)
         else begin
@@ -17,7 +17,8 @@ codeunit 578 "Run Template CashFlow Stmt."
     end;
 
     var
-        OfficeMobileMsg: Label 'Excel Reports cannot be opened in this environment because this version of Office does not support the file format.';
         ClientTypeManagement: Codeunit "Client Type Management";
+
+        OfficeMobileMsg: Label 'Excel Reports cannot be opened in this environment because this version of Office does not support the file format.';
 }
 

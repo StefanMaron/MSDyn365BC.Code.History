@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138958 "O365 Doc. Sent History Tests"
 {
     Subtype = Test;
@@ -222,7 +223,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         Assert.AreEqual(
           UpperCase(LibraryVariableStorage.DequeueText), UpperCase(RoleCenterEmailErrorIDTxt),
           'The RC error notification is not displayed, or the ID has changed.');
-        O365SalesActivitiesRC.Close;
+        O365SalesActivitiesRC.Close();
 
         // [THEN] We also have a failed notification when opening invoice page on phone: handler is called and ID saved
         O365PostedSalesInvoice.OpenEdit;
@@ -259,7 +260,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         Assert.AreEqual(
           UpperCase(LibraryVariableStorage.DequeueText), UpperCase(RoleCenterEmailErrorIDTxt),
           'The RC error notification is not displayed, or the ID has changed.');
-        O365SalesActivitiesRC.Close;
+        O365SalesActivitiesRC.Close();
 
         // [THEN] We also have a failed notification when opening estimate page on phone: handler is called and ID saved
         O365SalesQuote.OpenEdit;
@@ -344,7 +345,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
 
         // [THEN] In the phone role center no failed notification is displayed: handler is not called
         O365SalesActivitiesRC.OpenView;
-        O365SalesActivitiesRC.Close;
+        O365SalesActivitiesRC.Close();
 
         // [THEN] Opening the invoice page on phone does also display no notification: handler is not called
         O365PostedSalesInvoice.OpenEdit;
@@ -372,7 +373,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
 
         // [THEN] In the phone role center no failed notification is displayed: handler is not called
         O365SalesActivitiesRC.OpenView;
-        O365SalesActivitiesRC.Close;
+        O365SalesActivitiesRC.Close();
 
         // [THEN] Opening the estimate page on phone does also display no notification: handler is not called
         O365SalesQuote.OpenEdit;
@@ -449,7 +450,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         LibraryVariableStorage.Enqueue('Some documents could not be sent.');
         O365SalesActivitiesRC.OpenView;
         BCO365SentDocumentsList.Clear.Invoke;
-        BCO365SentDocumentsList.Close;
+        BCO365SentDocumentsList.Close();
 
         // [THEN] Flag for notifications are set correctly
         O365DocumentSentHistory.SetRange(NotificationCleared, false);
@@ -484,7 +485,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         LibraryVariableStorage.Enqueue('Some documents could not be sent.');
         O365SalesActivitiesRC.OpenView;
         BCO365SentDocumentsList.ClearAll.Invoke;
-        BCO365SentDocumentsList.Close;
+        BCO365SentDocumentsList.Close();
 
         // [THEN] Flag for notifications are set correctly
         O365DocumentSentHistory.SetRange(NotificationCleared, false);
@@ -650,7 +651,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
         LibraryWorkflow.SetUpEmailAccount();
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         LibraryVariableStorage.AssertEmpty;
         O365DocumentSentHistory.DeleteAll();
         TaxDetail.ModifyAll("Tax Below Maximum", 5.0, true);
@@ -668,7 +669,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
 
     local procedure Cleanup()
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
     end;
 
     [MessageHandler]
@@ -863,4 +864,4 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         exit(true);
     end;
 }
-
+#endif

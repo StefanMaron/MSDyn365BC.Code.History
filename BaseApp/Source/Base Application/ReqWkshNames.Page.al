@@ -1,7 +1,7 @@
 page 295 "Req. Wksh. Names"
 {
     Caption = 'Req. Wksh. Names';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "Requisition Wksh. Name";
 
@@ -48,9 +48,6 @@ page 295 "Req. Wksh. Names"
                 ApplicationArea = Planning;
                 Caption = 'Edit Worksheet';
                 Image = OpenWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Make the worksheet lines editable.';
 
@@ -58,6 +55,17 @@ page 295 "Req. Wksh. Names"
                 begin
                     ReqJnlManagement.TemplateSelectionFromBatch(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Worksheet_Promoted"; "Edit Worksheet")
+                {
+                }
             }
         }
     }

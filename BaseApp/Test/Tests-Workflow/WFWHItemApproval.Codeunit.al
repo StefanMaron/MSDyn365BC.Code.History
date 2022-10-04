@@ -64,7 +64,7 @@ codeunit 134214 "WFWH Item Approval"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -307,7 +307,7 @@ codeunit 134214 "WFWH Item Approval"
         Assert.IsTrue(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -338,7 +338,7 @@ codeunit 134214 "WFWH Item Approval"
         Assert.IsTrue(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        ItemList.Close;
+        ItemList.Close();
     end;
 
     [Test]
@@ -368,7 +368,7 @@ codeunit 134214 "WFWH Item Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -398,7 +398,7 @@ codeunit 134214 "WFWH Item Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        ItemList.Close;
+        ItemList.Close();
     end;
 
     local procedure SendItemForApproval(var Item: Record Item)
@@ -408,7 +408,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
         ItemCard.SendApprovalRequest.Invoke;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     local procedure Initialize()

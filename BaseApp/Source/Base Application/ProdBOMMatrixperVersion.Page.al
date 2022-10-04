@@ -26,7 +26,7 @@ page 99000812 "Prod. BOM Matrix per Version"
 
                     trigger OnValidate()
                     begin
-                        ShowLevelOnAfterValidate;
+                        ShowLevelOnAfterValidate();
                     end;
                 }
             }
@@ -53,9 +53,6 @@ page 99000812 "Prod. BOM Matrix per Version"
                 ApplicationArea = Manufacturing;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -72,10 +69,6 @@ page 99000812 "Prod. BOM Matrix per Version"
                 ApplicationArea = Manufacturing;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -88,9 +81,6 @@ page 99000812 "Prod. BOM Matrix per Version"
                 ApplicationArea = Manufacturing;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -99,11 +89,28 @@ page 99000812 "Prod. BOM Matrix per Version"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("&Show Matrix_Promoted"; "&Show Matrix")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        BuildMatrix;
+        BuildMatrix();
     end;
 
     var
@@ -148,12 +155,12 @@ page 99000812 "Prod. BOM Matrix per Version"
 
         if MATRIX_CurrSetLength > 0 then begin
             MATRIX_MatrixRecord.SetPosition(PKFirstMatrixRecInSet);
-            MATRIX_MatrixRecord.Find;
+            MATRIX_MatrixRecord.Find();
 
             repeat
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
                 MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MATRIX_MatrixRecord);
-            until (CurrentMatrixRecordOrdinal = MATRIX_CurrSetLength) or (MATRIX_MatrixRecord.Next <> 1);
+            until (CurrentMatrixRecordOrdinal = MATRIX_CurrSetLength) or (MATRIX_MatrixRecord.Next() <> 1);
         end;
     end;
 
@@ -164,7 +171,7 @@ page 99000812 "Prod. BOM Matrix per Version"
 
     local procedure ShowLevelOnAfterValidate()
     begin
-        BuildMatrix;
+        BuildMatrix();
         CurrPage.Update(false);
     end;
 }

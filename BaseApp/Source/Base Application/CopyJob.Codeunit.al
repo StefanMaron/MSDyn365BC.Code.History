@@ -135,12 +135,13 @@ codeunit 1006 "Copy Job"
         SourceJobPlanningLine.SetFilter("Planning Date", SourceJobTask.GetFilter("Planning Date Filter"));
         if not SourceJobPlanningLine.FindLast() then
             exit;
+        NextPlanningLineNo := 0;
         SourceJobPlanningLine.SetRange("Line No.", 0, SourceJobPlanningLine."Line No.");
         OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(SourceJobPlanningLine);
         if SourceJobPlanningLine.FindSet() then
             repeat
                 with TargetJobPlanningLine do begin
-                    Init;
+                    Init();
                     Validate("Job No.", TargetJobTask."Job No.");
                     Validate("Job Task No.", TargetJobTask."Job Task No.");
                     if NextPlanningLineNo = 0 then
@@ -172,7 +173,7 @@ codeunit 1006 "Copy Job"
                         else
                             Validate(Quantity);
                         OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(TargetJobPlanningLine);
-                        Modify;
+                        Modify();
                     end;
                 end;
                 OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(TargetJobPlanningLine, SourceJobPlanningLine);
@@ -246,12 +247,12 @@ codeunit 1006 "Copy Job"
         if DefaultDimension.FindSet() then
             repeat
                 with NewDefaultDimension do begin
-                    Init;
+                    Init();
                     "Table ID" := DATABASE::Job;
                     "No." := TargetJob."No.";
                     "Dimension Code" := DefaultDimension."Dimension Code";
                     TransferFields(DefaultDimension, false);
-                    Insert;
+                    Insert();
                     DimMgt.DefaultDimOnInsert(DefaultDimension);
                 end;
             until DefaultDimension.Next() = 0;
@@ -284,7 +285,7 @@ codeunit 1006 "Copy Job"
         if CurrencyCode <> Job."Currency Code" then
             if (CurrencyCode = '') and (Job."Currency Code" <> '') then begin
                 JobPlanningLine."Currency Code" := Job."Currency Code";
-                JobPlanningLine.UpdateCurrencyFactor;
+                JobPlanningLine.UpdateCurrencyFactor();
                 Currency.Get(JobPlanningLine."Currency Code");
                 Currency.TestField("Unit-Amount Rounding Precision");
                 JobPlanningLine."Unit Cost" := Round(
@@ -302,14 +303,14 @@ codeunit 1006 "Copy Job"
                 if (CurrencyCode <> '') and (Job."Currency Code" = '') then begin
                     JobPlanningLine."Currency Code" := '';
                     JobPlanningLine."Currency Date" := 0D;
-                    JobPlanningLine.UpdateCurrencyFactor;
+                    JobPlanningLine.UpdateCurrencyFactor();
                     JobPlanningLine."Unit Cost" := JobPlanningLine."Unit Cost (LCY)";
                     JobPlanningLine."Unit Price" := JobPlanningLine."Unit Price (LCY)";
                     JobPlanningLine.Validate("Currency Date");
                 end else
                     if (CurrencyCode <> '') and (Job."Currency Code" <> '') then begin
                         JobPlanningLine."Currency Code" := Job."Currency Code";
-                        JobPlanningLine.UpdateCurrencyFactor;
+                        JobPlanningLine.UpdateCurrencyFactor();
                         Currency.Get(JobPlanningLine."Currency Code");
                         Currency.TestField("Unit-Amount Rounding Precision");
                         JobPlanningLine."Unit Cost" := Round(

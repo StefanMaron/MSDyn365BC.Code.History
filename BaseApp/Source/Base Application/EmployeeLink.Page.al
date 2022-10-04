@@ -14,7 +14,7 @@ page 1348 "Employee Link"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Employee No.';

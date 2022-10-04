@@ -9,6 +9,7 @@ table 400 "XBRL Linkbase"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {
@@ -39,7 +40,7 @@ table 400 "XBRL Linkbase"
             begin
                 if "Line No." <> 0 then begin
                     CalcFields(XML);
-                    if XML.HasValue then
+                    if XML.HasValue() then
                         Error(Text001, FieldCaption(Type));
                 end;
             end;

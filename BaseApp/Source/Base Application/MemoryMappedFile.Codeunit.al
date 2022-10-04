@@ -19,17 +19,17 @@ codeunit 491 "Memory Mapped File"
     begin
         // clean up previous use
         if not IsNull(MemoryMappedFile) then
-            if Dispose then;
-        if not TempBlob.HasValue then
+            if Dispose() then;
+        if not TempBlob.HasValue() then
             exit;
 
         MemFileName := Name;
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        MemoryMappedFile := MemoryMappedFile.CreateOrOpen(Name, TempBlob.Length);
-        MemoryMappedViewStream := MemoryMappedFile.CreateViewStream;
+        MemoryMappedFile := MemoryMappedFile.CreateOrOpen(Name, TempBlob.Length());
+        MemoryMappedViewStream := MemoryMappedFile.CreateViewStream();
         CopyStream(MemoryMappedViewStream, InStream);
-        MemoryMappedViewStream.Flush;
-        MemoryMappedViewStream.Dispose;
+        MemoryMappedViewStream.Flush();
+        MemoryMappedViewStream.Dispose();
     end;
 
     [TryFunction]
@@ -54,10 +54,10 @@ codeunit 491 "Memory Mapped File"
             Error(NoNameSpecifiedErr);
 
         TempBlob.CreateInStream(InStr, TEXTENCODING::UTF8);
-        MemoryMappedViewStream := MemoryMappedFile.CreateViewStream;
+        MemoryMappedViewStream := MemoryMappedFile.CreateViewStream();
         MemoryMappedViewStream.CopyTo(InStr);
         InStr.ReadText(Text);
-        MemoryMappedViewStream.Dispose;
+        MemoryMappedViewStream.Dispose();
     end;
 
     [TryFunction]
@@ -90,7 +90,7 @@ codeunit 491 "Memory Mapped File"
     [Scope('OnPrem')]
     procedure Dispose()
     begin
-        MemoryMappedFile.Dispose;
+        MemoryMappedFile.Dispose();
         MemFileName := '';
     end;
 }

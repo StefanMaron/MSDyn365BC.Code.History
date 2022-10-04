@@ -425,7 +425,7 @@ report 5970 "Service Contract"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Service Contract Header".FindSet() then
                 repeat
                     if "Service Contract Header"."Contact No." <> '' then
@@ -438,9 +438,6 @@ report 5970 "Service Contract"
     end;
 
     var
-        Text000: Label 'COPY';
-        Text001: Label 'Service Contract %1';
-        Text002: Label 'Page %1';
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
@@ -465,6 +462,10 @@ report 5970 "Service Contract"
         OutputNo: Integer;
         [InDataSet]
         LogInteractionEnable: Boolean;
+
+        Text000: Label 'COPY';
+        Text001: Label 'Service Contract %1';
+        Text002: Label 'Page %1';
         NextInvoiceDate_ServContractCaptionLbl: Label 'Next Invoice Date';
         StartingDate_ServContractCaptionLbl: Label 'Starting Date';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
@@ -487,7 +488,7 @@ report 5970 "Service Contract"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ServiceContractHeader: Record "Service Contract Header")

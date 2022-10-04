@@ -125,8 +125,6 @@ page 6516 "Package No. Information List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find entries and documents that exist for the package number on the selected record. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -138,6 +136,17 @@ page 6516 "Package No. Information List"
                     Navigate.SetTracking(ItemTrackingSetup);
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
             }
         }
     }

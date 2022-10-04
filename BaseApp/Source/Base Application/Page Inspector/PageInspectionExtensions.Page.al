@@ -19,7 +19,7 @@ page 9633 "Page Inspection Extensions"
             repeater(Group)
             {
                 Visible = IsExtensionListVisible;
-                field("App ID"; "App ID")
+                field("App ID"; Rec."App ID")
                 {
                     ApplicationArea = All;
                     Caption = 'App ID';
@@ -27,7 +27,7 @@ page 9633 "Page Inspection Extensions"
                     ToolTip = 'Specifies the ID of the extension.';
                 }
 #if not CLEAN19
-                field("Package ID"; "Package ID")
+                field("Package ID"; Rec."Package ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Package ID';

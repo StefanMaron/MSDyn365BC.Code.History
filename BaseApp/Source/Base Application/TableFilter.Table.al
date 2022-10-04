@@ -71,7 +71,7 @@ table 9805 "Table Filter"
         TableFilter: Record "Table Filter";
     begin
         TableFilter.Copy(Rec);
-        Reset;
+        Reset();
         SetRange("Table Number", Field.TableNo);
         SetRange("Field Number", Field."No.");
         SetFilter("Line No.", '<>%1', "Line No.");

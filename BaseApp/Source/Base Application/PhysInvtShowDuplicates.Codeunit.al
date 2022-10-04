@@ -5,7 +5,7 @@ codeunit 5886 "Phys. Invt.-Show Duplicates"
     trigger OnRun()
     begin
         PhysInvtOrderHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PhysInvtOrderHeader;
     end;
 
@@ -26,18 +26,18 @@ codeunit 5886 "Phys. Invt.-Show Duplicates"
         with PhysInvtOrderHeader do begin
             Window.Open(
               '#1################################\\' + CheckingLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+            Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "No."));
 
             LineCount := 0;
             DuplicateCount := 0;
             PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
-            PhysInvtOrderLine.ClearMarks;
+            PhysInvtOrderLine.ClearMarks();
             if PhysInvtOrderLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
                     Window.Update(2, LineCount);
-                    if not PhysInvtOrderLine.EmptyLine then begin
+                    if not PhysInvtOrderLine.EmptyLine() then begin
                         PhysInvtOrderLine.TestField("Item No.");
                         if
                            GetSamePhysInvtOrderLine(
@@ -51,7 +51,7 @@ codeunit 5886 "Phys. Invt.-Show Duplicates"
                     end;
                 until PhysInvtOrderLine.Next() = 0;
 
-            Window.Close;
+            Window.Close();
 
             if DuplicateCount = 0 then
                 Message(StrSubstNo(NoDuplicateLinesMsg, "No."))

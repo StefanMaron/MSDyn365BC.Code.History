@@ -299,25 +299,28 @@ report 5705 "Transfer Receipt"
     }
 
     var
-        Text000: Label 'COPY';
-        Text001: Label 'Transfer Receipt %1';
-        Text002: Label 'Page %1';
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        FormatAddr: Codeunit "Format Address";
         TransferFromAddr: array[8] of Text[100];
         TransferToAddr: array[8] of Text[100];
         MoreLines: Boolean;
-        NoOfCopies: Integer;
-        NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
         OldDimText: Text[75];
-        ShowInternalInfo: Boolean;
         Continue: Boolean;
-        OutputNo: Integer;
+
+        Text000: Label 'COPY';
+        Text001: Label 'Transfer Receipt %1';
+        Text002: Label 'Page %1';
         TransRcptHdrNo2CaptionLbl: Label 'Shipment No.';
         HdrDimCaptionLbl: Label 'Header Dimensions';
         LineDimCaptionLbl: Label 'Line Dimensions';
+
+    protected var
+        FormatAddr: Codeunit "Format Address";
+        NoOfCopies: Integer;
+        NoOfLoops: Integer;
+        OutputNo: Integer;
+        ShowInternalInfo: Boolean;
 }
 

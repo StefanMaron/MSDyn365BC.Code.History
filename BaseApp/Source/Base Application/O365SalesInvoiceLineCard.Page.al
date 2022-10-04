@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2157 "O365 Sales Invoice Line Card"
 {
     Caption = 'Invoice Line';
@@ -5,6 +6,9 @@ page 2157 "O365 Sales Invoice Line Card"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "Sales Line";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,15 +16,15 @@ page 2157 "O365 Sales Invoice Line Card"
         {
             group(grpGeneral)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
                 group(grpPricelist)
@@ -28,7 +32,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Caption = '';
                     field(Description; Rec.Description)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Choose from price list';
                         LookupPageID = "O365 Sales Item Lookup";
                         ShowCaption = false;
@@ -58,7 +62,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Visible = Description <> '';
                     field(EnterQuantity; EnterQuantity)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Enter a quantity';
                         ToolTip = 'Specifies if the user enters the quantity of the item or service on the line.';
                     }
@@ -69,7 +73,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Visible = (Description <> '') AND EnterQuantity;
                     field(LineQuantity; LineQuantity)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Quantity';
                         DecimalPlaces = 0 : 5;
                         Enabled = DescriptionSelected;
@@ -78,25 +82,25 @@ page 2157 "O365 Sales Invoice Line Card"
                         trigger OnValidate()
                         begin
                             Validate(Quantity, LineQuantity);
-                            RedistributeTotalsOnAfterValidate;
-                            ShowInvoiceDiscountNotification;
+                            RedistributeTotalsOnAfterValidate();
+                            ShowInvoiceDiscountNotification();
                         end;
                     }
-                    field("Unit Price"; "Unit Price")
+                    field("Unit Price"; Rec."Unit Price")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Price';
                         Enabled = DescriptionSelected;
                         ToolTip = 'Specifies the price for one unit on the sales line.';
 
                         trigger OnValidate()
                         begin
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                         end;
                     }
-                    field("Unit of Measure"; "Unit of Measure")
+                    field("Unit of Measure"; Rec."Unit of Measure")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Unit';
                         Editable = false;
                         ToolTip = 'Specifies the sales unit of measure for this product or service.';
@@ -109,7 +113,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Visible = Description <> '';
                     field(EnterDiscount; EnterDiscount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Give a discount';
                         ToolTip = 'Specifies if the user enters the discount on the line.';
 
@@ -124,34 +128,34 @@ page 2157 "O365 Sales Invoice Line Card"
                 {
                     Caption = '';
                     Visible = (Description <> '') AND EnterDiscount;
-                    field("Line Discount %"; "Line Discount %")
+                    field("Line Discount %"; Rec."Line Discount %")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
 
                         trigger OnValidate()
                         begin
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                             if HasShownInvoiceDiscountNotification then
-                                InvoiceDiscountNotification.Recall;
+                                InvoiceDiscountNotification.Recall();
                         end;
                     }
-                    field("Line Discount Amount"; "Line Discount Amount")
+                    field("Line Discount Amount"; Rec."Line Discount Amount")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
 
                         trigger OnValidate()
                         var
                             LineDiscountAmount: Decimal;
                         begin
-                            GetTotalSalesHeader;
+                            GetTotalSalesHeader();
                             LineDiscountAmount :=
                               O365SalesInvoiceMgmt.GetValueWithinBounds(
                                 "Line Discount Amount", 0, "Unit Price" * Quantity, AmountOutsideOfBoundsNotificationSend, TotalSalesHeader.RecordId);
                             if LineDiscountAmount <> "Line Discount Amount" then
                                 Validate("Line Discount Amount", LineDiscountAmount);
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                             if HasShownInvoiceDiscountNotification then
-                                InvoiceDiscountNotification.Recall;
+                                InvoiceDiscountNotification.Recall();
                         end;
                     }
                 }
@@ -164,9 +168,9 @@ page 2157 "O365 Sales Invoice Line Card"
                 {
                     Caption = 'Tax';
                     Visible = NOT IsUsingVAT;
-                    field("Tax Group Code"; "Tax Group Code")
+                    field("Tax Group Code"; Rec."Tax Group Code")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Tax Group';
                         Editable = DescriptionSelected;
                         NotBlank = true;
@@ -174,7 +178,7 @@ page 2157 "O365 Sales Invoice Line Card"
 
                         trigger OnValidate()
                         begin
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                         end;
                     }
                 }
@@ -184,7 +188,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Visible = NOT IsUsingVAT;
                     field(TaxRate; TaxRateText)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Tax %';
                         Enabled = TaxRateEditable;
                         QuickEntry = false;
@@ -202,13 +206,13 @@ page 2157 "O365 Sales Invoice Line Card"
                                 if SalesHeader.Get("Document Type", "Document No.") then
                                     SalesHeader.Validate("Tax Area Code", TaxArea.Code);
                                 TaxRate := TaxDetail.GetSalesTaxRate("Tax Area Code", "Tax Group Code", "Posting Date", "Tax Liable");
-                                UpdateTaxRateText;
+                                UpdateTaxRateText();
                             end;
                         end;
 
                         trigger OnValidate()
                         begin
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                         end;
                     }
                 }
@@ -218,7 +222,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Visible = IsUsingVAT;
                     field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'VAT';
                         Enabled = DescriptionSelected;
                         NotBlank = true;
@@ -233,13 +237,13 @@ page 2157 "O365 Sales Invoice Line Card"
                             if PAGE.RunModal(PAGE::"O365 VAT Product Posting Gr.", VATProductPostingGroup) = ACTION::LookupOK then begin
                                 Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                                 VATProductPostingGroupDescription := VATProductPostingGroup.Description;
-                                RedistributeTotalsOnAfterValidate;
+                                RedistributeTotalsOnAfterValidate();
                             end;
                         end;
 
                         trigger OnValidate()
                         begin
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                         end;
                     }
                 }
@@ -248,18 +252,18 @@ page 2157 "O365 Sales Invoice Line Card"
             {
                 Caption = '';
                 Visible = Description <> '';
-                field(LineAmountExclVAT; GetLineAmountExclVAT)
+                field(LineAmountExclVAT; GetLineAmountExclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount';
                     Editable = false;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT)
+                field(LineAmountInclVAT; GetLineAmountInclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount Incl. VAT';
@@ -276,12 +280,10 @@ page 2157 "O365 Sales Invoice Line Card"
         {
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete Line';
                 Gesture = RightSwipe;
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
                 Scope = Repeater;
                 ToolTip = 'Delete the selected line.';
 
@@ -295,9 +297,20 @@ page 2157 "O365 Sales Invoice Line Card"
                     if not Confirm(DeleteQst, true) then
                         exit;
                     Delete(true);
-                    if not EnvInfoProxy.IsInvoicing then
+                    if not EnvInfoProxy.IsInvoicing() then
                         CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(DeleteLine_Promoted; DeleteLine)
+                {
+                }
             }
         }
     }
@@ -306,20 +319,20 @@ page 2157 "O365 Sales Invoice Line Card"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        UpdatePageCaption;
+        UpdatePageCaption();
         CalcFields("Posting Date");
         TaxRate := TaxDetail.GetSalesTaxRate("Tax Area Code", "Tax Group Code", "Posting Date", "Tax Liable");
-        UpdateTaxRateText;
-        CalculateTotals;
+        UpdateTaxRateText();
+        CalculateTotals();
         DescriptionSelected := Description <> '';
         LineQuantity := Quantity;
         TaxRateEditable := DescriptionSelected and (TaxSetup."Non-Taxable Tax Group Code" <> "Tax Group Code");
-        UpdateVATPostingGroupDescription;
+        UpdateVATPostingGroupDescription();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        UpdatePriceDescription;
+        UpdatePriceDescription();
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);
     end;
 
@@ -328,17 +341,17 @@ page 2157 "O365 Sales Invoice Line Card"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         SalesSetup.Get();
-        if TaxSetup.Get then;
-        Currency.InitRoundingPrecision;
+        if TaxSetup.Get() then;
+        Currency.InitRoundingPrecision();
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
         EnterQuantity := false;
         EnterDiscount := false;
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        UpdatePriceDescription
+        UpdatePriceDescription();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -389,7 +402,7 @@ page 2157 "O365 Sales Invoice Line Card"
 
     local procedure CalculateTotals()
     begin
-        GetTotalSalesHeader;
+        GetTotalSalesHeader();
         if SalesSetup."Calc. Inv. Discount" and ("Document No." <> '') and (TotalSalesHeader."Customer Posting Group" <> '') then
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", Rec);
 
@@ -398,7 +411,7 @@ page 2157 "O365 Sales Invoice Line Card"
 
     local procedure RedistributeTotalsOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         TotalSalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
@@ -411,7 +424,7 @@ page 2157 "O365 Sales Invoice Line Card"
             Clear(TotalSalesHeader);
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure UpdateTaxRateText()
@@ -425,7 +438,7 @@ page 2157 "O365 Sales Invoice Line Card"
             exit;
         if "Line Discount %" = xRec."Line Discount %" then
             exit;
-        GetTotalSalesHeader;
+        GetTotalSalesHeader();
         O365SalesInvoiceMgmt.ShowInvoiceDiscountNotification(InvoiceDiscountNotification, TotalSalesHeader.RecordId);
         HasShownInvoiceDiscountNotification := true;
     end;
@@ -449,4 +462,4 @@ page 2157 "O365 Sales Invoice Line Card"
             Clear(VATProductPostingGroup);
     end;
 }
-
+#endif

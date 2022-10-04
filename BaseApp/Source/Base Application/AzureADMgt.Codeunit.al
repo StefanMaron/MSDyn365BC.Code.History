@@ -19,12 +19,12 @@ codeunit 6300 "Azure AD Mgt."
     procedure GetAuthCodeUrl(ResourceName: Text) AuthCodeUrl: Text
     begin
         // Pass ResourceName as empty string if you want to authorize all azure resources.
-        AuthCodeUrl := GetAzureADAuthEndpoint;
+        AuthCodeUrl := GetAzureADAuthEndpoint();
         AuthCodeUrl += '?response_type=code';
-        AuthCodeUrl += '&client_id=' + UrlEncode(GetClientId);
+        AuthCodeUrl += '&client_id=' + UrlEncode(GetClientId());
         if ResourceName <> '' then
             AuthCodeUrl += '&resource=' + UrlEncode(ResourceName);
-        AuthCodeUrl += '&redirect_uri=' + UrlEncode(GetRedirectUrl);
+        AuthCodeUrl += '&redirect_uri=' + UrlEncode(GetRedirectUrl());
     end;
 
     [NonDebuggable]
@@ -32,15 +32,15 @@ codeunit 6300 "Azure AD Mgt."
     procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
     begin
         // This will return access token and also cache it for future use.
-        AzureADAuthFlow.Initialize(GetRedirectUrl);
+        AzureADAuthFlow.Initialize(GetRedirectUrl());
 
-        if IsSaaS then
+        if IsSaaS() then
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCode(AuthorizationCode, ResourceUrl)
         else begin
             AzureADAppSetup.FindFirst();
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentials(
                 AuthorizationCode,
-                GetClientId,
+                GetClientId(),
                 AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
                 ResourceUrl);
         end;
@@ -55,17 +55,16 @@ codeunit 6300 "Azure AD Mgt."
     begin
         // Does everything required to retrieve an access token for the given service, including
         // showing the Azure AD wizard and auth code retrieval form if necessary.
-        if (not IsAzureADAppSetupDone) and ShowDialog then begin
+        if (not IsAzureADAppSetupDone()) and ShowDialog then begin
             PAGE.RunModal(PAGE::"Azure AD App Setup Wizard");
-            if not IsAzureADAppSetupDone then
+            if not IsAzureADAppSetupDone() then
                 // Don't continue if user cancelled or errored out of the setup wizard.
                 exit('');
         end;
 
-        if AcquireToken(ResourceUrl, AccessToken) then begin
+        if AcquireToken(ResourceUrl, AccessToken) then
             if AccessToken <> '' then
                 exit(AccessToken);
-        end;
 
         if ShowDialog then
             AuthorizationCode := AzureADAccessDialog.GetAuthorizationCode(ResourceUrl, ResourceName);
@@ -78,17 +77,16 @@ codeunit 6300 "Azure AD Mgt."
     procedure GetGuestAccessToken(ResourceUrl: Text; GuestTenantId: Text) AccessToken: Text
     begin
         // Gets an access token for a guest user on a different tenant
-        if AcquireGuestToken(ResourceUrl, GuestTenantId, AccessToken) then begin
+        if AcquireGuestToken(ResourceUrl, GuestTenantId, AccessToken) then
             if AccessToken <> '' then
                 exit(AccessToken);
-        end;
     end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure GetOnBehalfAccessToken(ResourceUrl: Text): Text
     begin
-        AzureADAuthFlow.Initialize(GetRedirectUrl);
+        AzureADAuthFlow.Initialize(GetRedirectUrl());
         exit(AzureADAuthFlow.AcquireOnBehalfOfToken(ResourceUrl));
     end;
 
@@ -96,7 +94,7 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetOnBehalfAccessTokenAndTokenCacheState(ResourceUrl: Text; var TokenCacheState: Text): Text
     begin
-        AzureADAuthFlow.Initialize(GetRedirectUrl);
+        AzureADAuthFlow.Initialize(GetRedirectUrl());
         exit(AzureADAuthFlow.AcquireOnBehalfOfTokenAndTokenCacheState(ResourceUrl, TokenCacheState));
     end;
 
@@ -104,7 +102,7 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetTokenFromTokenCacheState(ResourceId: Text; AadUserId: Text; TokenCacheState: Text; var NewTokenCacheState: Text): Text
     begin
-        AzureADAuthFlow.Initialize(GetRedirectUrl);
+        AzureADAuthFlow.Initialize(GetRedirectUrl());
         exit(AzureADAuthFlow.AcquireTokenFromCacheState(ResourceId, AadUserId, TokenCacheState, NewTokenCacheState));
     end;
 
@@ -119,7 +117,7 @@ codeunit 6300 "Azure AD Mgt."
     var
         UrlHelper: Codeunit "Url Helper";
     begin
-        exit(UrlHelper.GetAzureADAuthEndpoint);
+        exit(UrlHelper.GetAzureADAuthEndpoint());
     end;
 
     [Scope('OnPrem')]
@@ -159,14 +157,14 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetRedirectUrl(): Text[150]
     begin
-        if not IsSaaS and not AzureADAppSetup.IsEmpty() then begin
+        if not IsSaaS() and not AzureADAppSetup.IsEmpty() then begin
             // Use existing redirect URL if already in table - necessary for Windows client which would otherwise
             // generate a different URL for each computer and thus not match the company's Azure application.
             AzureADAppSetup.FindFirst();
             exit(AzureADAppSetup."Redirect URL");
         end;
 
-        exit(GetDefaultRedirectUrl);
+        exit(GetDefaultRedirectUrl());
     end;
 
     local procedure GetBaseUrl(RedirectUrl: Text): Text
@@ -195,7 +193,7 @@ codeunit 6300 "Azure AD Mgt."
     var
         UrlHelper: Codeunit "Url Helper";
     begin
-        exit(UrlHelper.GetO365Resource);
+        exit(UrlHelper.GetO365Resource());
     end;
 
     procedure GetO365ResourceName(): Text
@@ -207,17 +205,17 @@ codeunit 6300 "Azure AD Mgt."
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        exit(EnvironmentInfo.IsSaaS);
+        exit(EnvironmentInfo.IsSaaS());
     end;
 
     local procedure GetClientId() ClientID: Text
     begin
-        if IsSaaS then begin
-            AzureADAuthFlow.Initialize(GetRedirectUrl);
-            ClientID := AzureADAuthFlow.GetSaasClientId;
+        if IsSaaS() then begin
+            AzureADAuthFlow.Initialize(GetRedirectUrl());
+            ClientID := AzureADAuthFlow.GetSaasClientId();
         end else begin
             if AzureADAppSetup.IsEmpty() then
-                Error(AzureADNotSetupErr, PRODUCTNAME.Short);
+                Error(AzureADNotSetupErr, PRODUCTNAME.Short());
 
             AzureADAppSetup.FindFirst();
             ClientID := TypeHelper.GetGuidAsString(AzureADAppSetup."App ID");
@@ -227,15 +225,15 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetInitialTenantDomainName() InitialTenantDomainName: Text
     begin
-        if IsSaaS then begin
-            AzureADAuthFlow.Initialize(GetRedirectUrl);
-            InitialTenantDomainName := AzureADAuthFlow.GetInitialTenantDomainName;
+        if IsSaaS() then begin
+            AzureADAuthFlow.Initialize(GetRedirectUrl());
+            InitialTenantDomainName := AzureADAuthFlow.GetInitialTenantDomainName();
         end;
     end;
 
     procedure IsAzureADAppSetupDone(): Boolean
     begin
-        if (not IsSaaS) and AzureADAppSetup.IsEmpty() then
+        if (not IsSaaS()) and AzureADAppSetup.IsEmpty() then
             exit(false);
 
         exit(true);
@@ -260,9 +258,9 @@ codeunit 6300 "Azure AD Mgt."
     [NonDebuggable]
     local procedure AcquireGuestToken(ResourceName: Text; GuestTenantId: Text; var AccessToken: Text)
     begin
-        if IsSaaS then begin
+        if IsSaaS() then begin
             // This is SaaS-only functionality at this point, so On-Prem/PaaS will not retrieve an access token
-            AzureADAuthFlow.Initialize(GetRedirectUrl);
+            AzureADAuthFlow.Initialize(GetRedirectUrl());
             AccessToken := AzureADAuthFlow.AcquireGuestToken(ResourceName, GuestTenantId);
         end else
             AccessToken := '';
@@ -276,14 +274,14 @@ codeunit 6300 "Azure AD Mgt."
         // Need to run the Azure AD Setup wizard before calling into this.
         // Returns empty string if access token not available
 
-        AzureADAuthFlow.Initialize(GetRedirectUrl);
+        AzureADAuthFlow.Initialize(GetRedirectUrl());
 
-        if IsSaaS then
+        if IsSaaS() then
             AccessToken := AzureADAuthFlow.AcquireTokenFromCache(ResourceName)
         else begin
             AzureADAppSetup.FindFirst();
             AccessToken := AzureADAuthFlow.AcquireTokenFromCacheWithCredentials(
-                GetClientId,
+                GetClientId(),
                 AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
                 ResourceName);
         end;

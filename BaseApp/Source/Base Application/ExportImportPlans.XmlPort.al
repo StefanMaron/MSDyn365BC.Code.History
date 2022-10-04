@@ -69,7 +69,7 @@ xmlport 9010 "Export/Import Plans"
 #if not CLEAN20
                     trigger OnAfterInsertRecord()
                     begin
-                        InsertPermissionSetsFromUserGroup;
+                        InsertPermissionSetsFromUserGroup();
                     end;
 #endif
                     trigger OnBeforeInsertRecord()
@@ -119,7 +119,7 @@ xmlport 9010 "Export/Import Plans"
                 until UserGroupPermissionSet.Next() = 0;
             InsertPlanPermissionset(XLOCALTxt, id);
         end;
-        Commit
+        Commit();
     end;
 
     local procedure InsertPlanPermissionset(PermissionSetID: Code[20]; PlanId: Guid)

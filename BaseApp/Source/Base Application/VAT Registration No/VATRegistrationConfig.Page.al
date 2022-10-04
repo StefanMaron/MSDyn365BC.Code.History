@@ -59,7 +59,7 @@ page 248 "VAT Registration Config"
                     var
                         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
                     begin
-                        HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR);
+                        HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR());
                     end;
                 }
                 field(DefaultTemplate; Rec."Default Template Code")
@@ -84,10 +84,6 @@ page 248 "VAT Registration Config"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Default Endpoint';
                     Image = Default;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Set the default URL in the Service Endpoint field.';
 
                     trigger OnAction()
@@ -100,9 +96,37 @@ page 248 "VAT Registration Config"
                             else
                                 exit;
 
-                        "Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
+                        "Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL();
                         Modify(true);
                     end;
+                }
+                action(VATRegNoValidationTemplates)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = '&Show VAT Reg. No. Service Templates';
+                    Image = Default;
+                    ToolTip = 'View the VAT Registration No. Service Templates.';
+
+                    trigger OnAction()
+                    var
+                        VATRegNoSrvTemplates: Page "VAT Reg. No. Srv. Templates";
+                    begin
+                        VATRegNoSrvTemplates.RunModal();
+                    end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SettoDefault_Promoted; SettoDefault)
+                {
+                }
+                actionref(VATRegNoValidationTemplates_Promoted; VATRegNoValidationTemplates)
+                {
                 }
             }
         }
@@ -131,10 +155,10 @@ page 248 "VAT Registration Config"
         if FindFirst() then
             exit;
 
-        Init;
-        "Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
-        Enabled := not EnvironmentInfo.IsSaaS;
-        Insert;
+        Init();
+        "Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL();
+        Enabled := not EnvironmentInfo.IsSaaS();
+        Insert();
     end;
 }
 

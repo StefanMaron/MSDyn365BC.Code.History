@@ -14,12 +14,12 @@ page 5170 "Answer Where-Used"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Profile Questionnaire Code"; "Profile Questionnaire Code")
+                field("Profile Questionnaire Code"; Rec."Profile Questionnaire Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the profile questionnaire that contains the question you use to create your rating.';
                 }
-                field("Profile Question Description"; "Profile Question Description")
+                field("Profile Question Description"; Rec."Profile Question Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

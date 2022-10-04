@@ -13,94 +13,94 @@ page 7153 "Item Analysis View Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item Ledger Entry Type"; "Item Ledger Entry Type")
+                field("Item Ledger Entry Type"; Rec."Item Ledger Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value entry type for an analysis view entry.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item number to which the item ledger entry in an analysis view entry was posted.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location to which the item ledger entry in an analysis view entry was posted.';
                 }
-                field("Dimension 1 Value Code"; "Dimension 1 Value Code")
+                field("Dimension 1 Value Code"; Rec."Dimension 1 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 1 on the analysis view card.';
                 }
-                field("Dimension 2 Value Code"; "Dimension 2 Value Code")
+                field("Dimension 2 Value Code"; Rec."Dimension 2 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 2 on the analysis view card.';
                 }
-                field("Dimension 3 Value Code"; "Dimension 3 Value Code")
+                field("Dimension 3 Value Code"; Rec."Dimension 3 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 3 on the analysis view card.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the item ledger entry in an analysis view entry was posted.';
                 }
-                field("Sales Amount (Actual)"; "Sales Amount (Actual)")
+                field("Sales Amount (Actual)"; Rec."Sales Amount (Actual)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the actual sales amounts posted for the item ledger entries included in the analysis view entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
-                field("Sales Amount (Expected)"; "Sales Amount (Expected)")
+                field("Sales Amount (Expected)"; Rec."Sales Amount (Expected)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the expected sales amounts posted for the item ledger entries, included in the analysis view entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
-                field("Cost Amount (Actual)"; "Cost Amount (Actual)")
+                field("Cost Amount (Actual)"; Rec."Cost Amount (Actual)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the actual cost amounts posted for the item ledger entries included in the analysis view entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
-                field("Cost Amount (Expected)"; "Cost Amount (Expected)")
+                field("Cost Amount (Expected)"; Rec."Cost Amount (Expected)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the expected cost amounts posted for the item ledger entries included in the analysis view entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
-                field("Cost Amount (Non-Invtbl.)"; "Cost Amount (Non-Invtbl.)")
+                field("Cost Amount (Non-Invtbl.)"; Rec."Cost Amount (Non-Invtbl.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the non-inventoriable cost amounts posted for the item ledger entries included in the analysis view entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -110,17 +110,17 @@ page 7153 "Item Analysis View Entries"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
-                field("Invoiced Quantity"; "Invoiced Quantity")
+                field("Invoiced Quantity"; Rec."Invoiced Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of the quantity invoiced for the item ledger entries included in the analysis view entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
             }

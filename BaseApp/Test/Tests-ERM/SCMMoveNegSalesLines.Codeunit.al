@@ -117,7 +117,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
 
         // Verify: Error message.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNoNegLines) > 0, 'Actual:' + GetLastErrorText + ';Expected:' + ErrorNoNegLines);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]
@@ -165,7 +165,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         MoveNegSalesLines.InitializeRequest(FromDocType, ToDocType, ToDocType);
         MoveNegSalesLines.UseRequestPage(false);
         MoveNegSalesLines.RunModal();
-        MoveNegSalesLines.ShowDocument;
+        MoveNegSalesLines.ShowDocument();
     end;
 
     [Normal]
@@ -193,7 +193,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
             Assert.AreEqual(1, TempSalesLine.Count, 'Too many migrated negative lines!');
             TempSalesLine.FindFirst();
             TempSalesLine.Delete(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         // Check there are no un-migrated lines.
         TempSalesLine.Reset();

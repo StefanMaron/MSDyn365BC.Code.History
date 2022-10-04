@@ -13,7 +13,7 @@ page 99000782 "Where-Used Item List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     TableRelation = Item;
@@ -24,12 +24,12 @@ page 99000782 "Where-Used Item List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Production BOM No."; "Production BOM No.")
+                field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the production BOM that the item represents.';
                 }
-                field("Inventory Posting Group"; "Inventory Posting Group")
+                field("Inventory Posting Group"; Rec."Inventory Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';

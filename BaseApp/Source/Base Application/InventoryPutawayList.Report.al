@@ -13,7 +13,7 @@ report 7322 "Inventory Put-away List"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Shelf No.", "Bin Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -163,18 +163,19 @@ report 7322 "Inventory Put-away List"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        PurchLineFilter := "Purchase Line".GetFilters;
+        ItemFilter := Item.GetFilters();
+        PurchLineFilter := "Purchase Line".GetFilters();
     end;
 
     var
-        Text000: Label 'Purchase Order Line: %1';
         Vendor: Record Vendor;
         ItemVariant: Record "Item Variant";
         ItemFilter: Text;
         PurchLineFilter: Text;
         GroupTotal: Boolean;
         TotalsCausedBy: Integer;
+
+        Text000: Label 'Purchase Order Line: %1';
         InventoryPutawayListCptnLbl: Label 'Inventory Put-away List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         VendorNameCaptionLbl: Label 'Vendor';

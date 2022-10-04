@@ -13,6 +13,8 @@ codeunit 6705 "Booking Service Sync."
     var
         TempItem: Record Item temporary;
         TempBookingServiceMapping: Record "Booking Service Mapping" temporary;
+        O365SyncManagement: Codeunit "O365 Sync. Management";
+
         ProcessNavServiceItemsMsg: Label 'Processing service items.';
         ProcessBookingServicesMsg: Label 'Processing Booking services from Exchange.';
         RetrieveBookingServicesMsg: Label 'Retrieving Booking services from Exchange.';
@@ -20,7 +22,6 @@ codeunit 6705 "Booking Service Sync."
         CreateNavItemTxt: Label 'Create service item.';
         BookingsCountTelemetryTxt: Label 'Retrieved %1 Bookings Services for synchronization.', Locked = true;
         LocalCountTelemetryTxt: Label 'Synchronizing %1 items to Bookings.', Locked = true;
-        O365SyncManagement: Codeunit "O365 Sync. Management";
 
     procedure SyncRecords(var BookingSync: Record "Booking Sync")
     begin
@@ -34,7 +35,7 @@ codeunit 6705 "Booking Service Sync."
         O365SyncManagement.ShowProgress(ProcessBookingServicesMsg);
         ProcessBookingServices(BookingSync);
 
-        O365SyncManagement.CloseProgress;
+        O365SyncManagement.CloseProgress();
 
         BookingSync."Last Service Sync" := CreateDateTime(Today, Time);
         BookingSync.Modify(true);
@@ -47,9 +48,9 @@ codeunit 6705 "Booking Service Sync."
         FilterText: Text;
         ItemTxt: Text;
     begin
-        FilterText := BookingSync.GetItemFilter;
+        FilterText := BookingSync.GetItemFilter();
 
-        ItemTxt := LocalItem.TableCaption;
+        ItemTxt := LocalItem.TableCaption();
         FilterPage.PageCaption := ItemTxt;
         FilterPage.AddTable(ItemTxt, DATABASE::Item);
 
@@ -61,7 +62,7 @@ codeunit 6705 "Booking Service Sync."
         FilterPage.ADdField(ItemTxt, LocalItem."Tax Group Code");
         FilterPage.ADdField(ItemTxt, LocalItem."Inventory Posting Group");
 
-        if FilterPage.RunModal then
+        if FilterPage.RunModal() then
             FilterText := FilterPage.GetView(ItemTxt);
 
         if FilterText <> '' then begin
@@ -129,7 +130,7 @@ codeunit 6705 "Booking Service Sync."
 
     local procedure BuildNavItemFilter(var Item: Record Item; var BookingSync: Record "Booking Sync")
     begin
-        Item.SetView(BookingSync.GetItemFilter);
+        Item.SetView(BookingSync.GetItemFilter());
         Item.SetRange(Type, Item.Type::Service);
     end;
 
@@ -264,7 +265,7 @@ codeunit 6705 "Booking Service Sync."
         if BookingServiceMapping.Get(BookingServiceId) then begin
             Item.SetRange("No.", BookingServiceMapping."Item No.");
             Item.SetLastDateTimeFilter(BookingSync."Last Service Sync");
-            exit(Item.FindFirst);
+            exit(Item.FindFirst());
         end;
     end;
 }

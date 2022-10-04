@@ -113,7 +113,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(ValueIsDifferentErr,
-            CustLedgEntry.FieldCaption("Bal. Account No."), CustLedgEntry.TableCaption, GenJnlBatch."Bal. Account No."));
+            CustLedgEntry.FieldCaption("Bal. Account No."), CustLedgEntry.TableCaption(), GenJnlBatch."Bal. Account No."));
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(ValueIsDifferentErr,
-            CustLedgEntry.FieldCaption("Document Type"), CustLedgEntry.TableCaption, CustLedgEntry."Document Type"::Refund));
+            CustLedgEntry.FieldCaption("Document Type"), CustLedgEntry.TableCaption(), CustLedgEntry."Document Type"::Refund));
     end;
 
     [Test]
@@ -255,7 +255,7 @@ codeunit 132574 "Payment Export Validation UT"
 
         // Pre-Verify
         ErrorText :=
-          StrSubstNo(FieldBlankErr, GenJnlBatch.TableCaption, GenJnlBatch.FieldCaption("Allow Payment Export"));
+          StrSubstNo(FieldBlankErr, GenJnlBatch.TableCaption(), GenJnlBatch.FieldCaption("Allow Payment Export"));
 
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, ErrorText);
@@ -290,7 +290,7 @@ codeunit 132574 "Payment Export Validation UT"
         Assert.ExpectedError(HasErrorsErr);
 
         // Pre-Verify
-        ErrorText := StrSubstNo(FieldBlankErr, GenJnlBatch.TableCaption, GenJnlBatch.FieldCaption("Bal. Account No."));
+        ErrorText := StrSubstNo(FieldBlankErr, GenJnlBatch.TableCaption(), GenJnlBatch.FieldCaption("Bal. Account No."));
 
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, ErrorText);
@@ -328,7 +328,7 @@ codeunit 132574 "Payment Export Validation UT"
         asserterror PmtExportMgtGenJnlLine.ExportGenJnlLine(GenJnlLine, CreditTransferRegister);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(FormatNotDefinedErr, BankExportImportSetup.TableCaption, BankAcc."Payment Export Format"));
+        Assert.ExpectedError(StrSubstNo(FormatNotDefinedErr, BankExportImportSetup.TableCaption(), BankAcc."Payment Export Format"));
     end;
 
     [Test]
@@ -365,7 +365,7 @@ codeunit 132574 "Payment Export Validation UT"
         Assert.ExpectedError(HasErrorsErr);
 
         // Pre-Verify
-        ErrorText := StrSubstNo(FieldBlankErr, BankAcc.FieldCaption("Payment Export Format"), BankAcc.TableCaption);
+        ErrorText := StrSubstNo(FieldBlankErr, BankAcc.FieldCaption("Payment Export Format"), BankAcc.TableCaption());
 
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, ErrorText);
@@ -405,7 +405,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Verify
         ErrorText :=
           StrSubstNo(FieldKeyBlankErr,
-            GenJnlBatch.TableCaption, GenJnlBatch."Bal. Account Type", GenJnlBatch.FieldCaption("Bal. Account Type"));
+            GenJnlBatch.TableCaption(), GenJnlBatch."Bal. Account Type", GenJnlBatch.FieldCaption("Bal. Account Type"));
 
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, ErrorText);
@@ -747,7 +747,7 @@ codeunit 132574 "Payment Export Validation UT"
 
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
-          StrSubstNo(FieldBlankErr, GenJnlLine.TableCaption, GenJnlLine.FieldCaption("Payment Method Code")));
+          StrSubstNo(FieldBlankErr, GenJnlLine.TableCaption(), GenJnlLine.FieldCaption("Payment Method Code")));
     end;
 
     [Test]
@@ -789,8 +789,8 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
           StrSubstNo(WrongBalAccountErr,
-            GenJnlLine.FieldCaption("Bal. Account No."), GenJnlLine.TableCaption,
-            GenJnlBatch."Bal. Account No.", GenJnlBatch.TableCaption, GenJnlBatch.Name));
+            GenJnlLine.FieldCaption("Bal. Account No."), GenJnlLine.TableCaption(),
+            GenJnlBatch."Bal. Account No.", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
     end;
 
     [Test]
@@ -833,8 +833,8 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
           StrSubstNo(WrongBalAccountErr,
-            GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine.TableCaption,
-            GenJnlLine."Bal. Account Type"::"Bank Account", GenJnlBatch.TableCaption, GenJnlBatch.Name));
+            GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine.TableCaption(),
+            GenJnlLine."Bal. Account Type"::"Bank Account", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
     end;
 
     [Test]
@@ -1342,7 +1342,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(ValueIsDifferentErr,
-            VendLedgEntry.FieldCaption("Bal. Account No."), VendLedgEntry.TableCaption, GenJnlBatch."Bal. Account No."));
+            VendLedgEntry.FieldCaption("Bal. Account No."), VendLedgEntry.TableCaption(), GenJnlBatch."Bal. Account No."));
     end;
 
     [Test]
@@ -1382,7 +1382,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(ValueIsDifferentErr,
-            VendLedgEntry.FieldCaption("Bal. Account Type"), VendLedgEntry.TableCaption, VendLedgEntry."Bal. Account Type"::"Bank Account"));
+            VendLedgEntry.FieldCaption("Bal. Account Type"), VendLedgEntry.TableCaption(), VendLedgEntry."Bal. Account Type"::"Bank Account"));
     end;
 
     [Test]
@@ -1417,7 +1417,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(ValueIsDifferentErr,
-            VendLedgEntry.FieldCaption("Document Type"), VendLedgEntry.TableCaption, VendLedgEntry."Document Type"::Payment));
+            VendLedgEntry.FieldCaption("Document Type"), VendLedgEntry.TableCaption(), VendLedgEntry."Document Type"::Payment));
     end;
 
     [Test]

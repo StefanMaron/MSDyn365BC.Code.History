@@ -391,7 +391,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         // Don't look at tracking and surplus:
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
 
-        ForceRequest := not ReservEntry2.IsEmpty and ForceRequest;
+        ForceRequest := not ReservEntry2.IsEmpty() and ForceRequest;
 
         OnAfterDateConflict(ReservationEntry, Date, IsConflict, ForceRequest);
         exit(IsConflict);
@@ -440,11 +440,10 @@ codeunit 99000815 "Reservation-Check Date Confl."
                        (ReservEntry2."Expected Receipt Date" > ReservDueDate)
                     then
                         ReservExpectDate := ReservEntry2."Expected Receipt Date";
-            end else begin
+            end else
                 if ReservEntry2."Shipment Date" <> 0D then          // Item ledger entries will be 0D.
                     if (ReservEntry2."Shipment Date" < ReservDueDate) and (ReservEntry2."Shipment Date" < ReservExpectDate) then
                         ReservDueDate := ReservEntry2."Shipment Date";
-            end;
         until ReservEntry2.Next() = 0;
 
         exit(CreateReservEntry.SignFactor(ReservEntry2) * SumValue);

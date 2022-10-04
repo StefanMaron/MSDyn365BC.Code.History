@@ -27,7 +27,7 @@ report 9200 "Void/Transmit Elec. Pmnts"
                                     Error(AlreadyTransmittedErr);
                                 if "Document No." = '' then
                                     Error(VoidedOrNoDocNoErr);
-                                if not RTCConfirmTransmit then
+                                if not RTCConfirmTransmit() then
                                     exit;
                             end;
                     end;
@@ -109,10 +109,10 @@ report 9200 "Void/Transmit Elec. Pmnts"
             if not Confirm(ActionConfirmQst,
                  false,
                  UsageType,
-                 BankAccount.TableCaption,
+                 BankAccount.TableCaption(),
                  BankAccount."No.")
             then
-                CurrReport.Quit;
+                CurrReport.Quit();
     end;
 
     var

@@ -22,23 +22,40 @@ page 99000788 "Production BOM Lines"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the type of production BOM line.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description of the production BOM line.';
                 }
-                field("Calculation Formula"; "Calculation Formula")
+                field("Calculation Formula"; Rec."Calculation Formula")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how to calculate the Quantity field.';
@@ -68,22 +85,22 @@ page 99000788 "Production BOM Lines"
                     ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
                     Visible = false;
                 }
-                field("Quantity per"; "Quantity per")
+                field("Quantity per"; Rec."Quantity per")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the component are required to produce the parent item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Scrap %"; "Scrap %")
+                field("Scrap %"; Rec."Scrap %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
                 }
-                field("Routing Link Code"; "Routing Link Code")
+                field("Routing Link Code"; Rec."Routing Link Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link code.';
@@ -94,31 +111,31 @@ page 99000788 "Production BOM Lines"
                     ToolTip = 'Specifies the position of the component on the bill of material.';
                     Visible = false;
                 }
-                field("Position 2"; "Position 2")
+                field("Position 2"; Rec."Position 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies more exactly whether the component is to appear at a certain position in the BOM to represent a certain production process.';
                     Visible = false;
                 }
-                field("Position 3"; "Position 3")
+                field("Position 3"; Rec."Position 3")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the third reference number for the component position on a bill of material, such as the alternate position number of a component on a print card.';
                     Visible = false;
                 }
-                field("Lead-Time Offset"; "Lead-Time Offset")
+                field("Lead-Time Offset"; Rec."Lead-Time Offset")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total number of days required to produce this item.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date from which this production BOM is valid.';
                     Visible = false;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date from which this production BOM is no longer valid.';
@@ -145,7 +162,7 @@ page 99000788 "Production BOM Lines"
 
                     trigger OnAction()
                     begin
-                        ShowComment;
+                        ShowComment();
                     end;
                 }
                 action("Where-Used")
@@ -157,12 +174,20 @@ page 99000788 "Production BOM Lines"
 
                     trigger OnAction()
                     begin
-                        ShowWhereUsed;
+                        ShowWhereUsed();
                     end;
                 }
             }
         }
     }
+
+    trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
+    begin
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+    end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
@@ -193,16 +218,19 @@ page 99000788 "Production BOM Lines"
             Type::Item:
                 begin
                     Item.Get("No.");
-                    ProdBOMWhereUsed.SetItem(Item, WorkDate);
+                    ProdBOMWhereUsed.SetItem(Item, WorkDate());
                 end;
             Type::"Production BOM":
                 begin
                     ProdBomHeader.Get("No.");
-                    ProdBOMWhereUsed.SetProdBOM(ProdBomHeader, WorkDate);
+                    ProdBOMWhereUsed.SetProdBOM(ProdBomHeader, WorkDate());
                 end;
         end;
         ProdBOMWhereUsed.RunModal();
         Clear(ProdBOMWhereUsed);
     end;
+
+    var
+        VariantCodeMandatory: Boolean;
 }
 

@@ -40,7 +40,7 @@ page 702 "Merge Duplicate"
 
                     trigger OnValidate()
                     begin
-                        ShowLines;
+                        ShowLines();
                     end;
                 }
             }
@@ -75,7 +75,7 @@ page 702 "Merge Duplicate"
                 //The GridLayout property is only supported on controls of type Grid
                 //GridLayout = Rows;
                 Visible = ConflictsExist;
-                field(Conflicts; GetConflictsMsg)
+                field(Conflicts; GetConflictsMsg())
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -86,7 +86,7 @@ page 702 "Merge Duplicate"
 
                     trigger OnDrillDown()
                     begin
-                        ShowConflicts;
+                        ShowConflicts();
                         CurrPage.Update(false);
                     end;
                 }
@@ -117,17 +117,13 @@ page 702 "Merge Duplicate"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Merge';
                 Image = ItemSubstitution;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Remove the duplicate record and reassign the related records to the current record.';
                 Visible = NOT ShowRecID;
 
                 trigger OnAction()
                 begin
-                    if Merge then begin
-                        CurrPage.Close;
+                    if Merge() then begin
+                        CurrPage.Close();
                         Message(RecordMergedMsg, "Table Name", Duplicate, Current);
                     end;
                 end;
@@ -137,18 +133,14 @@ page 702 "Merge Duplicate"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Remove Duplicate';
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Delete the duplicate record. Before you choose this action, select the Override checkbox for fields that are not in the primary key if you want to copy their values to the current record.';
                 Visible = ShowRecID;
 
                 trigger OnAction()
                 begin
-                    if RemoveConflictingRecord then begin
+                    if RemoveConflictingRecord() then begin
                         ConflictResolved := true;
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 end;
             }
@@ -158,20 +150,33 @@ page 702 "Merge Duplicate"
                 Caption = 'Rename Duplicate';
                 Ellipsis = true;
                 Image = EditLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Change values in the Alternate Value field on lines where it is the same as in the Current Value field. NOTE: This means that the duplicate record continues to exist after the merge.';
                 Visible = ShowRecID;
 
                 trigger OnAction()
                 begin
-                    if RenameConflictingRecord then begin
+                    if RenameConflictingRecord() then begin
                         ConflictResolved := true;
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Merge_Promoted; Merge)
+                {
+                }
+                actionref("Remove Duplicate_Promoted"; "Remove Duplicate")
+                {
+                }
+                actionref("Rename Duplicate_Promoted"; "Rename Duplicate")
+                {
+                }
             }
         }
     }
@@ -198,7 +203,7 @@ page 702 "Merge Duplicate"
     procedure Set(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer")
     begin
         Rec := MergeDuplicatesBuffer;
-        Insert;
+        Insert();
         ShowRecID := false;
     end;
 
@@ -206,7 +211,7 @@ page 702 "Merge Duplicate"
     begin
         InsertFromConflict(MergeDuplicatesConflict);
         ShowRecID := true;
-        ShowLines;
+        ShowLines();
     end;
 
     local procedure ShowLines()

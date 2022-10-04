@@ -25,7 +25,7 @@ page 5300 "Outlook Synch. Entity"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a short description of the synchronization entity that you create.';
                 }
-                field("Table No."; "Table No.")
+                field("Table No."; Rec."Table No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the Dynamics 365 table that is to be synchronized with an Outlook item.';
@@ -35,7 +35,7 @@ page 5300 "Outlook Synch. Entity"
                         TableNoOnAfterValidate();
                     end;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Dynamics 365 table to synchronize. The program fills in this field every time you specify a table number in the Table No. field.';
@@ -50,14 +50,14 @@ page 5300 "Outlook Synch. Entity"
                         Condition := CopyStr(OSynchSetupMgt.ShowOSynchFiltersForm("Record GUID", "Table No.", 0), 1, MaxStrLen(Condition));
                     end;
                 }
-                field("Outlook Item"; "Outlook Item")
+                field("Outlook Item"; Rec."Outlook Item")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Outlook item that corresponds to the Dynamics 365 table which you specified in the Table No. field.';
 
                     trigger OnValidate()
                     begin
-                        OutlookItemOnAfterValidate;
+                        OutlookItemOnAfterValidate();
                     end;
                 }
             }
@@ -99,7 +99,7 @@ page 5300 "Outlook Synch. Entity"
 
                     trigger OnAction()
                     begin
-                        ShowEntityFields;
+                        ShowEntityFields();
                     end;
                 }
                 action("Reset to Defaults")
@@ -130,7 +130,7 @@ page 5300 "Outlook Synch. Entity"
                         OSynchEntity: Record "Outlook Synch. Entity";
                     begin
                         OSynchEntity := Rec;
-                        OSynchEntity.SetRecFilter;
+                        OSynchEntity.SetRecFilter();
                         REPORT.Run(REPORT::"Outlook Synch. Change Log Set.", true, false, OSynchEntity);
                     end;
                 }
@@ -142,7 +142,7 @@ page 5300 "Outlook Synch. Entity"
     var
         OutlookSynchSetupDefaults: Codeunit "Outlook Synch. Setup Defaults";
     begin
-        OutlookSynchSetupDefaults.InsertOSynchDefaults;
+        OutlookSynchSetupDefaults.InsertOSynchDefaults();
     end;
 
     var

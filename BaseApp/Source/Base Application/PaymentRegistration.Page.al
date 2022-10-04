@@ -7,7 +7,6 @@ page 981 "Payment Registration"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Posting,Navigate,Search,Setup,Line';
     SourceTable = "Payment Registration Buffer";
     SourceTableTemporary = true;
     UsageCategory = Tasks;
@@ -20,7 +19,7 @@ page 981 "Payment Registration"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -42,7 +41,7 @@ page 981 "Payment Registration"
                         PAGE.Run(PAGE::"Customer Card", Customer);
                     end;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -51,10 +50,10 @@ page 981 "Payment Registration"
 
                     trigger OnDrillDown()
                     begin
-                        Navigate;
+                        Navigate();
                     end;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -67,31 +66,31 @@ page 981 "Payment Registration"
                     Editable = false;
                     ToolTip = 'Specifies the invoice transaction that the payment relates to.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = DueDateStyle;
                     ToolTip = 'Specifies the payment due date on the related document.';
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = PmtDiscStyle;
                     ToolTip = 'Specifies the amount that remains to be paid on the document.';
                 }
-                field("Payment Made"; "Payment Made")
+                field("Payment Made"; Rec."Payment Made")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have received or made payment for the document.';
 
                     trigger OnValidate()
                     begin
-                        SetUserInteractions;
+                        SetUserInteractions();
                     end;
                 }
-                field("Date Received"; "Date Received")
+                field("Date Received"; Rec."Date Received")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = DueDateStyle;
@@ -99,20 +98,20 @@ page 981 "Payment Registration"
 
                     trigger OnValidate()
                     begin
-                        SetUserInteractions;
+                        SetUserInteractions();
                     end;
                 }
-                field("Amount Received"; "Amount Received")
+                field("Amount Received"; Rec."Amount Received")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that is paid in the bank account.';
 
                     trigger OnValidate()
                     begin
-                        SetUserInteractions;
+                        SetUserInteractions();
                     end;
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -122,10 +121,10 @@ page 981 "Payment Registration"
 
                     trigger OnValidate()
                     begin
-                        SetUserInteractions
+                        SetUserInteractions();
                     end;
                 }
-                field("Rem. Amt. after Discount"; "Rem. Amt. after Discount")
+                field("Rem. Amt. after Discount"; Rec."Rem. Amt. after Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rem Amount Incl. Discount';
@@ -203,15 +202,13 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     Scope = Repeater;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        Navigate();
                     end;
                 }
                 action(Details)
@@ -219,9 +216,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Details';
                     Image = ViewDetails;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'View additional information about the document on the selected line and link to the related customer card.';
 
@@ -239,9 +233,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Search Customers';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "Customer List";
                     ToolTip = 'Open the list of customers, for example, to check for missing payments from a specific customer.';
                 }
@@ -250,9 +241,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Search Documents';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "Document Search";
                     ToolTip = 'Find documents that are not fully invoiced, for example, to post an invoice so that the received payment can be processed.';
                 }
@@ -269,9 +257,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post Payments';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Post payment of amounts on the lines where the Payment Made check box is selected.';
 
@@ -285,9 +270,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post as Lump Payment';
                     Image = PostBatch;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Post payment as a lump sum of amounts on lines where the Payment Made check box is selected.';
 
                     trigger OnAction()
@@ -300,8 +282,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting Payments';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal. When you perform the actual posting, you may be asked how to post payment tolerance entries. The posting preview assumes the default option: that each payment tolerance is posted as one entry.';
 
                     trigger OnAction()
@@ -316,8 +296,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting Payments as Lump';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal as a lump sum of amounts. When you perform the actual posting, you may be asked how to post payment tolerance entries. The posting preview assumes the default option: that each payment tolerance is posted as one entry.';
 
                     trigger OnAction()
@@ -336,13 +314,11 @@ page 981 "Payment Registration"
                     ApplicationArea = Basic, Suite;
                     Caption = 'General Journal';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Open the general journal, for example, to record or post a payment that has no related document.';
 
                     trigger OnAction()
                     begin
-                        PaymentRegistrationMgt.OpenGenJnl
+                        PaymentRegistrationMgt.OpenGenJnl();
                     end;
                 }
                 action(FinanceChargeMemo)
@@ -350,8 +326,6 @@ page 981 "Payment Registration"
                     ApplicationArea = Suite;
                     Caption = 'Finance Charge Memo';
                     Image = FinChargeMemo;
-                    Promoted = true;
-                    PromotedCategory = New;
                     RunObject = Page "Finance Charge Memo";
                     RunPageLink = "Customer No." = FIELD("Source No.");
                     RunPageMode = Create;
@@ -373,21 +347,101 @@ page 981 "Payment Registration"
                     trigger OnAction()
                     begin
                         if PAGE.RunModal(PAGE::"Payment Registration Setup") = ACTION::LookupOK then
-                            FormatPageCaption
+                            FormatPageCaption();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_New)
+                {
+                    Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                    actionref(FinanceChargeMemo_Promoted; FinanceChargeMemo)
+                    {
+                    }
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref(PostPayments_Promoted; PostPayments)
+                    {
+                    }
+                    actionref(PostAsLump_Promoted; PostAsLump)
+                    {
+                    }
+                    actionref(PreviewPayments_Promoted; PreviewPayments)
+                    {
+                    }
+                    actionref(PreviewLump_Promoted; PreviewLump)
+                    {
+                    }
+                }
+                actionref(Setup_Promoted; Setup)
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+                actionref(Details_Promoted; Details)
+                {
+                }
+#if not CLEAN21
+                actionref(OpenGenJnl_Promoted; OpenGenJnl)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Search', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(SearchCustomer_Promoted; SearchCustomer)
+                {
+                }
+                actionref(SearchDocument_Promoted; SearchDocument)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Setup', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SetUserInteractions;
+        SetUserInteractions();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        Reload;
+        Reload();
         PaymentRegistrationMgt.CalculateBalance(PostedBalance, UnpostedBalance);
         TotalBalance := PostedBalance + UnpostedBalance;
         exit(Find(Which));
@@ -395,8 +449,8 @@ page 981 "Payment Registration"
 
     trigger OnOpenPage()
     begin
-        PaymentRegistrationMgt.RunSetup;
-        FormatPageCaption;
+        PaymentRegistrationMgt.RunSetup();
+        FormatPageCaption();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -424,9 +478,9 @@ page 981 "Payment Registration"
 
     local procedure SetUserInteractions()
     begin
-        PmtDiscStyle := GetPmtDiscStyle;
-        DueDateStyle := GetDueDateStyle;
-        Warning := GetWarning;
+        PmtDiscStyle := GetPmtDiscStyle();
+        DueDateStyle := GetDueDateStyle();
+        Warning := GetWarning();
     end;
 }
 

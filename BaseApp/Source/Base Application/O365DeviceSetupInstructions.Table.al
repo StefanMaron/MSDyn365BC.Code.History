@@ -36,7 +36,6 @@ table 1307 "O365 Device Setup Instructions"
     fieldgroups
     {
     }
-
     var
         ClientTypeManagement: Codeunit "Client Type Management";
 
@@ -48,16 +47,15 @@ table 1307 "O365 Device Setup Instructions"
         AllowedCharacters: Text;
         I: Integer;
     begin
-        Url := GetUrl(ClientTypeManagement.GetCurrentClientType);
+        Url := GetUrl(ClientTypeManagement.GetCurrentClientType());
 
         AddressWithoutProtocol := CopyStr(Url, StrPos(Url, '://') + 3);
         AllowedCharacters := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        for I := 1 to StrLen(AddressWithoutProtocol) do begin
+        for I := 1 to StrLen(AddressWithoutProtocol) do
             if StrPos(AllowedCharacters, UpperCase(Format(AddressWithoutProtocol[I]))) > 0 then
                 ActivationCode += Format(AddressWithoutProtocol[I])
             else
                 exit(ActivationCode);
-        end;
     end;
 }
 

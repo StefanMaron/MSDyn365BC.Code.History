@@ -495,7 +495,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
@@ -510,7 +510,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Assert.IsFalse(SalesQuote.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(SalesQuote.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(SalesQuote.Delegate.Visible, 'Delegate should NOT be visible');
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -527,7 +527,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Assert.IsTrue(SalesQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
@@ -574,7 +574,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesQuotes.Close;
+        SalesQuotes.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
@@ -586,7 +586,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        SalesQuotes.Close;
+        SalesQuotes.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -876,7 +876,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     begin
         SalesHeader.Init();
         SalesHeader.Insert(true);
-        SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
+        SalesHeader.Validate("Sell-to Customer Templ. Code", SellToCustomerTemplateCode);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
         SalesHeader.Modify(true);
     end;
@@ -918,12 +918,12 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.SendApprovalRequest.Invoke;
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
     end;
 
@@ -982,7 +982,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.Approve.Invoke;
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure RejectSalesQuote(var SalesHeader: Record "Sales Header")
@@ -992,7 +992,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.Reject.Invoke;
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure DelegateSalesQuote(var SalesHeader: Record "Sales Header")
@@ -1002,7 +1002,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.Delegate.Invoke;
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure CancelSalesQuote(var SalesHeader: Record "Sales Header")
@@ -1012,7 +1012,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.CancelApprovalRequest.Invoke;
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure SetSalesDocSalespersonCode(SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
@@ -1039,15 +1039,15 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1065,12 +1065,12 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1088,12 +1088,12 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(SalesHeader: Record "Sales Header"; CancelActionExpectedEnabled: Boolean)
@@ -1104,12 +1104,12 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesQuote.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         SalesQuotes.OpenView;
         SalesQuotes.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesQuotes.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        SalesQuotes.Close;
+        SalesQuotes.Close();
     end;
 
     [MessageHandler]

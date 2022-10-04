@@ -289,10 +289,10 @@ codeunit 137007 "SCM Inventory Costing"
         // Create Production BOM Version with diffrent Starting Date.
         ProductionBOMHeader.Get(Item."Production BOM No.");
         CreateProdBOMVersionWithStartingDate(
-          ProductionBOMVersion, ProductionBOMHeader, Item."Base Unit of Measure", ChildItemNo[1], WorkDate);
+          ProductionBOMVersion, ProductionBOMHeader, Item."Base Unit of Measure", ChildItemNo[1], WorkDate());
         CreateProdBOMVersionWithStartingDate(
           ProductionBOMVersion2, ProductionBOMHeader, Item."Base Unit of Measure", ChildItemNo[2],
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Exercise: Run BOM Structure page.
         // Verify: Verify BOM Structure in BOMStructurePageHandler Handler.
@@ -345,7 +345,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.CreateItem(ChildItem2);
         CreateProdBOMVersionWithStartingDate(
           ProductionBOMVersion, ProductionBOMHeader, Item."Base Unit of Measure", ChildItem2."No.",
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Create a Sales Order
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandDec(20, 2));
@@ -381,7 +381,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         // Exercise: run report Post Inventory Cost to G/L
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify:
         VerifyValueEntryCostPostedToGL(Item."No.", CostAmount);
@@ -496,7 +496,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [GIVEN] Two locations "L1" and "L2" with stockkeeping unit for item "I" on each location ("SKU1" and "SKU2")
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         Item.SetFilter("Location Filter", '%1|%2', Location[1].Code, Location[2].Code);
         LibraryInventory.CreateStockKeepingUnit(Item, 0, false, true); // Create stockkeeping units per location
 
@@ -650,7 +650,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [GIVEN] SCW Name is updated to "X" on the worksheet, and the page is closed.
         StandardCostWorksheet.OpenEdit;
         StandardCostWorksheet.CurrWkshName.SetValue(StdCostWorksheetName.Name);
-        StandardCostWorksheet.Close;
+        StandardCostWorksheet.Close();
 
         // [WHEN] Open SCW page again.
         StandardCostWorksheet.OpenView;
@@ -676,7 +676,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [GIVEN] SCW Name is updated to "X" on the worksheet, and the page is closed.
         StandardCostWorksheet.OpenEdit;
         StandardCostWorksheet.CurrWkshName.SetValue(StdCostWorksheetName.Name);
-        StandardCostWorksheet.Close;
+        StandardCostWorksheet.Close();
 
         // [GIVEN] Delete "X".
         StdCostWorksheetName.Delete(true);
@@ -777,7 +777,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Invoice the purchase on 31/12/16
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -794,7 +794,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         // [THEN] "Cost Amount (Actual)" on 31/12/16 is 150 * 10 = 1500 - revalued
         // [THEN] "Cost Amount (Actual)" on 01/01/17 is 100 * 10 = 1000 - not revalued
-        VerifyActualCostAmount(ItemJournalLine."Item No.", WorkDate, UnitCostRevalued * Quantity);
+        VerifyActualCostAmount(ItemJournalLine."Item No.", WorkDate(), UnitCostRevalued * Quantity);
         VerifyActualCostAmount(ItemJournalLine."Item No.", WorkDate + 1, UnitCostOriginal * Quantity);
     end;
 
@@ -1193,7 +1193,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
 
@@ -1240,7 +1240,7 @@ codeunit 137007 "SCM Inventory Costing"
           PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, ItemNo3, LibraryRandom.RandInt(100) + 50, PartialRecvInv);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         if not AutomaticCostPosting then
-            LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+            LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3.1 Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -1253,7 +1253,7 @@ codeunit 137007 "SCM Inventory Costing"
         if MultiplePartialRecvInv then begin
             UpdatePurchaseHeader(PurchaseHeader."No.", ItemNo, ItemNo2, ItemNo3);
             if not AutomaticCostPosting then
-                LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+                LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
             PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
             PurchInvHeader.FindLast();
             VerifyInvtAmountGLEntry(PurchInvHeader."No.", ItemNo);
@@ -1473,7 +1473,7 @@ codeunit 137007 "SCM Inventory Costing"
         CreateRevalutionItemJournalBatch(ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        CalculateInventoryValue.InitializeRequest(WorkDate, ItemJournalLine."Document No.", true,
+        CalculateInventoryValue.InitializeRequest(WorkDate(), ItemJournalLine."Document No.", true,
           CalculatePer, ByLocation, ByVariant, true, CalculationBase, false);
         Commit();
         CalculateInventoryValue.UseRequestPage(false);
@@ -1656,7 +1656,7 @@ codeunit 137007 "SCM Inventory Costing"
     begin
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         exit(TotalAmount);
     end;
 
@@ -1674,7 +1674,7 @@ codeunit 137007 "SCM Inventory Costing"
                   (PurchInvLine.Quantity * PurchInvLine."Direct Unit Cost") +
                   (PurchInvLine.Quantity *
                    ((PurchInvLine."Indirect Cost %" / 100) * PurchInvLine."Direct Unit Cost" + PurchInvLine."Overhead Rate"));
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
 
         exit(DirectIndirectPOCost);
     end;
@@ -1804,7 +1804,7 @@ codeunit 137007 "SCM Inventory Costing"
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         TreeType: Option " ",Availability,Cost;
     begin
-        Item.SetRange("Date Filter", 0D, WorkDate);
+        Item.SetRange("Date Filter", 0D, WorkDate());
         CalculateBOMTree.SetShowTotalAvailability(true);
         CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
     end;
@@ -1841,7 +1841,7 @@ codeunit 137007 "SCM Inventory Costing"
         ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Applied Entry to Adjust", not ItemLedgerEntry."Completely Invoiced");
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyWIPAccountNotInGLEntry(PurchaseInvoiceNo: Code[20]; ItemNo: Code[20])

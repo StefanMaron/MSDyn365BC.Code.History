@@ -18,7 +18,7 @@ codeunit 1327 "Adjust Item Inventory"
         if Item.Inventory = NewInventory then
             exit;
 
-        ItemTemplate := SelectItemTemplateForAdjustment;
+        ItemTemplate := SelectItemTemplateForAdjustment();
         CreateItemJnlLine(ItemJnlLine, Item, ItemTemplate, CreateItemBatch(ItemTemplate), NewInventory);
         ItemJnlLine.Insert(true);
 
@@ -35,7 +35,7 @@ codeunit 1327 "Adjust Item Inventory"
         if not TempItemJournalLine.FindSet() then
             exit;
 
-        ItemTemplate := SelectItemTemplateForAdjustment;
+        ItemTemplate := SelectItemTemplateForAdjustment();
         ItemBatch := CreateItemBatch(ItemTemplate);
 
         repeat
@@ -67,7 +67,7 @@ codeunit 1327 "Adjust Item Inventory"
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Journal Template Name", ItemTemplate);
         ItemJnlLine.Validate("Journal Batch Name", ItemBatch);
-        ItemJnlLine.Validate("Posting Date", WorkDate);
+        ItemJnlLine.Validate("Posting Date", WorkDate());
         ItemJnlLine."Document No." := Item."No.";
 
         if Item.Inventory < NewInventory then
@@ -120,7 +120,7 @@ codeunit 1327 "Adjust Item Inventory"
     begin
         ItemJnlBatch.Init();
         ItemJnlBatch."Journal Template Name" := TemplateName;
-        ItemJnlBatch.Name := CreateBatchName;
+        ItemJnlBatch.Name := CreateBatchName();
         ItemJnlBatch.Description := SimpleInvJnlNameTxt;
         ItemJnlBatch.Insert();
 
@@ -137,7 +137,7 @@ codeunit 1327 "Adjust Item Inventory"
         ItemJnlBatch."Journal Template Name" := TemplateName;
         ItemJnlBatch.Name := BatchName;
         ItemJnlBatch.Description := BatchDescription;
-        ItemJnlBatch.SetupNewBatch;
+        ItemJnlBatch.SetupNewBatch();
         ItemJnlBatch.Insert();
         exit(ItemJnlBatch.Name);
     end;
@@ -154,7 +154,7 @@ codeunit 1327 "Adjust Item Inventory"
     var
         BatchName: Text;
     begin
-        BatchName := Format(CreateGuid);
+        BatchName := Format(CreateGuid());
         exit(CopyStr(BatchName, 2, 10));
     end;
 

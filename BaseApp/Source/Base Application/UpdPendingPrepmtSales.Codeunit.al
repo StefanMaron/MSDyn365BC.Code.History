@@ -5,7 +5,7 @@ codeunit 383 "Upd. Pending Prepmt. Sales"
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
     begin
-        PrepaymentMgt.UpdatePendingPrepaymentSales;
+        PrepaymentMgt.UpdatePendingPrepaymentSales();
     end;
 }
 

@@ -14,7 +14,7 @@ page 5828 "Inventory Periods"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ending date of an inventory period is the last day of the inventory period.';
@@ -70,9 +70,6 @@ page 5828 "Inventory Periods"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Accounting Periods';
                     Image = AccountingPeriods;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Accounting Periods";
                     ToolTip = 'Set up accounting periods, one line per period. You must set up at least one accounting period for each fiscal year.';
                 }
@@ -90,9 +87,6 @@ page 5828 "Inventory Periods"
                     Caption = 'Test Report';
                     Ellipsis = true;
                     Image = TestReport;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View a test report so that you can find and correct any errors before you perform the actual posting of the journal or document.';
 
                     trigger OnAction()
@@ -106,8 +100,6 @@ page 5828 "Inventory Periods"
                     Caption = '&Close Period';
                     Ellipsis = true;
                     Image = ClosePeriod;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Close the selected period. Once it is closed, you cannot post in the period, until you re-open it.';
 
                     trigger OnAction()
@@ -122,8 +114,6 @@ page 5828 "Inventory Periods"
                     Caption = '&Reopen Period';
                     Ellipsis = true;
                     Image = ReopenPeriod;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Reopen a closed period in order to be able to post in it.';
 
                     trigger OnAction()
@@ -150,8 +140,6 @@ page 5828 "Inventory Periods"
                     Caption = '&Post Inventory to G/L';
                     Ellipsis = true;
                     Image = PostInventoryToGL;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Report "Post Inventory Cost to G/L";
                     ToolTip = 'Record the quantity and value changes to the inventory in the item ledger entries and the value entries when you post inventory transactions, such as sales shipments or purchase receipts.';
                 }
@@ -161,11 +149,34 @@ page 5828 "Inventory Periods"
                     Caption = 'Post &Inventory to G/L - Test';
                     Ellipsis = true;
                     Image = PostInventoryToGLTest;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Report "Post Invt. Cost to G/L - Test";
                     ToolTip = 'Run a test of the Post Inventory to G/L.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Test Report_Promoted"; "Test Report")
+                {
+                }
+                actionref("Post &Inventory to G/L - Test_Promoted"; "Post &Inventory to G/L - Test")
+                {
+                }
+                actionref("&Accounting Periods_Promoted"; "&Accounting Periods")
+                {
+                }
+                actionref("&Close Period_Promoted"; "&Close Period")
+                {
+                }
+                actionref("&Reopen Period_Promoted"; "&Reopen Period")
+                {
+                }
+                actionref("&Post Inventory to G/L_Promoted"; "&Post Inventory to G/L")
+                {
                 }
             }
         }

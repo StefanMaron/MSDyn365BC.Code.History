@@ -42,12 +42,12 @@ report 1137 "Transfer Budget to Actual"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if not Confirm(Text004, true, NoInserted) then
                     Error('');
 
-                PostCostJournalLines;
+                PostCostJournalLines();
             end;
 
             trigger OnPreDataItem()
@@ -119,7 +119,7 @@ report 1137 "Transfer Budget to Actual"
                 CostJnlLine := TempCostJnlLine;
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
             until TempCostJnlLine.Next() = 0;
-        Window2.Close;
+        Window2.Close();
     end;
 }
 

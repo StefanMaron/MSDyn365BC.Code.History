@@ -29,14 +29,14 @@ page 8620 "Config. Template List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the data template.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the ID of the table on which the data template is based.';
                     Visible = false;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

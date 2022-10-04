@@ -21,7 +21,7 @@ report 5812 "Revaluation Posting - Test"
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
                 RequestFilterFields = "Posting Date";
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Item_Journal_Line__Journal_Template_Name_; "Journal Template Name")
@@ -197,14 +197,13 @@ report 5812 "Revaluation Posting - Test"
                             AddError(
                               StrSubstNo(
                                 Text002,
-                                Item.TableCaption, "Item No."))
-                        else begin
+                                Item.TableCaption(), "Item No."))
+                        else
                             if Item.Blocked then
                                 AddError(
                                   StrSubstNo(
                                     Text003,
-                                    Item.FieldCaption(Blocked), false, Item.TableCaption, "Item No."));
-                        end;
+                                    Item.FieldCaption(Blocked), false, Item.TableCaption(), "Item No."));
 
                     if "Posting Date" = 0D then
                         AddError(StrSubstNo(Text001, FieldCaption("Posting Date")))
@@ -237,7 +236,7 @@ report 5812 "Revaluation Posting - Test"
                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                             AddError(
                               StrSubstNo(
-                                Text007, GenPostingSetup.TableCaption,
+                                Text007, GenPostingSetup.TableCaption(),
                                 "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
 
                     if "Item Journal Batch"."No. Series" <> '' then begin
@@ -248,14 +247,14 @@ report 5812 "Revaluation Posting - Test"
                     end;
 
                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                        AddError(DimMgt.GetDimCombErr);
+                        AddError(DimMgt.GetDimCombErr());
 
                     TableID[1] := DATABASE::Item;
                     No[1] := "Item No.";
                     TableID[2] := DATABASE::"Salesperson/Purchaser";
                     No[2] := "Salespers./Purch. Code";
                     if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                        AddError(DimMgt.GetDimValuePostingErr);
+                        AddError(DimMgt.GetDimValuePostingErr());
 
                     OnAfterItemJournalLineOnAfterGetRecord("Item Journal Line", ErrorCounter, ErrorText);
                 end;
@@ -313,21 +312,12 @@ report 5812 "Revaluation Posting - Test"
 
     trigger OnPreReport()
     begin
-        ItemJnlLineFilter := "Item Journal Line".GetFilters;
+        ItemJnlLineFilter := "Item Journal Line".GetFilters();
         GLSetup.Get();
         InvtSetup.Get();
     end;
 
     var
-        Text000: Label 'You cannot use a recurring journal for revaluations.';
-        Text001: Label '%1 must be specified.';
-        Text002: Label '%1 %2 does not exist.';
-        Text003: Label '%1 must be %2 for %3 %4.';
-        Text004: Label '%1 must not be a closing date.';
-        Text005: Label 'The lines are not listed according to posting date because they were not entered in that order.';
-        Text006: Label '%1 is not within your allowed range of posting dates.';
-        Text007: Label '%1 %2 %3 does not exist.';
-        Text008: Label 'There is a gap in the number series.';
         InvtSetup: Record "Inventory Setup";
         GLSetup: Record "General Ledger Setup";
         Item: Record Item;
@@ -348,6 +338,16 @@ report 5812 "Revaluation Posting - Test"
         OldDimText: Text[75];
         ShowDim: Boolean;
         Continue: Boolean;
+
+        Text000: Label 'You cannot use a recurring journal for revaluations.';
+        Text001: Label '%1 must be specified.';
+        Text002: Label '%1 %2 does not exist.';
+        Text003: Label '%1 must be %2 for %3 %4.';
+        Text004: Label '%1 must not be a closing date.';
+        Text005: Label 'The lines are not listed according to posting date because they were not entered in that order.';
+        Text006: Label '%1 is not within your allowed range of posting dates.';
+        Text007: Label '%1 %2 %3 does not exist.';
+        Text008: Label 'There is a gap in the number series.';
         Revaluation_Posting___TestCaptionLbl: Label 'Revaluation Posting - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Item_Journal_Line__Posting_Date_CaptionLbl: Label 'Posting Date';

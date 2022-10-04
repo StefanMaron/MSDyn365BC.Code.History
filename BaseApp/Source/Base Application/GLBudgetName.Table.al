@@ -27,7 +27,7 @@ table 95 "G/L Budget Name"
             begin
                 if "Budget Dimension 1 Code" <> xRec."Budget Dimension 1 Code" then
                     if Dim.CheckIfDimUsed("Budget Dimension 1 Code", 9, Name, '', 0) then
-                        Error(Text000, Dim.GetCheckDimErr);
+                        Error(Text000, Dim.GetCheckDimErr());
             end;
         }
         field(5; "Budget Dimension 2 Code"; Code[20])
@@ -39,7 +39,7 @@ table 95 "G/L Budget Name"
             begin
                 if "Budget Dimension 2 Code" <> xRec."Budget Dimension 2 Code" then
                     if Dim.CheckIfDimUsed("Budget Dimension 2 Code", 10, Name, '', 0) then
-                        Error(Text000, Dim.GetCheckDimErr);
+                        Error(Text000, Dim.GetCheckDimErr());
             end;
         }
         field(6; "Budget Dimension 3 Code"; Code[20])
@@ -51,7 +51,7 @@ table 95 "G/L Budget Name"
             begin
                 if "Budget Dimension 3 Code" <> xRec."Budget Dimension 3 Code" then
                     if Dim.CheckIfDimUsed("Budget Dimension 3 Code", 11, Name, '', 0) then
-                        Error(Text000, Dim.GetCheckDimErr);
+                        Error(Text000, Dim.GetCheckDimErr());
             end;
         }
         field(7; "Budget Dimension 4 Code"; Code[20])
@@ -63,7 +63,7 @@ table 95 "G/L Budget Name"
             begin
                 if "Budget Dimension 4 Code" <> xRec."Budget Dimension 4 Code" then
                     if Dim.CheckIfDimUsed("Budget Dimension 4 Code", 12, Name, '', 0) then
-                        Error(Text000, Dim.GetCheckDimErr);
+                        Error(Text000, Dim.GetCheckDimErr());
             end;
         }
     }
@@ -110,11 +110,12 @@ table 95 "G/L Budget Name"
     end;
 
     var
-        Text000: Label '%1\You cannot use the same dimension twice in the same budget.';
-        Text001: Label 'Updating budget entries @1@@@@@@@@@@@@@@@@@@';
         Dim: Record Dimension;
         DimSetEntry: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
+
+        Text000: Label '%1\You cannot use the same dimension twice in the same budget.';
+        Text001: Label 'Updating budget entries @1@@@@@@@@@@@@@@@@@@';
 
     local procedure UpdateGLBudgetEntryDim()
     var
@@ -145,7 +146,7 @@ table 95 "G/L Budget Name"
                 OnUpdateGLBudgetEntryDimOnBeforeModify(Rec, GLBudgetEntry);
                 GLBudgetEntry.Modify();
             until GLBudgetEntry.Next() = 0;
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure GetDimValCode(DimSetID: Integer; DimCode: Code[20]): Code[20]

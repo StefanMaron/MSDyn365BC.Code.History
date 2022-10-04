@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138935 "O365 Invoice Line Tests"
 {
     EventSubscriberInstance = Manual;
@@ -29,7 +30,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         PriceName: Text;
         CustomerName: Text[50];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An invoicing user has a customer and a price
@@ -50,7 +51,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         // [THEN] The fields for invoice line are enabled
         CheckLinesSubpageFieldsEditability(true, BCO365SalesInvoice);
 
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     [Test]
@@ -64,7 +65,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         UOMCode: Code[10];
         ItemDescription: Text[50];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An Invoicing user has a Unit of Measure used in one posted invoice
@@ -93,7 +94,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         UOMCode: Code[10];
         ItemDescription: Text[50];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An Invoicing user has a Unit of Measure used in one posted invoice
@@ -122,7 +123,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         UOMCode: Code[10];
         UOMDescription: Text[10];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An Invoicing user has multiple translated Units of Measure
@@ -143,7 +144,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         // [WHEN] The user changes the description
         UOMDescription := GetRandText10;
         O365UnitOfMeasureCard.DescriptionInCurrentLanguage.Value := UOMDescription;
-        O365UnitOfMeasureCard.Close;
+        O365UnitOfMeasureCard.Close();
 
         // [THEN] The right unit of measure translation is edited
         Assert.IsFalse(UnitOfMeasure.Get(UOMCode), 'Old UoM was not removed');
@@ -163,7 +164,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         UOMCode: Code[10];
         ItemDescription: Text[50];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An Invoicing user has a translated Unit of Measure used in one posted invoice
@@ -194,7 +195,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         UOMCode: Code[10];
         UOMTranslation: Text[50];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An Invoicing user has multiple translated Units of Measure
@@ -215,7 +216,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         // [WHEN] The user changes the description
         UOMTranslation := GetRandText10;
         O365UnitOfMeasureCard.DescriptionInCurrentLanguage.Value := UOMTranslation;
-        O365UnitOfMeasureCard.Close;
+        O365UnitOfMeasureCard.Close();
 
         // [THEN] The right unit of measure translation is edited
         Assert.IsFalse(UnitOfMeasure.Get(UOMCode), 'Old UoM was not removed');
@@ -232,7 +233,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         O365UnitOfMeasureCard: TestPage "O365 Unit Of Measure Card";
         UOMDescription: Text;
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] An Invoicing user has already some (two) units of measure
@@ -248,7 +249,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         // [WHEN] The user changes the description and closes the page
         UOMDescription := GetRandText10;
         O365UnitOfMeasureCard.DescriptionInCurrentLanguage.Value := UOMDescription;
-        O365UnitOfMeasureCard.Close;
+        O365UnitOfMeasureCard.Close();
 
         // [THEN] The unit of measure has the right description
         UnitOfMeasure.Get(CopyStr(UOMDescription, 1, MaxStrLen(UnitOfMeasure.Code)));
@@ -286,7 +287,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         O365SalesInitialSetup.Get();
 
         if IsInitialized then
@@ -295,7 +296,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -359,7 +360,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         O365UnitOfMeasureCard.GotoKey(UnitOfMeasureCode);
         NewDescription := GetRandText10;
         O365UnitOfMeasureCard.DescriptionInCurrentLanguage.Value := NewDescription;
-        O365UnitOfMeasureCard.Close;
+        O365UnitOfMeasureCard.Close();
     end;
 
     local procedure InsertUOMTranslationForCurrentLanguage(UOMCode: Code[10]; TranslatedDescription: Text[50]): Text[50]
@@ -399,4 +400,4 @@ codeunit 138935 "O365 Invoice Line Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

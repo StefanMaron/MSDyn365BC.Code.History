@@ -17,7 +17,7 @@ codeunit 1613 "Exp. Serv.CrM. PEPPOL BIS3.0"
         Rec."File Content".CreateOutStream(OutStr);
         GenerateXMLFile(ServiceCrMemoHeader, OutStr);
 
-        Rec.Modify;
+        Rec.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -27,7 +27,7 @@ codeunit 1613 "Exp. Serv.CrM. PEPPOL BIS3.0"
     begin
         SalesCrMemoPEPPOLBIS30.Initialize(VariantRec);
         SalesCrMemoPEPPOLBIS30.SetDestination(OutStr);
-        SalesCrMemoPEPPOLBIS30.Export;
+        SalesCrMemoPEPPOLBIS30.Export();
     end;
 
 #if not CLEAN20
@@ -44,7 +44,7 @@ codeunit 1613 "Exp. Serv.CrM. PEPPOL BIS3.0"
 
         OutFile.CreateOutStream(OutStream);
         GenerateXMLFile(VariantRec, OutStream);
-        OutFile.Close;
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;

@@ -264,7 +264,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [WHEN] run "Job Queue - Enqueue", where "System Task ID" is defined
         BindSubscription(LibraryJobQueue);
-        JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it
+        JobQueueEntry."System Task ID" := CreateGuid(); // As if TASKSCHEDULER defined it
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
 
         // [THEN] Job Queue Entry, where Status is "Ready", "User Session Started" is <blank>
@@ -422,7 +422,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue Failed Insert Sample";
         JobQueueEntry."Run in User Session" := false;
 
-        ClearLastError;
+        ClearLastError();
         Success := CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
         Assert.IsFalse(Success, StrSubstNo(UnhandledBufferedTransactionErr, JobQueueEntry."Object ID to Run"));
         Assert.IsTrue(GetLastErrorText <> '', UnhandledBufferedTransactionNoFailureTextErr);
@@ -1213,7 +1213,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [THEN] Job Queue Entry, where Status::Error, "Error message" = 'The queue or storage folder has not been initialized.'
         // [THEN] instead of 'The following C/AL functions are limited during write transactions'
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
         Assert.ExpectedMessage('The queue or storage folder has not been initialized.', JobQueueEntry."Error Message");
         UnbindSubscription(LibraryJobQueue);
@@ -1266,7 +1266,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry.Insert();
 
-        JobQueueEntry.SetRecFilter;
+        JobQueueEntry.SetRecFilter();
         // [WHEN] "Job Queue Dispatcher" codeunit processes "J"
         LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
 
@@ -1300,7 +1300,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.Insert();
 
         JobQueueEntryOther := JobQueueEntry;
-        JobQueueEntryOther.ID := CreateGuid;
+        JobQueueEntryOther.ID := CreateGuid();
         JobQueueEntryOther.Status := JobQueueEntryOther.Status::Error;
         JobQueueEntryOther.Insert();
 
@@ -1308,7 +1308,7 @@ codeunit 139020 "Test Job Queue SNAP"
         LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
 
         // [THEN] "B" remained unchanged
-        JobQueueEntryOther.Find;
+        JobQueueEntryOther.Find();
         JobQueueEntryOther.TestField(Status, JobQueueEntryOther.Status::Error);
         UnbindSubscription(LibraryJobQueue);
     end;
@@ -1476,7 +1476,7 @@ codeunit 139020 "Test Job Queue SNAP"
     local procedure InitializeRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; Duration: Integer)
     begin
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Recurring Job" := true;
         JobQueueEntry."Run on Mondays" := true;
         JobQueueEntry."Run on Tuesdays" := true;
@@ -1513,7 +1513,7 @@ codeunit 139020 "Test Job Queue SNAP"
         SystemTaskId := TaskScheduler.CreateTask(0, 0);
 
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132450;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
@@ -1526,7 +1526,7 @@ codeunit 139020 "Test Job Queue SNAP"
     local procedure CreateFailingJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132453;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
@@ -1538,7 +1538,7 @@ codeunit 139020 "Test Job Queue SNAP"
     local procedure CreateRecurringJobQueueEntryWithStatus(var JobQueueEntry: Record "Job Queue Entry"; NewStatus: Option; JobQueueCategoryCode: Code[10])
     begin
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Test Job Queue SNAP";
         JobQueueEntry.Status := NewStatus;

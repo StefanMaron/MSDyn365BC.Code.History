@@ -11,7 +11,7 @@ report 714 "Inventory - Vendor Purchases"
         dataitem(ReportHeader; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(0));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PeriodText; PeriodText)
@@ -78,7 +78,7 @@ report 714 "Inventory - Vendor Purchases"
                     TempValueEntry.SetRange("Source No.");
 
                     if Number = 1 then
-                        TempValueEntry.FindSet
+                        TempValueEntry.FindSet()
                     else
                         if TempValueEntry.Next() = 0 then
                             CurrReport.Break();
@@ -124,18 +124,19 @@ report 714 "Inventory - Vendor Purchases"
 
     trigger OnPreReport()
     begin
-        ItemFilter := GetTableFilters(Item.TableCaption, Item.GetFilters);
-        ItemLedgEntryFilter := GetTableFilters("Value Entry".TableCaption, "Value Entry".GetFilters);
+        ItemFilter := GetTableFilters(Item.TableCaption(), Item.GetFilters);
+        ItemLedgEntryFilter := GetTableFilters("Value Entry".TableCaption(), "Value Entry".GetFilters);
         PeriodText := StrSubstNo(PeriodInfo, "Value Entry".GetFilter("Posting Date"));
     end;
 
     var
-        PeriodInfo: Label 'Period: %1';
         Vend: Record Vendor;
         TempValueEntry: Record "Value Entry" temporary;
         PeriodText: Text;
         ItemFilter: Text;
         ItemLedgEntryFilter: Text;
+
+        PeriodInfo: Label 'Period: %1';
 
     local procedure FillTempValueEntry(ValueEntry: Record "Value Entry")
     begin

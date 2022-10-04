@@ -19,20 +19,20 @@ codeunit 9804 "Log Recorded Events"
         TempRecordedEventBuffer.DeleteAll();
 
         if IsNull(EventReceiver) then
-            EventReceiver := EventReceiver.NavEventEventReceiver;
+            EventReceiver := EventReceiver.NavEventEventReceiver();
 
-        EventReceiver.RegisterForEvents;
+        EventReceiver.RegisterForEvents();
     end;
 
     procedure Stop(var TempRecordedEventBufferVar: Record "Recorded Event Buffer" temporary)
     begin
         // Returns the list of all events collected.
-        EventReceiver.UnregisterEvents;
+        EventReceiver.UnregisterEvents();
 
         TempRecordedEventBufferVar.Copy(TempRecordedEventBuffer, true);
     end;
 
-trigger EventReceiver::OnEventCheckEvent(sender: Variant; e: DotNet EventCheckEventArgs)
+    trigger EventReceiver::OnEventCheckEvent(sender: Variant; e: DotNet EventCheckEventArgs)
     var
         IsEventLogged: Boolean;
     begin

@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2193 "O365 Sales Hist.Sell-toFactBox"
 {
     Caption = 'Customer Sales History';
     PageType = CardPart;
     SourceTable = Customer;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,9 +16,9 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
             {
                 ShowCaption = false;
                 Visible = false;
-                field("No. of Invoices"; "No. of Invoices")
+                field("No. of Invoices"; Rec."No. of Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Draft Invoices';
                     ToolTip = 'Specifies the number of draft invoices that have been registered for the customer.';
 
@@ -23,9 +27,9 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
                         DrillDownInvoices(false);
                     end;
                 }
-                field("No. of Pstd. Invoices"; "No. of Pstd. Invoices")
+                field("No. of Pstd. Invoices"; Rec."No. of Pstd. Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Sent Invoices';
                     ToolTip = 'Specifies the number of sent invoices that have been registered for the customer.';
 
@@ -40,7 +44,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
                 ShowCaption = false;
                 field(NoofInvoicesTile; "No. of Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Draft Invoices';
                     DrillDownPageID = "Sales Invoice List";
                     ToolTip = 'Specifies the number of draft invoices that have been registered for the customer.';
@@ -52,7 +56,7 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
                 }
                 field(NoofPstdInvoicesTile; "No. of Pstd. Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Sent Invoices';
                     DrillDownPageID = "Posted Sales Invoices";
                     ToolTip = 'Specifies the number of sent invoices that have been registered for the customer.';
@@ -83,4 +87,4 @@ page 2193 "O365 Sales Hist.Sell-toFactBox"
         O365CustomerSalesDocuments.RunModal();
     end;
 }
-
+#endif

@@ -3,7 +3,6 @@ page 1309 "O365 Getting Started"
     Caption = 'Hi!';
     PageType = NavigatePage;
     SourceTable = "O365 Getting Started";
-
     layout
     {
         area(content)
@@ -25,7 +24,7 @@ page 1309 "O365 Getting Started"
                             WelcomeToTitle: Text;
                         begin
                             ExplanationStr := StrSubstNo(ExplanationTxt, CompanyName);
-                            WelcomeToTitle := StrSubstNo(TitleTxt, PRODUCTNAME.Marketing);
+                            WelcomeToTitle := StrSubstNo(TitleTxt, PRODUCTNAME.Marketing());
 
                             CurrAllProfile.SetRecFilter();
                             if CurrAllProfile.FindFirst() then;
@@ -56,10 +55,10 @@ page 1309 "O365 Getting Started"
                                 4:
                                     begin
                                         Clear(RoleCenterOverview);
-                                        RoleCenterOverview.DelaySessionUpdateRequest;
-                                        if RoleCenterOverview.RunModal = ACTION::OK then begin
+                                        RoleCenterOverview.DelaySessionUpdateRequest();
+                                        if RoleCenterOverview.RunModal() = ACTION::OK then begin
                                             RoleCenterOverview.GetSelectedProfile(CurrAllProfile.Scope, CurrAllProfile."App ID", CurrAllProfile."Profile ID");
-                                            if RoleCenterOverview.GetAcceptAction then begin
+                                            if RoleCenterOverview.GetAcceptAction() then begin
                                                 CurrAllProfile.SetRecFilter();
                                                 if CurrAllProfile.FindFirst() then;
                                                 CurrPage.WelcomeWizard.UpdateProfileId(CurrAllProfile.Description);
@@ -93,17 +92,17 @@ page 1309 "O365 Getting Started"
                     SessionSet: SessionSettings;
                 begin
                     if ConfPersonalizationMgt.IsCurrentProfile(CurrAllProfile.Scope, CurrAllProfile."App ID", CurrAllProfile."Profile ID") then
-                        CurrPage.Close;
+                        CurrPage.Close();
 
-                    if RoleCenterOverview.GetAcceptAction then begin
+                    if RoleCenterOverview.GetAcceptAction() then begin
                         if not AllProfile.Get(CurrAllProfile.Scope, CurrAllProfile."App ID", CurrAllProfile."Profile ID") then
-                            CurrPage.Close;
+                            CurrPage.Close();
 
                         ConfPersonalizationMgt.SetCurrentProfile(AllProfile);
-                        UserPersonalization.Get(UserSecurityId);
+                        UserPersonalization.Get(UserSecurityId());
 
                         with SessionSet do begin
-                            Init;
+                            Init();
                             ProfileId := CurrAllProfile."Profile ID";
                             ProfileAppId := CurrAllProfile."App ID";
                             ProfileSystemScope := CurrAllProfile.Scope = CurrAllProfile.Scope::System;
@@ -114,7 +113,7 @@ page 1309 "O365 Getting Started"
                         end;
                     end;
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -124,7 +123,7 @@ page 1309 "O365 Getting Started"
     begin
         "Tour in Progress" := false;
         "Tour Completed" := true;
-        Modify;
+        Modify();
     end;
 
     trigger OnInit()
@@ -138,8 +137,8 @@ page 1309 "O365 Getting Started"
 
     trigger OnOpenPage()
     begin
-        if not AlreadyShown then
-            MarkAsShown;
+        if not AlreadyShown() then
+            MarkAsShown();
 
         CurrentPage := true;
     end;
@@ -148,7 +147,7 @@ page 1309 "O365 Getting Started"
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        if (not ConfPersonalizationMgt.IsCurrentProfile(CurrAllProfile.Scope, CurrAllProfile."App ID", CurrAllProfile."Profile ID")) and RoleCenterOverview.GetAcceptAction then
+        if (not ConfPersonalizationMgt.IsCurrentProfile(CurrAllProfile.Scope, CurrAllProfile."App ID", CurrAllProfile."Profile ID")) and RoleCenterOverview.GetAcceptAction() then
             if not Confirm(RoleNotSavedQst) then
                 Error('');
     end;
@@ -177,4 +176,3 @@ page 1309 "O365 Getting Started"
     end;
 
 }
-

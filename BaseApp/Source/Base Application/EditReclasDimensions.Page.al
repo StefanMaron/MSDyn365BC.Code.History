@@ -12,33 +12,33 @@ page 484 "Edit Reclas. Dimensions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a dimension code to attach a dimension to a journal line.';
                 }
-                field("Dimension Name"; "Dimension Name")
+                field("Dimension Name"; Rec."Dimension Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Code field.';
                     Visible = false;
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the original dimension value to register the transfer of items from the original dimension value to the new dimension value.';
                 }
-                field("New Dimension Value Code"; "New Dimension Value Code")
+                field("New Dimension Value Code"; Rec."New Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the new dimension value to register the transfer of items, from the original dimension value to the new dimension value.';
                 }
-                field("Dimension Value Name"; "Dimension Value Name")
+                field("Dimension Value Name"; Rec."Dimension Value Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the original Dimension Value Code field.';
                 }
-                field("New Dimension Value Name"; "New Dimension Value Name")
+                field("New Dimension Value Name"; Rec."New Dimension Value Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the New Dimension Value Code field.';
@@ -77,7 +77,7 @@ page 484 "Edit Reclas. Dimensions"
                 "Dimension Code" := DimSetEntry."Dimension Code";
                 "Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 "Dimension Value ID" := DimSetEntry."Dimension Value ID";
-                Insert;
+                Insert();
             until DimSetEntry.Next() = 0;
         DimSetEntry.SetRange("Dimension Set ID", NewDimSetId);
         if DimSetEntry.FindSet() then
@@ -86,11 +86,11 @@ page 484 "Edit Reclas. Dimensions"
                     "Dimension Code" := DimSetEntry."Dimension Code";
                     "Dimension Value Code" := '';
                     "Dimension Value ID" := 0;
-                    Insert;
+                    Insert();
                 end;
                 "New Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 "New Dimension Value ID" := DimSetEntry."Dimension Value ID";
-                Modify;
+                Modify();
             until DimSetEntry.Next() = 0;
     end;
 

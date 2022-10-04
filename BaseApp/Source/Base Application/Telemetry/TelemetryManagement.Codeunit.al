@@ -59,8 +59,8 @@ codeunit 1350 "Telemetry Management"
         if not GuiAllowed then
             exit;
 
-        if CanScheduleTask and (ExecutionDelayInSeconds >= 0) and (CalEventsCodeunit > 0) then
-            if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Background, CLIENTTYPE::NAS, CLIENTTYPE::Management]) then
+        if CanScheduleTask() and (ExecutionDelayInSeconds >= 0) and (CalEventsCodeunit > 0) then
+            if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Background, CLIENTTYPE::NAS, CLIENTTYPE::Management]) then
                 TASKSCHEDULER.CreateTask(CalEventsCodeunit, 0, true, CompanyName,
                   CurrentDateTime + (ExecutionDelayInSeconds * 1000), TelemetryCodeunitRecID);
     end;
@@ -84,7 +84,7 @@ codeunit 1350 "Telemetry Management"
         DoNotScheduleTask: Boolean;
     begin
         OnBeforeTelemetryScheduleTask(DoNotScheduleTask);
-        exit(not DoNotScheduleTask and TASKSCHEDULER.CanCreateTask);
+        exit(not DoNotScheduleTask and TASKSCHEDULER.CanCreateTask());
     end;
 
     [Obsolete('Calendar events are not used for sending telemetry anymore. Subscibe to OnSendDailyTelemetry event instead.', '20.0')]

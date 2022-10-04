@@ -68,7 +68,7 @@ table 9001 "User Group Member"
         UserGroupAccessControl.RemoveUserGroupMember("User Group Code", "User Security ID", "Company Name");
 
         // In SaaS the default profile comes from the plan and not from the user group
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             UpdateDefaultProfileOfUser("User Group Code");
     end;
 
@@ -86,12 +86,12 @@ table 9001 "User Group Member"
            ("User Security ID" <> xRec."User Security ID") or
            ("Company Name" <> xRec."Company Name")
         then
-            ModifyUserGroupMembership;
+            ModifyUserGroupMembership();
     end;
 
     trigger OnRename()
     begin
-        ModifyUserGroupMembership;
+        ModifyUserGroupMembership();
     end;
 
     var
@@ -223,12 +223,11 @@ table 9001 "User Group Member"
         UserPersonalization: Record "User Personalization";
         UserGroup: Record "User Group";
     begin
-        if UserPersonalization.Get(UserSecurityID) then begin
+        if UserPersonalization.Get(UserSecurityID) then
             if UserGroup.Get(UserGroupCode) then
                 exit((UserPersonalization."Profile ID" = UserGroup."Default Profile ID") and
                     (UserPersonalization."App ID" = UserGroup."Default Profile App ID") and
                     (UserPersonalization.Scope = UserGroup."Default Profile Scope"));
-        end;
         exit(false);
     end;
 

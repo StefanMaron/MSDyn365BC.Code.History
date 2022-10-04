@@ -38,8 +38,8 @@
         then
             ReportError(Text030);
 
-        ReadSourceCodeSetup;
-        ClearInternals;
+        ReadSourceCodeSetup();
+        ClearInternals();
         Window.Open(Text001 + Text002 + Text003 + Text004);
         Window.Update(1, BusUnit.Code);
 
@@ -47,14 +47,14 @@
         OnRunOnAfterCalcShouldClearPreviousConsolidation(ShouldClearPreviousConsolidation);
         if ShouldClearPreviousConsolidation then begin
             UpdatePhase(Text018);
-            ClearPreviousConsolidation;
+            ClearPreviousConsolidation();
         end;
 
         if ("Last Balance Currency Factor" <> 0) and
            ("Balance Currency Factor" <> "Last Balance Currency Factor")
         then begin
             UpdatePhase(Text019);
-            UpdatePriorPeriodBalances;
+            UpdatePriorPeriodBalances();
         end;
 
         // Consolidate Current Entries
@@ -73,8 +73,8 @@
         if TempSubsidGLAcc.FindSet() then
             repeat
                 Window.Update(3, TempSubsidGLAcc."No.");
-                DimBufMgt.DeleteAllDimensions;
-                InitializeGLAccount;
+                DimBufMgt.DeleteAllDimensions();
+                InitializeGLAccount();
                 PreviousDate := 0D;
                 if TempSubsidGLEntry.FindSet() then
                     repeat
@@ -83,7 +83,7 @@
                         then
                             ReportError(
                               StrSubstNo(Text031,
-                                TempSubsidGLEntry.TableCaption,
+                                TempSubsidGLEntry.TableCaption(),
                                 TempSubsidGLEntry.FieldCaption("Posting Date"),
                                 TempSubsidGLEntry."Posting Date"));
                         if (TempSubsidGLAcc."Consol. Translation Method" = TempSubsidGLAcc."Consol. Translation Method"::"Historical Rate") and
@@ -103,7 +103,7 @@
                             end;
                             TempGLEntry.Reset();
                             TempGLEntry.DeleteAll();
-                            DimBufMgt.DeleteAllDimensions;
+                            DimBufMgt.DeleteAllDimensions();
                             PreviousDate := TempSubsidGLEntry."Posting Date";
                         end;
                         TempDimBufIn.Reset();
@@ -165,7 +165,7 @@
                     GenJnlLine."Posting Date" := StartingDate + i - 1
                 else
                     GenJnlLine."Posting Date" := StartingDate;
-                GenJnlLine.Description := StrSubstNo(Text015, WorkDate);
+                GenJnlLine.Description := StrSubstNo(Text015, WorkDate());
                 GenJnlPostLineTmp(GenJnlLine);
                 RoundingResiduals[i] := RoundingResiduals[i] + GenJnlLine.Amount;
             end;
@@ -191,7 +191,7 @@
                     GenJnlLine."Posting Date" := StartingDate + i - 1
                 else
                     GenJnlLine."Posting Date" := StartingDate;
-                GenJnlLine.Description := StrSubstNo(Text027 + Text015, WorkDate);
+                GenJnlLine.Description := StrSubstNo(Text027 + Text015, WorkDate());
                 GenJnlPostLineTmp(GenJnlLine);
                 RoundingResiduals[i] := RoundingResiduals[i] + GenJnlLine.Amount;
             end;
@@ -217,7 +217,7 @@
                     GenJnlLine."Posting Date" := StartingDate + i - 1
                 else
                     GenJnlLine."Posting Date" := StartingDate;
-                GenJnlLine.Description := StrSubstNo(Text028 + Text015, WorkDate);
+                GenJnlLine.Description := StrSubstNo(Text028 + Text015, WorkDate());
                 GenJnlPostLineTmp(GenJnlLine);
                 RoundingResiduals[i] := RoundingResiduals[i] + GenJnlLine.Amount;
             end;
@@ -233,7 +233,7 @@
                 OnBeforeWindowUpdate(GenJnlLine);
                 Window.Update(3, GenJnlLine."Account No.");
                 GenJnlLine."Posting Date" := StartingDate + i - 1;
-                GenJnlLine.Description := StrSubstNo(Text029 + Text015, WorkDate);
+                GenJnlLine.Description := StrSubstNo(Text029 + Text015, WorkDate());
                 GenJnlPostLineTmp(GenJnlLine);
                 RoundingResiduals[i] := RoundingResiduals[i] + GenJnlLine.Amount;
             end;
@@ -249,7 +249,7 @@
                     GenJnlLine."Posting Date" := StartingDate;
                 GenJnlLine.Description :=
                   CopyStr(
-                    StrSubstNo(Text016, WorkDate, GenJnlLine.Amount),
+                    StrSubstNo(Text016, WorkDate(), GenJnlLine.Amount),
                     1, MaxStrLen(GenJnlLine.Description));
                 GenJnlPostLineTmp(GenJnlLine);
             end;
@@ -257,13 +257,13 @@
 
         if not TestMode then begin
             UpdatePhase(Text026);
-            GenJnlPostLineFinally;
+            GenJnlPostLineFinally();
         end;
-        Window.Close;
+        Window.Close();
 
         if not TestMode then begin
             BusUnit."Last Balance Currency Factor" := BusUnit."Balance Currency Factor";
-            BusUnit."Last Run" := WorkDate;
+            BusUnit."Last Run" := WorkDate();
             BusUnit.Modify();
             OnAfterBusUnitModify(Rec, BusUnit);
         end;
@@ -374,7 +374,7 @@
             exit;
         TempSelectedDim.Reset();
         TempSelectedDim.DeleteAll();
-        SkipAllDimensions := SelectedDim.IsEmpty;
+        SkipAllDimensions := SelectedDim.IsEmpty();
         if SkipAllDimensions then
             exit;
 
@@ -478,14 +478,14 @@
         TempSubsidDimBuf.Reset();
         TempSubsidDimBuf.SetRange("Table ID", DATABASE::"G/L Entry");
         with TempSubsidGLEntry do begin
-            Reset;
+            Reset();
             if FindSet(true, false) then
                 repeat
                     TempSubsidDimBuf.SetRange("Entry No.", "Entry No.");
                     if TempSubsidDimBuf.FindFirst() then begin
                         "Dimension Set ID" := DimMgt.CreateDimSetIDFromDimBuf(TempSubsidDimBuf);
                         OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(TempSubsidDimBuf);
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
@@ -531,8 +531,8 @@
         InputFile.CreateInStream(InputStream);
 
         Consolidation.SetSource(InputStream);
-        Consolidation.Import;
-        InputFile.Close;
+        Consolidation.Import();
+        InputFile.Close();
 
         Consolidation.GetGLAccount(TempSubsidGLAcc);
         OnAfterGetGLAccount(TempSubsidGLAcc);
@@ -543,7 +543,7 @@
           ProductVersion, FormatVersion, SubCompanyName, CurrencyLCY, CurrencyACY, CurrencyPCY,
           StoredCheckSum, StartingDate, EndingDate);
 
-        SelectAllImportedDimensions;
+        SelectAllImportedDimensions();
     end;
 
     [Scope('OnPrem')]
@@ -566,8 +566,8 @@
         Consolidation.SetExchRate(TempSubsidCurrExchRate);
 
         Consolidation.SetDestination(OutputStream);
-        Consolidation.Export;
-        OutputFile.Close;
+        Consolidation.Export();
+        OutputFile.Close();
     end;
 
     procedure GetGlobals(var ImpProductVersion: Code[10]; var ImpFormatVersion: Code[10]; var ImpCompanyName: Text[30]; var ImpCurrencyLCY: Code[10]; var ImpCurrencyACY: Code[10]; var ImpCurrencyPCY: Code[10]; var ImpCheckSum: Decimal; var ImpStartingDate: Date; var ImpEndingDate: Date)
@@ -622,7 +622,7 @@
                 TempSelectedDim."Dimension Code" := TempSubsidDimBuf."Dimension Code";
                 if TempSelectedDim.Insert() then;
             until TempSubsidDimBuf.Next() = 0;
-        SkipAllDimensions := TempSelectedDim.IsEmpty;
+        SkipAllDimensions := TempSelectedDim.IsEmpty();
     end;
 
     local procedure ReadSourceCodeSetup()
@@ -684,7 +684,7 @@
                     "Additional-Currency Amount" := 0;
                     "Add.-Currency Debit Amount" := 0;
                     "Add.-Currency Credit Amount" := 0;
-                    Modify;
+                    Modify();
                     if "G/L Account No." <> TempGLAccount."No." then begin
                         Window.Update(3, "G/L Account No.");
                         TempGLAccount."No." := "G/L Account No.";
@@ -693,7 +693,7 @@
                 until Next() = 0;
         end;
         OnClearPreviousConsolidationOnBeforeCheckAmountArray(DeletedAmounts, DeletedDates);
-        CheckAmountArray;
+        CheckAmountArray();
 
         if AnalysisView.FindSet() then
             repeat
@@ -815,14 +815,14 @@
                     TempSubsidGLAcc."No.",
                     TempSubsidGLAcc.FieldCaption("Consol. Debit Acc."),
                     TempSubsidGLAcc.FieldCaption("Consol. Translation Method"),
-                    AccountToTest."No.", BusUnit.TableCaption))
+                    AccountToTest."No.", BusUnit.TableCaption()))
             else
                 ReportError(
                   StrSubstNo(Text021,
                     TempSubsidGLAcc."No.",
                     TempSubsidGLAcc.FieldCaption("Consol. Credit Acc."),
                     TempSubsidGLAcc.FieldCaption("Consol. Translation Method"),
-                    AccountToTest."No.", BusUnit.TableCaption));
+                    AccountToTest."No.", BusUnit.TableCaption()));
         end else begin
             TempSubsidGLAcc.Reset();
             TempSubsidGLAcc := AccountToTest;
@@ -834,16 +834,16 @@
                 ReportError(
                   StrSubstNo(Text022,
                     TempSubsidGLAcc.FieldCaption("Consol. Debit Acc."), TempSubsidGLAcc."Consol. Debit Acc.",
-                    TempSubsidGLAcc.TableCaption, TempSubsidGLAcc."No.", BusUnit.TableCaption));
+                    TempSubsidGLAcc.TableCaption(), TempSubsidGLAcc."No.", BusUnit.TableCaption()));
             if (TempSubsidGLAcc."Consol. Translation Method" <> ConsolidGLAcc."Consol. Translation Method") and
                (BusUnit."File Format" <> BusUnit."File Format"::"Version 3.70 or Earlier (.txt)")
             then
                 ReportError(
                   StrSubstNo(Text023,
-                    TempSubsidGLAcc.TableCaption, TempSubsidGLAcc."No.",
+                    TempSubsidGLAcc.TableCaption(), TempSubsidGLAcc."No.",
                     TempSubsidGLAcc.FieldCaption("Consol. Translation Method"), ConsolidGLAcc."No.",
                     TempSubsidGLAcc."Consol. Translation Method", ConsolidGLAcc."Consol. Translation Method",
-                    BusUnit.TableCaption));
+                    BusUnit.TableCaption()));
         end;
         if TempSubsidGLAcc."Consol. Debit Acc." = TempSubsidGLAcc."Consol. Credit Acc." then
             exit;
@@ -852,16 +852,16 @@
                 ReportError(
                   StrSubstNo(Text022,
                     TempSubsidGLAcc.FieldCaption("Consol. Credit Acc."), TempSubsidGLAcc."Consol. Credit Acc.",
-                    TempSubsidGLAcc.TableCaption, TempSubsidGLAcc."No.", BusUnit.TableCaption));
+                    TempSubsidGLAcc.TableCaption(), TempSubsidGLAcc."No.", BusUnit.TableCaption()));
             if (TempSubsidGLAcc."Consol. Translation Method" <> ConsolidGLAcc."Consol. Translation Method") and
                (BusUnit."File Format" <> BusUnit."File Format"::"Version 3.70 or Earlier (.txt)")
             then
                 ReportError(
                   StrSubstNo(Text023,
-                    TempSubsidGLAcc.TableCaption, TempSubsidGLAcc."No.",
+                    TempSubsidGLAcc.TableCaption(), TempSubsidGLAcc."No.",
                     TempSubsidGLAcc.FieldCaption("Consol. Translation Method"), ConsolidGLAcc."No.",
                     TempSubsidGLAcc."Consol. Translation Method", ConsolidGLAcc."Consol. Translation Method",
-                    BusUnit.TableCaption));
+                    BusUnit.TableCaption()));
         end;
     end;
 
@@ -885,7 +885,7 @@
         idx := NormalDate(EndingDate) - NormalDate(StartingDate) + 1;
 
         with ConsolidGLAcc do begin
-            Reset;
+            Reset();
             SetRange("Account Type", "Account Type"::Posting);
             SetRange("Business Unit Filter", BusUnit.Code);
             SetRange("Date Filter", 0D, EndingDate);
@@ -914,7 +914,7 @@
                             end else begin
                                 TempGLEntry.Reset();
                                 TempGLEntry.DeleteAll();
-                                DimBufMgt.DeleteAllDimensions;
+                                DimBufMgt.DeleteAllDimensions();
                                 ConsolidGLEntry.Reset();
                                 ConsolidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                                 ConsolidGLEntry.SetRange("G/L Account No.", "No.");
@@ -997,7 +997,7 @@
             OnBeforeGenJnlPostLineTmp(GenJnlLine);
             Window.Update(3, GenJnlLine."Account No.");
             GenJnlLine."Posting Date" := EndingDate;
-            GenJnlLine.Description := StrSubstNo(Text014, WorkDate);
+            GenJnlLine.Description := StrSubstNo(Text014, WorkDate());
             GenJnlPostLineTmp(GenJnlLine);
         end;
     end;
@@ -1020,7 +1020,7 @@
                   AmountToPost,
                   Round(BusUnit."Last Balance Currency Factor", 0.00001),
                   Round(BusUnit."Balance Currency Factor", 0.00001),
-                  WorkDate),
+                  WorkDate()),
                 1, MaxStrLen(GenJnlLine.Description));
             if TempDimBufOut.FindSet() then begin
                 repeat
@@ -1324,7 +1324,7 @@
         if TempSubsidGLAcc.FindFirst() then begin
             GlAccount := TempSubsidGLAcc;
             if TestMode then
-                TestGLAccounts;
+                TestGLAccounts();
             exit(true);
         end;
         exit(false);
@@ -1332,10 +1332,10 @@
 
     procedure GetNxtSubsidGLAcc(var GLAccount: Record "G/L Account"): Boolean
     begin
-        if TempSubsidGLAcc.Next <> 0 then begin
+        if TempSubsidGLAcc.Next() <> 0 then begin
             GLAccount := TempSubsidGLAcc;
             if TestMode then
-                TestGLAccounts;
+                TestGLAccounts();
             exit(true);
         end;
         exit(false);
@@ -1344,7 +1344,7 @@
     procedure GetNumSubsidGLEntry(): Integer
     begin
         with TempSubsidGLEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("G/L Account No.", "Posting Date");
             SetRange("G/L Account No.", TempSubsidGLAcc."No.");
             exit(Count);
@@ -1364,7 +1364,7 @@
         then
             ReportError(Text030);
         with TempSubsidGLEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("G/L Account No.", "Posting Date");
             SetRange("G/L Account No.", TempSubsidGLAcc."No.");
             if FindFirst() then begin
@@ -1395,7 +1395,7 @@
         ErrorMsg: Text;
     begin
         with TempSubsidGLEntry do begin
-            if Next <> 0 then begin
+            if Next() <> 0 then begin
                 GLEntry := TempSubsidGLEntry;
                 if TestMode then begin
                     if ("Posting Date" <> NormalDate("Posting Date")) and
@@ -1419,7 +1419,7 @@
 
     local procedure InitializeGLAccount()
     begin
-        TestGLAccounts;
+        TestGLAccounts();
         TempGLEntry.Reset();
         TempGLEntry.DeleteAll();
         TempSubsidGLEntry.SetRange("G/L Account No.", TempSubsidGLAcc."No.");

@@ -18,8 +18,8 @@ table 1501 Workflow
             var
                 Workflow: Record Workflow;
             begin
-                CheckEditingIsAllowed;
-                CheckWorkflowCodeDoesNotExistAsTemplate;
+                CheckEditingIsAllowed();
+                CheckWorkflowCodeDoesNotExistAsTemplate();
                 if (xRec.Code = '') and Workflow.Get() then begin
                     Workflow.Delete();
                     Workflow.Code := Code;
@@ -46,26 +46,26 @@ table 1501 Workflow
                 if Enabled then begin
                     Window.Open(ValidateWorkflowProgressMsg);
 
-                    SetEntryPoint;
-                    CheckEntryPointsAreEvents;
-                    CheckEntryPointsAreNotSubWorkflows;
-                    CheckSingleEntryPointAsRoot;
-                    CheckOrphansNotExist;
-                    CheckFunctionNames;
-                    CheckSubWorkflowsEnabled;
-                    CheckResponseOptions;
-                    CheckEntryPointEventConditions;
-                    CheckEventTableRelation;
-                    CheckRecordChangedWorkflows;
+                    SetEntryPoint();
+                    CheckEntryPointsAreEvents();
+                    CheckEntryPointsAreNotSubWorkflows();
+                    CheckSingleEntryPointAsRoot();
+                    CheckOrphansNotExist();
+                    CheckFunctionNames();
+                    CheckSubWorkflowsEnabled();
+                    CheckResponseOptions();
+                    CheckEntryPointEventConditions();
+                    CheckEventTableRelation();
+                    CheckRecordChangedWorkflows();
 
-                    Window.Close;
+                    Window.Close();
                 end else begin
                     Window.Open(DisableReferringWorkflowsMsg);
 
-                    CheckEditingReferringWorkflowsIsAllowed;
-                    ClearEntryPointIfFirst;
+                    CheckEditingReferringWorkflowsIsAllowed();
+                    ClearEntryPointIfFirst();
 
-                    Window.Close;
+                    Window.Close();
                 end;
             end;
         }
@@ -108,12 +108,12 @@ table 1501 Workflow
     trigger OnDelete()
     begin
         CanDelete(true);
-        DeleteWorkflowSteps;
+        DeleteWorkflowSteps();
     end;
 
     trigger OnRename()
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     var
@@ -147,11 +147,11 @@ table 1501 Workflow
         WorkflowInstanceCode: Code[20];
         WorkflowInstancePreviousStepID: Integer;
     begin
-        WorkflowInstanceID := CreateGuid;
+        WorkflowInstanceID := CreateGuid();
         WorkflowInstanceCode := Code;
         WorkflowInstancePreviousStepID := 0;
 
-        NextWorkflowStepQueue := NextWorkflowStepQueue.Queue;
+        NextWorkflowStepQueue := NextWorkflowStepQueue.Queue();
 
         CreateInstanceBreadthFirst(Code, WorkflowInstanceID, WorkflowInstanceCode,
           WorkflowInstancePreviousStepID, LeafWorkflowStepQueue, NextWorkflowStepQueue);
@@ -175,8 +175,8 @@ table 1501 Workflow
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
 
-        ParentWorkflowStepQueue := ParentWorkflowStepQueue.Queue;
-        LeafWorkflowStepQueue := LeafWorkflowStepQueue.Queue;
+        ParentWorkflowStepQueue := ParentWorkflowStepQueue.Queue();
+        LeafWorkflowStepQueue := LeafWorkflowStepQueue.Queue();
 
         WorkflowStep.SetRange("Entry Point", true);
 
@@ -195,19 +195,19 @@ table 1501 Workflow
                 UpdateWorkflowStepInstanceLeafLinks(ChildWorkflowStep, LeafWorkflowStepQueue, WorkflowInstanceID);
 
                 if WorkflowStep."Next Workflow Step ID" > 0 then
-                    NextWorkflowStepQueue.Enqueue(WorkflowStep.ToString);
+                    NextWorkflowStepQueue.Enqueue(WorkflowStep.ToString());
             end;
 
-            ParentWorkflowStepQueue.Enqueue(WorkflowStep.ToString);
+            ParentWorkflowStepQueue.Enqueue(WorkflowStep.ToString());
 
             while ParentWorkflowStepQueue.Count > 0 do begin
-                ParentWorkflowStep.FindByAttributes(ParentWorkflowStepQueue.Dequeue);
+                ParentWorkflowStep.FindByAttributes(ParentWorkflowStepQueue.Dequeue());
 
                 if ParentWorkflowStep.Type <> ParentWorkflowStep.Type::"Sub-Workflow" then
                     FindWorkflowStepInstance(ParentWorkflowStepInstance, ParentWorkflowStep, WorkflowInstanceID);
 
                 if not FindChildWorkflowSteps(ChildWorkflowStep, ParentWorkflowStep) then
-                    LeafWorkflowStepQueue.Enqueue(ParentWorkflowStep.ToString)
+                    LeafWorkflowStepQueue.Enqueue(ParentWorkflowStep.ToString())
                 else
                     repeat
                         if ChildWorkflowStep.Type = ChildWorkflowStep.Type::"Sub-Workflow" then begin
@@ -223,10 +223,10 @@ table 1501 Workflow
                             UpdateWorkflowStepInstanceLeafLinks(ChildWorkflowStep, LeafWorkflowStepQueue, WorkflowInstanceID);
 
                             if ChildWorkflowStep."Next Workflow Step ID" > 0 then
-                                NextWorkflowStepQueue.Enqueue(ChildWorkflowStep.ToString);
+                                NextWorkflowStepQueue.Enqueue(ChildWorkflowStep.ToString());
                         end;
 
-                        ParentWorkflowStepQueue.Enqueue(ChildWorkflowStep.ToString);
+                        ParentWorkflowStepQueue.Enqueue(ChildWorkflowStep.ToString());
                     until ChildWorkflowStep.Next() = 0;
             end;
         end;
@@ -253,7 +253,7 @@ table 1501 Workflow
         LeafCount := LeafWorkflowStepQueue.Count();
 
         while LeafWorkflowStepQueue.Count > 0 do begin
-            LeafWorkflowStep.FindByAttributes(LeafWorkflowStepQueue.Dequeue);
+            LeafWorkflowStep.FindByAttributes(LeafWorkflowStepQueue.Dequeue());
             FindWorkflowStepInstance(LeafWorkflowStepInstance, LeafWorkflowStep, InstanceID);
 
             if LeafWorkflowStepInstance."Next Workflow Step ID" > 0 then begin
@@ -287,7 +287,7 @@ table 1501 Workflow
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
         while NextWorkflowStepQueue.Count > 0 do begin
-            WorkflowStep.FindByAttributes(NextWorkflowStepQueue.Dequeue);
+            WorkflowStep.FindByAttributes(NextWorkflowStepQueue.Dequeue());
 
             if FindWorkflowStepInstance(WorkflowStepInstance, WorkflowStep, InstanceID) then
                 if FindNextWorkflowStepInstance(NextWorkflowStepInstance, WorkflowStep, InstanceID, WorkflowStepInstance."Workflow Code")
@@ -309,7 +309,7 @@ table 1501 Workflow
     begin
         ChildWorkflowStep.SetRange("Workflow Code", ParentWorkflowStep."Workflow Code");
         ChildWorkflowStep.SetRange("Previous Workflow Step ID", ParentWorkflowStep.ID);
-        exit(ChildWorkflowStep.FindSet);
+        exit(ChildWorkflowStep.FindSet());
     end;
 
     local procedure FindWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowStep: Record "Workflow Step"; InstanceID: Guid): Boolean
@@ -318,7 +318,7 @@ table 1501 Workflow
         WorkflowStepInstance.SetRange("Original Workflow Code", WorkflowStep."Workflow Code");
         WorkflowStepInstance.SetRange("Original Workflow Step ID", WorkflowStep.ID);
         WorkflowStepInstance.SetRange(Type, WorkflowStep.Type);
-        exit(WorkflowStepInstance.FindFirst);
+        exit(WorkflowStepInstance.FindFirst());
     end;
 
     local procedure FindNextWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowStep: Record "Workflow Step"; InstanceID: Guid; WorkflowCode: Code[20]): Boolean
@@ -327,7 +327,7 @@ table 1501 Workflow
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
         WorkflowStepInstance.SetRange("Original Workflow Code", WorkflowStep."Workflow Code");
         WorkflowStepInstance.SetRange("Original Workflow Step ID", WorkflowStep."Next Workflow Step ID");
-        exit(WorkflowStepInstance.FindFirst);
+        exit(WorkflowStepInstance.FindFirst())
     end;
 
     local procedure FindLastResponseWorkflowStepInstanceBeforeEvent(var WorkflowStepInstance: Record "Workflow Step Instance"; InstanceID: Guid; WorkflowCode: Code[20])
@@ -496,9 +496,9 @@ table 1501 Workflow
         ThisWorkflowDefinition.SetRange(Code, Code);
         ThisWorkflowDefinition.SetRange(Entry_Point, true);
         ThisWorkflowDefinition.SetRange(Type, ThisWorkflowDefinition.Type::"Event");
-        ThisWorkflowDefinition.Open;
+        ThisWorkflowDefinition.Open();
 
-        while ThisWorkflowDefinition.Read do begin
+        while ThisWorkflowDefinition.Read() do begin
             ThisWorkflowStep.Get(ThisWorkflowDefinition.Code, ThisWorkflowDefinition.ID);
             CheckEntryPointsInSameWorkflow(ThisWorkflowStep, ThisWorkflowDefinition);
             CheckEntryPointsInOtherEnabledWorkflows(ThisWorkflowStep, ThisWorkflowDefinition);
@@ -516,9 +516,9 @@ table 1501 Workflow
         OtherWorkflowDefinition.SetRange(Type, OtherWorkflowDefinition.Type::"Event");
         OtherWorkflowDefinition.SetRange(Function_Name, ThisWorkflowDefinition.Function_Name);
         OtherWorkflowDefinition.SetRange(Table_ID, ThisWorkflowDefinition.Table_ID);
-        OtherWorkflowDefinition.Open;
+        OtherWorkflowDefinition.Open();
 
-        while OtherWorkflowDefinition.Read do begin
+        while OtherWorkflowDefinition.Read() do begin
             OtherWorkflowStep.Get(OtherWorkflowDefinition.Code, OtherWorkflowDefinition.ID);
             CompareWorkflowStepArguments(ThisWorkflowStep, OtherWorkflowStep, ThisWorkflowDefinition, ThisWorkflowDefinition);
         end;
@@ -535,9 +535,9 @@ table 1501 Workflow
         OtherWorkflowDefinition.SetRange(Type, OtherWorkflowDefinition.Type::"Event");
         OtherWorkflowDefinition.SetRange(Function_Name, ThisWorkflowDefinition.Function_Name);
         OtherWorkflowDefinition.SetRange(Table_ID, ThisWorkflowDefinition.Table_ID);
-        OtherWorkflowDefinition.Open;
+        OtherWorkflowDefinition.Open();
 
-        while OtherWorkflowDefinition.Read do begin
+        while OtherWorkflowDefinition.Read() do begin
             OtherWorkflowStep.Get(OtherWorkflowDefinition.Code, OtherWorkflowDefinition.ID);
             CompareWorkflowStepArguments(ThisWorkflowStep, OtherWorkflowStep, ThisWorkflowDefinition, ThisWorkflowDefinition);
         end;
@@ -578,16 +578,16 @@ table 1501 Workflow
     begin
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode());
         if not WorkflowStep.IsEmpty() then begin
-            WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ApplyNewValuesCode);
+            WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ApplyNewValuesCode());
             if WorkflowStep.IsEmpty() then
                 Error(WorkflowMustApplySavedValuesErr);
         end;
 
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ApplyNewValuesCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ApplyNewValuesCode());
         if not WorkflowStep.IsEmpty() then begin
-            WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode);
+            WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode());
             if WorkflowStep.IsEmpty() then
                 Error(WorkflowMustRevertValuesErr);
         end;
@@ -643,9 +643,9 @@ table 1501 Workflow
         WorkflowDefinition.SetRange(Type, WorkflowDefinition.Type::"Sub-Workflow");
         WorkflowDefinition.SetRange(Function_Name, Code);
         WorkflowDefinition.SetRange(Enabled, true);
-        WorkflowDefinition.Open;
+        WorkflowDefinition.Open();
 
-        while WorkflowDefinition.Read do begin
+        while WorkflowDefinition.Read() do begin
             Workflow.Get(WorkflowDefinition.Code);
             Workflow.Validate(Enabled, false);
             Workflow.Modify(true);
@@ -721,7 +721,7 @@ table 1501 Workflow
         ImportExportWorkflow.SetSource(InStream);
         ImportExportWorkflow.InitWorkflow(Code);
         ImportExportWorkflow.SetTableView(Rec);
-        ImportExportWorkflow.Import;
+        ImportExportWorkflow.Import();
     end;
 
     procedure CanDelete(ThrowErrors: Boolean): Boolean

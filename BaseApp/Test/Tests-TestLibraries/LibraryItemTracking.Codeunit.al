@@ -631,7 +631,7 @@ codeunit 130502 "Library - Item Tracking"
                     SalesLine.TestField("No.");
                     SalesLine.TestField("Quantity (Base)");
                     if SalesLine."Job Contract Entry No." <> 0 then
-                        Error(Text048, SalesLine.TableCaption, Job.TableCaption);
+                        Error(Text048, SalesLine.TableCaption(), Job.TableCaption());
                     // COPY END
                     InsertItemTracking(
                         ReservEntry, SalesLine.SignedXX(SalesLine.Quantity) > 0,
@@ -851,7 +851,7 @@ codeunit 130502 "Library - Item Tracking"
                 LastEntryNo := "Entry No." + 1
             else
                 LastEntryNo := 1;
-            Init;
+            Init();
             "Entry No." := LastEntryNo;
             Positive := Positive2;
             if (SourceType = DATABASE::"Item Journal Line") or
@@ -912,7 +912,7 @@ codeunit 130502 "Library - Item Tracking"
                     else
                         Validate("Shipment Date", DueDate);
             end;
-            Validate("Creation Date", WorkDate);
+            Validate("Creation Date", WorkDate());
             "Created By" := UserId;
 
             Validate("Serial No.", ItemTrackingSetup."Serial No.");
@@ -1102,7 +1102,7 @@ codeunit 130502 "Library - Item Tracking"
                 LastEntryNo := "Entry No." + 1
             else
                 LastEntryNo := 1;
-            Init;
+            Init();
             "Entry No." := LastEntryNo;
 
             Validate("Item No.", Item);

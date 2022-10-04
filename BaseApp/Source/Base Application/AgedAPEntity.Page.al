@@ -6,17 +6,7 @@ page 5500 "Aged AP Entity"
     InsertAllowed = false;
     ModifyAllowed = false;
     SourceTable = "Aged Report Entity";
-#if not CLEAN18
-    PageType = API;
-    EntityName = 'agedAccountsPayable';
-    EntitySetName = 'agedAccountsPayable';
-    DelayedInsert = true;
-#else
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
-    ObsoleteTag = '18.0';
     PageType = List;
-#endif
     SourceTableTemporary = true;
 
     layout

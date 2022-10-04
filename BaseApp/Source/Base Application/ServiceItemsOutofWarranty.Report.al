@@ -13,7 +13,7 @@ report 5937 "Service Items Out of Warranty"
             CalcFields = "No. of Active Contracts";
             DataItemTableView = SORTING("Warranty Ending Date (Parts)", "Customer No.", "Ship-to Code");
             RequestFilterFields = "Warranty Ending Date (Parts)", "Customer No.", "Ship-to Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServItmTblCptServItemFilt; TableCaption + ': ' + ServItemFilter)
@@ -94,7 +94,7 @@ report 5937 "Service Items Out of Warranty"
 
     trigger OnPreReport()
     begin
-        ServItemFilter := "Service Item".GetFilters;
+        ServItemFilter := "Service Item".GetFilters();
     end;
 
     var

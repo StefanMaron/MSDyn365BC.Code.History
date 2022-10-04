@@ -14,19 +14,19 @@ page 544 "Default Dimension Where-Used"
         {
             repeater(Control1)
             {
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = All;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = All;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                 }
-                field("Value Posting"; "Value Posting")
+                field("Value Posting"; Rec."Value Posting")
                 {
                     ApplicationArea = All;
                 }

@@ -24,7 +24,7 @@ codeunit 131342 "Library - Plain Text File"
 
     procedure Close()
     begin
-        InnerFile.Close;
+        InnerFile.Close();
     end;
 
     procedure AddLine(LineText: Text)

@@ -113,24 +113,24 @@ table 1270 "OCR Service Setup"
                 if Rec.Enabled then begin
                     OCRServiceMgt.SetupConnection(Rec);
                     if "Default OCR Doc. Template" = '' then
-                        if CompanyInformation.Get then
+                        if CompanyInformation.Get() then
                             case CompanyInformation."Country/Region Code" of
                                 'US', 'USA':
                                     Validate("Default OCR Doc. Template", 'USA_PO');
                                 'CA':
                                     Validate("Default OCR Doc. Template", 'CAN_PO');
                             end;
-                    Modify;
+                    Modify();
                     TestField("Default OCR Doc. Template");
                     if "Master Data Sync Enabled" then
                         OCRMasterDataMgt.UpdateIntegrationRecords(true);
-                    ScheduleJobQueueEntries;
-                    LogTelemetryWhenServiceEnabled;
+                    ScheduleJobQueueEntries();
+                    LogTelemetryWhenServiceEnabled();
                     if Confirm(JobQEntriesCreatedQst) then
-                        ShowJobQueueEntry;
+                        ShowJobQueueEntry();
                 end else begin
-                    CancelJobQueueEntries;
-                    LogTelemetryWhenServiceDisabled;
+                    CancelJobQueueEntries();
+                    LogTelemetryWhenServiceDisabled();
                 end;
             end;
         }
@@ -143,11 +143,11 @@ table 1270 "OCR Service Setup"
                 OCRMasterDataMgt: Codeunit "OCR Master Data Mgt.";
             begin
                 if "Master Data Sync Enabled" and Enabled then begin
-                    Modify;
+                    Modify();
                     OCRMasterDataMgt.UpdateIntegrationRecords(true);
-                    ScheduleJobQueueSync;
+                    ScheduleJobQueueSync();
                 end else
-                    CancelJobQueueSync;
+                    CancelJobQueueSync();
             end;
         }
         field(15; "Master Data Last Sync"; DateTime)
@@ -180,8 +180,8 @@ table 1270 "OCR Service Setup"
     trigger OnInsert()
     begin
         TestField("Primary Key", '');
-        SetURLsToDefault;
-        LogTelemetryWhenServiceCreated;
+        SetURLsToDefault();
+        LogTelemetryWhenServiceCreated();
     end;
 
     var
@@ -198,8 +198,8 @@ table 1270 "OCR Service Setup"
     procedure SavePassword(var PasswordKey: Guid; PasswordText: Text)
     begin
         if IsNullGuid(PasswordKey) then begin
-            PasswordKey := CreateGuid;
-            Modify;
+            PasswordKey := CreateGuid();
+            Modify();
         end;
 
         IsolatedStorageManagement.Set(PasswordKey, PasswordText, DATASCOPE::Company);
@@ -246,9 +246,9 @@ table 1270 "OCR Service Setup"
 
     local procedure ScheduleJobQueueEntries()
     begin
-        ScheduleJobQueueReceive;
-        ScheduleJobQueueSend;
-        ScheduleJobQueueSync;
+        ScheduleJobQueueReceive();
+        ScheduleJobQueueSend();
+        ScheduleJobQueueSync();
     end;
 
     procedure ScheduleJobQueueSend()
@@ -256,7 +256,7 @@ table 1270 "OCR Service Setup"
         JobQueueEntry: Record "Job Queue Entry";
         DummyRecId: RecordID;
     begin
-        CancelJobQueueSend;
+        CancelJobQueueSend();
         JobQueueEntry.ScheduleRecurrentJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit,
           CODEUNIT::"OCR - Send to Service", DummyRecId);
     end;
@@ -266,7 +266,7 @@ table 1270 "OCR Service Setup"
         JobQueueEntry: Record "Job Queue Entry";
         DummyRecId: RecordID;
     begin
-        CancelJobQueueReceive;
+        CancelJobQueueReceive();
         JobQueueEntry.ScheduleRecurrentJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit,
           CODEUNIT::"OCR - Receive from Service", DummyRecId);
     end;
@@ -275,14 +275,14 @@ table 1270 "OCR Service Setup"
     var
         OCRSyncMasterData: Codeunit "OCR - Sync Master Data";
     begin
-        OCRSyncMasterData.ScheduleJob;
+        OCRSyncMasterData.ScheduleJob();
     end;
 
     local procedure CancelJobQueueEntries()
     begin
-        CancelJobQueueReceive;
-        CancelJobQueueSend;
-        CancelJobQueueSync;
+        CancelJobQueueReceive();
+        CancelJobQueueSend();
+        CancelJobQueueSync();
     end;
 
     local procedure CancelJobQueueEntry(ObjType: Option; ObjID: Integer)
@@ -290,7 +290,7 @@ table 1270 "OCR Service Setup"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if JobQueueEntry.FindJobQueueEntry(ObjType, ObjID) then
-            JobQueueEntry.Cancel;
+            JobQueueEntry.Cancel();
     end;
 
     procedure CancelJobQueueSend()
@@ -313,7 +313,7 @@ table 1270 "OCR Service Setup"
     var
         OCRSyncMasterData: Codeunit "OCR - Sync Master Data";
     begin
-        OCRSyncMasterData.CancelJob;
+        OCRSyncMasterData.CancelJob();
     end;
 
     procedure ShowJobQueueEntry()

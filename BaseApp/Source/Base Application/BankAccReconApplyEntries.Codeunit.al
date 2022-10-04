@@ -1,6 +1,10 @@
+#if not CLEAN21
 codeunit 374 "Bank Acc. Recon. Apply Entries"
 {
     TableNo = "Bank Acc. Reconciliation Line";
+    ObsoleteReason = 'Entries are applied when a Bank Ledger Entry with a Check Ledger Entry is matched. This page is redundant, add your extensions to MatchBankRecLines codeunit instead.';
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
 
     trigger OnRun()
     begin
@@ -35,7 +39,7 @@ codeunit 374 "Bank Acc. Recon. Apply Entries"
                         ApplyCheckLedgEntry.SetRecord(CheckLedgEntry);
                         ApplyCheckLedgEntry.SetTableView(CheckLedgEntry);
                         ApplyCheckLedgEntry.LookupMode(true);
-                        if ApplyCheckLedgEntry.RunModal = ACTION::LookupOK then;
+                        if ApplyCheckLedgEntry.RunModal() = ACTION::LookupOK then;
                         Clear(ApplyCheckLedgEntry);
 
                         OnAfterApplyCheckLedgEntry(BankAccReconLine);
@@ -56,3 +60,4 @@ codeunit 374 "Bank Acc. Recon. Apply Entries"
     end;
 }
 
+#endif

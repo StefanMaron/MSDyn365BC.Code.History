@@ -136,7 +136,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, CreateCustomer, -LibraryRandom.RandInt(1000));
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."Posting No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."Posting No. Series", WorkDate(), false);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
         Evaluate(GenJournalLine."Recurring Frequency", '<1M>');  // Required value for posting, value is irrelevant
@@ -701,7 +701,7 @@ codeunit 134382 "ERM Dimension Journals"
             GLEntry.SetRange("G/L Account No.", TempGenJournalLine."Account No.");
             GLEntry.SetRange("Global Dimension 2 Code", TempGenJournalLine."Shortcut Dimension 2 Code");
             GLEntry.FindFirst();
-        until TempGenJournalLine.Next = 0;
+        until TempGenJournalLine.Next() = 0;
     end;
 
     [Test]
@@ -1146,7 +1146,7 @@ codeunit 134382 "ERM Dimension Journals"
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -1178,7 +1178,7 @@ codeunit 134382 "ERM Dimension Journals"
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -1209,7 +1209,7 @@ codeunit 134382 "ERM Dimension Journals"
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -1239,7 +1239,7 @@ codeunit 134382 "ERM Dimension Journals"
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -1826,7 +1826,7 @@ codeunit 134382 "ERM Dimension Journals"
             GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValueCode);
             GenJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
             GenJournalLine.Modify(true);
-            DimensionValue.Next;
+            DimensionValue.Next();
         end;
     end;
 
@@ -2097,7 +2097,7 @@ codeunit 134382 "ERM Dimension Journals"
             DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
             DimensionSetEntry.FindFirst();
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DefaultDimension."Dimension Value Code", 'Dimension value mismatch');
-        until DefaultDimension.Next = 0;
+        until DefaultDimension.Next() = 0;
     end;
 
     local procedure VerifyDimInJournalDimSet(ShortcutDimCode: Code[20]; ShortcutDimValueCode: Code[20]; DimensionSetID: Integer)
@@ -2122,7 +2122,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, GLEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerEntryDim(DocumentNo: Code[20]; DimSetID: Integer)
@@ -2135,7 +2135,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, CustLedgerEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntryDim(DocumentNo: Code[20]; DimSetID: Integer)
@@ -2148,7 +2148,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, ItemLedgerEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyReclassItemLedgerEntryDim(DocumentNo: Code[20]; DimSetID: Integer; NewDimSetID: Integer)
@@ -2168,7 +2168,7 @@ codeunit 134382 "ERM Dimension Journals"
                 NewDimSetID:
                     NewFound := true;
             end;
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         Assert.AreEqual(true, OldFound, 'Old dimension set not found.');
         Assert.AreEqual(true, NewFound, 'New dimension set not found.');
@@ -2184,7 +2184,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, ResLedgerEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until ResLedgerEntry.Next = 0;
+        until ResLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyJobLedgerEntryDim(DocumentNo: Code[20]; DimSetID: Integer)
@@ -2197,7 +2197,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, JobLedgerEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until JobLedgerEntry.Next = 0;
+        until JobLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyFALedgerEntryDim(DocumentNo: Code[20]; DimSetID: Integer)
@@ -2210,7 +2210,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, FALedgerEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until FALedgerEntry.Next = 0;
+        until FALedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyInsuranceLedgerEntryDim(DocumentNo: Code[20]; DimSetID: Integer)
@@ -2223,7 +2223,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         repeat
             Assert.AreEqual(DimSetID, InsCoverageLedgerEntry."Dimension Set ID", 'Mismatch in dimension set');
-        until InsCoverageLedgerEntry.Next = 0;
+        until InsCoverageLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyShortcutDim(ActualShortcutDimValueCode: Code[20])
@@ -2250,7 +2250,7 @@ codeunit 134382 "ERM Dimension Journals"
             LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch.Recurring := GenJnlTemplate.Recurring;
         GenJnlBatch.Modify(true);
-        GenJnlBatch.SetupNewBatch;
+        GenJnlBatch.SetupNewBatch();
     end;
 
     local procedure FindResourceBatch(var ResJournalBatch: Record "Res. Journal Batch")
@@ -2502,10 +2502,10 @@ codeunit 134382 "ERM Dimension Journals"
         FindResourceBatch(ResJournalBatch);
         ClearResourceJournalBatch(ResJournalBatch);
         with ResJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", ResJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", ResJournalBatch.Name);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Document No.", DocumentNo);
             Validate("Entry Type", "Entry Type"::Usage);
             Validate("Resource No.", ResourceNo);
@@ -2520,10 +2520,10 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         FindJobBatch(JobJournalBatch);
         with JobJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", JobJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", JobJournalBatch.Name);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Document No.", DocumentNo);
             Validate("Entry Type", "Entry Type"::Usage);
             Validate("Job No.", JobNo);
@@ -2541,10 +2541,10 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         FindFABatch(FAJournalBatch);
         with FAJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", FAJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", FAJournalBatch.Name);
-            Validate("FA Posting Date", WorkDate);
+            Validate("FA Posting Date", WorkDate());
             Validate("Document No.", DocumentNo);
             Validate("Document Type", "Document Type"::Invoice);
             Validate("FA No.", FANo);
@@ -2670,10 +2670,10 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         FindInsuranceBatch(InsuranceJournalBatch);
         with InsuranceJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", InsuranceJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", InsuranceJournalBatch.Name);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Document No.", DocumentNo);
             Validate("Document Type", "Document Type"::Invoice);
             Validate("Insurance No.", InsuranceNo);
@@ -2712,7 +2712,7 @@ codeunit 134382 "ERM Dimension Journals"
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.", '', '', Currency.Code);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        Currency.Next;
+        Currency.Next();
         Currency2Code := Currency.Code;
         CreateGeneralJournalLineWithGlobalDimCurrency(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
@@ -2873,7 +2873,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         SuggestVendorPaymentUsingPage(GenJournalLine);
         with GenJournalLine do begin
-            Reset;
+            Reset();
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", VendorNo);
             Assert.AreEqual(1, Count, NoOfSuggestedLineIncorrectErr);
@@ -2894,7 +2894,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
             GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
-        GenJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(GenJournalBatch."Posting No. Series", WorkDate, false));
+        GenJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(GenJournalBatch."Posting No. Series", WorkDate(), false));
         GenJournalLine.Validate("Recurring Method", GenJournalRecurringMethod);
         Evaluate(GenJournalLine."Recurring Frequency", '<1M>');
         GenJournalLine.Modify(true);
@@ -3050,7 +3050,7 @@ codeunit 134382 "ERM Dimension Journals"
                     FactBoxDimSetId,
                     GeneralJournal.Control1900919607."Dimension Code".Value,
                     GeneralJournal.Control1900919607."Dimension Value Code".Value);
-            until not GeneralJournal.Control1900919607.Next;
+            until not GeneralJournal.Control1900919607.Next();
         Assert.AreEqual(ExpectedDimSetId, FactBoxDimSetId, DimFactBoxDimSetIDErr);
     end;
 
@@ -3102,7 +3102,7 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         SuggestVendorPayments.BalAccountNo.SetValue('');
         LibraryERM.FindGLAccount(GLAccount);
-        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate('<CM>', WorkDate));
+        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate('<CM>', WorkDate()));
         SuggestVendorPayments.SummarizePerVendor.SetValue(true);
         SuggestVendorPayments.StartingDocumentNo.SetValue(VendorNo);
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"G/L Account");
@@ -3130,7 +3130,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryVariableStorage.Dequeue(CurrencyCode);
         SuggestVendorPayments.BalAccountNo.SetValue('');
         LibraryERM.FindGLAccount(GLAccount);
-        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate('<CM>', WorkDate));
+        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate('<CM>', WorkDate()));
         SuggestVendorPayments.SummarizePerVendor.SetValue(false);
         SuggestVendorPayments.StartingDocumentNo.SetValue(VendorNo1);
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"G/L Account");
@@ -3201,7 +3201,7 @@ codeunit 134382 "ERM Dimension Journals"
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNumber);
         SuggestVendorPayments.SummarizePerVendor.SetValue(false);
         SuggestVendorPayments.SummarizePerDimText.AssistEdit;  // Opens Dimension Selection Multiple Page.
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.OK.Invoke;
     end;

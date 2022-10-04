@@ -97,7 +97,7 @@ table 1173 "Document Attachment"
 
             trigger OnValidate()
             begin
-                if not "Document Reference ID".HasValue then
+                if not "Document Reference ID".HasValue() then
                     Error(NoDocumentAttachedErr);
             end;
         }
@@ -107,7 +107,7 @@ table 1173 "Document Attachment"
 
             trigger OnValidate()
             begin
-                if not "Document Reference ID".HasValue then
+                if not "Document Reference ID".HasValue() then
                     Error(NoDocumentAttachedErr);
             end;
         }
@@ -148,20 +148,21 @@ table 1173 "Document Attachment"
             Validate("File Name", CopyStr(FileManagement.GetFileNameWithoutExtension(IncomingFileName), 1, MaxStrLen("File Name")));
         end;
 
-        if not "Document Reference ID".HasValue then
+        if not "Document Reference ID".HasValue() then
             Error(NoDocumentAttachedErr);
 
         Validate("Attached Date", CurrentDateTime);
         if IsNullGuid("Attached By") then
-            "Attached By" := UserSecurityId;
+            "Attached By" := UserSecurityId();
     end;
 
     var
+        FileManagement: Codeunit "File Management";
+        IncomingFileName: Text;
+
         NoDocumentAttachedErr: Label 'Please attach a document first.';
         EmptyFileNameErr: Label 'Please choose a file to attach.';
         NoContentErr: Label 'The selected file has no content. Please choose another file.';
-        FileManagement: Codeunit "File Management";
-        IncomingFileName: Text;
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
 
     procedure Export(ShowFileDialog: Boolean): Text
@@ -174,7 +175,7 @@ table 1173 "Document Attachment"
         if ID = 0 then
             exit;
         // Ensure document has value in DB
-        if not "Document Reference ID".HasValue then
+        if not "Document Reference ID".HasValue() then
             exit;
 
         OnBeforeExportAttachment(Rec);
@@ -218,7 +219,7 @@ table 1173 "Document Attachment"
         if FileName = '' then
             Error(EmptyFileNameErr);
         // Validate file/media is not empty
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             Error(NoContentErr);
 
         TempBlob.CreateInStream(DocStream);
@@ -245,7 +246,7 @@ table 1173 "Document Attachment"
         // IMPORTSTREAM(stream,description, mime-type,filename)
         // description and mime-type are set empty and will be automatically set by platform code from the stream
         "Document Reference ID".ImportStream(DocStream, '');
-        if not "Document Reference ID".HasValue then
+        if not "Document Reference ID".HasValue() then
             Error(NoDocumentAttachedErr);
 
         InitFieldsFromRecRef(RecRef);

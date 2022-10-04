@@ -19,7 +19,7 @@ page 545 "Dim. Values per Account"
                     Editable = false;
                     ToolTip = 'Specifies a table ID for the account type if you are specifying default dimensions for an entire account type.';
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Dimensions;
                     DrillDown = false;
@@ -57,9 +57,6 @@ page 545 "Dim. Values per Account"
                 Caption = 'Setup Allowed Values';
                 ToolTip = 'Specifies the dimension values that can be used for the selected account.';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
 
                 trigger OnAction();
                 var
@@ -67,6 +64,17 @@ page 545 "Dim. Values per Account"
                 begin
                     DimMgt.OpenAllowedDimValuesPerAccount(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SetupAllowedValues_Promoted; SetupAllowedValues)
+                {
+                }
             }
         }
     }

@@ -88,7 +88,7 @@ page 2823 "Native - Email Preview"
         FilterView: Text;
     begin
         if not IsGenerated then begin
-            FilterView := GetView;
+            FilterView := GetView();
             DocumentIdFilter := GetFilter("Document Id");
             if DocumentIdFilter = '' then
                 DocumentIdFilter := GetFilter(Id);
@@ -176,7 +176,7 @@ page 2823 "Native - Email Preview"
 
     local procedure FillRecord(DocumentId: Guid; Subject: Text[250]; Body: Text)
     begin
-        Init;
+        Init();
         Id := DocumentId;
         "Document Id" := DocumentId;
         "File Name" := Subject;

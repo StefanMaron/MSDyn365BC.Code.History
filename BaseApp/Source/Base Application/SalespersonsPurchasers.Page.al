@@ -6,7 +6,6 @@ page 14 "Salespersons/Purchasers"
     CardPageID = "Salesperson/Purchaser Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Salesperson';
     SourceTable = "Salesperson/Purchaser";
     UsageCategory = Lists;
 
@@ -27,24 +26,24 @@ page 14 "Salespersons/Purchasers"
                     ApplicationArea = Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field("Commission %"; "Commission %")
+                field("Commission %"; Rec."Commission %")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the percentage to use to calculate the salesperson''s commission.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the salesperson''s or purchaser''s telephone number.';
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the salesperson/purchaser is coupled to a user in Dataverse.';
@@ -104,8 +103,6 @@ page 14 "Salespersons/Purchasers"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(13),
                                       "No." = FIELD(Code);
@@ -118,8 +115,6 @@ page 14 "Salespersons/Purchasers"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -138,9 +133,6 @@ page 14 "Salespersons/Purchasers"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Salesperson Statistics";
                     RunPageLink = Code = FIELD(Code);
                     ShortCutKey = 'F7';
@@ -246,7 +238,7 @@ page 14 "Salespersons/Purchasers"
                         SalespersonPurchaserRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(SalespersonPurchaser);
-                        SalespersonPurchaser.Next;
+                        SalespersonPurchaser.Next();
 
                         if SalespersonPurchaser.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(SalespersonPurchaser.RecordId)
@@ -360,14 +352,12 @@ page 14 "Salespersons/Purchasers"
                 Caption = 'Create &Interaction';
                 Ellipsis = true;
                 Image = CreateInteraction;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Use a batch job to help you create interactions for the involved salespeople or purchasers.';
                 Visible = CreateInteractionVisible;
 
                 trigger OnAction()
                 begin
-                    CreateInteraction;
+                    CreateInteraction();
                 end;
             }
             action(Email)
@@ -376,8 +366,6 @@ page 14 "Salespersons/Purchasers"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this person.';
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = CanSendEmail;
 
                 trigger OnAction()
@@ -389,6 +377,74 @@ page 14 "Salespersons/Purchasers"
                     TempEmailitem."Send to" := Rec."E-Mail";
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreateInteraction_Promoted; CreateInteraction)
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Salesperson', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                group(Category_Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    ShowAs = SplitButton;
+
+                    actionref("Dimensions-&Multiple_Promoted"; "Dimensions-&Multiple")
+                    {
+                    }
+                    actionref("Dimensions-Single_Promoted"; "Dimensions-Single")
+                    {
+                    }
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMGotoSystemUser_Promoted; CRMGotoSystemUser)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
             }
         }
     }
@@ -417,7 +473,7 @@ page 14 "Salespersons/Purchasers"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
     var

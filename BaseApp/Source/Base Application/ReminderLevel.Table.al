@@ -85,7 +85,7 @@ table 293 "Reminder Level"
     begin
         AdditionalFeeSetup.SetRange("Reminder Terms Code", xRec."Reminder Terms Code");
         AdditionalFeeSetup.SetRange("Reminder Level No.", xRec."No.");
-        while AdditionalFeeSetup.FindFirst do
+        while AdditionalFeeSetup.FindFirst() do
             AdditionalFeeSetup.Rename("Reminder Terms Code",
               "No.",
               AdditionalFeeSetup."Charge Per Line",
@@ -94,12 +94,12 @@ table 293 "Reminder Level"
 
         ReminderText.SetRange("Reminder Terms Code", xRec."Reminder Terms Code");
         ReminderText.SetRange("Reminder Level", xRec."No.");
-        while ReminderText.FindFirst do
+        while ReminderText.FindFirst() do
             ReminderText.Rename("Reminder Terms Code", "No.", ReminderText.Position, ReminderText."Line No.");
 
         CurrencyForReminderLevel.SetRange("Reminder Terms Code", xRec."Reminder Terms Code");
         CurrencyForReminderLevel.SetRange("No.", xRec."No.");
-        while CurrencyForReminderLevel.FindFirst do
+        while CurrencyForReminderLevel.FindFirst() do
             CurrencyForReminderLevel.Rename("Reminder Terms Code", "No.",
               CurrencyForReminderLevel."Currency Code");
     end;

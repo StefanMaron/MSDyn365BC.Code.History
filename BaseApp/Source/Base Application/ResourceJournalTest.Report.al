@@ -21,7 +21,7 @@ report 1102 "Resource Journal - Test"
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
                 RequestFilterFields = "Posting Date";
-                column(CompName; COMPANYPROPERTY.DisplayName)
+                column(CompName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(ResJnlLineTableCaption; TableCaption + ': ' + ResJnlLineFilter)
@@ -193,7 +193,7 @@ report 1102 "Resource Journal - Test"
                     UserSetupManagement: Codeunit "User Setup Management";
                     TempErrorText: Text[250];
                 begin
-                    if EmptyLine then
+                    if EmptyLine() then
                         exit;
 
                     MakeRecurringTexts("Res. Journal Line");
@@ -205,15 +205,15 @@ report 1102 "Resource Journal - Test"
                             AddError(
                               StrSubstNo(
                                 Text002,
-                                Res.TableCaption, "Resource No."))
+                                Res.TableCaption(), "Resource No."))
                         else begin
                             if Res."Privacy Blocked" then
-                                AddError(StrSubstNo(Text003, Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption, "Resource No."));
+                                AddError(StrSubstNo(Text003, Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption(), "Resource No."));
                             if Res.Blocked then
                                 AddError(
                                   StrSubstNo(
                                     Text003,
-                                    Res.FieldCaption(Blocked), false, Res.TableCaption, "Resource No."));
+                                    Res.FieldCaption(Blocked), false, Res.TableCaption(), "Resource No."));
                         end;
 
                     if "Gen. Prod. Posting Group" = '' then
@@ -222,7 +222,7 @@ report 1102 "Resource Journal - Test"
                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                             AddError(
                               StrSubstNo(
-                                Text004, GenPostingSetup.TableCaption,
+                                Text004, GenPostingSetup.TableCaption(),
                                 "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
 
                     CheckRecurringLine("Res. Journal Line");
@@ -254,7 +254,7 @@ report 1102 "Resource Journal - Test"
                     end;
 
                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                        AddError(DimMgt.GetDimCombErr);
+                        AddError(DimMgt.GetDimCombErr());
 
                     TableID[1] := DATABASE::Resource;
                     No[1] := "Resource No.";
@@ -263,7 +263,7 @@ report 1102 "Resource Journal - Test"
                     TableID[3] := DATABASE::Job;
                     No[3] := "Job No.";
                     if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                        AddError(DimMgt.GetDimValuePostingErr);
+                        AddError(DimMgt.GetDimValuePostingErr());
 
                     GetTotalCost += "Total Cost";
                     GetTotalPrice += "Total Price";
@@ -277,13 +277,13 @@ report 1102 "Resource Journal - Test"
                             AddError(
                               StrSubstNo(
                                 Text000, FieldCaption("Posting Date")));
-                        SetRange("Posting Date", 0D, WorkDate);
+                        SetRange("Posting Date", 0D, WorkDate());
                         if GetFilter("Expiration Date") <> '' then
                             AddError(
                               StrSubstNo(
                                 Text000,
                                 FieldCaption("Expiration Date")));
-                        SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                        SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                     end;
                     if "Res. Journal Batch"."No. Series" <> '' then
                         NoSeries.Get("Res. Journal Batch"."No. Series");
@@ -332,19 +332,10 @@ report 1102 "Resource Journal - Test"
 
     trigger OnPreReport()
     begin
-        ResJnlLineFilter := "Res. Journal Line".GetFilters;
+        ResJnlLineFilter := "Res. Journal Line".GetFilters();
     end;
 
     var
-        Text000: Label '%1 cannot be filtered when you post recurring journals.';
-        Text001: Label '%1 must be specified.';
-        Text002: Label '%1 %2 does not exist.';
-        Text003: Label '%1 must be %2 for %3 %4.';
-        Text004: Label '%1 %2 %3 does not exist.';
-        Text005: Label '%1 must not be a closing date.';
-        Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
-        Text008: Label 'There is a gap in the number series.';
-        Text009: Label '%1 cannot be specified.';
         AccountingPeriod: Record "Accounting Period";
         Res: Record Resource;
         ResJnlTemplate: Record "Res. Journal Template";
@@ -365,6 +356,16 @@ report 1102 "Resource Journal - Test"
         Continue: Boolean;
         GetTotalCost: Decimal;
         GetTotalPrice: Decimal;
+
+        Text000: Label '%1 cannot be filtered when you post recurring journals.';
+        Text001: Label '%1 must be specified.';
+        Text002: Label '%1 %2 does not exist.';
+        Text003: Label '%1 must be %2 for %3 %4.';
+        Text004: Label '%1 %2 %3 does not exist.';
+        Text005: Label '%1 must not be a closing date.';
+        Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
+        Text008: Label 'There is a gap in the number series.';
+        Text009: Label '%1 cannot be specified.';
         PageCaptionLbl: Label 'Page';
         ResJnlTestCaptionLbl: Label 'Resource Journal - Test';
         PostingDateCaptionLbl: Label 'Posting Date';

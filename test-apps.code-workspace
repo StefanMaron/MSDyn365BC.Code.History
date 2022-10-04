@@ -120,6 +120,9 @@
                         "path":  ".\\DataArchive\\test\\Data Archive Tests"
                     },
                     {
+                        "path":  ".\\DataSearch\\test\\Data Search Tests"
+                    },
+                    {
                         "path":  ".\\Email - Current User Connector\\Test\\Email - Current User Connector Tests"
                     },
                     {
@@ -142,6 +145,9 @@
                     },
                     {
                         "path":  ".\\EssentialBusinessHeadlines\\Test\\Essential Business Headlines Test"
+                    },
+                    {
+                        "path":  ".\\Intrastat\\Test\\Intrastat Core Tests"
                     },
                     {
                         "path":  ".\\LatePaymentPredictor\\Test\\Late Payment Prediction Tests"
@@ -184,6 +190,9 @@
                     },
                     {
                         "path":  ".\\testframework\\TestLibraries"
+                    },
+                    {
+                        "path":  ".\\testframework\\teststabilitytools"
                     },
                     {
                         "path":  ".\\testframework\\performancetoolkit\\Performance Toolkit Tests"

@@ -196,7 +196,7 @@ codeunit 132903 UserCardTest
         UserCardPage."User Name".AssertEquals(User001Msg);
         UserCardPage.WebServiceExpiryDate.AssertEquals('');
         WsCompareKey := UserCardPage.WebServiceID.Value;
-        UserCardPage.Close;
+        UserCardPage.Close();
         if WsCompareKey = '' then
             Error(ErrorKeyNotSetErr);
     end;
@@ -222,7 +222,7 @@ codeunit 132903 UserCardTest
 
         UserCardPage.WebServiceExpiryDate.AssertEquals(CreateDateTime(Today, 0T));
         WsCompareKey := UserCardPage.WebServiceID.Value;
-        UserCardPage.Close;
+        UserCardPage.Close();
         if WsCompareKey = '' then
             Error(ErrorKeyNotSetErr);
     end;
@@ -245,7 +245,7 @@ codeunit 132903 UserCardTest
         UserCardPage.FindFirstField("User Name", User001Msg);
         UserCardPage."User Name".AssertEquals(User001Msg);
         WsCompareKey := UserCardPage.WebServiceID.Value;
-        UserCardPage.Close;
+        UserCardPage.Close();
 
         WebServiceAccessHelper(CreateDateTime(Today, 0T), true, true, User001Msg);
 
@@ -253,7 +253,7 @@ codeunit 132903 UserCardTest
         UserCardPage.FindFirstField("User Name", User001Msg);
         UserCardPage."User Name".AssertEquals(User001Msg);
         UserCardPage.WebServiceID.AssertEquals(WsCompareKey);
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -267,7 +267,7 @@ codeunit 132903 UserCardTest
         asserterror UserCardPage."User Name".Value := User001Msg;
         if UserCardPage.GetValidationError <> UserAlReadyExist001Err then begin
             ValidationError := UserCardPage.GetValidationError;
-            UserCardPage.Close;
+            UserCardPage.Close();
             Error(ErrorStringCom001Err, UserAlReadyExist001Err, ValidationError);
         end;
         UserCardPage.Close
@@ -440,12 +440,12 @@ codeunit 132903 UserCardTest
         ValidationError := UserCardPage.GetValidationError;
 
         if ValidationError <> StrSubstNo(AuthenticationEmail002Err, ValidTestAuthenticationEmailTok) then begin
-            UserCardPage.Close;
+            UserCardPage.Close();
             ValidationError := 'Unexpected validation error:\Expected:\' +
               StrSubstNo(AuthenticationEmail002Err, ValidTestAuthenticationEmailTok) + '\Actual:\' + ValidationError + '\';
             Error(ValidationError);
         end;
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -467,7 +467,7 @@ codeunit 132903 UserCardTest
         // [THEN] Mapped To Exchange Identifier is not checked
         Evaluate(IsMapped, Format(UserCard.MappedToExchangeIdentifier.Value));
         Assert.IsFalse(IsMapped, 'Did not expect Mapped to Exchange Identifier to be true for a new user.');
-        UserCard.Close;
+        UserCard.Close();
 
         // [GIVEN] Give an existing user
         // [GIVEN] The Exchange Identifier Field is not populated
@@ -485,7 +485,7 @@ codeunit 132903 UserCardTest
         Evaluate(IsMapped, Format(UserCard.MappedToExchangeIdentifier.Value));
         Assert.IsFalse(
           IsMapped, 'Did not expect Mapped to Exchange Identifier to be true for an existing user without Exchange Identifier set');
-        UserCard.Close;
+        UserCard.Close();
 
         // [GIVEN] Give an existing user
         // [GIVEN] The Exchange Identifier Field is populated
@@ -500,7 +500,7 @@ codeunit 132903 UserCardTest
         // [THEN] Mapped To Exchange Identifier is checked
         Evaluate(IsMapped, Format(UserCard.MappedToExchangeIdentifier.Value));
         Assert.IsTrue(IsMapped, 'Expected Mapped to Exchange Identifier to be true for an existing user with Exchange Identifier set');
-        UserCard.Close;
+        UserCard.Close();
     end;
 
     [Test]
@@ -530,7 +530,7 @@ codeunit 132903 UserCardTest
         // [THEN] The Delete Exchange Identifier Mapping is not enabled
         Assert.IsFalse(
           UserCard.DeleteExchangeIdentifier.Enabled, 'Did not expect the action to be enabled if Exchange Identifier is not set');
-        UserCard.Close;
+        UserCard.Close();
 
         // [GIVEN] A User with Exchange Identifier set
         User."Exchange Identifier" := 'blbla';
@@ -587,7 +587,7 @@ codeunit 132903 UserCardTest
         UserCardPage: TestPage "User Card";
     begin
         // [GIVEN] An on prem version where no users exist
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit;
 
         EnsureNoUsers;
@@ -595,7 +595,7 @@ codeunit 132903 UserCardTest
         // [WHEN] A new user card is opened, create new super user dialog
         // opens (for logged in user) and answered yes
         UserCardPage.OpenNew();
-        UserCardPage.Close;
+        UserCardPage.Close();
 
         // [THEN] a new user exists
         Assert.RecordCount(User, 1);
@@ -612,7 +612,7 @@ codeunit 132903 UserCardTest
         UserCardPage: TestPage "User Card";
     begin
         // [GIVEN] An on prem version where no users exist
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit;
 
         EnsureNoUsers;
@@ -620,7 +620,7 @@ codeunit 132903 UserCardTest
         // [WHEN] A new user card is opened, create new super user dialog
         // opens (for logged in user) and answered no
         UserCardPage.OpenNew();
-        UserCardPage.Close;
+        UserCardPage.Close();
 
         // [THEN] The number of users remains zero
         Assert.RecordIsEmpty(User);
@@ -706,7 +706,7 @@ codeunit 132903 UserCardTest
 
         // [WHEN] Validate "User Name" with "U1"
         UserGroupMembers.UserName.SetValue(User001Msg);
-        UserGroupMembers.Close;
+        UserGroupMembers.Close();
 
         // [THEN] New entry "User Group Member" with "User Group Code" = "X" and user "U1" has been added.
         VerifyUserGroupMemberAdded(UserGroup.Code);
@@ -745,7 +745,7 @@ codeunit 132903 UserCardTest
         // [WHEN] Validate "User Name" with "U1"
         LibraryVariableStorage.Enqueue(User001Msg);
         UserGroupMembers.UserName.Lookup;
-        UserGroupMembers.Close;
+        UserGroupMembers.Close();
 
         // [THEN] New entry "User Group Member" with "User Group Code" = "X" and user "U1" has been added.
         VerifyUserGroupMemberAdded(UserGroup.Code);
@@ -828,7 +828,7 @@ codeunit 132903 UserCardTest
     begin
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := UserName;
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure PasswordComplexityHelper(Password: Text; RepeatedPassword: Text; ExpectedError: Text)
@@ -843,7 +843,7 @@ codeunit 132903 UserCardTest
         UserCardPage."User Name".AssertEquals(User001Msg);
         Commit();
         UserCardPage.Password.AssistEdit;
-        UserCardPage.Close;
+        UserCardPage.Close();
         if LastError <> ExpectedError then
             Error(ErrorStringCom002Err, ExpectedError, LastError, LastValidation);
     end;
@@ -894,7 +894,7 @@ codeunit 132903 UserCardTest
 
         UserCardPage.WebServiceID.AssistEdit;
 
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [ModalPageHandler]
@@ -928,7 +928,7 @@ codeunit 132903 UserCardTest
 
         UserCardPage.ACSStatus.AssistEdit;
         WsCompareAcsStatus := UserCardPage.ACSStatus.Value;
-        UserCardPage.Close;
+        UserCardPage.Close();
         if WsCompareAcsStatus <> AcsStatus then
             Error(ErrorStatusUnexpectedErr);
     end;
@@ -968,14 +968,14 @@ codeunit 132903 UserCardTest
         UserCardPage."Authentication Email".Value := Email;
         // Validate field immediately after assigning.
         UserCardPage."Authentication Email".AssertEquals(ExpectedEmail);
-        UserCardPage.Close;
+        UserCardPage.Close();
 
         UserCardPage.OpenEdit;
         // Validate field after reopening card.
         UserCardPage.FindFirstField("User Name", User001Msg);
         UserCardPage."User Name".AssertEquals(User001Msg);
         UserCardPage."Authentication Email".AssertEquals(ExpectedEmail);
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Normal]
@@ -991,12 +991,12 @@ codeunit 132903 UserCardTest
         asserterror UserCardPage."Authentication Email".Value := Email;
         ValidationError := UserCardPage.GetValidationError;
         if (ValidationError <> ExpectedValidationError) and (StrPos(ValidationError, ExpectedValidationError) <= 0) then begin
-            UserCardPage.Close;
+            UserCardPage.Close();
             ValidationError := 'Unexpected validation error: ' + ValidationError + ' Email address: ' + Email;
             Error(ValidationError);
         end;
 
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure VerifyUserGroupMemberAdded(UserGroupCode: Code[20])

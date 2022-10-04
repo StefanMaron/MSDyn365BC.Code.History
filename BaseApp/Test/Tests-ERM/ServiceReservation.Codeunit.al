@@ -87,7 +87,7 @@ codeunit 136121 "Service Reservation"
 
         Assert.ExpectedError(
           StrSubstNo(
-            ReserveNeverErrorServiceTier, ServiceLine.FieldCaption(Reserve), ServiceLine.Reserve, ServiceLine.TableCaption,
+            ReserveNeverErrorServiceTier, ServiceLine.FieldCaption(Reserve), ServiceLine.Reserve, ServiceLine.TableCaption(),
             ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
             ServiceLine."Document No.", ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."));
     end;
@@ -963,7 +963,7 @@ codeunit 136121 "Service Reservation"
         // 3. Verify: Verify that application generates an error on changing Location.
         Assert.ExpectedError(
           StrSubstNo(
-            ReserveQuantityError, ServiceLine.FieldCaption("Location Code"), ServiceLine.TableCaption,
+            ReserveQuantityError, ServiceLine.FieldCaption("Location Code"), ServiceLine.TableCaption(),
             ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
             ServiceLine."Document No.", ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."));
     end;
@@ -1001,7 +1001,7 @@ codeunit 136121 "Service Reservation"
         // 3. Verify: Verify that application generates an error on changing Type.
         Assert.ExpectedError(
           StrSubstNo(
-            ReserveQuantityError, ServiceLine.FieldCaption(Type), ServiceLine.TableCaption,
+            ReserveQuantityError, ServiceLine.FieldCaption(Type), ServiceLine.TableCaption(),
             ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type",
             ServiceLine.FieldCaption("Document No."), ServiceLine."Document No.",
             ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."));
@@ -1040,7 +1040,7 @@ codeunit 136121 "Service Reservation"
         ServiceLine.DeleteAll(true);
 
         // 3. Verify: Verify that all lines has been deleted.
-        Assert.IsFalse(ServiceLine.FindFirst, StrSubstNo(ServiceLineExistError, ServiceLine.TableCaption));
+        Assert.IsFalse(ServiceLine.FindFirst, StrSubstNo(ServiceLineExistError, ServiceLine.TableCaption()));
     end;
 
     [Test]
@@ -1849,7 +1849,7 @@ codeunit 136121 "Service Reservation"
     local procedure CreatePurchaseOrderWithExpectedReceiptDate(var PurchaseHeader: Record "Purchase Header")
     begin
         CreatePurchaseOrderNoLocation(PurchaseHeader);
-        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Update Receipt Date earlier than WORKDATE. Use Random to calculate Date.
+        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Update Receipt Date earlier than WORKDATE. Use Random to calculate Date.
         PurchaseHeader.Modify(true);
     end;
 
@@ -1889,7 +1889,7 @@ codeunit 136121 "Service Reservation"
 
         // [GIVEN] Item on Inventory with Reserve = Optional
         CreateItemWithReserve(Item, Item.Reserve::Optional);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate, LibraryRandom.RandDec(10, 2));
+        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Sales Order for Customer with Reserve = Always
         CreateSalesOrderLineByPage(SalesOrder, CreateCustomerWithReserveAlways, Item."No.");
@@ -2120,11 +2120,11 @@ codeunit 136121 "Service Reservation"
     begin
         LocationCode := CreateFirmPlannedOrder(ItemNo, Quantity);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ItemNo);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
 
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ItemNo);
         PostProductionJournal(ProductionOrder);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
     end;
 
     local procedure CreateItemWithReserve(var Item: Record Item; Reserve: Enum "Reserve Method")
@@ -2217,7 +2217,7 @@ codeunit 136121 "Service Reservation"
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         PurchaseHeader.Validate("Location Code", Location.Code);
-        PurchaseHeader.Validate("Expected Receipt Date", WorkDate);
+        PurchaseHeader.Validate("Expected Receipt Date", WorkDate());
         PurchaseHeader.Modify(true);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
@@ -2261,7 +2261,7 @@ codeunit 136121 "Service Reservation"
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(2, 10, 2));  // Taken Random value for Quantity.
-        PurchaseLine.Validate("Expected Receipt Date", WorkDate);
+        PurchaseLine.Validate("Expected Receipt Date", WorkDate());
         PurchaseLine.Validate("Location Code", Location.Code);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Used Random value for Direct Unit Cost.
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
@@ -2279,7 +2279,7 @@ codeunit 136121 "Service Reservation"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, Location.Code, Location2.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, OriginalQuantity);
-        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // Used Random to calculate Receipt Date.
+        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // Used Random to calculate Receipt Date.
         TransferLine.Validate("Qty. to Ship", OriginalQuantity);
         TransferLine.Modify(true);
     end;
@@ -2366,7 +2366,7 @@ codeunit 136121 "Service Reservation"
         ProdOrderLine.FindFirst();
 
         ProductionJournalMgt.InitSetupValues;
-        ProductionJournalMgt.SetTemplateAndBatchName;
+        ProductionJournalMgt.SetTemplateAndBatchName();
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
         ItemJournalLine.SetRange("Item No.", ProductionOrder."Source No.");
         ItemJournalLine.FindFirst();
@@ -2477,7 +2477,7 @@ codeunit 136121 "Service Reservation"
     begin
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        Assert.AreEqual(Quantity, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption));
+        Assert.AreEqual(Quantity, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntryCount(ServiceLine: Record "Service Line"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20])
@@ -2486,7 +2486,7 @@ codeunit 136121 "Service Reservation"
     begin
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Document No.", DocumentNo);
-        Assert.AreEqual(ServiceLine.Quantity, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption));
+        Assert.AreEqual(ServiceLine.Quantity, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption()));
         ValueEntry.FindFirst();
         ValueEntry.TestField("Item No.", ServiceLine."No.");
         ValueEntry.TestField("Posting Date", ServiceLine."Posting Date");

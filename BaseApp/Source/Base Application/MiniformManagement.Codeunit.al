@@ -25,12 +25,12 @@ codeunit 7702 "Miniform Management"
         if XMLDOMMgt.FindNode(RootNode, 'Header', ReturnedNode) then begin
             TextValue := ADCSCommunication.GetNodeAttribute(ReturnedNode, 'UseCaseCode');
             if UpperCase(TextValue) = 'HELLO' then
-                TextValue := ADCSCommunication.GetLoginFormCode;
+                TextValue := ADCSCommunication.GetLoginFormCode();
             MiniFormHeader.Get(TextValue);
             MiniFormHeader.TestField("Handling Codeunit");
             MiniFormHeader.SaveXMLin(DOMxmlin);
             if not CODEUNIT.Run(MiniFormHeader."Handling Codeunit", MiniFormHeader) then
-                ADCSManagement.SendError(GetLastErrorText);
+                ADCSManagement.SendError(GetLastErrorText());
         end else
             Error(Text001);
     end;
@@ -38,7 +38,7 @@ codeunit 7702 "Miniform Management"
     [Scope('OnPrem')]
     procedure Initialize(var MiniformHeader: Record "Miniform Header"; var Rec: Record "Miniform Header"; var DOMxmlin: DotNet XmlDocument; var ReturnedNode: DotNet XmlNode; var RootNode: DotNet XmlNode; var XMLDOMMgt: Codeunit "XML DOM Management"; var ADCSCommunication: Codeunit "ADCS Communication"; var ADCSUserId: Text[250]; var CurrentCode: Text[250]; var StackCode: Text[250]; var WhseEmpId: Text[250]; var LocationFilter: Text[250])
     begin
-        DOMxmlin := DOMxmlin.XmlDocument;
+        DOMxmlin := DOMxmlin.XmlDocument();
 
         MiniformHeader := Rec;
         MiniformHeader.LoadXMLin(DOMxmlin);

@@ -13,17 +13,17 @@ page 5968 "Service Document Registers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Document No."; "Source Document No.")
+                field("Source Document No."; Rec."Source Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service order or service contract.';
                 }
-                field("Destination Document Type"; "Destination Document Type")
+                field("Destination Document Type"; Rec."Destination Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of document created from the service order or contract specified in the Source Document No.';
                 }
-                field("Destination Document No."; "Destination Document No.")
+                field("Destination Document No."; Rec."Destination Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the invoice or credit memo, based on the contents of the Destination Document Type field.';
@@ -73,9 +73,6 @@ page 5968 "Service Document Registers"
                     ApplicationArea = Service;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
 
@@ -104,6 +101,17 @@ page 5968 "Service Document Registers"
                                 end;
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Card_Promoted; Card)
+                {
                 }
             }
         }

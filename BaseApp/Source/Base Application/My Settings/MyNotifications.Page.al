@@ -24,7 +24,7 @@ page 1518 "My Notifications"
 
                     trigger OnDrillDown()
                     begin
-                        Message(GetDescription);
+                        Message(GetDescription());
                     end;
                 }
                 field(Enabled; Enabled)
@@ -35,7 +35,7 @@ page 1518 "My Notifications"
                     trigger OnValidate()
                     begin
                         if Enabled <> xRec.Enabled then begin
-                            Filters := GetFiltersAsDisplayText;
+                            Filters := GetFiltersAsDisplayText();
                             CurrPage.Update();
                         end;
                     end;
@@ -49,8 +49,8 @@ page 1518 "My Notifications"
 
                     trigger OnDrillDown()
                     begin
-                        if OpenFilterSettings then begin
-                            Filters := GetFiltersAsDisplayText;
+                        if OpenFilterSettings() then begin
+                            Filters := GetFiltersAsDisplayText();
                             CurrPage.Update();
                         end;
                     end;
@@ -65,12 +65,12 @@ page 1518 "My Notifications"
 
     trigger OnAfterGetRecord()
     begin
-        Filters := GetFiltersAsDisplayText;
+        Filters := GetFiltersAsDisplayText();
     end;
 
     trigger OnOpenPage()
     begin
-        OnInitializingNotificationWithDefaultState;
+        OnInitializingNotificationWithDefaultState();
         SetRange("User Id", UserId);
     end;
 
@@ -79,8 +79,8 @@ page 1518 "My Notifications"
 
     procedure InitializeNotificationsWithDefaultState()
     begin
-        OnInitializingNotificationWithDefaultState;
-        OnAfterInitializingNotificationWithDefaultState;
+        OnInitializingNotificationWithDefaultState();
+        OnAfterInitializingNotificationWithDefaultState();
     end;
 
     [IntegrationEvent(false, false)]

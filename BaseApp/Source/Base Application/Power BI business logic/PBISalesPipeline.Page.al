@@ -18,7 +18,7 @@ page 6314 "PBI Sales Pipeline"
                     Caption = 'ID';
                     ToolTip = 'Specifies the ID.';
                 }
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Stage';
@@ -30,13 +30,13 @@ page 6314 "PBI Sales Pipeline"
                     Caption = 'Value';
                     ToolTip = 'Specifies the value.';
                 }
-                field("Measure Name"; "Measure Name")
+                field("Measure Name"; Rec."Measure Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Measure Name';
                     ToolTip = 'Specifies the name.';
                 }
-                field("Measure No."; "Measure No.")
+                field("Measure No."; Rec."Measure No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Sales Cycle Code';

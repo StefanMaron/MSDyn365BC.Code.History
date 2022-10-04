@@ -103,7 +103,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
             if not HandledGenJnlDataExchLine then
                 CreateVendLedgerDataExchLine(DataExch."Entry No.", VendorLedgerEntry2, LineNo);
         until VendorLedgerEntry2.Next() = 0;
-        Window.Close;
+        Window.Close();
 
         OnBeforePaymentExportVendorLedgerEntry(VendorLedgerEntry."Bal. Account No.", DataExch."Entry No.",
           LineNo, TotalAmount, TransferDate, HandledPaymentExportVendLedgerEntry);
@@ -138,7 +138,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
             BankAccount.GetBankExportImportSetup(BankExportImportSetup);
             SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init;
+            Init();
             "Data Exch Entry No." := DataExchEntryNo;
             "Sender Bank Account Code" := VendorLedgerEntry."Bal. Account No.";
 
@@ -147,7 +147,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
                 Amount := VendorLedgerEntry.Amount;
                 "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(VendorLedgerEntry."Currency Code");
                 "Recipient Bank Acc. No." :=
-                  CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+                  CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
                 "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
                 "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
@@ -188,7 +188,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
 
     procedure GetServerTempFileName(): Text[1024]
     begin
-        exit(PaymentExportMgt.GetServerTempFileName);
+        exit(PaymentExportMgt.GetServerTempFileName());
     end;
 
     local procedure SetExportFlagOnVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry")

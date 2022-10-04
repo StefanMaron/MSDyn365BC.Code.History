@@ -47,10 +47,10 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
         // [WHEN] Create a purchase order from existing vendor
-        PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate);
+        PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
 
         // [WHEN] Create a new sales order and select reserve
-        InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate));
+        InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate()));
         // [THEN] Quantity is reserved
         Assert.AreEqual('12', SalesOrder.SalesLines."Reserved Quantity".Value, '');
 
@@ -65,7 +65,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PostPurchaseOrder(PurchaseOrderNo);
 
         // [WHEN] Create a new sales order and select reserve
-        CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate));
+        CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate()));
 
         // [THEN] You can only reserve 8 pcs, 12 of 20 available items are already reserved.
         Assert.AreEqual('8', SalesOrder.SalesLines."Reserved Quantity".Value, '');
@@ -99,10 +99,10 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
         // [WHEN] Create a purchase order from existing vendor
-        PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate);
+        PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
 
         // [WHEN] Create a new sales order and select reserve
-        InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate));
+        InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate()));
         // [THEN] Quantity is reserved
         Assert.AreEqual('12', SalesOrder.SalesLines."Reserved Quantity".Value, '');
 
@@ -117,7 +117,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PostPurchaseOrder(PurchaseOrderNo);
 
         // [WHEN] Create a new sales order and select reserve
-        CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate));
+        CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate()));
 
         // [THEN] You can only reserve 8 pcs, 12 of 20 available items are already reserved.
         Assert.AreEqual('8', SalesOrder.SalesLines."Reserved Quantity".Value, '');
@@ -152,20 +152,20 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         // [WHEN] Create a purchase order from existing vendor
-        asserterror PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate);
+        asserterror PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate);
+        PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
         // [WHEN] Create a new sales order and select reserve
-        asserterror InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate));
-        SalesOrder.Close;
+        asserterror InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate()));
+        SalesOrder.Close();
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate));
+        InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate()));
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -184,7 +184,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         ErrorMessagesPage.Trap;
         PostPurchaseOrder(PurchaseOrderNo);
         ErrorMessagesPage.Description.AssertEquals(TeamMemberErr);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
 
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostPurchaseOrder(PurchaseOrderNo);
@@ -193,10 +193,10 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         // [WHEN] Create a new sales order and select reserve
-        asserterror CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate));
-        SalesOrder.Close;
+        asserterror CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate()));
+        SalesOrder.Close();
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate));
+        CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate()));
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -209,7 +209,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         // [THEN] Order is not posted, error message: 'As a Team Member you cannot complete this task '
         Assert.ExpectedError('The TestPage is not open.');
         ErrorMessagesPage.Description.AssertEquals(TeamMemberErr);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
 
         // [WHEN] Set Business Manager Plan
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -389,8 +389,8 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     begin
         Assert.AreEqual(0D, LibraryVariableStorage.DequeueDate, PlannedDeliveryDateErr);
         Assert.AreEqual(0D, LibraryVariableStorage.DequeueDate, EarliestShipmentDateErr);
-        Assert.AreEqual(CalcDate('<+2W>', WorkDate), LibraryVariableStorage.DequeueDate, PlannedDeliveryDateErr);
-        Assert.AreEqual(CalcDate('<+2W>', WorkDate), LibraryVariableStorage.DequeueDate, EarliestShipmentDateErr);
+        Assert.AreEqual(CalcDate('<+2W>', WorkDate()), LibraryVariableStorage.DequeueDate, PlannedDeliveryDateErr);
+        Assert.AreEqual(CalcDate('<+2W>', WorkDate()), LibraryVariableStorage.DequeueDate, EarliestShipmentDateErr);
     end;
 
     local procedure VerifyPostingInitialSalesOrder(InitialSalesOrderNo: Code[20])
@@ -403,7 +403,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, InitialSalesOrderNo);
         PostedSalesInvoice.Trap;
         SalesOrder.Post.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     local procedure InitializeAvailabilityCheckSettingsOnCompanyInformation()
@@ -413,7 +413,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     begin
         Evaluate(DateFormulaForQuarter, '<3M>');
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Check-Avail. Period Calc.", DateFormulaForQuarter);
             Validate("Check-Avail. Time Bucket", "Check-Avail. Time Bucket"::Day);
             Modify(true);
@@ -431,7 +431,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [ModalPageHandler]

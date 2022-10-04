@@ -12,18 +12,18 @@ page 5071 "Web Source Launch"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Web Source Code"; "Web Source Code")
+                field("Web Source Code"; Rec."Web Source Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the Web source code. This field is not editable.';
                 }
-                field("Web Source Description"; "Web Source Description")
+                field("Web Source Description"; Rec."Web Source Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the description of the Web source you have assigned to the contact.';
                 }
-                field("Search Word"; "Search Word")
+                field("Search Word"; Rec."Search Word")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the search word to search for information about the contact on the Internet.';

@@ -5,7 +5,6 @@ page 920 "Posted Assembly Order"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Order,Print/Send';
     SourceTable = "Posted Assembly Header";
 
     layout
@@ -15,17 +14,17 @@ page 920 "Posted Assembly Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the assembly order that the posted assembly order line originates from.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the posted assembly item.';
@@ -43,40 +42,40 @@ page 920 "Posted Assembly Order"
                         ApplicationArea = Assembly;
                         ToolTip = 'Specifies how many units of the assembly item were posted with this posted assembly order.';
                     }
-                    field("Unit of Measure Code"; "Unit of Measure Code")
+                    field("Unit of Measure Code"; Rec."Unit of Measure Code")
                     {
                         ApplicationArea = Assembly;
                         ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     }
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order was posted.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembled item is due to be available for use.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date on which the posted assembly order started.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the posted assembly order finished, which means the date on which all assembly items were output.';
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the posted assembly order was linked to a sales order, which indicates that the item was assembled to order.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrder;
+                        ShowAsmToOrder();
                     end;
                 }
                 field(Reversed; Reversed)
@@ -93,32 +92,32 @@ page 920 "Posted Assembly Order"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies to which location the assembly item was output from this posted assembly order header.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies to which bin the assembly item was posted as output on the posted assembly order header.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the total unit cost of the posted assembly order.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -148,15 +147,12 @@ page 920 "Posted Assembly Order"
                 ApplicationArea = Assembly;
                 Caption = 'Statistics';
                 Image = Statistics;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ShortCutKey = 'F7';
                 ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                 trigger OnAction()
                 begin
-                    ShowStatistics;
+                    ShowStatistics();
                 end;
             }
             action(Dimensions)
@@ -165,9 +161,6 @@ page 920 "Posted Assembly Order"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimensions';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ShortCutKey = 'Alt+D';
                 ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -186,7 +179,7 @@ page 920 "Posted Assembly Order"
 
                 trigger OnAction()
                 begin
-                    ShowItemTrackingLines;
+                    ShowItemTrackingLines();
                 end;
             }
             action(Comments)
@@ -194,8 +187,6 @@ page 920 "Posted Assembly Order"
                 ApplicationArea = Comments;
                 Caption = 'Co&mments';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Assembly Comment Sheet";
                 RunPageLink = "Document Type" = CONST("Posted Assembly"),
                               "Document No." = FIELD("No."),
@@ -210,8 +201,6 @@ page 920 "Posted Assembly Order"
                 ApplicationArea = Assembly;
                 Caption = 'Print';
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'Print the information in the window. A print request window opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -227,14 +216,12 @@ page 920 "Posted Assembly Order"
                 ApplicationArea = Assembly;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action("Undo Post")
@@ -243,8 +230,6 @@ page 920 "Posted Assembly Order"
                 Caption = 'Undo Assembly';
                 Enabled = UndoPostEnabledExpr;
                 Image = Undo;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Cancel the posting of the assembly order. A set of corrective item ledger entries is created to reverse the original entries. Each positive output entry for the assembly item is reversed by a negative output entry. Each negative consumption entry for an assembly component is reversed by a positive consumption entry. Fixed cost application is automatically created between the corrective and original entries to ensure exact cost reversal.';
 
                 trigger OnAction()
@@ -253,11 +238,51 @@ page 920 "Posted Assembly Order"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Undo Post_Promoted"; "Undo Post")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        UndoPostEnabledExpr := not Reversed and not IsAsmToOrder;
+        UndoPostEnabledExpr := not Reversed and not IsAsmToOrder();
     end;
 
     var

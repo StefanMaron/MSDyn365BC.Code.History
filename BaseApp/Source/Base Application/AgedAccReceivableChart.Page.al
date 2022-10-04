@@ -170,32 +170,17 @@ page 768 "Aged Acc. Receivable Chart"
         BackgroundTaskId: Integer;
         UpdatePending: Boolean;
 
-    trigger OnFindRecord(which: Text): Boolean
-    begin
-        CustomerNo := '';
-        Rec.FilterGroup(4);
-        if Rec.GetFilter("No.") <> '' then
-            CustomerNo := Rec.GetRangeMax("No.");
-        Rec.FilterGroup(0);
-        Rec."No." := CustomerNo;
-        if CustomerNo <> '' then
-            if UpdatePending then begin
-                BusinessChartBuffer.Update(CurrPage.BusinessChart);
-                UpdatePending := false;
-            end else
-                UpdateChart();
-        exit(CustomerNo <> '');
-    end;
-
     trigger OnAfterGetCurrRecord()
     begin
-        if UpdatedCustomerNo <> Rec."No." then
+        CustomerNo := Rec."No.";
+        if UpdatedCustomerNo <> CustomerNo then
             if isInitialized then
                 BusinessChartBuffer.Initialize();
         if UpdatePending then begin
             BusinessChartBuffer.Update(CurrPage.BusinessChart);
             UpdatePending := false;
-        end;
+        end else
+            UpdateChart();
     end;
 
     trigger OnOpenPage()
@@ -211,7 +196,7 @@ page 768 "Aged Acc. Receivable Chart"
         isInitialized := true;
 
         BusinessChartBuffer.Initialize();
-        BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+        BusinessChartBuffer."Period Filter Start Date" := WorkDate();
         BusinessChartBuffer.Update(CurrPage.BusinessChart);
 
         UpdatePage();
@@ -233,10 +218,10 @@ page 768 "Aged Acc. Receivable Chart"
             exit;
         if Results.Count() = 0 then
             exit;
-        TempEntryNoAmountBuf.deleteall;
+        TempEntryNoAmountBuf.DeleteAll();
         clear(TempEntryNoAmountBuf);
         for RowNo := 1 to Results.Count() div 5 do begin
-            TempEntryNoAmountBuf.init;
+            TempEntryNoAmountBuf.Init();
             if evaluate(TempEntryNoAmountBuf."Entry No.", GetDictValue(Results, 'EntryNo¤%1' + Format(RowNo)), 9) then;
             if evaluate(TempEntryNoAmountBuf.Amount, GetDictValue(Results, 'Amount¤%1' + Format(RowNo)), 9) then;
             if evaluate(TempEntryNoAmountBuf.Amount2, GetDictValue(Results, 'Amount2¤%1' + Format(RowNo)), 9) then;
@@ -282,7 +267,7 @@ page 768 "Aged Acc. Receivable Chart"
             BusinessChartBuffer.Initialize();
             BusinessChartBuffer.Update(CurrPage.BusinessChart);
         end;
-        BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+        BusinessChartBuffer."Period Filter Start Date" := WorkDate();
 
         Args.Add('CustomerNo', CustomerNo);
         Args.Add('StartDate', format(BusinessChartBuffer."Period Filter Start Date", 0, 9));

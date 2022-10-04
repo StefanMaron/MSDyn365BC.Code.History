@@ -164,10 +164,10 @@ table 9002 "User Group Access Control"
             // If this is the first assignment via a user group and the user already had a manually defined access control,
             // we add a 'null' record for it.
             if IsEmpty() then
-                Insert;
+                Insert();
         end;
         "User Group Code" := UserGroupCode;
-        Insert;
+        Insert();
         if not AccessControlExists then begin
             AccessControl.Init();
             AccessControl."User Security ID" := UserSecurityID;
@@ -189,10 +189,10 @@ table 9002 "User Group Access Control"
         // we remove the 'null' record for it if it exists.
         if not Get(UserGroupCode, UserSecurityID, RoleID, SelectedCompany, ItemScope, AppID) then
             exit;
-        Delete;
+        Delete();
         AccessControlExists := AccessControl.Get(UserSecurityID, RoleID, SelectedCompany, ItemScope, AppID);
         if AccessControlExists then begin
-            Reset;
+            Reset();
             SetRange("User Security ID", UserSecurityID);
             SetRange("Role ID", RoleID);
             SetRange("Company Name", SelectedCompany);
@@ -202,7 +202,7 @@ table 9002 "User Group Access Control"
             if not ReferenceExists then
                 AccessControl.Delete(true);
             if ReferenceExists and ("User Group Code" = '') then
-                Delete;
+                Delete();
         end;
     end;
 }

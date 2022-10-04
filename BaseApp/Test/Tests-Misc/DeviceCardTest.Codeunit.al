@@ -33,22 +33,22 @@ codeunit 132906 DeviceCardTest
         DeviceCardPage.OpenEdit;
         DeviceCardPage.FindFirstField("MAC Address", Device002Txt);
         DeviceCardPage."MAC Address".AssertEquals(Device002Txt);
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
 
         DeviceCardPage.OpenEdit;
         DeviceCardPage.FindFirstField("MAC Address", Device003Txt);
         DeviceCardPage."MAC Address".AssertEquals(Device003Txt);
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
 
         DeviceCardPage.OpenEdit;
         DeviceCardPage.FindFirstField("MAC Address", Device004Txt);
         DeviceCardPage."MAC Address".AssertEquals(Device004Txt);
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
 
         DeviceCardPage.OpenEdit;
         DeviceCardPage.FindFirstField("MAC Address", Device005Txt);
         DeviceCardPage."MAC Address".AssertEquals(Device005Txt);
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
 
         DeviceTable.DeleteAll();
     end;
@@ -66,10 +66,10 @@ codeunit 132906 DeviceCardTest
 
         if StrPos(DeviceCardPage.GetValidationError, DeviceAlreadyExistErr) = 0 then begin
             ValidationError := DeviceCardPage.GetValidationError;
-            DeviceCardPage.Close;
+            DeviceCardPage.Close();
             Error(ErrorStringCom001Err, DeviceAlreadyExistErr, ValidationError);
         end;
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
 
         DeviceTable.DeleteAll();
     end;
@@ -88,10 +88,10 @@ codeunit 132906 DeviceCardTest
         DeviceCardPage.OpenEdit;
         DeviceCardPage.FindFirstField("MAC Address", Device002Txt);
         DeviceCardPage."MAC Address".AssertEquals(Device002Txt);
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
         // GETACTION is not getting the DELETE ID from the MetadataEditor bug 273002
         // DeviceCardPage.GETACTION(2000000152).INVOKE;
-        // DeviceCardPage.Close;}
+        // DeviceCardPage.Close();}
         // Bug 273002 --Removed the UI handler until the bug is resolved."EventYesHandler"
         // Workaround deleting the Device from the table
         DeviceTable.SetFilter("MAC Address", Device002Txt);
@@ -104,7 +104,7 @@ codeunit 132906 DeviceCardTest
         if GetLastErrorText <> RowNotfound001Err then begin
             DeviceTable.DeleteAll();
             ValidationError := GetLastErrorText;
-            DeviceCardPage.Close;
+            DeviceCardPage.Close();
             Error(ErrorStringCom001Err, RowNotfound001Err, ValidationError);
         end;
         DeviceTable.DeleteAll();
@@ -117,7 +117,7 @@ codeunit 132906 DeviceCardTest
         DeviceCardPage."MAC Address".Value := DeviceName;
         DeviceCardPage.Name.Value := 'xyz';
         DeviceCardPage."Device Type".Value := 'Limited';
-        DeviceCardPage.Close;
+        DeviceCardPage.Close();
     end;
 }
 

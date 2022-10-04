@@ -13,13 +13,13 @@ page 980 "Balancing Account Setup"
             {
                 InstructionalText = 'Select the balance account that you want to register payments for.';
                 ShowCaption = false;
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balancing Account';
                     ToolTip = 'Specifies the account number that is used as the balancing account for payments.';
                 }
-                field("Use this Account as Def."; "Use this Account as Def.")
+                field("Use this Account as Def."; Rec."Use this Account as Def.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Use this Account as Default';

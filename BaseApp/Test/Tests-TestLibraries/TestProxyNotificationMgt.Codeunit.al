@@ -39,7 +39,7 @@ codeunit 130231 "Test Proxy Notification Mgt."
             OnCheckIgnoringNotification(TempNotificationContext."Notification ID", Ignore);
             if Ignore then
                 TempNotificationContext.Delete();
-        until TempNotificationContext.Next = 0;
+        until TempNotificationContext.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Notification Lifecycle Mgt.", 'OnAfterInsertNotificationContext', '', false, false)]

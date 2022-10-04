@@ -104,7 +104,7 @@ table 208 "Job Posting Group"
 
     trigger OnDelete()
     begin
-        CheckGroupUsage;
+        CheckGroupUsage();
     end;
 
     var

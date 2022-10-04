@@ -64,7 +64,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Navigate
         CashFlowJournal.OpenEdit;
         CashFlowJournal.ShowSource.Invoke;
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
         // Verification is done in modal handler function
     end;
 
@@ -79,7 +79,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Initialize();
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo('', GLAccount.TableCaption, CFWorksheetLine."Source Type"::"Liquid Funds");
+        NavigateJournalNonExistingSourceNo('', GLAccount.TableCaption(), CFWorksheetLine."Source Type"::"Liquid Funds");
     end;
 
     [Test]
@@ -97,8 +97,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Setup
         Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        CashFlowForecast.Validate("G/L Budget From", WorkDate);
-        CashFlowForecast.Validate("G/L Budget To", WorkDate);
+        CashFlowForecast.Validate("G/L Budget From", WorkDate());
+        CashFlowForecast.Validate("G/L Budget To", WorkDate());
         CashFlowForecast.Modify(true);
         CFHelper.CreateBudgetEntry(GLBudgetEntry, CashFlowForecast."G/L Budget To");
         ExpectedNo := GLBudgetEntry."G/L Account No.";
@@ -112,7 +112,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Navigate
         CashFlowJournal.OpenEdit;
         CashFlowJournal.ShowSource.Invoke;
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
         // Verification is done in modal handler function
     end;
 
@@ -127,7 +127,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Initialize();
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo('', GLAccount.TableCaption, CFWorksheetLine."Source Type"::"G/L Budget");
+        NavigateJournalNonExistingSourceNo('', GLAccount.TableCaption(), CFWorksheetLine."Source Type"::"G/L Budget");
     end;
 
     [Test]
@@ -159,7 +159,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
           StrSubstNo('Source data does not exist for %1: %2.', CFWorksheetLine.FieldCaption("G/L Budget Name"), NonExistingName));
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Navigate
         CashFlowJournal.OpenEdit;
         CashFlowJournal.ShowSource.Invoke;
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
         // Verification is done in modal handler function
     end;
 
@@ -198,7 +198,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo(
-          CustLedgEntry.TableCaption, CustLedgEntry.FieldCaption("Document No."), CFWorksheetLine."Source Type"::Receivables);
+          CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption("Document No."), CFWorksheetLine."Source Type"::Receivables);
     end;
 
     [Test]
@@ -221,7 +221,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Navigate
         CashFlowJournal.OpenEdit;
         CashFlowJournal.ShowSource.Invoke;
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
 
         // Verification is done in modal handler function
     end;
@@ -238,7 +238,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo(
-          VendLedgEntry.TableCaption, VendLedgEntry.FieldCaption("Document No."), CFWorksheetLine."Source Type"::Payables);
+          VendLedgEntry.TableCaption(), VendLedgEntry.FieldCaption("Document No."), CFWorksheetLine."Source Type"::Payables);
     end;
 
     [Test]
@@ -265,7 +265,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in SalesOrderPageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -306,7 +306,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in PurchaseOrderPageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -347,7 +347,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in ServiceOrderPageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -390,7 +390,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
               StrSubstNo('Source data does not exist in %1 for %2: %3.', SourceTableCaption, SourceCaption, NonExistingNo));
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -418,7 +418,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in CFManualRevenuePageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -461,7 +461,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in CFManualExpensePageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -502,7 +502,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in FixedAssetCardPageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -516,7 +516,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Initialize();
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo(FixedAsset.TableCaption, FixedAsset.FieldCaption("No."),
+        NavigateJournalNonExistingSourceNo(FixedAsset.TableCaption(), FixedAsset.FieldCaption("No."),
           CFWorksheetLine."Source Type"::"Fixed Assets Budget");
     end;
 
@@ -543,7 +543,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in FixedAssetCardPageHandler
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -557,7 +557,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Initialize();
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo(FixedAsset.TableCaption, FixedAsset.FieldCaption("No."),
+        NavigateJournalNonExistingSourceNo(FixedAsset.TableCaption(), FixedAsset.FieldCaption("No."),
           CFWorksheetLine."Source Type"::"Fixed Assets Budget");
     end;
 
@@ -585,7 +585,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verify - done in SalesOrderPageHandler
 
         // Tear down
-        CFLedgerEntries.Close;
+        CFLedgerEntries.Close();
     end;
 
     [Test]
@@ -623,7 +623,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Assert.ExpectedError(StrSubstNo('%1 must have a value', CFWorksheetLine.FieldCaption("G/L Budget Name")));
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -641,7 +641,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Assert.ExpectedError('Source No. must have a value');
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -659,7 +659,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Assert.ExpectedError('Source Type must not be   in Cash Flow');
 
         // Tear down
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -681,7 +681,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Assert.ExpectedError(StrSubstNo('%1 must have a value', CFForecastEntry.FieldCaption("G/L Budget Name")));
 
         // Tear down
-        CFLedgerEntries.Close;
+        CFLedgerEntries.Close();
     end;
 
     [Test]
@@ -699,7 +699,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Assert.ExpectedError('Source No. must have a value');
 
         // Tear down
-        CFLedgerEntries.Close;
+        CFLedgerEntries.Close();
     end;
 
     [Test]
@@ -717,7 +717,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Assert.ExpectedError('Source Type must not be   in Cash Flow');
 
         // Tear down
-        CFLedgerEntries.Close;
+        CFLedgerEntries.Close();
     end;
 
     [Test]
@@ -745,7 +745,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowManualRevenue.TestField(Code, FirstRevenueCodeTxt);
 
         // [THEN] "R2".Field "Code" = 'REV0000002'
-        CashFlowManualRevenue.Next;
+        CashFlowManualRevenue.Next();
         CashFlowManualRevenue.TestField(Code, SecondRevenueCodeTxt);
     end;
 
@@ -774,7 +774,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowManualExpense.TestField(Code, FirstExpenseCodeTxt);
 
         // [THEN] "E2".Field "Code" = 'EXP0000002'
-        CashFlowManualExpense.Next;
+        CashFlowManualExpense.Next();
         CashFlowManualExpense.TestField(Code, SecondExpenseCodeTxt);
     end;
 
@@ -792,13 +792,13 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowAccount.DeleteAll();
 
         // [WHEN] New CashFlowManualRevenue record on Cash Flow Manual Revenues Page inserted
-        InsertNewCashFlowManualRevenueRecordOnPage(WorkDate - 1);
+        InsertNewCashFlowManualRevenueRecordOnPage(WorkDate() - 1);
 
         // [THEN] "Code" is not assigned, "Starting Date" is not changed
         Assert.RecordCount(CashFlowManualRevenue, 1);
         CashFlowManualRevenue.FindFirst();
         CashFlowManualRevenue.TestField(Code, '');
-        CashFlowManualRevenue.TestField("Starting Date", WorkDate - 1);
+        CashFlowManualRevenue.TestField("Starting Date", WorkDate() - 1);
     end;
 
     [Test]
@@ -815,13 +815,13 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowAccount.DeleteAll();
 
         // [WHEN] New CashFlowManualExpence record on Cash Flow Manual Expences Page inserted
-        InsertNewCashFlowManualExpenseRecordOnPage(WorkDate - 1);
+        InsertNewCashFlowManualExpenseRecordOnPage(WorkDate() - 1);
 
         // [THEN] "Code" is not assigned, "Starting Date" is not changed
         Assert.RecordCount(CashFlowManualExpense, 1);
         CashFlowManualExpense.FindFirst();
         CashFlowManualExpense.TestField(Code, '');
-        CashFlowManualExpense.TestField("Starting Date", WorkDate - 1);
+        CashFlowManualExpense.TestField("Starting Date", WorkDate() - 1);
     end;
 
     [Test]
@@ -857,7 +857,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
           StrSubstNo('Source data does not exist for %1: %2.', SourceCaption, NonExistingNo));
 
         // Tear down
-        CFLedgerEntries.Close;
+        CFLedgerEntries.Close();
     end;
 
     local procedure InsertNewCashFlowManualRevenueRecordOnPage(StartingDate: Date)
@@ -867,7 +867,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowManualRevenues.OpenNew();
         CashFlowManualRevenues.Description.SetValue(LibraryUtility.GenerateGUID());
         CashFlowManualRevenues."Starting Date".SetValue(StartingDate);
-        CashFlowManualRevenues.Close;
+        CashFlowManualRevenues.Close();
     end;
 
     local procedure InsertNewCashFlowManualExpenseRecordOnPage(StartingDate: Date)
@@ -877,7 +877,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowManualExpenses.OpenNew();
         CashFlowManualExpenses.Description.SetValue(LibraryUtility.GenerateGUID());
         CashFlowManualExpenses."Starting Date".SetValue(StartingDate);
-        CashFlowManualExpenses.Close;
+        CashFlowManualExpenses.Close();
     end;
 
     local procedure InsertJournalLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; SourceType: Enum "Cash Flow Source Type"; SourceNo: Code[20])
@@ -910,11 +910,11 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFForecastEntry.DeleteAll();
 
         with CFForecastEntry do begin
-            Init;
+            Init();
             "Entry No." := 1;
             "Source No." := SourceNo;
             "Source Type" := SourceType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1005,7 +1005,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     procedure VerifyGLBudgetPageHandler(var Budget: TestPage Budget)
     begin
         Budget.GLAccFilter.AssertEquals(LibraryVariableStorage.DequeueText);
-        Budget.Close;
+        Budget.Close();
     end;
 }
 

@@ -2,7 +2,6 @@ page 8614 "Config. Package Card"
 {
     Caption = 'Config. Package Card';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Manage,Package';
     SourceTable = "Config. Package";
 
     layout
@@ -18,28 +17,28 @@ page 8614 "Config. Package Card"
                     ShowMandatory = true;
                     ToolTip = 'Specifies a code for the configuration package.';
                 }
-                field("Package Name"; "Package Name")
+                field("Package Name"; Rec."Package Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the package.';
                 }
-                field("Product Version"; "Product Version")
+                field("Product Version"; Rec."Product Version")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the version of the product that you are configuring. You can use this field to help differentiate among various versions of a solution.';
                 }
-                field("Language ID"; "Language ID")
+                field("Language ID"; Rec."Language ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the Windows language to use for the configuration package. Choose the field and select a language ID from the list.';
                 }
-                field("Processing Order"; "Processing Order")
+                field("Processing Order"; Rec."Processing Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the order in which the package is to be processed.';
                 }
-                field("Exclude Config. Tables"; "Exclude Config. Tables")
+                field("Exclude Config. Tables"; Rec."Exclude Config. Tables")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to exclude configuration tables from the package. Select the check box to exclude these types of tables.';
@@ -49,7 +48,7 @@ page 8614 "Config. Package Card"
             {
                 Caption = 'Errors';
                 Visible = IsErrorTabVisible;
-                field("No. of Errors"; "No. of Errors")
+                field("No. of Errors"; Rec."No. of Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Unfavorable;
@@ -80,16 +79,13 @@ page 8614 "Config. Package Card"
                     Caption = 'Get Tables';
                     Ellipsis = true;
                     Image = GetLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Select tables that you want to add to the configuration package.';
 
                     trigger OnAction()
                     var
                         GetPackageTables: Report "Get Package Tables";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         GetPackageTables.Set(Code);
                         GetPackageTables.RunModal();
                         Clear(GetPackageTables);
@@ -101,9 +97,6 @@ page 8614 "Config. Package Card"
                     Caption = 'Export Package';
                     Ellipsis = true;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a .rapidstart file that which delivers the package contents in a compressed format. Configuration questionnaires, configuration templates, and the configuration worksheet are added to the package automatically unless you specifically decide to exclude them.';
 
                     trigger OnAction()
@@ -118,14 +111,11 @@ page 8614 "Config. Package Card"
                     Caption = 'Import Package';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import a .rapidstart package file.';
 
                     trigger OnAction()
                     begin
-                        ConfigXMLExchange.ImportPackageXMLFromClient;
+                        ConfigXMLExchange.ImportPackageXMLFromClient();
                     end;
                 }
                 action(ExportToExcel)
@@ -133,8 +123,6 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Export the data in the package to Excel.';
 
                     trigger OnAction()
@@ -155,8 +143,6 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import from Excel';
                     Image = ImportExcel;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Begin the migration of legacy data.';
 
                     trigger OnAction()
@@ -171,14 +157,12 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Errors';
                     Image = ErrorLog;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Open the list of package errors.';
                     Visible = IsErrorTabVisible;
 
                     trigger OnAction()
                     begin
-                        ShowErrors;
+                        ShowErrors();
                     end;
                 }
             }
@@ -191,9 +175,6 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Package';
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import the configuration package and apply the package database data at the same time.';
 
                     trigger OnAction()
@@ -231,9 +212,6 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Validate Package';
                     Image = CheckRulesSyntax;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Determine if you have introduced errors, such as not including tables that the configuration relies on.';
 
                     trigger OnAction()
@@ -279,10 +257,67 @@ page 8614 "Config. Package Card"
 
                     trigger OnAction()
                     begin
-                        ProcessPackageTablesWithDefaultProcessingReport;
-                        ProcessPackageTablesWithCustomProcessingReports;
+                        ProcessPackageTablesWithDefaultProcessingReport();
+                        ProcessPackageTablesWithCustomProcessingReports();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ApplyPackage_Promoted; ApplyPackage)
+                {
+                }
+                actionref(ValidatePackage_Promoted; ValidatePackage)
+                {
+                }
+                group(Category_Import)
+                {
+                    Caption = 'Import';
+                    ShowAs = SplitButton;
+
+                    actionref(ImportFromExcel_Promoted; ImportFromExcel)
+                    {
+                    }
+                    actionref(ImportPackage_Promoted; ImportPackage)
+                    {
+                    }
+                }
+                group(Category_Export)
+                {
+                    Caption = 'Export';
+                    ShowAs = SplitButton;
+
+                    actionref(ExportToExcel_Promoted; ExportToExcel)
+                    {
+                    }
+                    actionref(ExportPackage_Promoted; ExportPackage)
+                    {
+                    }
+                }
+                actionref(GetTables_Promoted; GetTables)
+                {
+                }
+                actionref(ShowError_Promoted; ShowError)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Package', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

@@ -13,7 +13,7 @@ page 575 "VAT Registration No. Formats"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';

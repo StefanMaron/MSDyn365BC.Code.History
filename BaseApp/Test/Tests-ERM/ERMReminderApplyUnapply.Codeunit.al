@@ -35,7 +35,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         // [SCENARIO 228341] Issue reminder after posted sales invoice and post customer payment
         // Covers documents TC_ID= 122638 AND 137017.
         Initialize();
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
 
         // [GIVEN] Customer with "Country/Region Code" = "X"
         // [GIVEN] Posted sales invoice with Amount = 1000
@@ -71,7 +71,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         // Create Sales Invoice, Reminder and Issue it, Post General Journal Lines, Apply and unapply them and
         // Take backup for Current Workdate.
         Initialize();
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
         CreateInvoiceReminder(GenJournalLine);
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", GenJournalLine.Amount);
         UnapplyCustLedgerEntry(GenJournalLine."Account No.", GenJournalLine."Document No.");
@@ -123,7 +123,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         Initialize();
 
         // [GIVEN] Reminder with Reminder Line
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
         CreateReminderWithReminderLine(ReminderLine);
 
         // [WHEN] Open reminder page
@@ -155,7 +155,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         Initialize();
 
         // [GIVEN] Reminder with Reminder Line
-        CurrentDate := WorkDate;
+        CurrentDate := WorkDate();
         CreateReminderWithReminderLine(ReminderLine);
         IssueReminder(ReminderLine."Document No.");
         IssuedReminderLine.SetRange("Document No.", ReminderLine."Document No.");
@@ -188,7 +188,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminder Apply Unapply");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
@@ -213,7 +213,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -321,7 +321,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         ReminderLevel.FindFirst();
 
         // Set Workdate according to Reminder Level with Grace Period and Add 1 day.
-        WorkDate := CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate));
+        WorkDate := CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate()));
         ReminderHeader.Init();
         ReminderHeader.Insert(true);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -428,9 +428,9 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.FindSet();
         repeat
-            Assert.IsTrue(DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedCustLedgEntry.TableCaption,
+            Assert.IsTrue(DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedCustLedgEntry.TableCaption(),
                 DetailedCustLedgEntry.Unapplied));
-        until DetailedCustLedgEntry.Next = 0;
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyCustLedgerEntryForRemAmt(GenJournalLine: Record "Gen. Journal Line")

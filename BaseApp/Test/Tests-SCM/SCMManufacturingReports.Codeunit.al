@@ -616,7 +616,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryInventory.CreateItem(Item);
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         LibraryManufacturing.CreateProductionForecastEntry(
-          ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', WorkDate, false);
+          ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', WorkDate(), false);
         UpdateProductionForecastQty(ProductionForecastEntry);
 
         // Exercise: Generate the Production Forecast report.
@@ -939,8 +939,8 @@ codeunit 137304 "SCM Manufacturing Reports"
         RoutingLine.FindFirst();
         WorkCenter.SetRange("No.", RoutingLine."Work Center No.");
         Evaluate(PeriodLength, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));  // Random values not important
-        MachineCenterLoad.InitializeRequest(WorkDate, LibraryRandom.RandInt(5), PeriodLength, 0);  // Min. Cap. Efficiency important.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        MachineCenterLoad.InitializeRequest(WorkDate(), LibraryRandom.RandInt(5), PeriodLength, 0);  // Min. Cap. Efficiency important.
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(0);
@@ -974,7 +974,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         WorkCenter.FindFirst();
         WorkCenterGroup.SetRange(Code, WorkCenter."Work Center Group Code");
         Evaluate(PeriodLength, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(0);
@@ -1371,7 +1371,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryPatterns.MAKESalesOrder(
           SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(1000, 2),
           WorkDate, LibraryRandom.RandDec(1000, 2));
-        SalesLine.Validate("Shipment Date", CalcDate('<-1D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<-1D>', WorkDate()));
         SalesLine.Modify();
     end;
 
@@ -1436,9 +1436,9 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         LibraryManufacturing.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, Item2."No.", 1, '');
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate,
+        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
           LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(Item2, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate,
+        LibraryPatterns.POSTPositiveAdjustment(Item2, '', '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
           LibraryRandom.RandDec(100, 2));
     end;
 
@@ -1527,7 +1527,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, ProdOrderComponent."Item No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + ProdOrderComponent."Item No.");
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyRoutingLine(ProductionOrderRoutingNo: Code[20]; ElementName: Text)
@@ -1539,7 +1539,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + RoutingLine."No.");
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
     end;
 
     local procedure VerifyLoadReport(ProductionOrderRoutingNo: Code[20]; ElementName: Text; RoutingLineType: Enum "Capacity Type Routing")
@@ -1553,7 +1553,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + RoutingLine."No.");
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
 
         RoutingLine.SetFilter(Type, '<>%1', RoutingLineType);
         RoutingLine.FindSet();
@@ -1561,7 +1561,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
             Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Element found for ' + RoutingLine."No.");
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
     end;
 
     local procedure VerifyConsumptionJrnlItems(ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20]; ProductionOrderStatus: Enum "Production Order Status")
@@ -1572,7 +1572,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         repeat
             ItemJournalLine.SetRange("Item No.", ProdOrderComponent."Item No.");
             Assert.IsTrue(ItemJournalLine.Count > 0, RecordErr);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyBOMItems(BOMComponent: Record "BOM Component"; BOMComponentElementNo: Text; ParentItemElementNo: Text)
@@ -1595,13 +1595,14 @@ codeunit 137304 "SCM Manufacturing Reports"
             LibraryReportDataset.SetRange('BomCompLevelNo', ProductionBOMLine."No.");
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('BomCompLevelQty', QtyPer);
-        until ProductionBOMLine.Next = 0;
+        until ProductionBOMLine.Next() = 0;
     end;
 
     [Normal]
     local procedure VerifyCapacityTaskList(ProductionOrder: Record "Production Order"; RoutingLineType: Enum "Capacity Type")
     var
         RoutingLine: Record "Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         LibraryReportDataset.LoadDataSetFile;
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
@@ -1614,7 +1615,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('PONo_ProdOrderRtngLine', ProductionOrder."No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('RtngNo_ProdOrderRtngLine', ProductionOrder."Routing No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('No_ProdOrderRtngLine', RoutingLine."No.");
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
     end;
 
     [ConfirmHandler]

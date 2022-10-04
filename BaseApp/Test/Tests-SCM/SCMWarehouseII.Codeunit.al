@@ -75,7 +75,7 @@ codeunit 137048 "SCM Warehouse II"
 
         // Verify : Check that Bin Code is same as on Transfer Order.
         FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentNo);
-        Assert.AreEqual(BinCode, WarehouseShipmentLine."Bin Code", StrSubstNo(BinError, BinCode, WarehouseShipmentLine.TableCaption));
+        Assert.AreEqual(BinCode, WarehouseShipmentLine."Bin Code", StrSubstNo(BinError, BinCode, WarehouseShipmentLine.TableCaption()));
     end;
 
     [Test]
@@ -146,7 +146,7 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseReceiptLine.FindFirst();
         Assert.AreEqual(
           TransferLine."Transfer-To Bin Code", WarehouseReceiptLine."Bin Code",
-          StrSubstNo(BinError, TransferLine."Transfer-To Bin Code", WarehouseReceiptLine.TableCaption));
+          StrSubstNo(BinError, TransferLine."Transfer-To Bin Code", WarehouseReceiptLine.TableCaption()));
     end;
 
     [Test]
@@ -229,7 +229,7 @@ codeunit 137048 "SCM Warehouse II"
         FindBinContent(BinContent, LocationOrange2.Code, Item."No.");
         BinContent.CalcFields(Quantity);
         Assert.AreEqual(
-          TransferLine.Quantity, BinContent.Quantity, StrSubstNo(QuantityError, TransferLine.Quantity, TransferLine.TableCaption));
+          TransferLine.Quantity, BinContent.Quantity, StrSubstNo(QuantityError, TransferLine.Quantity, TransferLine.TableCaption()));
     end;
 
     [Test]
@@ -246,7 +246,7 @@ codeunit 137048 "SCM Warehouse II"
         BinCode := CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
 
         // Exercise.
-        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
 
         // Verify: Check that Bin Code is same as Default Bin Code.
         SalesLine.TestField("Bin Code", BinCode);
@@ -266,7 +266,7 @@ codeunit 137048 "SCM Warehouse II"
         // Setup : Create Item, Bin Content for the Item and Create and Release Sales Order.
         Initialize();
         BinCode := CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         WarehouseShipmentNo := FindWarehouseShipmentNo;
 
@@ -275,7 +275,7 @@ codeunit 137048 "SCM Warehouse II"
 
         // Verify: Check That Bin Code on Warehouse Shipment Line is same as Bin Code as on Sales Line.
         FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentNo);
-        Assert.AreEqual(BinCode, WarehouseShipmentLine."Bin Code", StrSubstNo(BinError, BinCode, WarehouseShipmentLine.TableCaption));
+        Assert.AreEqual(BinCode, WarehouseShipmentLine."Bin Code", StrSubstNo(BinError, BinCode, WarehouseShipmentLine.TableCaption()));
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 137048 "SCM Warehouse II"
         // Setup : Create Item, Bin Content for the Item and Create and Release Sales Order, Create Warehouse Shipment.
         Initialize();
         BinCode := CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         WhseShipFromSOWithNewBinCode(BinCode2, SalesHeader, WarehouseShipmentNo, LocationOrange.Code);
@@ -329,7 +329,7 @@ codeunit 137048 "SCM Warehouse II"
         // Register Pick.
         Initialize();
         BinCode := CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         WhseShipFromSOWithNewBinCode(BinCode2, SalesHeader, WarehouseShipmentNo, LocationOrange.Code);
@@ -342,7 +342,7 @@ codeunit 137048 "SCM Warehouse II"
         // Verify: Check that Warehouse Entry Quantity and Bin Code are same as Sales Line after change Bin Code on Warehouse Shipment Line.
         FindWarehouseEntry(WarehouseEntry, Item."No.", LocationOrange.Code);
         VerifyWarehouseEntry(WarehouseEntry, BinCode, -SalesLine.Quantity);
-        WarehouseEntry.Next;
+        WarehouseEntry.Next();
         VerifyWarehouseEntry(WarehouseEntry, BinCode2, SalesLine.Quantity);
     end;
 
@@ -360,7 +360,7 @@ codeunit 137048 "SCM Warehouse II"
         // Setup : Create Item, Bin Content for the Item and Create Sales Order.
         Initialize();
         CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibraryWarehouse.FindBin(Bin, LocationOrange.Code, '', 2);
         LibraryWarehouse.CreateBinContent(BinContent, LocationOrange.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         UpdateItemInventory(Item."No.", LocationOrange.Code, Bin.Code, LibraryRandom.RandDec(100, 2) + 100);
@@ -413,7 +413,7 @@ codeunit 137048 "SCM Warehouse II"
         // Verify: Check That Bin Code on Warehouse Receipt Line is same as Bin Code as on Purchase Line.
         WarehouseReceiptNo := FindWarehouseReceiptNo(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
         FindWarehouseReceiptLine(WarehouseReceiptLine, WarehouseReceiptNo);
-        Assert.AreEqual(BinCode, WarehouseReceiptLine."Bin Code", StrSubstNo(BinError, BinCode, WarehouseReceiptLine.TableCaption));
+        Assert.AreEqual(BinCode, WarehouseReceiptLine."Bin Code", StrSubstNo(BinError, BinCode, WarehouseReceiptLine.TableCaption()));
     end;
 
     [Test]
@@ -480,7 +480,7 @@ codeunit 137048 "SCM Warehouse II"
         // Put Away and Register.
         FindWarehouseEntry(WarehouseEntry, Item."No.", LocationOrange.Code);
         VerifyWarehouseEntry(WarehouseEntry, BinCode, -PurchaseLine.Quantity);
-        WarehouseEntry.Next;
+        WarehouseEntry.Next();
         VerifyWarehouseEntry(WarehouseEntry, BinCode2, PurchaseLine.Quantity);
     end;
 
@@ -525,13 +525,13 @@ codeunit 137048 "SCM Warehouse II"
         CreateItemAddInventory(Item2, LocationOrange.Code, 2);
         CreateItemAddInventory(Item3, LocationOrange.Code, 3);
         CreateBOM(ProductionBOMHeader, Item2."No.", Item3."No.", LibraryRandom.RandDec(100, 2));
-        Item.Find;
+        Item.Find();
         ItemWithProductionBOM(Item, ProductionBOMHeader."No.");
 
         // Exercise: Create Firm Planned Production Order.
         CreateProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, Item."No.", LocationOrange.Code,
-          LibraryRandom.RandDec(100, 2), WorkDate);
+          LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Verify: Check that Production Order Bin Code is same as Default Bin Code of Item.
         ProductionOrder.TestField("Bin Code", BinCode);
@@ -557,11 +557,11 @@ codeunit 137048 "SCM Warehouse II"
         BinCode := CreateItemAddInventory(Item2, LocationOrange.Code, 2);
         BinCode2 := CreateItemAddInventory(Item3, LocationOrange.Code, 3);
         CreateBOM(ProductionBOMHeader, Item2."No.", Item3."No.", LibraryRandom.RandDec(100, 2));
-        Item.Find;
+        Item.Find();
         ItemWithProductionBOM(Item, ProductionBOMHeader."No.");
         CreateProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, Item."No.", LocationOrange.Code,
-          LibraryRandom.RandDec(100, 2), WorkDate);
+          LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Exercise:
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -569,7 +569,7 @@ codeunit 137048 "SCM Warehouse II"
         // Verify: Verify that Bin Code of Production Order Component Item is same as default Bin Code of Item.
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
         VerifyBinOnProdOrdComponent(ProdOrderComponent, Item2."No.", BinCode);
-        ProdOrderComponent.Next;
+        ProdOrderComponent.Next();
         VerifyBinOnProdOrdComponent(ProdOrderComponent, Item3."No.", BinCode2);
     end;
 
@@ -597,7 +597,7 @@ codeunit 137048 "SCM Warehouse II"
         LibraryWarehouse.FindBin(Bin, LocationOrange.Code, '', 1);
         UpdateItemInventory(Item."No.", LocationOrange.Code, Bin.Code, Quantity);
 
-        CreateAndReleaseSalesOrder(SalesHeader, salesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, salesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         WhseShipFromSOWithNewBinCode(BinCode, SalesHeader, WarehouseShipmentNo, LocationOrange.Code);
         ReleaseWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentNo);
@@ -647,7 +647,7 @@ codeunit 137048 "SCM Warehouse II"
         UpdateItemInventory(Item."No.", LocationOrange.Code, Bin.Code, Quantity);
 
         CreateAndReleaseSalesOrder(
-          SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity + LibraryRandom.RandDec(100, 2), WorkDate);
+          SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity + LibraryRandom.RandDec(100, 2), WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         WhseShipFromSOWithNewBinCode(BinCode, SalesHeader, WarehouseShipmentNo, LocationOrange.Code);
         ReleaseWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentNo);
@@ -689,7 +689,7 @@ codeunit 137048 "SCM Warehouse II"
         LibraryWarehouse.FindBin(Bin, LocationOrange.Code, '', 1);
         UpdateItemInventory(Item."No.", LocationOrange.Code, Bin.Code, Quantity);
 
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         WhseShipFromSOWithNewBinCode(BinCode, SalesHeader, WarehouseShipmentNo, LocationOrange.Code);
         ReleaseWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentNo);
@@ -725,7 +725,7 @@ codeunit 137048 "SCM Warehouse II"
         Quantity := LibraryRandom.RandDec(100, 2);
         LibraryWarehouse.FindBin(Bin, LocationOrange.Code, '', 1);
         UpdateItemInventory(Item."No.", LocationOrange.Code, Bin.Code, Quantity);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         WhseShipFromSOWithNewBinCode(BinCode, SalesHeader, WarehouseShipmentNo, LocationOrange.Code);
         ReleaseWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentNo);
@@ -789,7 +789,7 @@ codeunit 137048 "SCM Warehouse II"
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LocationWhite.Code,
-          LibraryRandom.RandDec(10, 2), WorkDate);
+          LibraryRandom.RandDec(10, 2), WorkDate());
 
         // Exercise for CreatePickFromProductionOrder;
         ProductionOrder.CreatePick(UserId, 0, false, false, false);  // SetBreakBulkFilter False,DoNotFillQtyToHandle False,PrintDocument False
@@ -908,7 +908,7 @@ codeunit 137048 "SCM Warehouse II"
         ChangeUOMAndRegisterWhseAct(WarehouseActivityLine, LocationWhite.Code, PurchaseHeader."No.");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LocationWhite.Code,
-          LibraryRandom.RandDec(10, 2), WorkDate);
+          LibraryRandom.RandDec(10, 2), WorkDate());
 
         // Exercise For ChangeUOMAndCreatePickFromProductionOrder.
         ProductionOrder.CreatePick(UserId, 0, false, false, false);
@@ -961,11 +961,11 @@ codeunit 137048 "SCM Warehouse II"
         // Check Warehouse Entry has same data as expected.
         FindWarehouseEntry(WarehouseEntry, Item."No.", LocationOrange.Code);
         VerifyWarehouseEntry(WarehouseEntry, TransferLine."Transfer-To Bin Code", -TransferLine.Quantity);
-        WarehouseEntry.Next;
+        WarehouseEntry.Next();
         // The program selectes first bin that is not shipment bin, receipt bin or posted whse receipt line (take line) bin (look into help). As result we need to check negative condition
         Assert.AreNotEqual(TransferLine."Transfer-To Bin Code", WarehouseEntry."Bin Code", StrSubstNo(BinError2,
-            TransferLine."Transfer-To Bin Code", WarehouseEntry.TableCaption));
-        Assert.AreNotEqual('', WarehouseEntry."Bin Code", StrSubstNo(BinError2, '', WarehouseEntry.TableCaption));
+            TransferLine."Transfer-To Bin Code", WarehouseEntry.TableCaption()));
+        Assert.AreNotEqual('', WarehouseEntry."Bin Code", StrSubstNo(BinError2, '', WarehouseEntry.TableCaption()));
         WarehouseEntry.TestField(Quantity, TransferLine.Quantity);
     end;
 
@@ -1047,7 +1047,7 @@ codeunit 137048 "SCM Warehouse II"
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2) + 100;
         UpdateItemInventory(Item."No.", LocationGreen2.Code, '', Quantity);
-        CreateSalesOrder(SalesHeader, SalesLine, LocationGreen2.Code, Item."No.", Quantity, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationGreen2.Code, Item."No.", Quantity, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -1076,7 +1076,7 @@ codeunit 137048 "SCM Warehouse II"
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2) + 100;
         UpdateItemInventory(Item."No.", LocationGreen.Code, '', Quantity);
-        CreateSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -1123,7 +1123,7 @@ codeunit 137048 "SCM Warehouse II"
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2) + 100;
         UpdateItemInventory(Item."No.", LocationGreen.Code, '', Quantity);
-        CreateSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -1213,8 +1213,8 @@ codeunit 137048 "SCM Warehouse II"
         Initialize();
         LocationCode2 := LocationOrange.Code;  // Assign value to global variable for use in handler.
         CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
-        CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
+        CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         CreateWarehouseShipmentHeader(WarehouseShipmentHeader, LocationOrange.Code);
         GetSourceDocumentOutbound(WarehouseShipmentHeader, SalesHeader);
         GetSourceDocumentOutbound(WarehouseShipmentHeader, SalesHeader2);
@@ -1258,7 +1258,7 @@ codeunit 137048 "SCM Warehouse II"
         // Setup: Create Item, Update Inventory, Create Sales Order With Shipping Advice Complete, Create Warehouse Shipment and Select Created Sales Order Create Pick And Change Quantity On Qty To Ship Of Warehouse Shipment.
         Initialize();
         CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2) + 10, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", LibraryRandom.RandDec(10, 2) + 10, WorkDate());
         SalesHeader.Validate("Shipping Advice", SalesHeader."Shipping Advice"::Complete);
         SalesHeader.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1319,7 +1319,7 @@ codeunit 137048 "SCM Warehouse II"
     begin
         // Create Item, Update Inventory, Create Sales Order , Create Warehouse Shipment and Select Created Sales Order Create Pick And Change Quantity On Qty To Ship Of Warehouse Shipment.
         CreateItemAddInventory(Item, LocationOrange.Code, 1);  // Value required for Bin Index.
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate());
         CreateWarehouseShipmentHeader(WarehouseShipmentHeader, LocationOrange.Code);
         LocationCode2 := LocationOrange.Code;  // Assign value to global variable for use in handler.
         GetSourceDocumentOutbound(WarehouseShipmentHeader, SalesHeader);
@@ -1363,7 +1363,7 @@ codeunit 137048 "SCM Warehouse II"
         Item.Modify(true);
         Quantity := LibraryRandom.RandDec(10, 2);
         UpdateInventoryUsingWhseJournal(LocationWhite, Item, Quantity);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationWhite.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationWhite.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
 
         LocationCode2 := LocationWhite.Code;  // Assignvalue to global variable for use in handler.
@@ -1397,8 +1397,8 @@ codeunit 137048 "SCM Warehouse II"
         Initialize();
         UpdateWarehouseSetup(true, true);  // Update the Warehouse Setup with Require Receive and Require Shipment True.
         CreateItem(Item);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, '', Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
-        CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, '', Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, '', Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
+        CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, '', Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
 
         // Assign values to global variable.
@@ -1430,7 +1430,7 @@ codeunit 137048 "SCM Warehouse II"
         Initialize();
         UpdateWarehouseSetup(true, true);  // Update the Warehouse Setup with Require Receive and Require Shipment True.
         CreateItem(Item);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, '', Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, '', Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
 
         // Assign values to global variable.
@@ -1467,7 +1467,7 @@ codeunit 137048 "SCM Warehouse II"
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         UpdateItemInventory(Item."No.", LocationGreen.Code, '', Quantity);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         ReleaseWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentNo);
@@ -1509,7 +1509,7 @@ codeunit 137048 "SCM Warehouse II"
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         UpdateItemInventory(Item."No.", LocationGreen.Code, '', Quantity);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate());
 
         // Assign value to global variable. Create Pick Worksheet Template, get source Document and select the Pick Line from Pick Selection page.
         LocationCode2 := LocationGreen.Code;
@@ -1562,7 +1562,7 @@ codeunit 137048 "SCM Warehouse II"
         UpdateQuantityToHandleAndBinOnActivityLine(WarehouseActivityLine."Action Type"::Take, PurchaseHeader."No.", Quantity / 2);
         UpdateQuantityToHandleAndBinOnActivityLine(WarehouseActivityLine."Action Type"::Place, PurchaseHeader."No.", Quantity / 2);
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationOrange.Code, Item."No.", Quantity, WorkDate());
 
         LocationCode2 := LocationOrange.Code;  // Assign value to global variable for use in handler.
         WarehouseShipmentNo := FindWarehouseShipmentNo;
@@ -1655,7 +1655,7 @@ codeunit 137048 "SCM Warehouse II"
         // Setup: Create and release Sales Order and create Warehouse Shipment from SO for Location Red.
         Initialize();
         CreateItem(Item);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationRed.Code, Item."No.", LibraryRandom.RandDec(100, 2), WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationRed.Code, Item."No.", LibraryRandom.RandDec(100, 2), WorkDate());
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(FindWhseShipmentNo(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No."));
 
@@ -1684,7 +1684,7 @@ codeunit 137048 "SCM Warehouse II"
         Initialize();
         UpdateSalesInvoiceNoSeries(true);  // Make No. Series Manual for Sales Invoice to allow Shipment No. as Invoice No.
         CreateItem(Item);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationRed.Code, Item."No.", LibraryRandom.RandDec(100, 2), WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationRed.Code, Item."No.", LibraryRandom.RandDec(100, 2), WorkDate());
         CreateAndPostWhseShipmentFromSO(SalesHeader);
         FindSalesShipmentLine(SalesShipmentLine, SalesHeader."No.");
         CreateSalesInvoiceWithShipmentNo(SalesHeader2, SalesHeader, SalesShipmentLine."Document No.");
@@ -1730,7 +1730,7 @@ codeunit 137048 "SCM Warehouse II"
           WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", LocationWhite.Code, PurchaseHeader."No.",
           WarehouseActivityLine."Action Type"::Take);
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationWhite.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationWhite.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(WarehouseShipmentNo);
@@ -1842,7 +1842,7 @@ codeunit 137048 "SCM Warehouse II"
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityHeader.Type::"Put-away");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LocationWhite.Code,
-          LibraryRandom.RandDec(10, 2), WorkDate);
+          LibraryRandom.RandDec(10, 2), WorkDate());
 
         // Exercise: Create Pick from Production Order.
         ProductionOrder.CreatePick(UserId, 0, false, false, false);  // SetBreakBulkFilter False, DoNotFillQtyToHandle False, PrintDocument False.
@@ -2107,7 +2107,7 @@ codeunit 137048 "SCM Warehouse II"
         CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         UpdateItemInventory(Item."No.", LocationGreen.Code, '', Quantity);
-        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, LocationGreen.Code, Item."No.", Quantity, WorkDate());
         WarehouseShipmentNo := FindWarehouseShipmentNo;
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         ReleaseWarehouseShipment(WarehouseShipmentHeader, WarehouseShipmentNo);
@@ -2180,15 +2180,15 @@ codeunit 137048 "SCM Warehouse II"
 
         // Verify
         VerifyBinContentGetCaptionWithFilter(
-          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption);
+          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption);
+          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption);
+          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption);
+          '..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption);
+          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
     end;
 
     [Test]
@@ -2212,15 +2212,15 @@ codeunit 137048 "SCM Warehouse II"
 
         // Verify
         VerifyBinContentGetCaptionWithFilter(
-          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption);
+          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption);
+          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption);
+          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '..%1', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption);
+          '..%1', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption);
+          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Item No."), Item.TableCaption());
     end;
 
     [Test]
@@ -2244,15 +2244,15 @@ codeunit 137048 "SCM Warehouse II"
 
         // Verify
         VerifyBinContentGetCaptionWithFilter(
-          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption);
+          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption);
+          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption);
+          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '..%1', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption);
+          '..%1', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption);
+          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Variant Code"), ItemVariant.TableCaption());
     end;
 
     [Test]
@@ -2965,7 +2965,7 @@ codeunit 137048 "SCM Warehouse II"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate(), false));
     end;
 
     local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
@@ -3006,7 +3006,7 @@ codeunit 137048 "SCM Warehouse II"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Posted Whse. Shipment Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Posted Whse. Shipment Nos.", WorkDate(), false));
     end;
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeaderNo: Code[20])
@@ -3296,7 +3296,7 @@ codeunit 137048 "SCM Warehouse II"
         end;
     end;
 
-    local procedure VerifyBinContentGetCaptionWithFilter(FilterMask: Text; LocationCode: Code[20]; FirstCode: Code[20]; SecondCode: Code[20]; FieldNo: Integer; TableCaption: Text)
+    local procedure VerifyBinContentGetCaptionWithFilter(FilterMask: Text; LocationCode: Code[20]; FirstCode: Code[20]; SecondCode: Code[20]; FieldNo: Integer; TableCaption2: Text)
     var
         BinContent: Record "Bin Content";
         Location: Record Location;
@@ -3312,9 +3312,9 @@ codeunit 137048 "SCM Warehouse II"
         RecRef.FindFirst();
         RecRef.SetTable(BinContent);
 
-        ExpectedCaption := StrSubstNo('%1 %2', Location.TableCaption, LocationCode);
+        ExpectedCaption := StrSubstNo('%1 %2', Location.TableCaption(), LocationCode);
         if FilterMask <> '' then
-            ExpectedCaption := StrSubstNo('%1 %2 %3', ExpectedCaption, TableCaption, FieldRef.Value);
+            ExpectedCaption := StrSubstNo('%1 %2 %3', ExpectedCaption, TableCaption2, FieldRef.Value);
 
         Assert.AreEqual(
           ExpectedCaption,
@@ -3340,7 +3340,7 @@ codeunit 137048 "SCM Warehouse II"
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, SourceNo, ActionType);
         Assert.AreEqual(
-          ExpectedBinCode, WarehouseActivityLine."Bin Code", StrSubstNo(BinError, ExpectedBinCode, WarehouseActivityLine.TableCaption));
+          ExpectedBinCode, WarehouseActivityLine."Bin Code", StrSubstNo(BinError, ExpectedBinCode, WarehouseActivityLine.TableCaption()));
     end;
 
     local procedure VerifyBinCodeNotEqual(ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20]; NotExpectedBinCode: Code[20])
@@ -3349,7 +3349,7 @@ codeunit 137048 "SCM Warehouse II"
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, SourceNo, ActionType);
         Assert.AreNotEqual(
-          NotExpectedBinCode, WarehouseActivityLine."Bin Code", StrSubstNo(BinError2, NotExpectedBinCode, WarehouseActivityLine.TableCaption));
+          NotExpectedBinCode, WarehouseActivityLine."Bin Code", StrSubstNo(BinError2, NotExpectedBinCode, WarehouseActivityLine.TableCaption()));
     end;
 
     local procedure FindWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -3385,8 +3385,8 @@ codeunit 137048 "SCM Warehouse II"
             PostedWhseShipmentLine.SetRange("Source Line No.", SalesLine."Line No.");
             PostedWhseShipmentLine.FindFirst();
             Assert.AreEqual(PostedWhseShipmentLine.Quantity, SalesLine.Quantity,
-              StrSubstNo(QuantityError, SalesLine.Quantity, PostedWhseShipmentLine.TableCaption));
-        until SalesLine.Next = 0;
+              StrSubstNo(QuantityError, SalesLine.Quantity, PostedWhseShipmentLine.TableCaption()));
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyDefaultBinContent(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20])
@@ -3397,7 +3397,7 @@ codeunit 137048 "SCM Warehouse II"
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange(Default, true);
         BinContent.FindFirst();
-        Assert.AreEqual(BinCode, BinContent."Bin Code", StrSubstNo(BinError, BinCode, BinContent.TableCaption));
+        Assert.AreEqual(BinCode, BinContent."Bin Code", StrSubstNo(BinError, BinCode, BinContent.TableCaption()));
     end;
 
     local procedure VerifyWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Decimal; ExpectedQuantity: Decimal)
@@ -3409,10 +3409,10 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseActivityLine.TestField("Qty. per Unit of Measure", QtyPerUnitOfMeasure);
         Assert.AreNearlyEqual(
           ExpectedQuantity, WarehouseActivityLine.Quantity, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption));
+          StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption()));
         Assert.AreNearlyEqual(
           ExpectedQuantity, WarehouseActivityLine."Qty. Outstanding", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption));
+          StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption()));
     end;
 
     local procedure VerifyRegisteredWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Decimal; ExpectedQuantity: Decimal)
@@ -3429,7 +3429,7 @@ codeunit 137048 "SCM Warehouse II"
         RegisteredWhseActivityLine.TestField("Qty. per Unit of Measure", QtyPerUnitOfMeasure);
         Assert.AreNearlyEqual(
           ExpectedQuantity, RegisteredWhseActivityLine.Quantity, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption));
+          StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption()));
     end;
 
     local procedure VerifyTransferReceipt(TransferLine: Record "Transfer Line")
@@ -3491,7 +3491,7 @@ codeunit 137048 "SCM Warehouse II"
         RegisteredWhseActivityLine.TestField("Qty. per Unit of Measure", 1);
         Assert.AreEqual(
           ExpectedQuantity, RegisteredWhseActivityLine.Quantity,
-          StrSubstNo(QuantityError, ExpectedQuantity, RegisteredWhseActivityLine.TableCaption));
+          StrSubstNo(QuantityError, ExpectedQuantity, RegisteredWhseActivityLine.TableCaption()));
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)

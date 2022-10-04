@@ -43,10 +43,10 @@ table 1103 "Cost Type"
                 if Blocked and not xRec.Blocked then begin
                     CostEntry.SetRange("Cost Type No.", "No.");
                     if not CostEntry.IsEmpty() then
-                        Error(Text001, "No.", CostEntry.TableCaption);
+                        Error(Text001, "No.", CostEntry.TableCaption());
                     CostBudgetEntry.SetRange("Cost Type No.", "No.");
                     if not CostBudgetEntry.IsEmpty() then
-                        Error(Text001, "No.", CostBudgetEntry.TableCaption);
+                        Error(Text001, "No.", CostBudgetEntry.TableCaption());
                 end;
 
                 Totaling := '';
@@ -365,12 +365,12 @@ table 1103 "Cost Type"
     trigger OnInsert()
     begin
         TestField("No.");
-        Modified;
+        Modified();
     end;
 
     trigger OnModify()
     begin
-        Modified;
+        Modified();
     end;
 
     trigger OnRename()
@@ -394,8 +394,8 @@ table 1103 "Cost Type"
         GLAccList: Page "G/L Account List";
     begin
         GLAccList.LookupMode(true);
-        if GLAccList.RunModal = ACTION::LookupOK then begin
-            Text := GLAccList.GetSelectionFilter;
+        if GLAccList.RunModal() = ACTION::LookupOK then begin
+            Text := GLAccList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -406,8 +406,8 @@ table 1103 "Cost Type"
         CostTypeList: Page "Cost Type List";
     begin
         CostTypeList.LookupMode(true);
-        if CostTypeList.RunModal = ACTION::LookupOK then begin
-            Text := CostTypeList.GetSelectionFilter;
+        if CostTypeList.RunModal() = ACTION::LookupOK then begin
+            Text := CostTypeList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

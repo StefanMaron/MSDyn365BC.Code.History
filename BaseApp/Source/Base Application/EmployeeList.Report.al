@@ -14,7 +14,7 @@ report 5201 "Employee - List"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_TABLECAPTION__________EmployeeFilter; TableCaption + ': ' + EmployeeFilter)
@@ -166,7 +166,7 @@ report 5201 "Employee - List"
 
     trigger OnPreReport()
     begin
-        EmployeeFilter := Employee.GetFilters;
+        EmployeeFilter := Employee.GetFilters();
         Counter := 0;
         GroupNo := 1;
         RecPerPageNum := 2;

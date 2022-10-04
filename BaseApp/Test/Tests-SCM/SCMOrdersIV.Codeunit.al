@@ -67,6 +67,9 @@ codeunit 137156 "SCM Orders IV"
         ShipmemtDateErr: Label 'Shipment Date error should not appear.';
         ApplFromItemEntryBlankErr: Label 'Appl.-from Item Entry must have a value in Sales Line';
         ApplToItemEntryBlankErr: Label 'Appl.-to Item Entry must have a value in Purchase Line';
+        PurchInvLineCountErr: label 'Expected %1 purchase invoice lines but found %2';
+        PurchInvLineQuantityErr: label 'Expected quantity of 1 on purchase invoice line but found %1';
+        PurchInvLineVendorNoErr: label 'Expected "Buy-from Vendor No." to be %1 on purchase invoice line but found %2';
 
 #if not CLEAN19
     [Test]
@@ -86,6 +89,64 @@ codeunit 137156 "SCM Orders IV"
 
         // Verify: Verify Sales Prices Type filter on Lines.
         SalesPrices."Sales Type".AssertEquals(SalesTypeFilter);
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckPurchInvLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure GetInvoiceLinesPartialPurchOrder()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptline: Record "Purch. Rcpt. Line";
+        TempPurchInvLine: Record "Purch. Inv. Line" temporary;
+        Vendor: Record Vendor;
+        PurchRcptPage: TestPage "Posted Purchase Receipt";
+        Quantity: Decimal;
+        I: Integer;
+        LineCount: Integer;
+    begin
+        // [SLICE] [408480 Tune Base App: Fix top X repeat patterns with Query Objects]
+        // [FEATURE] [Purchase Receipt] [Get Invoice Lines]
+        // [SCENARIO] Check that the correct Purchase Invoice Lines are found by Purchase Receipt Line
+
+        // [GIVEN] Purchase Order with one line of given Quantity
+        Quantity := LibraryRandom.RandInt(10) + 5;
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, Vendor."No.", Item."No.", Quantity);
+
+        // [GIVEN] Order is recieved once, creating one Receipt with one line
+        PurchaseLine.Validate("Qty. to Receive", Quantity);
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Order is invoiced partially in 'Quantity' iterations, creating 'Quantity' Purch. Invoice Lines
+        For I := 1 to Quantity do begin
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+            PurchaseHeader.Modify();
+            PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+            PurchaseLine.Validate("Qty. to Invoice", 1);
+            PurchaseLine.Modify();
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        end;
+
+        // [GIVEN] The Purchase Receipt
+        PurchRcptHeader.SetFilter("Order No.", PurchaseHeader."No.");
+        PurchRcptHeader.FindFirst();
+
+        // [GIVEN] ItemInvoiceLines action is invoked on the created PurchReceiptLine
+        PurchRcptPage.OpenView();
+        PurchRcptPage.GoToRecord(PurchRcptHeader);
+        PurchRcptPage.PurchReceiptLines.First();
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [THEN] Purchase Invoice Lines Page is opened modally and the lines are checked
+        PurchRcptPage.PurchReceiptLines.ItemInvoiceLines.Invoke();
     end;
 
     [Test]
@@ -209,11 +270,11 @@ codeunit 137156 "SCM Orders IV"
         LibraryInventory.CreateItem(Item);
         CreateSalesOrder(
           SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", LibraryRandom.RandDec(10, 2), '');
-        RequestedDeliveryDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        RequestedDeliveryDate := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate());
 
         // Exercise.
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(ShipmentDateBeforeWorkDateMsg, SalesHeader.FieldCaption("Shipment Date"), RequestedDeliveryDate, WorkDate));  // Enqueue for MessageHandler.
+          StrSubstNo(ShipmentDateBeforeWorkDateMsg, SalesHeader.FieldCaption("Shipment Date"), RequestedDeliveryDate, WorkDate()));  // Enqueue for MessageHandler.
         SalesLine.Validate("Requested Delivery Date", RequestedDeliveryDate);
 
         // Verify: Verification is done by MessageHandler.
@@ -244,11 +305,11 @@ codeunit 137156 "SCM Orders IV"
         CreateAndPostItemJournalLine(Item."No.", Quantity, LocationBlue.Code, UnitPrice);
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreateAndPostSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CustomerNo, Item."No.", Quantity / 2, WorkDate,
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CustomerNo, Item."No.", Quantity / 2, WorkDate(),
           LocationBlue.Code, UnitPrice, true);  // Value required for the test.
         CreateAndPostSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CustomerNo, Item."No.", Quantity / 2,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), LocationBlue.Code, UnitPrice2, true);  // Value required for the test.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), LocationBlue.Code, UnitPrice2, true);  // Value required for the test.
 
         // Exercise:
         LibraryVariableStorage.Enqueue(Quantity / 2 * UnitPrice + Quantity / 2 * UnitPrice2);  // Value required for the test. Enqueue for ItemStatisticsMatrixPageHandler.
@@ -295,7 +356,7 @@ codeunit 137156 "SCM Orders IV"
         PostedDocumentNo :=
           CreateAndPostSalesDocument(
             SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, LibrarySales.CreateCustomerNo, Item."No.",
-            Quantity, WorkDate, '', LibraryRandom.RandDec(50, 2), false);
+            Quantity, WorkDate(), '', LibraryRandom.RandDec(50, 2), false);
         CreateSalesDocumentWithItemChargeAssignment(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, PostedDocumentNo, SalesHeader."Sell-to Customer No.", Quantity);
 
@@ -325,7 +386,7 @@ codeunit 137156 "SCM Orders IV"
         PostedDocumentNo :=
           CreateAndPostSalesDocument(
             SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, LibrarySales.CreateCustomerNo, Item."No.",
-            Quantity, WorkDate, '', LibraryRandom.RandDec(50, 2), false);  // Value required for the test.
+            Quantity, WorkDate(), '', LibraryRandom.RandDec(50, 2), false);  // Value required for the test.
         UndoSalesShipmentLine(PostedDocumentNo);
 
         // Exercise: Post Sales Order After Undo Shipment.
@@ -375,7 +436,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo := CreateAndPostSalesDocument(
             SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine.Type::Item, LibrarySales.CreateCustomerNo,
-            Item."No.", Quantity, WorkDate, '', LibraryRandom.RandDec(50, 2), false);  // Value required for the test.
+            Item."No.", Quantity, WorkDate(), '', LibraryRandom.RandDec(50, 2), false);  // Value required for the test.
         EnqueueValuesForItemCharge(ItemChargeAssignment::GetReturnReceiptLines, PostedDocumentNo);
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::"Charge (Item)",
@@ -408,7 +469,7 @@ codeunit 137156 "SCM Orders IV"
         PostedDocumentNo :=
           CreateAndPostSalesDocument(
             SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine.Type::Item, LibrarySales.CreateCustomerNo,
-            Item."No.", -Quantity, WorkDate, '', 0, false);  // Value required for the test.
+            Item."No.", -Quantity, WorkDate(), '', 0, false);  // Value required for the test.
 
         // Exercise: Undo Return Receipt Line.
         UndoReturnReceiptLine(PostedDocumentNo);
@@ -526,7 +587,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create Sales Order with Shipment Date before work date and two lines with rounding amount <> 0.
-        CreateSalesOrderWithTwoLines(SalesLine, Item."No.", CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        CreateSalesOrderWithTwoLines(SalesLine, Item."No.", CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // [GIVEN] Run Sales Order Subform.
         SalesOrderSubform.Trap;
@@ -615,8 +676,8 @@ codeunit 137156 "SCM Orders IV"
         CreateCustomerAndOpenSalesPricesPageFromCustomerCard(SalesPrices);
 
         // Exercise: Enter Ending Date Earlier to Starting Date on Sales Prices Page.
-        SalesPrices."Starting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
-        asserterror SalesPrices."Ending Date".SetValue(WorkDate);  // Ending Date is Earlier than Starting Date.
+        SalesPrices."Starting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
+        asserterror SalesPrices."Ending Date".SetValue(WorkDate());  // Ending Date is Earlier than Starting Date.
 
         // Verify: Verify error message.
         Assert.ExpectedError(StartingDateErr);
@@ -672,10 +733,10 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] "Sales Line Discounts" page opened from customer Card
         CreateCustomerAndOpenSalesLineDiscountsPageFromCustomerCard(SalesLineDiscounts);
         // [GIVEN] Set "Starting Date" = 25-01-2018
-        SalesLineDiscounts."Starting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesLineDiscounts."Starting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // [WHEN] Set "Ending Date" = 24-01-2018
-        asserterror SalesLineDiscounts."Ending Date".SetValue(WorkDate);
+        asserterror SalesLineDiscounts."Ending Date".SetValue(WorkDate());
 
         // [THEN] There is an error "Starting Date cannot be after Ending Date"
         Assert.ExpectedError(StartingDateErr);
@@ -1245,7 +1306,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         ProductionForecast.OpenEdit;
         ProductionForecast.ProductionForecastName.SetValue(ProductionForecastName.Name);
-        DateFilter := Format(WorkDate);
+        DateFilter := Format(WorkDate());
 
         // Exercise
         ProductionForecast.DateFilter.SetValue(DateFilter);
@@ -1445,7 +1506,7 @@ codeunit 137156 "SCM Orders IV"
         PostedDocumentNo :=
           CreateAndPostSalesDocument(
             SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, Customer."No.",
-            Item."No.", LibraryRandom.RandIntInRange(10, 100), WorkDate, '',
+            Item."No.", LibraryRandom.RandIntInRange(10, 100), WorkDate(), '',
             LibraryRandom.RandDecInDecimalRange(10, 100, 2), false);
 
         CreatePurchaseInvoice(
@@ -1555,7 +1616,7 @@ codeunit 137156 "SCM Orders IV"
         Item.Modify(true);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        SalesHeader.Validate("Shipment Date", WorkDate);
+        SalesHeader.Validate("Shipment Date", WorkDate());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -1586,7 +1647,7 @@ codeunit 137156 "SCM Orders IV"
         asserterror SalesLine.Validate("Unit of Measure Code");
 
         // [THEN] Error is thrown: "Return Qty. Received must be equal to '0'  in Purchase Line"
-        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, SalesLine.FieldCaption("Return Qty. Received"), SalesLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, SalesLine.FieldCaption("Return Qty. Received"), SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -1606,7 +1667,7 @@ codeunit 137156 "SCM Orders IV"
         asserterror SalesLine.Validate("Unit of Measure Code");
 
         // [THEN] Error is thrown: "Return Qty. Received (Base) must be equal to '0'  in Purchase Line"
-        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, SalesLine.FieldCaption("Return Qty. Received (Base)"), SalesLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, SalesLine.FieldCaption("Return Qty. Received (Base)"), SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -1718,7 +1779,7 @@ codeunit 137156 "SCM Orders IV"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [THEN] "Ship" field in the sales order = FALSE.
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Ship, false);
     end;
 
@@ -1992,7 +2053,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the sales line is not changed.
         // [THEN] The line is not reserved.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("No.", Item."No.");
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
@@ -2033,7 +2094,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the service line is not changed.
         // [THEN] The line is not reserved.
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("No.", Item."No.");
         ServiceLine.CalcFields("Reserved Quantity");
         ServiceLine.TestField("Reserved Quantity", 0);
@@ -2072,7 +2133,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the prod. order component is not changed.
         // [THEN] The component is not reserved.
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Item No.", Item."No.");
         ProdOrderComponent.CalcFields("Reserved Quantity");
         ProdOrderComponent.TestField("Reserved Quantity", 0);
@@ -2110,7 +2171,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the assembly line is not changed.
         // [THEN] The line is not reserved.
-        AssemblyLine.Find;
+        AssemblyLine.Find();
         AssemblyLine.TestField("No.", Item."No.");
         AssemblyLine.CalcFields("Reserved Quantity");
         AssemblyLine.TestField("Reserved Quantity", 0);
@@ -2148,7 +2209,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the sales line is not changed.
         // [THEN] The line is not reserved.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("No.", Item."No.");
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
@@ -2186,7 +2247,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the sales line is changed to "S".
         // [THEN] The line is not reserved.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("No.", SubstitutionItem."No.");
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
@@ -2227,7 +2288,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the service line is changed to "S".
         // [THEN] The line is not reserved.
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("No.", SubstitutionItem."No.");
         ServiceLine.CalcFields("Reserved Quantity");
         ServiceLine.TestField("Reserved Quantity", 0);
@@ -2266,7 +2327,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the prod. order component is changed to "S".
         // [THEN] The component is not reserved.
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Item No.", SubstitutionItem."No.");
         ProdOrderComponent.CalcFields("Reserved Quantity");
         ProdOrderComponent.TestField("Reserved Quantity", 0);
@@ -2304,7 +2365,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the assembly line is changed to "S".
         // [THEN] The line is not reserved.
-        AssemblyLine.Find;
+        AssemblyLine.Find();
         AssemblyLine.TestField("No.", SubstitutionItem."No.");
         AssemblyLine.CalcFields("Reserved Quantity");
         AssemblyLine.TestField("Reserved Quantity", 0);
@@ -2342,7 +2403,7 @@ codeunit 137156 "SCM Orders IV"
 
         // [THEN] Item no. on the sales line is changed to "S".
         // [THEN] The line is not reserved.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("No.", SubstitutionItem."No.");
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
@@ -2441,7 +2502,7 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Create a sales order and set "Line Discount %" = "X" on the sales line.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
         SalesLine.Validate("Line Discount %", LineDiscPercent);
         SalesLine.Modify(true);
 
@@ -2469,7 +2530,7 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Create a sales order and set "Line Discount %" = "X" on the sales line.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
         SalesLine.Validate("Line Discount %", LineDiscPercent);
         SalesLine.Modify(true);
 
@@ -2546,11 +2607,11 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Sales order.
         Qty := LibraryRandom.RandInt(10);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
 
         // [GIVEN] Sales return order.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate());
 
         // [WHEN] Receive the sales return.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -2584,11 +2645,11 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Purchase order.
         Qty := LibraryRandom.RandInt(10);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
 
         // [GIVEN] Purchase return order.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate());
 
         // [WHEN] Ship the purchase return.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2619,12 +2680,12 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Sales order.
         Qty := LibraryRandom.RandInt(10);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
 
         // [GIVEN] Sales return order reserved for the sales order.
         // [GIVEN] Leave "Applied-to Item Entry" field blank.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate());
         SalesLine.ShowReservation();
 
         // [WHEN] Receive the sales return.
@@ -2656,7 +2717,7 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Purchase order.
         Qty := LibraryRandom.RandInt(10);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
 
         // [GIVEN] Post the purchase order.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2664,14 +2725,14 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Purchase return order reserved from the inventory.
         // [GIVEN] Leave "Applied-to Item Entry" field blank.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate());
         PurchaseLine.ShowReservation();
 
         // [WHEN] Ship the purchase return.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [THEN] The purchase return is successfully posted.
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Return Qty. Shipped", PurchaseLine.Quantity);
     end;
 
@@ -2697,12 +2758,12 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Purchase order.
         Qty := LibraryRandom.RandInt(10);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
 
         // [GIVEN] Purchase return order reserve from the purchase order.
         // [GIVEN] Leave "Applied-to Item Entry" field blank.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate());
         PurchaseLine.ShowReservation();
 
         // [WHEN] Ship the purchase return.
@@ -2869,7 +2930,7 @@ codeunit 137156 "SCM Orders IV"
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
         LibraryERM.SetWorkDate; // IT.
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
         PriceListLine.DeleteAll();
         // Lazy Setup.
         if isInitialized then
@@ -3331,7 +3392,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
         CreateSalesLineDiscount(
-          SalesLineDiscount, Item, SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, WorkDate,
+          SalesLineDiscount, Item, SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, WorkDate(),
           LibraryRandom.RandDec(10, 2));
     end;
 #endif
@@ -3641,13 +3702,13 @@ codeunit 137156 "SCM Orders IV"
 
     local procedure CreateSalesOrderSingleLineAutoReservedSpecifiedQuantity(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
     begin
-        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, 0, '', WorkDate);
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, 0, '', WorkDate());
         UpdateSalesLineQuantityAndAutoReserve(SalesLine, Quantity);
     end;
 
     local procedure CreateSalesOrderSingleLineAutoReservedUnspecifiedQuantity(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20])
     begin
-        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, 0, '', WorkDate);
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, 0, '', WorkDate());
         LibrarySales.AutoReserveSalesLine(SalesLine);
     end;
 
@@ -3845,7 +3906,7 @@ codeunit 137156 "SCM Orders IV"
         AssemblyItem: Record Item;
     begin
         CreateItemWithSimpleBOM(AssemblyItem, ItemNo, AssemblyItem."Replenishment System"::Assembly);
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AssemblyItem."No.", '', Quantity, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AssemblyItem."No.", '', Quantity, '');
         LibraryAssembly.CreateAssemblyLine(
           AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemNo, AssemblyItem."Base Unit of Measure", Quantity, 1, '');
     end;
@@ -3876,7 +3937,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Quantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Quantity, '', WorkDate());
         PurchaseLine.Validate("Job No.", Job."No.");
         PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
         PurchaseLine.Modify(true);
@@ -3959,7 +4020,7 @@ codeunit 137156 "SCM Orders IV"
         // Exercise: Post Purchase Order and Sales Order.
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive as TRUE.
-        SalesHeader.Find;  // Require for Posting.
+        SalesHeader.Find();  // Require for Posting.
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
 
         // Verify: Verify Posted Sales Invoice Line.
@@ -4232,7 +4293,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplate);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure GetSalesOrderForSpecialOrderOnRequisitionWkshtAndCarryOutActionMsg(ItemNo: Code[20])
@@ -4243,7 +4304,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplate);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CreateSalesInvoiceWithItemChargeWithLnDiscAndInvDisc(var SalesHeader2: Record "Sales Header"; var GeneralPostingSetup: Record "General Posting Setup"; PricesIncludingVAT: Boolean) ExpdTotalDisAmt: Decimal
@@ -4265,7 +4326,7 @@ codeunit 137156 "SCM Orders IV"
         for i := 1 to 3 do
             PostedDocNo[i] :=
               CreateAndPostSalesDocument(SalesHeader[i], SalesHeader[i]."Document Type"::Order, SalesLine[i].Type::Item,
-                Customer."No.", Item."No.", LibraryRandom.RandDec(10, 5), WorkDate, '',
+                Customer."No.", Item."No.", LibraryRandom.RandDec(10, 5), WorkDate(), '',
                 LibraryRandom.RandDec(10, 2), false); // Post as Ship.
 
         VATPct :=
@@ -4308,7 +4369,7 @@ codeunit 137156 "SCM Orders IV"
         ItemStatistics.ItemFilter.SetValue(ItemNo);
         case DimColumnOption of
             DimColumnOption::Location:
-                ItemStatistics.ColumnDimCode.SetValue(Location.TableCaption);
+                ItemStatistics.ColumnDimCode.SetValue(Location.TableCaption());
             DimColumnOption::Period:
                 ItemStatistics.ColumnDimCode.SetValue(PeriodTxt);
         end;
@@ -4413,11 +4474,11 @@ codeunit 137156 "SCM Orders IV"
           Quantity + Quantity2, true);  // True for INVOICE. Value required for the test.
         CreateAndPostSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, LibrarySales.CreateCustomerNo, Item."No.",
-          Quantity2, WorkDate, LocationBlue.Code, LibraryRandom.RandDec(10, 2), true);  // TRUE for Post as INVOICE.
+          Quantity2, WorkDate(), LocationBlue.Code, LibraryRandom.RandDec(10, 2), true);  // TRUE for Post as INVOICE.
         PostedSalesInvoiceNo :=
           CreateAndPostSalesDocument(
             SalesHeader2, SalesHeader2."Document Type"::Order, SalesLine.Type::Item, SalesHeader."Sell-to Customer No.", Item."No.",
-            Quantity, WorkDate, LocationBlue.Code, LibraryRandom.RandDec(10, 2), true);  // TRUE for Post as INVOICE.
+            Quantity, WorkDate(), LocationBlue.Code, LibraryRandom.RandDec(10, 2), true);  // TRUE for Post as INVOICE.
 
         // Exercise.
         CreateAndPostSalesReturnOrderWithCopySalesDocument(SalesHeader3, SalesHeader."Sell-to Customer No.", PostedSalesInvoiceNo);
@@ -4615,7 +4676,7 @@ codeunit 137156 "SCM Orders IV"
 
     local procedure UpdateExpectedReceiptDateOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseLine.Validate("Expected Receipt Date", WorkDate);
+        PurchaseLine.Validate("Expected Receipt Date", WorkDate());
         PurchaseLine.Modify(true);
     end;
 
@@ -4774,7 +4835,7 @@ codeunit 137156 "SCM Orders IV"
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     local procedure SelectItemSubstitutionThroughProductionOrderPage(var ProductionOrder: Record "Production Order"; var ReleasedProductionOrder: TestPage "Released Production Order"; var ProdOrderComponents: TestPage "Prod. Order Components")
@@ -4803,20 +4864,20 @@ codeunit 137156 "SCM Orders IV"
     local procedure SetLineItemNoThroughSalesOrderPage(var SalesOrder: TestPage "Sales Order"; ItemNo: Code[20])
     begin
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure SetItemNoThroughProdOrderComponentsPage(var ReleasedProductionOrder: TestPage "Released Production Order"; var ProdOrderComponents: TestPage "Prod. Order Components"; ItemNo: Code[20])
     begin
         ProdOrderComponents."Item No.".SetValue(ItemNo);
-        ProdOrderComponents.Close;
-        ReleasedProductionOrder.Close;
+        ProdOrderComponents.Close();
+        ReleasedProductionOrder.Close();
     end;
 
     local procedure SetItemNoThroughAssemblyOrderPage(var AssemblyOrder: TestPage "Assembly Order"; ItemNo: Code[20])
     begin
         AssemblyOrder.Lines."No.".SetValue(ItemNo);
-        AssemblyOrder.Close;
+        AssemblyOrder.Close();
     end;
 
     local procedure UpdateItemInventoryNoLocation(ItemNo: Code[20]; Quantity: Decimal)
@@ -4999,7 +5060,7 @@ codeunit 137156 "SCM Orders IV"
         ReturnReceiptLine.SetRange("No.", ItemNo);
         ReturnReceiptLine.FindSet();
         if Next then
-            ReturnReceiptLine.Next;
+            ReturnReceiptLine.Next();
         ReturnReceiptLine.TestField(Quantity, Quantity);
     end;
 
@@ -5011,7 +5072,7 @@ codeunit 137156 "SCM Orders IV"
         SalesShipmentLine.SetRange("No.", ItemNo);
         SalesShipmentLine.FindSet();
         if Next then
-            SalesShipmentLine.Next;
+            SalesShipmentLine.Next();
         SalesShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -5024,7 +5085,7 @@ codeunit 137156 "SCM Orders IV"
         ValueEntry.FindSet();
         repeat
             ActualTotalDisAmt := ActualTotalDisAmt + Abs(ValueEntry."Discount Amount");
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(ExpdTotalDisAmt, ActualTotalDisAmt, DiscountErr);
     end;
 
@@ -5056,7 +5117,7 @@ codeunit 137156 "SCM Orders IV"
             PurchaseLine.SetRange("Sales Order No.", SalesHeader."No."); // For DropShipment.
         PurchaseLine.Find('-');
         FirstPurchaseHeaderNo := PurchaseLine."Document No.";
-        PurchaseLine.Next;
+        PurchaseLine.Next();
         PurchaseLine.TestField("Document No.", FirstPurchaseHeaderNo);
     end;
 
@@ -5088,7 +5149,7 @@ codeunit 137156 "SCM Orders IV"
 
     local procedure VerifySalesLineByItemNoWithReservation(var SalesLine: Record "Sales Line"; ItemNo: Code[20])
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("No.", ItemNo);
         VerifyReservation(ItemNo, '', StrSubstNo('%1|%2', DATABASE::"Item Ledger Entry", DATABASE::"Sales Line"), SalesLine.Quantity);
     end;
@@ -5103,14 +5164,14 @@ codeunit 137156 "SCM Orders IV"
 
     local procedure VerifyServiceLineByItemNoWithReservation(var ServiceLine: Record "Service Line"; ItemNo: Code[20])
     begin
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("No.", ItemNo);
         VerifyReservation(ItemNo, '', StrSubstNo('%1|%2', DATABASE::"Item Ledger Entry", DATABASE::"Service Line"), ServiceLine.Quantity);
     end;
 
     local procedure VerifyProdOrderComponentByItemNoWithReservation(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20])
     begin
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Item No.", ItemNo);
         VerifyReservation(
           ItemNo, '', StrSubstNo('%1|%2', DATABASE::"Item Ledger Entry", DATABASE::"Prod. Order Component"),
@@ -5119,7 +5180,7 @@ codeunit 137156 "SCM Orders IV"
 
     local procedure VerifyAssemblyLineByItemNoWithReservation(var AssemblyLine: Record "Assembly Line"; ItemNo: Code[20])
     begin
-        AssemblyLine.Find;
+        AssemblyLine.Find();
         AssemblyLine.TestField("No.", ItemNo);
         VerifyReservation(ItemNo, '', StrSubstNo('%1|%2', DATABASE::"Item Ledger Entry", DATABASE::"Assembly Line"), AssemblyLine.Quantity);
     end;
@@ -5129,6 +5190,27 @@ codeunit 137156 "SCM Orders IV"
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange(Quantity, Quantity);
         Assert.RecordCount(ItemLedgerEntry, Count);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CheckPurchInvLinesModalPageHandler(var InvLines: TestPage "Posted Purchase Invoice Lines")
+    var
+        VendorNo: Code[20];
+        LineCount: Integer;
+        Quantity: Integer;
+    begin
+        // [THEN] The 'Quantity' invoice lines are found each with the expected "Vendor No." and quantity
+        Quantity := LibraryVariableStorage.DequeueInteger();
+        VendorNo := LibraryVariableStorage.DequeueText();
+        LineCount := 0;
+        InvLines.First();
+        repeat
+            LineCount := LineCount + 1;
+            Assert.AreEqual(InvLines.Quantity.Value, '1', StrSubstNo(PurchInvLineQuantityErr, InvLines.Quantity.Value));
+            Assert.AreEqual(InvLines."Buy-from Vendor No.".Value, VendorNo, StrSubstNo(PurchInvLineVendorNoErr, InvLines."Buy-from Vendor No.".Value));
+        until not InvLines.Next();
+        Assert.AreEqual(LineCount, Quantity, StrSubstNo(PurchInvLineCountErr, Quantity, LineCount));
     end;
 
     [ModalPageHandler]
@@ -5409,7 +5491,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // [THEN] No errors occur, "L"."Qty. to Receive" is equal to "Q"
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Qty. to Receive", Quantity);
 
         // [THEN] "Item Ledger Entry" contains 4 records "ILE" for "I", "J", "JT", "Applies-to Entry" are blank

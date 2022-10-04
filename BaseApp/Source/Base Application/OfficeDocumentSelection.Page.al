@@ -16,12 +16,12 @@ page 1602 "Office Document Selection"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type that the entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = true;
@@ -37,7 +37,7 @@ page 1602 "Office Document Selection"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the involved document has been posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
@@ -55,9 +55,6 @@ page 1602 "Office Document Selection"
                 ApplicationArea = Basic, Suite;
                 Caption = 'View Document';
                 Image = ViewOrder;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'View the selected document.';
 
@@ -70,6 +67,17 @@ page 1602 "Office Document Selection"
                     OfficeMgt.GetContext(TempOfficeAddinContext);
                     OfficeDocumentHandler.OpenIndividualDocument(TempOfficeAddinContext, Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("View Document_Promoted"; "View Document")
+                {
+                }
             }
         }
     }

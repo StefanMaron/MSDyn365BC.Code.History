@@ -14,33 +14,33 @@ page 9174 "All Objects with Caption"
             repeater(Control1102601000)
             {
                 ShowCaption = false;
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Object Type';
                     ToolTip = 'Specifies the type of the object.';
                     Visible = VisibleObjType;
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Object ID';
                     ToolTip = 'Specifies the ID of the object.';
                 }
-                field("Object Name"; "Object Name")
+                field("Object Name"; Rec."Object Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Object Name';
                     ToolTip = 'Specifies the name of the object.';
                 }
-                field("Object Caption"; "Object Caption")
+                field("Object Caption"; Rec."Object Caption")
                 {
                     ApplicationArea = All;
                     Caption = 'Object Caption';
                     ToolTip = 'Specifies the caption of the object, that is, the name that will be displayed in the user interface.';
                     Visible = false;
                 }
-                field("Object Subtype"; "Object Subtype")
+                field("Object Subtype"; Rec."Object Subtype")
                 {
                     ApplicationArea = All;
                     Caption = 'Object Subtype';

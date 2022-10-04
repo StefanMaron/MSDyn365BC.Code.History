@@ -28,9 +28,9 @@ table 173 "Standard Purchase Code"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if not Currency.Get("Currency Code") then
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                 if not Currency2.Get(xRec."Currency Code") then
-                    Currency2.InitRoundingPrecision;
+                    Currency2.InitRoundingPrecision();
 
                 if Currency."Amount Rounding Precision" <> Currency2."Amount Rounding Precision" then begin
                     StdPurchLine.Reset();
@@ -76,9 +76,9 @@ table 173 "Standard Purchase Code"
     begin
         StdVendorPurchCode.Reset();
         StdVendorPurchCode.SetRange(Code, Code);
-        if not StdVendorPurchCode.IsEmpty then
+        if not StdVendorPurchCode.IsEmpty() then
             if not ConfirmManagement.GetResponseOrDefault(
-                StrSubstNo(StdPurchCodeDeletionQst, rec.Code, StdVendorPurchCode.TableCaption), true) then
+                StrSubstNo(StdPurchCodeDeletionQst, rec.Code, StdVendorPurchCode.TableCaption()), true) then
                 Error('');
         StdPurchLine.Reset();
         StdPurchLine.SetRange("Standard Purchase Code", Code);

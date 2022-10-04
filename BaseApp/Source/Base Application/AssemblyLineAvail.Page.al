@@ -20,7 +20,7 @@ page 909 "Assembly Line Avail."
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -61,12 +61,12 @@ page 909 "Assembly Line Avail."
                     Caption = 'Current Quantity';
                     ToolTip = 'Specifies how many units of the component are required on the assembly order line.';
                 }
-                field("Quantity per"; "Quantity per")
+                field("Quantity per"; Rec."Quantity per")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly component are required to assemble one assembly item.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -86,27 +86,27 @@ page 909 "Assembly Line Avail."
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies how many units of the assembly item on the assembly order header can be assembled, based on the availability of the component.';
                 }
-                field("Lead-Time Offset"; "Lead-Time Offset")
+                field("Lead-Time Offset"; Rec."Lead-Time Offset")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the lead-time offset that is defined for the assembly component on the assembly BOM.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from which you want to post consumption of the assembly component.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Substitution Available"; "Substitution Available")
+                field("Substitution Available"; Rec."Substitution Available")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if a substitute is available for the item on the assembly order line.';
@@ -140,7 +140,7 @@ page 909 "Assembly Line Avail."
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
         SetRange(Type, Type::Item);
         SetFilter("No.", '<>%1', '');
         SetFilter("Quantity per", '<>%1', 0);

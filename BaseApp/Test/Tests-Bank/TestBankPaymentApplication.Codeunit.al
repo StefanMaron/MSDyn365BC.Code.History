@@ -90,11 +90,11 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccRecon.Validate("Shortcut Dimension 2 Code", DimValue2.Code);
         BankAccRecon.Modify(true);
 
-        BankAccRecon.Find;
+        BankAccRecon.Find();
         Assert.AreEqual(BankAccRecon."Shortcut Dimension 1 Code", DimValue.Code, '');
         Assert.AreEqual(BankAccRecon."Shortcut Dimension 2 Code", DimValue2.Code, '');
 
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
         Assert.AreEqual(BankAccReconLine."Shortcut Dimension 1 Code", DimValue.Code, '');
         Assert.AreEqual(BankAccReconLine."Shortcut Dimension 2 Code", DimValue2.Code, '');
     end;
@@ -131,7 +131,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine.Validate("Shortcut Dimension 2 Code", DimValue2.Code);
         BankAccReconLine.Modify(true);
 
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
         Assert.AreEqual(BankAccReconLine."Shortcut Dimension 1 Code", DimValue.Code, '');
         Assert.AreEqual(BankAccReconLine."Shortcut Dimension 2 Code", DimValue2.Code, '');
     end;
@@ -167,7 +167,7 @@ codeunit 134263 "Test Bank Payment Application"
         Customer.Modify();
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -218,7 +218,7 @@ codeunit 134263 "Test Bank Payment Application"
         Customer.Modify();
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
@@ -261,14 +261,14 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount" + CustLedgEntry2."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount" + CustLedgEntry2."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry2);
 
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
         Assert.AreEqual(0, BankAccReconLine.Difference, '');
 
         UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
@@ -297,7 +297,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -344,7 +344,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -399,7 +399,7 @@ codeunit 134263 "Test Bank Payment Application"
         RemStmtAmt := StmtAmt;
         for i := 3 downto 1 do begin
             CreateBankPmtReconcWithLine(
-              BankAcc, BankAccRecon, BankAccReconLine, WorkDate, Round(RemStmtAmt / i));
+              BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), Round(RemStmtAmt / i));
 
             // Create Bank Rec Line - Application
             if i <> 1 then
@@ -444,7 +444,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount" + CustLedgEntry2."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount" + CustLedgEntry2."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -502,7 +502,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         LibraryLowerPermissions.AddAccountReceivables;
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Post
         asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
@@ -532,7 +532,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         LibraryLowerPermissions.AddAccountReceivables;
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
@@ -579,12 +579,12 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         StmtAmt := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
-        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate, StmtAmt);
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), StmtAmt);
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
         Assert.AreEqual(0, BankAccReconLine.Difference, '');
 
         // Post
@@ -637,7 +637,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         for i := 3 downto 1 do begin
             LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
-            BankAccReconLine.Validate("Transaction Date", WorkDate);
+            BankAccReconLine.Validate("Transaction Date", WorkDate());
             BankAccReconLine.Validate(Description, 'Hello World');
             BankAccReconLine.Validate("Statement Amount", Round(RemStmtAmt / i));
             BankAccReconLine.Modify(true);
@@ -729,7 +729,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAcc);
 
         VendLedgEntry.CalcFields("Remaining Amount");
-        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate, VendLedgEntry."Remaining Amount");
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), VendLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -764,7 +764,7 @@ codeunit 134263 "Test Bank Payment Application"
         Initialize();
 
         // Create Sales Invoice and Post
-        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10));
 
         CreateCustAndPostSalesInvoice(CustLedgEntry, Curr.Code);
 
@@ -773,7 +773,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amt. (LCY)");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amt. (LCY)");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -801,7 +801,7 @@ codeunit 134263 "Test Bank Payment Application"
         Initialize();
 
         // Create Sales Invoice and Post
-        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10));
 
         CreateCustAndPostSalesInvoice(CustLedgEntry, '');
 
@@ -811,7 +811,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAcc.Modify(true);
 
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         asserterror ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
@@ -839,7 +839,7 @@ codeunit 134263 "Test Bank Payment Application"
         Initialize();
 
         // Create Sales Invoice and Post
-        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10));
 
         LibrarySales.CreateCustomer(Cust);
         LibraryERM.CreatePaymentTermsDiscount(PmtTerms, false);
@@ -859,12 +859,12 @@ codeunit 134263 "Test Bank Payment Application"
             CustLedgEntry."Remaining Pmt. Disc. Possible" *
             Round(CustLedgEntry."Remaining Amt. (LCY)" / CustLedgEntry."Remaining Amount"));
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, StmtAmt);
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), StmtAmt);
 
         // Create Bank Rec Line - Application
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
         Assert.AreEqual(0, BankAccReconLine.Difference, '');
 
         // Post
@@ -890,9 +890,9 @@ codeunit 134263 "Test Bank Payment Application"
         Initialize();
 
         // Create Sales Invoice and Post
-        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10));
 
-        LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10);
+        LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10);
 
         CreateCustAndPostSalesInvoice(CustLedgEntry, Curr.Code);
 
@@ -903,7 +903,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         // Create Bank Rec Line
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
 
         // Create Bank Rec Line - Application
         LibraryLowerPermissions.AddAccountReceivables;
@@ -940,8 +940,8 @@ codeunit 134263 "Test Bank Payment Application"
         Cust.Validate("Payment Terms Code", PmtTerms.Code);
         Cust.Modify(true);
 
-        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10));
-        LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 10, 10);
+        Curr.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10));
+        LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10);
         CreateSalesInvoiceAndPost(Cust, CustLedgEntry, '');
 
         // create Bank Acc
@@ -950,7 +950,7 @@ codeunit 134263 "Test Bank Payment Application"
         // Create Bank Rec Line
         StmtAmt := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
         LibraryLowerPermissions.AddAccountReceivables;
-        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate, StmtAmt);
+        CreateBankPmtReconcWithLine(BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), StmtAmt);
 
         // Create Bank Rec Line - Application
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
@@ -986,7 +986,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := 2 * ToleranceAmount;
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
@@ -1018,7 +1018,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := -2 * ToleranceAmount;
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
@@ -1050,7 +1050,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := Round(ToleranceAmount / 3, LibraryERM.GetAmountRoundingPrecision);
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
@@ -1082,7 +1082,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := -Round(ToleranceAmount / 3, LibraryERM.GetAmountRoundingPrecision);
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
@@ -1118,7 +1118,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
@@ -1152,7 +1152,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := -LibraryRandom.RandDecInRange(1, 1000, 2);
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         BankAccReconLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
@@ -1184,7 +1184,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         LibraryLowerPermissions.AddAccountReceivables;
@@ -1217,7 +1217,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Modify();
         Amount := -LibraryRandom.RandDecInRange(1, 1000, 2);
 
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), Amount);
 
         // Execute
         LibraryLowerPermissions.AddAccountReceivables;
@@ -1254,7 +1254,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Payment Reconciliation Journal (bank "Statement Type" = "Payment Application") with applied invoice ledger entry
         LibraryERM.CreateBankAccount(BankAccount);
         CreateBankPmtReconcWithLine(
-          BankAccount, BankAccReconciliation, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+          BankAccount, BankAccReconciliation, BankAccReconLine, WorkDate(), CustLedgEntry."Remaining Amount");
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // [WHEN] Post application
@@ -1289,7 +1289,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Bank Account Reconciliation Line with "Statement Amount" = 30
         LibraryERM.CreateBankAccount(BankAcc);
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, Round(CustLedgEntry."Remaining Amount" / LibraryRandom.RandIntInRange(3, 5)));
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), Round(CustLedgEntry."Remaining Amount" / LibraryRandom.RandIntInRange(3, 5)));
 
         // [GIVEN] Apply Sales Invoice "X" to Bank Account Reconciliation Line
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
@@ -1408,7 +1408,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Bank Acc. Reconciliation Line with "Account Type" = Customer
         LibraryERM.CreateBankAccount(BankAcc);
         CreateBankPmtRecWithLineApplyAmount(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), LibraryRandom.RandDec(100, 2),
           BankAccReconLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
 
         // [WHEN] Post Bank Acc. Reconciliation Line
@@ -1439,7 +1439,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Bank Acc. Reconciliation Line with "Account Type" = Vendor
         LibraryERM.CreateBankAccount(BankAcc);
         CreateBankPmtRecWithLineApplyAmount(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, -LibraryRandom.RandDec(100, 2),
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), -LibraryRandom.RandDec(100, 2),
           BankAccReconLine."Account Type"::Vendor, LibraryPurch.CreateVendorNo);
 
         // [WHEN] Post Bank Acc. Reconciliation Line
@@ -1469,7 +1469,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Set Application to Bank Account "B" of no currency specified
         LibraryERM.CreateBankAccount(BankAccount);
         CreateBankPmtRecWithLineApplyAmount(
-          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate(), LibraryRandom.RandDec(100, 2),
           BankAccReconciliationLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
 
         // [WHEN] Post Bank Payment Application
@@ -1499,7 +1499,7 @@ codeunit 134263 "Test Bank Payment Application"
         CreateBankAccountWithCurrency(BankAccount, LibraryERM.CreateCurrencyWithRandomExchRates);
         CreateBankAccountWithCurrency(BankAccountAppln, BankAccount."Currency Code");
         CreateBankPmtRecWithLineApplyAmount(
-          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate(), LibraryRandom.RandDec(100, 2),
           BankAccReconciliationLine."Account Type"::"Bank Account", BankAccountAppln."No.");
 
         // [WHEN] Post Bank Payment Application
@@ -1527,7 +1527,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Set Application to Bank Account "B" in local currency
         CreateBankAccountWithCurrency(BankAccount, LibraryERM.CreateCurrencyWithRandomExchRates);
         CreateBankPmtRecWithLineApplyAmount(
-          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate, LibraryRandom.RandDec(100, 2),
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate(), LibraryRandom.RandDec(100, 2),
           BankAccReconciliationLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
 
         // [WHEN] Post Bank Payment Application
@@ -1556,7 +1556,7 @@ codeunit 134263 "Test Bank Payment Application"
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = 15.01
         LibraryERM.CreateBankAccount(BankAccount);
         CreateBankPmtReconcWithLine(
-          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate - 1, LibraryRandom.RandDec(100, 2));
+          BankAccount, BankAccReconciliation, BankAccReconciliationLine, WorkDate() - 1, LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Posted Sales Invoice with "Posting Date" = 16.01 > "Transaction Date", which is applied to Bank Account Reconciliation Line
         CreateCustAndPostSalesInvoice(CustLedgerEntry, '');
@@ -1590,7 +1590,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         // [GIVEN] Payment Reconciliation Line with Amount = -100
         CreateBankPmtReconcWithLine(
-          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, -LibraryRandom.RandDec(100, 2));
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate(), -LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Payment Reconciliation Journal opened and focused on line created before
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -1660,7 +1660,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         UpdateCustPostingGrp();
 
         Initialized := true;
@@ -1689,11 +1689,11 @@ codeunit 134263 "Test Bank Payment Application"
         DimCombination: Record "Dimension Combination";
     begin
         with DimCombination do begin
-            Init;
+            Init();
             Validate("Dimension 1 Code", DimCode1);
             Validate("Dimension 2 Code", DimCode2);
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
-            Insert;
+            Insert();
         end;
         Commit();
     end;
@@ -1738,7 +1738,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconciliationLine.Validate("Account No.", AccountNo);
         BankAccReconciliationLine.Modify(true);
         BankAccReconciliationLine.TransferRemainingAmountToAccount;
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
     end;
 
     local procedure CreateCustAndPostSalesInvoice(var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])
@@ -1805,7 +1805,7 @@ codeunit 134263 "Test Bank Payment Application"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         with SourceCodeSetup do begin
-            Get;
+            Get();
             Validate("Payment Reconciliation Journal", NewSourceCode);
             Modify(true);
         end;
@@ -1821,7 +1821,7 @@ codeunit 134263 "Test Bank Payment Application"
         Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Modify(true);
         CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate + 1, 1 / (CurrExchRateAmount - 1), 1 / (CurrExchRateAmount - 1));
         exit(Currency.Code);
     end;
@@ -1866,7 +1866,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgEntry.FindSet();
         repeat
             Assert.IsTrue(not CustLedgEntry.Open, 'Entry is closed');
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyVendLedgEntry(VendNo: Code[20])
@@ -1877,7 +1877,7 @@ codeunit 134263 "Test Bank Payment Application"
         VendLedgEntry.FindSet();
         repeat
             Assert.IsTrue(not VendLedgEntry.Open, 'Entry is closed');
-        until VendLedgEntry.Next = 0;
+        until VendLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyBankLedgEntry(BankAccNo: Code[20]; ExpAmt: Decimal)

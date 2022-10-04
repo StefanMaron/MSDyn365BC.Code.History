@@ -22,6 +22,8 @@ permissionset 191 "D365 SETUP"
                   tabledata "Acc. Schedule Line" = RIMD,
                   tabledata "Acc. Schedule Line Entity" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
+                  tabledata "Financial Report" = RIMD,
+                  tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Accounting Period" = IMD,
                   tabledata "Action Message Entry" = D,
                   tabledata Activity = D,
@@ -135,7 +137,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Customer Posting Group" = RIMD,
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN18
+#if not CLEAN19
                   tabledata "Customer Template" = RIMD,
 #endif
                   tabledata "Customized Calendar Change" = RIMD,
@@ -250,7 +252,9 @@ permissionset 191 "D365 SETUP"
                   tabledata "No. Series Relationship" = RIMD,
                   tabledata "Nonstock Item Setup" = RIMD,
                   tabledata "Notification Entry" = RimD,
+#if not CLEAN21
                   tabledata "O365 Document Sent History" = RmD,
+#endif
                   tabledata "OCR Service Setup" = RIMD,
                   tabledata "Office Add-in Setup" = RIMD,
                   tabledata "Online Map Parameter Setup" = RIMD,
@@ -338,7 +342,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Requisition Wksh. Name" = RIMD,
                   tabledata "Res. Journal Line" = D,
                   tabledata "Reservation Entry" = RimD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Cost" = D,
                   tabledata "Resource Price" = D,
 #endif
@@ -362,12 +366,12 @@ permissionset 191 "D365 SETUP"
                   tabledata "Sales Invoice Line" = Rd,
                   tabledata "Sales Line" = RmD,
                   tabledata "Sales Line Archive" = RmD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = IM,
 #endif
                   tabledata "Sales Planning Line" = d,
                   tabledata "Sales Prepayment %" = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Price Worksheet" = RIMD,
 #endif
                   tabledata "Sales Shipment Header" = RD,

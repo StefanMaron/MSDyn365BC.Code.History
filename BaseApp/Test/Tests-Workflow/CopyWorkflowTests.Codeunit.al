@@ -52,7 +52,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowTemplatesPage."New Workflow from Template".Invoke;
 
         // Verify.
-        ToWorkflow.Get(WorkflowPage.Code);
+        ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
@@ -96,7 +96,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowsPage.CopyWorkflow.Invoke;
 
         // Verify.
-        ToWorkflow.Get(WorkflowPage.Code);
+        ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
@@ -143,7 +143,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowsPage.CopyWorkflow.Invoke;
 
         // Verify.
-        ToWorkflow.Get(WorkflowPage.Code);
+        ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Enabled, false);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
@@ -205,7 +205,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowTemplatesPage."New Workflow from Template".Invoke;
 
         // Verify.
-        ToWorkflow.Get(WorkflowPage.Code);
+        ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
@@ -265,7 +265,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowsPage.CopyWorkflow.Invoke;
 
         // Verify.
-        ToWorkflow.Get(WorkflowPage.Code);
+        ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
@@ -301,7 +301,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowsPage.First;
 
         // Exercise.
-        ClearLastError;
+        ClearLastError();
         WorkflowsPage.CopyWorkflow.Invoke;
 
         // Verify.
@@ -340,7 +340,7 @@ codeunit 134306 "Copy Workflow Tests"
         WorkflowTemplatesPage.First;
 
         // Exercise.
-        ClearLastError;
+        ClearLastError();
         WorkflowTemplatesPage."New Workflow from Template".Invoke;
 
         // Verify.
@@ -436,8 +436,8 @@ codeunit 134306 "Copy Workflow Tests"
                     ToWorkflowRule.FindFirst();
                     ToWorkflowRule.TestField("Table ID", FromWorkflowRule."Table ID");
                     ToWorkflowRule.TestField("Field No.", FromWorkflowRule."Field No.");
-                until FromWorkflowRule.Next = 0;
-        until ToWorkflowStep.Next = 0;
+                until FromWorkflowRule.Next() = 0;
+        until ToWorkflowStep.Next() = 0;
     end;
 }
 

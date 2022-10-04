@@ -2255,7 +2255,7 @@ codeunit 134776 "Document Attachment Tests"
             else
                 Bitmap.Save(InStr, ImageFormat.Bmp);
         end;
-        Bitmap.Dispose;
+        Bitmap.Dispose();
     end;
 
     local procedure CreateCustomReportSelection(SourceType: Integer; SourceNo: Code[20]; ReportUsage: Enum "Report Selection Usage"; ReportID: Integer)
@@ -2368,7 +2368,7 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment."Table ID" := DATABASE::"Sales Invoice Header";
         DocumentAttachment."No." := SalesInvoiceHeader."No.";
         DocumentAttachment."File Name" :=
-          CopyStr(Format(CreateGuid), 1, MaxStrLen(DocumentAttachment."File Name"));
+          CopyStr(Format(CreateGuid()), 1, MaxStrLen(DocumentAttachment."File Name"));
         DocumentAttachment.Insert();
     end;
 
@@ -2405,7 +2405,7 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment."Table ID" := DATABASE::"Purch. Inv. Header";
         DocumentAttachment."No." := PurchInvHeader."No.";
         DocumentAttachment."File Name" :=
-          CopyStr(Format(CreateGuid), 1, MaxStrLen(DocumentAttachment."File Name"));
+          CopyStr(Format(CreateGuid()), 1, MaxStrLen(DocumentAttachment."File Name"));
         DocumentAttachment.Insert();
     end;
 
@@ -2468,7 +2468,7 @@ codeunit 134776 "Document Attachment Tests"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.SetRange(Usage, ReportUsage);
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         ReportSelections.Init();
         ReportSelections.Usage := ReportUsage;
         ReportSelections.Sequence := '1';

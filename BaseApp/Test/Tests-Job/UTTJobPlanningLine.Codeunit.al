@@ -274,7 +274,7 @@ codeunit 136353 "UT T Job Planning Line"
             // Verify that Qty. to Transfer is updated correctly when Qty. Transferred changes.
             JobPlanningLineInvoice."Quantity Transferred" := LibraryRandom.RandInt(Quantity);
             JobPlanningLineInvoice.Modify();
-            UpdateQtyToTransfer;
+            UpdateQtyToTransfer();
             Assert.AreEqual("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice",
               'Qty. to Transfer was not updated correctly when Qty Transferred changed.');
 
@@ -461,7 +461,7 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [THEN] Job Planning Line is created with "Line Type" = "Both Schedule and Billable"
         JobPlanningLines."Line Type".AssertEquals(JobPlanningLine."Line Type"::"Both Budget and Billable");
-        JobPlanningLines.Close;
+        JobPlanningLines.Close();
     end;
 
     [Test]
@@ -516,7 +516,7 @@ codeunit 136353 "UT T Job Planning Line"
         Assert.ExpectedError(CannotRemoveJobPlanningLineErr);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPctInJobPlanningLineWhenAllowLineDiscDefinedInCustPriceGroup()
@@ -617,8 +617,8 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [THEN] Page JobPlanningLines is empty
         Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
-        JobPlanningLines.Close;
-        JobTaskLines.Close;
+        JobPlanningLines.Close();
+        JobTaskLines.Close();
     end;
 
     [Test]
@@ -649,8 +649,8 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [THEN] Page JobPlanningLines is empty
         Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
-        JobPlanningLines.Close;
-        JobCard.Close;
+        JobPlanningLines.Close();
+        JobCard.Close();
     end;
 
     [Test]
@@ -686,9 +686,9 @@ codeunit 136353 "UT T Job Planning Line"
         // [THEN] Page JobPlanningLines is empty
         Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
 
-        JobPlanningLines.Close;
-        JobTaskStatistics.Close;
-        JobTaskLines.Close;
+        JobPlanningLines.Close();
+        JobTaskStatistics.Close();
+        JobTaskLines.Close();
     end;
 
     [Test]
@@ -724,9 +724,9 @@ codeunit 136353 "UT T Job Planning Line"
         // [THEN] Page JobPlanningLines is empty
         Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
 
-        JobPlanningLines.Close;
-        JobStatistics.Close;
-        JobCard.Close;
+        JobPlanningLines.Close();
+        JobStatistics.Close();
+        JobCard.Close();
     end;
 
     [Test]
@@ -1050,7 +1050,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.TestField("Description 2", ItemVariant."Description 2");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure NoLineDiscountInJobPlanningLineWhenNoAllowLineDiscInSalesPriceForAllCustomersAndVariant()
@@ -1091,7 +1091,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [GIVEN] Sales Line Discount with Customer Discount Group "CUSTDISC", Item Discount Group "ITEMDISC" and "Line Discount %" = 10
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::"Item Disc. Group", ItemDiscountGroup.Code,
-          SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, WorkDate, '', '', '', 0);
+          SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, WorkDate(), '', '', '', 0);
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
 
@@ -1202,7 +1202,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.Validate("Job No.", Job."No.");
 
         // [WHEN] Invoke "Job Planning Line".InitJobPlanningLine
-        JobPlanningLine.InitJobPlanningLine;
+        JobPlanningLine.InitJobPlanningLine();
 
         // [THEN] "Job Planning Line"."Country/Region Code" = "RU"
         JobPlanningLine.TestField("Country/Region Code", Job."Bill-to Country/Region Code");
@@ -1233,7 +1233,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.Modify(true);
 
         // [WHEN] Invoke JobTransferLine.FromPlanningLineToJnlLine for Job Planning Line.
-        JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate, JobJournalTemplate.Name, JobJournalBatch.Name, JobJournalLine);
+        JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate(), JobJournalTemplate.Name, JobJournalBatch.Name, JobJournalLine);
 
         // [THEN] Resulting Job Journal Line has "Source Code" = "S".
         JobJournalLine.TestField("Source Code", JobJournalTemplate."Source Code");
@@ -1554,7 +1554,7 @@ codeunit 136353 "UT T Job Planning Line"
         Item: Record Item;
         Job: Record Job;
         JobTask: Record "Job Task";
-#if not CLEAN19
+#if not CLEAN21
         JobItemPrice: Record "Job Item Price";
 #else
         PriceListLine: Record "Price List Line";
@@ -1575,7 +1575,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [GIVEN] Price line for Job and Item, where "Cost Factor" is set
         CostFactor := LibraryRandom.RandDec(10, 1);
         Item.Get(JobPlanningLine."No.");
-#if not CLEAN19
+#if not CLEAN21
         LibraryJob.CreateJobItemPrice(
             JobItemPrice, Job."No.", JobTask."Job Task No.", JobPlanningLine."No.", '', '', Item."Base Unit of Measure");
         JobItemPrice.Validate("Unit Cost Factor", CostFactor);
@@ -1762,7 +1762,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobCard.Close();
     end;
 
-#if not CLEAN20
+#if not CLEAN21
     [Test]
     procedure JobPlanningLineFindJTPriceForGLAccountNotUpdateUnitPrice()
     var
@@ -1869,7 +1869,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Planning Line");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetupLineDiscScenario(var JobPlanningLine: Record "Job Planning Line"; var SalesLineDiscount: Record "Sales Line Discount"; JobTask: Record "Job Task"; CustNo: Code[20]; CustomerPriceGroupCode: Code[10])
     var
         Item: Record Item;
@@ -1956,7 +1956,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLineInvoice."Document No." := 'TEST';
         JobPlanningLineInvoice."Line No." := 10000;
         JobPlanningLineInvoice."Quantity Transferred" := Qty;
-        JobPlanningLineInvoice."Transferred Date" := WorkDate;
+        JobPlanningLineInvoice."Transferred Date" := WorkDate();
         JobPlanningLineInvoice.Insert();
     end;
 
@@ -1974,7 +1974,7 @@ codeunit 136353 "UT T Job Planning Line"
 
     local procedure CreateCurrency(): Code[10]
     begin
-        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
+        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
     end;
 
     local procedure CreateSimpleJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task")
@@ -2022,7 +2022,7 @@ codeunit 136353 "UT T Job Planning Line"
         ArrAmount[9] := JobPlanningLine."Line Amount";
     end;
 
-#if not CLEAN20
+#if not CLEAN21
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -2051,12 +2051,12 @@ codeunit 136353 "UT T Job Planning Line"
         MockJobLedgEntry(Job."No.", ArrAmount[11], -ArrAmount[12], JobLedgerEntry.Type::"G/L Account", JobLedgerEntry."Entry Type"::Sale);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; CustNo: Code[20])
     begin
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer,
-          CustNo, WorkDate, '', '', Item."Base Unit of Measure", 0);
+          CustNo, WorkDate(), '', '', Item."Base Unit of Measure", 0);
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
@@ -2149,7 +2149,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLines.First;
         repeat
             SumLineAmount += JobPlanningLines."Line Amount".AsDEcimal;
-        until not JobPlanningLines.Next;
+        until not JobPlanningLines.Next();
 
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SumLineAmount, FBPlanningDrillDownErr);
     end;
@@ -2164,7 +2164,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobLedgerEntries.First;
         repeat
             SumLineAmount -= JobLedgerEntries."Line Amount".AsDEcimal;
-        until not JobLedgerEntries.Next;
+        until not JobLedgerEntries.Next();
 
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SumLineAmount, FBLedgerDrillDownErr);
     end;

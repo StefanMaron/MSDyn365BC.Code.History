@@ -47,7 +47,7 @@ codeunit 131013 "Library - O365 Sync"
         O365SyncManagement: Codeunit "O365 Sync. Management";
         LocalConnectionString: Text;
     begin
-        LocalConnectionID := CreateGuid;
+        LocalConnectionID := CreateGuid();
         LocalConnectionString := O365SyncManagement.BuildExchangeConnectionString(ExchangeSync);
         RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID, LocalConnectionString);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID);
@@ -58,7 +58,7 @@ codeunit 131013 "Library - O365 Sync"
         O365SyncManagement: Codeunit "O365 Sync. Management";
         LocalConnectionString: Text;
     begin
-        LocalConnectionID := CreateGuid;
+        LocalConnectionID := CreateGuid();
         LocalConnectionString := O365SyncManagement.BuildBookingsConnectionString(BookingSync);
         RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID, LocalConnectionString);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID);
@@ -72,7 +72,7 @@ codeunit 131013 "Library - O365 Sync"
         User.SetRange("User Name", UserId);
         if not User.FindFirst() then begin
             User.Init();
-            User."User Security ID" := CreateGuid;
+            User."User Security ID" := CreateGuid();
             User."User Name" := UserId;
             User."Full Name" := User."User Name";
             if not EnvironmentInformation.IsSaaSInfrastructure() then

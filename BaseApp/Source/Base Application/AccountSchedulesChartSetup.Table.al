@@ -26,13 +26,9 @@ table 762 "Account Schedules Chart Setup"
 
             trigger OnValidate()
             var
-                AccScheduleName: Record "Acc. Schedule Name";
                 AccSchedChartManagement: Codeunit "Acc. Sched. Chart Management";
             begin
                 AccSchedChartManagement.CheckDuplicateAccScheduleLineDescription("Account Schedule Name");
-                if AccScheduleName.Get("Account Schedule Name") then
-                    if AccScheduleName."Default Column Layout" <> '' then
-                        Validate("Column Layout Name", AccScheduleName."Default Column Layout");
                 RefreshLines(false);
             end;
         }
@@ -135,7 +131,7 @@ table 762 "Account Schedules Chart Setup"
 
     trigger OnDelete()
     begin
-        DeleteLines;
+        DeleteLines();
     end;
 
     var
@@ -254,15 +250,13 @@ table 762 "Account Schedules Chart Setup"
 
         case "Base X-Axis on" of
             "Base X-Axis on"::Period:
-                begin
-                    if ColumnLayout.FindSet() then
-                        repeat
-                            if AccScheduleLine.FindSet() then
-                                repeat
-                                    InsertLineIntoTemp(TempAccSchedChartSetupLine, AccScheduleLine, ColumnLayout);
-                                until AccScheduleLine.Next() = 0;
-                        until ColumnLayout.Next() = 0;
-                end;
+                if ColumnLayout.FindSet() then
+                    repeat
+                        if AccScheduleLine.FindSet() then
+                            repeat
+                                InsertLineIntoTemp(TempAccSchedChartSetupLine, AccScheduleLine, ColumnLayout);
+                            until AccScheduleLine.Next() = 0;
+                    until ColumnLayout.Next() = 0;
             "Base X-Axis on"::"Acc. Sched. Line",
             "Base X-Axis on"::"Acc. Sched. Column":
                 begin
@@ -351,7 +345,7 @@ table 762 "Account Schedules Chart Setup"
         AccSchedChartSetupLine.Reset();
         SetLinkToMeasureLines(AccSchedChartSetupLine);
         AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
-        MaxNumMeasures := BusinessChartBuffer.GetMaxNumberOfMeasures;
+        MaxNumMeasures := BusinessChartBuffer.GetMaxNumberOfMeasures();
         NumOfMeasuresToBeSet := MaxNumMeasures - AccSchedChartSetupLine.Count();
         if NumOfMeasuresToBeSet > 0 then begin
             AccSchedChartSetupLine.SetRange("Chart Type", AccSchedChartSetupLine."Chart Type"::" ");

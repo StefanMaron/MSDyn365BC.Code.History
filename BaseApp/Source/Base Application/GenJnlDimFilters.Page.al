@@ -13,12 +13,12 @@ page 482 "Gen. Jnl. Dim. Filters"
         {
             repeater(Control1)
             {
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the dimension.';
                 }
-                field("Dimension Value Filter"; "Dimension Value Filter")
+                field("Dimension Value Filter"; Rec."Dimension Value Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the filter for the dimension values.';

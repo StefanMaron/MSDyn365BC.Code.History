@@ -8,8 +8,8 @@ codeunit 1274 "Exp. Mapping Gen. Jnl."
         PaymentExportData: Record "Payment Export Data";
         DataExch: Record "Data Exch.";
         PaymentExportMgt: Codeunit "Payment Export Mgt";
-        Window: Dialog;
         PaymentExportDataRecRef: RecordRef;
+        Window: Dialog;
         LineNo: Integer;
     begin
         PaymentExportData.SetRange("Data Exch Entry No.", "Entry No.");
@@ -30,7 +30,7 @@ codeunit 1274 "Exp. Mapping Gen. Jnl."
               PaymentExportData."Line No.", PaymentExportData."Data Exch. Line Def Code", PaymentExportDataRecRef.Number);
         until PaymentExportData.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     var

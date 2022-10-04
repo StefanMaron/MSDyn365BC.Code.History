@@ -15,37 +15,37 @@ page 5950 "Posted Shpt. Item Line List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of this line.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item registered in the Service Item table and associated with the customer.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the item to which this posted service item is related.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of this service item.';
                 }
-                field("Warranty Ending Date (Parts)"; "Warranty Ending Date (Parts)")
+                field("Warranty Ending Date (Parts)"; Rec."Warranty Ending Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the spare parts warranty expires for this service item.';
                 }
-                field("Loaner No."; "Loaner No.")
+                field("Loaner No."; Rec."Loaner No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the loaner that has been lent to the customer to replace this service item.';
@@ -55,22 +55,22 @@ page 5950 "Posted Shpt. Item Line List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that there is a warranty on either parts or labor for this service item.';
                 }
-                field("Warranty Ending Date (Labor)"; "Warranty Ending Date (Labor)")
+                field("Warranty Ending Date (Labor)"; Rec."Warranty Ending Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the labor warranty expires on the posted service item.';
                 }
-                field("Warranty Starting Date (Parts)"; "Warranty Starting Date (Parts)")
+                field("Warranty Starting Date (Parts)"; Rec."Warranty Starting Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the warranty starts on the service item spare parts.';
                 }
-                field("Warranty Starting Date (Labor)"; "Warranty Starting Date (Labor)")
+                field("Warranty Starting Date (Labor)"; Rec."Warranty Starting Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the labor warranty for the posted service item starts.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract associated with the posted service item.';

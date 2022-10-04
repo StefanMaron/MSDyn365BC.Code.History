@@ -12,12 +12,12 @@ page 5154 "Interact. Tmpl. Languages"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Interaction Template Code"; "Interaction Template Code")
+                field("Interaction Template Code"; Rec."Interaction Template Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the interaction template that you have selected.';
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
@@ -41,14 +41,14 @@ page 5154 "Interact. Tmpl. Languages"
                     trigger OnAssistEdit()
                     begin
                         if "Attachment No." = 0 then
-                            CreateAttachment
+                            CreateAttachment()
                         else
-                            OpenAttachment;
+                            OpenAttachment();
 
                         CurrPage.Update();
                     end;
                 }
-                field("Custom Layout Code"; "Custom Layout Code")
+                field("Custom Layout Code"; Rec."Custom Layout Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the report layout.';
@@ -133,7 +133,7 @@ page 5154 "Interact. Tmpl. Languages"
 
                     trigger OnAction()
                     begin
-                        OpenAttachment;
+                        OpenAttachment();
                     end;
                 }
                 action(Create)
@@ -146,7 +146,7 @@ page 5154 "Interact. Tmpl. Languages"
 
                     trigger OnAction()
                     begin
-                        CreateAttachment;
+                        CreateAttachment();
                     end;
                 }
                 action("Copy &from")
@@ -159,7 +159,7 @@ page 5154 "Interact. Tmpl. Languages"
 
                     trigger OnAction()
                     begin
-                        CopyFromAttachment;
+                        CopyFromAttachment();
                     end;
                 }
                 action(Import)
@@ -172,7 +172,7 @@ page 5154 "Interact. Tmpl. Languages"
 
                     trigger OnAction()
                     begin
-                        ImportAttachment;
+                        ImportAttachment();
                     end;
                 }
                 action("E&xport")
@@ -185,7 +185,7 @@ page 5154 "Interact. Tmpl. Languages"
 
                     trigger OnAction()
                     begin
-                        ExportAttachment;
+                        ExportAttachment();
                     end;
                 }
                 action(Remove)
@@ -224,7 +224,7 @@ page 5154 "Interact. Tmpl. Languages"
     local procedure UpdateAttachments(NewCustomLayoutCode: Code[20])
     begin
         if NewCustomLayoutCode <> '' then
-            CreateAttachment
+            CreateAttachment()
         else
             if xRec."Custom Layout Code" <> '' then
                 RemoveAttachment(false);

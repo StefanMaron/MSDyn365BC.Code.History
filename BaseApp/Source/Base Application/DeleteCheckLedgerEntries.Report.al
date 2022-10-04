@@ -23,7 +23,7 @@ report 1495 "Delete Check Ledger Entries"
                     Window.Update(1, "Bank Account No.");
 
                     repeat
-                        Delete;
+                        Delete();
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(4, DateComprReg."No. Records Deleted");
                     until Next() = 0;
@@ -58,7 +58,7 @@ report 1495 "Delete Check Ledger Entries"
                 SetRange("Check Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                 DateComprMgt.GetDateFilter(EntrdDateComprReg."Ending Date", EntrdDateComprReg, true);
 
-                InitRegister;
+                InitRegister();
             end;
         }
     }
@@ -134,10 +134,6 @@ report 1495 "Delete Check Ledger Entries"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing check ledger entries...\\Bank Account No.       #1##########\No. of entries deleted #4######';
-        Text007: Label 'All records deleted';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -148,6 +144,11 @@ report 1495 "Delete Check Ledger Entries"
         CheckLedgEntryFilter: Text[250];
         NoOfDeleted: Integer;
         RegExists: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing check ledger entries...\\Bank Account No.       #1##########\No. of entries deleted #4######';
+        Text007: Label 'All records deleted';
 
     local procedure InitRegister()
     var
@@ -169,9 +170,9 @@ report 1495 "Delete Check Ledger Entries"
 
     local procedure InsertRegisters(DateComprReg: Record "Date Compr. Register")
     begin
-        if RegExists then begin
-            DateComprReg.Modify();
-        end else begin
+        if RegExists then
+            DateComprReg.Modify()
+        else begin
             DateComprReg.Insert();
             RegExists := true;
         end;
@@ -181,7 +182,7 @@ report 1495 "Delete Check Ledger Entries"
         if CheckLedgEntry3.FindLast() then;
         DateComprReg.LockTable();
 
-        InitRegister;
+        InitRegister();
     end;
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date)

@@ -48,7 +48,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateResource(var Resource: Record Resource; var ResourcePrice: Record "Resource Price")
     var
         LibraryResource: Codeunit "Library - Resource";
@@ -177,8 +177,8 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
                             ConfigPackageField.Validate("Validate Field", ValidateFields);
                             ConfigPackageField.Modify(true);
                         end;
-                    until ConfigPackageField.Next = 0;
-            until ConfigPackageTable.Next = 0;
+                    until ConfigPackageField.Next() = 0;
+            until ConfigPackageTable.Next() = 0;
     end;
 
     local procedure SetPackageFieldValue(ConfigPackageCode: Code[20]; TableID: Integer; RecordNo: Integer; FieldNo: Integer; NewValue: Text[250])
@@ -221,7 +221,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo.AsInteger());
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWithWrongOrderInPK_PackageErrorGenerated()
@@ -402,7 +402,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWhenValidatedRecordExists()
@@ -613,7 +613,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     [Scope('OnPrem')]
     procedure GetOptionNoUT_NonOptionSubstring_NoOption()
     begin
-        CheckGetOptionNo(Format(CreateGuid), -1);
+        CheckGetOptionNo(Format(CreateGuid()), -1);
     end;
 
     [Test]
@@ -725,7 +725,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
           ConfigPackageTable,
           DATABASE::"Gen. Journal Line",
           GenJnlLine.FieldNo("Posting Date"),
-          Format(WorkDate),
+          Format(WorkDate()),
           SingleEntryRecNo);
 
         LibraryRapidStart.CreatePackageDataForField(
@@ -761,7 +761,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.AreEqual(0, ConfigPackageTable."No. of Package Errors", ConfigPackContErr);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure UT_SalesPriceTableProcessingOrder()

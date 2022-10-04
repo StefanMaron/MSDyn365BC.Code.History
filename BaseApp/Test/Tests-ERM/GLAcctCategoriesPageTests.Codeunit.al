@@ -70,10 +70,10 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     begin
         // Setup
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GeneralLedgerSetup.Validate("Acc. Sched. for Balance Sheet", '');
-        GeneralLedgerSetup.Validate("Acc. Sched. for Cash Flow Stmt", '');
-        GeneralLedgerSetup.Validate("Acc. Sched. for Income Stmt.", '');
-        GeneralLedgerSetup.Validate("Acc. Sched. for Retained Earn.", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Balance Sheet", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Cash Flow Stmt", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Income Stmt.", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Retained Earn.", '');
         GeneralLedgerSetup.Modify(true);
 
         // Exercise
@@ -82,10 +82,10 @@ codeunit 134442 "GL Acct. Categories Page Tests"
 
         // Verify
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        Assert.AreNotEqual('', GeneralLedgerSetup."Acc. Sched. for Balance Sheet", WrongAccSchedErr);
-        Assert.AreNotEqual('', GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt", WrongAccSchedErr);
-        Assert.AreNotEqual('', GeneralLedgerSetup."Acc. Sched. for Income Stmt.", WrongAccSchedErr);
-        Assert.AreNotEqual('', GeneralLedgerSetup."Acc. Sched. for Retained Earn.", WrongAccSchedErr);
+        Assert.AreNotEqual('', GeneralLedgerSetup."Fin. Rep. for Balance Sheet", WrongAccSchedErr);
+        Assert.AreNotEqual('', GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt", WrongAccSchedErr);
+        Assert.AreNotEqual('', GeneralLedgerSetup."Fin. Rep. for Income Stmt.", WrongAccSchedErr);
+        Assert.AreNotEqual('', GeneralLedgerSetup."Fin. Rep. for Retained Earn.", WrongAccSchedErr);
 
         VerfiyCashFlowStatementAccountScheduleLines;
     end;
@@ -189,7 +189,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GLAccountCategory.Get(GLAccount."Account Subcategory Entry No.");
 
         // Exercise
-        asserterror GLAccountCategory.DeleteRow;
+        asserterror GLAccountCategory.DeleteRow();
 
         // Verify
         Assert.ExpectedError('You cannot delete G/L Account Category');
@@ -217,7 +217,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
 
         // Exercise - Delete user created parent category
         // Child categories are not deleted.
-        UserGLAccountCategory.DeleteRow;
+        UserGLAccountCategory.DeleteRow();
 
         // Verify
         Assert.AreEqual(BeforeDelCategoriesCount - 3, GLAccountCategory.Count, 'Wrong number of categories');
@@ -270,7 +270,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GLAccountNo2 := CreateGLAccountWithAccountSubcategoryEntryNo(GLAccountCategory."Entry No.");
 
         // [WHEN] Get Totaling from G/L Account Category
-        Totaling := GLAccountCategory.GetTotaling;
+        Totaling := GLAccountCategory.GetTotaling();
 
         // [THEN] Totaling equals to 'GL1..GL2'
         Assert.AreEqual(GLAccountNo1 + '..' + GLAccountNo2, Totaling, '');
@@ -294,7 +294,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GLAccountNo := CreateGLAccountWithAccountSubcategoryEntryNo(GLAccountCategory."Entry No.");
 
         // [GIVEN] Got Old Totaling from G/L Account Category
-        OldTotaling := GLAccountCategory.GetTotaling;
+        OldTotaling := GLAccountCategory.GetTotaling();
 
         // [WHEN] Validate Totaling in G/L Account Category with New Totaling = Old Totaling
         GLAccountCategory.ValidateTotaling(OldTotaling);
@@ -443,6 +443,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         LibraryVariableStorage.Enqueue(AccSchedUpdateNeededNotificationAction::"Generate Account Schedules");
         LibraryVariableStorage.Enqueue(2);
         GLAccountCategories.GLAccTotaling.SetValue(CreateBalanceSheetGLAccountNo());
+        Commit();
 
         // [THEN] Account schedule "Balance Sheet" contains new account category "C1"
         VerfiyBalanceSheetAccountScheduleLine(GLAccountCategory);
@@ -588,19 +589,20 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
         AccScheduleLineArray: array[3] of Record "Acc. Schedule Line";
     begin
         GeneralLedgerSetup.Get();
-
-        AccScheduleLine.SetRange("Schedule Name", GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt");
+        AccScheduleLine.SetRange("Schedule Name", FinancialReport."Financial Report Row Group");
         AccScheduleLine.FindSet();
-        AccScheduleLine.Next;
+        AccScheduleLine.Next();
         AccScheduleLineArray[1] := AccScheduleLine;
-        AccScheduleLine.Next;
+        AccScheduleLine.Next();
         AccScheduleLineArray[2] := AccScheduleLine;
         AccScheduleLine.Next(5);
         AccScheduleLineArray[3] := AccScheduleLine;
-        AccScheduleLine.Next;
+        AccScheduleLine.Next();
         AccScheduleLine.TestField(
           Totaling,
           StrSubstNo(
@@ -611,10 +613,10 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         AccScheduleLineArray[1] := AccScheduleLine;
         AccScheduleLine.TestField("Show Opposite Sign", true);
 
-        AccScheduleLine.Next;
+        AccScheduleLine.Next();
         AccScheduleLineArray[2] := AccScheduleLine;
 
-        AccScheduleLine.Next;
+        AccScheduleLine.Next();
         AccScheduleLine.TestField(
           Totaling,
           StrSubstNo('-%1+%2', AccScheduleLineArray[1]."Row No.", AccScheduleLineArray[2]."Row No."));
@@ -624,10 +626,11 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     var
         GLSetup: Record "General Ledger Setup";
         AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
     begin
         GLSetup.Get();
-
-        AccScheduleLine.SetRange("Schedule Name", GLSetup."Acc. Sched. for Balance Sheet");
+        FinancialReport.Get(GLSetup."Fin. Rep. for Balance Sheet");
+        AccScheduleLine.SetRange("Schedule Name", FinancialReport."Financial Report Row Group");
         AccScheduleLine.SetRange(Description, GLAccountCategory.Description);
         AccScheduleLine.FindFirst();
         AccScheduleLine.TestField(Totaling, GLAccountCategory.GetTotaling());

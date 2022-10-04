@@ -279,16 +279,16 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         CreateItem(Item);
         OriginalWorkDate := WorkDate();
 
-        // [GIVEN] Posted purchase order (qty = 1, workdate).
+        // [GIVEN] Posted purchase order (qty = 1, WorkDate()).
         CreatePurchaseOrder(Item, 'LOT1', '', '', 1, true);
 
-        // [GIVEN] Unposted purchase order (qty = 1, workdate).
+        // [GIVEN] Unposted purchase order (qty = 1, WorkDate()).
         CreatePurchaseOrder(Item, 'LOT1', '', '', 1, false);
 
-        // [GIVEN] Unposted sales order (qty = 1, workdate).
+        // [GIVEN] Unposted sales order (qty = 1, WorkDate()).
         CreateSalesOrder(Item, 'LOT1', '', '', 1, false);
 
-        // [GIVEN] Planned production order (qty = 1, workdate).
+        // [GIVEN] Planned production order (qty = 1, WorkDate()).
         CreatePlannedProductionOrder(Item, 'LOT1', '', '', 1);
 
         WorkDate(AddDays(OriginalWorkDate, -7));

@@ -28,9 +28,9 @@ table 170 "Standard Sales Code"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if not Currency.Get("Currency Code") then
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                 if not Currency2.Get(xRec."Currency Code") then
-                    Currency2.InitRoundingPrecision;
+                    Currency2.InitRoundingPrecision();
 
                 if Currency."Amount Rounding Precision" <> Currency2."Amount Rounding Precision" then begin
                     StdSalesLine.Reset();
@@ -76,9 +76,9 @@ table 170 "Standard Sales Code"
     begin
         StdCustomerSalesCode.Reset();
         StdCustomerSalesCode.SetRange(Code, Code);
-        if not StdCustomerSalesCode.IsEmpty then
+        if not StdCustomerSalesCode.IsEmpty() then
             if not ConfirmManagement.GetResponseOrDefault(
-                StrSubstNo(StdSalesCodeDeletionQst, rec.Code, StdCustomerSalesCode.TableCaption), true) then
+                StrSubstNo(StdSalesCodeDeletionQst, rec.Code, StdCustomerSalesCode.TableCaption()), true) then
                 Error('');
 
         StdSalesLine.Reset();

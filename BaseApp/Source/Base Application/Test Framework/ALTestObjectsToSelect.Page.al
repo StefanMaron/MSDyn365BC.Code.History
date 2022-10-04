@@ -27,7 +27,7 @@ page 130409 "AL Test Objects To Select"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the test objects selected.';
                 }
-                field(HitBy; CountTestCodeunits)
+                field(HitBy; CountTestCodeunits())
                 {
                     ApplicationArea = All;
                     Caption = 'Hit By Test Codeunits';
@@ -38,7 +38,7 @@ page 130409 "AL Test Objects To Select"
                             PAGE.RunModal(0, CALTestCoverageMap);
                     end;
                 }
-                field("App Package ID"; "App Package ID")
+                field("App Package ID"; Rec."App Package ID")
                 {
                     ApplicationArea = All;
                     Caption = 'App Package ID';

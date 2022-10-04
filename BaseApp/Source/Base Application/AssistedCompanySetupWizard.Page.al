@@ -71,7 +71,7 @@ page 1803 "Assisted Company Setup Wizard"
                         begin
                             if TypeStandard then
                                 TypeEvaluation := false;
-                            CalcCompanyData;
+                            CalcCompanyData();
                         end;
                     }
                 }
@@ -89,7 +89,7 @@ page 1803 "Assisted Company Setup Wizard"
                         begin
                             if TypeEvaluation then
                                 TypeStandard := false;
-                            CalcCompanyData;
+                            CalcCompanyData();
                         end;
                     }
                 }
@@ -119,12 +119,12 @@ page 1803 "Assisted Company Setup Wizard"
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Visible = false;
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                     }
@@ -132,17 +132,17 @@ page 1803 "Assisted Company Setup Wizard"
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         TableRelation = "Country/Region".Code;
                     }
-                    field("VAT Registration No."; "VAT Registration No.")
+                    field("VAT Registration No."; Rec."VAT Registration No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Visible = false;
                     }
-                    field("Industrial Classification"; "Industrial Classification")
+                    field("Industrial Classification"; Rec."Industrial Classification")
                     {
                         ApplicationArea = Basic, Suite;
                         NotBlank = true;
@@ -175,7 +175,7 @@ page 1803 "Assisted Company Setup Wizard"
                 {
                     Caption = 'Specify the contact details for your company.';
                     InstructionalText = 'This is used in invoices and other documents where general information about your company is printed.';
-                    field("Phone No."; "Phone No.")
+                    field("Phone No."; Rec."Phone No.")
                     {
                         ApplicationArea = Basic, Suite;
 
@@ -190,7 +190,7 @@ page 1803 "Assisted Company Setup Wizard"
                                 Error(InvalidPhoneNumberErr)
                         end;
                     }
-                    field("E-Mail"; "E-Mail")
+                    field("E-Mail"; Rec."E-Mail")
                     {
                         ApplicationArea = Basic, Suite;
                         ExtendedDatatype = EMail;
@@ -205,7 +205,7 @@ page 1803 "Assisted Company Setup Wizard"
                             MailManagement.CheckValidEmailAddress("E-Mail");
                         end;
                     }
-                    field("Home Page"; "Home Page")
+                    field("Home Page"; Rec."Home Page")
                     {
                         ApplicationArea = Basic, Suite;
 
@@ -297,24 +297,24 @@ page 1803 "Assisted Company Setup Wizard"
                 {
                     Caption = 'Specify your company''s bank information.';
                     InstructionalText = 'This information is included on documents that you send to customer and vendors to inform about payments to your bank account.';
-                    field("Bank Name"; "Bank Name")
+                    field("Bank Name"; Rec."Bank Name")
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field("Bank Branch No."; "Bank Branch No.")
+                    field("Bank Branch No."; Rec."Bank Branch No.")
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field("Bank Account No."; "Bank Account No.")
+                    field("Bank Account No."; Rec."Bank Account No.")
                     {
                         ApplicationArea = Basic, Suite;
 
                         trigger OnValidate()
                         begin
-                            ShowBankAccountCreationWarning := not ValidateBankAccountNotEmpty;
+                            ShowBankAccountCreationWarning := not ValidateBankAccountNotEmpty();
                         end;
                     }
-                    field("SWIFT Code"; "SWIFT Code")
+                    field("SWIFT Code"; Rec."SWIFT Code")
                     {
                         ApplicationArea = Basic, Suite;
                     }
@@ -432,7 +432,8 @@ page 1803 "Assisted Company Setup Wizard"
                             var
                                 ExistingInventorySetup: Record "Inventory Setup";
                             begin
-                                if not ExistingInventorySetup.Get then begin
+                                if not ExistingInventorySetup.Get() then begin
+                                    InventorySetup.Init();
                                     InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
                                     InventorySetup."Automatic Cost Posting" := true;
                                 end;
@@ -522,17 +523,17 @@ page 1803 "Assisted Company Setup Wizard"
                     ErrorText: Text;
                 begin
                     StartConfigPackageImport();
-                    AssistedCompanySetup.WaitForPackageImportToComplete;
+                    AssistedCompanySetup.WaitForPackageImportToComplete();
                     BankAccount.TransferFields(TempBankAccount, true);
                     AssistedCompanySetup.ApplyUserInput(Rec, BankAccount, AccountingPeriodStartDate, TypeEvaluation);
 
-                    UpdateCompanyDisplayNameIfNameChanged;
+                    UpdateCompanyDisplayNameIfNameChanged();
 
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Assisted Company Setup Wizard");
                     if (BankAccount."No." <> '') and (not TempOnlineBankAccLink.IsEmpty) then
-                        if not TryLinkBankAccount then
+                        if not TryLinkBankAccount() then
                             ErrorText := GetLastErrorText;
-                    CurrPage.Close;
+                    CurrPage.Close();
 
                     if ErrorText <> '' then begin
                         Message(StrSubstNo(BankAccountLinkingFailedMsg, ErrorText));
@@ -550,8 +551,8 @@ page 1803 "Assisted Company Setup Wizard"
 
     trigger OnInit()
     begin
-        InitializeRecord;
-        LoadTopBanners;
+        InitializeRecord();
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
@@ -561,9 +562,9 @@ page 1803 "Assisted Company Setup Wizard"
         CompanyData := CompanyData::None;
         Clear(AccountingPeriodStartDate);
 
-        ResetWizardControls;
-        ShowIntroStep;
-        TypeSelectionEnabled := LoadConfigTypes and not PackageImported();
+        ResetWizardControls();
+        ShowIntroStep();
+        TypeSelectionEnabled := LoadConfigTypes() and not PackageImported();
 
         if EnvironmentInfo.IsSaaS() then
             GetCompanyDetailsFromMicrosoft365();
@@ -650,7 +651,7 @@ page 1803 "Assisted Company Setup Wizard"
 
     local procedure NextStep(Backwards: Boolean)
     begin
-        ResetWizardControls;
+        ResetWizardControls();
 
         if Backwards then
             Step := Step - 1
@@ -659,7 +660,7 @@ page 1803 "Assisted Company Setup Wizard"
 
         case Step of
             Step::Intro:
-                ShowIntroStep;
+                ShowIntroStep();
             Step::Sync:
                 ShowSyncStep(Backwards);
             Step::"Select Type":
@@ -668,26 +669,26 @@ page 1803 "Assisted Company Setup Wizard"
                     if not TypeSelectionEnabled then
                         NextStep(Backwards)
                     else
-                        ShowSelectTypeStep;
+                        ShowSelectTypeStep();
                 end;
             Step::"Company Details":
                 if TypeEvaluation then begin
                     Step := Step::Done;
-                    ShowDoneStep;
+                    ShowDoneStep();
                 end else begin
                     SendCompanyInfoDownloadedFromOfficeNotification();
-                    ShowCompanyDetailsStep;
+                    ShowCompanyDetailsStep();
                 end;
             Step::"Communication Details":
-                ShowCommunicationDetailsStep;
+                ShowCommunicationDetailsStep();
             Step::"Payment Details":
                 begin
 #if not CLEAN19
                     if not Backwards then
-                        PopulateBankAccountInformation;
+                        PopulateBankAccountInformation();
 #endif
-                    ShowPaymentDetailsStep;
-                    ShowBankAccountCreationWarning := not ValidateBankAccountNotEmpty;
+                    ShowPaymentDetailsStep();
+                    ShowBankAccountCreationWarning := not ValidateBankAccountNotEmpty();
                 end;
             Step::Done:
                 begin
@@ -759,9 +760,9 @@ page 1803 "Assisted Company Setup Wizard"
         AccountingPeriod: Record "Accounting Period";
 #endif
     begin
-        Init;
+        Init();
 
-        if CompanyInformation.Get then begin
+        if CompanyInformation.Get() then begin
             TransferFields(CompanyInformation);
             if Name = '' then
                 Name := CompanyName;
@@ -769,14 +770,14 @@ page 1803 "Assisted Company Setup Wizard"
             Name := CompanyName;
 
 #if not CLEAN19
-        SkipAccountingPeriod := not AccountingPeriod.IsEmpty;
+        SkipAccountingPeriod := not AccountingPeriod.IsEmpty();
         if not SkipAccountingPeriod then begin
             AccountingPeriodStartDate := CalcDate('<-CY>', Today);
             UserAccountingPeriodStartDate := AccountingPeriodStartDate;
         end;
 #endif
 
-        Insert;
+        Insert();
     end;
 
     local procedure CalcCompanyData()
@@ -824,8 +825,8 @@ page 1803 "Assisted Company Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -843,7 +844,7 @@ page 1803 "Assisted Company Setup Wizard"
             end;
 
         if TempOnlineBankAccLink.Count = 1 then
-            TempOnlineBankAccLink.FindFirst
+            TempOnlineBankAccLink.FindFirst()
         else
             CurrPage.OnlineBanckAccountLinkPagePart.PAGE.GetRecord(TempOnlineBankAccLink);
 
@@ -913,7 +914,7 @@ page 1803 "Assisted Company Setup Wizard"
     var
         Company: Record Company;
     begin
-        if COMPANYPROPERTY.DisplayName = Name then
+        if COMPANYPROPERTY.DisplayName() = Name then
             exit;
 
         Company.Get(CompanyName);

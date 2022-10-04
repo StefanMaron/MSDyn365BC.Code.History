@@ -983,7 +983,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StdSalesCode.SetRange("Code", StdSalesCodeCode);
         Assert.RecordIsEmpty(StdSalesCode);
         Assert.ExpectedConfirm(
-            StrSubstNo(StdCodeDeleteConfirmLbl, StdSalesCodeCode, StdCustomerSalesCode.TableCaption),
+            StrSubstNo(StdCodeDeleteConfirmLbl, StdSalesCodeCode, StdCustomerSalesCode.TableCaption()),
             LibraryVariableStorage.DequeueText());
         StdCustomerSalesCode.SetRange("Code", StdSalesCodeCode);
         Assert.RecordIsEmpty(StdCustomerSalesCode);
@@ -1194,7 +1194,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     begin
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
     end;
 
@@ -1343,7 +1343,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardSalesLine: Record "Standard Sales Line";
     begin
         FilterOnSalesLine(SalesLine, SalesHeader);
-        Assert.IsTrue(SalesLine.FindFirst, StrSubstNo(ValueMustExistMsg, SalesLine.TableCaption));
+        Assert.IsTrue(SalesLine.FindFirst, StrSubstNo(ValueMustExistMsg, SalesLine.TableCaption()));
         FindStandardSalesLine(StandardSalesLine, SalesLine."Sell-to Customer No.");
         SalesLine.TestField(Type, StandardSalesLine.Type);
         SalesLine.TestField("No.", StandardSalesLine."No.");
@@ -1357,7 +1357,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        TempNotificationContext.SetRange("Notification ID", StandardCodesMgt.GetSalesRecurringLinesNotificationId);
+        TempNotificationContext.SetRange("Notification ID", StandardCodesMgt.GetSalesRecurringLinesNotificationId());
         Assert.RecordIsEmpty(TempNotificationContext);
     end;
 

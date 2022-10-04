@@ -57,20 +57,20 @@ table 6084 "Service Line Price Adjmt."
         }
         field(14; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
         }
         field(15; "New Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'New Amount';
 
             trigger OnValidate()
             begin
-                GetServHeader;
+                GetServHeader();
                 "New Unit Price" :=
                   Round(("New Amount" * 100 / (100 - "Discount %")) / Quantity, Currency."Unit-Amount Rounding Precision");
                 if ServHeader."Prices Including VAT" then
@@ -84,20 +84,20 @@ table 6084 "Service Line Price Adjmt."
         }
         field(16; "Unit Price"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             Caption = 'Unit Price';
             Editable = false;
         }
         field(17; "New Unit Price"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             Caption = 'New Unit Price';
 
             trigger OnValidate()
             begin
-                GetServHeader;
+                GetServHeader();
                 "Discount Amount" :=
                   Round("New Unit Price" * Quantity * "Discount %" / 100, Currency."Amount Rounding Precision");
                 "New Amount" := Round("New Unit Price" * Quantity - "Discount Amount", Currency."Amount Rounding Precision");
@@ -110,7 +110,7 @@ table 6084 "Service Line Price Adjmt."
         }
         field(18; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
@@ -122,27 +122,27 @@ table 6084 "Service Line Price Adjmt."
         }
         field(20; "Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'Discount Amount';
             Editable = false;
         }
         field(21; "Amount incl. VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'Amount incl. VAT';
             Editable = false;
         }
         field(22; "New Amount incl. VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 1;
             Caption = 'New Amount incl. VAT';
 
             trigger OnValidate()
             begin
-                GetServHeader;
+                GetServHeader();
                 if ServHeader."Prices Including VAT" then
                     "New Amount" := "New Amount incl. VAT"
                 else
@@ -217,7 +217,7 @@ table 6084 "Service Line Price Adjmt."
         then begin
             ServHeader.Get("Document Type", "Document No.");
             if ServHeader."Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 ServHeader.TestField("Currency Factor");
                 Currency.Get(ServHeader."Currency Code");
@@ -228,7 +228,7 @@ table 6084 "Service Line Price Adjmt."
 
     local procedure GetCurrency(): Code[10]
     begin
-        GetServHeader;
+        GetServHeader();
         exit(ServHeader."Currency Code");
     end;
 }

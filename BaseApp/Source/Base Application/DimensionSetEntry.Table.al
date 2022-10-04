@@ -21,7 +21,7 @@ table 480 "Dimension Set Entry"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDim("Dimension Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
                 if "Dimension Code" <> xRec."Dimension Code" then begin
                     "Dimension Value Code" := '';
                     "Dimension Value ID" := 0;
@@ -37,7 +37,7 @@ table 480 "Dimension Set Entry"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDimValue("Dimension Code", "Dimension Value Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
 
                 DimVal.Get("Dimension Code", "Dimension Value Code");
                 "Dimension Value ID" := DimVal."Dimension Value ID";

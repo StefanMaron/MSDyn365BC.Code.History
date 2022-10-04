@@ -15,9 +15,9 @@ codeunit 743 "VAT Report Export"
             VATReportHeader.Status::Open:
                 ExportOpen(VATReportHeader);
             VATReportHeader.Status::Released:
-                ExportReleased;
+                ExportReleased();
             VATReportHeader.Status::Submitted:
-                ExportReleased;
+                ExportReleased();
         end;
     end;
 
@@ -27,13 +27,13 @@ codeunit 743 "VAT Report Export"
 
         if Confirm(Text001, true) then begin
             VATReportReleaseReopen.Release(VATReportHeader);
-            ExportReleased;
+            ExportReleased();
         end;
     end;
 
     local procedure ExportReleased()
     begin
-        ExportReport;
+        ExportReport();
     end;
 
     local procedure ExportReport()

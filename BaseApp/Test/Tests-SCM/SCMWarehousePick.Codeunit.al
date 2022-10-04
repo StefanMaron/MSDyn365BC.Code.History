@@ -428,7 +428,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
 
         // [GIVEN] Default Location "DL" with "Directed Put-away and Pick" enabled.
-        DefaultLocationCode := WMSManagement.GetDefaultLocation;
+        DefaultLocationCode := WMSManagement.GetDefaultLocation();
 
         // [GIVEN] There are other locations with "Directed Put-away and Pick" disabled and "Bin Mandatory" enabled to which current user is warehouse employee.
         CreateLocationNotRequirePick(Location);
@@ -461,7 +461,7 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseEmployee.DeleteAll(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationOrange.Code, true);
-        DefaultLocationCode := WMSManagement.GetDefaultLocation;
+        DefaultLocationCode := WMSManagement.GetDefaultLocation();
 
         // [WHEN] Internal Movement Card "IMC" opens
         InternalMovementHeader.Init();
@@ -1570,6 +1570,56 @@ codeunit 137055 "SCM Warehouse Pick"
         RegisterWarehouseActivity(SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,PickSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CannotChangeReleasedProductionOrderStatusWhenWhseWorksheetLinesExist()
+    var
+        ProductionOrder: Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ParentItem: Record Item;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ChildItem: Record Item;
+        Quantity: Decimal;
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        WhseWorkSheetLine: Record "Whse. Worksheet Line";
+    begin
+        isInitialized := false;
+        Initialize();
+
+        // [GIVEN] Refreshed Production Order.
+        LibraryInventory.CreateItem(ParentItem);
+        LibraryInventory.CreateItem(ChildItem);
+        Quantity := LibraryRandom.RandInt(10);
+        UpdateItemInventory(ChildItem."No.", LocationWhite.Code, '', Quantity);
+
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem."No.", Quantity);
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify(true);
+
+        CreateProdOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            ParentItem."No.",
+            LocationWhite.Code,
+            Quantity
+        );
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        CreateRefreshedProductionOrder(ProductionOrder, LocationWhite);
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        PickWorksheetPage."Get Warehouse Documents".Invoke();
+        PickWorksheetPage.Close();
+
+        // [WHEN] Changing the status to finished.
+        asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError('Status must not be changed when a Whse. Worksheet Line');
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -1969,7 +2019,7 @@ codeunit 137055 "SCM Warehouse Pick"
     var
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
     begin
-        exit(UnitOfMeasureManagement.QtyRndPrecision);
+        exit(UnitOfMeasureManagement.QtyRndPrecision());
     end;
 
     local procedure FindWhseActivityHeaderBySourceDocAndNo(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDoc: Enum "Warehouse Request Source Document"; SourceNo: Code[20])
@@ -2027,7 +2077,7 @@ codeunit 137055 "SCM Warehouse Pick"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.Reserve.Invoke;  // Open Page - Reservation on ReservationPageHandler.
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure ShowAssemblyLinesSalesOrder(SalesHeader: Record "Sales Header")
@@ -2099,7 +2149,7 @@ codeunit 137055 "SCM Warehouse Pick"
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateItemInventory(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
@@ -2444,6 +2494,14 @@ codeunit 137055 "SCM Warehouse Pick"
         Assert.IsFalse(WhseChangeUnitofMeasure."Unit of Measure Code".Editable, UnitOfMeasureCodeMustNotBeEditableErr);
 
         WhseChangeUnitofMeasure.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PickSelectionModalPageHandler(var PickSelection: TestPage "Pick Selection")
+    begin
+        PickSelection.Last();
+        PickSelection.OK().Invoke();
     end;
 }
 

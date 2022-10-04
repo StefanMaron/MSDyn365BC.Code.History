@@ -54,12 +54,13 @@ table 869 "Cash Flow Chart Setup"
     }
 
     var
-        StatusTxt: Label '%1 | %2 | %3 | %4 | %5 (Updated: %6)', Comment = '<"Cash Flow Forecast No."> | <Show> | <"Start Date"> | <"Period Length"> | <"Group By">.  (Updated: <Time>)';
         CFSetup: Record "Cash Flow Setup";
+
+        StatusTxt: Label '%1 | %2 | %3 | %4 | %5 (Updated: %6)', Comment = '<"Cash Flow Forecast No."> | <Show> | <"Start Date"> | <"Period Length"> | <"Group By">.  (Updated: <Time>)';
 
     procedure GetCurrentSelectionText(): Text
     begin
-        if not CFSetup.Get then
+        if not CFSetup.Get() then
             exit;
         exit(StrSubstNo(StatusTxt, CFSetup."CF No. on Chart in Role Center", Show, "Start Date", "Period Length", "Group By", Time));
     end;
@@ -72,7 +73,7 @@ table 869 "Cash Flow Chart Setup"
     begin
         case "Start Date" of
             "Start Date"::"Working Date":
-                StartDate := WorkDate;
+                StartDate := WorkDate();
             "Start Date"::"First Entry Date":
                 begin
                     CFSetup.Get();
@@ -98,31 +99,31 @@ table 869 "Cash Flow Chart Setup"
     procedure SetGroupBy(GroupBy: Option)
     begin
         "Group By" := GroupBy;
-        Modify;
+        Modify();
     end;
 
     procedure SetShow(NewShow: Option)
     begin
         Show := NewShow;
-        Modify;
+        Modify();
     end;
 
     procedure SetStartDate(StartDate: Option)
     begin
         "Start Date" := StartDate;
-        Modify;
+        Modify();
     end;
 
     procedure SetPeriodLength(PeriodLength: Option)
     begin
         "Period Length" := PeriodLength;
-        Modify;
+        Modify();
     end;
 
     procedure SetChartType(ChartType: Integer)
     begin
         "Chart Type" := ChartType;
-        Modify;
+        Modify();
     end;
 }
 

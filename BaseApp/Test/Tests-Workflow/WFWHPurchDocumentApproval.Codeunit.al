@@ -191,7 +191,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -427,7 +427,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        PurchaseHeader.Find; // Purcahse document's status was modified so reread from database.
+        PurchaseHeader.Find(); // Purcahse document's status was modified so reread from database.
         PurchaseHeader.Delete(true);
 
         // Verify
@@ -457,7 +457,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.IsTrue(PurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -483,7 +483,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.IsTrue(PurchaseOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
     end;
 
     [Test]
@@ -509,7 +509,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.IsTrue(PurchaseInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -535,7 +535,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.IsTrue(PurchaseInvoices.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
     end;
 
     [Test]
@@ -561,7 +561,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.IsTrue(PurchaseCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.IsTrue(PurchaseCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        PurchaseCreditMemos.Close;
+        PurchaseCreditMemos.Close();
     end;
 
     [Test]
@@ -615,7 +615,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -643,7 +643,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
     end;
 
     [Test]
@@ -671,7 +671,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -699,7 +699,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
     end;
 
     [Test]
@@ -727,7 +727,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -755,7 +755,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        PurchaseCreditMemos.Close;
+        PurchaseCreditMemos.Close();
     end;
 
     [Normal]
@@ -855,7 +855,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         PurchaseOrderList.OpenView;
         PurchaseOrderList.GotoRecord(PurchaseHeader);
         PurchaseOrderList.SendApprovalRequest.Invoke;
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
 
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
     end;
@@ -872,7 +872,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
 
     local procedure VerifyPurchaseDocumentStatus(PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
         PurchaseHeader.TestField(Status, Status);
     end;

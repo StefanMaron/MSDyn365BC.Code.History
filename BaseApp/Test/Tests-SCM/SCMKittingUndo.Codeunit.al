@@ -177,7 +177,7 @@ codeunit 137097 "SCM Kitting - Undo"
         Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
         ManufacturingSetup.Modify(true);
 
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     [Normal]
@@ -251,7 +251,7 @@ codeunit 137097 "SCM Kitting - Undo"
         CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, HeaderBinCode, '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, ComponentsBinCode);
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, ComponentsBinCode);
     end;
 
     local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
@@ -275,7 +275,7 @@ codeunit 137097 "SCM Kitting - Undo"
 
         repeat
             LibraryAssembly.AddAssemblyHeaderComment(AssemblyHeader, AssemblyLine."Line No.");
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
     end;
 
     local procedure CopyPostedAOToTemp(PostedAssemblyHeader: Record "Posted Assembly Header"; var TempPostedAssemblyHeader: Record "Posted Assembly Header" temporary; var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary)
@@ -296,7 +296,7 @@ codeunit 137097 "SCM Kitting - Undo"
         repeat
             TempPostedAssemblyLine := PostedAssemblyLine;
             TempPostedAssemblyLine.Insert();
-        until PostedAssemblyLine.Next = 0;
+        until PostedAssemblyLine.Next() = 0;
     end;
 
     local procedure CopyAOToTemp(AssemblyHeader: Record "Assembly Header"; var TempAssemblyHeader: Record "Assembly Header" temporary; var TempAssemblyLine: Record "Assembly Line" temporary)
@@ -319,7 +319,7 @@ codeunit 137097 "SCM Kitting - Undo"
         repeat
             TempAssemblyLine := AssemblyLine;
             TempAssemblyLine.Insert();
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
     end;
 
     local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Decimal; ShipmentDate: Date; LocationCode: Code[10])
@@ -376,7 +376,7 @@ codeunit 137097 "SCM Kitting - Undo"
 
         repeat
             Quantity += PostedAssemblyHeader."Quantity (Base)";
-        until PostedAssemblyHeader.Next = 0;
+        until PostedAssemblyHeader.Next() = 0;
 
         exit(Quantity);
     end;
@@ -400,7 +400,7 @@ codeunit 137097 "SCM Kitting - Undo"
             PostedAssemblyLine.SetRange("Line No.", LineNo);
             PostedAssemblyLine.FindFirst(); // let it fail if doesn't exist
             Quantity += PostedAssemblyLine."Quantity (Base)";
-        until PostedAssemblyHeader.Next = 0;
+        until PostedAssemblyHeader.Next() = 0;
 
         exit(Quantity);
     end;
@@ -418,7 +418,7 @@ codeunit 137097 "SCM Kitting - Undo"
                 AssemblyLine.Validate("Location Code", Bin."Location Code");
                 AssemblyLine.Validate("Bin Code", Bin.Code);
                 AssemblyLine.Modify(true);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
     end;
 
     local procedure PostAssemblyOrderQty(var AssemblyHeader: Record "Assembly Header"; Qty: Decimal)
@@ -496,14 +496,14 @@ codeunit 137097 "SCM Kitting - Undo"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         with WarehouseEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
             "Location Code" := LocationWhite.Code;
             "Item No." := Item."No.";
             "Qty. (Base)" := Qty;
             "Unit of Measure Code" := Item."Base Unit of Measure";
             "Bin Code" := LocationWhite."From-Assembly Bin Code";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -551,7 +551,7 @@ codeunit 137097 "SCM Kitting - Undo"
                   "Quantity per", GetMaxValue(TempAssemblyLine."Quantity per", TempPostedAssemblyLine."Quantity per"));
                 FinalAssemblyLine.TestField("Unit of Measure Code", FinalAssemblyLine."Unit of Measure Code");
                 FinalAssemblyLine.TestField("Dimension Set ID", TempAssemblyLine."Dimension Set ID");
-            until TempAssemblyLine.Next = 0;
+            until TempAssemblyLine.Next() = 0;
     end;
 
     local procedure AssertNewAOAfterUndo(var TempPostedAssemblyHeader: Record "Posted Assembly Header" temporary; var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary)
@@ -602,7 +602,7 @@ codeunit 137097 "SCM Kitting - Undo"
                 FinalAssemblyLine.TestField("Quantity to Consume (Base)", TempPostedAssemblyLine."Quantity (Base)");
                 FinalAssemblyLine.TestField("Unit of Measure Code", TempPostedAssemblyLine."Unit of Measure Code");
                 FinalAssemblyLine.TestField("Dimension Set ID", TempPostedAssemblyLine."Dimension Set ID");
-            until TempPostedAssemblyLine.Next = 0;
+            until TempPostedAssemblyLine.Next() = 0;
     end;
 
     local procedure AssertReversedDoc(var PostedAssemblyHeader: Record "Posted Assembly Header"; var TempPostedAssemblyHeader: Record "Posted Assembly Header" temporary)
@@ -793,7 +793,7 @@ codeunit 137097 "SCM Kitting - Undo"
         CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
 
         // Exercise - create SalesOrder and post
@@ -864,7 +864,7 @@ codeunit 137097 "SCM Kitting - Undo"
         // Post
         FindAssemblyHeader(AssemblyHeader, AssemblyHeader."Document Type"::Order, Item, '', LocationCode, '', DueDate,
           Item."Base Unit of Measure", SalesLine."Qty. to Assemble to Order");
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise - undo - can't undo
@@ -905,7 +905,7 @@ codeunit 137097 "SCM Kitting - Undo"
         CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
 
         // Undo
@@ -1186,7 +1186,7 @@ codeunit 137097 "SCM Kitting - Undo"
             CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         if FullPosting then begin
             if IsATO then
                 LibrarySales.PostSalesDocument(SalesHeader, true, false)
@@ -1194,11 +1194,11 @@ codeunit 137097 "SCM Kitting - Undo"
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty)
         end else begin
             if IsATO then begin
-                SalesLine.Find;
+                SalesLine.Find();
                 SalesLine.Validate("Qty. to Ship", Round(SalesLine."Qty. to Ship" / 2, 0.00001));
                 SalesLine.Modify(true);
                 LibrarySales.PostSalesDocument(SalesHeader, true, false);
-                AssemblyHeader.Find;
+                AssemblyHeader.Find();
             end else
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty / 2);
         end;
@@ -1383,10 +1383,10 @@ codeunit 137097 "SCM Kitting - Undo"
         if (LocationCode <> '') and Location."Bin Mandatory" then begin
             CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, HeaderBin.Code, '', DueDate, OrderQty);
             SetLocAndBinCodeOnAsmLines(AssemblyHeader, ComponentsBin);
-            LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, ComponentsBin.Code);
+            LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, ComponentsBin.Code);
         end else begin
             CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
-            LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+            LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         end;
 
         // Post partial
@@ -1458,7 +1458,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AddCommentsToOrder(AssemblyHeader);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
 
         // Undo
@@ -1502,7 +1502,7 @@ codeunit 137097 "SCM Kitting - Undo"
         CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
 
         // Undo
@@ -1550,7 +1550,7 @@ codeunit 137097 "SCM Kitting - Undo"
         CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post 4 times
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
 
         // Post full in 4 partial postings
         for i := 1 to 4 do
@@ -1610,7 +1610,7 @@ codeunit 137097 "SCM Kitting - Undo"
         CreateAssemblyOrder(AssemblyHeader, Item, LocationCode, '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, '');
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
 
         // Exercise - undo
@@ -1801,7 +1801,7 @@ codeunit 137097 "SCM Kitting - Undo"
         SetLocAndBinCodeOnAsmLines(AssemblyHeader, ComponentsBin);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationCode, ComponentsBin.Code);
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationCode, ComponentsBin.Code);
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
         FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");
 
@@ -1837,7 +1837,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AddCommentsToOrder(AssemblyHeader);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, LocationBlue.Code, '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, LocationBlue.Code, '');
         PostAssemblyOrderQty(AssemblyHeader, OrderQty);
 
         // Undo
@@ -1884,7 +1884,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         // [GIVEN] Post Assembly Order "A" with Quantity to Assemble = "Q2", "Q2" < "Q1"
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         RegisterPickWithQtyToHandle(AssemblyHeader, OrderQty[3]);
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         MockWhseEntry(Item, -OrderQty[2]);
@@ -1895,7 +1895,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
 
         // [THEN] Assembly Order A2 is Undone
-        PostedAssemblyHeader.Find;
+        PostedAssemblyHeader.Find();
         PostedAssemblyHeader.TestField(Reversed, true);
     end;
 
@@ -1932,7 +1932,7 @@ codeunit 137097 "SCM Kitting - Undo"
 
         // [GIVEN] Post output of 6 pcs
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
 
         // [GIVEN] Post output of remaining 4 pcs
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');

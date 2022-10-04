@@ -1,7 +1,7 @@
 page 5530 "Item Availability by Event"
 {
     Caption = 'Item Availability by Event';
-    DataCaptionExpression = PageCaption;
+    DataCaptionExpression = PageCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -106,7 +106,7 @@ page 5530 "Item Availability by Event"
 
                     trigger OnValidate()
                     begin
-                        CalculatePeriodEntries;
+                        CalculatePeriodEntries();
                     end;
                 }
                 field(LastUpdateTime; LastUpdateTime)
@@ -302,7 +302,7 @@ page 5530 "Item Availability by Event"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the item''s inventory, including anticipated demand from demand forecasts or blanket sales orders.';
                 }
-                field("Remaining Forecast"; "Remaining Forecast")
+                field("Remaining Forecast"; Rec."Remaining Forecast")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -310,7 +310,7 @@ page 5530 "Item Availability by Event"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the quantity that remains on the demand forecast, after the forecast quantity on the availability line has been consumed.';
                 }
-                field("Action Message"; "Action Message")
+                field("Action Message"; Rec."Action Message")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -318,7 +318,7 @@ page 5530 "Item Availability by Event"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the action message of the planning or requisition line that this availability figure is based on.';
                 }
-                field("Action Message Qty."; "Action Message Qty.")
+                field("Action Message Qty."; Rec."Action Message Qty.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -326,7 +326,7 @@ page 5530 "Item Availability by Event"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the quantity that is suggested in the planning or requisition line that this availability figure is based on.';
                 }
-                field("Suggested Projected Inventory"; "Suggested Projected Inventory")
+                field("Suggested Projected Inventory"; Rec."Suggested Projected Inventory")
                 {
                     ApplicationArea = Basic, Suite;
                     DecimalPlaces = 0 : 5;
@@ -348,10 +348,6 @@ page 5530 "Item Availability by Event"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Recalculate';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Update the availability numbers with any changes made by other users.';
 
                 trigger OnAction()
@@ -365,10 +361,6 @@ page 5530 "Item Availability by Event"
                 Caption = 'Show Document';
                 Enabled = EnableShowDocumentAction;
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ShortCutKey = 'Shift+F7';
                 ToolTip = 'Open the document that the selected line exists on.';
 
@@ -434,9 +426,23 @@ page 5530 "Item Availability by Event"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Recalculate_Promoted; Recalculate)
+                {
+                }
+                actionref("Show Document_Promoted"; "Show Document")
+                {
                 }
             }
         }
@@ -444,8 +450,8 @@ page 5530 "Item Availability by Event"
 
     trigger OnAfterGetRecord()
     begin
-        Emphasize := EmphasizeLine;
-        EnableShowDocumentAction := HasSourceDocument;
+        Emphasize := EmphasizeLine();
+        EnableShowDocumentAction := HasSourceDocument();
     end;
 
     trigger OnOpenPage()
@@ -453,7 +459,7 @@ page 5530 "Item Availability by Event"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         OnBeforeOnOpenPage(IncludeBlanketOrders);
-        if ItemIsSet then
+        if ItemIsSet() then
             InitAndCalculatePeriodEntries()
         else
             InitItemRequestFields();
@@ -533,7 +539,7 @@ page 5530 "Item Availability by Event"
         RunningInventoryForecast: Decimal;
         RunningInventoryPlan: Decimal;
     begin
-        Rec.Reset;
+        Rec.Reset();
         Rec.DeleteAll();
         Rec.SetCurrentKey("Period Start", "Line No.");
 

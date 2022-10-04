@@ -5,19 +5,20 @@ codeunit 1380 "Batch Processing Mgt."
 
     trigger OnRun()
     begin
-        RunCustomProcessing;
+        RunCustomProcessing();
     end;
 
     var
-        PostingTemplateMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
         RecRefCustomerProcessing: RecordRef;
         ProcessingCodeunitID: Integer;
         BatchIDGlobal: Guid;
-        ProcessingCodeunitNotSetErr: Label 'A processing codeunit has not been selected.';
-        BatchCompletedMsg: Label 'All the documents were processed.';
         IsCustomProcessingHandled: Boolean;
         IsHandled: Boolean;
         KeepParameters: Boolean;
+
+        PostingTemplateMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
+        ProcessingCodeunitNotSetErr: Label 'A processing codeunit has not been selected.';
+        BatchCompletedMsg: Label 'All of your selections were processed.';
         TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
         GenJournalPostFailedTxt: Label 'General journal posting failed. Journal Template: %1, Journal Batch: %2', Locked = true;
         InterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
@@ -51,13 +52,14 @@ codeunit 1380 "Batch Processing Mgt."
             RecRef.SetTable(SourceRecord);
             Codeunit.Run(ProcessingCodeunitID, SourceRecord)
         end else begin
-            if NoSkipped <> 0 then
-                ProcessConfirmQst := StrSubstNo(ProcessConfirmWithSkipQst, NoSelected, NoSkipped)
-            else
-                ProcessConfirmQst := StrSubstNo(ProcessConfirmWithoutSkipQst, NoSelected);
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ProcessConfirmQst, NoSelected, NoSkipped), true) then
-                exit;
-
+            if (NoSkipped <> 0) or (NoSelected <> 0) then begin
+                if NoSkipped <> 0 then
+                    ProcessConfirmQst := StrSubstNo(ProcessConfirmWithSkipQst, NoSelected, NoSkipped)
+                else
+                    ProcessConfirmQst := StrSubstNo(ProcessConfirmWithoutSkipQst, NoSelected);
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ProcessConfirmQst, NoSelected, NoSkipped), true) then
+                    exit;
+            end;
             BatchProcess(RecRef, ErrorHandlingOptions);
         end;
     end;
@@ -114,13 +116,13 @@ codeunit 1380 "Batch Processing Mgt."
 
             UnbindSubscription(BatchProcessingMgtHandler);
 
-            ResetBatchID;
+            ResetBatchID();
 
             IsHandled := false;
             OnBatchProcessOnBeforeShowMessage(CounterPosted, CounterTotal, IsHandled);
 
             if GuiAllowed then begin
-                Window.Close;
+                Window.Close();
                 if not IsHandled then
                     if (CounterPosted <> CounterTotal) and not FullBatchProcessed then begin
                         ErrorMessageHandler.InformAboutErrors(ErrorHandlingOptions);
@@ -188,7 +190,7 @@ codeunit 1380 "Batch Processing Mgt."
         if not Result then
             if GetLastErrorText <> '' then begin
                 ErrorMessageMgt.LogError(RecRef.RecordId, GetLastErrorText, '');
-                ClearLastError;
+                ClearLastError();
             end;
         exit(Result);
     end;
@@ -221,8 +223,8 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap.Init();
         BatchProcessingSessionMap."Record ID" := RecRef.RecordId;
         BatchProcessingSessionMap."Batch ID" := BatchIDGlobal;
-        BatchProcessingSessionMap."User ID" := UserSecurityId;
-        BatchProcessingSessionMap."Session ID" := SessionId;
+        BatchProcessingSessionMap."User ID" := UserSecurityId();
+        BatchProcessingSessionMap."Session ID" := SessionId();
         BatchProcessingSessionMap.Insert();
     end;
 
@@ -234,7 +236,7 @@ codeunit 1380 "Batch Processing Mgt."
         RecVar: Variant;
         Result: Boolean;
     begin
-        ClearLastError;
+        ClearLastError();
 
         BatchProcessingMgt.SetRecRefForCustomProcessing(RecRef);
         Result := BatchProcessingMgt.Run();
@@ -242,18 +244,18 @@ codeunit 1380 "Batch Processing Mgt."
 
         RecVar := RecRef;
 
-        if (GetLastErrorCallstack = '') and Result and not BatchProcessingMgt.GetIsCustomProcessingHandled then begin
+        if (GetLastErrorCallstack = '') and Result and not BatchProcessingMgt.GetIsCustomProcessingHandled() then begin
             ErrorMessageMgt.PushContext(
               ErrorContextElement, RecRef.RecordId, 0, StrSubstNo(ProcessingMsg, ProcessingCodeunitID, RecRef.RecordId));
             Result := CODEUNIT.Run(ProcessingCodeunitID, RecVar);
         end;
-        if BatchProcessingMgt.GetIsCustomProcessingHandled then
-            KeepParameters := BatchProcessingMgt.GetKeepParameters;
+        if BatchProcessingMgt.GetIsCustomProcessingHandled() then
+            KeepParameters := BatchProcessingMgt.GetKeepParameters();
         if not Result then
             if GetLastErrorText <> '' then begin
                 ErrorMessageMgt.LogError(RecVar, GetLastErrorText, '');
                 ErrorMessageMgt.PopContext(ErrorContextElement);
-                ClearLastError;
+                ClearLastError();
             end;
 
         RecRef.GetTable(RecVar);
@@ -338,8 +340,8 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingParameter: Record "Batch Processing Parameter";
     begin
         BatchProcessingSessionMap.SetRange("Record ID", RecordID);
-        BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
-        BatchProcessingSessionMap.SetRange("Session ID", SessionId);
+        BatchProcessingSessionMap.SetRange("User ID", UserSecurityId());
+        BatchProcessingSessionMap.SetRange("Session ID", SessionId());
         BatchProcessingSessionMap.SetFilter("Batch ID", '<>%1', BatchIDGlobal);
         if BatchProcessingSessionMap.FindSet() then begin
             repeat
@@ -397,8 +399,8 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
         BatchProcessingSessionMap.SetRange("Record ID", RecordID);
-        BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
-        BatchProcessingSessionMap.SetRange("Session ID", SessionId);
+        BatchProcessingSessionMap.SetRange("User ID", UserSecurityId());
+        BatchProcessingSessionMap.SetRange("Session ID", SessionId());
 
         if not BatchProcessingSessionMap.FindFirst() then
             exit(false);
@@ -481,9 +483,9 @@ codeunit 1380 "Batch Processing Mgt."
     begin
         BatchProcessingSessionMap.SetRange("Record ID", SourceRecordID);
         BatchProcessingSessionMap.SetRange("Session ID", SourceSessionID);
-        BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
+        BatchProcessingSessionMap.SetRange("User ID", UserSecurityId());
         if BatchProcessingSessionMap.FindFirst() then begin
-            BatchProcessingSessionMap."Session ID" := SessionId;
+            BatchProcessingSessionMap."Session ID" := SessionId();
             BatchProcessingSessionMap.Modify();
         end;
         BatchIDGlobal := BatchProcessingSessionMap."Batch ID";

@@ -29,8 +29,8 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         with CRMProductpricelevel do begin
-            Init;
-            asserterror Insert;
+            Init();
+            asserterror Insert();
             Assert.ExpectedError('Price List must have a value in CRM Productpricelevel');
         end;
     end;
@@ -46,9 +46,9 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         with CRMProductpricelevel do begin
-            Init;
-            PriceLevelId := CreateGuid;
-            asserterror Insert;
+            Init();
+            PriceLevelId := CreateGuid();
+            asserterror Insert();
             Assert.ExpectedError(ProductIdMissingErr);
         end;
     end;
@@ -64,18 +64,18 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         with CRMProductpricelevel do begin
-            Init;
-            ProductPriceLevelId := CreateGuid;
-            PriceLevelId := CreateGuid;
-            ProductId := CreateGuid;
-            UoMId := CreateGuid;
+            Init();
+            ProductPriceLevelId := CreateGuid();
+            PriceLevelId := CreateGuid();
+            ProductId := CreateGuid();
+            UoMId := CreateGuid();
             Amount := 1.0;
-            Insert;
+            Insert();
 
             // another line with the same pair of ProductId + UoMId
-            ProductPriceLevelId := CreateGuid;
+            ProductPriceLevelId := CreateGuid();
             Amount += 1;
-            asserterror Insert;
+            asserterror Insert();
             Assert.ExpectedError(PriceListLineAlreadyExistsErr);
         end;
     end;
@@ -91,10 +91,10 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         with CRMInvoicedetail do begin
-            Init;
+            Init();
             BaseAmount := 1.0;
             ExtendedAmount := 2.0;
-            Insert; // handled by ValidateSalesInvoiceLineOnInsert
+            Insert(); // handled by ValidateSalesInvoiceLineOnInsert
             TestField(BaseAmount, 0);
             TestField(ExtendedAmount, 0);
         end;
@@ -111,9 +111,9 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         with CRMTransactioncurrency do begin
-            TransactionCurrencyId := CreateGuid;
+            TransactionCurrencyId := CreateGuid();
             ISOCurrencyCode := '12345';
-            asserterror Insert; // handled by ValidateCurrencyOnInsert
+            asserterror Insert(); // handled by ValidateCurrencyOnInsert
             Assert.ExpectedError('Exchange Rate must have a value in Dataverse Transactioncurrency');
         end;
     end;
@@ -129,10 +129,10 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         with CRMSalesorder do begin
-            SalesOrderId := CreateGuid;
+            SalesOrderId := CreateGuid();
             StateCode := StateCode::Submitted;
             LastBackofficeSubmit := 0D;
-            Insert;
+            Insert();
 
             LastBackofficeSubmit := Today;
             asserterror Modify(true);
@@ -154,10 +154,10 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         // [GIVEN] the CRM Salesorder with one line
-        CRMSalesorder.SalesOrderId := CreateGuid;
+        CRMSalesorder.SalesOrderId := CreateGuid();
         CRMSalesorder.Insert();
 
-        CRMSalesorderdetail[1].SalesOrderDetailId := CreateGuid;
+        CRMSalesorderdetail[1].SalesOrderDetailId := CreateGuid();
         CRMSalesorderdetail[1].SalesOrderId := CRMSalesorder.SalesOrderId;
         CRMSalesorderdetail[1].Insert();
 
@@ -169,7 +169,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
             PricePerUnit := 4000;
             Tax := 5000;
             // [WHEN] Modify the order line
-            Modify; // recalc in onModify
+            Modify(); // recalc in onModify
 
             // [THEN] the line is recalculated: BaseAmount, ExtendedAmount
             TestField(BaseAmount, (PricePerUnit - VolumeDiscountAmount) * Quantity);
@@ -177,7 +177,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         end;
         // [GIVEN] added the second line
         CRMSalesorderdetail[2] := CRMSalesorderdetail[1];
-        CRMSalesorderdetail[2].SalesOrderDetailId := CreateGuid;
+        CRMSalesorderdetail[2].SalesOrderDetailId := CreateGuid();
         CRMSalesorderdetail[2].Insert();
 
         // [WHEN] Quantity, ManualDiscountAmount, and Tax are changed in the 2nd line
@@ -185,7 +185,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
             Quantity := 5;
             ManualDiscountAmount := 250;
             Tax := 3000;
-            Modify; // recalc in onModify
+            Modify(); // recalc in onModify
 
             // [THEN] the 2nd line is recalculated: BaseAmount, ExtendedAmount
             TestField(BaseAmount, (PricePerUnit - VolumeDiscountAmount) * Quantity);
@@ -194,7 +194,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
 
         // [THEN] the header is recalculated: TotalLineItemDiscountAmount, TotalLineItemAmount, TotalTax
         with CRMSalesorder do begin
-            Find;
+            Find();
             TestField(
               TotalLineItemDiscountAmount,
               CRMSalesorderdetail[1].ManualDiscountAmount + CRMSalesorderdetail[2].ManualDiscountAmount);
@@ -211,7 +211,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
             DiscountAmount := 3500;
             FreightAmount := 1020;
             DiscountPercentage := 9;
-            Modify; // recalc in onModify
+            Modify(); // recalc in onModify
 
             // [THEN] TotalAmount includes discounts and freight
             DiscountPctAmount := Round(TotalLineItemAmount * DiscountPercentage / 100);
@@ -231,7 +231,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
 
-        CRMInvoice.InvoiceId := CreateGuid;
+        CRMInvoice.InvoiceId := CreateGuid();
         CRMInvoice.StateCode := CRMInvoice.StateCode::Paid;
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Partial;
         CRMInvoice.Insert();
@@ -252,7 +252,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
 
-        CRMInvoice.InvoiceId := CreateGuid;
+        CRMInvoice.InvoiceId := CreateGuid();
         CRMInvoice.StateCode := CRMInvoice.StateCode::Canceled;
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Canceled;
         CRMInvoice.Insert();
@@ -276,7 +276,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ConfigureCRM;
 
         CRMAccount.Init();
-        CRMAccount.AccountId := CreateGuid;
+        CRMAccount.AccountId := CreateGuid();
         // [WHEN] CRMAccount.INSERT(TRUE)
         CRMAccount.Insert(true);
 

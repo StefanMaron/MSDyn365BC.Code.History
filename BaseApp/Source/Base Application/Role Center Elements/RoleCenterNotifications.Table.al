@@ -47,56 +47,56 @@ table 1430 "Role Center Notifications"
 
     procedure Initialize()
     begin
-        if not Get(UserSecurityId) then begin
-            Init;
-            "User SID" := UserSecurityId;
-            "First Session ID" := SessionId;
-            "Last Session ID" := SessionId;
+        if not Get(UserSecurityId()) then begin
+            Init();
+            "User SID" := UserSecurityId();
+            "First Session ID" := SessionId();
+            "Last Session ID" := SessionId();
             "Evaluation Notification State" := "Evaluation Notification State"::Enabled;
             "Buy Notification State" := "Buy Notification State"::Disabled;
-            Insert;
+            Insert();
         end else
-            if SessionId <> "Last Session ID" then begin
-                "Last Session ID" := SessionId;
+            if SessionId() <> "Last Session ID" then begin
+                "Last Session ID" := SessionId();
                 "Evaluation Notification State" := "Evaluation Notification State"::Enabled;
                 "Buy Notification State" := "Buy Notification State"::Enabled;
-                Modify;
+                Modify();
             end;
     end;
 
     procedure IsFirstLogon(): Boolean
     begin
         Initialize();
-        exit(SessionId = "First Session ID");
+        exit(SessionId() = "First Session ID");
     end;
 
     procedure GetEvaluationNotificationState(): Integer
     begin
-        if Get(UserSecurityId) then
+        if Get(UserSecurityId()) then
             exit("Evaluation Notification State");
         exit("Evaluation Notification State"::Disabled);
     end;
 
     procedure SetEvaluationNotificationState(NewState: Option)
     begin
-        if Get(UserSecurityId) then begin
+        if Get(UserSecurityId()) then begin
             "Evaluation Notification State" := NewState;
-            Modify;
+            Modify();
         end;
     end;
 
     procedure GetBuyNotificationState(): Integer
     begin
-        if Get(UserSecurityId) then
+        if Get(UserSecurityId()) then
             exit("Buy Notification State");
         exit("Buy Notification State"::Disabled);
     end;
 
     procedure SetBuyNotificationState(NewState: Option)
     begin
-        if Get(UserSecurityId) then begin
+        if Get(UserSecurityId()) then begin
             "Buy Notification State" := NewState;
-            Modify;
+            Modify();
         end;
     end;
 }

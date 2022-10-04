@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 page 7009 "Get Sales Line Disc."
 {
     Caption = 'Get Sales Line Disc.';
@@ -16,17 +16,17 @@ page 7009 "Get Sales Line Disc."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Sales Type"; "Sales Type")
+                field("Sales Type"; Rec."Sales Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales type of the sales line discount. The sales type defines whether the sales price is for an individual customer, customer discount group, all customers, or for a campaign.';
                 }
-                field("Sales Code"; "Sales Code")
+                field("Sales Code"; Rec."Sales Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies one of the following values, depending on the value in the Sales Type field.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the sales line discount price.';
@@ -42,33 +42,33 @@ page 7009 "Get Sales Line Disc."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies one of two values, depending on the value in the Type field.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Minimum Quantity"; "Minimum Quantity")
+                field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the minimum quantity that the customer must purchase in order to gain the agreed discount.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount percentage to use to calculate the sales line discount.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which the sales line discount is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date to which the sales line discount is valid.';

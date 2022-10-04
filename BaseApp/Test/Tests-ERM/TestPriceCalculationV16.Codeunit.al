@@ -143,6 +143,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T010_SalesLinePriceCopyToBufferWithoutPostingDate()
     var
+        Item: Record Item;
         PriceCalculationBuffer: Record "Price Calculation Buffer";
         SalesLine: Record "Sales Line";
         SalesLinePrice: Codeunit "Sales Line - Price";
@@ -153,8 +154,9 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Sales Line, where 'Posting Date' is <blank>, while WorkDate is '250120'
         SalesLine."Posting Date" := 0D;
-        SalesLine.Type := SalesLine.Type::"G/L Account";
-        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+        SalesLine.Type := SalesLine.Type::Item;
+        LibraryInventory.CreateItem(Item);
+        SalesLine."No." := Item."No.";
 
         // [GIVEN] Initialize LineWithPrice with SalesLine, no Header set
         LineWithPrice := SalesLinePrice;
@@ -166,12 +168,15 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
         PriceCalculationBuffer.TestField("Document Date", WorkDate());
+        // [THEN] "VAT Prod. Posting Group" is copied from Item card
+        PriceCalculationBuffer.TestField("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
     end;
 
     [Test]
     procedure T011_SalesLinePriceCopyToBufferWithoutHeader()
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Resource: Record Resource;
         SalesLine: Record "Sales Line";
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
@@ -181,8 +186,9 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Sales Line, where 'Posting Date' is '300120', while WorkDate is '250120'
         SalesLine."Posting Date" := WorkDate() + 5;
-        SalesLine.Type := SalesLine.Type::"G/L Account";
-        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+        SalesLine.Type := SalesLine.Type::Resource;
+        LibraryResource.CreateResource(Resource, '');
+        SalesLine."No." := Resource."No.";
 
         // [GIVEN] Initialize LineWithPrice with SalesLine, no Header set
         LineWithPrice := SalesLinePrice;
@@ -194,6 +200,8 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Buffer, where "Document Date" is '300120'(from Line."Posting Date")
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
         PriceCalculationBuffer.TestField("Document Date", SalesLine."Posting Date");
+        // [THEN] "VAT Prod. Posting Group" is copied from Resource card
+        PriceCalculationBuffer.TestField("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
     end;
 
     [Test]
@@ -304,6 +312,7 @@ codeunit 134159 "Test Price Calculation - V16"
     procedure T015_ServiceLinePriceCopyToBufferWithoutPostingDate()
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Resource: Record Resource;
         ServiceLine: Record "Service Line";
         ServiceLinePrice: Codeunit "Service Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
@@ -313,8 +322,9 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Service Line, where 'Posting Date' is <blank>, while WorkDate is '250120'
         ServiceLine."Posting Date" := 0D;
-        ServiceLine.Type := ServiceLine.Type::"G/L Account";
-        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+        ServiceLine.Type := ServiceLine.Type::Resource;
+        LibraryResource.CreateResource(Resource, '');
+        ServiceLine."No." := Resource."No.";
 
         // [GIVEN] Initialize LineWithPrice with ServiceLine, no Header set
         LineWithPrice := ServiceLinePrice;
@@ -326,11 +336,14 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
         PriceCalculationBuffer.TestField("Document Date", WorkDate());
+        // [THEN] "VAT Prod. Posting Group" is copied from Resource card
+        PriceCalculationBuffer.TestField("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
     end;
 
     [Test]
     procedure T016_ServiceLinePriceCopyToBufferWithoutHeader()
     var
+        Item: Record Item;
         PriceCalculationBuffer: Record "Price Calculation Buffer";
         ServiceLine: Record "Service Line";
         ServiceLinePrice: Codeunit "Service Line - Price";
@@ -341,8 +354,9 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Service Line, where 'Posting Date' is '300120', while WorkDate is '250120'
         ServiceLine."Posting Date" := WorkDate() + 5;
-        ServiceLine.Type := ServiceLine.Type::"G/L Account";
-        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+        ServiceLine.Type := ServiceLine.Type::Item;
+        LibraryInventory.CreateItem(Item);
+        ServiceLine."No." := Item."No.";
 
         // [GIVEN] Initialize LineWithPrice with ServiceLine, no Header set
         LineWithPrice := ServiceLinePrice;
@@ -354,6 +368,8 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Buffer, where "Document Date" is '300120'(from Line."Posting Date")
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
         PriceCalculationBuffer.TestField("Document Date", ServiceLine."Posting Date");
+        // [THEN] "VAT Prod. Posting Group" is copied from Item card
+        PriceCalculationBuffer.TestField("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
     end;
 
     [Test]
@@ -463,6 +479,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T020_PurchaseLinePriceCopyToBufferWithoutPostingDate()
     var
+        Item: Record Item;
         PriceCalculationBuffer: Record "Price Calculation Buffer";
         PurchaseLine: Record "Purchase Line";
         PurchaseLinePrice: Codeunit "Purchase Line - Price";
@@ -472,8 +489,9 @@ codeunit 134159 "Test Price Calculation - V16"
         // [FEATURE] [UT] [Purchase]
         Initialize();
         // [GIVEN] Purchase Line, while WorkDate is '250120'
-        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
-        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        LibraryInventory.CreateItem(Item);
+        PurchaseLine."No." := Item."No.";
 
         // [GIVEN] Initialize LineWithPrice with PurchaseLine, no Header set
         LineWithPrice := PurchaseLinePrice;
@@ -485,6 +503,8 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
         PriceCalculationBuffer.TestField("Document Date", WorkDate());
+        // [THEN] "VAT Prod. Posting Group" is copied from Item card
+        PriceCalculationBuffer.TestField("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
     end;
 
     [Test]
@@ -493,6 +513,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBuffer: Record "Price Calculation Buffer";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
         PurchaseLinePrice: Codeunit "Purchase Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         LineWithPrice: Interface "Line With Price";
@@ -506,8 +527,9 @@ codeunit 134159 "Test Price Calculation - V16"
         PurchaseHeader."Order Date" := PurchaseHeader."Posting Date" - 1;
 
         // [GIVEN] Purchase Line, while WorkDate is '250120'
-        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
-        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+        PurchaseLine.Type := PurchaseLine.Type::Resource;
+        LibraryResource.CreateResource(Resource, '');
+        PurchaseLine."No." := Resource."No.";
 
         // [GIVEN] Initialize LineWithPrice with PurchaseLine and Header
         LineWithPrice := PurchaseLinePrice;
@@ -519,6 +541,8 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
         PriceCalculationBuffer.TestField("Document Date", PurchaseHeader."Posting Date");
+        // [THEN] "VAT Prod. Posting Group" is copied from Resource card
+        PriceCalculationBuffer.TestField("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
     end;
 
     [Test]
@@ -1124,7 +1148,7 @@ codeunit 134159 "Test Price Calculation - V16"
         VerifyJobSources(Job, PurchaseLinePrice, 0, 0, 0);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T050_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV15()
     var
@@ -4672,7 +4696,7 @@ codeunit 134159 "Test Price Calculation - V16"
           Round(
             CurrencyExchangeRate.ExchangeAmtLCYToFCY(
               WorkDate, Currency.Code, Resource."Unit Price",
-              CurrencyExchangeRate.ExchangeRate(WorkDate, Currency.Code)),
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
             Currency."Unit-Amount Rounding Precision");
 
         // [WHEN] Run the "Res. Price List" Report with Currency.
@@ -4981,7 +5005,7 @@ codeunit 134159 "Test Price Calculation - V16"
     begin
         LibraryPriceCalculation.CreateSalesDiscountLine(
             PriceListLine, '', SourceType, CustomerCode, "Price Asset Type"::Item, Item."No.");
-        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Starting Date", WorkDate());
         PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
         PriceListLine.Validate("Line Discount %", Discount);
         PriceListLine.Status := PriceListLine.Status::Active;
@@ -4992,14 +5016,14 @@ codeunit 134159 "Test Price Calculation - V16"
     begin
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', SourceType, CustomerCode, "Price Asset Type"::Item, Item."No.");
-        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Starting Date", WorkDate());
         PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
         PriceListLine.Validate("Unit Price", Price);
         PriceListLine.Status := PriceListLine.Status::Active;
         PriceListLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateCustomerItemDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerCode: Code[20]; Item: Record Item; Discount: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -5021,7 +5045,7 @@ codeunit 134159 "Test Price Calculation - V16"
     local procedure CreateCustomerItemPrice(var SalesPrice: Record "Sales Price"; CustomerCode: Code[20]; Item: Record Item; Price: Decimal)
     begin
         LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, CustomerCode, WorkDate, '', '', Item."Base Unit of Measure", 0, Price);
+            SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, CustomerCode, WorkDate(), '', '', Item."Base Unit of Measure", 0, Price);
     end;
 #endif
 
@@ -5105,7 +5129,7 @@ codeunit 134159 "Test Price Calculation - V16"
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         // Create Currency Exchange Rate with Exchange Rate Amount, Relational Exch. Rate Amount as Random values.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
 
@@ -5476,7 +5500,7 @@ codeunit 134159 "Test Price Calculation - V16"
         StandardCostWorksheetPage."No.".SetValue(ResourceNo);
         StandardCostWorksheetPage."Standard Cost".SetValue(StandardCost);
         StandardCostWorksheetPage."New Standard Cost".SetValue(NewStandardCost);
-        StandardCostWorksheetPage.Next;
+        StandardCostWorksheetPage.Next();
     end;
 
     local procedure ImplementStandardCostChanges(Resource: Record Resource; StandardCost: Decimal; NewStandardCost: Decimal)

@@ -28,7 +28,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
 
         if not CustLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr,
-              CustLedgEntry2.FieldCaption("Document Type"), CustLedgEntry2.TableCaption, CustLedgEntry2."Document Type"::Refund);
+              CustLedgEntry2.FieldCaption("Document Type"), CustLedgEntry2.TableCaption(), CustLedgEntry2."Document Type"::Refund);
     end;
 
     local procedure CheckRefundInfo(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -39,7 +39,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         CustLedgEntry2.SetRange("Recipient Bank Account", '');
 
         if not CustLedgEntry2.IsEmpty() then
-            Error(RecipientBankAccMissingErr, CustLedgEntry2.FieldCaption("Recipient Bank Account"), CustLedgEntry2.TableCaption);
+            Error(RecipientBankAccMissingErr, CustLedgEntry2.FieldCaption("Recipient Bank Account"), CustLedgEntry2.TableCaption());
     end;
 
     local procedure CheckPaymentMethod(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -62,7 +62,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
 
         if not CustLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, CustLedgEntry2.FieldCaption("Bal. Account Type"),
-              CustLedgEntry2.TableCaption, CustLedgEntry2."Bal. Account Type"::"Bank Account");
+              CustLedgEntry2.TableCaption(), CustLedgEntry2."Bal. Account Type"::"Bank Account");
     end;
 
     local procedure CheckBalAccountNo(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -75,7 +75,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
 
         if not CustLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, CustLedgEntry2.FieldCaption("Bal. Account No."),
-              CustLedgEntry2.TableCaption, CustLedgEntry."Bal. Account No.");
+              CustLedgEntry2.TableCaption(), CustLedgEntry."Bal. Account No.");
     end;
 
     local procedure CheckBankAccount(var CustLedgEntry: Record "Cust. Ledger Entry")

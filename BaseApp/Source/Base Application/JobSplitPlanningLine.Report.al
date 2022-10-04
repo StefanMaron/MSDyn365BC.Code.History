@@ -38,9 +38,9 @@ report 1088 "Job Split Planning Line"
 
     trigger OnPostReport()
     begin
-        if NoOfLinesSplit <> 0 then begin
-            Message(Text000, NoOfLinesSplit);
-        end else
+        if NoOfLinesSplit <> 0 then
+            Message(Text000, NoOfLinesSplit)
+        else
             Message(Text001);
     end;
 

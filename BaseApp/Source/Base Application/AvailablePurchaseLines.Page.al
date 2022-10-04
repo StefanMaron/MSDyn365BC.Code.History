@@ -205,7 +205,7 @@ page 501 "Available - Purchase Lines"
                 else
                     Rec.SetFilter("Quantity (Base)", '<0');
             3, 5:
-                if ReservMgt.IsPositive then
+                if ReservMgt.IsPositive() then
                     Rec.SetFilter("Quantity (Base)", '<0')
                 else
                     Rec.SetFilter("Quantity (Base)", '>0');
@@ -215,9 +215,6 @@ page 501 "Available - Purchase Lines"
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text003: Label 'Available Quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -230,6 +227,10 @@ page 501 "Available - Purchase Lines"
         CaptionText: Text;
         Direction: Enum "Transfer Direction";
         CurrentSubType: Option;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Do you want to cancel the reservation?';
+        Text003: Label 'Available Quantity is %1.';
 
     protected var
         QtyToReserve: Decimal;
@@ -273,7 +274,7 @@ page 501 "Available - Purchase Lines"
             Rec.TestField("Location Code", ReservEntry."Location Code");
         end;
 
-        UpdateReservMgt;
+        UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Purchase Line", "Document Type".AsInteger(), Rec."Document No.", '', 0, Rec."Line No.",
           Rec."Variant Code", Rec."Location Code", Rec."Qty. per Unit of Measure");

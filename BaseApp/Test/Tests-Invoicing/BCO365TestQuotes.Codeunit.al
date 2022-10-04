@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138941 "BC O365 Test Quotes"
 {
     Subtype = Test;
@@ -40,7 +41,7 @@ codeunit 138941 "BC O365 Test Quotes"
         Assert.AreEqual(1, BCO365SalesQuote.Amount.AsDEcimal, '');
         Assert.AreEqual(WorkDate + 30, BCO365SalesQuote."Quote Valid Until Date".AsDate, '');
 
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
         CleanUp;
     end;
 
@@ -72,12 +73,12 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesQuote.Lines.UnitOfMeasure.SetValue(UnitOfMeasure.Description);
 
         // [THEN] The quote and item are updated with the new uom, and other line amount fields are unchanged.
-        Item.Find;
+        Item.Find();
         Assert.AreEqual(UnitOfMeasure.Code, Item."Base Unit of Measure", '');
         Assert.AreEqual(OriginalPrice, BCO365SalesQuote.Lines."Unit Price".AsDEcimal, '');
         Assert.AreEqual(OriginalLineAmount, BCO365SalesQuote.Lines."Line Amount".AsDEcimal, '');
 
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
         CleanUp;
     end;
 
@@ -103,7 +104,7 @@ codeunit 138941 "BC O365 Test Quotes"
         // [THEN] New UoM is created
         Assert.AreEqual(UnitOfMeasure.Get(BCO365SalesQuote.Lines.UnitOfMeasure.Value), true, 'New unit of measure not found');
 
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
         CleanUp;
     end;
 
@@ -130,7 +131,7 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesQuote.OpenView;
         BCO365SalesQuote.Last;
         Assert.AreNotEqual(0DT, BCO365SalesQuote."Quote Sent to Customer".AsDateTime, '');
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
         CleanUp;
     end;
 
@@ -188,7 +189,7 @@ codeunit 138941 "BC O365 Test Quotes"
         // [WHEN] The user invokes action 'Turn quote into invoice'
         BCO365SalesInvoice.Trap;
         BCO365SalesQuote.MakeToInvoice.Invoke;
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [THEN] The quote is deleted and a draft invoice is created.
         SalesHeader.FindFirst();
@@ -200,7 +201,7 @@ codeunit 138941 "BC O365 Test Quotes"
     local procedure CreateCustItem(var Customer: Record Customer; var Item: Record Item)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Address := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.Address));
+        Customer.Address := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Customer.Address));
         Customer."E-Mail" := 'a@b.c';
         Customer.Modify();
 
@@ -284,4 +285,4 @@ codeunit 138941 "BC O365 Test Quotes"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

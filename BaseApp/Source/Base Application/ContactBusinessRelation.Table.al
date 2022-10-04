@@ -39,15 +39,15 @@ table 5054 "Contact Business Relation"
                     if "Business Relation Code" = RMSetup."Bus. Rel. Code for Customers" then
                         Error(Text001,
                           FieldCaption("Business Relation Code"), "Business Relation Code",
-                          Cont.TableCaption, Cust.TableCaption);
+                          Cont.TableCaption(), Cust.TableCaption());
                     if "Business Relation Code" = RMSetup."Bus. Rel. Code for Vendors" then
                         Error(Text001,
                           FieldCaption("Business Relation Code"), "Business Relation Code",
-                          Cont.TableCaption, Vend.TableCaption);
+                          Cont.TableCaption(), Vend.TableCaption());
                     if "Business Relation Code" = RMSetup."Bus. Rel. Code for Bank Accs." then
                         Error(Text001,
                           FieldCaption("Business Relation Code"), "Business Relation Code",
-                          Cont.TableCaption, BankAcc.TableCaption);
+                          Cont.TableCaption(), BankAcc.TableCaption());
                 end;
             end;
         }
@@ -112,13 +112,13 @@ table 5054 "Contact Business Relation"
             if ContBusRel.FindByContact("Link to Table", "Contact No.") then
                 Error(
                   Text000,
-                  Cont.TableCaption, "Contact No.", TableCaption, "Link to Table", ContBusRel."No.");
+                  Cont.TableCaption(), "Contact No.", TableCaption(), "Link to Table", ContBusRel."No.");
 
             if ContBusRel.FindByRelation("Link to Table", "No.") then
                 if GetContactBusinessRelation(ContBusRel) then
                     Error(
                       Text000,
-                      "Link to Table", "No.", TableCaption, Cont.TableCaption, ContBusRel."Contact No.");
+                      "Link to Table", "No.", TableCaption(), Cont.TableCaption(), ContBusRel."Contact No.");
 
             ContBusRel.Reset();
             ContBusRel.SetRange("Contact No.", "Contact No.");
@@ -129,11 +129,12 @@ table 5054 "Contact Business Relation"
     end;
 
     var
+        Cont: Record Contact;
+
         Text000: Label '%1 %2 already has a %3 with %4 %5.';
         Text001: Label '%1 %2 is used when a %3 is linked with a %4.';
         FailedCBRTxt: Label 'Failed to find contact business relation for contact number %1.', Comment = '%1 = Contact number', Locked = true;
         TelemetryCategoryTxt: Label 'ContactBusinessRelation', Locked = true;
-        Cont: Record Contact;
 
     local procedure GetContactBusinessRelation(ContactBusinessRelation: Record "Contact Business Relation"): Boolean
     var
@@ -167,20 +168,20 @@ table 5054 "Contact Business Relation"
 
     procedure FindByContact(LinkType: Enum "Contact Business Relation Link To Table"; ContactNo: Code[20]): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Link to Table", "Contact No.");
         SetRange("Link to Table", LinkType);
         SetRange("Contact No.", ContactNo);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure FindByRelation(LinkType: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Link to Table", "No.");
         SetRange("Link to Table", LinkType);
         SetRange("No.", LinkNo);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure GetContactNo(LinkType: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Code[20]
@@ -192,7 +193,7 @@ table 5054 "Contact Business Relation"
 
     procedure CreateRelation(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table")
     begin
-        Init;
+        Init();
         "Contact No." := ContactNo;
         "Business Relation Code" := GetBusinessRelationCodeFromSetup(LinkToTable);
         "Link to Table" := LinkToTable;
@@ -336,9 +337,6 @@ table 5054 "Contact Business Relation"
 
     procedure ShowRelatedCardPage();
     var
-#if not CLEAN18
-        Contact: Record Contact;
-#endif
         Cust: Record Customer;
         Vend: Record Vendor;
         BankAcc: Record "Bank Account";
@@ -373,15 +371,8 @@ table 5054 "Contact Business Relation"
                     Employee.Get("No.");
                     Page.Run(Page::"Employee Card", Employee);
                 end;
-#if CLEAN18
             else
                 OnShowRelatedCardPageCaseElse(Rec);
-#else
-            else begin
-                    Contact.RunOnShowCustVendBankCaseElse(Rec);
-                    OnShowRelatedCardPageCaseElse(Rec);
-                end;
-#endif
         end;
     end;
 

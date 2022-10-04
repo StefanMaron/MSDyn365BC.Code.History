@@ -80,12 +80,13 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Purchase Header" = rm,
                   tabledata "Purchase Header Archive" = r,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = Rid,
                   tabledata "Purchase Price" = Rid,
 #endif
                   tabledata "Purchase Price Access" = Rid,
                   tabledata "Registered Whse. Activity Line" = rm,
+                  tabledata "Remit Address" = RIMD,
                   tabledata "Res. Capacity Entry" = RIMD,
                   tabledata Resource = rm,
                   tabledata "Responsibility Center" = R,

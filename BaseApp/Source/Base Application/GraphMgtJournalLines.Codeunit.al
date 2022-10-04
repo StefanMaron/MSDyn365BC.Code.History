@@ -10,7 +10,7 @@ codeunit 5478 "Graph Mgt - Journal Lines"
 
     procedure SetJournalLineTemplateAndBatch(var GenJournalLine: Record "Gen. Journal Line"; JournalLineBatchName: Code[10])
     begin
-        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName);
+        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName());
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
 
         GenJournalLine.Validate("Journal Batch Name", JournalLineBatchName);
@@ -30,14 +30,14 @@ codeunit 5478 "Graph Mgt - Journal Lines"
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::" ");
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName);
+        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName());
     end;
 
     procedure SetJournalLineFiltersV1(var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::" ");
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Account Type"::"Bank Account");
-        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName);
+        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName());
     end;
 
     procedure SetJournalLineValues(var GenJournalLine: Record "Gen. Journal Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
@@ -45,6 +45,7 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         GenJournalBatch: Record "Gen. Journal Batch";
         DummyDate: Date;
     begin
+        DummyDate := 0D;
         GenJournalLine.Validate("Account Type", TempGenJournalLine."Account Type");
         GenJournalLine.Validate("Account No.", TempGenJournalLine."Account No.");
         if TempGenJournalLine."Posting Date" <> DummyDate then
@@ -116,7 +117,7 @@ codeunit 5478 "Graph Mgt - Journal Lines"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        UpdateIds;
+        UpdateIds();
     end;
 
     procedure UpdateIds()
@@ -135,8 +136,8 @@ codeunit 5478 "Graph Mgt - Journal Lines"
 
             if FindSet() then begin
                 repeat
-                    UpdateAccountID;
-                    UpdateJournalBatchID;
+                    UpdateAccountID();
+                    UpdateJournalBatchID();
                     Modify(false);
                     if WithCommit then
                         APIDataUpgrade.CountRecordsAndCommit(RecordCount);

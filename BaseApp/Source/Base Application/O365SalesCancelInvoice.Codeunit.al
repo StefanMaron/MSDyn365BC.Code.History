@@ -8,20 +8,28 @@ codeunit 2103 "O365 Sales Cancel Invoice"
     end;
 
     var
+#if not CLEAN21
         CancelPostedInvoiceQst: Label 'The invoice will be canceled and a cancelation email will be sent to the customer.\ \Do you want to continue?';
         CancelPostedInvoiceMsg: Label 'The invoice has been canceled and an email has been sent to the customer.';
         CancelingInvoiceDialogMsg: Label 'We are canceling your invoice and sending an email to your customer. We''ll be done in a moment.';
         OpenPaymentsQst: Label 'You cannot cancel an invoice that is partially or fully paid. Do you want to see payments for this invoice so you can remove them?';
         EmailNotSentErr: Label 'Customer Email does not exist. Invoice has been canceled but a cancelation email has not been sent to the customer.';
+#endif
         EmailSubjectTxt: Label 'Your invoice has been canceled.';
+#if not CLEAN21
         AlreadyCanceledErr: Label 'You cannot cancel this invoice because it has already been canceled.';
+#endif
         GreetingTxt: Label 'Hello %1,', Comment = '%1 - customer name';
         CanceletionEmailBodyTxt: Label 'Thank you for your business. Your invoice has been canceled.';
         CancelationEmailSubjectTxt: Label 'Invoice %1 of amount %2%3, that was due on %4 has been canceled. ', Comment = '%1 = Invoice No,%2 = Currency code, %3 = Total amount including tax , %4 = Due date';
+#if not CLEAN21
         SentInvoiceCategoryLbl: Label 'AL Sent Invoice', Locked = true;
         InvoiceCancelledTelemetryTxt: Label 'Invoice cancelled.', Locked = true;
+#endif
 
+#if not CLEAN21
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CancelInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
@@ -50,13 +58,13 @@ codeunit 2103 "O365 Sales Cancel Invoice"
                 CancelingProgressWindow.Update(1, CancelingInvoiceDialogMsg);
             end;
             InvoiceWasCanceled := CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
-            CancelingProgressWindow.Close;
+            CancelingProgressWindow.Close();
 
             if InvoiceWasCanceled then begin
                 Session.LogMessage('0000242', InvoiceCancelledTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
 
                 VerifyEmailAddress(SalesInvoiceHeader);
-                if GraphMail.IsEnabled and GraphMail.HasConfiguration then
+                if GraphMail.IsEnabled() and GraphMail.HasConfiguration() then
                     SendInvoiceCancelationEmail(SalesInvoiceHeader)
                 else
                     SendEmailInBackground(SalesInvoiceHeader);
@@ -65,6 +73,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
             end;
         end;
     end;
+
 
     local procedure SendEmailInBackground(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
@@ -77,6 +86,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         JobQueueEntry."Record ID to Process" := SalesInvoiceHeader.RecordId;
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure SendInvoiceCancelationEmail(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -119,7 +129,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
 
         DocumentMailing.EmailFileWithSubjectAndReportUsage(
           AttachmentStream, '', ServerEmailBodyFilePath, EmailSubjectTxt, SalesInvoiceHeader."No.", CustomerAddress,
-          SalesInvoiceHeader.GetDocTypeTxt, true, 2, SourceTableIDs, SourceIDs, SourceRelationTypes);
+          SalesInvoiceHeader.GetDocTypeTxt(), true, 2, SourceTableIDs, SourceIDs, SourceRelationTypes);
     end;
 
     local procedure SendInvoiceCancelationEmailFromJobQueue(JobQueueEntry: Record "Job Queue Entry")
@@ -174,12 +184,14 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         exit(EmailSubject);
     end;
 
+#if not CLEAN21
     local procedure IsInvoiceFullyOrPartiallyPaid(SalesInvoiceHeader: Record "Sales Invoice Header") IsPaid: Boolean
     begin
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         SalesInvoiceHeader.CalcFields("Remaining Amount");
         IsPaid := SalesInvoiceHeader."Amount Including VAT" <> SalesInvoiceHeader."Remaining Amount";
     end;
+#endif
 
     procedure IsInvoiceCanceled(SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     var
@@ -188,11 +200,13 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         exit(CancelledDocument.FindSalesCancelledInvoice(SalesInvoiceHeader."No."));
     end;
 
+#if not CLEAN21
     local procedure VerifyEmailAddress(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         if GetEmailAddress(SalesInvoiceHeader) = '' then
             Error(EmailNotSentErr);
     end;
+#endif
 
     local procedure ResolveCurrency(CurrencyCode: Code[10]): Text
     var

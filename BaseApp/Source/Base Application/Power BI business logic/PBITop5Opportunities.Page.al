@@ -18,7 +18,7 @@ page 6315 "PBI Top 5 Opportunities"
                     Caption = 'ID';
                     ToolTip = 'Specifies the ID.';
                 }
-                field("Measure No."; "Measure No.")
+                field("Measure No."; Rec."Measure No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Opportunity No.';
@@ -30,7 +30,7 @@ page 6315 "PBI Top 5 Opportunities"
                     Caption = 'Value';
                     ToolTip = 'Specifies the value.';
                 }
-                field("Measure Name"; "Measure Name")
+                field("Measure Name"; Rec."Measure Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Measure Name';

@@ -34,12 +34,12 @@ page 1810 "Data Migration Entities"
                     ToolTip = 'Specifies whether the table will be migrated. If the check box is selected, then the table will be migrated.';
                     Visible = NOT HideSelected;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the table to be migrated.';
                 }
-                field("No. of Records"; "No. of Records")
+                field("No. of Records"; Rec."No. of Records")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of records in the table to be migrated.';
@@ -77,9 +77,9 @@ page 1810 "Data Migration Entities"
 
         if TempDataMigrationEntity.FindSet() then
             repeat
-                Init;
+                Init();
                 TransferFields(TempDataMigrationEntity);
-                Insert;
+                Insert();
             until TempDataMigrationEntity.Next() = 0;
     end;
 

@@ -12,7 +12,7 @@ page 5664 "FA Matrix Posting Types"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FA Posting Type Name"; "FA Posting Type Name")
+                field("FA Posting Type Name"; Rec."FA Posting Type Name")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the fixed asset posting type.';

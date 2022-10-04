@@ -44,7 +44,7 @@ page 5142 "Save Segment Criteria"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            OKOnPush;
+            OKOnPush();
     end;
 
     var
@@ -73,7 +73,7 @@ page 5142 "Save Segment Criteria"
         SavedSegCriteria.Code := Code;
         SavedSegCriteria.TestField(Code);
         ExitAction := ACTION::OK;
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 }
 

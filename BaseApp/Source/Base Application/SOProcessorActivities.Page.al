@@ -238,9 +238,9 @@ page 9060 "SO Processor Activities"
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
-        if PageNotifier.IsAvailable then begin
-            PageNotifier := PageNotifier.Create;
-            PageNotifier.NotifyPageReady;
+        if PageNotifier.IsAvailable() then begin
+            PageNotifier := PageNotifier.Create();
+            PageNotifier.NotifyPageReady();
         end;
     end;
 

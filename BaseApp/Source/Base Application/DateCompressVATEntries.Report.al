@@ -104,7 +104,7 @@ report 95 "Date Compress VAT Entries"
                           NewVATEntry."Remaining Unrealized Amount" + "Remaining Unrealized Amount";
                         NewVATEntry."Remaining Unrealized Base" :=
                           NewVATEntry."Remaining Unrealized Base" + "Remaining Unrealized Base";
-                        Delete;
+                        Delete();
                         GLEntryVATEntryLink.SetRange("VAT Entry No.", "Entry No.");
                         if GLEntryVATEntryLink.FindSet() then
                             repeat
@@ -314,16 +314,6 @@ report 95 "Date Compress VAT Entries"
     end;
 
     var
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing VAT entries...\\';
-        Text005: Label 'Type                     #1##########\';
-        Text006: Label 'VAT Bus. Posting Group   #2##########\';
-        Text007: Label 'VAT Prod. Posting Group  #3##########\';
-        Text008: Label 'Tax Jurisdiction         #4##########\';
-        Text009: Label 'Use Tax                  #5##########\';
-        Text010: Label 'Date                     #6######\\';
-        Text011: Label 'No. of new entries       #7######\';
-        Text012: Label 'No. of entries deleted   #8######';
         SourceCodeSetup: Record "Source Code Setup";
         EntrdDateComprReg: Record "Date Compr. Register";
         DateComprReg: Record "Date Compr. Register";
@@ -346,6 +336,17 @@ report 95 "Date Compress VAT Entries"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
+
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing VAT entries...\\';
+        Text005: Label 'Type                     #1##########\';
+        Text006: Label 'VAT Bus. Posting Group   #2##########\';
+        Text007: Label 'VAT Prod. Posting Group  #3##########\';
+        Text008: Label 'Tax Jurisdiction         #4##########\';
+        Text009: Label 'Use Tax                  #5##########\';
+        Text010: Label 'Date                     #6######\\';
+        Text011: Label 'No. of new entries       #7######\';
+        Text012: Label 'No. of entries deleted   #8######';
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
@@ -426,7 +427,7 @@ report 95 "Date Compress VAT Entries"
             LastGLEntryNo := FoundLastEntryNo;
             LastVATEntryNo := FoundLastVATEntryNo;
             NextTransactionNo := LastTransactionNo + 1;
-            InitRegisters;
+            InitRegisters();
         end;
     end;
 

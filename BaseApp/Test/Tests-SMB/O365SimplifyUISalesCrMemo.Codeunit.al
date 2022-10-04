@@ -105,7 +105,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo.Post.Invoke;
 
         // Verify
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemos.Post.Invoke;
 
         // Verify
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -173,10 +173,10 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         // Exercise
         SalesCreditMemo."Currency Code".AssistEdit;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // Verify
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreNotEqual(OldValue, SalesHeader."Currency Factor", '');
     end;
 
@@ -208,7 +208,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         SalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
         SalesHeader.FindFirst();
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         Assert.AreEqual(ResponsibilityCenter.Code, SalesHeader."Responsibility Center", '');
 
@@ -219,7 +219,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         SalesCreditMemo.OpenEdit;
         Assert.IsFalse(SalesCreditMemo.GotoRecord(SalesHeader), '');
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -259,7 +259,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.InsertExtTexts.Invoke;
         SalesCreditMemo.SalesLines.New;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // Verify
         SalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
@@ -268,7 +268,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Assert.AreEqual(SalesLine."No.", Item."No.", '');
 
         SalesLine.SetRange("Sell-to Customer No.");
-        SalesLine.Next;
+        SalesLine.Next();
         Assert.AreEqual(SalesLine."No.", '', '');
         Assert.AreNotEqual(0, SalesLine."Attached to Line No.", '');
         Assert.AreEqual(SalesLine.Description, Format(HelloWordTxt), '');
@@ -332,7 +332,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
 
         // Exercise.
-        CustomerName := CopyStr(Format(CreateGuid), 1, 50);
+        CustomerName := CopyStr(Format(CreateGuid()), 1, 50);
 
         SalesCreditMemo.OpenNew();
         SalesCreditMemo.SalesLines.First;

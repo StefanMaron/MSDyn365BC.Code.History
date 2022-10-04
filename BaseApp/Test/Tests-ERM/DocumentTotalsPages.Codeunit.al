@@ -1533,7 +1533,7 @@ codeunit 134344 "Document Totals Pages"
 
         SalesInvoicePage.Statistics.Invoke();
 
-        SalesLineItem.Find;
+        SalesLineItem.Find();
         SalesLineItem.TestField("VAT Difference");
 
         SalesLineGLAccount.Find();
@@ -2117,7 +2117,7 @@ codeunit 134344 "Document Totals Pages"
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate(
           "Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5)));
         SalesHeader.SetHideValidationDialog(false);
         SalesHeader.Modify(true);
 
@@ -2141,7 +2141,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseHeader.SetHideValidationDialog(true);
         PurchaseHeader.Validate(
           "Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5)));
         PurchaseHeader.SetHideValidationDialog(false);
         PurchaseHeader.Modify(true);
 
@@ -2207,7 +2207,7 @@ codeunit 134344 "Document Totals Pages"
         Currency: Record Currency;
         CurrencyCode: Code[10];
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
         Currency.Get(CurrencyCode);
         Currency.Validate("Amount Decimal Places", '3:3');
         Currency.Validate("Amount Rounding Precision", 0.001);

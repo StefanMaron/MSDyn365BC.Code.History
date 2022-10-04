@@ -69,7 +69,7 @@ page 5914 "Service Order Statistics"
 
                     trigger OnValidate()
                     begin
-                        TotalAmount21OnAfterValidate;
+                        TotalAmount21OnAfterValidate();
                     end;
                 }
                 field("Sales (LCY)_General"; TotalServLineLCY[1].Amount)
@@ -528,7 +528,7 @@ page 5914 "Service Order Statistics"
                             Editable = false;
                             ToolTip = 'Specifies the profit related to the service order, in local currency.';
                         }
-                        field(DetailsTotalAmt; GetDetailsTotalAmt)
+                        field(DetailsTotalAmt; GetDetailsTotalAmt())
                         {
                             ApplicationArea = Service;
                             Caption = 'Profit %';
@@ -536,7 +536,7 @@ page 5914 "Service Order Statistics"
                             Editable = false;
                             ToolTip = 'Specifies the percent of profit related to the service order.';
                         }
-                        field(AdjDetailsTotalAmt; GetAdjDetailsTotalAmt)
+                        field(AdjDetailsTotalAmt; GetAdjDetailsTotalAmt())
                         {
                             ApplicationArea = Service;
                             Caption = 'Profit %';
@@ -1185,8 +1185,8 @@ page 5914 "Service Order Statistics"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         GetVATSpecification(PrevTab);
-        if TempVATAmountLine1.GetAnyLineModified or TempVATAmountLine2.GetAnyLineModified then
-            UpdateVATOnServLines;
+        if TempVATAmountLine1.GetAnyLineModified() or TempVATAmountLine2.GetAnyLineModified() then
+            UpdateVATOnServLines();
         exit(true);
     end;
 
@@ -1232,12 +1232,12 @@ page 5914 "Service Order Statistics"
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
     begin
-        TotalServLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
+        TotalServLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1[IndexNo] :=
           TotalServLine[IndexNo]."Line Amount" - TotalServLine[IndexNo]."Inv. Discount Amount";
-        VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount;
+        VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount();
         if "Prices Including VAT" then begin
-            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT;
+            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] - VATAmount[IndexNo];
             TotalServLine[IndexNo]."Line Amount" :=
               TotalAmount1[IndexNo] + TotalServLine[IndexNo]."Inv. Discount Amount";
@@ -1253,7 +1253,7 @@ page 5914 "Service Order Statistics"
             if ("Document Type" = "Document Type"::Quote) and
                ("Posting Date" = 0D)
             then
-                UseDate := WorkDate
+                UseDate := WorkDate()
             else
                 UseDate := "Posting Date";
 
@@ -1300,7 +1300,7 @@ page 5914 "Service Order Statistics"
     var
         SaveTotalAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if "Prices Including VAT" then begin
             SaveTotalAmount := TotalAmount1[IndexNo];
             UpdateInvDiscAmount(IndexNo);
@@ -1320,7 +1320,7 @@ page 5914 "Service Order Statistics"
         i: Integer;
         InvDiscBaseAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if not (ModifiedIndexNo in [1, 2]) then
             exit;
 
@@ -1371,7 +1371,7 @@ page 5914 "Service Order Statistics"
                               0, "Currency Code", "Prices Including VAT", false, "VAT Base Discount %")
                         else
                             TempVATAmountLine1.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine2.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine2.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", "Prices Including VAT", false, "VAT Base Discount %");
                     end else begin
                         InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, "Currency Code");
@@ -1380,7 +1380,7 @@ page 5914 "Service Order Statistics"
                               0, "Currency Code", "Prices Including VAT", false, "VAT Base Discount %")
                         else
                             TempVATAmountLine2.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine1.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine1.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", "Prices Including VAT", false, "VAT Base Discount %");
                     end;
             end;
@@ -1395,9 +1395,9 @@ page 5914 "Service Order Statistics"
 
         "Invoice Discount Calculation" := "Invoice Discount Calculation"::Amount;
         "Invoice Discount Value" := TotalServLine[1]."Inv. Discount Amount";
-        Modify;
+        Modify();
 
-        UpdateVATOnServLines;
+        UpdateVATOnServLines();
     end;
 
     local procedure GetCaptionClass(FieldCaption: Text[100]; ReverseCaption: Boolean): Text[80]
@@ -1412,9 +1412,9 @@ page 5914 "Service Order Statistics"
         ServLine: Record "Service Line";
     begin
         GetVATSpecification(ActiveTab);
-        if TempVATAmountLine1.GetAnyLineModified then
+        if TempVATAmountLine1.GetAnyLineModified() then
             ServLine.UpdateVATOnLines(0, Rec, ServLine, TempVATAmountLine1);
-        if TempVATAmountLine2.GetAnyLineModified then
+        if TempVATAmountLine2.GetAnyLineModified() then
             ServLine.UpdateVATOnLines(1, Rec, ServLine, TempVATAmountLine2);
         PrevNo := '';
     end;
@@ -1424,7 +1424,7 @@ page 5914 "Service Order Statistics"
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst())
     end;
 
     local procedure CheckAllowInvDisc()
@@ -1434,7 +1434,7 @@ page 5914 "Service Order Statistics"
         if not AllowInvDisc then
             Error(
               Text005,
-              CustInvDisc.TableCaption, FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
+              CustInvDisc.TableCaption(), FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
     end;
 
     local procedure GetDetailsTotalAmt(): Decimal

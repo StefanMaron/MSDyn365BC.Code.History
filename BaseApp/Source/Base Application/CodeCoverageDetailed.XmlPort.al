@@ -56,14 +56,14 @@ xmlport 9991 "Code Coverage Detailed"
     trigger OnPostXmlPort()
     begin
         if currXMLport.ImportFile then
-            CodeCoverageMgt.Import;
+            CodeCoverageMgt.Import();
     end;
 
     trigger OnPreXmlPort()
     begin
         if currXMLport.ImportFile then begin
             "Code Coverage".Reset();
-            CodeCoverageMgt.Clear;
+            CodeCoverageMgt.Clear();
         end;
     end;
 

@@ -258,14 +258,14 @@ codeunit 135090 "API Webhook Sending Events"
             repeat
                 if JobQueueEntry.Status = JobQueueEntry.Status::"On Hold" then begin
                     JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                    JobQueueEntry."System Task ID" := CreateGuid;
+                    JobQueueEntry."System Task ID" := CreateGuid();
                     JobQueueEntry.Modify(true);
                     if not ScheduledTask.Get(JobQueueEntry."System Task ID") then begin
                         ScheduledTask.ID := JobQueueEntry."System Task ID";
                         ScheduledTask.Insert();
                     end;
                 end;
-            until JobQueueEntry.Next = 0;
+            until JobQueueEntry.Next() = 0;
     end;
 }
 

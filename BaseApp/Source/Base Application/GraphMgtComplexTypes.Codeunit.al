@@ -40,7 +40,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         if No <> '' then
@@ -49,7 +49,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         if Name <> '' then
             JSONManagement.AddJPropertyToJObject(JsonObject, DocumentLineObjectDetailsNameTxt, Name);
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure ParseDocumentLineObjectDetailsFromJSON(JSON: Text; var No: Code[20]; var Name: Text[100]; var Description: Text[50])
@@ -93,12 +93,12 @@ codeunit 5468 "Graph Mgt - Complex Types"
     begin
         DateString := Format(DateTime, 0, '<Year4>-<Month,2>-<Day,2>T<Hours24,2>:<Minutes,2>:<Seconds,2>.0000001Z');
 
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'dateTime', DateString);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'timeZone', 'UTC');
 
-        JSON := JSONManagement.WriteObjectToString;
+        JSON := JSONManagement.WriteObjectToString();
     end;
 
     procedure GetCodeAndDescriptionEDM(TypeName: Text[32]; CodeField: Code[50]; DescriptionField: Text[250]): Text
@@ -120,11 +120,11 @@ codeunit 5468 "Graph Mgt - Complex Types"
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.AddJPropertyToJObject(JsonObject, CodePropertyTxt, Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, DescriptionPropertyTxt, Description);
-        JSON := JSONManagement.WriteObjectToString;
+        JSON := JSONManagement.WriteObjectToString();
     end;
 
     procedure GetCodeAndDescriptionFromJSON(JSON: Text; var "Code": Code[50]; var Description: Text[250])
@@ -181,18 +181,18 @@ codeunit 5468 "Graph Mgt - Complex Types"
         if not UnitOfMeasure.Get(UnitOfMeasureCode) then
             exit('');
 
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         // TODO: Refactor from item
-        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode, UnitOfMeasure.Code);
+        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode(), UnitOfMeasure.Code);
         if UnitOfMeasure.Description <> '' then
-            JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName, UnitOfMeasure.Description);
+            JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName(), UnitOfMeasure.Description);
 
         if UnitOfMeasure.Symbol <> '' then
-            JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol, UnitOfMeasure.Symbol);
+            JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol(), UnitOfMeasure.Symbol);
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure ApplyPostalAddressFromJSON(JSON: Text; var EntityRecRef: RecordRef; Line1FieldNo: Integer; Line2FieldNo: Integer; CityFieldNo: Integer; StateFieldNo: Integer; CountryCodeFieldNo: Integer; PostCodeFieldNo: Integer)
@@ -236,7 +236,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'street', GraphCollectionMgtContact.ConcatenateStreet(Line1, Line2));
@@ -245,7 +245,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         JSONManagement.AddJPropertyToJObject(JsonObject, 'countryLetterCode', CountryCode);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'postalCode', PostCode);
 
-        JSON := JSONManagement.WriteObjectToString;
+        JSON := JSONManagement.WriteObjectToString();
     end;
 
     procedure GetDimensionEDM(): Text
@@ -270,7 +270,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         if not DimensionSetEntry.FindSet() then
             exit('');
 
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(JsonArray);
 
         repeat
@@ -278,14 +278,14 @@ codeunit 5468 "Graph Mgt - Complex Types"
             JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
         until DimensionSetEntry.Next() = 0;
 
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     local procedure GetDimensionJObject(var DimensionSetEntry: Record "Dimension Set Entry"; var JsonObject: DotNet JObject)
     var
         JSONManagement: Codeunit "JSON Management";
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         DimensionSetEntry.CalcFields("Dimension Name", "Dimension Value Name");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', DimensionSetEntry."Dimension Code");
@@ -306,7 +306,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         Value: Code[20];
     begin
         JSONManagement.InitializeCollection(DimensionsJSON);
-        NumberOfLines := JSONManagement.GetCollectionCount;
+        NumberOfLines := JSONManagement.GetCollectionCount();
         for I := 1 to NumberOfLines do begin
             JSONManagement.GetJObjectFromCollectionByIndex(LineJsonObject, I - 1);
             GetDimensionFromJObject(LineJsonObject, Code, Value);
@@ -342,7 +342,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         EDM: Text;
     begin
-        EDM := GetBookingsDateEDM;
+        EDM := GetBookingsDateEDM();
         GraphMgtGeneralTools.InsertOrUpdateODataType(UpperCase(BookingsDateTxt), BookingsDateDescriptionTxt, EDM);
     end;
 
@@ -351,7 +351,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         EDM: Text;
     begin
-        EDM := GetDocumentLineObjectDetailsEDM;
+        EDM := GetDocumentLineObjectDetailsEDM();
         GraphMgtGeneralTools.InsertOrUpdateODataType(
           UpperCase(DocumentLineObjectDetailsTxt), DocumentLineObjectDetailsEDMDescriptionTxt, EDM);
     end;
@@ -362,7 +362,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         EDM: Text;
     begin
-        EDM := GetPostalAddressEDM;
+        EDM := GetPostalAddressEDM();
         GraphMgtGeneralTools.InsertOrUpdateODataType(UpperCase(PostalAddressTxt), PostalAddressDescriptionTxt, EDM);
     end;
 
@@ -371,7 +371,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         EDM: Text;
     begin
-        EDM := GetDimensionEDM;
+        EDM := GetDimensionEDM();
         GraphMgtGeneralTools.InsertOrUpdateODataType(UpperCase(DimensionTxt), DimensionDescriptionTxt, EDM);
     end;
 
@@ -386,10 +386,10 @@ codeunit 5468 "Graph Mgt - Complex Types"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        InsertOrUpdatePostalAddress;
-        InsertOrUpdateBookingsDate;
-        InsertOrUpdateDocumentLineObjectDescription;
-        InsertOrUpdateDimension;
+        InsertOrUpdatePostalAddress();
+        InsertOrUpdateBookingsDate();
+        InsertOrUpdateDocumentLineObjectDescription();
+        InsertOrUpdateDimension();
     end;
 
     procedure GetSalesLineDescriptionComplexType(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"): Text

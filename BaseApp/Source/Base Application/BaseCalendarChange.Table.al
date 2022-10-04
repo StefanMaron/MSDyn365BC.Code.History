@@ -40,7 +40,7 @@ table 7601 "Base Calendar Change"
                     TestField(Date)
                 else
                     TestField(Date, 0D);
-                UpdateDayName;
+                UpdateDayName();
             end;
         }
         field(4; Day; Option)
@@ -53,7 +53,7 @@ table 7601 "Base Calendar Change"
             begin
                 if "Recurring System" = "Recurring System"::"Weekly Recurring" then
                     TestField(Day);
-                UpdateDayName;
+                UpdateDayName();
             end;
         }
         field(5; Description; Text[30])
@@ -81,17 +81,17 @@ table 7601 "Base Calendar Change"
 
     trigger OnInsert()
     begin
-        CheckEntryLine;
+        CheckEntryLine();
     end;
 
     trigger OnModify()
     begin
-        CheckEntryLine;
+        CheckEntryLine();
     end;
 
     trigger OnRename()
     begin
-        CheckEntryLine;
+        CheckEntryLine();
     end;
 
     local procedure UpdateDayName()

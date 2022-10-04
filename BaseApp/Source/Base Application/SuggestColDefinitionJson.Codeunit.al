@@ -26,7 +26,7 @@ codeunit 1238 "Suggest Col. Definition - Json"
                 repeat
                     ColumnNo += 10000;
 
-                    Init;
+                    Init();
                     Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
                     Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
                     Validate("Column No.", ColumnNo);

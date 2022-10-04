@@ -12,7 +12,7 @@ report 1702 "Deferral Summary - Purchasing"
         {
             DataItemTableView = SORTING("Deferral Doc. Type", CustVendorNo, "Posting Date", "Gen. Jnl. Document No.", "Account No.", "Document Type", "Document No.", "Line No.") ORDER(Ascending) WHERE("Deferral Doc. Type" = CONST(Purchase), CustVendorNo = FILTER(<> ''));
             RequestFilterFields = CustVendorNo, "Document No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PageGroupNo; PageGroupNo)
@@ -250,7 +250,7 @@ report 1702 "Deferral Summary - Purchasing"
         trigger OnOpenPage()
         begin
             if BalanceAsOfDateFilter = 0D then
-                BalanceAsOfDateFilter := WorkDate;
+                BalanceAsOfDateFilter := WorkDate();
         end;
     }
 

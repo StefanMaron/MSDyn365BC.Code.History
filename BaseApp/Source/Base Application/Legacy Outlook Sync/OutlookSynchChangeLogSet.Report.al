@@ -51,7 +51,7 @@ report 5300 "Outlook Synch. Change Log Set."
                         if not OSynchFilter.FindFirst() then begin
                             CalcFields("Table Caption");
                             if "Element No." = 0 then
-                                Error(Text001, "Table Caption", OSynchEntity.TableCaption, OSynchEntity.Code);
+                                Error(Text001, "Table Caption", OSynchEntity.TableCaption(), OSynchEntity.Code);
 
                             OSynchEntityElement.Get("Synch. Entity Code", "Element No.");
                             OSynchEntityElement.CalcFields("Table Caption");
@@ -149,7 +149,7 @@ report 5300 "Outlook Synch. Change Log Set."
     var
         ChangeLogSetup: Record "Change Log Setup";
     begin
-        if not ChangeLogSetup.Get then
+        if not ChangeLogSetup.Get() then
             ChangeLogSetup.Insert();
         if not ChangeLogSetup."Change Log Activated" then begin
             ChangeLogSetup."Change Log Activated" := true;
@@ -182,14 +182,14 @@ report 5300 "Outlook Synch. Change Log Set."
         NeedToBeUpdated: Boolean;
     begin
         with ChangeLogSetupTable do begin
-            Reset;
+            Reset();
             if not Get(TableID) then begin
-                Init;
+                Init();
                 "Table No." := TableID;
                 Validate("Log Insertion", "Log Insertion"::"Some Fields");
                 Validate("Log Modification", "Log Modification"::"Some Fields");
                 Validate("Log Deletion", "Log Modification"::"Some Fields");
-                Insert;
+                Insert();
                 NeedToBeUpdated := true;
             end else begin
                 NeedToBeUpdated :=
@@ -207,7 +207,7 @@ report 5300 "Outlook Synch. Change Log Set."
                     "Log Deletion" := "Log Deletion"::"Some Fields";
 
                 if NeedToBeUpdated then
-                    Modify;
+                    Modify();
             end;
         end;
 
@@ -215,20 +215,20 @@ report 5300 "Outlook Synch. Change Log Set."
             exit;
 
         with ChangeLogSetupField do begin
-            Reset;
+            Reset();
             if not Get(TableID, FieldID) then begin
-                Init;
+                Init();
                 "Table No." := TableID;
                 "Field No." := FieldID;
                 "Log Insertion" := true;
                 "Log Modification" := true;
                 "Log Deletion" := true;
-                Insert;
+                Insert();
             end else begin
                 "Log Insertion" := true;
                 "Log Modification" := true;
                 "Log Deletion" := true;
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -241,7 +241,7 @@ report 5300 "Outlook Synch. Change Log Set."
         RecRef.Open(TableID, true);
         for I := 1 to RecRef.KeyIndex(1).FieldCount do
             RegisterChangeLogField(TableID, RecRef.KeyIndex(1).FieldIndex(I).Number);
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure RegisterChangeLogFilter(OSynchFilter1: Record "Outlook Synch. Filter")

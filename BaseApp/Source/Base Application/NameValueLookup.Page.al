@@ -15,12 +15,12 @@ page 823 "Name/Value Lookup"
                 ShowCaption = false;
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name.';
                 }
                 field(Value; Value)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the value.';
                 }
             }
@@ -41,11 +41,11 @@ page 823 "Name/Value Lookup"
         else
             NextID := 1;
 
-        Init;
+        Init();
         ID := NextID;
         Name := ItemName;
         Value := ItemValue;
-        Insert;
+        Insert();
     end;
 }
 

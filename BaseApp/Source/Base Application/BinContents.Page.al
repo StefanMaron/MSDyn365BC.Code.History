@@ -31,7 +31,7 @@ page 7374 "Bin Contents"
                         if PAGE.RunModal(PAGE::"Locations with Warehouse List", Location) = ACTION::LookupOK then begin
                             Location.TestField("Bin Mandatory", true);
                             LocationCode := Location.Code;
-                            DefFilter;
+                            DefFilter();
                         end;
                         CurrPage.Update(true);
                     end;
@@ -39,14 +39,13 @@ page 7374 "Bin Contents"
                     trigger OnValidate()
                     begin
                         ZoneCode := '';
-                        if LocationCode <> '' then begin
+                        if LocationCode <> '' then
                             if WMSMgt.LocationIsAllowed(LocationCode) then begin
                                 Location.Get(LocationCode);
                                 Location.TestField("Bin Mandatory", true);
                             end else
                                 Error(Text000, UserId);
-                        end;
-                        DefFilter;
+                        DefFilter();
                         LocationCodeOnAfterValidate();
                     end;
                 }
@@ -66,34 +65,34 @@ page 7374 "Bin Contents"
                         if PAGE.RunModal(0, Zone) = ACTION::LookupOK then begin
                             ZoneCode := Zone.Code;
                             LocationCode := Zone."Location Code";
-                            DefFilter;
+                            DefFilter();
                         end;
                         CurrPage.Update(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        DefFilter;
-                        ZoneCodeOnAfterValidate;
+                        DefFilter();
+                        ZoneCodeOnAfterValidate();
                     end;
                 }
             }
             repeater(Control37)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the location code of the bin.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone code of the bin.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -103,7 +102,7 @@ page 7374 "Bin Contents"
                         CheckQty();
                     end;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that will be stored in the bin.';
@@ -113,7 +112,7 @@ page 7374 "Bin Contents"
                         CheckQty();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -124,12 +123,12 @@ page 7374 "Bin Contents"
                         CheckQty();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure that are in the unit of measure specified for the item in the bin.';
@@ -150,74 +149,74 @@ page 7374 "Bin Contents"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the bin is used as a dedicated bin, which means that its bin content is available only to certain resources.';
                 }
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse class code. Only items with the same warehouse class can be stored in this bin.';
                 }
-                field("Bin Type Code"; "Bin Type Code")
+                field("Bin Type Code"; Rec."Bin Type Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin type that was selected for this bin.';
                 }
-                field("Bin Ranking"; "Bin Ranking")
+                field("Bin Ranking"; Rec."Bin Ranking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin ranking.';
                 }
-                field("Block Movement"; "Block Movement")
+                field("Block Movement"; Rec."Block Movement")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how the movement of a particular item, or bin content, into or out of this bin, is blocked.';
                 }
-                field("Min. Qty."; "Min. Qty.")
+                field("Min. Qty."; Rec."Min. Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the minimum number of units of the item that you want to have in the bin at all times.';
                 }
-                field("Max. Qty."; "Max. Qty.")
+                field("Max. Qty."; Rec."Max. Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum number of units of the item that you want to have in the bin.';
                 }
-                field(CalcQtyUOM; CalcQtyUOM)
+                field(CalcQtyUOM; CalcQtyUOM())
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity of the item in the bin that corresponds to the line.';
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units of the item, in the base unit of measure, are stored in the bin.';
                 }
-                field("Pick Quantity (Base)"; "Pick Quantity (Base)")
+                field("Pick Quantity (Base)"; Rec."Pick Quantity (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units of the item, in the base unit of measure, will be picked from the bin.';
                 }
-                field("ATO Components Pick Qty (Base)"; "ATO Components Pick Qty (Base)")
+                field("ATO Components Pick Qty (Base)"; Rec."ATO Components Pick Qty (Base)")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many assemble-to-order units are picked for assembly.';
                 }
-                field("Negative Adjmt. Qty. (Base)"; "Negative Adjmt. Qty. (Base)")
+                field("Negative Adjmt. Qty. (Base)"; Rec."Negative Adjmt. Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many item units, in the base unit of measure, will be posted on journal lines as negative quantities.';
                 }
-                field("Put-away Quantity (Base)"; "Put-away Quantity (Base)")
+                field("Put-away Quantity (Base)"; Rec."Put-away Quantity (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units of the item, in the base unit of measure, will be put away in the bin.';
                 }
-                field("Positive Adjmt. Qty. (Base)"; "Positive Adjmt. Qty. (Base)")
+                field("Positive Adjmt. Qty. (Base)"; Rec."Positive Adjmt. Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many item units, in the base unit of measure, will be posted on journal lines as positive quantities.';
                 }
-                field(CalcQtyAvailToTakeUOM; CalcQtyAvailToTakeUOM)
+                field(CalcQtyAvailToTakeUOM; CalcQtyAvailToTakeUOM())
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Available Qty. to Take';
@@ -230,7 +229,7 @@ page 7374 "Bin Contents"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the item (bin content) has been associated with this bin, and that the bin should normally contain the item.';
                 }
-                field("Cross-Dock Bin"; "Cross-Dock Bin")
+                field("Cross-Dock Bin"; Rec."Cross-Dock Bin")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the bin content is in a cross-dock bin.';
@@ -255,7 +254,7 @@ page 7374 "Bin Contents"
                     group("Qty. on Adjustment Bin")
                     {
                         Caption = 'Qty. on Adjustment Bin';
-                        field(CalcQtyonAdjmtBin; CalcQtyonAdjmtBin)
+                        field(CalcQtyonAdjmtBin; CalcQtyonAdjmtBin())
                         {
                             ApplicationArea = Warehouse;
                             Caption = 'Qty. on Adjustment Bin';
@@ -341,7 +340,7 @@ page 7374 "Bin Contents"
     begin
         ItemDescription := '';
         GetWhseLocation(LocationCode, ZoneCode);
-        DefFilter;
+        DefFilter();
     end;
 
     var

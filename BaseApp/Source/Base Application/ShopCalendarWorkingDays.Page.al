@@ -17,17 +17,17 @@ page 99000752 "Shop Calendar Working Days"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies your working days of the week.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting time of the shift for this working day.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending time of the shift for this working day.';
                 }
-                field("Work Shift Code"; "Work Shift Code")
+                field("Work Shift Code"; Rec."Work Shift Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the work shift that this working day refers to.';

@@ -113,7 +113,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         // [GIVEN] Invoice Vendor Ledger Entry "Inv2" in local currency with Amount = 20
         ExchRate := LibraryRandom.RandDecInRange(5, 10, 2);
         CurrencyCode :=
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchRate, ExchRate);
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate);
         Amount := CreateGeneralJournalLineForBatch(GenJournalLine, GenJournalBatch, VendorNo);
         AmountLCY := Round(Amount / LibraryRandom.RandIntInRange(2, 3));
         AmountCur := Round((Amount - AmountLCY) * ExchRate);
@@ -353,9 +353,9 @@ codeunit 133772 "Remittance Purch & Sales UT"
             "Document No." := LibraryUTUtility.GetNewCode;
             "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
             "Applies-to ID" := LibraryUTUtility.GetNewCode;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDecInDecimalRange(20, 50, 2);
-            Insert;
+            Insert();
             exit(Amount);
         end;
     end;
@@ -421,7 +421,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         CreateVendorLedgerEntryWithGLEntry(VendorLedgerEntry, AppliesToID, VendorNo, AmountToApply, DocumentType);
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2); // Using Random value less than Amount.
         VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDec(10, 2);
-        VendorLedgerEntry."Pmt. Discount Date" := WorkDate;
+        VendorLedgerEntry."Pmt. Discount Date" := WorkDate();
         VendorLedgerEntry.Modify();
 
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Vendor No.");
@@ -451,7 +451,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Amount to Apply" := AmountToApply;
         VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode;

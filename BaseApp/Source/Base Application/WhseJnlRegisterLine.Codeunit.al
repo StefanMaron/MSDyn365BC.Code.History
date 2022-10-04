@@ -1,4 +1,4 @@
-﻿codeunit 7301 "Whse. Jnl.-Register Line"
+codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;
@@ -68,7 +68,6 @@
     procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
     var
         ToBinContent: Record "Bin Content";
-        WMSMgt: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
         WhseEntryNo := WhseEntryNo + 1;
@@ -148,10 +147,9 @@
                             UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
                     OnInitWhseEntryOnAfterGetToBinContent(WhseEntry, ItemTrackingMgt, WhseJnlLine, WhseReg, WhseEntryNo, Bin);
                 end
-            end else begin
+            end else
                 if BinCode <> Location."Adjustment Bin Code" then
                     DeleteFromBinContent(WhseEntry);
-            end;
     end;
 
     local procedure DeleteFromBinContent(var WhseEntry: Record "Warehouse Entry")
@@ -335,7 +333,7 @@
         end;
     end;
 
-    local procedure InsertToBinContent(WhseEntry: Record "Warehouse Entry")
+    procedure InsertToBinContent(WhseEntry: Record "Warehouse Entry")
     var
         BinContent: Record "Bin Content";
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
@@ -513,7 +511,7 @@
     procedure RegisterWhseJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
         WhseJnlLine.Copy(WarehouseJournalLine);
-        Code;
+        Code();
         WarehouseJournalLine := WhseJnlLine;
     end;
 

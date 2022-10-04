@@ -70,12 +70,12 @@ table 5910 "Service Hour"
 
     trigger OnInsert()
     begin
-        CheckTime;
+        CheckTime();
     end;
 
     trigger OnModify()
     begin
-        CheckTime;
+        CheckTime();
     end;
 
     var

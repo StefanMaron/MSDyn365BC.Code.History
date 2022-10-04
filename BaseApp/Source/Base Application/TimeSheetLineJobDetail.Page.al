@@ -12,13 +12,13 @@ page 966 "Time Sheet Line Job Detail"
             group(General)
             {
                 Caption = 'General';
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
                     ToolTip = 'Specifies the number for the job associated with the time sheet line.';
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -30,7 +30,7 @@ page 966 "Time Sheet Line Job Detail"
                     Editable = AllowEdit;
                     ToolTip = 'Specifies a description of the time sheet line.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = WorkTypeCodeAllowEdit;
@@ -57,7 +57,7 @@ page 966 "Time Sheet Line Job Detail"
         ChargeableAllowEdit := GetAllowEdit(FieldNo(Chargeable), ManagerRole);
     end;
 
-    var
+    protected var
         ManagerRole: Boolean;
         AllowEdit: Boolean;
         WorkTypeCodeAllowEdit: Boolean;
@@ -66,7 +66,7 @@ page 966 "Time Sheet Line Job Detail"
     procedure SetParameters(TimeSheetLine: Record "Time Sheet Line"; NewManagerRole: Boolean)
     begin
         Rec := TimeSheetLine;
-        Insert;
+        Insert();
         ManagerRole := NewManagerRole;
     end;
 }

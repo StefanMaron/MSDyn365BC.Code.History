@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138905 "O365 Combined Sales Doc. Tests"
 {
     Subtype = Test;
@@ -669,7 +670,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesHeader.DeleteAll();
         SalesInvoiceHeader.DeleteAll();
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -827,4 +828,4 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

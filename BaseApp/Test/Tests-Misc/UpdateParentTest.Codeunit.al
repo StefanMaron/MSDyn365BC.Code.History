@@ -28,7 +28,7 @@ codeunit 139142 UpdateParentTest
     begin
         LibraryVariableStorage.Clear();
 
-        UpdateParentRegisterMgt.Clear;
+        UpdateParentRegisterMgt.Clear();
         UpdateParentRegisterMgt.Init('UpdateP');
         UpdateParentHeader.DeleteAll();
         UpdateParentLine.DeleteAll();
@@ -47,34 +47,34 @@ codeunit 139142 UpdateParentTest
         UpdateParentFactLine: Record "Update Parent Fact Line";
     begin
         with UpdateParentHeader do begin
-            Init;
+            Init();
             Id := 'UpdateP';
             Description := 'Test';
-            Insert;
+            Insert();
         end;
 
         with UpdateParentLine do begin
-            Init;
+            Init();
             "Header Id" := UpdateParentHeader.Id;
             "Line Id" := 1;
             Amount := 0.5;
             Quantity := 2;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Header Id" := UpdateParentHeader.Id;
             "Line Id" := 2;
             Amount := 1.5;
             Quantity := 4;
-            Insert;
+            Insert();
         end;
 
         with UpdateParentFactLine do begin
-            Init;
+            Init();
             "Header Id" := UpdateParentHeader.Id;
             "Line Id" := 1;
             Name := 'The facts';
-            Insert;
+            Insert();
         end
     end;
 
@@ -111,7 +111,7 @@ codeunit 139142 UpdateParentTest
         Assert.AreEqual(6, Quantity, 'Quantity is not correct');
         Assert.AreEqual(7, Amount, 'Amount is not correct');
 
-        UpdateParentHeaderPage.Close;
+        UpdateParentHeaderPage.Close();
 
         UpdateParentRegisterMgt.EnumeratorReset;
         Assert.AreEqual(10, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
@@ -173,7 +173,7 @@ codeunit 139142 UpdateParentTest
         Assert.AreEqual(6, Quantity, 'Quantity is not correct');
         Assert.AreEqual(7, Amount, 'Amount is not correct');
 
-        UpdateParentHeaderPage.Close;
+        UpdateParentHeaderPage.Close();
         UpdateParentRegisterMgt.EnumeratorReset;
         Assert.AreEqual(6, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
         with UpdateParentRegisterMgt do begin
@@ -225,7 +225,7 @@ codeunit 139142 UpdateParentTest
         Assert.AreEqual(9, Quantity, 'Quantity is not correct');
         Assert.AreEqual(26, Amount, 'Amount is not correct');
 
-        UpdateParentHeaderPage.Close;
+        UpdateParentHeaderPage.Close();
 
         // Validate the sequence of updates and visits.
         UpdateParentRegisterMgt.EnumeratorReset;
@@ -294,7 +294,7 @@ codeunit 139142 UpdateParentTest
         Assert.AreEqual(6, Quantity, 'Quantity is not correct');
         Assert.AreEqual(7, Amount, 'Amount is not correct');
 
-        UpdateParentHeaderPage.Close;
+        UpdateParentHeaderPage.Close();
 
         // Validate the sequence of updates and visits.
         UpdateParentRegisterMgt.EnumeratorReset;
@@ -341,7 +341,7 @@ codeunit 139142 UpdateParentTest
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
 
         UpdateParentHeaderPage.Run();
-        UpdateParentHeaderPage.Close;
+        UpdateParentHeaderPage.Close();
 
         // Validate the sequence of updates and visits.
         UpdateParentRegisterMgt.EnumeratorReset;
@@ -373,7 +373,7 @@ codeunit 139142 UpdateParentTest
         // Changing data on the page that do not update its parent
         HeaderPage.Lines.Amount.Value := FirstLineNextAmount;
         HeaderPage.Lines.Quantity.Value := FirstLineNextQuantity;
-        UpdateParentRegisterMgt.Stop;
+        UpdateParentRegisterMgt.Stop();
 
         LibraryVariableStorage.Enqueue(HeaderPage.LinesAmount.Value);
         LibraryVariableStorage.Enqueue(HeaderPage.LinesQuantity.Value);
@@ -387,7 +387,7 @@ codeunit 139142 UpdateParentTest
         // Changing data on the page that do update its parent
         HeaderPage.LinesUpdateParent.Amount.Value := FirstLineNextAmount;
         HeaderPage.LinesUpdateParent.Quantity.Value := FirstLineNextQuantity;
-        UpdateParentRegisterMgt.Stop;
+        UpdateParentRegisterMgt.Stop();
 
         LibraryVariableStorage.Enqueue(HeaderPage.LinesAmount.Value);
         LibraryVariableStorage.Enqueue(HeaderPage.LinesQuantity.Value);
@@ -400,7 +400,7 @@ codeunit 139142 UpdateParentTest
         UpdateParentRegisterMgt.Start;
         // Changing data on the page that do update its parent
         HeaderPage.FactLines.Name.Value := 'Some text';
-        UpdateParentRegisterMgt.Stop;
+        UpdateParentRegisterMgt.Stop();
     end;
 }
 

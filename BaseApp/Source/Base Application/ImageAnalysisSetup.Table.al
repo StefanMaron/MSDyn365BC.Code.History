@@ -29,7 +29,7 @@ table 2020 "Image Analysis Setup"
 
             trigger OnValidate()
             begin
-                ValidateApiUri;
+                ValidateApiUri();
             end;
         }
         field(5; "Api Key Key"; Guid)
@@ -68,10 +68,11 @@ table 2020 "Image Analysis Setup"
     }
 
     var
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+
         TooManyCallsErr: Label 'Sorry, you''ll have to wait until the start of the next %2. You can analyze %1 images per %2, and you''ve already hit the limit.', Comment = '%1 is the number of calls per time unit allowed, %2 is the time unit duration (year, month, day, or hour)';
         InvalidApiUriErr: Label 'The Api Uri must be a valid Uri for Cognitive Services.';
         DoYouWantURICorrectedQst: Label 'The API URI must end with "/analyze." Should we add that for you?';
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
     [Scope('OnPrem')]
     procedure Increment()
@@ -79,8 +80,8 @@ table 2020 "Image Analysis Setup"
         AzureAIUsage: Codeunit "Azure AI Usage";
         AzureAIService: Enum "Azure AI Service";
     begin
-        GetSingleInstance;
-        if (GetApiKey <> '') and ("Api Uri" <> '') then
+        GetSingleInstance();
+        if (GetApiKey() <> '') and ("Api Uri" <> '') then
             exit; // unlimited access for user's own service
 
         AzureAIUsage.IncrementTotalProcessingTime(AzureAIService::"Computer Vision", 1);
@@ -92,7 +93,7 @@ table 2020 "Image Analysis Setup"
         AzureAIService: Enum "Azure AI Service";
 
     begin
-        if (GetApiKey <> '') and ("Api Uri" <> '') then
+        if (GetApiKey() <> '') and ("Api Uri" <> '') then
             exit(false); // unlimited access for user's own service
 
         if AzureAIUsage.IsLimitReached(AzureAIService::"Computer Vision", MaxCallsPerPeriod) then begin
@@ -138,7 +139,7 @@ table 2020 "Image Analysis Setup"
     procedure SetApiKey(ApiKey: Text)
     begin
         if IsNullGuid("Api Key Key") then
-            "Api Key Key" := CreateGuid;
+            "Api Key Key" := CreateGuid();
 
         IsolatedStorageManagement.Set("Api Key Key", ApiKey, DATASCOPE::Company);
     end;
@@ -155,9 +156,9 @@ table 2020 "Image Analysis Setup"
 
     procedure GetSingleInstance()
     begin
-        if not Get then begin
-            Init;
-            Insert;
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

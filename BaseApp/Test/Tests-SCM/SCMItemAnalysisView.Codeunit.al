@@ -37,12 +37,12 @@ codeunit 137229 "SCM Item Analysis View"
 
         // Validate
         CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", ItemAnalysisView);
-        ItemAnalysisView.Find;
+        ItemAnalysisView.Find();
         ItemAnalysisView.TestField("Last Entry No.");
         LastEntryNo := ItemAnalysisView."Last Entry No.";
         PostSalesOrder;
         CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", ItemAnalysisView);
-        ItemAnalysisView.Find;
+        ItemAnalysisView.Find();
         ItemAnalysisView.TestField("Last Entry No.");
         Assert.IsTrue(ItemAnalysisView."Last Entry No." > LastEntryNo, 'Item Analysis View was not updated.');
     end;
@@ -107,7 +107,7 @@ codeunit 137229 "SCM Item Analysis View"
         i: Integer;
     begin
         with ItemAnalysisView do begin
-            Init;
+            Init();
             "Analysis Area" := "Analysis Area"::Inventory;
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Analysis View"));
             Insert(true);
@@ -125,7 +125,7 @@ codeunit 137229 "SCM Item Analysis View"
                         3:
                             Validate("Dimension 3 Code", Dim.Code);
                     end;
-                until (i = 3) or (Dim.Next = 0);
+                until (i = 3) or (Dim.Next() = 0);
 
             Modify(true);
         end;
@@ -215,7 +215,7 @@ codeunit 137229 "SCM Item Analysis View"
         CreateLocationsChain(FromLocation, ToLocation, TransitLocation);
         CreateItemInventory(FromLocation.Code, Item."No.", 1, FromLocation."Receipt Bin Code");
         CreateTransferOrderQtyOne(
-          TransferHeader, TransferLine, Item."No.", FromLocation.Code, ToLocation.Code, TransitLocation.Code, WorkDate);
+          TransferHeader, TransferLine, Item."No.", FromLocation.Code, ToLocation.Code, TransitLocation.Code, WorkDate());
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 

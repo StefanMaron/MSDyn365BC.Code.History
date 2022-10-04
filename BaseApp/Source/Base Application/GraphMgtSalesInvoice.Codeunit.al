@@ -113,7 +113,7 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         UpdateIntegrationRecordIds(false);
-        SalesInvoiceAggregator.UpdateAggregateTableRecords;
+        SalesInvoiceAggregator.UpdateAggregateTableRecords();
     end;
 }
 

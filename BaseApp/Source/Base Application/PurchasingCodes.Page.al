@@ -23,12 +23,12 @@ page 5727 "Purchasing Codes"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the purchasing activity specified by the code.';
                 }
-                field("Drop Shipment"; "Drop Shipment")
+                field("Drop Shipment"; Rec."Drop Shipment")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
                 }
-                field("Special Order"; "Special Order")
+                field("Special Order"; Rec."Special Order")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that this purchase activity includes arranging for a special order.';

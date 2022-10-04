@@ -128,7 +128,7 @@ codeunit 136354 "UT T Job WIP Method"
                 asserterror Validate("WIP Cost", false);
 
             // Verify that you can uncheck WIP Costs, if "Recognized Costs" is "Usage (Total Cost)"
-            Reset;
+            Reset();
             CreateUserDefinedEntry(JobWIPMethod);
             SetRange("System Defined", false);
             FindFirst();
@@ -152,7 +152,7 @@ codeunit 136354 "UT T Job WIP Method"
                 asserterror Validate("WIP Sales", false);
 
             // Verify that you can uncheck WIP Sales, if "Recognized Sales" is "Contract (Invoiced Price)"
-            Reset;
+            Reset();
             CreateUserDefinedEntry(JobWIPMethod);
             SetRange("System Defined", false);
             FindFirst();
@@ -280,7 +280,7 @@ codeunit 136354 "UT T Job WIP Method"
     local procedure CreateUserDefinedEntry(var JobWIPMethod: Record "Job WIP Method")
     begin
         with JobWIPMethod do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Job WIP Method");
             Description := 'WIPTEST';
             "WIP Cost" := true;
@@ -296,7 +296,7 @@ codeunit 136354 "UT T Job WIP Method"
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(JobLedgerEntry, JobLedgerEntry.FieldNo("Entry No."));
         JobLedgerEntry."Job No." := JobNo;

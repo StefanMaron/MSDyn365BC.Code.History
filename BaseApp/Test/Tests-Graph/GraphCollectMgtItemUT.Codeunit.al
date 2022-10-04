@@ -186,7 +186,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         UpdateBaseUnitOfMeasure(Item, '');
 
         // Verify
-        UnitOfMeasure.Find;
+        UnitOfMeasure.Find();
         Assert.AreEqual(Item."Base Unit of Measure", UnitOfMeasure.Code, 'Base unit of measure should not have been changed');
         VerifyUOMJSON(ItemUOMJSON, Item."Base Unit of Measure");
     end;
@@ -300,7 +300,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         UpdateBaseUnitOfMeasure(Item, ItemUOMJSON);
 
         // Verify
-        SalesUnitOfMeasure.Find;
+        SalesUnitOfMeasure.Find();
         Assert.AreEqual('', Item."Sales Unit of Measure", 'Sales unit of measure was not updated');
         Assert.IsTrue(ItemUnitOfMeasure.Get(Item."No.", SalesUnitOfMeasure.Code), 'Old Item unit of measure was deleted');
     end;
@@ -337,10 +337,10 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         GraphCollectionMgtItem: Codeunit "Graph Collection Mgt - Item";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode, '');
-        exit(JSONManagement.WriteObjectToString);
+        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode(), '');
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     local procedure CreateTestItem(var Item: Record Item)
@@ -384,12 +384,12 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         GraphCollectionMgtItem: Codeunit "Graph Collection Mgt - Item";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode, UnitOfMeasure.Code);
-        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName, UnitOfMeasure.Description);
-        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol, UnitOfMeasure.Symbol);
-        exit(JSONManagement.WriteObjectToString);
+        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode(), UnitOfMeasure.Code);
+        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName(), UnitOfMeasure.Description);
+        JSONManagement.AddJPropertyToJObject(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol(), UnitOfMeasure.Symbol);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     local procedure ConvertUnitOfMeasureWithConversionsToJSON(var UnitOfMeasure: Record "Unit of Measure"; var BaseUnitOfMeasure: Record "Unit of Measure"; ConversionRate: Decimal): Text
@@ -402,14 +402,14 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         JSONManagement.InitializeObject(ConvertUnitOfMeasureToJSON(UnitOfMeasure));
         JSONManagement.GetJSONObject(JsonObject);
 
-        ComplexTypeJSONObject := ComplexTypeJSONObject.JObject;
+        ComplexTypeJSONObject := ComplexTypeJSONObject.JObject();
         JSONManagement.AddJPropertyToJObject(
-          ComplexTypeJSONObject, GraphCollectionMgtItem.UOMConversionComplexTypeToUnitOfMeasure, BaseUnitOfMeasure.Code);
+          ComplexTypeJSONObject, GraphCollectionMgtItem.UOMConversionComplexTypeToUnitOfMeasure(), BaseUnitOfMeasure.Code);
         JSONManagement.AddJPropertyToJObject(
-          ComplexTypeJSONObject, GraphCollectionMgtItem.UOMConversionComplexTypeFromToConversionRate, ConversionRate);
-        JSONManagement.AddJObjectToJObject(JsonObject, GraphCollectionMgtItem.UOMConversionComplexTypeName, ComplexTypeJSONObject);
+          ComplexTypeJSONObject, GraphCollectionMgtItem.UOMConversionComplexTypeFromToConversionRate(), ConversionRate);
+        JSONManagement.AddJObjectToJObject(JsonObject, GraphCollectionMgtItem.UOMConversionComplexTypeName(), ComplexTypeJSONObject);
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     local procedure VerifyUOMJSON(BaseUOMJSON: Text; ExpectedUOMCode: Code[20])
@@ -424,9 +424,9 @@ codeunit 134627 "Graph Collect Mgt Item UT"
     begin
         JSONManagement.InitializeObject(BaseUOMJSON);
         JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode, UnitCode);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol, UnitSymbol);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName, UnitName);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode(), UnitCode);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol(), UnitSymbol);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName(), UnitName);
 
         UnitOfMeasure.Init();
         if ExpectedUOMCode <> '' then
@@ -454,15 +454,15 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         JSONManagement.InitializeObject(UOMWithConversionJSON);
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.GetPropertyValueFromJObjectByName(
-          JsonObject, GraphCollectionMgtItem.UOMConversionComplexTypeName, ConversionJObjectVariant);
+          JsonObject, GraphCollectionMgtItem.UOMConversionComplexTypeName(), ConversionJObjectVariant);
         ConversionJObject := ConversionJObjectVariant;
 
         JSONManagement.GetStringPropertyValueFromJObjectByName(
-          ConversionJObject, GraphCollectionMgtItem.UOMConversionComplexTypeFromToConversionRate, ConversionRateTxt);
+          ConversionJObject, GraphCollectionMgtItem.UOMConversionComplexTypeFromToConversionRate(), ConversionRateTxt);
         Evaluate(ConversionRate, ConversionRateTxt, 9);
 
         JSONManagement.GetStringPropertyValueFromJObjectByName(
-          ConversionJObject, GraphCollectionMgtItem.UOMConversionComplexTypeToUnitOfMeasure, ToUnitOfMeasure);
+          ConversionJObject, GraphCollectionMgtItem.UOMConversionComplexTypeToUnitOfMeasure(), ToUnitOfMeasure);
 
         ItemUnitOfMeasure.Get(Item."No.", UOMCode);
         Assert.AreEqual(Item."Base Unit of Measure", ToUnitOfMeasure, 'ToUnitOfMeasure is not as expected');

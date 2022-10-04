@@ -248,9 +248,9 @@ codeunit 137089 "SCM Kitting - Planning"
     local procedure RunPlanning(var FilterRecordItem: Record Item; ToDate: Date; UsePlanningWorksheet: Boolean)
     begin
         if UsePlanningWorksheet then
-            LibraryPlanning.CalcRegenPlanForPlanWksh(FilterRecordItem, WorkDate, ToDate)
+            LibraryPlanning.CalcRegenPlanForPlanWksh(FilterRecordItem, WorkDate(), ToDate)
         else
-            CalculatePlanForReqWksh(FilterRecordItem, WorkDate, ToDate);
+            CalculatePlanForReqWksh(FilterRecordItem, WorkDate(), ToDate);
     end;
 
     [Normal]
@@ -264,7 +264,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
     local procedure HandlingTime(Location: Record Location): Integer
     begin
-        exit(CalcDate(Location."Outbound Whse. Handling Time", WorkDate) - WorkDate);
+        exit(CalcDate(Location."Outbound Whse. Handling Time", WorkDate()) - WorkDate());
     end;
 
     [Normal]
@@ -767,7 +767,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         // Run Req. Worksheet from W to W + 30D, No. = ParentAssemblyItem."No."|ChildItem."No."
         PlanningFilterItem.SetFilter("No.", '%1|%2', ParentAssemblyItem."No.", ChildItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate, WorkDate + 30);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate(), WorkDate + 30);
 
         VerifyNumberOfReqLines(0, ParentAssemblyItem."No.");
         VerifyNumberOfReqLines(1, ChildItem."No.");
@@ -804,7 +804,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         // Run Planning Worksheet from W to W + 30D, No. = ParentAssemblyItem."No."|ChildItem."No."
         PlanningFilterItem.SetFilter("No.", '%1|%2', ParentAssemblyItem."No.", ChildItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate, WorkDate + 30);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate(), WorkDate + 30);
 
         VerifyNumberOfReqLines(0, ParentAssemblyItem."No.");
         VerifyNumberOfReqLines(1, ChildItem."No.");
@@ -844,7 +844,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         // Run Planning Worksheet from W to W + 30D, No. = ParentAssemblyItem."No."|ChildItem."No."
         PlanningFilterItem.SetFilter("No.", '%1|%2', ParentAssemblyItem."No.", ChildItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate, WorkDate + 30);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate(), WorkDate + 30);
 
         VerifyNumberOfReqLines(1, ParentAssemblyItem."No.");
         VerifyNumberOfReqLines(1, ChildItem."No.");
@@ -887,7 +887,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         // Run Planning Worksheet from W to W + 30D, No. = ParentAssemblyItem."No."|ChildItem."No."
         PlanningFilterItem.SetFilter("No.", '%1|%2', ParentAssemblyItem."No.", ChildItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate, WorkDate + 30);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate(), WorkDate + 30);
 
         VerifyNumberOfReqLines(1, ParentAssemblyItem."No.");
         VerifyNumberOfReqLines(1, ChildItem."No.");
@@ -1012,7 +1012,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ChildItem1.Validate("Reordering Policy", ChildItem1."Reordering Policy"::"Lot-for-Lot");
         ChildItem1.Modify(true);
 
-        BOMCompItem.Next;
+        BOMCompItem.Next();
         ChildItem2.Get(BOMCompItem."No.");
         ChildItem2.Validate("Replenishment System", ChildItem2."Replenishment System"::"Prod. Order");
         ChildItem2.Validate("Reordering Policy", ChildItem2."Reordering Policy"::"Lot-for-Lot");
@@ -1085,7 +1085,7 @@ codeunit 137089 "SCM Kitting - Planning"
         asserterror CarryOutActionMsgPlan.Run();
         Assert.IsTrue(
           StrPos(GetLastErrorText, 'Demand Quantity (Base) must be equal to ') = 1, 'Carry out did not give the expected error message');
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1135,7 +1135,7 @@ codeunit 137089 "SCM Kitting - Planning"
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
 
-        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate, 10, '');
+        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), 10, '');
 
         AddToInventory(AssemblyItem, 5);
 
@@ -1166,7 +1166,7 @@ codeunit 137089 "SCM Kitting - Planning"
         // A kit item TS1-KIT, UOM=PCS, Item Category Code=FURNITUE, Reorder Policy=LFL, Include Inventory=TRUE, Replenishment System=Assembly, Assembly Policy=ATO, BOM=1xTS1-COMP1
         CreateKitItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Stock");
 
-        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate, 10, '');
+        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), 10, '');
 
         AddToInventory(AssemblyItem, 5);
 
@@ -1231,7 +1231,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         AddToInventory(AssemblyItem, 5);
 
-        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate, 10, '');
+        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), 10, '');
         SalesLine.Validate("Qty. to Assemble to Order", 3);
         SalesLine.Modify(true);
 
@@ -1265,7 +1265,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
-        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate, 10, '');
+        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), 10, '');
         SalesLine.Validate("Location Code", Location.Code);
         SalesLine.Modify(true);
 
@@ -1302,7 +1302,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         AddToInventoryWithVariantCodeAndLocation(AssemblyItem, 5, '', Location.Code);
 
-        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate, 10, '');
+        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), 10, '');
         SalesLine.Validate("Qty. to Assemble to Order", 3);
         SalesLine.Validate("Location Code", Location.Code);
         SalesLine.Modify(true);
@@ -1347,7 +1347,7 @@ codeunit 137089 "SCM Kitting - Planning"
 
         AddToInventoryWithVariantCodeAndLocation(AssemblyItem, QtyOnInventory, ItemVariant.Code, '');
 
-        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate, QtyOnSalesOrder, ItemVariant.Code);
+        CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), QtyOnSalesOrder, ItemVariant.Code);
 
         // Exercise: Run Capable to Promise.
         AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);

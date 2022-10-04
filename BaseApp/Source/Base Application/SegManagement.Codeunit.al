@@ -7,14 +7,15 @@
     end;
 
     var
+        InteractionTmplSetup: Record "Interaction Template Setup";
+
+        InterTemplateSalesInvoicesNotSpecifiedErr: Label 'The Invoices field on the Sales FastTab in the Interaction Template Setup window must be filled in.';
+        SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
         Text000: Label '%1 for Segment No. %2 already exists.';
         Text001: Label 'Segment %1 is empty.';
         Text002: Label 'Follow-up on segment %1';
-        InteractionTmplSetup: Record "Interaction Template Setup";
         Text003: Label 'Interaction Template %1 has assigned Interaction Template Language %2.\It is not allowed to have languages assigned to templates used for system document logging.';
         Text004: Label 'Interactions';
-        InterTemplateSalesInvoicesNotSpecifiedErr: Label 'The Invoices field on the Sales FastTab in the Interaction Template Setup window must be filled in.';
-        SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
 
     [Scope('OnPrem')]
     procedure LogSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean)
@@ -39,17 +40,17 @@
         ShowIsNotEmptyError := not LoggedSegment.IsEmpty();
         OnLogSegmentOnAfterCalcShowIsNotEmptyError(LoggedSegment, Deliver, ShowIsNotEmptyError);
         if ShowIsNotEmptyError then
-            Error(Text000, LoggedSegment.TableCaption, SegmentHeader."No.");
+            Error(Text000, LoggedSegment.TableCaption(), SegmentHeader."No.");
 
         SegmentHeader.TestField(Description);
 
         LoggedSegment.Reset();
         LoggedSegment.Init();
-        LoggedSegment."Entry No." := GetNextLoggedSegmentEntryNo;
+        LoggedSegment."Entry No." := GetNextLoggedSegmentEntryNo();
         LoggedSegment."Segment No." := SegmentHeader."No.";
         LoggedSegment.Description := SegmentHeader.Description;
         LoggedSegment."Creation Date" := Today;
-        LoggedSegment."User ID" := UserId;
+        LoggedSegment."User ID" := UserId();
         OnBeforeLoggedSegmentInsert(LoggedSegment);
         LoggedSegment.Insert();
         OnLogSegmentOnAfterLoggedSegmentInsert(LoggedSegment, SegmentHeader);
@@ -72,9 +73,9 @@
 
         if SegmentLine.FindSet() then begin
             if InteractTemplate.Get(SegmentHeader."Interaction Template Code") then;
-            NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
+            NextInteractLogEntryNo := GetNextInteractionLogEntryNo();
             repeat
-                TestFields(SegmentLine, Deliver);
+                CheckSegmentLine(SegmentLine, Deliver);
                 InteractLogEntry.Init();
                 InteractLogEntry."Entry No." := NextInteractLogEntryNo;
                 InteractLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
@@ -157,7 +158,7 @@
         if (SegmentLine."Campaign No." <> '') and (not Postponed) then
             SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, 0);
 
-        if AttachmentTemp."Attachment File".HasValue then begin
+        if AttachmentTemp."Attachment File".HasValue() then begin
             with Attachment do begin
                 LockTable();
                 if (SegmentLine."Line No." <> 0) and Get(SegmentLine."Attachment No.") then begin
@@ -167,7 +168,7 @@
 
                 Copy(AttachmentTemp);
                 "Read Only" := true;
-                WizSaveAttachment;
+                WizSaveAttachment();
                 OnBeforeAttachmentInsert(SegmentLine, AttachmentTemp, Attachment);
                 Insert(true);
             end;
@@ -175,7 +176,7 @@
             MarketingSetup.Get();
             if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
                 if Attachment."No." <> 0 then begin
-                    FileName := Attachment.ConstDiskFileName;
+                    FileName := Attachment.ConstDiskFileName();
                     if FileName <> '' then begin
                         FileMgt.DeleteServerFile(FileName);
                         FileExported := AttachmentTemp.ExportAttachmentToServerFile(FileName);
@@ -190,7 +191,7 @@
             WizardAction := InteractionTemplate."Wizard Action";
 
         if SegmentLine."Line No." = 0 then begin
-            NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
+            NextInteractLogEntryNo := GetNextInteractionLogEntryNo();
 
             InteractLogEntry.Init();
             InteractLogEntry."Entry No." := NextInteractLogEntryNo;
@@ -246,7 +247,7 @@
             exit;
 
         if not Postponed then
-            TestFields(SegmentLine, Deliver);
+            CheckSegmentLine(SegmentLine, Deliver);
     end;
 
     procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20]): Integer
@@ -345,7 +346,7 @@
                 TempAttachment.WizEmbeddAttachment(Attachment);
                 TempAttachment.Insert();
                 AttachmentManagement.GenerateHTMLContent(TempAttachment, SegmentLine);
-                if TempAttachment."Attachment File".HasValue then begin
+                if TempAttachment."Attachment File".HasValue() then begin
                     Attachment.RemoveAttachment(false);
                     TempAttachment."No." := SegmentLine."Attachment No.";
                 end;
@@ -363,7 +364,7 @@
     begin
         if not InteractionTmplSetup.ReadPermission then
             exit('');
-        if InteractionTmplSetup.Get then
+        if InteractionTmplSetup.Get() then
             case DocumentType of
                 1:
                     InteractTmplCode := InteractionTmplSetup."Sales Quotes";
@@ -422,7 +423,7 @@
         exit(InteractTmplCode);
     end;
 
-    local procedure TestFields(var SegmentLine: Record "Segment Line"; Deliver: Boolean)
+    procedure CheckSegmentLine(var SegmentLine: Record "Segment Line"; Deliver: Boolean)
     var
         Cont: Record Contact;
         Campaign: Record Campaign;
@@ -608,19 +609,19 @@
             ContNo := FindContactFromContBusRelation(ContBusRel."Link to Table"::Customer, "Bill-to Customer No.");
 
             // Check if Interaction Log Entry already exist for initial Sales Order
-            InteractionTemplateCode := FindInteractTmplCode(SalesInvoiceInterDocType);
+            InteractionTemplateCode := FindInteractTmplCode(SalesInvoiceInterDocType());
             if InteractionTemplateCode = '' then
                 Error(InterTemplateSalesInvoicesNotSpecifiedErr);
             InteractTemplate.Get(InteractionTemplateCode);
             InteractionLogEntry.SetRange("Contact No.", ContNo);
-            InteractionLogEntry.SetRange("Document Type", SalesInvoiceInterDocType);
+            InteractionLogEntry.SetRange("Document Type", SalesInvoiceInterDocType());
             InteractionLogEntry.SetRange("Document No.", "Order No.");
             InteractionLogEntry.SetRange("Interaction Group Code", InteractTemplate."Interaction Group Code");
             if not InteractionLogEntry.IsEmpty() then
                 exit;
 
             LogDocument(
-              SalesInvoiceInterDocType, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
+              SalesInvoiceInterDocType(), "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
               CampaignTargetGr."Campaign No.", "Posting Description", '');
         end;
     end;
@@ -684,7 +685,7 @@
 
         CampaignEntry.Reset();
         CampaignEntry.Init();
-        CampaignEntry."Entry No." := GetNextCampaignEntryNo;
+        CampaignEntry."Entry No." := GetNextCampaignEntryNo();
         if LoggedSegmentEntryNo <> 0 then
             CampaignEntry."Register No." := LoggedSegmentEntryNo;
         CopyFieldsToCampaignEntry(CampaignEntry, SegmentLine);

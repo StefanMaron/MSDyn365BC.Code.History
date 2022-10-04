@@ -115,8 +115,8 @@ codeunit 137044 "SCM Order Promising"
 
         Quantity := LibraryRandom.RandInt(10);
         Quantity2 := LibraryRandom.RandInt(10);
-        CreateSalesOrder(SalesHeader, WorkDate, '', Item."No.", Quantity);
-        CreateSalesOrder(SalesHeader, WorkDate, '', Item."No.", Quantity2);
+        CreateSalesOrder(SalesHeader, WorkDate(), '', Item."No.", Quantity);
+        CreateSalesOrder(SalesHeader, WorkDate(), '', Item."No.", Quantity2);
 
         // Update the Shipment Date later than WORKDATE + CompanyInformation."Check-Avail. Period Calc." on the 2nd Sales Order.
         // To trigger Check Availablity warning we need to modify it on page.
@@ -124,14 +124,14 @@ codeunit 137044 "SCM Order Promising"
         LibraryVariableStorage.Enqueue(false);
         UpdateShipmentDateOnSalesOrderPage(
           SalesHeader."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>',
-            CalcDate(CompanyInformation."Check-Avail. Period Calc.", WorkDate)));
+            CalcDate(CompanyInformation."Check-Avail. Period Calc.", WorkDate())));
 
         // Exercise & Verify: Change the Shipment Date back to the original date for the 2nd Sales Order.
         // The Check Availablity warning message would pop up.
         // Verify the Total Quantity in Check Availablity page by CheckAvailabilityHandler.
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(-(Quantity + Quantity2));
-        UpdateShipmentDateOnSalesOrderPage(SalesHeader."No.", WorkDate);
+        UpdateShipmentDateOnSalesOrderPage(SalesHeader."No.", WorkDate());
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -207,7 +207,7 @@ codeunit 137044 "SCM Order Promising"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Sales Order with Shipment Date = Date1.
-        CreateSalesOrder(SalesHeader, WorkDate, '', Item."No.", LibraryRandom.RandInt(10));
+        CreateSalesOrder(SalesHeader, WorkDate(), '', Item."No.", LibraryRandom.RandInt(10));
 
         // [WHEN] Update Shipment Date in Sales Line with Date2.
         NewShipmentDate := LibraryRandom.RandDate(10);
@@ -235,7 +235,7 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order with Shipment Date = "D", Requested Delivery Date = "D" + 1
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 1, WorkDate);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 1, WorkDate());
 
         // [GIVEN] Purchase order with Expected Receipt Date = "D" + 2
         CreatePurchaseOrder(PurchaseHeader, WorkDate + 2, '', Item."No.", Qty);
@@ -264,7 +264,7 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order with Requested Delivery Date = "D", Shipment Date = "D" + 2
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate, WorkDate + 2);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate + 2);
 
         // [GIVEN] Purchase order with Expected Receipt Date = "D" + 1
         CreatePurchaseOrder(PurchaseHeader, WorkDate + 1, '', Item."No.", Qty);
@@ -303,7 +303,7 @@ codeunit 137044 "SCM Order Promising"
         UpdateCompanyInfoBaseCalendarCode(BaseCalendar.Code);
 
         // [GIVEN] Purchase order with Expected Receipt Date = "D" - 1
-        CreatePurchaseOrder(PurchaseHeader, WorkDate, '', Item."No.", Qty);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate(), '', Item."No.", Qty);
 
         // [WHEN] Calculate order promising line for the sales order
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
@@ -331,7 +331,7 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order with Requested Delivery Date = "D"
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate, WorkDate);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate());
 
         // [GIVEN] Create base calendar and mark "D" and "D" + 2 days as non-working
         LibraryService.CreateBaseCalendar(BaseCalendar);
@@ -366,9 +366,9 @@ codeunit 137044 "SCM Order Promising"
         Qty := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D" + 3 days
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 3, WorkDate);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 3, WorkDate());
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D" days
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate, WorkDate);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate());
 
         // [GIVEN] Create purchase order: Quantity = "X", Expected Receipt Date = "D" + 2
         CreatePurchaseOrder(PurchaseHeader, WorkDate + 2, '', Item."No.", Qty);
@@ -396,9 +396,9 @@ codeunit 137044 "SCM Order Promising"
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D"
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate, WorkDate);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate(), WorkDate());
         // [GIVEN] Sales order: Quantity = "X", Requested Delivery Date = "D" + 2 days
-        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 2, WorkDate);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, WorkDate + 2, WorkDate());
 
         // [GIVEN] Create purchase order: Quantity = "X", Expected Receipt Date = "D" + 1
         CreatePurchaseOrder(PurchaseHeader, WorkDate + 1, '', Item."No.", 1);
@@ -426,7 +426,7 @@ codeunit 137044 "SCM Order Promising"
         UpdateCompanyInformationCalcBucket(0);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         Qty := LibraryRandom.RandDec(100, 2);
-        DeliveryDate := CalcDate('<1M>', WorkDate);
+        DeliveryDate := CalcDate('<1M>', WorkDate());
 
         // [GIVEN] Sales order with Requested Delivery Date = "D"
         CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, DeliveryDate, DeliveryDate + 1);
@@ -435,7 +435,7 @@ codeunit 137044 "SCM Order Promising"
         UpdateSalesLineShippingCalculation(SalesHeader."Document Type", SalesHeader."No.", '<1D>', '<1W>');
 
         // [GIVEN] Purchase order with "Expected Receipt Date" = "D" - 1
-        CreatePurchaseOrder(PurchaseHeader, WorkDate, '', Item."No.", Qty);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate(), '', Item."No.", Qty);
 
         // [WHEN] Calculate order promising line for the sales order
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
@@ -471,7 +471,7 @@ codeunit 137044 "SCM Order Promising"
         CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", Qty, ShipmentDate - 2, ShipmentDate - 2);
 
         // [GIVEN] Purchase order with expected delivery date = "D" - 10
-        CreatePurchaseOrder(PurchaseHeader, WorkDate, '', Item."No.", Qty);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate(), '', Item."No.", Qty);
 
         // [WHEN] Calculate order promising line for the second sales order (date = "D" - 2)
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
@@ -576,7 +576,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [WHEN] Insert new sales line for "Z" units of "I" on WORKDATE. "Z" is covered with inventory "X", but leaves the future demands uncovered.
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate(), LibraryRandom.RandIntInRange(50, 100));
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfNotificationsRaised, 0);
@@ -610,7 +610,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [WHEN] Change the date on "SL" to WORKDATE.
         NoOfNotificationsRaised := LibraryVariableStorage.DequeueInteger;
-        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate);
+        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate());
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfNotificationsRaised, 0);
@@ -640,11 +640,11 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE - 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate - 1, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() - 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [WHEN] Change the date on "SL" to WORKDATE.
         NoOfNotificationRaised := LibraryVariableStorage.DequeueInteger;
-        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate);
+        UpdateShipmentDateOnSalesLineAndTriggerAvailCheck(SalesLine, WorkDate());
 
         // [THEN] Availability warning is not raised.
         VerifyNoOfRaisedNotifications(NoOfNotificationRaised, 0);
@@ -741,7 +741,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE - 1 day. Overall demanded qty. ("X" + "Z") is not covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate - 1, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() - 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [WHEN] Change the date on "SL" to the supply date (WORKDATE + 1 day).
         NoOfRaisedNotifications := LibraryVariableStorage.DequeueInteger;
@@ -836,7 +836,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Sales line "SL" for "Z" units of "I" on WORKDATE - 1 day. Overall demanded qty. ("X" + "Z") is covered with "X" + "Y".
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, WorkDate - 1, LibraryRandom.RandIntInRange(50, 100));
+          SalesLine, SalesHeader, ItemNo, WorkDate() - 1, LibraryRandom.RandIntInRange(50, 100));
 
         // [WHEN] Change the date on "SL" to the supply date (WORKDATE + 1 day).
         NoOfWarningsRaised := LibraryVariableStorage.DequeueInteger;
@@ -872,7 +872,7 @@ codeunit 137044 "SCM Order Promising"
         // [GIVEN] 2 pc of component "C" is in stock on WORKDATE, 1 pc is set to be purchased on WORKDATE + 10 days.
         // [GIVEN] Sales order "SO1" for 1 pc of assembled item "I" on WORKDATE + 20 days.
         CreateSupplyForBOMComponentAndDemandForAssembledItem(
-          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate, WorkDate + 20, WorkDate + 10);
+          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate(), WorkDate + 20, WorkDate + 10);
 
         // [GIVEN] Another sales order "SO2" for 2 pcs of assembled item "I" on WORKDATE + 30 days.
         CreateSalesOrder(SalesHeader, WorkDate + 30, '', AsmItem."No.", 2);
@@ -923,7 +923,7 @@ codeunit 137044 "SCM Order Promising"
         // [GIVEN] Sales order for 2 pcs of assembled item "I" on WORKDATE + 2 months.
         // [GIVEN] The component "C" is now supplied by the inventory and the purchase.
         CreateSupplyForBOMComponentAndDemandForAssembledItem(
-          AsmItem."No.", CompItem."No.", 1, 2, 2, WorkDate, WorkDate + 30, WorkDate + 60);
+          AsmItem."No.", CompItem."No.", 1, 2, 2, WorkDate(), WorkDate + 30, WorkDate + 60);
 
         // [WHEN] Set "Shipment Date" on the sales line to a later date.
         SalesLine.SetRange("No.", AsmItem."No.");
@@ -962,7 +962,7 @@ codeunit 137044 "SCM Order Promising"
         // [GIVEN] 2 pc of component "C" is in stock on WORKDATE, 1 pc is set to be purchased on WORKDATE + 10 days.
         // [GIVEN] Sales order "SO1" for 1 pc of assembled item "I" on WORKDATE + 20 days.
         CreateSupplyForBOMComponentAndDemandForAssembledItem(
-          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate, WorkDate + 20, WorkDate + 10);
+          AsmItem."No.", CompItem."No.", 2, 1, 1, WorkDate(), WorkDate + 20, WorkDate + 10);
 
         // [GIVEN] Another sales order "SO2" for 2 pcs of assembled item "I" on WORKDATE + 30 days.
         CreateSalesOrder(SalesHeader, WorkDate + 30, '', AsmItem."No.", 2);
@@ -1005,7 +1005,7 @@ codeunit 137044 "SCM Order Promising"
         CreateAssembleToOrderItemWithComponent(AsmItem, CompItem);
 
         // [GIVEN] Sales order for the item "ASM" with a linked assembly order (assemble-to-order), "Planned Delivery Date" is set to 25.01.2020
-        CreateSalesOrder(SalesHeader, AdjustDateForDefaultSafetyLeadTime(WorkDate), '', AsmItem."No.", LibraryRandom.RandInt(10));
+        CreateSalesOrder(SalesHeader, AdjustDateForDefaultSafetyLeadTime(WorkDate()), '', AsmItem."No.", LibraryRandom.RandInt(10));
         FindSalesline(SalesLine, SalesHeader, AsmItem."No.");
         SalesLine.Validate("Qty. to Assemble to Order", SalesLine.Quantity);
         SalesLine.Modify(true);
@@ -1018,7 +1018,7 @@ codeunit 137044 "SCM Order Promising"
         OrderPromisingLine.Validate("Planned Delivery Date", SalesLine."Planned Delivery Date" + 1);
 
         // [THEN] "Starting Date" in the assembly order is 25.01.2020
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         AssemblyHeader.TestField("Starting Date", AsmStartingDate);
     end;
 
@@ -1038,7 +1038,7 @@ codeunit 137044 "SCM Order Promising"
 
         // [GIVEN] Sales order on 25.01.2020
         LibraryInventory.CreateItem(Item);
-        CreateSalesOrder(SalesHeader, AdjustDateForDefaultSafetyLeadTime(WorkDate), '', Item."No.", LibraryRandom.RandInt(10));
+        CreateSalesOrder(SalesHeader, AdjustDateForDefaultSafetyLeadTime(WorkDate()), '', Item."No.", LibraryRandom.RandInt(10));
 
         FindSalesline(SalesLine, SalesHeader, Item."No.");
 
@@ -1465,7 +1465,7 @@ codeunit 137044 "SCM Order Promising"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Base Calendar Code", BaseCalendarCode);
             Modify(true);
         end;
@@ -1476,7 +1476,7 @@ codeunit 137044 "SCM Order Promising"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         with ManufacturingSetup do begin
-            Get;
+            Get();
             Validate("Normal Starting Time", 080000T);
             Validate("Normal Ending Time", 160000T);
             Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1489,7 +1489,7 @@ codeunit 137044 "SCM Order Promising"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Credit Warnings", "Credit Warnings"::"No Warning");
             Validate("Stockout Warning", false);
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1502,7 +1502,7 @@ codeunit 137044 "SCM Order Promising"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Modify(true);
         end;
@@ -1664,7 +1664,7 @@ codeunit 137044 "SCM Order Promising"
         CreateAndPostItemJournalLine(Item."No.", LocationCode[1], LibraryRandom.RandDec(100, 2));
         CreateAndPostItemJournalLine(Item."No.", LocationCode[1], LibraryRandom.RandDec(100, 2));
 
-        ShipmentDate := WorkDate;
+        ShipmentDate := WorkDate();
         CreateSupplyDemandDocuments(Item, ShipmentDate);
     end;
 
@@ -1735,7 +1735,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";
-        CreatePurchaseOrder(PurchaseHeader, WorkDate, '', Item."No.", LibraryRandom.RandIntInRange(50, 100));
+        CreatePurchaseOrder(PurchaseHeader, WorkDate(), '', Item."No.", LibraryRandom.RandIntInRange(50, 100));
 
         SalesQuantity := LibraryRandom.RandInt(50); // no more than purchased to prevent availability warning for insufficient quantity
         CreateSalesOrder(SalesHeader, ShipmentDate, '', Item."No.", SalesQuantity);
@@ -1760,7 +1760,7 @@ codeunit 137044 "SCM Order Promising"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         CreateSalesLineWithShipmentDateAndTriggerAvailCheck(
-          SalesLine, SalesHeader, ItemNo, CalcDate(AvailCalcPeriod, WorkDate) - 1, InventoryQty);
+          SalesLine, SalesHeader, ItemNo, CalcDate(AvailCalcPeriod, WorkDate()) - 1, InventoryQty);
 
         CreatePurchaseOrder(PurchaseHeader, SupplyDate, '', ItemNo, SupplyQty);
     end;
@@ -1788,7 +1788,7 @@ codeunit 137044 "SCM Order Promising"
         SalesOrder.OpenView;
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
         Evaluate(ShipmentDate, SalesOrder.Control1906127307."Shipment Date".Value);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20])
@@ -1871,7 +1871,7 @@ codeunit 137044 "SCM Order Promising"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Check-Avail. Period Calc.", CheckAvailPeriodCalc);
             Modify(true);
         end;
@@ -1882,7 +1882,7 @@ codeunit 137044 "SCM Order Promising"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Check-Avail. Time Bucket", CheckAvailTimeBucket);
             Modify(true);
         end;
@@ -1922,7 +1922,7 @@ codeunit 137044 "SCM Order Promising"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
         SalesOrder.SalesLines."Shipment Date".SetValue(ShipmentDate); // Trigger the Check Availability warning.
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ReceiptDate: Date; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -1952,7 +1952,7 @@ codeunit 137044 "SCM Order Promising"
 
     local procedure CreateSalesOrderWithRequestedDeliveryDate(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; RequestedDeliveryDate: Date; ShipmentDate: Date)
     begin
-        CreateSalesOrder(SalesHeader, WorkDate, '', ItemNo, Qty);
+        CreateSalesOrder(SalesHeader, WorkDate(), '', ItemNo, Qty);
         SalesHeader.Validate("Requested Delivery Date", RequestedDeliveryDate);
         SalesHeader.Validate("Shipment Date", ShipmentDate);
         SalesHeader.Modify(true);
@@ -2046,7 +2046,7 @@ codeunit 137044 "SCM Order Promising"
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Shipment Date", NewShipmentDate);
         ItemCheckAvail.SalesLineCheck(SalesLine);
     end;

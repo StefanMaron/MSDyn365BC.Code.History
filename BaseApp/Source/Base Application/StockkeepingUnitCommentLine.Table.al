@@ -60,9 +60,9 @@ table 5701 "Stockkeeping Unit Comment Line"
         StockkeepingUnitCommentLine.SetRange("Item No.", "Item No.");
         StockkeepingUnitCommentLine.SetRange("Variant Code", "Variant Code");
         StockkeepingUnitCommentLine.SetRange("Location Code", "Location Code");
-        StockkeepingUnitCommentLine.SetRange(Date, WorkDate);
+        StockkeepingUnitCommentLine.SetRange(Date, WorkDate());
         if not StockkeepingUnitCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, StockkeepingUnitCommentLine);
     end;

@@ -12,4 +12,7 @@ enum 9550 "Doc. Service Conflict Behavior"
     value(2; Rename)
     {
     }
+    value(3; Reuse)
+    {
+    }
 }

@@ -25,14 +25,14 @@ codeunit 132208 "Library - Trees"
         if TempItem.FindSet() then
             repeat
                 LibraryAssembly.ModifyItem(TempItem."No.", true, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
 
         if TempResource.FindSet() then
             repeat
                 Resource.Get(TempResource."No.");
                 Resource.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
                 Resource.Modify(true);
-            until TempResource.Next = 0;
+            until TempResource.Next() = 0;
 
         if TempWorkCenter.FindSet() then
             repeat
@@ -40,7 +40,7 @@ codeunit 132208 "Library - Trees"
                 WorkCenter.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
                 WorkCenter.Validate("Overhead Rate", LibraryRandom.RandInt(5));
                 WorkCenter.Modify(true);
-            until TempWorkCenter.Next = 0;
+            until TempWorkCenter.Next() = 0;
 
         if TempMachineCenter.FindSet() then
             repeat
@@ -48,7 +48,7 @@ codeunit 132208 "Library - Trees"
                 MachineCenter.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
                 MachineCenter.Validate("Overhead Rate", LibraryRandom.RandInt(5));
                 MachineCenter.Modify(true);
-            until TempMachineCenter.Next = 0;
+            until TempMachineCenter.Next() = 0;
     end;
 
     [Normal]
@@ -62,14 +62,14 @@ codeunit 132208 "Library - Trees"
                 WorkCenter.Get(TempWorkCenter."No.");
                 WorkCenter.Validate("Direct Unit Cost", LibraryRandom.RandInt(5));
                 WorkCenter.Modify(true);
-            until TempWorkCenter.Next = 0;
+            until TempWorkCenter.Next() = 0;
 
         if TempMachineCenter.FindSet() then
             repeat
                 MachineCenter.Get(TempMachineCenter."No.");
                 MachineCenter.Validate("Direct Unit Cost", LibraryRandom.RandInt(5));
                 MachineCenter.Modify(true);
-            until TempMachineCenter.Next = 0;
+            until TempMachineCenter.Next() = 0;
     end;
 
     [Normal]
@@ -97,7 +97,7 @@ codeunit 132208 "Library - Trees"
                 Item.Get(TempItem."No.");
                 Item.Validate("Scrap %", LibraryRandom.RandInt(10));
                 Item.Modify(true);
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
     end;
 
     [Normal]
@@ -116,11 +116,11 @@ codeunit 132208 "Library - Trees"
                         repeat
                             RoutingLine.Validate("Scrap Factor %", LibraryRandom.RandInt(10));
                             RoutingLine.Modify(true);
-                        until RoutingLine.Next = 0;
+                        until RoutingLine.Next() = 0;
                     RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
                     RoutingHeader.Modify(true);
                 end;
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
     end;
 
     [Normal]
@@ -140,11 +140,11 @@ codeunit 132208 "Library - Trees"
                         repeat
                             ProdBOMLine.Validate("Scrap %", LibraryRandom.RandInt(10));
                             ProdBOMLine.Modify(true);
-                        until ProdBOMLine.Next = 0;
+                        until ProdBOMLine.Next() = 0;
                     ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
                     ProdBOMHeader.Modify(true);
                 end;
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
     end;
 
     [Normal]
@@ -158,7 +158,7 @@ codeunit 132208 "Library - Trees"
                 MachineCenter.Validate("Scrap %", LibraryRandom.RandInt(10));
                 MachineCenter.Validate("Fixed Scrap Quantity", LibraryRandom.RandInt(10));
                 MachineCenter.Modify(true);
-            until TempMachineCenter.Next = 0;
+            until TempMachineCenter.Next() = 0;
     end;
 
     [Normal]
@@ -182,7 +182,7 @@ codeunit 132208 "Library - Trees"
                             BOMComponent.Validate("Variant Code", ItemVariant.Code);
                             BOMComponent.Modify();
                             AddTreeVariants(BOMComponent."No.");
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
@@ -197,7 +197,7 @@ codeunit 132208 "Library - Trees"
                             ProdBOMLine.Validate("Variant Code", ItemVariant.Code);
                             ProdBOMLine.Modify(true);
                             AddTreeVariants(ProdBOMLine."No.");
-                        until ProdBOMLine.Next = 0;
+                        until ProdBOMLine.Next() = 0;
                     ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
                     ProdBOMHeader.Modify();
                 end;
@@ -230,11 +230,11 @@ codeunit 132208 "Library - Trees"
 
         // Create left branch of sub tree.
         CreateMixedTree(Item1, Item."Replenishment System"::"Prod. Order", CostingMethod, TreeDepth - 1, NoOfComps, NoOfRoutingLines);
-        Item1.Find;
+        Item1.Find();
 
         // Create right branch of sub tree.
         CreateMixedTree(Item2, Item."Replenishment System"::Assembly, CostingMethod, TreeDepth - 1, NoOfComps, NoOfRoutingLines);
-        Item2.Find;
+        Item2.Find();
 
         // Connect the 2 sub trees to the parent item.
         case Item."Replenishment System" of
@@ -316,7 +316,7 @@ codeunit 132208 "Library - Trees"
                       (Qty + 1) * BOMComponent."Quantity per");
                 end;
 
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
     end;
 
     [Normal]
@@ -426,7 +426,7 @@ codeunit 132208 "Library - Trees"
                             RolledUpCapacityCost += BOMComponent."Quantity per" * LocalRolledUpCapCost;
                             RolledUpCapOvhd += BOMComponent."Quantity per" * LocalRolledUpCapOvhd;
                             RolledUpMfgOvhd += BOMComponent."Quantity per" * LocalRolledUpMfgOvhd;
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
                     if BOMComponent.FindSet() then
@@ -445,7 +445,7 @@ codeunit 132208 "Library - Trees"
                             SglLevelCapOvhd += BOMComponent."Quantity per" * Overhead / ResLotSize;
                             RolledUpCapacityCost += BOMComponent."Quantity per" * (UnitCost - Overhead) / ResLotSize;
                             RolledUpCapOvhd += BOMComponent."Quantity per" * Overhead / ResLotSize;
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
 
                     RolledUpMfgOvhd +=
                       (RolledUpMaterialCost + RolledUpCapacityCost + RolledUpCapOvhd + RolledUpMfgOvhd) *
@@ -475,7 +475,7 @@ codeunit 132208 "Library - Trees"
                             RolledUpCapacityCost += ProdBOMLine."Quantity per" * LocalRolledUpCapCost;
                             RolledUpCapOvhd += ProdBOMLine."Quantity per" * LocalRolledUpCapOvhd;
                             RolledUpMfgOvhd += ProdBOMLine."Quantity per" * LocalRolledUpMfgOvhd;
-                        until ProdBOMLine.Next = 0;
+                        until ProdBOMLine.Next() = 0;
 
                     RoutingLine.SetRange("Routing No.", Item."Routing No.");
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Work Center");
@@ -490,7 +490,7 @@ codeunit 132208 "Library - Trees"
                             SglLevelCapOvhd +=
                               (RoutingLine."Run Time" + RoutingLine."Setup Time" / LotSize) *
                               (WorkCenter."Unit Cost" - WorkCenter."Direct Unit Cost");
-                        until RoutingLine.Next = 0;
+                        until RoutingLine.Next() = 0;
 
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
                     if RoutingLine.FindSet() then
@@ -505,7 +505,7 @@ codeunit 132208 "Library - Trees"
                             SglLevelCapOvhd +=
                               (RoutingLine."Run Time" + RoutingLine."Setup Time" / LotSize) *
                               (MachineCenter."Unit Cost" - MachineCenter."Direct Unit Cost");
-                        until RoutingLine.Next = 0;
+                        until RoutingLine.Next() = 0;
 
                     RolledUpMfgOvhd +=
                       (RolledUpMaterialCost + RolledUpCapacityCost + RolledUpCapOvhd + RolledUpMfgOvhd) *
@@ -558,7 +558,7 @@ codeunit 132208 "Library - Trees"
                         repeat
                             Item1.Get(BOMComponent."No.");
                             GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item1);
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
                     if BOMComponent.FindSet() then
@@ -566,7 +566,7 @@ codeunit 132208 "Library - Trees"
                             Resource.Get(BOMComponent."No.");
                             TempResource := Resource;
                             TempResource.Insert();
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
@@ -576,7 +576,7 @@ codeunit 132208 "Library - Trees"
                         repeat
                             Item1.Get(ProdBOMLine."No.");
                             GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item1);
-                        until ProdBOMLine.Next = 0;
+                        until ProdBOMLine.Next() = 0;
 
                     RoutingLine.SetRange("Routing No.", Item."Routing No.");
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Work Center");
@@ -585,7 +585,7 @@ codeunit 132208 "Library - Trees"
                             WorkCenter.Get(RoutingLine."No.");
                             TempWorkCenter := WorkCenter;
                             TempWorkCenter.Insert();
-                        until RoutingLine.Next = 0;
+                        until RoutingLine.Next() = 0;
 
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
                     if RoutingLine.FindSet() then
@@ -593,7 +593,7 @@ codeunit 132208 "Library - Trees"
                             MachineCenter.Get(RoutingLine."No.");
                             TempMachineCenter := MachineCenter;
                             TempMachineCenter.Insert();
-                        until RoutingLine.Next = 0;
+                        until RoutingLine.Next() = 0;
                 end;
         end;
     end;
@@ -629,7 +629,7 @@ codeunit 132208 "Library - Trees"
                             LocalRolledUpScrapAmount := 0;
                             GetTreeCostWithScrap(LocalRolledUpScrapAmount, LocalCost, Item1);
                             RolledUpScrapAmount += BOMComponent."Quantity per" * LocalRolledUpScrapAmount;
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
                     if BOMComponent.FindSet() then
@@ -644,7 +644,7 @@ codeunit 132208 "Library - Trees"
                             LibraryAssembly.GetCostInformation(
                               UnitCost, Overhead, IndirectCost, BOMComponent.Type::Resource, BOMComponent."No.", '', '');
                             RolledUpScrapAmount += BOMComponent."Quantity per" * UnitCost / LotSize;
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
@@ -666,7 +666,7 @@ codeunit 132208 "Library - Trees"
                                 SingleLevelScrapAmount +=
                                   ProdBOMLine."Quantity per" *
                                   RoutingScrapPercentage * Item1."Unit Cost" * (Item."Scrap %" / 100) * (ProdBOMLine."Scrap %" / 100);
-                        until ProdBOMLine.Next = 0;
+                        until ProdBOMLine.Next() = 0;
 
                     ProcessedScrapPercentage := 1;
                     if RoutingLine.FindSet() then
@@ -685,7 +685,7 @@ codeunit 132208 "Library - Trees"
                                   MachineCenter."Unit Cost" * (1 + Item."Scrap %" / 100);
                             end;
                             ProcessedScrapPercentage *= 1 + RoutingLine."Scrap Factor %" / 100;
-                        until RoutingLine.Next = 0;
+                        until RoutingLine.Next() = 0;
                 end;
             Item."Replenishment System"::Purchase:
                 RolledUpScrapAmount := Item."Unit Cost";
@@ -703,7 +703,7 @@ codeunit 132208 "Library - Trees"
         if RoutingLine.FindSet() then
             repeat
                 ScrapPercentage *= 1 + RoutingLine."Scrap Factor %" / 100;
-            until RoutingLine.Next = 0;
+            until RoutingLine.Next() = 0;
 
         exit(ScrapPercentage);
     end;
@@ -751,7 +751,7 @@ codeunit 132208 "Library - Trees"
 
                     RecQtyPerTopItem := BOMComponent."Quantity per" * QtyPerTopItem;
                     GetQtyPerInSubTree(QtyPerParent, QtyPerTopItem, Type::Item, BOMComponent."No.", LeafItemNo, Stop);
-                until (BOMComponent.Next = 0) or Stop;
+                until (BOMComponent.Next() = 0) or Stop;
         end;
 
         if (Item."No." <> '') and (Item."Replenishment System" = Item."Replenishment System"::Purchase) then
@@ -781,7 +781,7 @@ codeunit 132208 "Library - Trees"
 
                     RecQtyPerTopItem := ProdBOMLine."Quantity per" * QtyPerTopItem;
                     GetQtyPerInSubTree(QtyPerParent, RecQtyPerTopItem, ProdBOMLine.Type, ProdBOMLine."No.", LeafItemNo, Stop);
-                until (ProdBOMLine.Next = 0) or Stop;
+                until (ProdBOMLine.Next() = 0) or Stop;
         end;
     end;
 }

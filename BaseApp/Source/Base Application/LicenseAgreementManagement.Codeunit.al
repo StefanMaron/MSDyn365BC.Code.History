@@ -15,9 +15,9 @@ codeunit 853 "License Agreement Management"
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
         if GuiAllowed then
-            if not CompanyInformationMgt.IsDemoCompany then
-                if LicenseAgreement.Get then
-                    if LicenseAgreement.GetActive and not LicenseAgreement.Accepted then begin
+            if not CompanyInformationMgt.IsDemoCompany() then
+                if LicenseAgreement.Get() then
+                    if LicenseAgreement.GetActive() and not LicenseAgreement.Accepted then begin
                         PAGE.RunModal(PAGE::"Additional Customer Terms");
                         LicenseAgreement.Get();
                         if not LicenseAgreement.Accepted then

@@ -783,8 +783,8 @@ codeunit 132573 "Payment Export XMLPort UT"
         ExportFile.CreateOutStream(OutStream);
         ExportGenericCSV.SetDestination(OutStream);
         ExportGenericCSV.SetTableView(DataExchField);
-        ExportGenericCSV.Export;
-        ExportFile.Close;
+        ExportGenericCSV.Export();
+        ExportFile.Close();
     end;
 
     local procedure VerifyFileContent(DataExch: Record "Data Exch."; Filename: Text[1024])
@@ -810,7 +810,7 @@ codeunit 132573 "Payment Export XMLPort UT"
                 if DataExchLine <> '' then
                     DataExchLine += FieldSeparator;
                 DataExchLine += StrSubstNo('%1%2%3', FieldDelimiter, DataExchField.Value, FieldDelimiter);
-            until DataExchField.Next = 0;
+            until DataExchField.Next() = 0;
             Assert.AreEqual(DataExchLine, LinesRead.GetValue(LineNo - 1), ExportedDataIsWrongErr);
         end;
         Assert.AreEqual(LineNo, LinesRead.Length, ExportedDataIsWrongErr)
@@ -838,7 +838,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         LineText := Reader.ReadLine;
         Assert.AreEqual('', LineText, 'There should be no more data in the stream after line ' + Format(i));
-        Reader.Close;
+        Reader.Close();
     end;
 
     local procedure VerifyOutputForLine(var Reader: DotNet StreamReader; ExportData: array[10, 100] of Text[250]; LineNo: Integer; ColumnSeparator: Text; FieldDelimiter: Text)

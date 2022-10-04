@@ -21,7 +21,7 @@ codeunit 360 "Accounting Period Mgt."
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst() then
             exit(AccountingPeriod."Starting Date");
-        exit(CalcDate('<-CY>', WorkDate));
+        exit(CalcDate('<-CY>', WorkDate()));
     end;
 
     procedure CheckPostingDateInFiscalYear(PostingDate: Date)
@@ -41,7 +41,7 @@ codeunit 360 "Accounting Period Mgt."
     begin
         if AccountingPeriod.IsEmpty() then begin
             if BalanceDate = 0D then
-                exit(CalcDate('<-CY>', WorkDate));
+                exit(CalcDate('<-CY>', WorkDate()));
             exit(CalcDate('<-CY>', BalanceDate));
         end;
         AccountingPeriod.SetRange("New Fiscal Year", true);
@@ -59,7 +59,7 @@ codeunit 360 "Accounting Period Mgt."
     begin
         if AccountingPeriod.IsEmpty() then begin
             if BalanceDate = 0D then
-                exit(CalcDate('<CY>', WorkDate));
+                exit(CalcDate('<CY>', WorkDate()));
             exit(CalcDate('<CY>', BalanceDate));
         end;
         AccountingPeriod.SetRange("New Fiscal Year", true);
@@ -79,9 +79,9 @@ codeunit 360 "Accounting Period Mgt."
         if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.Reset();
             if Steps < 0 then
-                AccountingPeriod.FindFirst
+                AccountingPeriod.FindFirst()
             else
-                AccountingPeriod.FindLast
+                AccountingPeriod.FindLast()
         end;
         AccountingPeriod.Reset();
 
@@ -221,9 +221,9 @@ codeunit 360 "Accounting Period Mgt."
 
         if AccountingPeriod.IsEmpty() then begin
             if FindYear then
-                AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate)
+                AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate())
             else
-                AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, WorkDate);
+                AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, WorkDate());
             ReadNumeral(Numeral, DateToken, Position);
             Date1 := AccountingPeriod."Starting Date";
             Date2 := CalcDate('<CY>', AccountingPeriod."Starting Date");
@@ -244,16 +244,16 @@ codeunit 360 "Accounting Period Mgt."
         if Sign = '' then
             if ReadNumeral(Numeral, DateToken, Position) then begin
                 if FindYear then
-                    AccountingPeriod.FindFirst
+                    AccountingPeriod.FindFirst()
                 else begin
                     AccountingPeriod.SetRange("New Fiscal Year", true);
-                    AccountingPeriod."Starting Date" := WorkDate;
+                    AccountingPeriod."Starting Date" := WorkDate();
                     AccountingPeriod.Find('=<');
                     AccountingPeriod.SetRange("New Fiscal Year");
                 end;
                 AccountingPeriod.Next(Numeral - 1);
             end else begin
-                AccountingPeriod."Starting Date" := WorkDate;
+                AccountingPeriod."Starting Date" := WorkDate();
                 AccountingPeriod.Find('=<');
             end
         else begin
@@ -261,7 +261,7 @@ codeunit 360 "Accounting Period Mgt."
                 exit(true);
             if Sign = '-' then
                 Numeral := -Numeral;
-            AccountingPeriod."Starting Date" := WorkDate;
+            AccountingPeriod."Starting Date" := WorkDate();
             AccountingPeriod.Find('=<');
             AccountingPeriod.Next(Numeral);
         end;

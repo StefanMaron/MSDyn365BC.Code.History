@@ -11,10 +11,10 @@ codeunit 915 "Assembly Info-Pane Management"
 
     procedure CalcAvailability(var AsmLine: Record "Assembly Line"): Decimal
     var
+        LookaheadDateformula: DateFormula;
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
         PeriodType: Enum "Analysis Period Type";
-        LookaheadDateformula: DateFormula;
     begin
         if GetItem(AsmLine) then begin
             SetItemFilter(Item, AsmLine);
@@ -37,7 +37,7 @@ codeunit 915 "Assembly Info-Pane Management"
         if AsmLine."Due Date" <> 0D then
             exit(AsmLine."Due Date");
 
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     procedure CalcAvailableInventory(var AsmLine: Record "Assembly Line"): Decimal

@@ -70,7 +70,7 @@ codeunit 135800 "User List Tests"
 
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := UserName;
-        UserCardPage.Close;
+        UserCardPage.Close();
         Commit();
     end;
 

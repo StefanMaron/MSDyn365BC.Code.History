@@ -12,7 +12,7 @@ page 178 "Standard Vendor Purchase Codes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor to which the standard purchase code is assigned.';
@@ -28,22 +28,22 @@ page 178 "Standard Vendor Purchase Codes"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the standard purchase code.';
                 }
-                field("Insert Rec. Lines On Quotes"; "Insert Rec. Lines On Quotes")
+                field("Insert Rec. Lines On Quotes"; Rec."Insert Rec. Lines On Quotes")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how you want to use standard purchase codes on purchase quotes.';
                 }
-                field("Insert Rec. Lines On Orders"; "Insert Rec. Lines On Orders")
+                field("Insert Rec. Lines On Orders"; Rec."Insert Rec. Lines On Orders")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how you want to use standard purchase codes on purchase orders.';
                 }
-                field("Insert Rec. Lines On Invoices"; "Insert Rec. Lines On Invoices")
+                field("Insert Rec. Lines On Invoices"; Rec."Insert Rec. Lines On Invoices")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how you want to use standard purchase codes on purchase invoices.';
                 }
-                field("Insert Rec. Lines On Cr. Memos"; "Insert Rec. Lines On Cr. Memos")
+                field("Insert Rec. Lines On Cr. Memos"; Rec."Insert Rec. Lines On Cr. Memos")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how you want to use standard purchase codes on purchase credit memos.';
@@ -78,14 +78,22 @@ page 178 "Standard Vendor Purchase Codes"
                     ApplicationArea = Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Standard Purchase Code Card";
                     RunPageLink = Code = FIELD(Code);
                     Scope = Repeater;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Specifies a standard purchase code from the Standard Purchase Code table.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Card_Promoted; Card)
+                {
                 }
             }
         }

@@ -14,7 +14,7 @@ page 7398 "Internal Movement Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that is available to move from the bin.';
@@ -24,7 +24,7 @@ page 7398 "Internal Movement Subform"
                         ItemNoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -35,34 +35,34 @@ page 7398 "Internal Movement Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the same as the field with the same name in the Whse. Internal Put-away Line table.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the second description of the item.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the internal movement is being performed.';
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number that is recorded on the item card or on the stockkeeping unit card of the item that is being moved.';
                     Visible = false;
                 }
-                field("From Bin Code"; "From Bin Code")
+                field("From Bin Code"; Rec."From Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin that the items on the internal movement are picked from.';
 
                     trigger OnValidate()
                     begin
-                        FromBinCodeOnAfterValidate;
+                        FromBinCodeOnAfterValidate();
                     end;
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where you want items on this internal movement to be placed when they are picked.';
@@ -72,28 +72,28 @@ page 7398 "Internal Movement Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items to be moved. The quantity must be lower than or equal to the bin content.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of units to be moved.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
 
                     trigger OnValidate()
                     begin
-                        DueDateOnAfterValidate;
+                        DueDateOnAfterValidate();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the same as the field with the same name in the Whse. Internal Put-away Line table.';
@@ -120,7 +120,7 @@ page 7398 "Internal Movement Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContent;
+                        ShowBinContent();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -128,12 +128,12 @@ page 7398 "Internal Movement Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLinesForm;
+                        OpenItemTrackingLinesForm();
                     end;
                 }
             }

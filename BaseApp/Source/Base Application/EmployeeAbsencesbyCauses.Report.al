@@ -15,7 +15,7 @@ report 5205 "Employee - Absences by Causes"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_Absence__TABLECAPTION__________EmployeeAbsenceFilter; TableCaption + ': ' + EmployeeAbsenceFilter)
@@ -45,7 +45,7 @@ report 5205 "Employee - Absences by Causes"
             column(Employee_Absence__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Employee.FullName)
+            column(Employee_FullName; Employee.FullName())
             {
             }
             column(TotalAbsence; TotalAbsence)
@@ -105,7 +105,7 @@ report 5205 "Employee - Absences by Causes"
 
     trigger OnPreReport()
     begin
-        EmployeeAbsenceFilter := "Employee Absence".GetFilters;
+        EmployeeAbsenceFilter := "Employee Absence".GetFilters();
         HumanResSetup.Get();
         HumanResSetup.TestField("Base Unit of Measure");
     end;

@@ -52,45 +52,39 @@ report 5706 "Create Stockkeeping Unit"
                     (SKUCreationMethod = SKUCreationMethod::Location) or
                     ((SKUCreationMethod = SKUCreationMethod::"Location & Variant") and
                      (not ItemVariant.Find('-'))):
-                        begin
-                            if Location.Find('-') then
-                                repeat
-                                    DialogWindow.Update(2, Location.Code);
-                                    SetRange("Location Filter", Location.Code);
-                                    CreateSKUIfRequired(Item, Location.Code, '');
-                                until Location.Next() = 0;
-                        end;
+                        if Location.Find('-') then
+                            repeat
+                                DialogWindow.Update(2, Location.Code);
+                                SetRange("Location Filter", Location.Code);
+                                CreateSKUIfRequired(Item, Location.Code, '');
+                            until Location.Next() = 0;
                     (SKUCreationMethod = SKUCreationMethod::Variant) or
                     ((SKUCreationMethod = SKUCreationMethod::"Location & Variant") and
                      (not Location.Find('-'))):
-                        begin
-                            if ItemVariant.Find('-') then
-                                repeat
-                                    DialogWindow.Update(3, ItemVariant.Code);
-                                    SetRange("Variant Filter", ItemVariant.Code);
-                                    CreateSKUIfRequired(Item, '', ItemVariant.Code);
-                                until ItemVariant.Next() = 0;
-                        end;
+                        if ItemVariant.Find('-') then
+                            repeat
+                                DialogWindow.Update(3, ItemVariant.Code);
+                                SetRange("Variant Filter", ItemVariant.Code);
+                                CreateSKUIfRequired(Item, '', ItemVariant.Code);
+                            until ItemVariant.Next() = 0;
                     (SKUCreationMethod = SKUCreationMethod::"Location & Variant"):
-                        begin
-                            if Location.Find('-') then
-                                repeat
-                                    DialogWindow.Update(2, Location.Code);
-                                    SetRange("Location Filter", Location.Code);
-                                    if ItemVariant.Find('-') then
-                                        repeat
-                                            DialogWindow.Update(3, ItemVariant.Code);
-                                            SetRange("Variant Filter", ItemVariant.Code);
-                                            CreateSKUIfRequired(Item, Location.Code, ItemVariant.Code);
-                                        until ItemVariant.Next() = 0;
-                                until Location.Next() = 0;
-                        end;
+                        if Location.Find('-') then
+                            repeat
+                                DialogWindow.Update(2, Location.Code);
+                                SetRange("Location Filter", Location.Code);
+                                if ItemVariant.Find('-') then
+                                    repeat
+                                        DialogWindow.Update(3, ItemVariant.Code);
+                                        SetRange("Variant Filter", ItemVariant.Code);
+                                        CreateSKUIfRequired(Item, Location.Code, ItemVariant.Code);
+                                    until ItemVariant.Next() = 0;
+                            until Location.Next() = 0;
                 end;
             end;
 
             trigger OnPostDataItem()
             begin
-                DialogWindow.Close;
+                DialogWindow.Close();
             end;
 
             trigger OnPreDataItem()
@@ -153,9 +147,6 @@ report 5706 "Create Stockkeeping Unit"
     }
 
     var
-        Text000: Label 'Item No.       #1##################\';
-        Text001: Label 'Location Code  #2########\';
-        Text002: Label 'Variant Code   #3########\';
         StockkeepingUnit: Record "Stockkeeping Unit";
         Location: Record Location;
         DialogWindow: Dialog;
@@ -165,6 +156,10 @@ report 5706 "Create Stockkeeping Unit"
         SaveFilters: Boolean;
         LocationFilter: Code[1024];
         VariantFilter: Code[1024];
+
+        Text000: Label 'Item No.       #1##################\';
+        Text001: Label 'Location Code  #2########\';
+        Text002: Label 'Variant Code   #3########\';
 
     procedure CreateSKUIfRequired(var Item2: Record Item; LocationCode: Code[10]; VariantCode: Code[10])
     var
@@ -207,7 +202,7 @@ report 5706 "Create Stockkeeping Unit"
         StockkeepingUnit."Location Code" := LocationCode;
         StockkeepingUnit."Variant Code" := VariantCode;
         StockkeepingUnit.CopyFromItem(Item2);
-        StockkeepingUnit."Last Date Modified" := WorkDate;
+        StockkeepingUnit."Last Date Modified" := WorkDate();
         StockkeepingUnit."Special Equipment Code" := Item2."Special Equipment Code";
         StockkeepingUnit."Put-away Template Code" := Item2."Put-away Template Code";
         StockkeepingUnit.SetHideValidationDialog(true);

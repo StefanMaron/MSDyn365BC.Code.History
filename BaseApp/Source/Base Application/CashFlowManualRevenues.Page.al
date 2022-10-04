@@ -21,7 +21,7 @@ page 857 "Cash Flow Manual Revenues"
                     ToolTip = 'Specifies the code of the record.';
                     Visible = false;
                 }
-                field("Cash Flow Account No."; "Cash Flow Account No.")
+                field("Cash Flow Account No."; Rec."Cash Flow Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account that the entry on the manual revenue line is registered to.';
@@ -32,12 +32,17 @@ page 857 "Cash Flow Manual Revenues"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the cash flow forecast entry.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Date';
                     ShowMandatory = true;
                     ToolTip = 'Specifies the date of the cash flow entry.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateFromDatePrecedesToDate("Starting Date", "Ending Date");
+                    end;
                 }
                 field(Amount; Amount)
                 {
@@ -57,10 +62,10 @@ page 857 "Cash Flow Manual Revenues"
                     begin
                         RecurringFrequency := CashFlowManagement.RecurrenceToRecurringFrequency(Recurrence);
                         Evaluate("Recurring Frequency", RecurringFrequency);
-                        EnableControls;
+                        EnableControls();
                     end;
                 }
-                field("Recurring Frequency"; "Recurring Frequency")
+                field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how often the entry on the manual revenue line is registered, if the journal template used is set up to be recurring';
@@ -71,20 +76,25 @@ page 857 "Cash Flow Manual Revenues"
                         CashFlowManagement.RecurringFrequencyToRecurrence("Recurring Frequency", Recurrence);
                     end;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'End By';
                     Enabled = EndingDateEnabled;
                     ToolTip = 'Specifies the last date from which manual revenues should be registered for the cash flow forecast.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateFromDatePrecedesToDate("Starting Date", "Ending Date");
+                    end;
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -119,37 +129,38 @@ page 857 "Cash Flow Manual Revenues"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetRecord;
+        GetRecord();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        GetRecord;
+        GetRecord();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        EnableControls;
+        EnableControls();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitNewRecord;
+        InitNewRecord();
     end;
 
     var
         CashFlowManagement: Codeunit "Cash Flow Management";
         Recurrence: Option " ",Daily,Weekly,Monthly,Quarterly,Yearly;
         EndingDateEnabled: Boolean;
+        FromDatePrecedesToDateErr: Label '"%1" must be later than "%2"', Comment = '%1 = Field name end date; %2 = Field name start date';
 
     local procedure GetRecord()
     begin
-        EnableControls;
+        EnableControls();
         CashFlowManagement.RecurringFrequencyToRecurrence("Recurring Frequency", Recurrence);
     end;
 
@@ -158,6 +169,12 @@ page 857 "Cash Flow Manual Revenues"
         EndingDateEnabled := (Recurrence <> Recurrence::" ");
         if not EndingDateEnabled then
             "Ending Date" := 0D;
+    end;
+
+    local procedure ValidateFromDatePrecedesToDate(FromDate: Date; ToDate: Date)
+    begin
+        if (FromDate <> 0D) and (ToDate <> 0D) and (FromDate > ToDate) then
+            Error(FromDatePrecedesToDateErr, ToDate, FromDate);
     end;
 }
 

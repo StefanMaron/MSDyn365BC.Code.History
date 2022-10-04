@@ -13,7 +13,7 @@ codeunit 131014 "Library - Booking Manager"
     var
         BookingMgrSetup: Record "Booking Mgr. Setup";
     begin
-        if BookingMgrSetup.Get then
+        if BookingMgrSetup.Get() then
             exit(BookingMgrSetup."Booking Mgr. Codeunit" = CODEUNIT::"Library - Booking Manager");
 
         exit(false);
@@ -22,7 +22,7 @@ codeunit 131014 "Library - Booking Manager"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnGetBookingMailboxes', '', false, false)]
     local procedure OnGetBookingMailboxes(var TempBookingMailbox: Record "Booking Mailbox" temporary)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         TempBookingMailbox.Copy(GlobalTempBookingMailbox, true);
@@ -34,7 +34,7 @@ codeunit 131014 "Library - Booking Manager"
         BookingManager: Codeunit "Booking Manager";
         ConnectionName: Text;
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         ConnectionName := BookingManager.GetAppointmentConnectionName;
@@ -47,7 +47,7 @@ codeunit 131014 "Library - Booking Manager"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnSetBookingItemInvoiced', '', false, false)]
     local procedure OnSetBookingItemInvoiced(var InvoicedBookingItem: Record "Invoiced Booking Item")
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         Commit();
@@ -57,7 +57,7 @@ codeunit 131014 "Library - Booking Manager"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnSynchronize', '', false, false)]
     local procedure OnSynchronize(var BookingItem: Record "Booking Item")
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         CreateCustomerFromBooking(BookingItem);
@@ -73,7 +73,7 @@ codeunit 131014 "Library - Booking Manager"
         if not Customer.FindFirst() then begin
             ExistingCustomer.FindFirst();
             with Customer do begin
-                Init;
+                Init();
                 Validate("E-Mail", TempBookingItem."Customer Email");
                 Validate(Name, TempBookingItem."Customer Name");
                 Validate("Gen. Bus. Posting Group", ExistingCustomer."Gen. Bus. Posting Group");
@@ -92,10 +92,10 @@ codeunit 131014 "Library - Booking Manager"
         if not BookingServiceMapping.Get(TempBookingItem."Service ID") then begin
             ExistingItem.FindFirst();
             with Item do begin
-                Init;
+                Init();
                 Validate(Description, CopyStr(TempBookingItem."Service Name", 1, 50));
                 Validate(Type, Type::Service);
-                Validate("Unit Price", TempBookingItem.Price / ((TempBookingItem.GetEndDate - TempBookingItem.GetStartDate) / 3600000));
+                Validate("Unit Price", TempBookingItem.Price / ((TempBookingItem.GetEndDate() - TempBookingItem.GetStartDate()) / 3600000));
                 Validate("Gen. Prod. Posting Group", ExistingItem."Gen. Prod. Posting Group");
                 "Base Unit of Measure" := 'HOUR';
                 Insert(true);

@@ -23,12 +23,12 @@ page 6635 "Return Reasons"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the description of the return reason.';
                 }
-                field("Default Location Code"; "Default Location Code")
+                field("Default Location Code"; Rec."Default Location Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the location where items that are returned for the reason in question are always placed.';
                 }
-                field("Inventory Value Zero"; "Inventory Value Zero")
+                field("Inventory Value Zero"; Rec."Inventory Value Zero")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies that items that are returned for the reason in question do not increase the inventory value.';

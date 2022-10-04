@@ -16,7 +16,7 @@ codeunit 1755 "Privacy Subscribers"
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
-        DataClassificationEvalData.CreateEvaluationData;
+        DataClassificationEvalData.CreateEvaluationData();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnGetDataPrivacyEntities', '', false, false)]
@@ -59,7 +59,7 @@ codeunit 1755 "Privacy Subscribers"
         RecRef: RecordRef;
         FilterText: Text;
     begin
-        if DataClassificationMgt.IsDataSensitivityEmptyForCurrentCompany then
+        if DataClassificationMgt.IsDataSensitivityEmptyForCurrentCompany() then
             exit;
 
         ApplicationObjectMetadata.SetRange("Runtime Package ID", Rec."Runtime Package ID");
@@ -80,7 +80,7 @@ codeunit 1755 "Privacy Subscribers"
                           DataSensitivity."Data Sensitivity"::Unclassified);
                 until Field.Next() = 0;
 
-                DataClassNotificationMgt.ShowNotificationIfThereAreUnclassifiedFields;
+                DataClassNotificationMgt.ShowNotificationIfThereAreUnclassifiedFields();
             end;
         end;
     end;
@@ -95,7 +95,7 @@ codeunit 1755 "Privacy Subscribers"
         RecRef: RecordRef;
         FilterText: Text;
     begin
-        if DataClassificationMgt.IsDataSensitivityEmptyForCurrentCompany then
+        if DataClassificationMgt.IsDataSensitivityEmptyForCurrentCompany() then
             exit;
 
         // Remove the fields from the Data Sensitivity table without a confirmation through a notification

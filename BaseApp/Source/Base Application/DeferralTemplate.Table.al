@@ -86,15 +86,15 @@ table 1700 "Deferral Template"
     begin
         GLAccount.SetRange("Default Deferral Template Code", "Deferral Code");
         if GLAccount.FindFirst() then
-            Error(CannotDeleteCodeErr, "Deferral Code", GLAccount.TableCaption, GLAccount."No.");
+            Error(CannotDeleteCodeErr, "Deferral Code", GLAccount.TableCaption(), GLAccount."No.");
 
         Item.SetRange("Default Deferral Template Code", "Deferral Code");
         if Item.FindFirst() then
-            Error(CannotDeleteCodeErr, "Deferral Code", Item.TableCaption, Item."No.");
+            Error(CannotDeleteCodeErr, "Deferral Code", Item.TableCaption(), Item."No.");
 
         Resource.SetRange("Default Deferral Template Code", "Deferral Code");
         if Resource.FindFirst() then
-            Error(CannotDeleteCodeErr, "Deferral Code", Resource.TableCaption, Resource."No.");
+            Error(CannotDeleteCodeErr, "Deferral Code", Resource.TableCaption(), Resource."No.");
     end;
 
     var

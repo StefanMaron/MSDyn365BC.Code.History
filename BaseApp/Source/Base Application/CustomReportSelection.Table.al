@@ -147,13 +147,13 @@ table 9657 "Custom Report Selection"
     trigger OnInsert()
     begin
         TestField("Report ID");
-        CheckEmailBodyUsage;
+        CheckEmailBodyUsage();
     end;
 
     trigger OnModify()
     begin
         TestField("Report ID");
-        CheckEmailBodyUsage;
+        CheckEmailBodyUsage();
     end;
 
     var
@@ -171,7 +171,7 @@ table 9657 "Custom Report Selection"
 
     procedure FilterReportUsage(NewSourceType: Integer; NewSourceNo: Code[20]; NewUsage: Option)
     begin
-        Reset;
+        Reset();
         SetRange("Source Type", NewSourceType);
         SetRange("Source No.", NewSourceNo);
         SetRange(Usage, NewUsage);
@@ -287,11 +287,11 @@ table 9657 "Custom Report Selection"
 
     procedure GetSendToEmailFromContacts(var Contact: Record Contact)
     var
+        ExceededContactsNotification: Notification;
         EmailList: Text;
         FieldLenghtExceeded: Boolean;
         MaxFieldLength: Integer;
         ProcessedContactsCount: Integer;
-        ExceededContactsNotification: Notification;
         ShowExceededContactsNotification: Boolean;
     begin
         "Send To Email" := '';

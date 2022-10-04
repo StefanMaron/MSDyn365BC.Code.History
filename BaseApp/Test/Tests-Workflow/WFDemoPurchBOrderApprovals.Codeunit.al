@@ -441,7 +441,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
@@ -459,7 +459,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         Assert.IsFalse(BlanketPurchaseOrder.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(BlanketPurchaseOrder.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(BlanketPurchaseOrder.Delegate.Visible, 'Delegate should NOT be visible');
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         BlanketPurchaseOrder.OpenEdit;
@@ -474,7 +474,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         Assert.IsTrue(BlanketPurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
@@ -523,7 +523,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        BlanketPurchaseOrders.Close;
+        BlanketPurchaseOrders.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
@@ -538,7 +538,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(BlanketPurchaseOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(BlanketPurchaseOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        BlanketPurchaseOrders.Close;
+        BlanketPurchaseOrders.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         BlanketPurchaseOrders.OpenEdit;
@@ -585,7 +585,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."User ID", IntermediateApproverUserSetup."User ID",
           ApprovalEntry.Status::Open);
 
@@ -639,7 +639,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."User ID", IntermediateApproverUserSetup."User ID",
           ApprovalEntry.Status::Open);
 
@@ -716,7 +716,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.OpenView;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder.SendApprovalRequest.Invoke;
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     local procedure ApproveBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -726,7 +726,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.OpenView;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder.Approve.Invoke;
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     local procedure RejectBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -736,7 +736,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.OpenView;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder.Reject.Invoke;
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     local procedure CancelBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -746,7 +746,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.OpenView;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder.CancelApprovalRequest.Invoke;
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     local procedure DelegateBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -756,7 +756,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.OpenView;
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder.Delegate.Invoke;
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; PurchHeader: Record "Purchase Header")
@@ -770,7 +770,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
     local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
         PurchaseHeader.TestField(Status, Status);
     end;
@@ -790,9 +790,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID3, Status3);
     end;
 
@@ -814,15 +814,15 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -840,12 +840,12 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -863,12 +863,12 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(PurchaseHeader: Record "Purchase Header"; CancelActionExpectedEnabled: Boolean)
@@ -880,13 +880,13 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, BlanketPurchaseOrder.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         BlanketPurchaseOrders.OpenView;
         BlanketPurchaseOrders.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, BlanketPurchaseOrders.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        BlanketPurchaseOrders.Close;
+        BlanketPurchaseOrders.Close();
     end;
 }
 

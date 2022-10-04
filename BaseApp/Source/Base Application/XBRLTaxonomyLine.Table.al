@@ -12,6 +12,7 @@ table 395 "XBRL Taxonomy Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {
@@ -203,25 +204,25 @@ table 395 "XBRL Taxonomy Line"
     trigger OnDelete()
     begin
         with XBRLCommentLine do begin
-            Reset;
+            Reset();
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
             DeleteAll();
         end;
         with XBRLGLMapLine do begin
-            Reset;
+            Reset();
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
             DeleteAll();
         end;
         with XBRLRollupLine do begin
-            Reset;
+            Reset();
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
             DeleteAll();
         end;
         with XBRLTaxonomyLabel do begin
-            Reset;
+            Reset();
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
             DeleteAll();

@@ -104,7 +104,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                         OnBeforeSalesLineModify(SalesLine, PurchLine, SalesHeader);
                         SalesLine.Modify();
                         OnAfterSalesLineModify(SalesLine, PurchLine);
-                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
+                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), PurchLine.RowID1(), true);
 
                         if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
                             TransferExtendedText.InsertPurchExtText(PurchLine);
@@ -124,7 +124,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
             OnCodeOnBeforeModify(PurchHeader, SalesHeader);
 
-            Modify; // Only version check
+            Modify(); // Only version check
             SalesHeader.Modify(); // Only version check
         end;
         OnAfterCode(PurchHeader, SalesHeader);

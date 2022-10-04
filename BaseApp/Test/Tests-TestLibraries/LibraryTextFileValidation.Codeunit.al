@@ -103,7 +103,7 @@ codeunit 131003 "Library - Text File Validation"
         File.CreateInStream(InStr);
         ContentLocal.Read(InStr); // needed for PreCAL to avoid 'VAR BigText...' complications
         Content := ContentLocal;
-        File.Close;
+        File.Close();
         Erase(FilePath);
     end;
 

@@ -23,7 +23,7 @@ page 5119 "Sales Cycles"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the sales cycle.';
                 }
-                field("Probability Calculation"; "Probability Calculation")
+                field("Probability Calculation"; Rec."Probability Calculation")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the method to use to calculate the probability of opportunities completing the sales cycle. There are four options:';
@@ -74,8 +74,6 @@ page 5119 "Sales Cycles"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Sales Cycle Statistics";
                     RunPageLink = Code = FIELD(Code);
                     ShortCutKey = 'F7';
@@ -97,11 +95,23 @@ page 5119 "Sales Cycles"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'S&tages';
                     Image = Stages;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Sales Cycle Stages";
                     RunPageLink = "Sales Cycle Code" = FIELD(Code);
                     ToolTip = 'View a list of the different stages within the sales cycle.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("S&tages_Promoted"; "S&tages")
+                {
                 }
             }
         }

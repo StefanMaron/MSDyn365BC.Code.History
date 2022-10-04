@@ -211,7 +211,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine.Get(FirstTetLineNo);
         ConfigLine.TestField("Package Code", ConfigPackage[1].Code);
 
-        ConfigLine.Next;
+        ConfigLine.Next();
         ConfigLine.TestField("Package Code", '');
     end;
 
@@ -258,7 +258,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         // assign first table to the package
         ConfigLine.FindFirst();
-        ConfigLine.SetRecFilter;
+        ConfigLine.SetRecFilter();
 
         ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
 
@@ -266,7 +266,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // try to assign second table to the package
         ConfigLine.Reset();
         ConfigLine.FindLast();
-        ConfigLine.SetRecFilter;
+        ConfigLine.SetRecFilter();
         asserterror ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
         Assert.ExpectedError(SameTblReferenceErr);
     end;
@@ -407,9 +407,6 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CheckPage(DATABASE::"Profile Questionnaire Header", PAGE::"Profile Questionnaires");
         CheckPage(DATABASE::"Sales Cycle", PAGE::"Sales Cycles");
         CheckPage(DATABASE::"Close Opportunity Code", PAGE::"Close Opportunity Codes");
-#if not CLEAN18
-        CheckPage(DATABASE::"Customer Template", PAGE::"Customer Template List");
-#endif
         CheckPage(DATABASE::"Service Mgt. Setup", PAGE::"Service Mgt. Setup");
         CheckPage(DATABASE::"Service Item", PAGE::"Service Item List");
         CheckPage(DATABASE::"Service Hour", PAGE::"Default Service Hours");
@@ -558,7 +555,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CheckPage(DATABASE::"Purch. Rcpt. Header", PAGE::"Posted Purchase Receipts");
         CheckPage(DATABASE::"Purch. Inv. Header", PAGE::"Posted Purchase Invoices");
         CheckPage(DATABASE::"Purch. Cr. Memo Hdr.", PAGE::"Posted Purchase Credit Memos");
-#if not CLEAN19
+#if not CLEAN21
         CheckPage(DATABASE::"Sales Price", PAGE::"Sales Prices");
         CheckPage(DATABASE::"Purchase Price", PAGE::"Purchase Prices");
 #endif
@@ -743,7 +740,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         UsersList.Trap;
         ConfigWorksheet.Users.Invoke;
-        UsersList.Close;
+        UsersList.Close();
     end;
 
 #if not CLEAN19
@@ -761,7 +758,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         UserPersonList.Trap;
         ConfigWorksheet."Users Personalization".Invoke;
-        UserPersonList.Close;
+        UserPersonList.Close();
     end;
 #endif
     [Test]
@@ -996,8 +993,8 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine.FindSet();
         repeat
             Assert.AreEqual('', ConfigLine."Package Code",
-              StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
-        until ConfigLine.Next = 0;
+              StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption()));
+        until ConfigLine.Next() = 0;
     end;
 
     [Test]
@@ -1017,11 +1014,11 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         ConfigLine.FindSet();
         Assert.AreEqual(ConfigPackage.Code, ConfigLine."Package Code",
-          StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
+          StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption()));
 
-        ConfigLine.Next;
+        ConfigLine.Next();
         Assert.AreEqual('', ConfigLine."Package Code",
-          StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
+          StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption()));
     end;
 
     [Test]
@@ -1069,9 +1066,9 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet.GetRelatedTables.Invoke;
 
         // VERIFY that Worksheet was updated with source table information + related tables information
-        ConfigWorksheet.Next;
+        ConfigWorksheet.Next();
         Assert.AreEqual(Format(DATABASE::Item), Format(ConfigWorksheet."Table ID"), IncorrecrTableIDErr);
-        ConfigWorksheet.Next;
+        ConfigWorksheet.Next();
         Assert.AreEqual(Format(DATABASE::"Unit of Measure"), Format(ConfigWorksheet."Table ID"), IncorrecrTableIDErr);
     end;
 
@@ -1110,11 +1107,11 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // VERIFY that duplicated lines were removed from the Worksheet, and the other lines are still there
         ConfigWorksheet.First;
         Assert.AreEqual(Format(DATABASE::"Item Unit of Measure"), Format(ConfigWorksheet."Table ID"), IncorrecrTableIDErr);
-        ConfigWorksheet.Next;
+        ConfigWorksheet.Next();
         Assert.AreEqual(Format(DATABASE::Item), Format(ConfigWorksheet."Table ID"), IncorrecrTableIDErr);
-        ConfigWorksheet.Next;
+        ConfigWorksheet.Next();
         Assert.AreEqual(Format(DATABASE::"Item Unit of Measure"), Format(ConfigWorksheet."Table ID"), IncorrecrTableIDErr);
-        ConfigWorksheet.Next;
+        ConfigWorksheet.Next();
         Assert.AreEqual(Format(DATABASE::Vendor), Format(ConfigWorksheet."Table ID"), IncorrecrTableIDErr);
         Assert.AreEqual(NoOfConfigLineRecordsBefore, ConfigLine.Count - 4, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigLine.TableName));
     end;
@@ -1139,7 +1136,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet."Related Tables".First;
         Assert.AreEqual('', Format(ConfigWorksheet."Related Tables"."In Worksheet"), IncorrectRelatedTableIDErr);
 
-        ConfigWorksheet."Related Tables".Next;
+        ConfigWorksheet."Related Tables".Next();
         Assert.AreEqual('', Format(ConfigWorksheet."Related Tables"."In Worksheet"), IncorrectRelatedTableIDErr);
     end;
 
@@ -1163,7 +1160,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigWorksheet."Related Tables".First;
         Assert.AreEqual(Format(true), Format(ConfigWorksheet."Related Tables"."In Worksheet"), IncorrectRelatedTableIDErr);
 
-        ConfigWorksheet."Related Tables".Next;
+        ConfigWorksheet."Related Tables".Next();
         Assert.AreEqual(Format(true), Format(ConfigWorksheet."Related Tables"."In Worksheet"), IncorrectRelatedTableIDErr);
     end;
 
@@ -1188,7 +1185,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         Assert.AreEqual(
           Format(DATABASE::Item), Format(ConfigWorksheet."Related Tables"."Relation Table ID"),
           IncorrectRelatedTableIDErr);
-        ConfigWorksheet."Related Tables".Next;
+        ConfigWorksheet."Related Tables".Next();
         Assert.AreEqual(Format(DATABASE::"Unit of Measure"),
           Format(ConfigWorksheet."Related Tables"."Relation Table ID"), IncorrectRelatedTableIDErr);
     end;
@@ -1219,7 +1216,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
             Assert.AreEqual(
               Answers[4], Format(Currency."Invoice Rounding Precision"), StrSubstNo(FielValueNotUpdatedErr, 'Invoice Rounding Precision'));
         end else
-            Error(RecNotAddedToTblErr, Currency.TableCaption);
+            Error(RecNotAddedToTblErr, Currency.TableCaption());
 
         ConfigWorksheet.OpenEdit;
         // VERIFY that the Questions FactBox has correct values (Code, Due Date Calculation, Discount %, Description)
@@ -1239,7 +1236,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
                     Assert.AreEqual(Answers[4], ConfigWorksheet.Control22.Answer.Value,
                       StrSubstNo(AnswerNotUpdatedErr, 'Invoice Rounding Precision?'));
             end;
-        until not ConfigWorksheet.Control22.Next;
+        until not ConfigWorksheet.Control22.Next();
     end;
 
     [Test]
@@ -1346,7 +1343,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
             ConfigWorksheet.AssignPackage.Invoke;
             // VERIFY that package was assigned
             Assert.AreEqual(ConfigPackageCode, ConfigWorksheet."Package Code".Value, ConfigPackageNotAssignedErr);
-        until ConfigWorksheet.Next;
+        until ConfigWorksheet.Next();
 
         // EXECUTE the deleting table from package (not from the Worksheet!)
         ConfigPackageTable.SetRange("Package Code", ConfigPackageCode);
@@ -1354,7 +1351,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageTable.Delete(true);
 
         // VERIFY that the package is not assigned to excluded table (refreshing of page is needed)
-        ConfigWorksheet.Close;
+        ConfigWorksheet.Close();
         ConfigWorksheet.OpenView;
         ConfigWorksheet.GotoKey(LineNo);
         Assert.AreEqual('', ConfigWorksheet."Package Code".Value, LineNotExclFromConfigPackageErr);
@@ -1389,7 +1386,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryVariableStorage.Enqueue(ConfigPackageCode);
         ConfigWorksheet.AssignPackage.Invoke;
 
-        ConfigWorksheet.Next;
+        ConfigWorksheet.Next();
         // VERIFY that the package cannot be assigned to the tables with the same ID as a previos table
         LibraryVariableStorage.Enqueue(ConfigPackageCode);
         asserterror ConfigWorksheet.AssignPackage.Invoke;
@@ -1582,7 +1579,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         asserterror ConfigLine.Validate("Dimensions as Columns", true);
 
         // [THEN] Error: "Code cannot be empty"
-        Assert.ExpectedError(StrSubstNo(CodeCannotBeEmptyErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CodeCannotBeEmptyErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption()));
     end;
 
     [Test]
@@ -1790,7 +1787,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         AllConfigLines := ConfigLine.Count();
         ConfigLine.SetRange("Package Code", ConfigPackage.Code);
-        Assert.IsTrue(ConfigLine.IsEmpty and (AllConfigLines > 0), AssignmentErr);
+        Assert.IsTrue(ConfigLine.IsEmpty() and (AllConfigLines > 0), AssignmentErr);
     end;
 
     [Test]
@@ -2018,7 +2015,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
 
         // [THEN] Description field is blank in Payment Terms
-        PaymentTerms.Find;
+        PaymentTerms.Find();
         PaymentTerms.TestField(Description, '');
 
         // Tear Down
@@ -2066,7 +2063,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
 
         // [THEN] Description field contains default value
-        PaymentTerms.Find;
+        PaymentTerms.Find();
         PaymentTerms.TestField(Description, ConfigTemplateLine."Default Value");
 
         // Tear Down
@@ -2124,7 +2121,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
 
         // [THEN] Description field contains default value from inherited Template
-        PaymentTerms.Find;
+        PaymentTerms.Find();
         PaymentTerms.TestField(Description, ConfigTemplateLine[1]."Default Value");
 
         // Tear Down
@@ -2541,18 +2538,18 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         ConfigPackage.SetFilter(Code, '%1|%2', PackageCode, '');
         ConfigPackage.DeleteAll(true);
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure CreateConfigSetup(var ConfigSetup: Record "Config. Setup")
     begin
         with ConfigSetup do begin
-            if not Get then begin
-                Init;
-                Insert;
+            if not Get() then begin
+                Init();
+                Insert();
             end;
             Name := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2623,7 +2620,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
             AddConfigLine(ConfigLine[i]."Line Type"::Table, TableID, '');
             ConfigLine[i].FindLast();
-            ConfigLine[i].SetRecFilter;
+            ConfigLine[i].SetRecFilter();
 
             ConfigPackageMgt.AssignPackage(ConfigLine[i], ConfigPackage[i].Code);
         end;
@@ -2673,7 +2670,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
                 'Invoice Rounding Precision?':
                     ConfigQuestionAreaPage.ConfigQuestionSubform.Answer.SetValue(Answers[4]);
             end;
-        until not ConfigQuestionAreaPage.ConfigQuestionSubform.Next;
+        until not ConfigQuestionAreaPage.ConfigQuestionSubform.Next();
     end;
 
     local procedure ChangeConfigLineTableIDLinkedToPackage(var ConfigLine: Record "Config. Line"; var TableID: Integer): Code[20]
@@ -2780,7 +2777,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
                 ConfigPackageError."Table ID" := ConfigPackageTable."Table ID";
                 ConfigPackageError.Validate("Field ID", Field."No.");
                 ConfigPackageError.Insert();
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure VerifyRelatedRecords(PackageCode: Code[20]; TableID: Integer; FieldsQty: Integer; FiltersQty: Integer; ErrorsQty: Integer)
@@ -2793,13 +2790,13 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageTable.Get(PackageCode, TableID);
 
         ConfigPackageField.SetRange("Package Code", PackageCode);
-        Assert.AreEqual(FieldsQty, ConfigPackageField.Count, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigPackageField.TableCaption));
+        Assert.AreEqual(FieldsQty, ConfigPackageField.Count, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigPackageField.TableCaption()));
 
         ConfigPackageFilter.SetRange("Package Code", PackageCode);
-        Assert.AreEqual(FiltersQty, ConfigPackageFilter.Count, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigPackageFilter.TableCaption));
+        Assert.AreEqual(FiltersQty, ConfigPackageFilter.Count, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigPackageFilter.TableCaption()));
 
         ConfigPackageError.SetRange("Package Code", PackageCode);
-        Assert.AreEqual(ErrorsQty, ConfigPackageError.Count, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigPackageError.TableCaption));
+        Assert.AreEqual(ErrorsQty, ConfigPackageError.Count, StrSubstNo(IncorrectNumOfTblRecsErr, ConfigPackageError.TableCaption()));
     end;
 
     local procedure VerifyPackageWithRelatedRecord(PackageCode: Code[20])
@@ -3104,7 +3101,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         repeat
             if (ConfigWorksheet."Package Code".Value = '') and (ConfigWorksheet."Table ID".Value <> '') then
                 Counter := Counter + 1;
-        until not ConfigWorksheet.Next;
+        until not ConfigWorksheet.Next();
     end;
 
     local procedure FindNumberOfLineAtWorksheetPage(ConfigLine: Record "Config. Line"; var ConfigWorksheet: TestPage "Config. Worksheet") Counter: Integer
@@ -3117,7 +3114,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
                (Format(ConfigLine."Table ID") = ConfigWorksheet."Table ID".Value)
             then
                 exit(Counter);
-        until not ConfigWorksheet.Next;
+        until not ConfigWorksheet.Next();
     end;
 
     local procedure SetVerticalSorting(var ConfigLine: Record "Config. Line")
@@ -3129,7 +3126,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
             Counter := Counter + 1;
             ConfigLine.Validate("Vertical Sorting", Counter);
             ConfigLine.Modify(true);
-        until ConfigLine.Next = 0;
+        until ConfigLine.Next() = 0;
     end;
 
     local procedure GenerateGLAccountNoFromGUID() GeneratedCode: Code[20]
@@ -3153,7 +3150,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
             repeat
                 Integer.Number := Field.RelationTableNo;
                 if Integer.Insert() then;
-            until Field.Next = 0;
+            until Field.Next() = 0;
         exit(Integer.Count);
     end;
 
@@ -3229,7 +3226,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         LibraryVariableStorage.Dequeue(PackageCode);
         Assert.AreEqual(
-          ConfigPackage.Code, PackageCode, StrSubstNo(IncorrectValueErr, ConfigPackage.FieldCaption(Code), ConfigPackage.TableCaption));
+          ConfigPackage.Code, PackageCode, StrSubstNo(IncorrectValueErr, ConfigPackage.FieldCaption(Code), ConfigPackage.TableCaption()));
 
         exit(PackageCode);
     end;
@@ -3242,7 +3239,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         asserterror OpenPackageCardFromWorksheet(ConfigLine."Line No.");
 
-        Assert.ExpectedError(StrSubstNo(CodeCannotBeEmptyErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CodeCannotBeEmptyErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption()));
     end;
 
     [ConfirmHandler]
@@ -3294,7 +3291,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageFields.First;
         repeat
             I += 1;
-        until ConfigPackageFields.Next = false;
+        until ConfigPackageFields.Next() = false;
         LibraryVariableStorage.Enqueue(I);
         ConfigPackageFields.OK.Invoke;
     end;

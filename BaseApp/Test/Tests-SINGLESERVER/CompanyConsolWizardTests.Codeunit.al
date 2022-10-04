@@ -119,7 +119,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [THEN] An error message is thrown, preventing the user from continuing
         Assert.ExpectedError(SpecifyCompanyNameErr);
-        CompanyConsolidationWizard.Close;
+        CompanyConsolidationWizard.Close();
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
             // [THEN] An error is given stating "Enter a Business Unit Code."
             Assert.ExpectedError(SpecifyBusinessUnitCodeTxt);
         end;
-        CompanyConsolidationWizard.Close;
+        CompanyConsolidationWizard.Close();
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [GIVEN] Currency 'C' with Currency Code 'CC' in Company 'New'
         ExchangeRate := LibraryRandom.RandDec(10, 1);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate);
         Currency.ChangeCompany(NewCompanyName);
         Currency.Init();
         Currency.Validate(Code, CurrencyCode);
@@ -370,7 +370,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [GIVEN] Exchange rate for Currency 'C' in Company 'New'
         CurrencyExchangeRate.ChangeCompany(NewCompanyName);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRate);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandIntInRange(2, 5));
         CurrencyExchangeRate.Modify(true);
@@ -403,7 +403,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
         // [GIVEN] Exchange rate for Currency
         ExchangeRateAmount := LibraryRandom.RandDec(10, 1);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Currency Code", CurrencyCode);
 
@@ -517,7 +517,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."G/L Account No." := GLAccNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Insert();
         exit(GLEntry."Entry No.");
     end;
@@ -529,12 +529,12 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnitSetup: Record "Business Unit Setup";
     begin
         with BusinessUnitSetup do begin
-            Reset;
+            Reset();
             if Find('-') then begin
                 repeat
                     if "Company Name" <> NewCreatedBusUnit then begin
                         Include := false;
-                        Modify;
+                        Modify();
                     end;
                 until Next = 0;
             end;
@@ -672,7 +672,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit."Starting Date" := 0D;
-        BusinessUnit."Ending Date" := WorkDate;
+        BusinessUnit."Ending Date" := WorkDate();
         BusinessUnit.Modify(true);
     end;
 
@@ -682,7 +682,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit.Validate("Company Name", CompanyName);
         BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
         BusinessUnit.Validate("Data Source", DataSource);
-        BusinessUnit."Starting Date" := WorkDate;
+        BusinessUnit."Starting Date" := WorkDate();
         BusinessUnit."Ending Date" := 0D;
         BusinessUnit.Modify(true);
     end;
@@ -693,8 +693,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit.Validate("Company Name", CompanyName);
         BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
         BusinessUnit.Validate("Data Source", DataSource);
-        BusinessUnit."Starting Date" := WorkDate;
-        BusinessUnit."Ending Date" := WorkDate - 10;
+        BusinessUnit."Starting Date" := WorkDate();
+        BusinessUnit."Ending Date" := WorkDate() - 10;
         BusinessUnit.Modify(true);
     end;
 
@@ -838,8 +838,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
     [Scope('OnPrem')]
     procedure ConsolidationTestReportHandlerAllFieldsEntered(var ConsolidationTest: TestRequestPage "Consolidation - Test")
     begin
-        ConsolidationTest.StartingDate.SetValue(WorkDate);
-        ConsolidationTest.EndingDate.SetValue(WorkDate);
+        ConsolidationTest.StartingDate.SetValue(WorkDate());
+        ConsolidationTest.EndingDate.SetValue(WorkDate());
         ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
         ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -848,8 +848,8 @@ codeunit 139317 "Company Consol. Wizard Tests"
     [Scope('OnPrem')]
     procedure ConsolidationTestReportHandlerAllFieldsEnteredDim(var ConsolidationTest: TestRequestPage "Consolidation - Test")
     begin
-        ConsolidationTest.StartingDate.SetValue(WorkDate);
-        ConsolidationTest.EndingDate.SetValue(WorkDate);
+        ConsolidationTest.StartingDate.SetValue(WorkDate());
+        ConsolidationTest.EndingDate.SetValue(WorkDate());
         LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueText); // should be set from test
         ConsolidationTest.CopyDimensions.AssistEdit;
         ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -860,7 +860,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     procedure ConsolidationTestReportHandlerNoStartingDate(var ConsolidationTest: TestRequestPage "Consolidation - Test")
     begin
         ConsolidationTest.StartingDate.SetValue(0D);
-        ConsolidationTest.EndingDate.SetValue(WorkDate);
+        ConsolidationTest.EndingDate.SetValue(WorkDate());
         ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
         ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -869,7 +869,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     [Scope('OnPrem')]
     procedure ConsolidationTestReportHandlerNoEndingDate(var ConsolidationTest: TestRequestPage "Consolidation - Test")
     begin
-        ConsolidationTest.StartingDate.SetValue(WorkDate);
+        ConsolidationTest.StartingDate.SetValue(WorkDate());
         ConsolidationTest.EndingDate.SetValue(0D);
         ConsolidationTest.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
         ConsolidationTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

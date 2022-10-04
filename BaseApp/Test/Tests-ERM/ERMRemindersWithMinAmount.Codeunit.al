@@ -325,7 +325,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
     begin
         LibraryERM.CreateReminderHeader(ReminderHeader);
         ReminderHeader.Validate("Customer No.", CustomerNo);
-        ReminderHeader.Validate("Document Date", CalcDate('<3M>', WorkDate));
+        ReminderHeader.Validate("Document Date", CalcDate('<3M>', WorkDate()));
         ReminderHeader.Modify(true);
     end;
 

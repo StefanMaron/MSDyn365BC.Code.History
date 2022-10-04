@@ -7,7 +7,7 @@ codeunit 575 "Run Acc. Sched. Retained Earn."
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Acc. Sched. for Retained Earn.");
+        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Fin. Rep. for Retained Earn.");
     end;
 }
 

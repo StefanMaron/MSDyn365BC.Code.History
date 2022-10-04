@@ -5,7 +5,7 @@ codeunit 7321 "Create Inventory Put-away"
     trigger OnRun()
     begin
         WhseActivHeader := Rec;
-        Code;
+        Code();
         Rec := WhseActivHeader;
     end;
 
@@ -43,7 +43,7 @@ codeunit 7321 "Create Inventory Put-away"
             if not GetWhseRequest(WhseRequest) then
                 exit;
 
-        GetSourceDocHeader;
+        GetSourceDocHeader();
         UpdateWhseActivHeader(WhseRequest);
 
         IsHandled := false;
@@ -77,7 +77,7 @@ codeunit 7321 "Create Inventory Put-away"
             exit;
 
         if LineCreated then
-            WhseActivHeader.Modify
+            WhseActivHeader.Modify()
         else
             if not AutoCreation then
                 if not SuppressError then
@@ -146,12 +146,12 @@ codeunit 7321 "Create Inventory Put-away"
             WhseRequest."Source Document"::"Prod. Output":
                 begin
                     ProdOrder.Get(ProdOrder.Status::Released, WhseRequest."Source No.");
-                    PostingDate := WorkDate;
+                    PostingDate := WorkDate();
                 end;
             WhseRequest."Source Document"::"Prod. Consumption":
                 begin
                     ProdOrder.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
-                    PostingDate := WorkDate;
+                    PostingDate := WorkDate();
                 end;
             else
                 OnGetSourceDocHeaderForWhseRequest(WhseRequest, SourceDocRecRef, PostingDate, VendorDocNo);
@@ -167,9 +167,9 @@ codeunit 7321 "Create Inventory Put-away"
                 WhseActivHeader."Source Subtype" := "Source Subtype";
             end else
                 WhseActivHeader.TestField("Source Document", "Source Document");
-            if WhseActivHeader."Source No." = '' then begin
-                WhseActivHeader."Source No." := "Source No.";
-            end else
+            if WhseActivHeader."Source No." = '' then
+                WhseActivHeader."Source No." := "Source No."
+            else
                 WhseActivHeader.TestField("Source No.", "Source No.");
 
             WhseActivHeader."Destination Type" := "Destination Type";
@@ -198,7 +198,7 @@ codeunit 7321 "Create Inventory Put-away"
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -305,7 +305,7 @@ codeunit 7321 "Create Inventory Put-away"
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -411,7 +411,7 @@ codeunit 7321 "Create Inventory Put-away"
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -503,7 +503,7 @@ codeunit 7321 "Create Inventory Put-away"
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -595,7 +595,7 @@ codeunit 7321 "Create Inventory Put-away"
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -738,7 +738,7 @@ codeunit 7321 "Create Inventory Put-away"
                 Validate(Quantity, CalcQty(TempTrackingSpecification."Qty. to Handle (Base)"));
                 ReservationFound := false;
             end else
-                if WhseItemTrackingSetup.TrackingRequired() and (TempTrackingSpecification.Next <> 0) then begin
+                if WhseItemTrackingSetup.TrackingRequired() and (TempTrackingSpecification.Next() <> 0) then begin
                     CopyTrackingFromSpec(TempTrackingSpecification);
                     Validate(Quantity, CalcQty(TempTrackingSpecification."Qty. to Handle (Base)"));
                 end else
@@ -838,7 +838,7 @@ codeunit 7321 "Create Inventory Put-away"
         if IsHandled then
             exit(IsFound);
 
-        GetSourceDocHeader;
+        GetSourceDocHeader();
         CheckLineExist := true;
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":

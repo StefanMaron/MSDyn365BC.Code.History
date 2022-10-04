@@ -131,7 +131,7 @@ codeunit 104 "Update Name In Ledger Entries"
         if RecRef.IsEmpty() then
             Result := 0;
         Result := RecRef.Count();
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetCustomer(CustomerNo: Code[20]; var Customer: Record Customer): Boolean
@@ -185,14 +185,14 @@ codeunit 104 "Update Name In Ledger Entries"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgEntry do begin
-            Reset;
+            Reset();
             SetFilter("Customer No.", '<>''''');
             SetRange("Customer Name", '');
             if FindSet(true, false) then
                 repeat
                     if GetCustomer("Customer No.", Customer) then begin
                         "Customer Name" := Customer.Name;
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
@@ -201,9 +201,9 @@ codeunit 104 "Update Name In Ledger Entries"
     [Scope('OnPrem')]
     procedure UpdateItemDescrInLedgerEntries()
     begin
-        UpdateItemDescrInItemLedgerEntries;
-        UpdateItemDescrInValueEntries;
-        UpdateItemDescrInPhysInvLedgerEntries;
+        UpdateItemDescrInItemLedgerEntries();
+        UpdateItemDescrInValueEntries();
+        UpdateItemDescrInPhysInvLedgerEntries();
     end;
 
     local procedure UpdateItemDescrInItemLedgerEntries()
@@ -213,7 +213,7 @@ codeunit 104 "Update Name In Ledger Entries"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgerEntry do begin
-            Reset;
+            Reset();
             SetFilter("Item No.", '<>''''');
             SetRange(Description, '');
             if FindSet(true, false) then
@@ -222,7 +222,7 @@ codeunit 104 "Update Name In Ledger Entries"
                         Description := Item.Description;
                         if GetItemVariant("Item No.", "Variant Code", ItemVariant) then
                             Description := ItemVariant.Description;
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
@@ -235,7 +235,7 @@ codeunit 104 "Update Name In Ledger Entries"
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
     begin
         with PhysInventoryLedgerEntry do begin
-            Reset;
+            Reset();
             SetFilter("Item No.", '<>''''');
             SetRange(Description, '');
             if FindSet(true, false) then
@@ -244,7 +244,7 @@ codeunit 104 "Update Name In Ledger Entries"
                         Description := Item.Description;
                         if GetItemVariant("Item No.", "Variant Code", ItemVariant) then
                             Description := ItemVariant.Description;
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
@@ -257,7 +257,7 @@ codeunit 104 "Update Name In Ledger Entries"
         ValueEntry: Record "Value Entry";
     begin
         with ValueEntry do begin
-            Reset;
+            Reset();
             SetFilter("Item No.", '<>''''');
             SetRange(Description, '');
             if FindSet(true, false) then
@@ -266,7 +266,7 @@ codeunit 104 "Update Name In Ledger Entries"
                         Description := Item.Description;
                         if GetItemVariant("Item No.", "Variant Code", ItemVariant) then
                             Description := ItemVariant.Description;
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
@@ -279,14 +279,14 @@ codeunit 104 "Update Name In Ledger Entries"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         with VendLedgEntry do begin
-            Reset;
+            Reset();
             SetFilter("Vendor No.", '<>''''');
             SetRange("Vendor Name", '');
             if FindSet(true, false) then
                 repeat
                     if GetVendor("Vendor No.", Vendor) then begin
                         "Vendor Name" := Vendor.Name;
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;

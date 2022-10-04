@@ -19,7 +19,7 @@ table 7704 "Item Identifier"
 
             trigger OnValidate()
             begin
-                GetItem;
+                GetItem();
             end;
         }
         field(3; "Variant Code"; Code[10])
@@ -43,7 +43,7 @@ table 7704 "Item Identifier"
             trigger OnValidate()
             begin
                 if "Item No." <> '' then
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
             end;
         }
     }
@@ -66,7 +66,7 @@ table 7704 "Item Identifier"
     trigger OnInsert()
     begin
         TestField("Item No.");
-        if VerifyItem = false then
+        if VerifyItem() = false then
             Error(Text000, "Item No.");
     end;
 
@@ -83,7 +83,7 @@ table 7704 "Item Identifier"
 
     local procedure GetItemUnitOfMeasure()
     begin
-        GetItem;
+        GetItem();
         Item.TestField("No.");
         if (Item."No." <> ItemUnitOfMeasure."Item No.") or
            ("Unit of Measure Code" <> ItemUnitOfMeasure.Code)

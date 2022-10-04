@@ -23,7 +23,7 @@ codeunit 28 "Error Message Management"
 
     internal procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"; ClearError: Boolean): Boolean
     begin
-        if not IsActive then begin
+        if not IsActive() then begin
             if ClearError then
                 ClearLastError();
             exit(ErrorMessageHandler.Activate(ErrorMessageHandler));
@@ -43,7 +43,7 @@ codeunit 28 "Error Message Management"
         if GetErrorsInContext(ContextVariant, TempErrorMessage) then begin
             if not GuiAllowed then
                 Session.LogMessage('000097V', TempErrorMessage.Description, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', JobQueueErrMsgProcessingTxt);
-            StopTransaction;
+            StopTransaction();
         end;
     end;
 
@@ -62,7 +62,7 @@ codeunit 28 "Error Message Management"
 
     procedure IsTransactionStopped(): Boolean
     begin
-        exit(StrPos(GetCallStackTop, '(CodeUnit 28).StopTransaction') > 0);
+        exit(StrPos(GetCallStackTop(), '(CodeUnit 28).StopTransaction') > 0);
     end;
 
     local procedure GetCallStackTop(): Text[250]
@@ -133,7 +133,7 @@ codeunit 28 "Error Message Management"
     begin
         RecRef.Open(TableNo);
         RecID := RecRef.RecordId;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure ShowErrors(Notification: Notification)
@@ -159,13 +159,13 @@ codeunit 28 "Error Message Management"
                 TempErrorMessage := ErrorMessage;
                 TempErrorMessage.Insert();
             until ErrorMessage.Next() = 0;
-            TempErrorMessage.ShowErrors;
+            TempErrorMessage.ShowErrors();
         end;
     end;
 
     procedure ThrowError(ContextErrorMessage: Text; DetailedErrorMessage: Text)
     begin
-        if not IsActive then
+        if not IsActive() then
             Error(JoinedErr, ContextErrorMessage, DetailedErrorMessage);
     end;
 
@@ -205,7 +205,7 @@ codeunit 28 "Error Message Management"
     begin
         TempErrorMessage.SetRange(Context, false);
         OnGetErrors(TempErrorMessage);
-        exit(TempErrorMessage.FindFirst);
+        exit(TempErrorMessage.FindFirst());
     end;
 
     procedure GetErrorsInContext(ContextVariant: Variant; var TempErrorMessage: Record "Error Message" temporary): Boolean
@@ -256,7 +256,7 @@ codeunit 28 "Error Message Management"
         ErrorContextElement: Codeunit "Error Context Element";
     begin
         if not GetTopContext(ContextErrorMessage) then
-            PushContext(ErrorContextElement, 0, 0, GetCallStackTop);
+            PushContext(ErrorContextElement, 0, 0, GetCallStackTop());
         LogErrorMessage(ContextErrorMessage."Context Field Number", ErrorMessage, SourceVariant, 0, HelpArticleCode);
     end;
 
@@ -628,8 +628,8 @@ codeunit 28 "Error Message Management"
     var
         RecID: RecordID;
     begin
-        if IsActive then begin
-            ID := ErrorContextElement.GetID;
+        if IsActive() then begin
+            ID := ErrorContextElement.GetID();
             if ID = 0 then begin
                 OnGetTopElement(ID);
                 ID += 1;

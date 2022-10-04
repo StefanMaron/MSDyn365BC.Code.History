@@ -47,7 +47,7 @@ codeunit 1639 "Office Line Generation"
             exit;
 
         // Measure the time it takes to find the items
-        Stopwatch := Stopwatch.StartNew;
+        Stopwatch := Stopwatch.StartNew();
 
         // Find the words on each side of the quantity key word
         // Use negative lookahead to find overlapping matches
@@ -82,9 +82,9 @@ codeunit 1639 "Office Line Generation"
                     InsertSuggestedLineItem(TempOfficeSuggestedLineItem, PostItemNo, PostText, Quantity, FoundPost)
         end;
 
-        Stopwatch.Stop;
+        Stopwatch.Stop();
         GetMatchTotals(TempOfficeSuggestedLineItem, SingleMatches, TotalMatches);
-        Session.LogMessage('00001KH', StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
+        Session.LogMessage('00001KH', StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine(),
             Stopwatch.ElapsedMilliseconds,
             StrLen(EmailBody),
             TempOfficeSuggestedLineItem.Count,
@@ -119,7 +119,7 @@ codeunit 1639 "Office Line Generation"
         if not TempOfficeSuggestedLineItem.IsEmpty() then
             exit;
 
-        Stopwatch := Stopwatch.StartNew;
+        Stopwatch := Stopwatch.StartNew();
 
         SanitizedBody := SanitizeText(EmailBody, 2);
         Regex := Regex.Regex('([\w\d]{3,})');
@@ -136,9 +136,9 @@ codeunit 1639 "Office Line Generation"
                 InsertSuggestedLineItem(TempOfficeSuggestedLineItem, ItemNo, Match.Value, 0, BestCount);
         end;
 
-        Stopwatch.Stop;
+        Stopwatch.Stop();
         GetMatchTotals(TempOfficeSuggestedLineItem, SingleMatches, TotalMatches);
-        Session.LogMessage('00001KI', StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
+        Session.LogMessage('00001KI', StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine(),
             Stopwatch.ElapsedMilliseconds,
             StrLen(EmailBody),
             TempOfficeSuggestedLineItem.Count,
@@ -162,7 +162,7 @@ codeunit 1639 "Office Line Generation"
                     end;
                 until TempOfficeSuggestedLineItem.Next() = 0;
 
-        Session.LogMessage('00001KJ', StrSubstNo(TelemetryClosedPageTxt, NewLine,
+        Session.LogMessage('00001KJ', StrSubstNo(TelemetryClosedPageTxt, NewLine(),
             PageCloseAction,
             TempOfficeSuggestedLineItem.Count,
             AddedCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
@@ -202,7 +202,7 @@ codeunit 1639 "Office Line Generation"
 
         NumbersString := NumbersTxt;
         Separator := '|';
-        NumbersList := NumbersString.Split(Separator.ToCharArray);
+        NumbersList := NumbersString.Split(Separator.ToCharArray());
         NumberValue := NumbersList.IndexOf(NumberText) + 1;
     end;
 
@@ -223,7 +223,7 @@ codeunit 1639 "Office Line Generation"
 
         SeparatorString := Separator;
         SearchTerms := DelChr(SearchText, '<>', ' ');
-        TermsArray := SearchTerms.Split(SeparatorString.ToCharArray);
+        TermsArray := SearchTerms.Split(SeparatorString.ToCharArray());
         Count := TermsArray.Length;
 
         BestCount := 999999; // Sentinel value
@@ -315,7 +315,7 @@ codeunit 1639 "Office Line Generation"
     local procedure ItemAlreadyFound(var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; ItemNo: Text) Found: Boolean
     begin
         TempOfficeSuggestedLineItem.SetRange("Item No.", ItemNo);
-        Found := not TempOfficeSuggestedLineItem.IsEmpty;
+        Found := not TempOfficeSuggestedLineItem.IsEmpty();
         TempOfficeSuggestedLineItem.SetRange("Item No.");
     end;
 

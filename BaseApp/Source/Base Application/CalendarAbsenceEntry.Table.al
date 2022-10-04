@@ -53,7 +53,7 @@ table 99000760 "Calendar Absence Entry"
 
             trigger OnValidate()
             begin
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(6; "Starting Time"; Time)
@@ -77,7 +77,7 @@ table 99000760 "Calendar Absence Entry"
                 if "Ending Time" < "Starting Time" then
                     Error(Text000, FieldCaption("Ending Time"), FieldCaption("Starting Time"));
 
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(8; "Work Center No."; Code[20])
@@ -169,10 +169,11 @@ table 99000760 "Calendar Absence Entry"
     end;
 
     var
-        Text000: Label '%1 must be higher than %2.';
         Workcenter: Record "Work Center";
         Machinecenter: Record "Machine Center";
         CalAbsenceMgt: Codeunit "Calendar Absence Management";
+
+        Text000: Label '%1 must be higher than %2.';
 
     procedure Caption(): Text
     begin

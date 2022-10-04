@@ -102,7 +102,7 @@ table 247 "Intrastat Setup"
         if (ContactNo = '') or (ContactType = "Intrastat Contact Type"::" ") then
             exit;
 
-        if Get then
+        if Get() then
             if (ContactNo = "Intrastat Contact No.") and (ContactType = "Intrastat Contact Type") then begin
                 if ContactType = "Intrastat Contact Type"::Contact then
                     Error(OnDelIntrastatContactErr, ContactNo);

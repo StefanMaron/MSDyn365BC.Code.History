@@ -68,7 +68,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
                     if CurrRecordNo <> -1 then begin// if not start of loop then add lines - for current record
                         RecRef.Modify(true);
                         ProcessLines(PurchaseHeader, DataExch, CurrRecordNo);
-                        RecRef.Close;
+                        RecRef.Close();
                     end;
 
                     CurrRecordNo := "Record No.";
@@ -87,7 +87,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             if CurrRecordNo <> -1 then begin
                 RecRef.Modify(true);
                 ProcessLines(PurchaseHeader, DataExch, CurrRecordNo);
-                RecRef.Close;
+                RecRef.Close();
             end;
         end;
     end;
@@ -505,7 +505,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         IntermediateDataImport.SetRange("Field ID", FieldID);
 
         if not IntermediateDataImport.FindFirst() then
-            Error(NotFoundErr, FieldName, RecRef.Caption, IntermediateDataImport.TableCaption);
+            Error(NotFoundErr, FieldName, RecRef.Caption, IntermediateDataImport.TableCaption());
 
         Value := IntermediateDataImport.Value;
     end;
@@ -540,7 +540,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         TempInt.Reset();
         TempInt.SetRange(Number, FieldID);
 
-        exit(TempInt.FindFirst);
+        exit(TempInt.FindFirst());
     end;
 
     local procedure CorrelateCreatedDocumentWithRecordNo(RecRef: RecordRef; RecordNo: Integer)
@@ -676,7 +676,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
 
         LineNo := 10000;
-        PurchaseLine.SetRecFilter;
+        PurchaseLine.SetRecFilter();
         PurchaseLine.SetRange("Line No.");
         if PurchaseLine.FindLast() then
             LineNo := LineNo + PurchaseLine."Line No.";

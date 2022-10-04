@@ -61,7 +61,7 @@ table 1034 "Job Planning Line - Calendar"
 
     trigger OnInsert()
     begin
-        UID := CreateGuid;
+        UID := CreateGuid();
     end;
 
     trigger OnModify()
@@ -77,7 +77,7 @@ table 1034 "Job Planning Line - Calendar"
     procedure InsertOrUpdate(JobPlanningLine: Record "Job Planning Line")
     begin
         if not HasBeenSent(JobPlanningLine) then begin
-            Init;
+            Init();
             "Job No." := JobPlanningLine."Job No.";
             "Job Task No." := JobPlanningLine."Job Task No.";
             "Planning Line No." := JobPlanningLine."Line No.";

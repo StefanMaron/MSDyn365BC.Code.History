@@ -257,15 +257,35 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                         {
                             Occurrence = Optional;
                         }
-                        fieldattribute(PadCharacter; "Data Exch. Column Def"."Pad Character")
+                        textattribute(PadCharacter)
                         {
                             Occurrence = Optional;
+
+                            trigger OnBeforePassVariable()
+                            begin
+                                if "Data Exch. Column Def"."Pad Character" = ' ' then
+                                    PadCharacter := XMLSpaceTxt
+                                else
+                                    PadCharacter := "Data Exch. Column Def"."Pad Character";
+                            end;
+
+                            trigger OnAfterAssignVariable()
+                            begin
+                                if PadCharacter = XMLSpaceTxt then
+                                    "Data Exch. Column Def"."Pad Character" := ' '
+                                else
+                                    "Data Exch. Column Def"."Pad Character" := PadCharacter;
+                            end;
                         }
                         fieldattribute(Justification; "Data Exch. Column Def".Justification)
                         {
                             Occurrence = Optional;
                         }
                         fieldattribute(UseNodeNameAsValue; "Data Exch. Column Def"."Use Node Name as Value")
+                        {
+                            Occurrence = Optional;
+                        }
+                        fieldattribute(BlankZero; "Data Exch. Column Def"."Blank Zero")
                         {
                             Occurrence = Optional;
                         }
@@ -291,6 +311,16 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                         }
                         fieldattribute(Name; "Data Exch. Mapping".Name)
                         {
+                        }
+                        fieldattribute(KeyIndex; "Data Exch. Mapping"."Key Index")
+                        {
+                            Occurrence = Optional;
+
+                            trigger OnBeforePassField()
+                            begin
+                                if "Data Exch. Mapping"."Key Index" = 0 then
+                                    currXMLport.Skip();
+                            end;
                         }
                         fieldattribute(MappingCodeunit; "Data Exch. Mapping"."Mapping Codeunit")
                         {
@@ -447,29 +477,29 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                     TransformationRuleRec: Record "Transformation Rule";
                                 begin
                                     case "Data Exch. Field Mapping"."Transformation Rule" of
-                                        TransformationRuleRec.GetUppercaseCode:
+                                        TransformationRuleRec.GetUppercaseCode():
                                             TransformationRule := 'UPPERCASE';
-                                        TransformationRuleRec.GetLowercaseCode:
+                                        TransformationRuleRec.GetLowercaseCode():
                                             TransformationRule := 'LOWERCASE';
-                                        TransformationRuleRec.GetTitlecaseCode:
+                                        TransformationRuleRec.GetTitlecaseCode():
                                             TransformationRule := 'TITLECASE';
-                                        TransformationRuleRec.GetTrimCode:
+                                        TransformationRuleRec.GetTrimCode():
                                             TransformationRule := 'TRIM';
-                                        TransformationRuleRec.GetFourthToSixthSubstringCode:
+                                        TransformationRuleRec.GetFourthToSixthSubstringCode():
                                             TransformationRule := 'FOURTH_TO_SIXTH_CHAR';
-                                        TransformationRuleRec.GetYYYYMMDDCode:
+                                        TransformationRuleRec.GetYYYYMMDDCode():
                                             TransformationRule := 'YYYYMMDD_DATE';
-                                        TransformationRuleRec.GetYYYYMMDDHHMMSSCode:
+                                        TransformationRuleRec.GetYYYYMMDDHHMMSSCode():
                                             TransformationRule := 'YYYYMMDDHHMMSS_FMT';
-                                        TransformationRuleRec.GetAlphanumericCode:
+                                        TransformationRuleRec.GetAlphanumericCode():
                                             TransformationRule := 'ALPHANUMERIC_ONLY';
-                                        TransformationRuleRec.GetDanishDecimalFormatCode:
+                                        TransformationRuleRec.GetDanishDecimalFormatCode():
                                             TransformationRule := 'DK_DECIMAL_FORMAT';
-                                        TransformationRuleRec.GetUSDateFormatCode:
+                                        TransformationRuleRec.GetUSDateFormatCode():
                                             TransformationRule := 'US_DATE_FORMAT';
-                                        TransformationRuleRec.GetUSDateTimeFormatCode:
+                                        TransformationRuleRec.GetUSDateTimeFormatCode():
                                             TransformationRule := 'US_DATETIME_FORMAT';
-                                        TransformationRuleRec.GetDeleteNOTPROVIDEDCode:
+                                        TransformationRuleRec.GetDeleteNOTPROVIDEDCode():
                                             TransformationRule := 'DELETE_NOTPROVIDED';
                                         else begin
                                             TransformationRule := "Data Exch. Field Mapping"."Transformation Rule";
@@ -484,29 +514,29 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 begin
                                     case TransformationRule of
                                         'UPPERCASE':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUppercaseCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUppercaseCode());
                                         'LOWERCASE':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetLowercaseCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetLowercaseCode());
                                         'TITLECASE':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetTitlecaseCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetTitlecaseCode());
                                         'TRIM':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetTrimCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetTrimCode());
                                         'FOURTH_TO_SIXTH_CHAR':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetFourthToSixthSubstringCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetFourthToSixthSubstringCode());
                                         'YYYYMMDD_DATE':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetYYYYMMDDCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetYYYYMMDDCode());
                                         'YYYYMMDDHHMMSS_FMT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetYYYYMMDDHHMMSSCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetYYYYMMDDHHMMSSCode());
                                         'ALPHANUMERIC_ONLY':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetAlphanumericCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetAlphanumericCode());
                                         'DK_DECIMAL_FORMAT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetDanishDecimalFormatCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetDanishDecimalFormatCode());
                                         'US_DATE_FORMAT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateFormatCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateFormatCode());
                                         'US_DATETIME_FORMAT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateTimeFormatCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateTimeFormatCode());
                                         'DELETE_NOTPROVIDED':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetDeleteNOTPROVIDEDCode);
+                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetDeleteNOTPROVIDEDCode());
                                         else
                                             "Data Exch. Field Mapping"."Transformation Rule" := TransformationRule;
                                     end;
@@ -527,11 +557,41 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 fieldelement(TransformationType; TempTransformationRuleRec."Transformation Type")
                                 {
                                 }
-                                fieldelement(FindValue; TempTransformationRuleRec."Find Value")
+                                textelement(FindValue)
                                 {
+                                    trigger OnBeforePassVariable()
+                                    begin
+                                        if TempTransformationRuleRec."Find Value" = ' ' then
+                                            FindValue := XMLSpaceTxt
+                                        else
+                                            FindValue := TempTransformationRuleRec."Find Value";
+                                    end;
+
+                                    trigger OnAfterAssignVariable()
+                                    begin
+                                        if FindValue = XMLSpaceTxt then
+                                            TempTransformationRuleRec."Find Value" := ' '
+                                        else
+                                            TempTransformationRuleRec."Find Value" := FindValue;
+                                    end;
                                 }
-                                fieldelement(ReplaceValue; TempTransformationRuleRec."Replace Value")
+                                textelement(ReplaceValue)
                                 {
+                                    trigger OnBeforePassVariable()
+                                    begin
+                                        if TempTransformationRuleRec."Replace Value" = ' ' then
+                                            ReplaceValue := XMLSpaceTxt
+                                        else
+                                            ReplaceValue := TempTransformationRuleRec."Replace Value";
+                                    end;
+
+                                    trigger OnAfterAssignVariable()
+                                    begin
+                                        if ReplaceValue = XMLSpaceTxt then
+                                            TempTransformationRuleRec."Replace Value" := ' '
+                                        else
+                                            TempTransformationRuleRec."Replace Value" := ReplaceValue;
+                                    end;
                                 }
                                 fieldelement(StartPosition; TempTransformationRuleRec."Start Position")
                                 {
@@ -549,7 +609,24 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 {
                                     MinOccurs = Zero;
                                 }
-
+                                fieldelement(TableID; TempTransformationRuleRec."Table ID")
+                                {
+                                }
+                                fieldelement(SourceFieldID; TempTransformationRuleRec."Source Field ID")
+                                {
+                                }
+                                fieldelement(TargetFieldID; TempTransformationRuleRec."Target Field ID")
+                                {
+                                }
+                                fieldelement(FieldLookupRule; TempTransformationRuleRec."Field Lookup Rule")
+                                {
+                                }
+                                fieldelement(Precision; TempTransformationRuleRec.Precision)
+                                {
+                                }
+                                fieldelement(Direction; TempTransformationRuleRec.Direction)
+                                {
+                                }
                                 trigger OnAfterInsertRecord()
                                 var
                                     TransformationRuleRec: Record "Transformation Rule";
@@ -565,6 +642,24 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             begin
                                 TempTransformationRuleRec.DeleteAll();
                             end;
+                        }
+                        tableelement("Data Exch. Field Grouping"; "Data Exch. Field Grouping")
+                        {
+                            LinkFields = "Data Exch. Def Code" = FIELD("Data Exch. Def Code"), "Data Exch. Line Def Code" = FIELD("Data Exch. Line Def Code"), "Table ID" = FIELD("Table ID");
+                            LinkTable = "Data Exch. Mapping";
+                            MinOccurs = Zero;
+                            XmlName = 'DataExchFieldGrouping';
+
+                            fieldattribute(FieldID; "Data Exch. Field Grouping"."Field ID")
+                            {
+                                Occurrence = Optional;
+
+                                trigger OnBeforePassField()
+                                begin
+                                    if "Data Exch. Field Grouping"."Field ID" = 0 then
+                                        currXMLport.Skip();
+                                end;
+                            }
                         }
 
                         trigger OnAfterGetRecord()
@@ -596,6 +691,8 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
         {
         }
     }
+    var
+        XMLSpaceTxt: Label '&#032;', Comment = 'Specifies XML representaion of space character.', Locked = true;
 
     local procedure AddTransformationRule(TransformationRule: Text)
     var
@@ -609,4 +706,3 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
         end;
     end;
 }
-

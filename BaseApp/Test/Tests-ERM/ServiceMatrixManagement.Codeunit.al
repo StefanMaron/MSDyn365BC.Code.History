@@ -143,7 +143,7 @@ codeunit 136139 "Service Matrix Management"
 
         ServiceContract.OpenEdit;
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContract.Status.SetValue(ServiceContractHeader.Status::Canceled);
+        ServiceContract.Status.SetValue(ServiceContractHeader.Status::Cancelled);
         FindContractGainLossEntry(ContractGainLossEntry, ServiceContractHeader."Contract No.");
 
         // Assign global variable for page handler.
@@ -284,7 +284,7 @@ codeunit 136139 "Service Matrix Management"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;

@@ -71,8 +71,8 @@ page 1878 "VAT Bus. Post. Grp Part"
 
     trigger OnOpenPage()
     begin
-        VATBusGrpNotification.Id := Format(CreateGuid);
-        PopulateVATBusGrp;
+        VATBusGrpNotification.Id := Format(CreateGuid());
+        PopulateVATBusGrp();
         Selected := true;
         SetRange(Default, false);
     end;
@@ -84,9 +84,9 @@ page 1878 "VAT Bus. Post. Grp Part"
 
     local procedure TrigerNotification(NotificationMsg: Text)
     begin
-        VATBusGrpNotification.Recall;
+        VATBusGrpNotification.Recall();
         VATBusGrpNotification.Message(NotificationMsg);
-        VATBusGrpNotification.Send;
+        VATBusGrpNotification.Send();
     end;
 
     procedure HideNotification()
@@ -96,7 +96,7 @@ page 1878 "VAT Bus. Post. Grp Part"
         if VATBusGrpNotification.Id = DummyGuid then
             exit;
         VATBusGrpNotification.Message := '';
-        VATBusGrpNotification.Recall;
+        VATBusGrpNotification.Recall();
     end;
 }
 

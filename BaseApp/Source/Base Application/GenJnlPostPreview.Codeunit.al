@@ -9,23 +9,24 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         CLEAR(PostingPreviewEventHandler);
         Preview(PreviewSubscriber, PreviewRecord);
         HideDialogs := false;
-        LastErrorText := GetLastErrorText;
-        if not IsSuccess then
+        LastErrorText := GetLastErrorText();
+        if not IsSuccess() then
             ErrorMessageMgt.LogError(PreviewRecord, LastErrorText, '');
         Error('');
     end;
 
     var
-        NothingToPostMsg: Label 'There is nothing to post.';
-        PreviewModeErr: Label 'Preview mode.';
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
-        SubscriberTypeErr: Label 'Invalid Subscriber type. The type must be CODEUNIT.';
-        RecVarTypeErr: Label 'Invalid RecVar type. The type must be RECORD.';
-        PreviewExitStateErr: Label 'The posting preview has stopped because of a state that is not valid.';
         PreviewSubscriber: Variant;
         PreviewRecord: Variant;
         LastErrorText: Text;
         HideDialogs: Boolean;
+
+        PreviewModeErr: Label 'Preview mode.';
+        SubscriberTypeErr: Label 'Invalid Subscriber type. The type must be CODEUNIT.';
+        RecVarTypeErr: Label 'Invalid RecVar type. The type must be RECORD.';
+        PreviewExitStateErr: Label 'The posting preview has stopped because of a state that is not valid.';
 
     procedure Preview(Subscriber: Variant; RecVar: Variant)
     begin
@@ -54,7 +55,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         RunResult := RunPreview(Subscriber, RecVar);
 
         UnbindSubscription(PostingPreviewEventHandler);
-        OnAfterUnbindSubscription;
+        OnAfterUnbindSubscription();
 
         // The OnRunPreview event expects subscriber following template: Result := <Codeunit>.RUN
         // So we assume RunPreview returns FALSE with the error.
@@ -64,9 +65,9 @@ codeunit 19 "Gen. Jnl.-Post Preview"
 
         if NOT HideDialogs then begin
             if GetLastErrorText <> PreviewModeErr then
-                if ErrorMessageHandler.ShowErrors then
+                if ErrorMessageHandler.ShowErrors() then
                     Error('');
-            ShowAllEntries;
+            ShowAllEntries();
             Error('');
         end;
     end;
@@ -138,7 +139,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
                     OnShowAllEntriesOnCaseElse(TempDocumentEntry, PostingPreviewEventHandler);
             end;
         end else
-            Message(NothingToPostMsg);
+            Message(JournalErrorsMgt.GetNothingToPostErrorMsg());
 
         OnAfterShowAllEntries();
     end;
@@ -154,7 +155,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
 
     procedure ThrowError()
     begin
-        OnBeforeThrowError;
+        OnBeforeThrowError();
         Error(PreviewModeErr);
     end;
 

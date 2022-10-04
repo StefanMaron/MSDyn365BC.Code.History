@@ -15,29 +15,6 @@ page 357 Companies
             repeater(Control1)
             {
                 ShowCaption = false;
-#if not CLEAN18
-                field(Name; Name)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced New field named CompanyNameVar';
-                    ObsoleteTag = '18.0';
-                    Caption = 'Name';
-                    Editable = PageInEditmode;
-                    Enabled = false;
-                    Visible = false;
-                    ToolTip = 'Specifies the name of a company that has been created in the current database.';
-                    trigger OnValidate()
-                    begin
-
-                        if (CompanyNameVar <> xRec.Name) and (xRec.Name <> '') then
-                            if SoftwareAsAService then
-                                Error(RenameNotAllowedErr, FieldCaption("Display Name"));
-                        Validate(Name, CompanyNameVar);
-                    end;
-
-                }
-#endif
                 field(CompanyNameVar; CompanyNameVar)
                 {
                     ApplicationArea = Basic, Suite;
@@ -55,13 +32,13 @@ page 357 Companies
                     end;
 
                 }
-                field("Display Name"; "Display Name")
+                field("Display Name"; Rec."Display Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Display Name';
                     ToolTip = 'Specifies the name to display for the company in the user interface instead of the text that is specified in the Name field.';
                 }
-                field("Evaluation Company"; "Evaluation Company")
+                field("Evaluation Company"; Rec."Evaluation Company")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Evaluation Company';
@@ -130,10 +107,6 @@ page 357 Companies
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create New Company';
                 Image = Company;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Get assistance with creating a new company.';
                 Visible = SoftwareAsAService;
 
@@ -149,9 +122,6 @@ page 357 Companies
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = false;
                 ToolTip = 'Copy an existing company to a new company.';
 
                 trigger OnAction()
@@ -161,7 +131,7 @@ page 357 Companies
                     CopyCompany: Report "Copy Company";
                     UserPermissions: Codeunit "User Permissions";
                 begin
-                    if not UserPermissions.IsSuper(UserSecurityId) then
+                    if not UserPermissions.IsSuper(UserSecurityId()) then
                         Error(OnlySuperCanCreateNewCompanyErr);
 
                     OriginalCompany.SetRange(Name, Rec.Name);
@@ -171,6 +141,25 @@ page 357 Companies
                     if CopiedCompany.Get(CopyCompany.GetCompanyName()) then
                         AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(Rec.Name, CopiedCompany.Name);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref("Create New Company_Promoted"; "Create New Company")
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CopyCompany_Promoted; CopyCompany)
+                {
+                }
             }
         }
     }
@@ -188,8 +177,8 @@ page 357 Companies
         SetupStatus := SetupStatus::" ";
         CompanyNameVar := CopyStr(Name, 1, MaxStrLen(CompanyNameVar));
         PageInEditmode := CurrPage.Editable;
-        if ApplicationAreaMgmt.IsAdvancedExperienceEnabled then
-            CompanyCreatedDateTime := GetCompanyCreatedDateTime;
+        if ApplicationAreaMgmt.IsAdvancedExperienceEnabled() then
+            CompanyCreatedDateTime := GetCompanyCreatedDateTime();
 
         if not AssistedCompanySetupStatus.Get(Name) then
             exit;
@@ -227,8 +216,8 @@ page 357 Companies
         EnvironmentInfo: Codeunit "Environment Information";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        SoftwareAsAService := EnvironmentInfo.IsSaaS();
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -244,23 +233,24 @@ page 357 Companies
     end;
 
     var
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        SetupStatus: Enum "Company Setup Status";
+        EnableAssistedCompanySetup: Boolean;
+        PageInEditmode: Boolean;
+        SoftwareAsAService: Boolean;
+        IsFoundation: Boolean;
+        CompanyNameVar: Text[30];
+        CompanyCreatedDateTime: DateTime;
+
         DeleteCompanyQst: Label 'Do you want to delete the company %1?\All company data will be deleted.\\Do you want to continue?', Comment = '%1 = Company Name';
         DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\Do you want to continue?', Comment = '%1 = Company Name';
         ALCompanyActivityCategoryTok: Label 'AL Company Activity', Locked = true;
         UsenCompanyTok: Label 'User %1 deleted the %2 company', Locked = true;
         CompanyTok: Label 'Company %1 has been deleted', Locked = true;
         RenameNotAllowedErr: Label 'You cannot rename this company due to the impact on performance. Instead, change the %1.', Comment = '%1 = Display Name';
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
-        SetupStatus: Enum "Company Setup Status";
-        EnableAssistedCompanySetup: Boolean;
-        PageInEditmode: Boolean;
-        SoftwareAsAService: Boolean;
         InsertNotAllowedErr: Label 'To create a new company, choose the Create New Company button. An assisted setup guide will make sure you get everything you need to get started.';
         DeleteLastCompanyMsg: Label 'Cannot delete this company. It''s the only company you have, and you must have at least one.';
-        IsFoundation: Boolean;
-        CompanyNameVar: Text[30];
         OnlySuperCanCreateNewCompanyErr: Label 'Only users with the SUPER permission set can create a new company.';
-        CompanyCreatedDateTime: DateTime;
 
     local procedure GetCompanyCreatedDateTime(): DateTime
     var
@@ -268,7 +258,7 @@ page 357 Companies
     begin
         if CompanyInformation.ChangeCompany(Name) then
             if CompanyInformation.ReadPermission then
-                if CompanyInformation.Get then
+                if CompanyInformation.Get() then
                     exit(CompanyInformation."Created DateTime");
     end;
 

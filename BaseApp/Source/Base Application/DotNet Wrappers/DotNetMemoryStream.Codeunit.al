@@ -10,7 +10,7 @@ codeunit 3009 DotNet_MemoryStream
 
     procedure MemoryStream()
     begin
-        DotNetMemoryStream := DotNetMemoryStream.MemoryStream
+        DotNetMemoryStream := DotNetMemoryStream.MemoryStream();
     end;
 
     procedure MemoryStream(var DotNet_Array: Codeunit DotNet_Array)
@@ -23,7 +23,7 @@ codeunit 3009 DotNet_MemoryStream
 
     procedure ToArray(var DotNet_Array: Codeunit DotNet_Array)
     begin
-        DotNet_Array.SetArray(DotNetMemoryStream.ToArray)
+        DotNet_Array.SetArray(DotNetMemoryStream.ToArray());
     end;
 
     procedure WriteTo(var OutStream: OutStream)
@@ -33,7 +33,7 @@ codeunit 3009 DotNet_MemoryStream
 
     procedure Close()
     begin
-        DotNetMemoryStream.Close
+        DotNetMemoryStream.Close();
     end;
 
     procedure CopyFromInStream(var InStream: InStream)

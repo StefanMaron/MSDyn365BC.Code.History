@@ -19,34 +19,34 @@ page 382 "Apply Check Ledger Entries"
 
                     trigger OnValidate()
                     begin
-                        LineAppliedOnPush;
+                        LineAppliedOnPush();
                     end;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the check ledger entry.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document type linked to the check ledger entry. For example, Payment.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document number on the check ledger entry.';
                 }
-                field("Check Date"; "Check Date")
+                field("Check Date"; Rec."Check Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the check date if a check is printed.';
                 }
-                field("Check No."; "Check No.")
+                field("Check No."; Rec."Check No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -58,7 +58,7 @@ page 382 "Apply Check Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the amount on the check ledger entry.';
                 }
-                field("Check Type"; "Check Type")
+                field("Check Type"; Rec."Check Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -70,21 +70,21 @@ page 382 "Apply Check Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies whether the entry has been fully applied to.';
                 }
-                field("Statement Status"; "Statement Status")
+                field("Statement Status"; Rec."Statement Status")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies that the structure of the lines is based on the chart of cost types. You define up to seven cost centers and cost objects that appear as columns in the report.';
                     Visible = false;
                 }
-                field("Statement No."; "Statement No.")
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account statement that the check ledger entry has been applied to, if the Statement Status is Bank Account Ledger Applied or Check Ledger Applied.';
                     Visible = false;
                 }
-                field("Statement Line No."; "Statement Line No.")
+                field("Statement Line No."; Rec."Statement Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

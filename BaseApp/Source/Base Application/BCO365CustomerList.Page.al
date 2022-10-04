@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2316 "BC O365 Customer List"
 {
     // NB! The name of the 'New' action has to be "_NEW_TEMP_" in order for the phone client to show the '+' sign in the list.
@@ -9,6 +10,9 @@ page 2316 "BC O365 Customer List"
     RefreshOnActivate = true;
     SourceTable = Customer;
     SourceTableView = SORTING(Name);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,20 +23,20 @@ page 2316 "BC O365 Customer List"
                 Caption = '';
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Name';
                     ToolTip = 'Specifies the customer''s name.';
                     Width = 12;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s email address.';
                     Width = 12;
                 }
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Outstanding';
@@ -42,7 +46,7 @@ page 2316 "BC O365 Customer List"
                 }
                 field(OverdueAmount; OverdueAmount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     BlankZero = true;
@@ -56,7 +60,7 @@ page 2316 "BC O365 Customer List"
                 }
                 field(BlockedStatus; BlockedStatus)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Status';
                     Editable = false;
                     ToolTip = 'Specifies whether the customer is blocked.';
@@ -71,7 +75,7 @@ page 2316 "BC O365 Customer List"
         {
             action(Edit)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Edit';
                 RunObject = Page "BC O365 Sales Customer Card";
                 RunPageOnRec = true;
@@ -84,13 +88,13 @@ page 2316 "BC O365 Customer List"
 
     trigger OnAfterGetRecord()
     begin
-        OverdueAmount := CalcOverdueBalance;
+        OverdueAmount := CalcOverdueBalance();
         O365SalesInvoiceMgmt.GetCustomerStatus(Rec, BlockedStatus);
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     var
@@ -98,4 +102,4 @@ page 2316 "BC O365 Customer List"
         OverdueAmount: Decimal;
         BlockedStatus: Text;
 }
-
+#endif

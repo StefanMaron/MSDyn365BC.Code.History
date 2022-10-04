@@ -35,7 +35,7 @@ codeunit 6306 "PBI Aged Acc. Calc"
 
                 BusinessChartBuffer."Period Length" := i;
                 ChartManagement.SetPeriodLength(SelectedChartDefinition, BusinessChartBuffer, BusinessChartBuffer."Period Length", false);
-                BusinessChartBuffer."Period Filter Start Date" := LogInManagement.GetDefaultWorkDate;
+                BusinessChartBuffer."Period Filter Start Date" := LogInManagement.GetDefaultWorkDate();
 
                 case SelectedChartDefinition."Code Unit ID" of
                     CODEUNIT::"Aged Acc. Payable":
@@ -47,7 +47,7 @@ codeunit 6306 "PBI Aged Acc. Calc"
                 TempEntryNoAmountBuffer.Reset();
                 if TempEntryNoAmountBuffer.FindSet() then
                     repeat
-                        FormatPeriod;
+                        FormatPeriod();
                         InsertToBuffer(TempPowerBIChartBuffer);
                     until TempEntryNoAmountBuffer.Next() = 0;
             end
@@ -98,7 +98,7 @@ codeunit 6306 "PBI Aged Acc. Calc"
                 "Date Sorting" := 0;
             if TempEntryNoAmountBuffer."Entry No." = (NoOfPeriods - 1) then
                 "Date Sorting" := 1000000;
-            Insert;
+            Insert();
         end;
     end;
 }

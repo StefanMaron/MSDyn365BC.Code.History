@@ -11,14 +11,14 @@ page 9152 "My Items"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item numbers that are displayed in the My Item Cue on the Role Center.';
 
                     trigger OnValidate()
                     begin
-                        SyncFieldsWithItem
+                        SyncFieldsWithItem();
                     end;
                 }
                 field(Description; Description)
@@ -29,7 +29,7 @@ page 9152 "My Items"
                     Lookup = false;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unit Price';
@@ -68,7 +68,7 @@ page 9152 "My Items"
 
     trigger OnAfterGetRecord()
     begin
-        SyncFieldsWithItem
+        SyncFieldsWithItem();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -95,7 +95,7 @@ page 9152 "My Items"
                 Description := Item.Description;
                 "Unit Price" := Item."Unit Price";
                 if MyItem.Get("User ID", "Item No.") then
-                    Modify;
+                    Modify();
             end;
     end;
 }

@@ -53,7 +53,7 @@ report 7132 "Export Item Budget to Excel"
                 EnterCell(RowNo, 2, '', false, false, true, '', TempExcelBuffer."Cell Type"::Text);
 
                 RowNo := RowNo + 1;
-                EnterFilterInCell(RowNo, BudgetName, ItemBudgetName.TableCaption);
+                EnterFilterInCell(RowNo, BudgetName, ItemBudgetName.TableCaption());
 
                 if GlobalDim1Filter <> '' then begin
                     RowNo := RowNo + 1;
@@ -162,12 +162,12 @@ report 7132 "Export Item Budget to Excel"
                             until NextColumn(1) = 0;
                     until NextLine(1) = 0;
                 end;
-                Window.Close;
+                Window.Close();
 
                 if DoUpdateExistingWorksheet then begin
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     if not TestMode then
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
@@ -175,9 +175,9 @@ report 7132 "Export Item Budget to Excel"
                     TempExcelBuffer.WriteSheet(
                       PadStr(StrSubstNo('%1 %2', ItemBudgetName.Name, ItemBudgetName.Description), 30),
                       CompanyName, UserId);
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     if not TestMode then
-                        TempExcelBuffer.OpenExcel;
+                        TempExcelBuffer.OpenExcel();
                 end;
             end;
         }
@@ -200,9 +200,6 @@ report 7132 "Export Item Budget to Excel"
     }
 
     var
-        Text000: Label 'Analyzing Data...\\';
-        Text001: Label 'Filters';
-        Text002: Label 'Update Workbook';
         ItemBudgetName: Record "Item Budget Name";
         Dim: Record Dimension;
         LineDimCodeBuffer: Record "Dimension Code Buffer";
@@ -231,16 +228,22 @@ report 7132 "Export Item Budget to Excel"
         ColumnValue: Decimal;
         AnalysisArea: Enum "Analysis Area Type";
         ValueType: Enum "Item Analysis Value Type";
-        Text003: Label 'Date Filter';
-        Text004: Label 'Item Filter';
-        Text005: Label 'Customer Filter';
-        Text006: Label 'Vendor Filter';
         SourceTypeFilter: Enum "Analysis Source Type";
         PeriodType: Enum "Analysis Period Type";
         LineDimType: Enum "Item Budget Dimension Type";
         ColumnDimType: Enum "Item Budget Dimension Type";
         RoundingFactor: Enum "Analysis Rounding Factor";
         PeriodInitialized: Boolean;
+        DoUpdateExistingWorksheet: Boolean;
+        TestMode: Boolean;
+
+        Text000: Label 'Analyzing Data...\\';
+        Text001: Label 'Filters';
+        Text002: Label 'Update Workbook';
+        Text003: Label 'Date Filter';
+        Text004: Label 'Item Filter';
+        Text005: Label 'Customer Filter';
+        Text006: Label 'Vendor Filter';
         Text007: Label 'Table Data';
         Text008: Label 'Show as Lines';
         Text009: Label 'Show as Columns';
@@ -250,9 +253,7 @@ report 7132 "Export Item Budget to Excel"
         Text013: Label 'Cost Amount';
         Text014: Label 'COGS Amount';
         Text015: Label 'Quantity';
-        DoUpdateExistingWorksheet: Boolean;
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
-        TestMode: Boolean;
 
 #if not CLEAN19
     [Obsolete('Replaced by SetParameters()', '19.0')]

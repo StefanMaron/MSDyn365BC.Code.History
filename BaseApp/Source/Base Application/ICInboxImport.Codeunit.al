@@ -162,14 +162,14 @@ codeunit 435 "IC Inbox Import"
             exit;
 
         ICOutboxImpExpXML.SetSource(IStream);
-        ICOutboxImpExpXML.Import;
-        IFile.Close;
+        ICOutboxImpExpXML.Import();
+        IFile.Close();
 
-        FromICPartnerCode := ICOutboxImpExpXML.GetFromICPartnerCode;
-        ToICPartnerCode := ICOutboxImpExpXML.GetToICPartnerCode;
+        FromICPartnerCode := ICOutboxImpExpXML.GetFromICPartnerCode();
+        ToICPartnerCode := ICOutboxImpExpXML.GetToICPartnerCode();
         if ToICPartnerCode <> ICSetup."IC Partner Code" then
             Error(
-              WrongCompanyErr, ICPartner.TableCaption, ToICPartnerCode,
+              WrongCompanyErr, ICPartner.TableCaption(), ToICPartnerCode,
               ICSetup.FieldCaption("IC Partner Code"), ICSetup."IC Partner Code");
 
         ICOutboxImpExpXML.GetICOutboxTrans(TempICOutboxTransaction);
@@ -183,7 +183,7 @@ codeunit 435 "IC Inbox Import"
         ICOutboxImpExpXML.GetICSalesDocLineDim(TempICDocDim);
         ICOutboxImpExpXML.GetICPurchDocDim(TempICDocDim);
         ICOutboxImpExpXML.GetICPurchDocLineDim(TempICDocDim);
-        FromICPartnerCode := ICOutboxImpExpXML.GetFromICPartnerCode;
+        FromICPartnerCode := ICOutboxImpExpXML.GetFromICPartnerCode();
     end;
 
 #if not CLEAN20

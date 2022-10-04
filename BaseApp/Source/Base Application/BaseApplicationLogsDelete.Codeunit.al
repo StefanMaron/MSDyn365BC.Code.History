@@ -8,7 +8,9 @@ codeunit 3995 "Base Application Logs Delete"
                 tabledata "Integration Synch. Job Errors" = rd,
                 tabledata "Report Inbox" = rd,
                 tabledata "Sales Header Archive" = rd,
-                tabledata "Purchase Header Archive" = rd;
+                tabledata "Purchase Header Archive" = rd,
+                tabledata "Dataverse Entity Change" = rd,
+                tabledata "Activity Log" = rd;
 
     var
         NoFiltersErr: Label 'No filters were set on table %1, %2. Please contact your Microsoft Partner for assistance.', Comment = '%1 = a id of a table (integer), %2 = the caption of the table.';
@@ -30,7 +32,9 @@ codeunit 3995 "Base Application Logs Delete"
             Database::"Integration Synch. Job Errors",
             Database::"Report Inbox",
             Database::"Sales Header Archive",
-            Database::"Purchase Header Archive"])
+            Database::"Purchase Header Archive",
+            Database::"Dataverse Entity Change",
+            Database::"Activity Log"])
         then
             exit;
 

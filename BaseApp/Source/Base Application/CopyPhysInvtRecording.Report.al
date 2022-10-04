@@ -75,13 +75,16 @@ report 5883 "Copy Phys. Invt. Recording"
     end;
 
     var
-        NotEnoughSpaceErr: Label 'There is not enough space to insert %1 copies.', Comment = '%1 = Number';
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
-        ToPhysInvtRecordLine: Record "Phys. Invt. Record Line";
         NoOfCopies: Integer;
-        LineSpacing: Integer;
         I: Integer;
+
+        NotEnoughSpaceErr: Label 'There is not enough space to insert %1 copies.', Comment = '%1 = Number';
+
+    protected var
+        ToPhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        LineSpacing: Integer;
 
     procedure SetPhysInvtRecordLine(var NewPhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin

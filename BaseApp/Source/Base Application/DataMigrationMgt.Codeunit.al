@@ -8,7 +8,7 @@ codeunit 1798 "Data Migration Mgt."
         DataMigrationStatus: Record "Data Migration Status";
         Retry: Boolean;
     begin
-        EnableDataMigrationNotificationForAllUsers;
+        EnableDataMigrationNotificationForAllUsers();
         DataMigrationStatus.Get("Record ID to Process");
         DataMigrationStatus.SetRange("Migration Type", DataMigrationStatus."Migration Type");
         Retry := "Parameter String" = RetryTxt;
@@ -17,7 +17,7 @@ codeunit 1798 "Data Migration Mgt."
 
         if not Retry then begin
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::Pending);
-            DataMigrationFacade.OnFillStagingTables;
+            DataMigrationFacade.OnFillStagingTables();
             // Close the transaction here otherwise the CODEUNIT.RUN cannot be invoked
             Commit();
         end else
@@ -25,7 +25,7 @@ codeunit 1798 "Data Migration Mgt."
 
         // migrate GL accounts (delete the existing ones on a first migration and if GL accounts are migrated)
         DataMigrationStatus.SetRange("Destination Table ID", DATABASE::"G/L Account");
-        if DataMigrationStatus.FindFirst and not Retry then
+        if DataMigrationStatus.FindFirst() and not Retry then
             if not CODEUNIT.Run(CODEUNIT::"Data Migration Del G/L Account") then
                 DataMigrationError.CreateEntryNoStagingTable(DataMigrationStatus."Migration Type", DATABASE::"G/L Account");
 
@@ -297,7 +297,7 @@ codeunit 1798 "Data Migration Mgt."
             Message := 'Migration started.'
         else
             Message := 'Migration restarted.';
-        Session.LogMessage('00001I7', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type") );
+        Session.LogMessage('00001I7', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type"));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Mgt.", 'OnAfterMigrationFinished', '', true, true)]
@@ -393,7 +393,7 @@ codeunit 1798 "Data Migration Mgt."
         DataMigrationOverview: Page "Data Migration Overview";
         Status: Option;
     begin
-        Status := GetMigrationStatus;
+        Status := GetMigrationStatus();
 
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Data Migration Mgt.");
         JobQueueEntry.SetFilter(Status, '%1|%2|%3',
@@ -449,9 +449,9 @@ codeunit 1798 "Data Migration Mgt."
             exit;
 
         // check tables are clear. For GL accounts, we delete them automatically
-        ThrowErrorIfTableNotEmpty(MigrationType, DATABASE::Customer, StrSubstNo(CustomerTableNotEmptyErr, PRODUCTNAME.Short));
-        ThrowErrorIfTableNotEmpty(MigrationType, DATABASE::Vendor, StrSubstNo(VendorTableNotEmptyErr, PRODUCTNAME.Short));
-        ThrowErrorIfTableNotEmpty(MigrationType, DATABASE::Item, StrSubstNo(ItemTableNotEmptyErr, PRODUCTNAME.Short));
+        ThrowErrorIfTableNotEmpty(MigrationType, DATABASE::Customer, StrSubstNo(CustomerTableNotEmptyErr, PRODUCTNAME.Short()));
+        ThrowErrorIfTableNotEmpty(MigrationType, DATABASE::Vendor, StrSubstNo(VendorTableNotEmptyErr, PRODUCTNAME.Short()));
+        ThrowErrorIfTableNotEmpty(MigrationType, DATABASE::Item, StrSubstNo(ItemTableNotEmptyErr, PRODUCTNAME.Short()));
     end;
 
     local procedure ThrowErrorIfTableNotEmpty(MigrationType: Text[250]; TableId: Integer; ErrorMessageErr: Text)
@@ -479,18 +479,18 @@ codeunit 1798 "Data Migration Mgt."
         DataMigrationOverview: Page "Data Migration Overview";
         Notification: Notification;
     begin
-        if not IsGlobalNotificationEnabled then
+        if not IsGlobalNotificationEnabled() then
             exit;
 
         if DataMigrationStatus.IsEmpty() then
             exit;
 
-        Notification.Id(GetGlobalNotificationId);
-        case GetMigrationStatus of
+        Notification.Id(GetGlobalNotificationId());
+        case GetMigrationStatus() of
             MigrationStatus::Pending,
             MigrationStatus::"In Progress":
                 begin
-                    Notification.Message(StrSubstNo(DataMigrationInProgressMsg, PRODUCTNAME.Short));
+                    Notification.Message(StrSubstNo(DataMigrationInProgressMsg, PRODUCTNAME.Short()));
                     Notification.AddAction(MoreInfoTxt, CODEUNIT::"Data Migration Mgt.", 'ShowMoreInfoPage');
                 end;
             MigrationStatus::"Completed with errors",
@@ -500,7 +500,7 @@ codeunit 1798 "Data Migration Mgt."
                     Notification.AddAction(GoThereNowTxt, CODEUNIT::"Data Migration Mgt.", 'ShowDataMigrationOverviewFromNotification');
                 end;
             MigrationStatus::Completed:
-                if CheckForEntitiesToBePosted then begin
+                if CheckForEntitiesToBePosted() then begin
                     Notification.Message(DataMigrationEntriesToPostMsg);
                     Notification.AddAction(GoThereNowTxt, CODEUNIT::"Data Migration Mgt.", 'ShowDataMigrationOverviewFromNotification');
                 end else begin
@@ -511,7 +511,7 @@ codeunit 1798 "Data Migration Mgt."
                 exit;
         end;
 
-        Notification.Send;
+        Notification.Send();
     end;
 
     [Scope('OnPrem')]
@@ -536,7 +536,7 @@ codeunit 1798 "Data Migration Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetGlobalNotificationId));
+        exit(MyNotifications.IsEnabled(GetGlobalNotificationId()));
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
@@ -544,7 +544,7 @@ codeunit 1798 "Data Migration Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefault(GetGlobalNotificationId, DataMigrationNotificationNameTxt, DataMigrationNotificationDescTxt, true);
+        MyNotifications.InsertDefault(GetGlobalNotificationId(), DataMigrationNotificationNameTxt, DataMigrationNotificationDescTxt, true);
         InsertDefaultCustomerContactNotification(true);
         InsertDefaultVendorContactNotification(true);
     end;
@@ -556,7 +556,7 @@ codeunit 1798 "Data Migration Mgt."
 
     procedure IsMigrationInProgress(): Boolean
     begin
-        exit(GetMigrationStatus in [MigrationStatus::"In Progress", MigrationStatus::Pending]);
+        exit(GetMigrationStatus() in [MigrationStatus::"In Progress", MigrationStatus::Pending]);
     end;
 
     procedure ShowMoreInfoPage(Notification: Notification)
@@ -595,7 +595,7 @@ codeunit 1798 "Data Migration Mgt."
                     GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
                     GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
                     GenJournalLine.SetFilter("Account No.", '<>%1', '');
-                    exit(GenJournalLine.FindFirst);
+                    exit(GenJournalLine.FindFirst());
                 end;
             DATABASE::Customer:
                 begin
@@ -605,7 +605,7 @@ codeunit 1798 "Data Migration Mgt."
                     GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
                     GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Customer);
                     GenJournalLine.SetFilter("Account No.", '<>%1', '');
-                    exit(GenJournalLine.FindFirst);
+                    exit(GenJournalLine.FindFirst());
                 end;
             DATABASE::Item:
                 begin
@@ -614,7 +614,7 @@ codeunit 1798 "Data Migration Mgt."
                         exit(false);
                     ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
                     ItemJournalLine.SetFilter("Item No.", '<>%1', '');
-                    exit(ItemJournalLine.FindFirst);
+                    exit(not ItemJournalLine.IsEmpty());
                 end;
             else begin
                     DataMigrationFacade.OnFindBatchForAccountTransactions(DataMigrationStatus, JournalBatchName);
@@ -623,8 +623,8 @@ codeunit 1798 "Data Migration Mgt."
                     GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
                     GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
                     GenJournalLine.SetFilter("Account No.", '<>%1', '');
-                    exit(GenJournalLine.FindFirst);
-                end
+                    exit(not GenJournalLine.IsEmpty());
+                end;
         end;
     end;
 
@@ -644,15 +644,15 @@ codeunit 1798 "Data Migration Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetGlobalNotificationId) then
-            MyNotifications.InsertDefault(GetGlobalNotificationId, DataMigrationNotificationNameTxt, DataMigrationNotificationDescTxt, false);
+        if not MyNotifications.Disable(GetGlobalNotificationId()) then
+            MyNotifications.InsertDefault(GetGlobalNotificationId(), DataMigrationNotificationNameTxt, DataMigrationNotificationDescTxt, false);
     end;
 
     local procedure EnableDataMigrationNotificationForAllUsers()
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.SetRange("Notification Id", GetGlobalNotificationId);
+        MyNotifications.SetRange("Notification Id", GetGlobalNotificationId());
         if MyNotifications.FindSet() then
             repeat
                 MyNotifications.Enabled := true;
@@ -665,7 +665,7 @@ codeunit 1798 "Data Migration Mgt."
         MyNotifications: Record "My Notifications";
     begin
         MyNotifications.InsertDefault(
-          GetCustomerContactNotificationId, CustomerContactNotificationNameTxt, CustContactNotificationDescTxt, Enabled);
+          GetCustomerContactNotificationId(), CustomerContactNotificationNameTxt, CustContactNotificationDescTxt, Enabled);
     end;
 
     procedure InsertDefaultVendorContactNotification(Enabled: Boolean)
@@ -673,7 +673,7 @@ codeunit 1798 "Data Migration Mgt."
         MyNotifications: Record "My Notifications";
     begin
         MyNotifications.InsertDefault(
-          GetVendorContactNotificationId, VendorContactNotificationNameTxt, VendContactNotificationDescTxt, Enabled);
+          GetVendorContactNotificationId(), VendorContactNotificationNameTxt, VendContactNotificationDescTxt, Enabled);
     end;
 
     procedure UpdateMigrationStatus(var DataMigrationStatus: Record "Data Migration Status")

@@ -16,7 +16,7 @@ report 128 "Customer Document Nos."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_CustLedgerEntryFilter_; StrSubstNo(Text004, CustLedgerEntryFilter))
@@ -180,15 +180,10 @@ report 128 "Customer Document Nos."
 
     trigger OnPreReport()
     begin
-        CustLedgerEntryFilter := "Cust. Ledger Entry".GetFilters;
+        CustLedgerEntryFilter := "Cust. Ledger Entry".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'Customer Entry: %1';
         Cust: Record Customer;
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
@@ -202,6 +197,12 @@ report 128 "Customer Document Nos."
         ErrorText: array[10] of Text[250];
         ErrorCounter: Integer;
         PageGroupNo: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'Customer Entry: %1';
         Customer_Document_Nos_CaptionLbl: Label 'Customer Document Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Cust_NameCaptionLbl: Label 'Customer Name';

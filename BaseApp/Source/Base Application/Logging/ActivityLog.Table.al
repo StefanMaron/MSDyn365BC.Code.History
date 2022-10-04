@@ -108,7 +108,7 @@ table 710 "Activity Log"
     begin
         "Detailed Info".CreateOutStream(InfoOutStream);
         CopyStream(InfoOutStream, InputStream);
-        Modify;
+        Modify();
     end;
 
     procedure SetDetailedInfoFromText(Details: Text)
@@ -117,7 +117,7 @@ table 710 "Activity Log"
     begin
         "Detailed Info".CreateOutStream(OutputStream);
         OutputStream.WriteText(Details);
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -127,7 +127,7 @@ table 710 "Activity Log"
         FileMgt: Codeunit "File Management";
     begin
         CalcFields("Detailed Info");
-        if not "Detailed Info".HasValue then begin
+        if not "Detailed Info".HasValue() then begin
             Message(NoDetailsMsg);
             exit;
         end;
@@ -182,7 +182,7 @@ table 710 "Activity Log"
         if DaysOld > 0 then
             SetFilter("Activity Date", '<=%1', CreateDateTime(Today - DaysOld, Time));
         DeleteAll();
-        Window.Close;
+        Window.Close();
         SetRange("Activity Date");
         Message(DeletedMsg);
     end;

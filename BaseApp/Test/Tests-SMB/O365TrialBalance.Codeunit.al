@@ -58,7 +58,7 @@ codeunit 138029 "O365 Trial Balance"
                 Assert.AreEqual(PeriodCaptionTxt[2], TrialBalanceCache."Period 2 Caption", 'Period 2 caption is not set correctly.');
             end;
             I := I + 1;
-        until TrialBalanceCache.Next = 0;
+        until TrialBalanceCache.Next() = 0;
     end;
 
     [Test]
@@ -264,6 +264,7 @@ codeunit 138029 "O365 Trial Balance"
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Trial Balance");
         LibraryVariableStorage.Clear();
@@ -276,6 +277,8 @@ codeunit 138029 "O365 Trial Balance"
         if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
+        FinancialReportMgt.Initialize();
+
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
@@ -285,16 +288,17 @@ codeunit 138029 "O365 Trial Balance"
     var
         TrialBalanceSetup: Record "Trial Balance Setup";
         AccountScheduleNames: TestPage "Account Schedule Names";
+        FinancialReports: TestPage "Financial Reports";
         TrialAccSchedName: Code[10];
     begin
         TrialBalanceSetup.Get();
         TrialAccSchedName := TrialBalanceSetup."Account Schedule Name";
 
-        AccountScheduleNames.OpenEdit;
-        AccountScheduleNames.FILTER.SetFilter(Name, TrialAccSchedName);
+        FinancialReports.OpenView();
+        FinancialReports.Filter.SetFilter(Name, TrialAccSchedName);
         AccScheduleOverview.Trap;
+        FinancialReports.Overview.Invoke();
 
-        AccountScheduleNames.Overview.Invoke;
         AccScheduleOverview.PeriodType.SetValue(PeriodType::"Accounting Period");
     end;
 
@@ -308,7 +312,7 @@ codeunit 138029 "O365 Trial Balance"
             Assert.AreEqual(AccScheduleOverview.ColumnValues1.AsDEcimal, Round(Values[I, 2]), 'Data in column 1 does not match');
             Assert.AreEqual(AccScheduleOverview.ColumnValues2.AsDEcimal, Round(Values[I, 1]), 'Data in column 2 does not match');
             I := I + 1;
-        until not AccScheduleOverview.Next;
+        until not AccScheduleOverview.Next();
     end;
 
     [PageHandler]
@@ -322,10 +326,10 @@ codeunit 138029 "O365 Trial Balance"
         ChartofAccountsGL.First;
         repeat
             ActualAmount := ActualAmount + ChartofAccountsGL."Net Change".AsDEcimal;
-        until not ChartofAccountsGL.Next;
+        until not ChartofAccountsGL.Next();
 
         Assert.AreEqual(ExpectedAmount, ActualAmount, 'Wrong amount on GL page');
-        ChartofAccountsGL.Close;
+        ChartofAccountsGL.Close();
     end;
 
     [PageHandler]
@@ -352,7 +356,7 @@ codeunit 138029 "O365 Trial Balance"
           AccScheduleOverview.ColumnValues2.AsDEcimal,
           'Unexpected amount shown in account schedule overview page.');
 
-        AccScheduleOverview.Close;
+        AccScheduleOverview.Close();
     end;
 }
 

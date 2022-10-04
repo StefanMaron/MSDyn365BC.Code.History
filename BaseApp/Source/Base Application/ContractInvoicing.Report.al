@@ -10,7 +10,7 @@ report 5984 "Contract Invoicing"
         {
             DataItemTableView = SORTING("Bill-to Customer No.", "Contract Type", "Combine Invoices", "Next Invoice Date") WHERE("Contract Type" = CONST(Contract), Status = CONST(Signed));
             RequestFilterFields = "Bill-to Customer No.", "Contract No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(InvoiceToDate; Format(InvoiceToDate))
@@ -99,26 +99,26 @@ report 5984 "Contract Invoicing"
             dataitem(InvPeriod; "Integer")
             {
                 DataItemTableView = SORTING(Number);
-                column(ContractInvPeriod; ServLedgEntryTEMP."Contract Invoice Period")
+                column(ContractInvPeriod; TempServiceLedgerEntry."Contract Invoice Period")
                 {
                 }
-                column(ServLedgEntryAmt; ServLedgEntryTEMP.Amount)
+                column(ServLedgEntryAmt; TempServiceLedgerEntry.Amount)
                 {
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        ServLedgEntryTEMP.FindSet
+                        TempServiceLedgerEntry.FindSet()
                     else
-                        ServLedgEntryTEMP.Next;
-                    if ServLedgEntryTEMP."Posting Date" < "Service Contract Header"."Next Invoice Date" then
+                        TempServiceLedgerEntry.Next();
+                    if TempServiceLedgerEntry."Posting Date" < "Service Contract Header"."Next Invoice Date" then
                         CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    SetRange(Number, 1, ServLedgEntryTEMP.Count);
+                    SetRange(Number, 1, TempServiceLedgerEntry.Count);
                 end;
             }
             dataitem(ContrSum; "Integer")
@@ -148,18 +148,18 @@ report 5984 "Contract Invoicing"
                 if PostingDate = 0D then
                     Error(Text000);
 
-                if PostingDate > WorkDate then
+                if PostingDate > WorkDate() then
                     if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
                         Error(Text002);
 
                 if InvoiceToDate = 0D then
                     Error(Text003);
 
-                if InvoiceToDate > WorkDate then
+                if InvoiceToDate > WorkDate() then
                     if not ConfirmManagement.GetResponseOrDefault(Text004, true) then
                         Error(Text002);
 
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
 
                 SetFilter("Next Invoice Date", '<>%1&<=%2', 0D, InvoiceToDate);
                 if GetFilter("Invoice Period") <> '' then
@@ -212,22 +212,17 @@ report 5984 "Contract Invoicing"
     trigger OnInitReport()
     begin
         if PostingDate = 0D then
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
     end;
 
     trigger OnPreReport()
     begin
-        ServContractFilters := "Service Contract Header".GetFilters;
+        ServContractFilters := "Service Contract Header".GetFilters();
     end;
 
     var
-        Text000: Label 'You have not filled in the posting date.';
-        Text001: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
-        Text002: Label 'The program has stopped the batch job at your request.';
-        Text003: Label 'You must fill in the Invoice-to Date field.';
-        Text004: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
         Currency: Record Currency;
-        ServLedgEntryTEMP: Record "Service Ledger Entry" temporary;
+        TempServiceLedgerEntry: Record "Service Ledger Entry" temporary;
         ServContractMgt: Codeunit ServContractManagement;
         ServContractFilters: Text;
         NoOfInvoices: Integer;
@@ -238,6 +233,12 @@ report 5984 "Contract Invoicing"
         EntryNo: Integer;
         DateSep: Text[10];
         InvoiceSum: Decimal;
+
+        Text000: Label 'You have not filled in the posting date.';
+        Text001: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
+        Text002: Label 'The program has stopped the batch job at your request.';
+        Text003: Label 'You must fill in the Invoice-to Date field.';
+        Text004: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
         ContractInvoicingTestCaptionLbl: Label 'Contract Invoicing - Test';
         PageNoCaptionLbl: Label 'Page';
         InvoiceToDateCaptionLbl: Label 'Invoice to Date';
@@ -261,11 +262,11 @@ report 5984 "Contract Invoicing"
 
     local procedure BuildInvoicePlan(ServContrHeader: Record "Service Contract Header")
     var
-        InvoicePeriod: Code[10];
         DateFormula: DateFormula;
+        InvoicePeriod: Code[10];
         Stop: Boolean;
     begin
-        ServLedgEntryTEMP.DeleteAll();
+        TempServiceLedgerEntry.DeleteAll();
         InvoicePeriod := ServContractMgt.GetInvoicePeriodText(ServContrHeader."Invoice Period");
         Evaluate(DateFormula, InvoicePeriod);
         EntryNo := 0;
@@ -301,14 +302,14 @@ report 5984 "Contract Invoicing"
     local procedure InsertServLedgEntry(DateFrom: Date; DateTo: Date)
     begin
         EntryNo += 1;
-        ServLedgEntryTEMP.Init();
-        ServLedgEntryTEMP."Entry No." := EntryNo;
-        ServLedgEntryTEMP."Posting Date" := DateFrom;
-        ServLedgEntryTEMP."Contract Invoice Period" := Format(DateFrom) + DateSep + Format(DateTo);
-        ServLedgEntryTEMP.Amount := CalcContrAmt("Service Contract Header", DateFrom, DateTo);
+        TempServiceLedgerEntry.Init();
+        TempServiceLedgerEntry."Entry No." := EntryNo;
+        TempServiceLedgerEntry."Posting Date" := DateFrom;
+        TempServiceLedgerEntry."Contract Invoice Period" := Format(DateFrom) + DateSep + Format(DateTo);
+        TempServiceLedgerEntry.Amount := CalcContrAmt("Service Contract Header", DateFrom, DateTo);
         if DateFrom >= "Service Contract Header"."Next Invoice Date" then
-            InvoiceSum := InvoiceSum + ServLedgEntryTEMP.Amount;
-        ServLedgEntryTEMP.Insert();
+            InvoiceSum := InvoiceSum + TempServiceLedgerEntry.Amount;
+        TempServiceLedgerEntry.Insert();
     end;
 
     local procedure CalcContrAmt(ServContHeader: Record "Service Contract Header"; DateFrom: Date; DateTo: Date): Decimal

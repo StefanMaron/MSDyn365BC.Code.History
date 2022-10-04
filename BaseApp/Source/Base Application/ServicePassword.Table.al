@@ -32,7 +32,7 @@ table 1261 "Service Password"
 
     trigger OnInsert()
     begin
-        Key := CreateGuid;
+        Key := CreateGuid();
     end;
 
     procedure SavePassword(PasswordText: Text)
@@ -55,7 +55,7 @@ table 1261 "Service Password"
         CalcFields(Value);
         Value.CreateInStream(InStream);
         InStream.Read(PasswordText);
-        if CryptographyManagement.IsEncryptionPossible then
+        if CryptographyManagement.IsEncryptionPossible() then
             exit(CryptographyManagement.Decrypt(PasswordText));
         exit(PasswordText);
     end;

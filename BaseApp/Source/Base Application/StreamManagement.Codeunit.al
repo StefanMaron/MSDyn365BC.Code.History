@@ -19,12 +19,12 @@ codeunit 705 "Stream Management"
         DotNetArray := DotNetArray.CreateInstance(GetDotNetType(TextEncoding), 1);
         DotNetArray.SetValue(TextEncoding.UTF8, 0);
         XmlDictionaryReader := XmlDictionaryReader.CreateMtomReader(MtomStream, DotNetArray, ContentType, XmlDictionaryReaderQuotas.Max);
-        XmlDictionaryReader.MoveToContent;
+        XmlDictionaryReader.MoveToContent();
 
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
         XmlDocument.PreserveWhitespace := true;
         XmlDocument.Load(XmlDictionaryReader);
-        MemoryStream := MemoryStream.MemoryStream;
+        MemoryStream := MemoryStream.MemoryStream();
         XmlDocument.Save(MemoryStream);
         MemoryStream.Position := 0;
         XmlStream := MemoryStream;
@@ -49,7 +49,7 @@ codeunit 705 "Stream Management"
             if NameValueBufferOut.FindLast() then
                 LastId := NameValueBufferOut.ID;
             ZipArchiveEntry := FileList.Item(I);
-            FileStream := ZipArchiveEntry.Open;
+            FileStream := ZipArchiveEntry.Open();
             NameValueBufferOut.ID := LastId + 1;
             NameValueBufferOut.Name := CopyStr(ZipArchiveEntry.Name, 1, 250);
             NameValueBufferOut."Value BLOB".CreateOutStream(out);

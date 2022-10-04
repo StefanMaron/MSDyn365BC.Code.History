@@ -77,7 +77,7 @@ table 5373 "CRM Full Synch. Review Line"
             trigger OnValidate()
             begin
                 if "Job Queue Entry Status" = "Job Queue Entry Status"::"In Process" then
-                    "Session ID" := SessionId
+                    "Session ID" := SessionId()
                 else
                     "Session ID" := 0;
             end;
@@ -136,6 +136,7 @@ table 5373 "CRM Full Synch. Review Line"
     local procedure GenerateCRMSynchReviewLines(var InitialSynchRecommendations: Dictionary of [Code[20], Integer]; SkipNotFullSyncReady: Boolean; DeletedLines: List of [Code[20]])
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMConnectionSetup: Record "CRM Connection Setup";
         "Field": Record "Field";
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
@@ -156,10 +157,16 @@ table 5373 "CRM Full Synch. Review Line"
             else
                 IntegrationTableMappingFilter := 'CUSTOMER|VENDOR|CONTACT|CURRENCY|PAYMENT TERMS|SHIPPING AGENT|SHIPMENT METHOD|SALESPEOPLE'
         else
-            if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
-                IntegrationTableMappingFilter := '<>SALESPEOPLE&<>SALESORDER-ORDER&<>POSTEDSALESLINE-INV'
-            else
-                IntegrationTableMappingFilter := '<>SALESORDER-ORDER&<>POSTEDSALESLINE-INV';
+            if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then begin
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    IntegrationTableMappingFilter := '<>SALESPEOPLE&<>SOLINE-ORDERDETAIL&<>POSTEDSALESLINE-INV'
+                else
+                    IntegrationTableMappingFilter := '<>SALESPEOPLE&<>SALESORDER-ORDER&<>SOLINE-ORDERDETAIL&<>POSTEDSALESLINE-INV';
+            end else
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    IntegrationTableMappingFilter := '<>SOLINE-ORDERDETAIL&<>POSTEDSALESLINE-INV'
+                else
+                    IntegrationTableMappingFilter := '<>SALESORDER-ORDER&<>SOLINE-ORDERDETAIL&<>POSTEDSALESLINE-INV';
 
         if IntegrationTableMappingFilter <> '' then
             IntegrationTableMapping.SetFilter(Name, IntegrationTableMappingFilter);
@@ -174,7 +181,7 @@ table 5373 "CRM Full Synch. Review Line"
     local procedure InsertOrModifyCRMFullSynchReviewLines(IntegrationTableMapping: Record "Integration Table Mapping"; var InitialSynchRecommendations: Dictionary of [Code[20], Integer]; SkipNotFullSyncReady: Boolean)
     begin
         if (not SkipNotFullSyncReady) or (GetInitialSynchRecommendation(IntegrationTableMapping, InitialSynchRecommendations) in ["Initial Synch Recommendation"::"Full Synchronization", "Initial Synch Recommendation"::"Couple Records"]) then begin
-            Init;
+            Init();
             Name := IntegrationTableMapping.Name;
             if not Find('=') then begin
                 Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
@@ -250,7 +257,7 @@ table 5373 "CRM Full Synch. Review Line"
                     CRMAccount.Reset();
                     CRMAccount.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
                     CRMAccount.SetRange(CustomerTypeCode, CRMAccount.CustomerTypeCode::Vendor);
-                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty() then
+                    if BCRecRef.IsEmpty() and CRMAccount.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CRMAccount.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -260,7 +267,7 @@ table 5373 "CRM Full Synch. Review Line"
                     CRMAccount.Reset();
                     CRMAccount.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
                     CRMAccount.SetRange(CustomerTypeCode, CRMAccount.CustomerTypeCode::Customer);
-                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty() then
+                    if BCRecRef.IsEmpty() and CRMAccount.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CRMAccount.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -269,7 +276,7 @@ table 5373 "CRM Full Synch. Review Line"
                 begin
                     CRMContact.Reset();
                     CRMContact.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Contact"));
-                    if BCRecRef.IsEmpty and CRMContact.IsEmpty() then
+                    if BCRecRef.IsEmpty() and CRMContact.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CRMContact.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -293,12 +300,12 @@ table 5373 "CRM Full Synch. Review Line"
                         exit("Initial Synch Recommendation"::"Couple Records");
                 end;
             'PAYMENT TERMS', 'SHIPPING AGENT', 'SHIPMENT METHOD':
-                    if BCRecRef.IsEmpty() then
-                        exit("Initial Synch Recommendation"::"No Records Found")
-                    else
-                        exit("Initial Synch Recommendation"::"Couple Records");
+                if BCRecRef.IsEmpty() then
+                    exit("Initial Synch Recommendation"::"No Records Found")
+                else
+                    exit("Initial Synch Recommendation"::"Couple Records");
             else begin
-                    if BCRecRef.IsEmpty and CDSRecRef.IsEmpty() then
+                    if BCRecRef.IsEmpty() and CDSRecRef.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CDSRecRef.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -361,7 +368,7 @@ table 5373 "CRM Full Synch. Review Line"
         if IntegrationSynchJob."Finish Date/Time" = 0DT then
             exit("To Int. Table Job Status"::"In Process");
 
-        if IntegrationSynchJob.AreSomeRecordsFailed then
+        if IntegrationSynchJob.AreSomeRecordsFailed() then
             exit("To Int. Table Job Status"::Error);
 
         exit("To Int. Table Job Status"::Success);
@@ -383,7 +390,7 @@ table 5373 "CRM Full Synch. Review Line"
                     TempCRMFullSynchReviewLine.Insert();
                 end;
             until CRMFullSynchReviewLine.Next() = 0;
-        exit(TempCRMFullSynchReviewLine.FindSet);
+        exit(TempCRMFullSynchReviewLine.FindSet());
     end;
 
     local procedure AreAllParentalJobsFinished(DependencyFilter: Text[250]): Boolean
@@ -401,13 +408,13 @@ table 5373 "CRM Full Synch. Review Line"
 
     procedure FullSynchFinished(IntegrationTableMapping: Record "Integration Table Mapping"; SynchDirection: Option)
     begin
-        if IntegrationTableMapping.IsFullSynch then
+        if IntegrationTableMapping.IsFullSynch() then
             UpdateAsSynchJobFinished(IntegrationTableMapping."Parent Name", SynchDirection);
     end;
 
     procedure FullSynchStarted(IntegrationTableMapping: Record "Integration Table Mapping"; JobID: Guid; SynchDirection: Option)
     begin
-        if IntegrationTableMapping.IsFullSynch then
+        if IntegrationTableMapping.IsFullSynch() then
             UpdateAsSynchJobStarted(IntegrationTableMapping."Parent Name", JobID, SynchDirection);
     end;
 
@@ -420,10 +427,10 @@ table 5373 "CRM Full Synch. Review Line"
             exit;
         if Get(NameToGet) then begin
             SetJobQueueEntryStatus(JobQueueEntry.Status);
-            Modify;
+            Modify();
 
             if IsJobQueueEntryProcessed(JobQueueEntry) then
-                Start;
+                Start();
         end;
     end;
 
@@ -437,11 +444,11 @@ table 5373 "CRM Full Synch. Review Line"
             exit;
         RecID := JobQueueEntry."Record ID to Process";
         if RecID.TableNo = DATABASE::"Integration Table Mapping" then begin
-            RecRef := RecID.GetRecord;
+            RecRef := RecID.GetRecord();
             RecRef.SetTable(IntegrationTableMapping);
             if not IntegrationTableMapping.Find() then
                 exit('');
-            if IntegrationTableMapping.IsFullSynch then
+            if IntegrationTableMapping.IsFullSynch() then
                 exit(IntegrationTableMapping."Parent Name");
         end;
     end;
@@ -451,7 +458,7 @@ table 5373 "CRM Full Synch. Review Line"
         xJobQueueEntry: Record "Job Queue Entry";
     begin
         xJobQueueEntry := JobQueueEntry;
-        xJobQueueEntry.Find;
+        xJobQueueEntry.Find();
         exit(
           (xJobQueueEntry.Status = xJobQueueEntry.Status::"In Process") and
           (xJobQueueEntry.Status <> JobQueueEntry.Status));
@@ -470,7 +477,7 @@ table 5373 "CRM Full Synch. Review Line"
         CRMFullSynchReviewLine.SetRange("Job Queue Entry Status", "Job Queue Entry Status"::"In Process");
         if CRMFullSynchReviewLine.FindSet() then
             repeat
-                if CRMFullSynchReviewLine.IsActiveSession then
+                if CRMFullSynchReviewLine.IsActiveSession() then
                     exit(true);
             until CRMFullSynchReviewLine.Next() = 0;
         exit(false);

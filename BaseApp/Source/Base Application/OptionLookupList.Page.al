@@ -12,7 +12,7 @@ page 1670 "Option Lookup List"
         {
             repeater(Group)
             {
-                field("Option Caption"; "Option Caption")
+                field("Option Caption"; Rec."Option Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction you want to make. The value in this field determines what you can select in the No. field.';

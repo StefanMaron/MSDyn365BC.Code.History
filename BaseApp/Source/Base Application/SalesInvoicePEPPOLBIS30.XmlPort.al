@@ -1924,7 +1924,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 if not FindNextInvoiceRec(InvoiceHeaderLoop.Number) then
                     currXMLport.Break();
 
-                GetTotals;
+                GetTotals();
 
                 PEPPOLMgt.GetGeneralInfoBIS(
                   SalesHeader,
@@ -1936,8 +1936,8 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                   DocumentCurrencyCode,
                   AccountingCost);
 
-                CustomizationID := GetCustomizationID;
-                ProfileID := GetProfileID;
+                CustomizationID := GetCustomizationID();
+                ProfileID := GetProfileID();
             end;
         }
     }
@@ -2026,7 +2026,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
     begin
         if Position = 1 then
             exit(VATAmtLine.Find('-'));
-        exit(VATAmtLine.Next <> 0);
+        exit(VATAmtLine.Next() <> 0);
     end;
 
     procedure Initialize(DocVariant: Variant)
@@ -2040,7 +2040,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     RecRef.SetTable(SalesInvoiceHeader);
                     if SalesInvoiceHeader."No." = '' then
                         Error(SpecifyASalesInvoiceNoErr);
-                    SalesInvoiceHeader.SetRecFilter;
+                    SalesInvoiceHeader.SetRecFilter();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
 
@@ -2053,7 +2053,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         Error(SpecifyAServInvoiceNoErr);
                     ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
                     ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
-                    ServiceInvoiceHeader.SetRecFilter;
+                    ServiceInvoiceHeader.SetRecFilter();
 
                     ProcessedDocType := ProcessedDocType::Service;
                 end;

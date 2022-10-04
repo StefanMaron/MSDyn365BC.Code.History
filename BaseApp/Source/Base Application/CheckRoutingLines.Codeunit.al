@@ -6,6 +6,9 @@ codeunit 99000752 "Check Routing Lines"
     end;
 
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
+        ErrList: Text[50];
+
         Text000: Label 'Circular reference in routing %1 when calculating %2. Counted sequences %3. Max. lines %4.';
         Text001: Label 'back';
         Text002: Label 'Actual number of termination processes in route %1 is %2. They should be 1. Check %3.';
@@ -14,8 +17,6 @@ codeunit 99000752 "Check Routing Lines"
         Text005: Label 'Not all routing lines are sequenced forward on routing %1. Check %2.';
         Text006: Label 'Previous operations for %1 cannot be found.';
         Text007: Label 'Next operations for %1 cannot be found.';
-        UOMMgt: Codeunit "Unit of Measure Management";
-        ErrList: Text[50];
         Text008: Label 'Operation %1 does not have a work center or a machine center defined.';
         WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
 
@@ -293,7 +294,7 @@ codeunit 99000752 "Check Routing Lines"
         RtngLine.SetRange("Routing No.", RtngHeader."No.");
         RtngLine.SetRange("Version Code", VersionCode);
         RtngLine.SetRange(Recalculate, true);
-        exit(RtngLine.FindFirst);
+        exit(not RtngLine.IsEmpty());
     end;
 
     procedure Calculate(RtngHeader: Record "Routing Header"; VersionCode: Code[20])
@@ -338,7 +339,7 @@ codeunit 99000752 "Check Routing Lines"
                         repeat
                             ScrapFactorThis :=
                               RtngLine2."Scrap Factor % (Accumulated)";
-                            ScrapQtyThis := Round(RtngLine2."Fixed Scrap Qty. (Accum.)", UOMMgt.QtyRndPrecision);
+                            ScrapQtyThis := Round(RtngLine2."Fixed Scrap Qty. (Accum.)", UOMMgt.QtyRndPrecision());
                             if CalcScrapFactor < ScrapFactorThis then
                                 CalcScrapFactor := ScrapFactorThis;
                             if CalcScrapQty < ScrapQtyThis then
@@ -392,12 +393,12 @@ codeunit 99000752 "Check Routing Lines"
             repeat
                 if RtngLine.Type = RtngLine.Type::"Work Center" then begin
                     if not WorkCenter.Get(RtngLine."No.") then
-                        Error(WorkMachineCenterNotExistErr, RtngLine."Operation No.", WorkCenter.TableCaption, RtngLine."No.");
+                        Error(WorkMachineCenterNotExistErr, RtngLine."Operation No.", WorkCenter.TableCaption(), RtngLine."No.");
                     WorkCenter.TestField(Blocked, false);
                 end;
                 if RtngLine.Type = RtngLine.Type::"Machine Center" then begin
                     if not MachineCenter.Get(RtngLine."No.") then
-                        Error(WorkMachineCenterNotExistErr, RtngLine."Operation No.", MachineCenter.TableCaption, RtngLine."No.");
+                        Error(WorkMachineCenterNotExistErr, RtngLine."Operation No.", MachineCenter.TableCaption(), RtngLine."No.");
                     MachineCenter.TestField(Blocked, false);
                 end;
             until RtngLine.Next() = 0;

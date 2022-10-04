@@ -13,36 +13,19 @@ codeunit 6325 "Power BI Report Synchronizer"
 
         PowerBIServiceMgt.SetIsSynchronizing(true);
 
-#if not CLEAN18
-        PowerBIServiceMgt.SetIsDeletingReports(true); // Backwards compatibility. Remove with SetIsDeletingReports
-        DeleteMarkedDefaultReports();
-        PowerBIServiceMgt.SetIsDeletingReports(false); // Backwards compatibility. Remove with SetIsDeletingReports
-
-        PowerBIServiceMgt.SetIsRetryingUploads(true); // Backwards compatibility. Remove with SetIsRetryingUploads
-        RetryPartialUploadBatch();
-        PowerBIServiceMgt.SetIsRetryingUploads(false); // Backwards compatibility. Remove with SetIsRetryingUploads
-
-        PowerBIServiceMgt.SetIsDeployingReports(true); // Backwards compatibility. Remove with SetIsDeployingReports
-        UploadDefaultOOBReport();
-        UploadCustomerReports();
-        PowerBIServiceMgt.SetIsDeployingReports(false); // Backwards compatibility. Remove with SetIsDeployingReports
-#else
         DeleteMarkedDefaultReports();
         RetryPartialUploadBatch();
-        UploadDefaultOobReport();
+        UploadOutOfTheBoxReport();
         UploadCustomerReports();
-#endif
-
         SelectDefaultReports();
 
         PowerBIServiceMgt.SetIsSynchronizing(false);
 
         if GetReportsToRetry(PowerBIReportUploads) then
-            if PowerBIServiceMgt.CanHandleServiceCalls() then
-                PowerBIServiceMgt.SynchronizeReportsInBackground();
+            PowerBIServiceMgt.SynchronizeReportsInBackground();
     end;
 
-    local procedure UploadDefaultOOBReport()
+    local procedure UploadOutOfTheBoxReport()
     var
         PageId: Text[50];
     begin
@@ -54,7 +37,7 @@ codeunit 6325 "Power BI Report Synchronizer"
             exit;
         end;
 
-        UploadOOBReportForContext(PageId);
+        UploadOutOfTheBoxReportForContext(PageId);
     end;
 
     local procedure DeleteMarkedDefaultReports()
@@ -92,7 +75,7 @@ codeunit 6325 "Power BI Report Synchronizer"
             exit(false);
 
         // Upload
-        if GetOOBReportsToUpload(Context, ReportsToUpload) then
+        if GetOutOfTheBoxReportsToUpload(Context, ReportsToUpload) then
             exit(true);
 
         if GetCustomerReportsToUpload(ReportsToUpload) then
@@ -171,31 +154,15 @@ codeunit 6325 "Power BI Report Synchronizer"
 
                     if PowerBIDefaultSelection.Selected then begin
                         PowerBIUserConfiguration.Reset();
-                        PowerBIUserConfiguration.SetFilter("User Security ID", UserSecurityId());
-                        PowerBIUserConfiguration.SetFilter("Page ID", PowerBIDefaultSelection.Context);
-                        PowerBIUserConfiguration.SetFilter("Profile ID", PowerBIServiceMgt.GetEnglishContext());
 
-                        // Don't want to override user's existing selections (e.g. in upgrade scenarios).
-                        if PowerBIUserConfiguration.IsEmpty then begin
-                            PowerBIUserConfiguration.Init();
-                            PowerBIUserConfiguration."User Security ID" := UserSecurityId();
-                            PowerBIUserConfiguration."Page ID" := PowerBIDefaultSelection.Context;
-                            PowerBIUserConfiguration."Profile ID" := PowerBIServiceMgt.GetEnglishContext();
+                        PowerBIUserConfiguration.CreateOrReadForCurrentUser(PowerBIDefaultSelection.Context);
+                        PowerBIBlob.Reset();
+                        PowerBIBlob.SetFilter(Id, PowerBIUserConfiguration."Selected Report ID");
+                        if (IntelligentCloud.Get() and not PowerBIBlob."GP Enabled") or
+                           IsNullGuid(PowerBIUserConfiguration."Selected Report ID")
+                        then begin
                             PowerBIUserConfiguration."Selected Report ID" := PowerBIReportUploads."Uploaded Report ID";
-                            PowerBIUserConfiguration."Report Visibility" := true;
-                            PowerBIUserConfiguration.Insert();
-                        end else begin
-                            // Modify existing selection if entry exists but no report selected (e.g. active page created
-                            // empty configuration entry on page load before upload code even runs).
-                            PowerBIUserConfiguration.FindFirst();
-                            PowerBIBlob.Reset();
-                            PowerBIBlob.SetFilter(Id, PowerBIUserConfiguration."Selected Report ID");
-                            if (IntelligentCloud.Get() and not PowerBIBlob."GP Enabled") or
-                               IsNullGuid(PowerBIUserConfiguration."Selected Report ID")
-                            then begin
-                                PowerBIUserConfiguration."Selected Report ID" := PowerBIReportUploads."Uploaded Report ID";
-                                PowerBIUserConfiguration.Modify();
-                            end;
+                            PowerBIUserConfiguration.Modify();
                         end;
                     end;
                 end;
@@ -208,7 +175,7 @@ codeunit 6325 "Power BI Report Synchronizer"
             if PowerBIBlob.Get(BlobId) then
                 exit(true);
 
-        // This is most of the times expected, e.g. if we are determining if a blob is OOB or Customer Uploaded
+        // This is most of the times expected, e.g. if we are determining if a blob is OutOfTheBox or Customer Uploaded
         Session.LogMessage('0000B61', StrSubstNo(BlobDoesNotExistTelemetryMsg, BlobId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
         exit(false);
     end;
@@ -216,19 +183,15 @@ codeunit 6325 "Power BI Report Synchronizer"
     local procedure DeploymentServiceAvailable(): Boolean
     begin
         if EnvironmentInformation.IsOnPrem() then
-            if PowerBiServiceMgt.CanHandleServiceCalls() then
-                exit(false) // We are OnPrem but we are using the default handling which does not support deployment
-            else
-                exit(true);
+            exit(false);
 
-        if PowerBiServiceMgt.IsPowerBIDeploymentEnabled() then
-            if PowerBiServiceMgt.IsPBIServiceAvailable() then
-                exit(true);
+        if PowerBiServiceMgt.IsPBIServiceAvailable() then
+            exit(true);
 
         exit(false);
     end;
 
-    local procedure GetOobBlobIdForDeployment(Context: Text[50]): Guid
+    local procedure GetOutOfTheBoxBlobIdForDeployment(Context: Text[50]): Guid
     var
         PowerBIBlob: Record "Power BI Blob";
         PowerBIDefaultSelection: Record "Power BI Default Selection";
@@ -277,7 +240,7 @@ codeunit 6325 "Power BI Report Synchronizer"
         exit(PowerBIUserConfiguration."Page ID");
     end;
 
-    local procedure UploadOobReportForContext(Context: Text[50])
+    local procedure UploadOutOfTheBoxReportForContext(Context: Text[50])
     var
         PowerBIBlob: Record "Power BI Blob";
         ApiRequest: DotNet ImportReportRequest;
@@ -297,9 +260,9 @@ codeunit 6325 "Power BI Report Synchronizer"
         ApiRequestList := ApiRequestList.ImportReportRequestList();
         EnvName := EnvironmentInformation.GetEnvironmentName();
 
-        // OOB
+        // OutOfTheBox
         PowerBIBlob.SetAutoCalcFields("Blob File");
-        if GetOOBReportsToUpload(Context, ReportsToUpload) then
+        if GetOutOfTheBoxReportsToUpload(Context, ReportsToUpload) then
             foreach BlobId in ReportsToUpload.Keys() do begin
                 NeedsOverwrite := ReportsToUpload.Get(BlobId); // NOTE this is Get from a dictionary, so it returns the dictionary value associated with the key BlobId
 
@@ -364,29 +327,24 @@ codeunit 6325 "Power BI Report Synchronizer"
             DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
 
         if ApiRequestList.Count() > 0 then begin
-            if PowerBIServiceMgt.CanHandleServiceCalls() then begin
-                AzureAccessToken := AzureAdMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(), PowerBIServiceMgt.GetPowerBiResourceName(), false);
+            AzureAccessToken := AzureAdMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(), PowerBIServiceMgt.GetPowerBiResourceName(), false);
 
-                if AzureAccessToken = '' then begin
-                    Session.LogMessage('0000B62', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
-                    exit;
-                end;
-
-                PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, PowerBIUrlMgt.GetPowerBIApiUrl());
-
-                BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
-
-                if BusinessCentralAccessToken <> '' then
-                    ApiResponseList := PbiServiceWrapper.ImportReports(ApiRequestList,
-                        CompanyName, EnvName, BusinessCentralAccessToken, GetServiceRetries())
-                else begin
-                    Session.LogMessage('0000B63', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
-                    exit;
-                end;
-            end else begin
-                ApiResponseList := ApiResponseList.ImportReportResponseList();
-                PowerBIServiceMgt.OnUploadReports(ApiRequestList, ApiResponseList);
+            if AzureAccessToken = '' then begin
+                Session.LogMessage('0000B62', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
+                exit;
             end;
+
+            PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, PowerBIUrlMgt.GetPowerBIApiUrl());
+
+            BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
+
+            if BusinessCentralAccessToken = '' then begin
+                Session.LogMessage('0000B63', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
+                exit;
+            end;
+
+            ApiResponseList := PbiServiceWrapper.ImportReports(ApiRequestList,
+                CompanyName, EnvName, BusinessCentralAccessToken, GetServiceRetries());
 
             foreach ApiResponse in ApiResponseList do
                 HandleUploadResponse(ApiResponse.ImportId, ApiResponse.RequestReportId,
@@ -441,21 +399,16 @@ codeunit 6325 "Power BI Report Synchronizer"
                 until PowerBIReportUploads.Next() = 0;
 
         if ImportIdList.Count > 0 then begin
-            if PowerBIServiceMgt.CanHandleServiceCalls() then begin
-                AzureAccessToken := AzureAdMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(), PowerBIServiceMgt.GetPowerBiResourceName(), false);
+            AzureAccessToken := AzureAdMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(), PowerBIServiceMgt.GetPowerBiResourceName(), false);
 
-                PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, PowerBIUrlMgt.GetPowerBIApiUrl());
-                BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
+            PbiServiceWrapper := PbiServiceWrapper.ServiceWrapper(AzureAccessToken, PowerBIUrlMgt.GetPowerBIApiUrl());
+            BusinessCentralAccessToken := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
 
-                if BusinessCentralAccessToken <> '' then
-                    ApiResponseList := PbiServiceWrapper.GetImportedReports(ImportIdList,
-                        CompanyName, EnvName, BusinessCentralAccessToken, GetServiceRetries())
-                else
-                    exit;
-            end else begin
-                ApiResponseList := ApiResponseList.ImportedReportResponseList();
-                PowerBIServiceMgt.OnRetryUploads(ImportIdList, ApiResponseList);
-            end;
+            if BusinessCentralAccessToken = '' then
+                exit;
+
+            ApiResponseList := PbiServiceWrapper.GetImportedReports(ImportIdList,
+                CompanyName, EnvName, BusinessCentralAccessToken, GetServiceRetries());
 
             foreach ApiResponse in ApiResponseList do
                 HandleUploadResponse(ApiResponse.ImportId, NullGuid, ApiResponse.ImportedReport,
@@ -510,7 +463,7 @@ codeunit 6325 "Power BI Report Synchronizer"
             else
                 PowerBIReportUploads.SetFilter("PBIX BLOB ID", BlobId);
 
-            if PowerBIReportUploads.IsEmpty then begin
+            if PowerBIReportUploads.IsEmpty() then begin
                 // First time this report has been uploaded.
                 PowerBIReportUploads.Init();
                 PowerBIReportUploads."PBIX BLOB ID" := BlobId;
@@ -561,7 +514,7 @@ codeunit 6325 "Power BI Report Synchronizer"
     var
         NullGuid: Guid;
     begin
-        // Checks whether the user has any partially deployed OOB reports that we need to finish.
+        // Checks whether the user has any partially deployed OutOfTheBox reports that we need to finish.
         // NOTE: there are two cases. 
         // 1) The upload errored out partway through, in which case we get ShouldRetry=true from Power BI and we save it in table 6307 "Power BI Report Uploads"
         // 2) The upload is still ongoing, so we get ShouldRetry=false
@@ -577,7 +530,7 @@ codeunit 6325 "Power BI Report Synchronizer"
         exit(not PowerBIReportUploads.IsEmpty());
     end;
 
-    local procedure GetOOBReportsToUpload(Context: Text[50]; var ReportsToOverwriteOrUpload: Dictionary of [Guid, Boolean]): Boolean
+    local procedure GetOutOfTheBoxReportsToUpload(Context: Text[50]; var ReportsToOverwriteOrUpload: Dictionary of [Guid, Boolean]): Boolean
     var
         PowerBIBlob: Record "Power BI Blob";
         PowerBIReportUploads: Record "Power BI Report Uploads";
@@ -587,8 +540,8 @@ codeunit 6325 "Power BI Report Synchronizer"
         if Context = '' then
             exit(false);
 
-        // OOB reports
-        BlobId := GetOobBlobIdForDeployment(Context);
+        // OutOfTheBox reports
+        BlobId := GetOutOfTheBoxBlobIdForDeployment(Context);
         if not GetPowerBIBlob(PowerBIBlob, BlobId) then
             exit(false);
 

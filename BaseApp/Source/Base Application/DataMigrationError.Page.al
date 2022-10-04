@@ -13,7 +13,7 @@ page 1797 "Data Migration Error"
         {
             repeater(Group)
             {
-                field("Error Message"; "Error Message")
+                field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the error message that relates to the data migration.';
@@ -21,7 +21,7 @@ page 1797 "Data Migration Error"
                     trigger OnDrillDown()
                     begin
                         if StagingTableRecIdSpecified then
-                            EditRecord;
+                            EditRecord();
                     end;
                 }
             }
@@ -38,23 +38,19 @@ page 1797 "Data Migration Error"
                 Caption = 'Skip Selections';
                 Enabled = StagingTableRecIdSpecified;
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Exclude the selected errors from the migration.';
 
                 trigger OnAction()
                 var
                     DataMigrationError: Record "Data Migration Error";
                 begin
-                    CheckAtLeastOneSelected;
+                    CheckAtLeastOneSelected();
                     if not Confirm(SkipSelectionConfirmQst, false) then
                         exit;
                     CurrPage.SetSelectionFilter(DataMigrationError);
                     DataMigrationError.FindSet();
                     repeat
-                        DataMigrationError.Ignore;
+                        DataMigrationError.Ignore();
                     until DataMigrationError.Next() = 0;
                     CurrPage.Update();
                 end;
@@ -65,15 +61,11 @@ page 1797 "Data Migration Error"
                 Caption = 'Edit Record';
                 Enabled = StagingTableRecIdSpecified;
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Edit the record that caused the error.';
 
                 trigger OnAction()
                 begin
-                    EditRecord;
+                    EditRecord();
                 end;
             }
             action(Migrate)
@@ -82,17 +74,13 @@ page 1797 "Data Migration Error"
                 Caption = 'Migrate';
                 Enabled = StagingTableRecIdSpecified;
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Migrate the selected errors.';
 
                 trigger OnAction()
                 var
                     DataMigrationError: Record "Data Migration Error";
                 begin
-                    CheckAtLeastOneSelected;
+                    CheckAtLeastOneSelected();
                     CurrPage.SetSelectionFilter(DataMigrationError);
                     StartMigration(DataMigrationError);
                 end;
@@ -103,10 +91,6 @@ page 1797 "Data Migration Error"
                 Caption = 'Bulk-Fix Errors';
                 Enabled = BulkFixErrorsButtonEnabled;
                 Image = List;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Open a list of all entities that contained an error. You can fix some or all of the errors and migrate the updated data.';
 
                 trigger OnAction()
@@ -121,6 +105,26 @@ page 1797 "Data Migration Error"
 
                     StartMigration(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SkipSelection_Promoted; SkipSelection)
+                {
+                }
+                actionref(Edit_Promoted; Edit)
+                {
+                }
+                actionref(Migrate_Promoted; Migrate)
+                {
+                }
+                actionref(BulkFixErrors_Promoted; BulkFixErrors)
+                {
+                }
             }
         }
     }
@@ -142,7 +146,7 @@ page 1797 "Data Migration Error"
         Notification: Notification;
     begin
         Notification.Message := SkipEditNotificationMsg;
-        Notification.Send;
+        Notification.Send();
     end;
 
     var
@@ -171,7 +175,7 @@ page 1797 "Data Migration Error"
         DataMigrationStatus: Record "Data Migration Status";
         RecordRef: RecordRef;
     begin
-        CheckAtLeastOneSelected;
+        CheckAtLeastOneSelected();
         CurrPage.SetSelectionFilter(DataMigrationError);
         if DataMigrationError.Count > 1 then
             Error(MultipleRecordsSelectedErr);
@@ -202,7 +206,7 @@ page 1797 "Data Migration Error"
         DataMigrationFacade.StartMigration("Migration Type", true);
 
         Message(MigrationStartedMsg, DataMigrationOverview.Caption);
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 }
 

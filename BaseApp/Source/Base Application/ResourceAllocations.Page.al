@@ -14,13 +14,13 @@ page 6005 "Resource Allocations"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of the document (Order or Quote) from which the allocation entry was created.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the service order associated with this entry.';
@@ -31,31 +31,31 @@ page 6005 "Resource Allocations"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the status of the entry, such as active, non-active, or cancelled.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the service item.';
                     Visible = true;
                 }
-                field("Service Item Serial No."; "Service Item Serial No.")
+                field("Service Item Serial No."; Rec."Service Item Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the service item in this entry.';
                     Visible = false;
                 }
-                field("Service Item Line No."; "Service Item Line No.")
+                field("Service Item Line No."; Rec."Service Item Line No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the service item line linked to this entry.';
                     Visible = false;
                 }
-                field("Service Item Description"; "Service Item Description")
+                field("Service Item Description"; Rec."Service Item Description")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies a description of the service item in this entry.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource allocated to the service task in this entry.';
@@ -65,30 +65,30 @@ page 6005 "Resource Allocations"
                         ResourceNoOnAfterValidate();
                     end;
                 }
-                field("Resource Group No."; "Resource Group No.")
+                field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource group allocated to the service task in this entry.';
                     Visible = false;
                 }
-                field("Allocation Date"; "Allocation Date")
+                field("Allocation Date"; Rec."Allocation Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date when the resource allocation should start.';
                 }
-                field("Allocated Hours"; "Allocated Hours")
+                field("Allocated Hours"; Rec."Allocated Hours")
                 {
                     ApplicationArea = Jobs;
                     DecimalPlaces = 1 : 2;
                     ToolTip = 'Specifies the hours allocated to the resource or resource group for the service task in this entry.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the time when you want the allocation to start.';
                     Visible = false;
                 }
-                field("Finishing Time"; "Finishing Time")
+                field("Finishing Time"; Rec."Finishing Time")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the time when you want the allocation to finish.';

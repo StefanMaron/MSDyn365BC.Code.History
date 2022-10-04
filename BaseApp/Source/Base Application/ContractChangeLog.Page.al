@@ -1,7 +1,7 @@
 page 6063 "Contract Change Log"
 {
     Caption = 'Contract Change Log';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     Editable = false;
     PageType = List;
     SourceTable = "Contract Change Log";
@@ -15,52 +15,52 @@ page 6063 "Contract Change Log"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contract Part"; "Contract Part")
+                field("Contract Part"; Rec."Contract Part")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the part of the contract that was changed.';
                 }
-                field("Type of Change"; "Type of Change")
+                field("Type of Change"; Rec."Type of Change")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of change on the contract.';
                 }
-                field("Field Description"; "Field Description")
+                field("Field Description"; Rec."Field Description")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of the field that was modified.';
                 }
-                field("New Value"; "New Value")
+                field("New Value"; Rec."New Value")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the contents of the modified field after the change has taken place.';
                 }
-                field("Old Value"; "Old Value")
+                field("Old Value"; Rec."Old Value")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the contents of the modified field before the change takes place.';
                 }
-                field("Date of Change"; "Date of Change")
+                field("Date of Change"; Rec."Date of Change")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date of the change.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the item on the service contract line, for which a log entry was created.';
                 }
-                field("Serv. Contract Line No."; "Serv. Contract Line No.")
+                field("Serv. Contract Line No."; Rec."Serv. Contract Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract line for which a log entry was created.';
                 }
-                field("Time of Change"; "Time of Change")
+                field("Time of Change"; Rec."Time of Change")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time of the change.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';

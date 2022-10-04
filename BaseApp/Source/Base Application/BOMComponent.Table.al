@@ -42,9 +42,9 @@ table 90 "BOM Component"
 
                 case Type of
                     Type::Item:
-                        CopyFromItem;
+                        CopyFromItem();
                     Type::Resource:
-                        CopyFromResource;
+                        CopyFromResource();
                 end;
             end;
         }
@@ -148,7 +148,7 @@ table 90 "BOM Component"
                 AssemblyBOM.SetTableView(BOMComp);
                 AssemblyBOM.Editable(false);
                 AssemblyBOM.LookupMode(true);
-                if AssemblyBOM.RunModal = ACTION::LookupOK then begin
+                if AssemblyBOM.RunModal() = ACTION::LookupOK then begin
                     AssemblyBOM.GetRecord(BOMComp);
                     Validate("Installed in Line No.", BOMComp."Line No.");
                 end;
@@ -186,7 +186,7 @@ table 90 "BOM Component"
                 AssemblyBOM.SetTableView(BOMComp);
                 AssemblyBOM.Editable(false);
                 AssemblyBOM.LookupMode(true);
-                if AssemblyBOM.RunModal = ACTION::LookupOK then begin
+                if AssemblyBOM.RunModal() = ACTION::LookupOK then begin
                     AssemblyBOM.GetRecord(BOMComp);
                     Validate("Installed in Line No.", BOMComp."Line No.");
                 end;
@@ -244,8 +244,6 @@ table 90 "BOM Component"
     end;
 
     var
-        Text000: Label '%1 cannot be component of itself.';
-        Text001: Label 'You cannot insert item %1 as an assembly component of itself.';
         Item: Record Item;
         ParentItem: Record Item;
         Res: Record Resource;
@@ -253,6 +251,9 @@ table 90 "BOM Component"
         BOMComp: Record "BOM Component";
         AssemblyBOM: Page "Assembly BOM";
         QtyPerCannotBeNegativeErr: Label 'Quantity per cannot be negative.';
+
+        Text000: Label '%1 cannot be component of itself.';
+        Text001: Label 'You cannot insert item %1 as an assembly component of itself.';
 
     procedure ValidateAgainstRecursion(ItemNo: Code[20])
     var
@@ -296,8 +297,8 @@ table 90 "BOM Component"
         "Unit of Measure Code" := Item."Base Unit of Measure";
         ParentItem.Get("Parent Item No.");
         CalcLowLevelCode.SetRecursiveLevelsOnItem(Item, ParentItem."Low-Level Code" + 1, true);
-        Item.Find;
-        ParentItem.Find;
+        Item.Find();
+        ParentItem.Find();
         if ParentItem."Low-Level Code" >= Item."Low-Level Code" then
             Error(Text001, "No.");
 

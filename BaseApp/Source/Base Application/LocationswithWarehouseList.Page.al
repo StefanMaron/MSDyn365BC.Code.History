@@ -109,7 +109,7 @@ page 7347 "Locations with Warehouse List"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := Location;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 

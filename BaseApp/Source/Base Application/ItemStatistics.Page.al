@@ -25,7 +25,7 @@ page 5827 "Item Statistics"
 
                     trigger OnValidate()
                     begin
-                        ItemBufferLineOptionOnAfterVal;
+                        ItemBufferLineOptionOnAfterVal();
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -46,7 +46,7 @@ page 5827 "Item Statistics"
                         end;
                         Text := NewCode;
                         ColumnDimCode := NewCode;
-                        ValidateColumnDimCode;
+                        ValidateColumnDimCode();
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                         exit(true);
@@ -54,8 +54,8 @@ page 5827 "Item Statistics"
 
                     trigger OnValidate()
                     begin
-                        ValidateColumnDimCode;
-                        ColumnDimCodeOnAfterValidate;
+                        ValidateColumnDimCode();
+                        ColumnDimCodeOnAfterValidate();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -69,7 +69,7 @@ page 5827 "Item Statistics"
                         ItemBuffer.SetFilter("Date Filter", DateFilter);
                         DateFilter := ItemBuffer.GetFilter("Date Filter");
                         InternalDateFilter := DateFilter;
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -85,7 +85,7 @@ page 5827 "Item Statistics"
                     begin
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -95,7 +95,7 @@ page 5827 "Item Statistics"
 
                     trigger OnValidate()
                     begin
-                        ItemFilterOnAfterValidate;
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -111,7 +111,7 @@ page 5827 "Item Statistics"
                     begin
                         Locations.SetTableView(Location);
                         Locations.LookupMode := true;
-                        if Locations.RunModal = ACTION::LookupOK then begin
+                        if Locations.RunModal() = ACTION::LookupOK then begin
                             Locations.GetRecord(Location);
                             Text := Location.Code;
                             exit(true);
@@ -133,7 +133,7 @@ page 5827 "Item Statistics"
                         ItemVariant.SetRange("Item No.", Item."No.");
                         ItemVariants.SetTableView(ItemVariant);
                         ItemVariants.LookupMode := true;
-                        if ItemVariants.RunModal = ACTION::LookupOK then begin
+                        if ItemVariants.RunModal() = ACTION::LookupOK then begin
                             ItemVariants.GetRecord(ItemVariant);
                             Text := ItemVariant.Code;
                             exit(true);
@@ -176,7 +176,7 @@ page 5827 "Item Statistics"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        PeriodTypeOnAfterValidate;
+                        PeriodTypeOnAfterValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -210,9 +210,6 @@ page 5827 "Item Statistics"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -233,10 +230,6 @@ page 5827 "Item Statistics"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -249,15 +242,29 @@ page 5827 "Item Statistics"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -481,7 +488,7 @@ page 5827 "Item Statistics"
     local procedure CopyAddChargesToBuf(var TheItemCharge: Record "Item Charge"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheItemCharge."No.";
             Name := CopyStr(
                 StrSubstNo('%1 %2', TheItemCharge."No.", TheItemCharge.Description), 1, 50);
@@ -491,7 +498,7 @@ page 5827 "Item Statistics"
     local procedure CopyLocationToBuf(var TheLocation: Record Location; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheLocation.Code;
             Name := TheLocation.Name;
         end;
@@ -500,7 +507,7 @@ page 5827 "Item Statistics"
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
             "Period End" := ThePeriod."Period End";
@@ -511,7 +518,7 @@ page 5827 "Item Statistics"
     local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Code1;
             Name := CopyStr(Name1, 1, MaxStrLen(Name));
             Indentation := Indentation1;
@@ -549,12 +556,12 @@ page 5827 "Item Statistics"
         Location: Record Location;
         DimSelection: Page "Dimension Selection";
     begin
-        DimSelection.InsertDimSelBuf(false, Location.TableCaption, Location.TableCaption);
+        DimSelection.InsertDimSelBuf(false, Location.TableCaption(), Location.TableCaption());
         DimSelection.InsertDimSelBuf(false, Text002, Text002);
 
         DimSelection.LookupMode := true;
-        if DimSelection.RunModal = ACTION::LookupOK then
-            exit(DimSelection.GetDimSelCode);
+        if DimSelection.RunModal() = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode());
 
         exit(OldDimSelCode);
     end;
@@ -563,7 +570,7 @@ page 5827 "Item Statistics"
     var
         Location: Record Location;
     begin
-        if (UpperCase(ColumnDimCode) <> UpperCase(Location.TableCaption)) and
+        if (UpperCase(ColumnDimCode) <> UpperCase(Location.TableCaption())) and
            (UpperCase(ColumnDimCode) <> UpperCase(Text002)) and
            (ColumnDimCode <> '')
         then begin

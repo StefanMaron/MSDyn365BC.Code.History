@@ -37,13 +37,13 @@ codeunit 2020 "Image Analysis Management"
     begin
         if IsInitialized then
             exit;
-        if not ImageAnalysisSetup.Get then begin
+        if not ImageAnalysisSetup.Get() then begin
             ImageAnalysisSetup.Init();
             ImageAnalysisSetup.Insert();
         end;
 
         if (Key = '') or (Uri = '') then begin
-            Key := ImageAnalysisSetup.GetApiKey;
+            Key := ImageAnalysisSetup.GetApiKey();
             Uri := ImageAnalysisSetup."Api Uri";
             AzureAIUsage.SetImageAnalysisIsSetup(false);
         end else
@@ -58,7 +58,7 @@ codeunit 2020 "Image Analysis Management"
         if LimitValue = 0 then
             SetLimitInYears(999);
 
-        if ((Key = '') or (Uri = '')) and EnvironmentInfo.IsSaaS then
+        if ((Key = '') or (Uri = '')) and EnvironmentInfo.IsSaaS() then
             GetImageAnalysisCredentials(Key, Uri, LimitType, LimitValue);
 
         IsInitialized := true;
@@ -170,7 +170,7 @@ codeunit 2020 "Image Analysis Management"
     begin
         Initialize();
         SetLastError('', false);
-        OnBeforeImageAnalysis;
+        OnBeforeImageAnalysis();
 
         if (Key = '') or (Uri = '') then
             SetLastError(NoApiKeyUriErr, false)
@@ -182,7 +182,7 @@ codeunit 2020 "Image Analysis Management"
                     SetLastError(UsageLimitError, true)
                 else
                     if InvokeAnalysis(JSONManagement, AnalysisType) then
-                        ImageAnalysisSetup.Increment
+                        ImageAnalysisSetup.Increment()
                     else
                         if LastError = '' then
                             SetLastError(GenericErrorErr, false);
@@ -190,7 +190,7 @@ codeunit 2020 "Image Analysis Management"
         ImageAnalysisResult.SetJson(JSONManagement, AnalysisType);
         OnAfterImageAnalysis(ImageAnalysisResult);
 
-        exit(not HasError);
+        exit(not HasError());
     end;
 
     [NonDebuggable]
@@ -215,20 +215,20 @@ codeunit 2020 "Image Analysis Management"
         PostParameters: Text;
     begin
         if IsNull(HttpMessageHandler) then
-            HttpClient := HttpClient.HttpClient
+            HttpClient := HttpClient.HttpClient()
         else
             HttpClient := HttpClient.HttpClient(HttpMessageHandler);
 
         HttpClient.BaseAddress := ApiUri.Uri(Uri);
 
         HttpRequestHeaders := HttpClient.DefaultRequestHeaders;
-        if HasCustomVisionUri then
+        if HasCustomVisionUri() then
             HttpRequestHeaders.TryAddWithoutValidation('Prediction-Key', Key)
         else begin
             HttpRequestHeaders.TryAddWithoutValidation('Ocp-Apim-Subscription-Key', Key);
             PostParameters := StrSubstNo('?visualFeatures=%1', Format(AnalysisType));
         end;
-        HttpHeaderValueCollection := HttpRequestHeaders.Accept;
+        HttpHeaderValueCollection := HttpRequestHeaders.Accept();
         MediaTypeWithQualityHeaderValue :=
           MediaTypeWithQualityHeaderValue.MediaTypeWithQualityHeaderValue('application/json');
         HttpHeaderValueCollection.Add(MediaTypeWithQualityHeaderValue);
@@ -244,17 +244,17 @@ codeunit 2020 "Image Analysis Management"
 
         HttpResponseMessage := Task.Result;
         HttpContent := HttpResponseMessage.Content;
-        Task := HttpContent.ReadAsStringAsync;
+        Task := HttpContent.ReadAsStringAsync();
         JSONManagement.InitializeObject(Task.Result);
 
-        FileStream.Dispose;
-        StreamContent.Dispose;
-        HttpClient.Dispose;
+        FileStream.Dispose();
+        StreamContent.Dispose();
+        HttpClient.Dispose();
 
         if not HttpResponseMessage.IsSuccessStatusCode then begin
             JSONManagement.GetJSONObject(JsonResult);
             JSONManagement.GetStringPropertyValueFromJObjectByName(JsonResult, 'message', MessageText);
-            if HasCustomVisionUri then
+            if HasCustomVisionUri() then
                 SetLastError(StrSubstNo(CognitiveServicesErr, CustomVisionServiceTxt, MessageText, HttpResponseMessage.StatusCode), false)
             else
                 SetLastError(StrSubstNo(CognitiveServicesErr, ComputerVisionApiTxt, MessageText, HttpResponseMessage.StatusCode), false);
@@ -272,7 +272,7 @@ codeunit 2020 "Image Analysis Management"
     begin
         Message := LastError;
         IsUsageLimitError := IsLastErrorUsageLimitError;
-        exit(HasError);
+        exit(HasError());
     end;
 
     local procedure SetLastError(ErrorMsg: Text; IsUsageLimitError: Boolean)

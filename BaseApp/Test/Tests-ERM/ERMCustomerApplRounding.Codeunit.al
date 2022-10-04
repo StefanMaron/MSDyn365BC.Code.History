@@ -36,7 +36,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         Currency.Get(UpdateCurrency(CreateCurrencyForApplRounding, LibraryRandom.RandInt(9) / 100));
 
         // Using value for calculating Application Rounding Amount.
-        ApplRoundingAmountLCY := LibraryERM.ConvertCurrency(Currency."Appln. Rounding Precision", Currency.Code, '', WorkDate);
+        ApplRoundingAmountLCY := LibraryERM.ConvertCurrency(Currency."Appln. Rounding Precision", Currency.Code, '', WorkDate());
 
         // Create and Post Invoice and Payment Line.
         SelectGenJournalBatch(GenJournalBatch);
@@ -118,7 +118,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(300),
           CreateCustomer, CreateCurrencyCorrectionEntry);
-        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", Currency.Code, WorkDate);
+        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", Currency.Code, WorkDate());
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment,
           -Amount + Currency."Appln. Rounding Precision", GenJournalLine."Account No.", Currency.Code);
@@ -146,7 +146,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
 
         // Create and Post General Line for Two Invoices and apply Payment with currency to both invoices
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 3, 3);
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Currency Code", CurrencyCode);
         Customer.Modify();
@@ -265,7 +265,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         if CustLedgerEntry2.FindSet() then
             repeat
                 LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
-            until CustLedgerEntry2.Next = 0;
+            until CustLedgerEntry2.Next() = 0;
 
         // Post Application Entries.
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -371,7 +371,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         Assert.AreNearlyEqual(
           DetailedCustLedgEntry."Amount (LCY)", ApplnRoundPrecAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(ApplnRoundPrecMessage, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), DetailedCustLedgEntry."Amount (LCY)",
-            DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+            DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyCorrectionofRemAmount(DocumentNo: Code[20])
@@ -398,8 +398,8 @@ codeunit 134901 "ERM Customer Appl Rounding"
             Assert.AreNearlyEqual(
               0, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
               StrSubstNo(ApplnRoundPrecMessage, CustLedgerEntry.FieldCaption("Amount (LCY)"), CustLedgerEntry."Amount (LCY)",
-                CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
-        until CustLedgerEntry.Next = 0;
+                CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyCorrAmountGLEntries(Customer: Record Customer; DocumentNo: Code[20]; ReceivablesAmount: Decimal; CorrectionAmount: Decimal)
@@ -413,7 +413,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
         GLEntry.Find('-');
         Assert.AreEqual(ReceivablesAmount, GLEntry.Amount, StrSubstNo('G/L receivables amount should be %1', ReceivablesAmount));
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(CorrectionAmount, GLEntry.Amount, StrSubstNo('G/L correction amount should be %1.', CorrectionAmount));
     end;
 

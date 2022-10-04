@@ -33,7 +33,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         // [GIVEN] Encryption is not set.
         // [WHEN] Encrypt method on the "Encryption Management" codeunit is called.
         // [THEN] An error is thrown suggesting that the encryption is not enabled.
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.DisableEncryption(true);
         TextToEncrypt := CopyStr(LibraryUtility.GenerateRandomText(10), 1, 215);
         asserterror CryptographyManagement.EncryptText(TextToEncrypt);
@@ -51,7 +51,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         // [GIVEN] Encryption is not set.
         // [WHEN] Decrypt method on the "Encryption Management" codeunit is called.
         // [THEN] An error is thrown suggesting that the encryption is not enabled.
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.DisableEncryption(true);
         TextToEncrypt := LibraryUtility.GenerateRandomText(10);
         asserterror CryptographyManagement.Decrypt(TextToEncrypt);
@@ -73,7 +73,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         // [THEN] Encrypted text is returned.
         // [WHEN] Decrypt is called on the encrypted text data.
         // [THEN] Decrypted text is returned.
-        if not CryptographyManagement.IsEncryptionEnabled then
+        if not CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.EnableEncryption(FALSE);
 
         TextToEncrypt := CopyStr(LibraryUtility.GenerateRandomText(100), 1, 215);
@@ -96,7 +96,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     //     // [THEN] Encryption key can be uploaded to the server.
 
     //     CryptographyManagement.SetSilentFileUploadDownload(true, '');
-    //     if not CryptographyManagement.IsEncryptionPossible then
+    //     if not CryptographyManagement.IsEncryptionPossible() then
     //         CryptographyManagement.EnableEncryption(FALSE);
 
     //     DataEncryptionTestPage."Export Encryption Key";
@@ -116,7 +116,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     var
         DataEncryptionManagement: TestPage "Data Encryption Management";
     begin
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.DisableEncryption(true);
 
         DataEncryptionManagement.OpenView;
@@ -137,7 +137,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     var
         DataEncryptionManagement: TestPage "Data Encryption Management";
     begin
-        if not CryptographyManagement.IsEncryptionPossible then
+        if not CryptographyManagement.IsEncryptionPossible() then
             CryptographyManagement.EnableEncryption(FALSE);
 
         DataEncryptionManagement.OpenView;
@@ -158,7 +158,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     var
         DataEncryptionManagement: TestPage "Data Encryption Management";
     begin
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.DisableEncryption(true);
 
         DataEncryptionManagement.OpenView;
@@ -182,7 +182,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     var
         DataEncryptionManagement: TestPage "Data Encryption Management";
     begin
-        if not CryptographyManagement.IsEncryptionPossible then
+        if not CryptographyManagement.IsEncryptionPossible() then
             CryptographyManagement.EnableEncryption(FALSE);
 
         DataEncryptionManagement.OpenView;
@@ -207,7 +207,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     //     DataEncryptionManagement: TestPage "Data Encryption Management";
     // begin
     //     CryptographyManagement.SetSilentFileUploadDownload(true, '');
-    //     if not CryptographyManagement.IsEncryptionPossible then
+    //     if not CryptographyManagement.IsEncryptionPossible() then
     //         CryptographyManagement.EnableEncryption(FALSE);
 
     //     DataEncryptionManagement.OpenView;
@@ -509,7 +509,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     [Scope('OnPrem')]
     procedure Cleanup()
     begin
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.DisableEncryption(true);
     end;
 

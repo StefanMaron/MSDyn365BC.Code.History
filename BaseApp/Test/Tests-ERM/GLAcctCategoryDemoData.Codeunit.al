@@ -32,7 +32,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         // Verify
         repeat
             GLAccount.TestField("Account Category");
-        until GLAccount.Next = 0;
+        until GLAccount.Next() = 0;
     end;
 
     [Test]
@@ -240,6 +240,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
     procedure TestBalanceSheetBalances()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        FinancialReport: Record "Financial Report";
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         AccScheduleName: Record "Acc. Schedule Name";
@@ -251,16 +252,17 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         // Setup
         Initialize();
         GeneralLedgerSetup.Get();
-        AccScheduleLine.SetRange("Schedule Name", GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
+        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
+        AccScheduleLine.SetRange("Schedule Name", FinancialReport."Financial Report Row Group");
         AccScheduleLine.SetRange("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
         AccScheduleLine.SetRange("Date Filter", Today);
 
         // Execute - Calculate Total Assets
         AccScheduleLine.SetRange(Description, TotalAssetsTxt);
         AccScheduleLine.FindFirst();
-        AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
+        AccScheduleName.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
 
-        ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
+        ColumnLayout.SetRange("Column Layout Name", FinancialReport."Financial Report Column Group");
         ColumnLayout.FindFirst();
         TotalAssets := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
 
@@ -321,7 +323,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
                 break;
             if not GLAccountCategories.IsExpanded then
                 GLAccountCategories.Expand(true);
-        until not GLAccountCategories.Next;
+        until not GLAccountCategories.Next();
         GLAccountCategories.OK.Invoke;
     end;
 }

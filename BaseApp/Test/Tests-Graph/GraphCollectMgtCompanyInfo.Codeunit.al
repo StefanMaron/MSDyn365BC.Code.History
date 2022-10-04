@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 134633 "Graph Collect Mgt CompanyInfo"
 {
     Subtype = Test;
@@ -659,7 +660,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
                 ActualO365SocialNetwork.Get(CopyStr(ExpectedO365SocialNetwork.Name, 1, MaxStrLen(ExpectedO365SocialNetwork.Code)));
                 ActualO365SocialNetwork.TestField(Name, ExpectedO365SocialNetwork.Name);
                 ActualO365SocialNetwork.TestField(URL, ExpectedO365SocialNetwork.URL);
-            until ExpectedO365SocialNetwork.Next = 0;
+            until ExpectedO365SocialNetwork.Next() = 0;
     end;
 
     local procedure VerifyMatchingSocialNetworksJSON(var ExpectedO365SocialNetwork: Record "O365 Social Network"; SocialLinksJSON: Text)
@@ -701,7 +702,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
             TempO365SocialNetwork.URL := O365SocialNetwork.URL;
             TempO365SocialNetwork."Media Resources Ref" := O365SocialNetwork."Media Resources Ref";
             TempO365SocialNetwork.Insert(true);
-        until O365SocialNetwork.Next = 0;
+        until O365SocialNetwork.Next() = 0;
     end;
 }
-
+#endif

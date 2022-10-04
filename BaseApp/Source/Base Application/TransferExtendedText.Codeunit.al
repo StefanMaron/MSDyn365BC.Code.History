@@ -6,7 +6,6 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     var
-        Text000: Label 'There is not enough space to insert extended text lines.';
         GLAcc: Record "G/L Account";
         Item: Record Item;
         Res: Record Resource;
@@ -15,6 +14,8 @@ codeunit 378 "Transfer Extended Text"
         LineSpacing: Integer;
         MakeUpdateRequired: Boolean;
         AutoText: Boolean;
+
+        Text000: Label 'There is not enough space to insert extended text lines.';
 
     procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean): Boolean
     var
@@ -40,20 +41,14 @@ codeunit 378 "Transfer Extended Text"
                 SalesLine.Type::" ":
                     AutoText := true;
                 SalesLine.Type::"G/L Account":
-                    begin
-                        if GLAcc.Get(SalesLine."No.") then
-                            AutoText := GLAcc."Automatic Ext. Texts";
-                    end;
+                    if GLAcc.Get(SalesLine."No.") then
+                        AutoText := GLAcc."Automatic Ext. Texts";
                 SalesLine.Type::Item:
-                    begin
-                        if Item.Get(SalesLine."No.") then
-                            AutoText := Item."Automatic Ext. Texts";
-                    end;
+                    if Item.Get(SalesLine."No.") then
+                        AutoText := Item."Automatic Ext. Texts";
                 SalesLine.Type::Resource:
-                    begin
-                        if Res.Get(SalesLine."No.") then
-                            AutoText := Res."Automatic Ext. Texts";
-                    end;
+                    if Res.Get(SalesLine."No.") then
+                        AutoText := Res."Automatic Ext. Texts";
             end;
 
         OnSalesCheckIfAnyExtTextOnBeforeSetFilters(SalesLine, AutoText, Unconditionally);
@@ -175,15 +170,11 @@ codeunit 378 "Transfer Extended Text"
                 PurchLine.Type::" ":
                     AutoText := true;
                 PurchLine.Type::"G/L Account":
-                    begin
-                        if GLAcc.Get(PurchLine."No.") then
-                            AutoText := GLAcc."Automatic Ext. Texts";
-                    end;
+                    if GLAcc.Get(PurchLine."No.") then
+                        AutoText := GLAcc."Automatic Ext. Texts";
                 PurchLine.Type::Item:
-                    begin
-                        if Item.Get(PurchLine."No.") then
-                            AutoText := Item."Automatic Ext. Texts";
-                    end;
+                    if Item.Get(PurchLine."No.") then
+                        AutoText := Item."Automatic Ext. Texts";
                 PurchLine.Type::Resource:
                     if Res.Get(PurchLine."No.") then
                         AutoText := Res."Automatic Ext. Texts";
@@ -575,26 +566,18 @@ codeunit 378 "Transfer Extended Text"
                 ServiceLine.Type::" ":
                     AutoText := true;
                 ServiceLine.Type::Cost:
-                    begin
-                        if ServCost.Get(ServiceLine."No.") then
-                            if GLAcc.Get(ServCost."Account No.") then
-                                AutoText := GLAcc."Automatic Ext. Texts";
-                    end;
-                ServiceLine.Type::Item:
-                    begin
-                        if Item.Get(ServiceLine."No.") then
-                            AutoText := Item."Automatic Ext. Texts";
-                    end;
-                ServiceLine.Type::Resource:
-                    begin
-                        if Res.Get(ServiceLine."No.") then
-                            AutoText := Res."Automatic Ext. Texts";
-                    end;
-                ServiceLine.Type::"G/L Account":
-                    begin
-                        if GLAcc.Get(ServiceLine."No.") then
+                    if ServCost.Get(ServiceLine."No.") then
+                        if GLAcc.Get(ServCost."Account No.") then
                             AutoText := GLAcc."Automatic Ext. Texts";
-                    end;
+                ServiceLine.Type::Item:
+                    if Item.Get(ServiceLine."No.") then
+                        AutoText := Item."Automatic Ext. Texts";
+                ServiceLine.Type::Resource:
+                    if Res.Get(ServiceLine."No.") then
+                        AutoText := Res."Automatic Ext. Texts";
+                ServiceLine.Type::"G/L Account":
+                    if GLAcc.Get(ServiceLine."No.") then
+                        AutoText := GLAcc."Automatic Ext. Texts";
             end;
 
         OnServCheckIfAnyExtTextOnBeforeSetFilters(ServiceLine, AutoText, Unconditionally);

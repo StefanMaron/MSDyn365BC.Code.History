@@ -210,7 +210,7 @@ table 7322 "Posted Whse. Shipment Header"
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
             Rec := PostedWhseShptHeader;
-            if not Find then;
+            if not Find() then;
         end;
         exit(RealSteps);
     end;

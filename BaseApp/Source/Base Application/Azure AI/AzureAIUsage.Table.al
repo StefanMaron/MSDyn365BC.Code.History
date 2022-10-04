@@ -6,7 +6,7 @@ table 2004 "Azure AI Usage"
     ObsoleteState = Pending;
     ObsoleteReason = 'Table will be marked as internal. Use codeunit ''Azure AI Usage'' to read the data from the table.';
     ObsoleteTag = '17.0';
-
+    ReplicateData = false;
     Caption = 'Azure AI Usage';
     Permissions = TableData "Azure AI Usage" = rimd;
 

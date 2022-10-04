@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2112 "O365 Sales Attachment Mgt"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -32,7 +36,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         IncomingDocumentAttachment.SetAutoCalcFields(Content);
         if IncomingDocumentAttachment.FindSet() then
             repeat
-                if IncomingDocumentAttachment.Content.HasValue then
+                if IncomingDocumentAttachment.Content.HasValue() then
                     TotalSize += IncomingDocumentAttachment.Content.Length;
             until IncomingDocumentAttachment.Next() = 0;
     end;
@@ -71,7 +75,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         RecordRef: RecordRef;
     begin
         RecordRef.GetTable(RecordVariant);
-        if not RecordRef.Find then
+        if not RecordRef.Find() then
             exit;
         RecordVariant := RecordRef;
         if RecordRef.Number = DATABASE::"Sales Header" then begin
@@ -82,12 +86,12 @@ codeunit 2112 "O365 Sales Attachment Mgt"
                 Commit();
                 RecordVariant := SalesHeader;
             end;
-            SalesHeader.SetRecFilter;
+            SalesHeader.SetRecFilter();
             PAGE.Run(PAGE::"O365 Sales Doc. Attachments", SalesHeader);
         end;
         if RecordRef.Number = DATABASE::"Sales Invoice Header" then begin
             SalesInvoiceHeader := RecordVariant;
-            SalesInvoiceHeader.SetRecFilter;
+            SalesInvoiceHeader.SetRecFilter();
             PAGE.Run(PAGE::"O365 Posted Sales Inv. Att.", SalesInvoiceHeader);
         end;
         NoOfAttachments := GetNoOfAttachments(RecordVariant);
@@ -99,7 +103,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
     begin
         IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.CopyFilters(IncomingDocumentAttachmentOrig);
-        IncomingDocumentAttachment.NewAttachment;
+        IncomingDocumentAttachment.NewAttachment();
         case IncomingDocumentAttachment.Type of
             IncomingDocumentAttachment.Type::Image:
                 IncomingDocumentAttachment.Name :=
@@ -119,7 +123,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
     begin
         with IncomingDocumentAttachment do begin
             CalcFields(Content);
-            if not Content.HasValue then
+            if not Content.HasValue() then
                 exit;
 
             case Type of
@@ -136,8 +140,8 @@ codeunit 2112 "O365 Sales Attachment Mgt"
     [Scope('OnPrem')]
     procedure WarnIfIncomingDocumentSizeAboveMax(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     begin
-        if GetSizeOfAttachments(IncomingDocumentAttachment) > GetMaxEmailAttachmentsSize then
-            Message(StrSubstNo(EmailSizeAboveMaxTxt, GetMaxEmailAttachmentsSizeAsText));
+        if GetSizeOfAttachments(IncomingDocumentAttachment) > GetMaxEmailAttachmentsSize() then
+            Message(StrSubstNo(EmailSizeAboveMaxTxt, GetMaxEmailAttachmentsSizeAsText()));
     end;
 
     [Scope('OnPrem')]
@@ -148,20 +152,20 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         AllowedAttachmentNameSize: Integer;
     begin
         AttachmentNameSize := StrLen(StrSubstNo('%1.%2', IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension"));
-        AllowedAttachmentNameSize := GetMaxAllowedFileNameSize;
+        AllowedAttachmentNameSize := GetMaxAllowedFileNameSize();
         if AttachmentNameSize > AllowedAttachmentNameSize then begin
             AttachmentNameSizeNotification.Id := AttachmentNameSizeNotificationGuidTok;
             AttachmentNameSizeNotification.Message(StrSubstNo(AttachmentNameToBeTruncatedMsg, AllowedAttachmentNameSize));
             AttachmentNameSizeNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
-            AttachmentNameSizeNotification.Send;
+            AttachmentNameSizeNotification.Send();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure AssertIncomingDocumentSizeBelowMax(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     begin
-        if GetSizeOfAttachments(IncomingDocumentAttachment) > GetMaxEmailAttachmentsSize then
-            Error(EmailSizeAboveMaxTxt, GetMaxEmailAttachmentsSizeAsText);
+        if GetSizeOfAttachments(IncomingDocumentAttachment) > GetMaxEmailAttachmentsSize() then
+            Error(EmailSizeAboveMaxTxt, GetMaxEmailAttachmentsSizeAsText());
     end;
 
     local procedure GetMaxEmailAttachmentsSize() MaxEmailAttachmentSize: Integer
@@ -170,7 +174,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         GraphMail: Codeunit "Graph Mail";
         MaxEmailSize: Integer;
     begin
-        if GraphMail.IsEnabled then
+        if GraphMail.IsEnabled() then
             MaxEmailSize := 4 * 1024 * 1024 // REST request size limit is 4MB, including body and emailed documents
         else
             MaxEmailSize := 25 * 1024 * 1024; // 25MB limit for SMTP emails, including body and emailed documents
@@ -188,7 +192,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         Bytes: Integer;
         MegaBytes: Integer;
     begin
-        Bytes := GetMaxEmailAttachmentsSize;
+        Bytes := GetMaxEmailAttachmentsSize();
         MegaBytes := Bytes div (1024 * 1024);
         exit(StrSubstNo(MegaBytesLbl, MegaBytes));
     end;
@@ -201,4 +205,5 @@ codeunit 2112 "O365 Sales Attachment Mgt"
         exit(MaxStrLen(EmailItem."Attachment Name 2"));
     end;
 }
+#endif
 

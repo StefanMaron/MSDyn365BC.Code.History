@@ -92,7 +92,7 @@ codeunit 132570 "Credit Transfer Register UT"
         CreditTransferEntry.FindSet();
         repeat
             CreditTransferEntry.TestField(Canceled, false);
-        until CreditTransferEntry.Next = 0;
+        until CreditTransferEntry.Next() = 0;
 
         // Exercise
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::Canceled);
@@ -102,7 +102,7 @@ codeunit 132570 "Credit Transfer Register UT"
         CreditTransferEntry.FindSet();
         repeat
             CreditTransferEntry.TestField(Canceled, true);
-        until CreditTransferEntry.Next = 0;
+        until CreditTransferEntry.Next() = 0;
     end;
 
     [Test]
@@ -153,14 +153,14 @@ codeunit 132570 "Credit Transfer Register UT"
         Assert.AreEqual(VendorBankAccount.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
         Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
           LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
-        CreditTransferRegEntries.Next;
+        CreditTransferRegEntries.Next();
         Assert.AreEqual(CTEntryNo + 1, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
         Assert.AreEqual(CTEntryMessageToRecipient2, CreditTransferRegEntries."Message to Recipient".Value, UnexpectedMsgToCreditorErr);
         Assert.AreEqual(VendorBankAccount.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
         Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
           LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
         Assert.IsFalse(CreditTransferRegEntries.Next, UnexpectedCTEntryErr);
-        CreditTransferRegEntries.Close;
+        CreditTransferRegEntries.Close();
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 132570 "Credit Transfer Register UT"
         Assert.AreEqual(CustomerBankAccount.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
         Assert.AreEqual(GenJnlLine.Amount, CreditTransferRegEntries."Transfer Amount".AsDEcimal, UnexpectedAmountErr);
         Assert.IsFalse(CreditTransferRegEntries.Next, UnexpectedCTEntryErr);
-        CreditTransferRegEntries.Close;
+        CreditTransferRegEntries.Close();
     end;
 
     [Test]
@@ -270,14 +270,14 @@ codeunit 132570 "Credit Transfer Register UT"
         Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
           LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
         Assert.AreEqual(xIBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
-        CreditTransferRegEntries.Next;
+        CreditTransferRegEntries.Next();
         Assert.AreEqual(CTEntryNo + 1, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
         Assert.AreEqual(Employee.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
         Assert.AreEqual(CTEntryMessageToRecipient2, CreditTransferRegEntries."Message to Recipient".Value, UnexpectedMsgToCreditorErr);
         Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
           LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
         Assert.IsFalse(CreditTransferRegEntries.Next, UnexpectedCTEntryErr);
-        CreditTransferRegEntries.Close;
+        CreditTransferRegEntries.Close();
     end;
 
     [Test]
@@ -550,7 +550,7 @@ codeunit 132570 "Credit Transfer Register UT"
         CreditTransferRegEntries.First;
         Assert.AreEqual(0, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
         Assert.IsFalse(CreditTransferRegEntries.Next, UnexpectedCTEntryErr);
-        CreditTransferRegEntries.Close;
+        CreditTransferRegEntries.Close();
     end;
 
     [Test]

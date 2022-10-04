@@ -11,14 +11,14 @@ codeunit 134891 "Sales Batch Document Posting"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ReadyToPostInvoicesTemplateTok: Label 'The number of invoices that will be posted is %1. \Do you want to continue?';
         ReadyToPostTwoInvoicesQst: Label 'The number of invoices that will be posted is 2. \Do you want to continue?';
         LibraryRandom: Codeunit "Library - Random";
-        BatchCompletedMsg: Label 'All the documents were processed.';
-        PostingErrorMsg: Label 'There is nothing to post.';
+        BatchCompletedMsg: Label 'All of your selections were processed.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
@@ -193,8 +193,8 @@ codeunit 134891 "Sales Batch Document Posting"
         // [THEN] Error message page for "Y" opened with one error line: 'There is nothing to post'
         repeat
             ErrorCount += 1;
-            ErrorMessages.Description.AssertEquals(PostingErrorMsg);
-        until not ErrorMessages.Next;
+            ErrorMessages.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        until not ErrorMessages.Next();
         Assert.AreEqual(1, ErrorCount, 'Unexpected error count');
 
         // [THEN] 'X' and 'Z' are posted, 'Y' is not posted.
@@ -238,8 +238,8 @@ codeunit 134891 "Sales Batch Document Posting"
 
         repeat
             ErrorCount += 1;
-            ErrorMessages.Description.AssertEquals(PostingErrorMsg);
-        until not ErrorMessages.Next;
+            ErrorMessages.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        until not ErrorMessages.Next();
 
         Assert.AreEqual(SalesHeaderToPost.Count, ErrorCount, 'Unexpected error count');
 
@@ -314,7 +314,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader[2].RecordId));
     end;
 
@@ -346,7 +346,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader[2].RecordId));
     end;
 
@@ -378,7 +378,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedOrders(SalesOrderList, SalesHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader[2].RecordId));
     end;
 
@@ -409,7 +409,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ErrorMessagesPage.Trap;
         InvokePostSelectedReturnOrders(SalesReturnOrderList, SalesHeader[2]);
 
-        ErrorMessagesPage.Description.AssertEquals(PostingErrorMsg);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader[2].RecordId));
     end;
 
@@ -965,7 +965,7 @@ codeunit 134891 "Sales Batch Document Posting"
         Assert.RecordCount(SalesHeaderUI, ArrayLen(SalesHeader) - 1);
         SalesHeaderUI.FindFirst();
         SalesHeaderUI.TestField("No.", SalesHeader[1]."No.");
-        SalesHeaderUI.Next;
+        SalesHeaderUI.Next();
         SalesHeaderUI.TestField("No.", SalesHeader[3]."No.");
     end;
 

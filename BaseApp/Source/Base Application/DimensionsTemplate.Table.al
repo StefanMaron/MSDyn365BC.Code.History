@@ -46,7 +46,7 @@ table 1302 "Dimensions Template"
 
             trigger OnValidate()
             begin
-                Description := GetParentTemplateCode;
+                Description := GetParentTemplateCode();
             end;
         }
         field(51; "Table Id"; Integer)
@@ -93,10 +93,10 @@ table 1302 "Dimensions Template"
 
     trigger OnInsert()
     begin
-        "Master Record Template Code" := GetParentTemplateCode;
+        "Master Record Template Code" := GetParentTemplateCode();
         Validate(Description);
         Validate("Table Id");
-        InsertConfigurationTemplateHeaderAndLines;
+        InsertConfigurationTemplateHeaderAndLines();
     end;
 
     trigger OnModify()
@@ -175,7 +175,7 @@ table 1302 "Dimensions Template"
         RecRef.GetTable(Rec);
         CreateFieldRefArray(FieldRefArray, RecRef);
         ConfigTemplateManagement.CreateConfigTemplateAndLines(Code, Description, DATABASE::"Default Dimension", FieldRefArray);
-        ConfigTemplateManagement.AddRelatedTemplate(GetParentTemplateCode, Code);
+        ConfigTemplateManagement.AddRelatedTemplate(GetParentTemplateCode(), Code);
     end;
 
     procedure InsertDimensionsFromTemplates(ConfigTemplateHeader: Record "Config. Template Header"; MasterRecordNo: Code[20]; TableID: Integer)

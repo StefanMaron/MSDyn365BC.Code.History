@@ -6,7 +6,6 @@ page 952 "Manager Time Sheet"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Show,Line';
     SaveValues = true;
     SourceTable = "Time Sheet Line";
 
@@ -25,9 +24,9 @@ page 952 "Manager Time Sheet"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TimeSheetMgt.LookupApproverTimeSheet(CurrTimeSheetNo, Rec, TimeSheetHeader);
-                        UpdateControls;
+                        UpdateControls();
                     end;
 
                     trigger OnValidate()
@@ -35,9 +34,9 @@ page 952 "Manager Time Sheet"
                         TimeSheetHeader.Reset();
                         TimeSheetMgt.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Approver User ID"));
                         TimeSheetMgt.CheckTimeSheetNo(TimeSheetHeader, CurrTimeSheetNo);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
-                        UpdateControls;
+                        UpdateControls();
                     end;
                 }
                 field(ResourceNo; TimeSheetHeader."Resource No.")
@@ -78,14 +77,14 @@ page 952 "Manager Time Sheet"
                     Editable = false;
                     ToolTip = 'Specifies the type of time sheet line.';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
                     Visible = false;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -104,7 +103,7 @@ page 952 "Manager Time Sheet"
                         CurrPage.Update();
                     end;
                 }
-                field("Cause of Absence Code"; "Cause of Absence Code")
+                field("Cause of Absence Code"; Rec."Cause of Absence Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -118,21 +117,21 @@ page 952 "Manager Time Sheet"
                     ToolTip = 'Specifies if the usage that you are posting is chargeable.';
                     Visible = false;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = WorkTypeCodeAllowEdit;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                     Visible = false;
                 }
-                field("Service Order No."; "Service Order No.")
+                field("Service Order No."; Rec."Service Order No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the service order number that is associated with the time sheet line.';
                     Visible = false;
                 }
-                field("Assembly Order No."; "Assembly Order No.")
+                field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the assembly order number that is associated with the time sheet line.';
@@ -212,7 +211,7 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies information about the status of a time sheet line.';
                 }
-                field("Total Quantity"; "Total Quantity")
+                field("Total Quantity"; Rec."Total Quantity")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Total';
@@ -258,10 +257,6 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Previous Period';
                     Image = PreviousSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                     trigger OnAction()
@@ -274,9 +269,6 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Next Period';
                     Image = NextSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View information for the next period.';
 
                     trigger OnAction()
@@ -294,8 +286,6 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = 'Posting E&ntries';
                     Image = PostingEntries;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the resource ledger entries that have been posted in connection with the.';
 
@@ -309,9 +299,6 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = 'Activity &Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View the quantity of hours for each time sheet status.';
 
@@ -330,8 +317,6 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Comments;
                     Caption = '&Time Sheet Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = CONST(0);
@@ -342,8 +327,6 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Comments;
                     Caption = '&Line Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = FIELD("Line No.");
@@ -362,15 +345,12 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Approve';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Approve the lines on the time sheet. Choose All to approve all lines. Choose Selected to approve only selected lines.';
 
                     trigger OnAction()
                     begin
-                        ApproveLines;
+                        ApproveLines();
                     end;
                 }
                 action(Reject)
@@ -378,14 +358,11 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reject to approve the lines on the time sheet. Choose All to reject all lines. Choose Selected to reject only selected lines.';
 
                     trigger OnAction()
                     begin
-                        RejectLines;
+                        RejectLines();
                     end;
                 }
                 action(Reopen)
@@ -393,28 +370,78 @@ page 952 "Manager Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reopen the time sheet to change it.';
 
                     trigger OnAction()
                     begin
-                        ReopenLine;
+                        ReopenLine();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(PreviousPeriod_Promoted; PreviousPeriod)
+                {
+                }
+                actionref(NextPeriod_Promoted; NextPeriod)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(TimeSheetComment2_Promoted; TimeSheetComment2)
+                {
+                }
+                actionref(LineComments_Promoted; LineComments)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("Activity &Details_Promoted"; "Activity &Details")
+                {
+                }
+                actionref("Posting E&ntries_Promoted"; "Posting E&ntries")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnOpenPage()
@@ -425,7 +452,7 @@ page 952 "Manager Time Sheet"
             CurrTimeSheetNo := TimeSheetHeader.FindLastTimeSheetNo(TimeSheetHeader.FieldNo("Approver User ID"));
 
         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
-        UpdateControls;
+        UpdateControls();
     end;
 
     var
@@ -482,7 +509,7 @@ page 952 "Manager Time Sheet"
             else
                 CellData[i] := 0;
         end;
-        UpdateFactBoxes;
+        UpdateFactBoxes();
         WorkTypeCodeAllowEdit := GetAllowEdit(FieldNo("Work Type Code"), true);
         ChargeableAllowEdit := GetAllowEdit(FieldNo(Chargeable), true);
     end;
@@ -491,7 +518,7 @@ page 952 "Manager Time Sheet"
     begin
         CurrTimeSheetNo := TimeSheetMgt.FindTimeSheet(TimeSheetHeader, Which);
         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
-        UpdateControls;
+        UpdateControls();
     end;
 
     local procedure UpdateFactBoxes()
@@ -499,13 +526,13 @@ page 952 "Manager Time Sheet"
         CurrPage.ActualSchedSummaryFactBox.PAGE.UpdateData(TimeSheetHeader);
         CurrPage.TimeSheetStatusFactBox.PAGE.UpdateData(TimeSheetHeader);
         if "Line No." = 0 then
-            CurrPage.ActivityDetailsFactBox.PAGE.SetEmptyLine;
+            CurrPage.ActivityDetailsFactBox.PAGE.SetEmptyLine();
     end;
 
     local procedure UpdateControls()
     begin
-        SetColumns;
-        UpdateFactBoxes;
+        SetColumns();
+        UpdateFactBoxes();
         CurrPage.Update(false);
     end;
 
@@ -515,7 +542,7 @@ page 952 "Manager Time Sheet"
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         ActionType: Option Approve,Reopen,Reject;
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         case Action of
             Action::"Approve All",
           Action::"Reject All":

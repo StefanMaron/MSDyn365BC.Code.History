@@ -334,7 +334,7 @@ codeunit 137159 "SCM Warehouse VII"
         ItemsbyLocation.Trap;
         OpenItemsByLocationPageFromItemCard(Item."No.");
 
-        Item.Find;
+        Item.Find();
         Item.TestField("Last DateTime Modified", 0DT);
         Item.TestField("Last Date Modified", 0D);
         Item.TestField("Last Time Modified", 0T);
@@ -571,8 +571,8 @@ codeunit 137159 "SCM Warehouse VII"
 
         // Exercise.
         LibraryPlanning.CalcRegenPlanForPlanWksh(
-          Item, CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate),
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          Item, CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Verify: Verification is done in OrderTrackingDetailsPageHandler.
         VerifyOrderTrackingOnReqLineAndSalesOrder(Item."No.", Quantity, SalesHeader."No.");
@@ -2029,12 +2029,12 @@ codeunit 137159 "SCM Warehouse VII"
 
         // [GIVEN] Released Sales Order "SO" of Item "I" at "L" with Quantity "Q";
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Released Purchase Order "PO" of Item "I" at "L" with Quantity "Q" and Warehouse Receipt "WR" for "PO";
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         FindWarehouseReceipt(WarehouseReceiptHeader, Item."No.");
@@ -2201,7 +2201,7 @@ codeunit 137159 "SCM Warehouse VII"
         TemplateName := SelectRequisitionTemplateName;
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, TemplateName);
         WshtName := ReqWkshName.Name;
-        LibraryPlanning.CalculatePlanForReqWksh(Item, TemplateName, WshtName, WorkDate, WorkDate);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, TemplateName, WshtName, WorkDate(), WorkDate());
     end;
 
     local procedure CalculateCrossDock(SourceNo: Code[20])
@@ -3285,7 +3285,7 @@ codeunit 137159 "SCM Warehouse VII"
         repeat
             PurchHeader.Get(PurchHeader."Document Type"::Order, PurchLine."Document No.");
             LibraryPurchase.ReleasePurchaseDocument(PurchHeader);
-        until PurchLine.Next = 0;
+        until PurchLine.Next() = 0;
     end;
 
     local procedure SelectConsumptionLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
@@ -3340,7 +3340,7 @@ codeunit 137159 "SCM Warehouse VII"
     local procedure UpdateBinCodeOnProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; var Bin: Record Bin; ProductionOrder: Record "Production Order") BinCode: Code[20]
     begin
         BinCode := Bin.Code;
-        Bin.Next;  // Next is required to get second different Bin.
+        Bin.Next();  // Next is required to get second different Bin.
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.FindFirst();
@@ -3366,7 +3366,7 @@ codeunit 137159 "SCM Warehouse VII"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.ModifyAll("Expiration Date", WorkDate, true);
+        ReservationEntry.ModifyAll("Expiration Date", WorkDate(), true);
     end;
 
     local procedure UpdateLotNoOnInventoryMovementLine(ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; LotNo: Code[50])
@@ -3479,8 +3479,8 @@ codeunit 137159 "SCM Warehouse VII"
         repeat
             WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
             WarehouseActivityLine.Modify(true);
-            ItemLedgerEntry.Next;
-        until WarehouseActivityLine.Next = 0;
+            ItemLedgerEntry.Next();
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateUsePutAwayWorksheetOnLocation(var Location: Record Location; UsePutAwayWorksheet: Boolean)
@@ -3545,7 +3545,7 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         InternalMovementHeader.SetRange("Location Code", LocationCode);
         InternalMovementHeader.SetRange("To Bin Code", ToBinCode);
-        Assert.IsTrue(InternalMovementHeader.IsEmpty, StrSubstNo(InternalMovementHeaderDelete, InternalMovementHeader.TableCaption));
+        Assert.IsTrue(InternalMovementHeader.IsEmpty, StrSubstNo(InternalMovementHeaderDelete, InternalMovementHeader.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; NextLine: Boolean)
@@ -3556,7 +3556,7 @@ codeunit 137159 "SCM Warehouse VII"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindSet();
         if NextLine then
-            GLEntry.Next;
+            GLEntry.Next();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -3611,7 +3611,7 @@ codeunit 137159 "SCM Warehouse VII"
             WarehouseActivityLine.TestField("Bin Code", BinCode);
             WarehouseActivityLine.TestField(Quantity, Quantity);
             ActualTotalQuantity += WarehouseActivityLine.Quantity;
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
         Assert.AreEqual(ExpectedTotalQuantity, ActualTotalQuantity, QuantityMustBeSame);
     end;
 
@@ -3623,7 +3623,7 @@ codeunit 137159 "SCM Warehouse VII"
         WarehouseActivityLine.TestField("Location Code", Bin."Location Code");
         WarehouseActivityLine.TestField("Bin Code", Bin.Code);
         WarehouseActivityLine.TestField("Lot No.", LotNo);
-        WarehouseActivityLine.TestField("Expiration Date", WorkDate);
+        WarehouseActivityLine.TestField("Expiration Date", WorkDate());
         WarehouseActivityLine.TestField(Quantity, Quantity);
     end;
 
@@ -3637,10 +3637,10 @@ codeunit 137159 "SCM Warehouse VII"
             WarehouseActivityLine.TestField("Location Code", Bin."Location Code");
             WarehouseActivityLine.TestField("Bin Code", Bin.Code);
             WarehouseActivityLine.TestField("Serial No.");
-            WarehouseActivityLine.TestField("Expiration Date", WorkDate);
+            WarehouseActivityLine.TestField("Expiration Date", WorkDate());
             WarehouseActivityLine.TestField(Quantity, 1);   // Value required for Serial No. Item Tracking.
             Quantity += WarehouseActivityLine.Quantity;
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
         Assert.AreEqual(TotalQuantity, Quantity, QuantityMustBeSame);
     end;
 
@@ -3698,7 +3698,7 @@ codeunit 137159 "SCM Warehouse VII"
 
     local procedure VerifyProductionOrderComponent(ProdOrderComponent: Record "Prod. Order Component"; QuantityPicked: Decimal; RemainingQuantity: Decimal; BinCode: Code[20])
     begin
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Qty. Picked", QuantityPicked);
         ProdOrderComponent.TestField("Remaining Quantity", RemainingQuantity);
         ProdOrderComponent.TestField("Bin Code", BinCode);
@@ -3713,7 +3713,7 @@ codeunit 137159 "SCM Warehouse VII"
         PurchRcptLine.SetRange("Location Code", LocationCode);
         PurchRcptLine.FindSet();
         if MoveNext then
-            PurchRcptLine.Next;
+            PurchRcptLine.Next();
         PurchRcptLine.TestField(Quantity, Quantity);
     end;
 
@@ -3763,7 +3763,7 @@ codeunit 137159 "SCM Warehouse VII"
         SalesShipmentLine.SetRange("No.", ItemNo);
         SalesShipmentLine.FindSet();
         if MoveNext then
-            SalesShipmentLine.Next;
+            SalesShipmentLine.Next();
         SalesShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -3778,7 +3778,7 @@ codeunit 137159 "SCM Warehouse VII"
         WarehouseEntry.SetRange("Lot No.", LotNo);
         WarehouseEntry.FindSet();
         if MoveNext then
-            WarehouseEntry.Next;
+            WarehouseEntry.Next();
         WarehouseEntry.TestField(Quantity, Quantity);
     end;
 
@@ -3801,7 +3801,7 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         FindWarehouseReceiptLine(WarehouseReceiptLine, SourceNo);
         if MoveNext then
-            WarehouseReceiptLine.Next;
+            WarehouseReceiptLine.Next();
         WarehouseReceiptLine.TestField("Item No.", ItemNo);
         WarehouseReceiptLine.TestField(Quantity, Quantity);
         WarehouseReceiptLine.TestField("Qty. to Cross-Dock", QtyToCrossDock);
@@ -3931,7 +3931,7 @@ codeunit 137159 "SCM Warehouse VII"
                 begin
                     TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal / 2;  // Value required for test.
                     AssignLotNoOnItemTrackingLine(ItemTrackingLines, TrackingQuantity);
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     AssignLotNoOnItemTrackingLine(ItemTrackingLines, TrackingQuantity);
                 end;
             ItemTrackingMode::SelectEntries:
@@ -4077,8 +4077,8 @@ codeunit 137159 "SCM Warehouse VII"
                     repeat
                         WhseItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
                         WhseItemTrackingLines.Quantity.SetValue(ItemLedgerEntry.Quantity);
-                        WhseItemTrackingLines.Next;
-                    until ItemLedgerEntry.Next = 0;
+                        WhseItemTrackingLines.Next();
+                    until ItemLedgerEntry.Next() = 0;
                 end;
             WhseItemTrackingMode::SelectLotNo:
                 begin
@@ -4087,8 +4087,8 @@ codeunit 137159 "SCM Warehouse VII"
                     repeat
                         WhseItemTrackingLines."Lot No.".SetValue(ItemLedgerEntry."Lot No.");
                         WhseItemTrackingLines.Quantity.SetValue(ItemLedgerEntry.Quantity);
-                        WhseItemTrackingLines.Next;
-                    until ItemLedgerEntry.Next = 0;
+                        WhseItemTrackingLines.Next();
+                    until ItemLedgerEntry.Next() = 0;
                 end;
         end;
     end;

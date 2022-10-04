@@ -11,7 +11,7 @@ codeunit 1203 "Import XML File to Data Exch."
         ParseParentChildDocument(Rec);
 
         if GuiAllowed and WindowOpen then
-            ProgressWindow.Close;
+            ProgressWindow.Close();
     end;
 
     var

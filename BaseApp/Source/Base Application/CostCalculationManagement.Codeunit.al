@@ -374,7 +374,7 @@ codeunit 5836 "Cost Calculation Management"
         end;
     end;
 
-    procedure CalcActOutputQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
+    procedure CalcActOutputQtyBase(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
@@ -539,18 +539,18 @@ codeunit 5836 "Cost Calculation Management"
                       CalcQtyAdjdForRoutingScrap(
                         Round(
                           RunTimePer * MfgItemQtyBase * CalendarMgt.QtyperTimeUnitofMeasure(WorkCenterNo, RunTimeUOMCode),
-                          UOMMgt.TimeRndPrecision),
+                          UOMMgt.TimeRndPrecision()),
                         ScrapFactorPctAccum,
                         Round(
                           RunTimePer * FixedScrapQtyAccum * CalendarMgt.QtyperTimeUnitofMeasure(WorkCenterNo, RunTimeUOMCode),
-                          UOMMgt.TimeRndPrecision));
+                          UOMMgt.TimeRndPrecision()));
                     if CostInclSetup then
                         CostTime :=
                           CostTime +
                           Round(
                             ConcurrentCapacities *
                             SetupTime * CalendarMgt.QtyperTimeUnitofMeasure(WorkCenterNo, SetupTimeUOMCode),
-                            UOMMgt.TimeRndPrecision);
+                            UOMMgt.TimeRndPrecision());
                 end;
             UnitCostCalculation::Unit:
                 CostTime := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, ScrapFactorPctAccum, FixedScrapQtyAccum);
@@ -732,7 +732,7 @@ codeunit 5836 "Cost Calculation Management"
                         QtyShippedNotInvcdBase := "Qty. Shipped Not Invoiced"
                     else
                         QtyShippedNotInvcdBase :=
-                          Round("Qty. Shipped Not Invoiced" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                          Round("Qty. Shipped Not Invoiced" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                     AdjCostLCY := CalcSalesShptLineCostLCY(SalesShptLine, QtyType);
 
@@ -794,7 +794,7 @@ codeunit 5836 "Cost Calculation Management"
                         RtrnQtyRcvdNotInvcdBase := "Return Qty. Rcd. Not Invd."
                     else
                         RtrnQtyRcvdNotInvcdBase :=
-                          Round("Return Qty. Rcd. Not Invd." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                          Round("Return Qty. Rcd. Not Invd." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                     AdjCostLCY := CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
 
@@ -1173,7 +1173,7 @@ codeunit 5836 "Cost Calculation Management"
                         QtyShippedNotInvcdBase := "Qty. Shipped Not Invoiced"
                     else
                         QtyShippedNotInvcdBase :=
-                          Round("Qty. Shipped Not Invoiced" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                          Round("Qty. Shipped Not Invoiced" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                     AdjCostLCY := CalcServShptLineCostLCY(ServShptLine, QtyType);
 

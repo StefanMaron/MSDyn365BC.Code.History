@@ -42,7 +42,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                     field(DateQuantity2; DateQuantity[2])
@@ -52,7 +52,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                     field(DateQuantity3; DateQuantity[3])
@@ -62,7 +62,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                     field(DateQuantity4; DateQuantity[4])
@@ -72,7 +72,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                     field(DateQuantity5; DateQuantity[5])
@@ -82,7 +82,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                     field(DateQuantity6; DateQuantity[6])
@@ -92,7 +92,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                     field(DateQuantity7; DateQuantity[7])
@@ -102,7 +102,7 @@ page 970 "Time Sheet Allocation"
 
                         trigger OnValidate()
                         begin
-                            UpdateQty;
+                            UpdateQty();
                         end;
                     }
                 }

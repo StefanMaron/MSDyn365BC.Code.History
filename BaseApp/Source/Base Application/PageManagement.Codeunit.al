@@ -446,7 +446,7 @@ codeunit 700 "Page Management"
     procedure GetWebUrl(var RecRef: RecordRef; PageID: Integer): Text
     begin
         if not RecRef.HasFilter then
-            RecRef.SetRecFilter;
+            RecRef.SetRecFilter();
 
         if not VerifyPageID(RecRef.Number, PageID) then
             PageID := GetPageID(RecRef);

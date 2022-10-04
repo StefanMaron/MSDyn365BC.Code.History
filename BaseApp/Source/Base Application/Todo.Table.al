@@ -1,4 +1,4 @@
-﻿table 5080 "To-do"
+table 5080 "To-do"
 {
     Caption = 'Task';
     DataCaptionFields = "No.", Description;
@@ -244,7 +244,7 @@
                         exit;
 
                     if not IsMeetingOrPhoneCall(xRec.Type) then
-                        TempEndDateTime := CreateDateTime(xRec.Date, xRec."Start Time") - OneDayDuration + xRec.Duration
+                        TempEndDateTime := CreateDateTime(xRec.Date, xRec."Start Time") - OneDayDuration() + xRec.Duration
                     else
                         TempEndDateTime := CreateDateTime(xRec.Date, xRec."Start Time") + xRec.Duration;
 
@@ -277,7 +277,7 @@
                     Error(Text006, DMY2Date(1, 1, 1900), DMY2Date(31, 12, 2999));
 
                 if Date <> xRec.Date then
-                    GetEndDateTime;
+                    GetEndDateTime();
             end;
         }
         field(10; Status; Enum "Task Status")
@@ -322,7 +322,7 @@
                                 CreateInteraction()
                     end;
                     if Recurring then
-                        CreateRecurringTask;
+                        CreateRecurringTask();
                 end else begin
                     Canceled := false;
                     "Date Closed" := 0D;
@@ -448,7 +448,7 @@
             trigger OnValidate()
             begin
                 if "Start Time" <> xRec."Start Time" then
-                    GetEndDateTime;
+                    GetEndDateTime();
             end;
         }
         field(29; Duration; Duration)
@@ -534,7 +534,7 @@
             var
                 TaskInteractionLanguage: Record "To-do Interaction Language";
             begin
-                Modify;
+                Modify();
                 Commit();
 
                 TaskInteractionLanguage.SetRange("To-do No.", "Organizer To-do No.");
@@ -565,7 +565,7 @@
                 TaskInteractionLanguage: Record "To-do Interaction Language";
             begin
                 if CurrFieldNo <> 0 then
-                    Modify;
+                    Modify();
 
                 if "Language Code" = xRec."Language Code" then
                     exit;
@@ -574,14 +574,14 @@
                     if "No." = '' then
                         exit;
                     if CurrFieldNo <> 0 then
-                        if Confirm(Text010, true, TaskInteractionLanguage.TableCaption, "Language Code") then begin
+                        if Confirm(Text010, true, TaskInteractionLanguage.TableCaption(), "Language Code") then begin
                             TaskInteractionLanguage.Init();
                             TaskInteractionLanguage."To-do No." := "No.";
                             TaskInteractionLanguage."Language Code" := "Language Code";
                             TaskInteractionLanguage.Description := Format("Interaction Template Code") + ' ' + Format("Language Code");
                             TaskInteractionLanguage.Insert(true);
                             "Attachment No." := 0;
-                            Modify;
+                            Modify();
                         end else
                             Error('');
                 end else
@@ -599,7 +599,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    Modify;
+                    Modify();
             end;
         }
         field(41; "Unit Cost (LCY)"; Decimal)
@@ -610,7 +610,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    Modify;
+                    Modify();
             end;
         }
         field(42; "Unit Duration (Min.)"; Decimal)
@@ -621,7 +621,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> 0 then
-                    Modify;
+                    Modify();
             end;
         }
         field(43; "No. of Attendees"; Integer)
@@ -834,9 +834,7 @@
         TempAttendee: Record Attendee temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         Text004: Label 'Do you want to register an Interaction Log Entry?';
-        TempEndDateTime: DateTime;
         Text005: Label 'Information that you have entered in this field will cause the duration to be negative which is not allowed. Please modify the ending date/time value.';
-        TempStartDateTime: DateTime;
         Text006: Label 'The valid range of dates is from %1 to %2. Please enter a date within this range.';
         Text007: Label 'Information that you have entered in this field will cause the duration to be less than 1 minute, which is not allowed. Please modify the ending date/time value.';
         Text008: Label 'Information that you have entered in this field will cause the duration to be more than 10 years, which is not allowed. Please modify the ending date/time value.';
@@ -881,6 +879,8 @@
         TempTaskInteractionLanguage: Record "To-do Interaction Language" temporary;
         TempAttachment: Record Attachment temporary;
         TempRMCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
+        TempEndDateTime: DateTime;
+        TempStartDateTime: DateTime;
 
     procedure CreateTaskFromTask(var Task: Record "To-do")
     begin
@@ -935,7 +935,7 @@
             TempSegLine."Salesperson Code" := "Salesperson Code";
 
             OnCreateInteractionOnBeforeCreatePhoneCall(TempSegLine, Rec);
-            TempSegLine.CreatePhoneCall;
+            TempSegLine.CreatePhoneCall();
         end else
             TempSegLine.CreateInteractionFromTask(Rec);
     end;
@@ -967,7 +967,7 @@
                 "Calc. Due Date From"::"Closing Date":
                     Date := CalcDate("Recurring Date Interval", Today);
             end;
-            GetEndDateTime;
+            GetEndDateTime();
 
             RMCommentLine3.Reset();
             RMCommentLine3.SetRange("Table Name", RMCommentLine."Table Name"::"To-do");
@@ -989,7 +989,7 @@
 
         Message(
           StrSubstNo(Text001,
-            TableCaption, Task2."Organizer To-do No.", TableCaption, "No."));
+            TableCaption, Task2."Organizer To-do No.", TableCaption(), "No."));
     end;
 
     [Scope('OnPrem')]
@@ -1030,7 +1030,7 @@
         if (Task2.Type = Task2.Type::Meeting) and
            Task2.Get(Task2."Organizer To-do No.")
         then
-            Task2.ArrangeOrganizerAttendee;
+            Task2.ArrangeOrganizerAttendee();
 
         OnAfterInsertTask(Task2);
     end;
@@ -1086,7 +1086,7 @@
                     Attendee2.Init();
                     Attendee2 := Attendee;
                     Attendee2."To-do No." := Task2."No.";
-                    Attendee2.Insert
+                    Attendee2.Insert();
                 until Attendee.Next() = 0;
 
             Task2.GetMeetingOrganizerTask(Task);
@@ -1109,7 +1109,7 @@
                               TeamSalesperson."Salesperson Code",
                               true);
                             CreateSubTask(TempAttendee, Task2);
-                            TempAttendee.DeleteAll
+                            TempAttendee.DeleteAll();
                         until TeamSalesperson.Next() = 0
                 end;
                 if Attendee.Find('-') then
@@ -1144,7 +1144,7 @@
                                       TeamSalesperson."Salesperson Code",
                                       true);
                                     CreateSubTask(TempAttendee, Task);
-                                    TempAttendee.DeleteAll
+                                    TempAttendee.DeleteAll();
                                 until TeamSalesperson.Next() = 0
                         end else begin
                             Task.Init();
@@ -1164,9 +1164,9 @@
                         CreateCommentLines(RMCommentLine, TaskNo);
                         Window.Update(1, Task."Organizer To-do No.");
                         Window.Update(2, Round(AttendeeCounter / TotalAttendees * 10000, 1));
-                        Commit
+                        Commit();
                     until Attendee.Next() = 0;
-                    Window.Close;
+                    Window.Close();
                     CommentLineInserted := true;
                 end;
         if not CommentLineInserted then
@@ -1338,12 +1338,12 @@
                     Attachment2.TransferFields(Attachment, false);
                     Attachment.CalcFields("Attachment File");
                     Attachment2."Attachment File" := Attachment."Attachment File";
-                    Attachment2.WizSaveAttachment;
+                    Attachment2.WizSaveAttachment();
                     Attachment2.Modify(true);
                     MarketingSetup.Get();
                     if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
                         if Attachment2."No." <> 0 then begin
-                            FileName := Attachment2.ConstDiskFileName;
+                            FileName := Attachment2.ConstDiskFileName();
                             if FileName <> '' then
                                 Attachment.ExportAttachmentToServerFile(FileName);
                         end;
@@ -1361,7 +1361,7 @@
         StartWizard2();
     end;
 
-    local procedure InsertActivityTask(Task2: Record "To-do"; ActivityCode: Code[10]; var Attendee: Record Attendee)
+    procedure InsertActivityTask(Task2: Record "To-do"; ActivityCode: Code[10]; var Attendee: Record Attendee)
     var
         ActivityStep: Record "Activity Step";
         TaskDate: Date;
@@ -1443,13 +1443,13 @@
         SegHeader: Record "Segment Header";
     begin
         if Cont.Get(Task.GetFilter("Contact Company No.")) then begin
-            Cont.CheckIfPrivacyBlockedGeneric;
+            Cont.CheckIfPrivacyBlockedGeneric();
             Validate("Contact No.", Cont."No.");
             "Salesperson Code" := Cont."Salesperson Code";
             SetRange("Contact Company No.", "Contact No.");
         end;
         if Cont.Get(Task.GetFilter("Contact No.")) then begin
-            Cont.CheckIfPrivacyBlockedGeneric;
+            Cont.CheckIfPrivacyBlockedGeneric();
             Validate("Contact No.", Cont."No.");
             "Salesperson Code" := Cont."Salesperson Code";
             SetRange("Contact No.", "Contact No.");
@@ -1616,7 +1616,7 @@
         TaskInteractionLanguage.SetRange("To-do No.", Task."No.");
 
         if AttachmentTemporary then
-            TaskInteractionLanguage.DeleteAll
+            TaskInteractionLanguage.DeleteAll()
         else
             TaskInteractionLanguage.DeleteAll(true);
 
@@ -1692,7 +1692,7 @@
                 Attendee.SetRange("Attendee Type");
                 Attendee.SetRange("Attendance Type", Attendee."Attendance Type"::"To-do Organizer");
                 if not Attendee.IsEmpty() then
-                    Error(Text067, Task.TableCaption, Attendee.TableCaption)
+                    Error(Text067, Task.TableCaption(), Attendee.TableCaption())
             end;
             Attendee.Reset();
         end;
@@ -1786,7 +1786,7 @@
             TaskInteractionLanguage."Language Code" := "Language Code";
             TaskInteractionLanguage.Insert(true);
         end;
-        TaskInteractionLanguage.ImportAttachment;
+        TaskInteractionLanguage.ImportAttachment();
         "Attachment No." := TaskInteractionLanguage."Attachment No.";
         Modify(true);
     end;
@@ -1801,7 +1801,7 @@
 
         if TaskInteractionLanguage.Get("Organizer To-do No.", "Language Code") then
             if TaskInteractionLanguage."Attachment No." <> 0 then
-                TaskInteractionLanguage.ExportAttachment;
+                TaskInteractionLanguage.ExportAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -1858,7 +1858,7 @@
         TempSegLine."Cost (LCY)" := Task."Unit Cost (LCY)";
         TempSegLine."Duration (Min.)" := Task."Unit Duration (Min.)";
         TempSegLine."Opportunity No." := Task."Opportunity No.";
-        TempSegLine.Validate(Date, WorkDate);
+        TempSegLine.Validate(Date, WorkDate());
 
         OnLogTaskInteractionOnBeforeTempSegLineInsert(TempSegLine, Task);
         TempSegLine.Insert();
@@ -1895,7 +1895,7 @@
         end;
     end;
 
-    local procedure ChangeTeam()
+    procedure ChangeTeam()
     var
         Task: Record "To-do";
         TeamSalesperson: Record "Team Salesperson";
@@ -1913,7 +1913,7 @@
         if IsHandled then
             exit;
 
-        Modify;
+        Modify();
         TeamSalespersonOld.SetRange("Team Code", xRec."Team Code");
         TeamSalesperson.SetRange("Team Code", "Team Code");
         if TeamSalesperson.Find('-') then
@@ -1940,7 +1940,7 @@
                         end
                 until Attendee.Next() = 0;
             Attendee.MarkedOnly(true);
-            Attendee.DeleteAll
+            Attendee.DeleteAll();
         end else begin
             Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
             Task.SetRange("Organizer To-do No.", "Organizer To-do No.");
@@ -1995,7 +1995,7 @@
                       TeamSalesperson."Salesperson Code",
                       true);
                     CreateSubTask(TempAttendee, Rec);
-                    TempAttendee.DeleteAll
+                    TempAttendee.DeleteAll();
                 until TeamSalesperson.Next() = 0
         end;
         Modify(true)
@@ -2029,7 +2029,7 @@
         if IsHandled then
             exit;
 
-        Modify;
+        Modify();
         if Type = Type::Meeting then begin
             Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
             Task.SetRange("Organizer To-do No.", "No.");
@@ -2061,7 +2061,7 @@
                 Attendee.SetRange("Attendee No.", Task."Salesperson Code");
                 if Attendee.FindFirst() then begin
                     Attendee."Attendance Type" := Attendee."Attendance Type"::Required;
-                    Attendee.Modify
+                    Attendee.Modify();
                 end;
                 Task."System To-do Type" := Task."System To-do Type"::"Salesperson Attendee";
                 Task.Modify(true)
@@ -2078,7 +2078,7 @@
               Attendee."Attendance Type"::"To-do Organizer",
               Attendee."Attendee Type"::Salesperson,
               "Salesperson Code", true);
-            ArrangeOrganizerAttendee;
+            ArrangeOrganizerAttendee();
         end else begin
             Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
             Task.SetRange("Organizer To-do No.", "No.");
@@ -2100,7 +2100,7 @@
         Modify(true);
     end;
 
-    local procedure ReassignSalespersonTaskToTeam()
+    procedure ReassignSalespersonTaskToTeam()
     var
         TeamSalesperson: Record "Team Salesperson";
         Attendee: Record Attendee;
@@ -2117,11 +2117,11 @@
         if IsHandled then
             exit;
 
-        Modify;
+        Modify();
         SalespersonCode := "Salesperson Code";
         "Salesperson Code" := '';
         "System To-do Type" := "System To-do Type"::Team;
-        Modify;
+        Modify();
 
         Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
         Task.SetRange("Organizer To-do No.", "No.");
@@ -2185,7 +2185,7 @@
                       TeamSalesperson."Salesperson Code",
                       true);
                     CreateSubTask(TempAttendee, Rec);
-                    TempAttendee.DeleteAll
+                    TempAttendee.DeleteAll();
                 until TeamSalesperson.Next() = 0;
         end;
 
@@ -2243,7 +2243,7 @@
 
         "Wizard Step" := "Wizard Step"::"1";
 
-        "Wizard Contact Name" := GetContactName;
+        "Wizard Contact Name" := GetContactName();
         if Campaign.Get("Campaign No.") then
             "Wizard Campaign Description" := Campaign.Description;
         if Opp.Get("Opportunity No.") then
@@ -2256,10 +2256,10 @@
         Duration := 1440 * 1000 * 60;
         Date := Today;
         OnStartWizardOnAfterSetDate(Rec);
-        GetEndDateTime;
+        GetEndDateTime();
 
         OnStartWizardOnBeforeInsert(Rec);
-        Insert;
+        Insert();
         RunCreateTaskPage();
     end;
 
@@ -2317,7 +2317,7 @@
                 TempAttendee.SetRange("Attendee Type", TempAttendee."Attendee Type"::Contact);
                 if not TempAttendee.IsEmpty() then begin
                     TempAttendee.Reset();
-                    Error(Text067, TableCaption, TempAttendee.TableCaption);
+                    Error(Text067, TableCaption(), TempAttendee.TableCaption());
                 end;
                 TempAttendee.Reset();
             end;
@@ -2367,9 +2367,9 @@
         "Wizard Contact Name" := '';
         "Wizard Campaign Description" := '';
         "Wizard Opportunity Description" := '';
-        Modify;
+        Modify();
         InsertTask(Rec, TempRMCommentLine, TempAttendee, TempTaskInteractionLanguage, TempAttachment, '', SendOnFinish);
-        Delete;
+        Delete();
     end;
 
     local procedure CreateAttendeeFromFinishWizard()
@@ -2618,7 +2618,7 @@
     begin
         UpdateInteractionTemplate(
           Rec, TempTaskInteractionLanguage, TempAttachment, "Interaction Template Code", true);
-        LoadTempAttachment;
+        LoadTempAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -2638,7 +2638,7 @@
 
         if not TempTaskInteractionLanguage.Get("No.", "Language Code") then begin
             if "No." = '' then
-                Error(Text009, TempTaskInteractionLanguage.TableCaption);
+                Error(Text009, TempTaskInteractionLanguage.TableCaption());
         end else
             "Attachment No." := TempTaskInteractionLanguage."Attachment No.";
     end;
@@ -2687,7 +2687,7 @@
         Subject := '';
         "Unit Cost (LCY)" := 0;
         "Unit Duration (Min.)" := 0;
-        Modify;
+        Modify();
     end;
 
     procedure GetAttendee(var Attendee: Record Attendee)
@@ -2723,7 +2723,7 @@
 
     local procedure StartWizard2()
     begin
-        "Wizard Contact Name" := GetContactName;
+        "Wizard Contact Name" := GetContactName();
         if Cont.Get(GetFilter("Contact No.")) then
             "Wizard Contact Name" := Cont.Name
         else
@@ -2787,7 +2787,7 @@
         InsertTask(
           Rec, TempRMCommentLine, TempAttendee,
           TempTaskInteractionLanguage, TempAttachment, "Activity Code", false);
-        Delete;
+        Delete();
     end;
 
     local procedure FillSalesPersonContact(var TaskParameter: Record "To-do"; AttendeeParameter: Record Attendee)
@@ -2832,7 +2832,7 @@
     begin
         SetupExchangeService(ExchangeWebServicesServer);
         ExchangeWebServicesServer.CreateAppointment(Appointment);
-        GetCurrentUserTimeZone(TimeZoneInfo, ExchangeWebServicesServer.GetCurrentUserTimeZone);
+        GetCurrentUserTimeZone(TimeZoneInfo, ExchangeWebServicesServer.GetCurrentUserTimeZone());
         UpdateAppointment(Appointment, TimeZoneInfo);
     end;
 
@@ -2847,7 +2847,7 @@
 
     local procedure SaveAppointment(var Appointment: DotNet IAppointment)
     begin
-        Appointment.SendAppointment;
+        Appointment.SendAppointment();
     end;
 
     [Scope('OnPrem')]
@@ -2877,10 +2877,10 @@
         Commit();
         User.SetRange("User Name", UserId);
 #if CLEAN19
-        if not User.FindFirst and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
+        if not User.FindFirst() and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
             Error('');
 #else
-        if not User.FindFirst and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
+        if not User.FindFirst() and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeServiceWithCredentials(ExchangeWebServicesServer) then
                 Error('');
 #endif
@@ -2966,14 +2966,14 @@
         TempOfficeAdminCredentials.Init();
         TempOfficeAdminCredentials.Insert();
         Commit();
-        ClearLastError;
+        ClearLastError();
         if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
             Error('');
         WebCredentialsLogin := TempOfficeAdminCredentials.Email;
-        WebCredentials := WebCredentials.WebCredentials(WebCredentialsLogin, TempOfficeAdminCredentials.GetPassword);
+        WebCredentials := WebCredentials.WebCredentials(WebCredentialsLogin, TempOfficeAdminCredentials.GetPassword());
         TempOfficeAdminCredentials.Delete();
         ExchangeWebServicesServer.Initialize(
-          WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint, WebCredentials, false);
+          WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint(), WebCredentials, false);
     end;
 #endif
 
@@ -2985,10 +2985,10 @@
         [NonDebuggable]
         AccessToken: Text;
     begin
-        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);
+        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
 
         if AccessToken <> '' then begin
-            ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint);
+            ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint());
             exit;
         end;
 

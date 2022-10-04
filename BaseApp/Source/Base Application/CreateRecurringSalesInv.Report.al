@@ -64,7 +64,7 @@ report 172 "Create Recurring Sales Inv."
 
     trigger OnPostReport()
     begin
-        Window.Close;
+        Window.Close();
         Message(NoOfInvoicesMsg, TotalCount);
     end;
 

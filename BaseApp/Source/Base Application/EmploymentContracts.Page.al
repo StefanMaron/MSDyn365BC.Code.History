@@ -23,7 +23,7 @@ page 5217 "Employment Contracts"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description for the employment contract.';
                 }
-                field("No. of Contracts"; "No. of Contracts")
+                field("No. of Contracts"; Rec."No. of Contracts")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of contracts associated with the entry.';

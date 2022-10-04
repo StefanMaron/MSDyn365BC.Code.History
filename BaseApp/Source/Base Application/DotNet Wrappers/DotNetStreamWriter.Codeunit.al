@@ -33,17 +33,17 @@ codeunit 3025 DotNet_StreamWriter
 
     procedure Flush()
     begin
-        DotNetStreamWriter.Flush;
+        DotNetStreamWriter.Flush();
     end;
 
     procedure Close()
     begin
-        DotNetStreamWriter.Close;
+        DotNetStreamWriter.Close();
     end;
 
     procedure Dispose()
     begin
-        DotNetStreamWriter.Dispose;
+        DotNetStreamWriter.Dispose();
     end;
 }
 

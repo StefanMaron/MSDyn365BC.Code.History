@@ -20,7 +20,7 @@ table 551 "VAT Rate Change Conversion"
 
             trigger OnValidate()
             begin
-                CheckforLoop;
+                CheckforLoop();
             end;
         }
         field(3; "To Code"; Code[20])
@@ -36,7 +36,7 @@ table 551 "VAT Rate Change Conversion"
                 if "To Code" <> xRec."To Code" then
                     "Converted Date" := 0D;
 
-                CheckforLoop;
+                CheckforLoop();
             end;
         }
         field(10; "Converted Date"; Date)

@@ -9,7 +9,7 @@ codeunit 5404 "Lead-Time Management"
         InvtSetup: Record "Inventory Setup";
         Location: Record Location;
         Item: Record Item;
-        SKU: Record "Stockkeeping Unit" temporary;
+        TempSKU: Record "Stockkeeping Unit" temporary;
         CalChange: Record "Customized Calendar Change";
         LeadTimeCalcNegativeErr: Label 'The amount of time to replenish the item must not be negative.';
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
@@ -34,9 +34,9 @@ codeunit 5404 "Lead-Time Management"
     begin
         // Returns the leadtime in a date formula
 
-        GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
-        Result := Format(SKU."Lead Time Calculation");
-        OnAfterManufacturingLeadTime(SKU, Result);
+        GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
+        Result := Format(TempSKU."Lead Time Calculation");
+        OnAfterManufacturingLeadTime(TempSKU, Result);
     end;
 
     procedure WhseOutBoundHandlingTime(LocationCode: Code[10]): Code[10]
@@ -69,9 +69,9 @@ codeunit 5404 "Lead-Time Management"
     begin
         // Returns the safety lead time in a date formula
 
-        GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
-        Result := Format(SKU."Safety Lead Time");
-        OnAfterSafetyLeadTime(SKU, Result);
+        GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
+        Result := Format(TempSKU."Safety Lead Time");
+        OnAfterSafetyLeadTime(TempSKU, Result);
     end;
 
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
@@ -90,21 +90,21 @@ codeunit 5404 "Lead-Time Management"
         if IsHandled then
             exit(Result);
 
-        GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
+        GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
         if RefOrderType = RefOrderType::Transfer then begin
             Evaluate(DateFormula, WhseInBoundHandlingTime(LocationCode));
             with TransferRoute do begin
                 GetTransferRoute(
-                  SKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                  TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
                 CalcPlanReceiptDateBackward(
                   PlannedReceiptDate, DueDate, DateFormula, LocationCode, "Shipping Agent Code", "Shipping Agent Service Code");
             end;
             exit(PlannedReceiptDate);
         end;
-        OnPlannedEndingDateOnBeforeFormatDateFormula(SKU, RefOrderType, ItemNo, DueDate);
-        FormatDateFormula(SKU."Safety Lead Time");
-        OrgDateExpression := InternalLeadTimeDays(WhseInBoundHandlingTime(LocationCode) + Format(SKU."Safety Lead Time"));
+        OnPlannedEndingDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, ItemNo, DueDate);
+        FormatDateFormula(TempSKU."Safety Lead Time");
+        OrgDateExpression := InternalLeadTimeDays(WhseInBoundHandlingTime(LocationCode) + Format(TempSKU."Safety Lead Time"));
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
         if (VendorNo <> '') and (RefOrderType = RefOrderType::Purchase) then begin
             CustomCalendarChange[2].SetSource(CalChange."Source Type"::Vendor, VendorNo, '', '');
@@ -125,16 +125,16 @@ codeunit 5404 "Lead-Time Management"
         // Returns Starting Date calculated backward from Ending Date
 
         if RefOrderType = RefOrderType::Transfer then begin
-            GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
+            GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
             with TransferRoute do begin
                 GetTransferRoute(
-                  SKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                  TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
                 GetShippingTime(
-                  SKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
+                  TempSKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
                 CalcPlanShipmentDateBackward(
                   PlannedShipmentDate, EndingDate, ShippingTime,
-                  SKU."Transfer-from Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                  TempSKU."Transfer-from Code", "Shipping Agent Code", "Shipping Agent Service Code");
             end;
             exit(PlannedShipmentDate);
         end;
@@ -162,13 +162,13 @@ codeunit 5404 "Lead-Time Management"
         // Returns Ending Date calculated forward from Starting Date
 
         if RefOrderType = RefOrderType::Transfer then begin
-            GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
+            GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
             with TransferRoute do begin
                 GetTransferRoute(
-                  SKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                  TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
                 GetShippingTime(
-                  SKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
+                  TempSKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
                 CalcPlannedReceiptDateForward(
                   StartingDate, PlannedReceiptDate, ShippingTime, LocationCode, "Shipping Agent Code", "Shipping Agent Service Code");
             end;
@@ -202,16 +202,16 @@ codeunit 5404 "Lead-Time Management"
         if IsHandled then
             exit(Result);
 
-        GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
-        OnPlannedDueDateOnBeforeFormatDateFormula(SKU, RefOrderType, EndingDate, ItemNo, LocationCode);
-        FormatDateFormula(SKU."Safety Lead Time");
+        GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
+        OnPlannedDueDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, EndingDate, ItemNo, LocationCode);
+        FormatDateFormula(TempSKU."Safety Lead Time");
 
         if RefOrderType = RefOrderType::Transfer then begin
             Evaluate(DateFormula, WhseInBoundHandlingTime(LocationCode));
             TransferRoute.CalcReceiptDateForward(EndingDate, ReceiptDate, DateFormula, LocationCode);
             exit(ReceiptDate);
         end;
-        OrgDateExpression := WhseInBoundHandlingTime(LocationCode) + Format(SKU."Safety Lead Time");
+        OrgDateExpression := WhseInBoundHandlingTime(LocationCode) + Format(TempSKU."Safety Lead Time");
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
         if (VendorNo <> '') and (RefOrderType = RefOrderType::Purchase) then begin
             CustomCalendarChange[2].SetSource(CalChange."Source Type"::Vendor, VendorNo, '', '');
@@ -251,7 +251,7 @@ codeunit 5404 "Lead-Time Management"
         DateFormulaLoc: DateFormula;
     begin
         Evaluate(DateFormulaLoc, DateFormulaText);
-        Evaluate(TotalDays, '<' + Format(CalcDate(DateFormulaLoc, WorkDate) - WorkDate) + 'D>'); // DateFormulaText is formatet to local language
+        Evaluate(TotalDays, '<' + Format(CalcDate(DateFormulaLoc, WorkDate()) - WorkDate()) + 'D>'); // DateFormulaText is formatet to local language
         exit(Format(TotalDays));
     end;
 
@@ -263,12 +263,12 @@ codeunit 5404 "Lead-Time Management"
             exit(true);
 
         Evaluate(DateFormula, DateFormulaText);
-        exit(CalcDate(DateFormula, WorkDate) = WorkDate);
+        exit(CalcDate(DateFormula, WorkDate()) = WorkDate());
     end;
 
     procedure CheckLeadTimeIsNotNegative(LeadTimeDateFormula: DateFormula)
     begin
-        if CalcDate(LeadTimeDateFormula, WorkDate) < WorkDate then
+        if CalcDate(LeadTimeDateFormula, WorkDate()) < WorkDate() then
             Error(LeadTimeCalcNegativeErr);
     end;
 

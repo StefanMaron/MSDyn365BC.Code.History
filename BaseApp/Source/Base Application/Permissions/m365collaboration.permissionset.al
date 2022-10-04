@@ -1,3 +1,4 @@
+#if not CLEAN21
 permissionset 4785 "M365 COLLABORATION"
 {
     Assignable = true;
@@ -73,3 +74,4 @@ permissionset 4785 "M365 COLLABORATION"
                   tabledata "Vendor" = R,
                   tabledata "Workflow Webhook Entry" = R;
 }
+#endif

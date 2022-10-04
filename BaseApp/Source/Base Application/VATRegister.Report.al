@@ -14,7 +14,7 @@ report 13 "VAT Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLSetupLCYCode; GLSetup."LCY Code")
@@ -90,13 +90,13 @@ report 13 "VAT Register"
                 }
                 column(Base_VatEntry; Base)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                     IncludeCaption = true;
                 }
                 column(Amount_VatEntry; Amount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                     IncludeCaption = true;
                 }
@@ -179,7 +179,7 @@ report 13 "VAT Register"
 
     trigger OnPreReport()
     begin
-        GLRegFilter := "G/L Register".GetFilters;
+        GLRegFilter := "G/L Register".GetFilters();
     end;
 
     var

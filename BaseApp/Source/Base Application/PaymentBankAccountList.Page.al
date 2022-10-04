@@ -12,7 +12,7 @@ page 1282 "Payment Bank Account List"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -22,7 +22,7 @@ page 1282 "Payment Bank Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank where you have the bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
@@ -48,7 +48,7 @@ page 1282 "Payment Bank Account List"
 
     trigger OnAfterGetRecord()
     begin
-        Linked := IsLinkedToBankStatementServiceProvider;
+        Linked := IsLinkedToBankStatementServiceProvider();
     end;
 
     var

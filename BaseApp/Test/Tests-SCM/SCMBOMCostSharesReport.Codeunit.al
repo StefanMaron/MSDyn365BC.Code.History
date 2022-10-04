@@ -64,7 +64,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Machine Center");
         TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Work Center");
         VerifyParentItemMaterialAndCapacityCost(BOMCostShares, Item."No.", Item."Unit Cost", TotalLeafsRolledUpCapacityCost);
-        BOMCostShares.Close;
+        BOMCostShares.Close();
     end;
 
     local procedure CreateCostSharesTree(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; Width: Integer; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
@@ -388,7 +388,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
                         WorkCenter.Modify(true);
                     end;
             end;
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
     end;
 
     local procedure UpdateItemLotSize(var Item: Record Item; NewLotSize: Integer)
@@ -484,7 +484,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         // [THEN] Verify "Qty. per Parent" field on the page.
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
         BOMCostShares.Expand(true);
-        while BOMCostShares.Next do begin
+        while BOMCostShares.Next() do begin
             BOMCostShares.Expand(true);
             LibraryTrees.GetQtyPerInTree(QtyPerParent, QtyPerTopItem, Item."No.", Format(BOMCostShares."No."));
             Assert.AreEqual(QtyPerParent, BOMCostShares."Qty. per Parent".AsDEcimal, 'Qty. per Parent is invalid.');
@@ -791,7 +791,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
 
         BOMStructure.Expand(true);
         BOMStructure.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
-        while BOMStructure.Next do begin
+        while BOMStructure.Next() do begin
             LibraryTrees.GetQtyPerInTree(QtyPerParent, QtyPerTopItem, ItemNo, Format(BOMStructure."No."));
             Assert.AreEqual(
               QtyPerParent, BOMStructure."Qty. per Parent".AsDEcimal, 'Wrong Qty per parent on page for item ' + Format(BOMStructure."No."));

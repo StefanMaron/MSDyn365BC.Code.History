@@ -1611,7 +1611,7 @@ xmlport 1603 "Sales Credit Memo - PEPPOL 2.0"
                 if not FindNextCreditMemoRec(CrMemoHeaderLoop.Number) then
                     currXMLport.Break();
 
-                GetTotals;
+                GetTotals();
 
                 PEPPOLMgt.GetGeneralInfo(
                   SalesHeader,
@@ -1627,9 +1627,9 @@ xmlport 1603 "Sales Credit Memo - PEPPOL 2.0"
                   TaxCurrencyCodeListID,
                   AccountingCost);
 
-                UBLVersionID := GetUBLVersionID;
-                CustomizationID := GetCustomizationID;
-                ProfileID := GetProfileID;
+                UBLVersionID := GetUBLVersionID();
+                CustomizationID := GetCustomizationID();
+                ProfileID := GetProfileID();
             end;
         }
     }
@@ -1722,7 +1722,7 @@ xmlport 1603 "Sales Credit Memo - PEPPOL 2.0"
     begin
         if Position = 1 then
             exit(VATAmtLine.Find('-'));
-        exit(VATAmtLine.Next <> 0);
+        exit(VATAmtLine.Next() <> 0);
     end;
 
     procedure Initialize(DocVariant: Variant)
@@ -1736,7 +1736,7 @@ xmlport 1603 "Sales Credit Memo - PEPPOL 2.0"
                     RecRef.SetTable(SalesCrMemoHeader);
                     if SalesCrMemoHeader."No." = '' then
                         Error(SpecifyASalesCreditMemoNoErr);
-                    SalesCrMemoHeader.SetRecFilter;
+                    SalesCrMemoHeader.SetRecFilter();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
 
                     ProcessedDocType := ProcessedDocType::Sale;
@@ -1746,7 +1746,7 @@ xmlport 1603 "Sales Credit Memo - PEPPOL 2.0"
                     RecRef.SetTable(ServiceCrMemoHeader);
                     if ServiceCrMemoHeader."No." = '' then
                         Error(SpecifyAServCreditMemoNoErr);
-                    ServiceCrMemoHeader.SetRecFilter;
+                    ServiceCrMemoHeader.SetRecFilter();
                     ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
 
                     ProcessedDocType := ProcessedDocType::Service;

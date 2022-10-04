@@ -37,13 +37,13 @@ page 773 "Users in User Groups Chart"
                 trigger AddInReady()
                 begin
                     if IsChartDataReady then
-                        UpdateChart;
+                        UpdateChart();
                 end;
 
                 trigger Refresh()
                 begin
                     if IsChartDataReady then
-                        UpdateChart;
+                        UpdateChart();
                 end;
             }
         }
@@ -55,7 +55,7 @@ page 773 "Users in User Groups Chart"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        UpdateChart;
+        UpdateChart();
         IsChartDataReady := true;
     end;
 
@@ -67,7 +67,7 @@ page 773 "Users in User Groups Chart"
 
     local procedure UpdateChart()
     begin
-        UpdateData;
+        UpdateData();
         Update(CurrPage.BusinessChart);
     end;
 
@@ -84,10 +84,11 @@ page 773 "Users in User Groups Chart"
         // Define X-Axis
         SetXAxis(UserGroupTxt, "Data Type"::String);
 
-        if not UsersInUserGroups.Open then
+        if not UsersInUserGroups.Open() then
             exit;
 
-        while UsersInUserGroups.Read do begin
+        ColumnNumber := 0;
+        while UsersInUserGroups.Read() do begin
             // Add data to the chart
             AddColumn(Format(UsersInUserGroups.UserGroupCode)); // X-Axis data
             SetValue(UsersTxt, ColumnNumber, UsersInUserGroups.NumberOfUsers); // Y-Axis data

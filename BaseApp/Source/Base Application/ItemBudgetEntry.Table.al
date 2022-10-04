@@ -208,21 +208,21 @@ table 7134 "Item Budget Entry"
 
     trigger OnDelete()
     begin
-        CheckIfBlocked;
-        DeleteItemAnalysisViewBudgEntry;
+        CheckIfBlocked();
+        DeleteItemAnalysisViewBudgEntry();
     end;
 
     trigger OnInsert()
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        CheckIfBlocked;
+        CheckIfBlocked();
         TestField(Date);
 
         GetGLSetup();
         if ("Source No." = '') and ("Item No." = '') then begin
             GetSalesSetup();
-            GetInventorySetup;
+            GetInventorySetup();
 
             if not (CheckGroupDimFilled(SalesSetup."Customer Group Dimension Code") or
                     CheckGroupDimFilled(SalesSetup."Salesperson Dimension Code") or
@@ -251,7 +251,7 @@ table 7134 "Item Budget Entry"
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        CheckIfBlocked;
+        CheckIfBlocked();
         "User ID" := UserId;
         GetGLSetup();
 
@@ -270,9 +270,6 @@ table 7134 "Item Budget Entry"
     end;
 
     var
-        Text001: Label '1,5,,Budget Dimension 1 Code';
-        Text002: Label '1,5,,Budget Dimension 2 Code';
-        Text003: Label '1,5,,Budget Dimension 3 Code';
         ItemBudgetName: Record "Item Budget Name";
         GLSetup: Record "General Ledger Setup";
         InventorySetup: Record "Inventory Setup";
@@ -282,6 +279,10 @@ table 7134 "Item Budget Entry"
         GLSetupRetrieved: Boolean;
         InventorySetupRetrieved: Boolean;
         SalesSetupRetrieved: Boolean;
+
+        Text001: Label '1,5,,Budget Dimension 1 Code';
+        Text002: Label '1,5,,Budget Dimension 2 Code';
+        Text003: Label '1,5,,Budget Dimension 3 Code';
 
     local procedure CheckIfBlocked()
     begin
@@ -328,7 +329,7 @@ table 7134 "Item Budget Entry"
         DimValueList: Page "Dimension Value List";
     begin
         if DimOption in [DimOption::"Global Dimension 1", DimOption::"Global Dimension 2"] then
-            GetGLSetup
+            GetGLSetup()
         else
             if ItemBudgetName.Name <> "Budget Name" then
                 ItemBudgetName.Get("Analysis Area", "Budget Name");
@@ -349,7 +350,7 @@ table 7134 "Item Budget Entry"
         DimValueList.SetTableView(DimValue);
         DimValueList.SetRecord(DimValue);
         DimValueList.LookupMode := true;
-        if DimValueList.RunModal = ACTION::LookupOK then begin
+        if DimValueList.RunModal() = ACTION::LookupOK then begin
             DimValueList.GetRecord(DimValue);
             exit(DimValue.Code);
         end;
@@ -427,7 +428,7 @@ table 7134 "Item Budget Entry"
                 case "Source Type" of
                     "Source Type"::Customer:
                         begin
-                            SourceTableCaption := Cust.TableCaption;
+                            SourceTableCaption := Cust.TableCaption();
                             SourceFilter := GetFilter("Source No.");
                             if MaxStrLen(Cust."No.") >= StrLen(SourceFilter) then
                                 if Cust.Get(SourceFilter) then
@@ -435,7 +436,7 @@ table 7134 "Item Budget Entry"
                         end;
                     "Source Type"::Vendor:
                         begin
-                            SourceTableCaption := Vend.TableCaption;
+                            SourceTableCaption := Vend.TableCaption();
                             SourceFilter := GetFilter("Source No.");
                             if MaxStrLen(Vend."No.") >= StrLen(SourceFilter) then
                                 if Vend.Get(SourceFilter) then
@@ -444,7 +445,7 @@ table 7134 "Item Budget Entry"
                 end;
             GetFilter("Item No.") <> '':
                 begin
-                    SourceTableCaption := Item.TableCaption;
+                    SourceTableCaption := Item.TableCaption();
                     SourceFilter := GetFilter("Item No.");
                     if MaxStrLen(Item."No.") >= StrLen(SourceFilter) then
                         if Item.Get(SourceFilter) then

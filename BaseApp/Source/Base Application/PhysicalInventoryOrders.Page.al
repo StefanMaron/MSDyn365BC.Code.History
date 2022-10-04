@@ -15,7 +15,7 @@ page 5876 "Physical Inventory Orders"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a number for the physical inventory order.';
@@ -30,33 +30,33 @@ page 5876 "Physical Inventory Orders"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the physical inventory order is open or finished.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the order date for the physical inventory order.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the posting date of the physical inventory order.';
                 }
-                field("Person Responsible"; "Person Responsible")
+                field("Person Responsible"; Rec."Person Responsible")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the person who is responsible for performing this physical inventory order.';
                 }
-                field("No. Finished Recordings"; "No. Finished Recordings")
+                field("No. Finished Recordings"; Rec."No. Finished Recordings")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of entered physical inventory recording documents that have the status set to finished.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -75,7 +75,6 @@ page 5876 "Physical Inventory Orders"
                 ApplicationArea = Warehouse;
                 Caption = 'Phys. Inventory Order Diff.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Phys. Invt. Order Diff. List";
@@ -86,12 +85,14 @@ page 5876 "Physical Inventory Orders"
                 ApplicationArea = Warehouse;
                 Caption = 'Phys. Invt. Order - Test';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Phys. Invt. Order - Test";
                 ToolTip = 'View the result of posting the counted inventory quantities before you actually post.';
             }
+        }
+        area(Promoted)
+        {
         }
     }
 }

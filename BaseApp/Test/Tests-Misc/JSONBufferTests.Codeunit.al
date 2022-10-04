@@ -85,11 +85,11 @@ codeunit 139210 "JSON Buffer Tests"
             Assert.AreEqual(2, TempResultArrayJSONBuffer.Count, 'Wrong number of array entries');
             Assert.IsTrue(TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'MyVar'), 'could not find property value for MyVar');
             Assert.AreEqual('5', PropertyValue, '');
-            Assert.IsTrue(TempResultArrayJSONBuffer.Next <> 0, 'There are no more elements');
+            Assert.IsTrue(TempResultArrayJSONBuffer.Next() <> 0, 'There are no more elements');
             Assert.IsTrue(
               TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'OtherVar'), 'could not find property value for OtherVar');
             Assert.AreEqual('TestValue', PropertyValue, '');
-            Assert.IsTrue(TempResultArrayJSONBuffer.Next = 0, 'There should not be any more elements');
+            Assert.IsTrue(TempResultArrayJSONBuffer.Next() = 0, 'There should not be any more elements');
         end;
     end;
 
@@ -170,7 +170,7 @@ codeunit 139210 "JSON Buffer Tests"
         Assert.IsFalse(
           TempOuterResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'OtherVar'),
           'OtherVar should not be accessible from first index of outer array');
-        TempOuterResultArrayJSONBuffer.Next;
+        TempOuterResultArrayJSONBuffer.Next();
         Assert.IsTrue(
           TempOuterResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'OtherVar'),
           'OtherVar should be accessible from first index of outer array');
@@ -288,7 +288,7 @@ codeunit 139210 "JSON Buffer Tests"
         Assert.AreEqual(Value, TempJSONBuffer.GetValue, 'Incorrect JSON value');
         Assert.AreEqual(ValueType, TempJSONBuffer."Value Type", 'Incorrect JSON value type');
         Assert.AreEqual(Path, TempJSONBuffer.Path, 'Incorrect JSON path');
-        Assert.IsTrue(TempJSONBuffer.Next <> 0, 'There are no more elements');
+        Assert.IsTrue(TempJSONBuffer.Next() <> 0, 'There are no more elements');
     end;
 }
 

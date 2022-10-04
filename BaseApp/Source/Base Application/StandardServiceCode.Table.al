@@ -27,9 +27,9 @@ table 5996 "Standard Service Code"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if not Currency.Get("Currency Code") then
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                 if not Currency2.Get(xRec."Currency Code") then
-                    Currency2.InitRoundingPrecision;
+                    Currency2.InitRoundingPrecision();
 
                 if Currency."Amount Rounding Precision" <> Currency2."Amount Rounding Precision" then begin
                     StdServiceLine.Reset();
@@ -50,7 +50,7 @@ table 5996 "Standard Service Code"
                         until StdServiceLine.Next() = 0;
                     end;
                 end;
-                Modify;
+                Modify();
             end;
         }
     }
@@ -114,7 +114,7 @@ table 5996 "Standard Service Code"
         StdServItemGrCodesForm.SetTableView(StdServItemGrCode);
         StdServItemGrCodesForm.LookupMode := true;
 
-        if not (StdServItemGrCodesForm.RunModal = ACTION::LookupOK) then
+        if not (StdServItemGrCodesForm.RunModal() = ACTION::LookupOK) then
             exit;
         StdServItemGrCodesForm.GetRecord(StdServItemGrCode);
 
@@ -124,7 +124,7 @@ table 5996 "Standard Service Code"
                 Error(
                   Text003,
                   StdServCode.FieldCaption("Currency Code"),
-                  ServiceHeader.FieldCaption("Currency Code"), ServiceHeader.TableCaption);
+                  ServiceHeader.FieldCaption("Currency Code"), ServiceHeader.TableCaption());
             StdServLine.SetRange("Standard Service Code", StdServCode.Code);
             Currency.Initialize(StdServCode."Currency Code");
             ServLine."Document Type" := ServiceHeader."Document Type";
@@ -146,7 +146,7 @@ table 5996 "Standard Service Code"
                         ServLine.Validate("No.", StdServLine."No.");
                         ServLine.Description := StdServLine.Description
                     end else
-                        if not StdServLine.EmptyLine then begin
+                        if not StdServLine.EmptyLine() then begin
                             StdServLine.TestField("No.");
                             ServLine.Validate("No.", StdServLine."No.");
                             if StdServLine."Variant Code" <> '' then
@@ -163,7 +163,7 @@ table 5996 "Standard Service Code"
                                     (ServLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
                         end;
                     ServLine."Dimension Set ID" := StdServLine."Dimension Set ID";
-                    if StdServLine.InsertLine then begin
+                    if StdServLine.InsertLine() then begin
                         ServLine."Line No." := ServLine.GetLineNo();
                         OnBeforeInsertServLine(ServLine);
                         ServLine.Insert(true);

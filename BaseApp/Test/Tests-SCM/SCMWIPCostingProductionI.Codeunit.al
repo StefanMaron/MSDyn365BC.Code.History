@@ -83,7 +83,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify WIP Account General Ledger Entries for Total amount and Positive amount entries.
         VerifyWIPAmountGLEntry(ProductionOrder, ItemNo, true);
@@ -111,7 +111,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 2.1 Exercise: Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3.1 Verify: Verify Inventory Account General Ledger Entries do not exist.
         VerifyInvtAccountNotInGLEntry(ItemNo2, ProductionOrderNo);
@@ -123,7 +123,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3.2 Verify: Verify WIP Account General Ledger Entries for Total amount and Positive amount entries.
         VerifyWIPAmountGLEntry(ProductionOrder, ItemNo, true);
@@ -188,7 +188,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
 
         if not AutoCostPosting then
-            LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+            LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -346,7 +346,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
 
         if not AutoCostPosting then
-            LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+            LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -380,7 +380,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 2. Exercise: Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report after Consumption.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify General Ledger Entries that Total WIP Amount equals Calculated amount.
         VerifyWIPAmountConsumpOutput(ProductionOrder, ItemNo, false);  // False signifies verification for Consumption Amount.
@@ -415,7 +415,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 2. Exercise: Post Output and Post Inventory Cost to G/L.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountConsumpOutput(ProductionOrder, ItemNo, true);  // True signifies verification for Output Amount.
@@ -452,7 +452,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 2. Exercise: Run Adjust Cost Item Entries and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, true);
@@ -483,7 +483,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 2. Exercise: Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, true);
@@ -522,7 +522,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 2. Exercise: Invoice Purchase Order, Run Adjust Cost Item Entries and Post Inventory Cost to G/L reports.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -559,13 +559,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
 
         // 2. Exercise: Run Adjust Cost Item Entries and Post Inventory Cost to G/L reports.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, false);
@@ -598,7 +598,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 2. Exercise: Invoice Purchase Order, Run Adjust Cost Item Entries and Post Inventory Cost to G/L reports.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -632,7 +632,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, false);
@@ -669,7 +669,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
 
         // [WHEN] Run Post Inventory Cost to G/L report.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -707,7 +707,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries & Post Inventory Cost to G/L reports.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - WIP Account Amount equal Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, true);
@@ -737,7 +737,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries & Post Inventory Cost to G/L reports.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, false);
@@ -775,7 +775,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
 
         // [WHEN] Run Post Inventory Cost to G/L report.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -814,7 +814,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries & Post Inventory Cost to G/L reports.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - WIP Account Amount equal Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, true);
@@ -849,7 +849,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries & Post Inventory Cost to G/L reports.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - WIP Account Amount equal Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, true);
@@ -879,7 +879,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries & Post Inventory Cost to G/L reports.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries that WIP Amount equals Calculated amount with Adjust Cost.
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, true);
@@ -908,7 +908,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [WHEN] Run Adjust Cost Item Entries & Post Inventory Cost to G/L reports.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries that WIP Amount equals Calculated amount.
         VerifyWIPAmountFinishProd(ProductionOrder, ItemNo, true);
@@ -941,7 +941,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
 
         // [WHEN] Run Post Inventory Cost to G/L report.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, false);
@@ -975,7 +975,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
 
         // [WHEN] Run Post Inventory Cost to G/L report.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, false);
@@ -1010,7 +1010,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
 
         // [WHEN] Run Post Inventory Cost to G/L report.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         VerifyWIPAmountDiffConsmpNoAdj(ProductionOrder, ItemNo, ItemNo2);
@@ -1035,14 +1035,14 @@ codeunit 137003 "SCM WIP Costing Production-I"
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Average,
           true, true, true, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst();
 
         // [WHEN] Finish Production Order & run Post Inventory Cost to G/L report.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries that WIP Amount equals Calculated amount without Adjust Cost.
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, false);
@@ -1075,7 +1075,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
 
         // [WHEN] Run Post Inventory Cost to G/L report.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, false);
@@ -1101,13 +1101,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
           PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Standard,
           true, true, false, false, false, false);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
 
         // [WHEN] Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify WIP Account General Ledger Entries that Actual Positive amount equals calculated amount.
         VerifyWIPAddnlCurrGLEntry(ProductionOrder, CurrencyCode, ItemNo, true);
@@ -1137,7 +1137,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -1145,7 +1145,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify WIP Account General Ledger Entries that Actual Positive amount equals calculated amount.
         VerifyWIPAddnlCurrGLEntry(ProductionOrder, CurrencyCode, ItemNo, true);
@@ -1176,7 +1176,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -1184,7 +1184,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify WIP Account General Ledger Entries that Actual Positive amount equals calculated amount.
         VerifyWIPAddnlCurrGLEntry(ProductionOrder, CurrencyCode, ItemNo, true);
@@ -1215,7 +1215,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1224,7 +1224,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify WIP Account General Ledger Entries that Actual Positive amount equals calculated amount.
         VerifyWIPAddnlCurrGLEntry(ProductionOrder, CurrencyCode, ItemNo, true);
@@ -1250,10 +1250,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
           PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Standard,
           true, true, true, false, false, false);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst();
@@ -1261,7 +1261,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify WIP Account General Ledger Entries that Actual amount equals calculated amount.
         VerifyWIPAddnlCurrGLEntry(ProductionOrder, CurrencyCode, ItemNo, true);
@@ -1290,7 +1290,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
@@ -1298,7 +1298,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [WHEN] Run Adjust Cost Item Entries and Post Inventory Cost to G/L report.
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Verify WIP Account General Ledger Entries that Actual amount equals calculated amount.
         VerifyWIPAddnlCurrGLEntry(ProductionOrder, CurrencyCode, ItemNo, false);
@@ -1367,7 +1367,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 2. Exercise: Post Purchase Order with Required Quantity to Invoice and Post Inventory Cost to G/L if required.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         if not AutoCostPosting then
-            LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+            LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -1515,7 +1515,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Post Purchase Order with required Quantity and Post Inventory Cost to G/L if required.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
         if not AutoCostPosting then
-            LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+            LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
@@ -1686,7 +1686,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryCosting.AdjustCostItemEntries('', '');
 
         // [THEN] Last Direct Cost of "I" = "X + dX".
-        ProdItem.Find;
+        ProdItem.Find();
         Assert.AreNearlyEqual(
           ProdItem."Last Direct Cost", DirectUnitCost + ItemChargeAmt / Quantity, GLSetup."Unit-Amount Rounding Precision",
           WrongLastDirectCostErr);
@@ -1759,7 +1759,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryERMCountryData.UpdateInventoryPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         isInitialized := true;
@@ -1805,7 +1805,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
               MachineCenter2, WorkCenterNo, "Flushing Method"::Manual, 1,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2),
               LibraryRandom.RandDec(5, 2));
-        RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate, true);
+        RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate(), true);
         CreateRouting(WorkCenterNo, MachineCenter."No.", RoutingNo);
 
         // Create Items with the required Flushing method with the main Item containing Routing No. and Production BOM No.
@@ -1901,7 +1901,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             CreateMachineCenter(
               MachineCenter2, WorkCenterNo, "Flushing Method"::Manual, 1,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
-        RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate, true);
+        RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate(), true);
         CreateRouting(WorkCenterNo, MachineCenter."No.", RoutingNo);
 
         // Create Items with the required Flushing method with the main Item containing Routing No. and Production BOM No.
@@ -2077,7 +2077,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Calculate Calendar for Machine Center with dates having a difference of 1 Month.
         MachineCenter.Get(MachineCenterNo);
-        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CalculateWorkCntrCalendar(WorkCenterNo: Code[20])
@@ -2086,7 +2086,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Calculate Calendar for Work Center with dates having a difference of 1 Month.
         WorkCenter.Get(WorkCenterNo);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; ItemNo2: Code[20]; Qty: Decimal; QtyToReceive: Decimal; RandomDirectUnitCost: Boolean)
@@ -2255,7 +2255,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         repeat
             ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity + 1);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure UpdateLessQtyOutputJournal(ProductionOrderNo: Code[20])
@@ -2270,7 +2270,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         repeat
             ItemJournalLine.Validate("Output Quantity", ProductionOrder.Quantity - 1);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure ReplaceProdOrderComponent(ProductionOrderNo: Code[20]; ItemNo: Code[20]; ItemNo2: Code[20]; NewItemNo: Code[20])
@@ -2370,7 +2370,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Commit();  // Required to run the Test Case on RTC.
 
         // Create Currency Exchange Rate.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
 
         // Using RANDOM Exchange Rate Amount and Adjustment Exchange Rate, between 100 and 400 (Standard Value).
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100 * LibraryRandom.RandInt(4));
@@ -2416,7 +2416,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         repeat
             TempPurchaseLine := PurchaseLine;
             TempPurchaseLine.Insert();
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure PostProdOrderJournalLinesAndFinishProdOrder(ProductionOrderNo: Code[20]; ParentItemNo: Code[20])
@@ -2482,11 +2482,11 @@ codeunit 137003 "SCM WIP Costing Production-I"
         if not AddnlCurrency then
             repeat
                 TotalAmount += GLEntry.Amount;
-            until GLEntry.Next = 0
+            until GLEntry.Next() = 0
         else
             repeat
                 TotalAmount += GLEntry."Additional-Currency Amount";
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         exit(TotalAmount);
     end;
 
@@ -2502,13 +2502,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
             // Total amount for positive WIP entries.
             repeat
                 TotalAmount += GLEntry.Amount;
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         end else begin
             GLEntry.FindSet();
             // Total amount for WIP Entries except the last G/L entry to exclude the Balancing amount.
             for GLCount := 1 to GLEntry.Count - 1 do begin
                 TotalAmount += GLEntry.Amount;
-                GLEntry.Next;
+                GLEntry.Next();
             end;
         end;
         exit(TotalAmount);
@@ -2538,7 +2538,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
                 TotalConsumptionValue :=
                   TotalConsumptionValue +
                   OverheadIndirectValue(ProductionOrder.Quantity, ProdOrderComponent."Quantity per", ProdOrderComponent."Item No.");
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
 
         ExpectedWIPAmount :=
           TotalConsumptionValue + DirectIndirectMachineCntrCost(ProductionOrder."Routing No.", Item."No.", ProductionOrder.Quantity) +
@@ -2589,7 +2589,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
                   (TimeSubtotal * MachineCenter."Direct Unit Cost") +
                   (TimeSubtotal *
                    ((MachineCenter."Indirect Cost %" / 100) * MachineCenter."Direct Unit Cost" + MachineCenter."Overhead Rate"));
-            until ProdOrderRoutingLine.Next = 0;
+            until ProdOrderRoutingLine.Next() = 0;
         exit(MachineCenterAmount);
     end;
 
@@ -2610,7 +2610,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
                 WorkCenterAmount :=
                   (TimeSubtotal * WorkCenter."Direct Unit Cost") +
                   (TimeSubtotal * ((WorkCenter."Indirect Cost %" / 100) * WorkCenter."Direct Unit Cost" + WorkCenter."Overhead Rate"));
-            until ProdOrderRoutingLine.Next = 0;
+            until ProdOrderRoutingLine.Next() = 0;
         exit(WorkCenterAmount);
     end;
 
@@ -2645,7 +2645,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         PurchRcptLine.FindFirst();
 
         with ItemChargeAssignmentPurch do begin
-            Init;
+            Init();
             Validate("Document Type", PurchaseHeader."Document Type");
             Validate("Document No.", PurchaseHeader."No.");
             Validate("Document Line No.", PurchaseLine."Line No.");
@@ -2756,7 +2756,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         TempPurchaseLine.FindSet();
         repeat
             ItemCost += (TempPurchaseLine."Direct Unit Cost" * TempPurchaseLine."Quantity Received");
-        until TempPurchaseLine.Next = 0;
+        until TempPurchaseLine.Next() = 0;
         exit(ItemCost);
     end;
 
@@ -2780,7 +2780,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
                   OverheadIndirectCost +
                   ((Item."Overhead Rate" + (Item."Indirect Cost %" / 100 * TempPurchaseLine."Direct Unit Cost")) * Item.Inventory);
             end;
-        until TempPurchaseLine.Next = 0;
+        until TempPurchaseLine.Next() = 0;
         exit(OverheadIndirectCost);
     end;
 
@@ -2798,7 +2798,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ExpectedWIPAmount +=
               ConsumptionValue(ProductionOrder.Quantity, ProdOrderComponent."Quantity per", ProdOrderComponent."Item No.") +
               OverheadIndirectValue(ProductionOrder.Quantity, ProdOrderComponent."Quantity per", ProdOrderComponent."Item No.");
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
 
         if PostOutput then
             ExpectedWIPAmount +=
@@ -2891,7 +2891,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Total amount for required WIP entries.
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         exit(TotalAmount);
     end;
 
@@ -2915,7 +2915,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
             TotalConsumptionValue :=
               TotalConsumptionValue + (ProdOrderComponent."Act. Consumption (Qty)" * Item."Last Direct Cost");
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
 
         ExpectedWIPAmount :=
           TotalConsumptionValue + DirectIndirectMachineCntrCost(ProductionOrder."Routing No.", ItemNo, ProductionOrder.Quantity) +
@@ -2950,13 +2950,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
             // Total Additional Currency amount for positive WIP entries.
             repeat
                 ActualAddnlCurrencyAmount += GLEntry."Additional-Currency Amount";
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         end else begin
             GLEntry.FindSet();
             // Total Additional currency amount for WIP Entries except the last G/L entry to exclude the Balancing amount.
             for GLCount := 1 to GLEntry.Count - 1 do begin
                 ActualAddnlCurrencyAmount += GLEntry."Additional-Currency Amount";
-                GLEntry.Next;
+                GLEntry.Next();
             end;
         end;
         exit(ActualAddnlCurrencyAmount);
@@ -2981,7 +2981,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             Item.Get(ProdOrderComponent."Item No.");
             ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
             TotalConsumptionValue += ProdOrderComponent."Act. Consumption (Qty)" * Item."Standard Cost";
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
 
         CalculatedWIPAmount :=
           TotalConsumptionValue +
@@ -2999,7 +2999,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
     local procedure VerifyAvgItemCost(var Item: Record Item; LastDirectCost: Decimal; UnitCost: Decimal)
     begin
-        Item.Find;
+        Item.Find();
         Item.TestField("Last Direct Cost", LastDirectCost);
         Item.TestField("Unit Cost", UnitCost);
     end;
@@ -3022,7 +3022,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemJournalLine.FindSet();
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     [StrMenuHandler]

@@ -186,7 +186,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Item.Get(SalesLine."No.");
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
 
         // Verify: Verify Calculated Planning Lines.
         VerifyRequisitionLine(
@@ -250,7 +250,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Item.Get(ProductionBOMLine."No.");
 
         // Exercise.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
 
         // Verify: Verify Calculated Planning Lines.
         VerifyRequisitionLine(
@@ -833,7 +833,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         AutoReserveSalesLine(SalesHeader);
 
         LibrarySales.ReopenSalesDocument(SalesHeader);
-        SalesHeader.Find;
+        SalesHeader.Find();
         UpdateSalesOrderQuantity(SalesHeader."No.", QtyToSell);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -1029,7 +1029,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order",
           LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo,
-          LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         Commit();
@@ -1271,7 +1271,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         // [GIVEN] Create sales order with a line of Type "Item"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(''));
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLineCreated, SalesHeader, SalesLineCreated.Type::Item, Item."No.", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate),
+          SalesLineCreated, SalesHeader, SalesLineCreated.Type::Item, Item."No.", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()),
           3);  // Use Random days to calculate Shipment Date.
 
         // [GIVEN] Release sales
@@ -1415,14 +1415,14 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
-        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate, LibraryUtility.GenerateGUID, false);  // False for Item not on Inventory.
+        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate(), LibraryUtility.GenerateGUID, false);  // False for Item not on Inventory.
     end;
 
     local procedure CalcRegenPlanAndCarryOutActionMsg(Item: Record Item; LocationCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
         FindRequisitionLine(RequisitionLine, Item."No.", LocationCode);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
@@ -1827,7 +1827,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(LocationCode));
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, No, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate),
+          SalesLine, SalesHeader, SalesLine.Type::Item, No, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()),
           Quantity);  // Use Random days to calculate Shipment Date.
     end;
 
@@ -1885,8 +1885,8 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Item: Record Item;
     begin
         CreateItemWithLotTracking(Item);
-        LotNos[1] := PostItemJournalLineFEFO(Item."No.", LocationCode, BinCode, LotQty, CalcDate('<2D>', WorkDate));
-        LotNos[2] := PostItemJournalLineFEFO(Item."No.", LocationCode, BinCode, LotQty, CalcDate('<1D>', WorkDate));
+        LotNos[1] := PostItemJournalLineFEFO(Item."No.", LocationCode, BinCode, LotQty, CalcDate('<2D>', WorkDate()));
+        LotNos[2] := PostItemJournalLineFEFO(Item."No.", LocationCode, BinCode, LotQty, CalcDate('<1D>', WorkDate()));
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", LocationCode, QtyToSell);
     end;
 
@@ -2092,7 +2092,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
     end;
 
     local procedure FindProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
@@ -2249,7 +2249,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
+        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate(), true, false);
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
@@ -2404,7 +2404,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
-          Quantity, LocationCode, WorkDate);
+          Quantity, LocationCode, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -2418,7 +2418,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo, ItemNo,
-          Quantity, LocationCode, WorkDate);
+          Quantity, LocationCode, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
@@ -2455,9 +2455,9 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         SetupToAssemblyBin(Location.Code, BinCodes[2]);
 
         LibrarySales.SetStockoutWarning(false);
-        LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, WorkDate, Location.Code, LibraryRandom.RandIntInRange(1, 3));
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, AssemblyHeader."Location Code", BinCodes[1]);
-        LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, 100, 100, true, WorkDate);
+        LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, WorkDate(), Location.Code, LibraryRandom.RandIntInRange(1, 3));
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, AssemblyHeader."Location Code", BinCodes[1]);
+        LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, 100, 100, true, WorkDate());
         CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
     end;
 
@@ -2522,7 +2522,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Location Code", LocationCode);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.SetRange("Posting Date", WorkDate);
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
         ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Reserved Quantity");
         ItemLedgerEntry.TestField("Reserved Quantity", Quantity);
@@ -2538,7 +2538,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ProdOrderComponent.FindSet();
         repeat
             ComponentCost += ProdOrderComponent."Unit Cost";
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
         Assert.AreNearlyEqual(UnitCost, ComponentCost, LibraryERM.GetAmountRoundingPrecision, CostMustBeSame);
     end;
 
@@ -2556,7 +2556,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             TotalQuantity += ItemLedgerEntry.Quantity;
             TotalCost += ItemLedgerEntry."Cost Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         Item.Get(ItemNo);
         Assert.AreNearlyEqual(Item."Unit Cost", TotalCost / TotalQuantity, LibraryERM.GetAmountRoundingPrecision, CostMustBeSame);
@@ -2644,7 +2644,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
                     TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal;
                     ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                 end;

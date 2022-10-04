@@ -281,8 +281,8 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     local procedure InsertDimensionsFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; var DestinationRecordRef: RecordRef)
     var
         DimensionsTemplate: Record "Dimensions Template";
-        PrimaryKeyRef: KeyRef;
         PrimaryKeyFieldRef: FieldRef;
+        PrimaryKeyRef: KeyRef;
     begin
         PrimaryKeyRef := DestinationRecordRef.KeyIndex(1);
         if PrimaryKeyRef.FieldCount() <> 1 then
@@ -400,7 +400,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     local procedure PrepareNewDestination(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef)
     begin
-        CoupledRecordRef.Close;
+        CoupledRecordRef.Close();
 
         if RecordRef.Number = IntegrationTableMapping."Table ID" then
             CoupledRecordRef.Open(IntegrationTableMapping."Integration Table ID")
@@ -458,7 +458,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
         CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, SynchAction <> SynchActionType::Insert);
-        if IntegrationRecordSynch.Run then begin
+        if IntegrationRecordSynch.Run() then begin
             if BothModified and IntegrationRecordSynch.GetWasBidirectionalFieldModified() then
                 exit;
             OnAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef,
@@ -512,15 +512,11 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     local procedure UpdateIntegrationRecordCoupling(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType)
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
-        IntegrationManagement: Codeunit "Integration Management";
         LocalRecordRef: RecordRef;
         IntegrationRecordRef: RecordRef;
         IntegrationTableUidFieldRef: FieldRef;
         IntegrationTableUid: Variant;
     begin
-        if IntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
-            exit;
-
         if SourceRecordRef.Number() = IntegrationTableMapping."Table ID" then begin
             LocalRecordRef := SourceRecordRef;
             IntegrationRecordRef := DestinationRecordRef;

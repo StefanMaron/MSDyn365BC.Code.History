@@ -1,7 +1,7 @@
 page 7323 "Whse. Journal Batches"
 {
     Caption = 'Whse. Journal Batches';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Warehouse Journal Batch";
@@ -23,27 +23,27 @@ page 7323 "Whse. Journal Batches"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the warehouse journal batch.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the journal batch applies.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Registering No. Series"; "Registering No. Series")
+                field("Registering No. Series"; Rec."Registering No. Series")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign document numbers to the warehouse entries that are registered from this journal batch.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -72,7 +72,7 @@ page 7323 "Whse. Journal Batches"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewBatch;
+        SetupNewBatch();
     end;
 
     local procedure DataCaption(): Text[250]

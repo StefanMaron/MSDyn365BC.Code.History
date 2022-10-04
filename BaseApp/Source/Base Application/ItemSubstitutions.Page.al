@@ -14,7 +14,7 @@ page 5720 "Item Substitutions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Substitute No."; "Substitute No.")
+                field("Substitute No."; Rec."Substitute No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item that can be used as a substitute in case the original item is unavailable.';
@@ -60,14 +60,23 @@ page 5720 "Item Substitutions"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Condition';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Sub. Conditions";
                 RunPageLink = Type = FIELD(Type),
                               "No." = FIELD("No."),
                               "Substitute Type" = FIELD("Substitute Type"),
                               "Substitute No." = FIELD("Substitute No.");
                 ToolTip = 'Specify a condition for the item substitution, which is for information only and does not affect the item substitution.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Condition_Promoted"; "&Condition")
+                {
+                }
             }
         }
     }

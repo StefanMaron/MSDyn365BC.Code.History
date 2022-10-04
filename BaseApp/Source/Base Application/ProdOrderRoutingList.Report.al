@@ -24,7 +24,7 @@ report 99000761 "Prod. Order - Routing List"
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Production_Order__TABLECAPTION__________ProdOrderFilter; "Production Order".TableCaption + ': ' + ProdOrderFilter)
@@ -126,7 +126,7 @@ report 99000761 "Prod. Order - Routing List"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
             end;
         }
     }

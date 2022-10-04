@@ -196,7 +196,7 @@ page 2812 "Native - Sales Quotes"
                     begin
                         RegisterFieldSet(FieldNo("Tax Area ID"));
 
-                        if IsUsingVAT then
+                        if IsUsingVAT() then
                             RegisterFieldSet(FieldNo("VAT Bus. Posting Group"))
                         else
                             RegisterFieldSet(FieldNo("Tax Area Code"));
@@ -449,17 +449,17 @@ page 2812 "Native - Sales Quotes"
         SalesHeader: Record "Sales Header";
         GraphMgtSalesQuoteBuffer: Codeunit "Graph Mgt - Sales Quote Buffer";
     begin
-        CheckCustomer;
-        ProcessBillingPostalAddress;
+        CheckCustomer();
+        ProcessBillingPostalAddress();
 
         GraphMgtSalesQuoteBuffer.PropagateOnInsert(Rec, TempFieldBuffer);
-        SetDates;
+        SetDates();
 
-        UpdateAttachments;
-        UpdateLines;
-        UpdateDiscount;
-        UpdateCoupons;
-        SetNoteForCustomer;
+        UpdateAttachments();
+        UpdateLines();
+        UpdateDiscount();
+        UpdateCoupons();
+        SetNoteForCustomer();
 
         if not GetParentRecordNativeInvoicing(SalesHeader) then
             Error(AggregateParentIsMissingErr);
@@ -477,15 +477,15 @@ page 2812 "Native - Sales Quotes"
         if xRec.Id <> Id then
             Error(CannotChangeIDErr);
 
-        ProcessBillingPostalAddress;
+        ProcessBillingPostalAddress();
 
         GraphMgtSalesQuoteBuffer.PropagateOnModify(Rec, TempFieldBuffer);
 
-        UpdateAttachments;
-        UpdateLines;
-        UpdateDiscount;
-        UpdateCoupons;
-        SetNoteForCustomer;
+        UpdateAttachments();
+        UpdateLines();
+        UpdateDiscount();
+        UpdateCoupons();
+        SetNoteForCustomer();
 
         if not GetParentRecordNativeInvoicing(SalesHeader) then
             Error(AggregateParentIsMissingErr);
@@ -497,13 +497,13 @@ page 2812 "Native - Sales Quotes"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearCalculatedFields;
+        ClearCalculatedFields();
     end;
 
     trigger OnOpenPage()
     begin
         BindSubscription(NativeAPILanguageHandler);
-        SelectLatestVersion;
+        SelectLatestVersion();
     end;
 
     var
@@ -564,7 +564,7 @@ page 2812 "Native - Sales Quotes"
         if "Sell-to Customer No." <> '' then
             if Customer.Get("Sell-to Customer No.") then begin
                 CustomerEmail := Customer."E-Mail";
-                IsCustomerBlocked := Customer.IsBlocked
+                IsCustomerBlocked := Customer.IsBlocked()
             end else begin
                 IsCustomerBlocked := false;
                 CustomerEmail := '';
@@ -689,7 +689,7 @@ page 2812 "Native - Sales Quotes"
           "Sales Document Type"::Quote.AsInteger(), SalesQuoteLinesJSON, TempSalesInvoiceLineAggregate, Id);
         TempSalesInvoiceLineAggregate.SetRange("Document Id", Id);
         GraphMgtSalesQuoteBuffer.PropagateMultipleLinesUpdate(TempSalesInvoiceLineAggregate);
-        Find;
+        Find();
     end;
 
     local procedure UpdateDiscount()
@@ -793,7 +793,7 @@ page 2812 "Native - Sales Quotes"
     local procedure GetNoteForCustomer(var SalesHeader: Record "Sales Header")
     begin
         Clear(WorkDescription);
-        WorkDescription := SalesHeader.GetWorkDescription;
+        WorkDescription := SalesHeader.GetWorkDescription();
     end;
 
     local procedure SetNoteForCustomer()
@@ -806,7 +806,7 @@ page 2812 "Native - Sales Quotes"
         SalesHeader.Get(SalesHeader."Document Type"::Quote, "No.");
         SalesHeader.SetWorkDescription(WorkDescription);
         SalesHeader.Modify(true);
-        Find;
+        Find();
     end;
 
     local procedure SetDates()
@@ -832,7 +832,7 @@ page 2812 "Native - Sales Quotes"
         end;
 
         GraphMgtSalesQuoteBuffer.PropagateOnModify(Rec, TempFieldBuffer);
-        Find;
+        Find();
     end;
 
     local procedure GetQuote(var SalesHeader: Record "Sales Header")
@@ -852,7 +852,7 @@ page 2812 "Native - Sales Quotes"
 
     local procedure CheckSendToEmailAddress()
     begin
-        if GetSendToEmailAddress = '' then
+        if GetSendToEmailAddress() = '' then
             Error(EmptyEmailErr);
     end;
 
@@ -860,10 +860,10 @@ page 2812 "Native - Sales Quotes"
     var
         EmailAddress: Text[250];
     begin
-        EmailAddress := GetDocumentEmailAddress;
+        EmailAddress := GetDocumentEmailAddress();
         if EmailAddress <> '' then
             exit(EmailAddress);
-        EmailAddress := GetCustomerEmailAddress;
+        EmailAddress := GetCustomerEmailAddress();
         exit(EmailAddress);
     end;
 
@@ -892,10 +892,10 @@ page 2812 "Native - Sales Quotes"
     begin
         O365SendResendInvoice.CheckDocumentIfNoItemsExists(SalesHeader, false, DummyO365SalesDocument);
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-        CheckSendToEmailAddress;
+        CheckSendToEmailAddress();
 
         O365SalesEmailManagement.NativeAPISaveEmailBodyText(Id);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.EmailRecords(false);
     end;
 
@@ -917,7 +917,7 @@ page 2812 "Native - Sales Quotes"
         SalesQuoteToInvoice: Codeunit "Sales-Quote to Invoice";
     begin
         GetQuote(SalesHeader);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesQuoteToInvoice.Run(SalesHeader);
         SalesQuoteToInvoice.GetSalesInvoiceHeader(SalesHeader);
         SetActionResponse(ActionContext, SalesHeader);

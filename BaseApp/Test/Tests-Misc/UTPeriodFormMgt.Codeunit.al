@@ -224,7 +224,7 @@ codeunit 134996 "UT Period Form Mgt"
 
     local procedure GetRandomDateFilter(): Text
     begin
-        exit(GetDateFilter(WorkDate, WorkDate + LibraryRandom.RandIntInRange(5, 10)));
+        exit(GetDateFilter(WorkDate(), WorkDate + LibraryRandom.RandIntInRange(5, 10)));
     end;
 
     local procedure GetDateFilter(StartDate: Date; EndDate: Date): Text
@@ -245,31 +245,31 @@ codeunit 134996 "UT Period Form Mgt"
         case PerType of
             PeriodType::Week:
                 begin
-                    ActualStartDate := CalcDate('<-CW+1D>', WorkDate);
-                    ActualEndDate := CalcDate('<CW-1D>', WorkDate);
-                    ExpectedStartDate := CalcDate('<-CW>', WorkDate);
-                    ExpectedEndDate := CalcDate('<CW>', WorkDate);
+                    ActualStartDate := CalcDate('<-CW+1D>', WorkDate());
+                    ActualEndDate := CalcDate('<CW-1D>', WorkDate());
+                    ExpectedStartDate := CalcDate('<-CW>', WorkDate());
+                    ExpectedEndDate := CalcDate('<CW>', WorkDate());
                 end;
             PeriodType::Month:
                 begin
-                    ActualStartDate := CalcDate('<-CM+1D>', WorkDate);
-                    ActualEndDate := CalcDate('<CM-1D>', WorkDate);
-                    ExpectedStartDate := CalcDate('<-CM>', WorkDate);
-                    ExpectedEndDate := CalcDate('<CM>', WorkDate);
+                    ActualStartDate := CalcDate('<-CM+1D>', WorkDate());
+                    ActualEndDate := CalcDate('<CM-1D>', WorkDate());
+                    ExpectedStartDate := CalcDate('<-CM>', WorkDate());
+                    ExpectedEndDate := CalcDate('<CM>', WorkDate());
                 end;
             PeriodType::Quarter:
                 begin
-                    ActualStartDate := CalcDate('<-CQ+1D>', WorkDate);
-                    ActualEndDate := CalcDate('<CQ-1D>', WorkDate);
-                    ExpectedStartDate := CalcDate('<-CQ>', WorkDate);
-                    ExpectedEndDate := CalcDate('<CQ>', WorkDate);
+                    ActualStartDate := CalcDate('<-CQ+1D>', WorkDate());
+                    ActualEndDate := CalcDate('<CQ-1D>', WorkDate());
+                    ExpectedStartDate := CalcDate('<-CQ>', WorkDate());
+                    ExpectedEndDate := CalcDate('<CQ>', WorkDate());
                 end;
             PeriodType::Year:
                 begin
-                    ActualStartDate := CalcDate('<-CY+1D>', WorkDate);
-                    ActualEndDate := CalcDate('<CY-1D>', WorkDate);
-                    ExpectedStartDate := CalcDate('<-CY>', WorkDate);
-                    ExpectedEndDate := CalcDate('<CY>', WorkDate);
+                    ActualStartDate := CalcDate('<-CY+1D>', WorkDate());
+                    ActualEndDate := CalcDate('<CY-1D>', WorkDate());
+                    ExpectedStartDate := CalcDate('<-CY>', WorkDate());
+                    ExpectedEndDate := CalcDate('<CY>', WorkDate());
                 end;
         end;
         MakeActualAndExpectedDateFilters(ActualStartDate, ActualEndDate, ExpectedStartDate, ExpectedEndDate,
@@ -283,8 +283,8 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedStartDate: Date;
         ExpectedEndDate: Date;
     begin
-        ActualStartDate := CalcDate('<-CM+1D>', WorkDate);
-        ActualEndDate := CalcDate(StrSubstNo('<%1M-1D>', LibraryRandom.RandInt(10)), WorkDate);
+        ActualStartDate := CalcDate('<-CM+1D>', WorkDate());
+        ActualEndDate := CalcDate(StrSubstNo('<%1M-1D>', LibraryRandom.RandInt(10)), WorkDate());
         ExpectedStartDate := CalcDate('<-CM>', ActualStartDate);
         ExpectedEndDate := CalcDate('<CM>', ActualEndDate);
 
@@ -299,8 +299,8 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedStartDate: Date;
         ExpectedEndDate: Date;
     begin
-        ActualStartDate := WorkDate;
-        ActualEndDate := WorkDate;
+        ActualStartDate := WorkDate();
+        ActualEndDate := WorkDate();
         ExpectedStartDate := CalcDate('<-CM>', ActualStartDate);
         ExpectedEndDate := CalcDate('<CM>', ActualEndDate);
 

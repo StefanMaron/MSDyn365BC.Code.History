@@ -15,14 +15,14 @@ page 1503 "Workflow Steps"
             {
                 IndentationColumn = Indent;
                 IndentationControls = "Event Description";
-                field("Event Description"; "Event Description")
+                field("Event Description"; Rec."Event Description")
                 {
                     ApplicationArea = Suite;
                     Caption = 'When Event';
                     Lookup = false;
                     ToolTip = 'Specifies the workflow event that triggers the related workflow response.';
                 }
-                field("Response Description"; "Response Description")
+                field("Response Description"; Rec."Response Description")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Then Response';

@@ -96,7 +96,7 @@ table 8614 "Config. Package Record"
         ConfigPackageFilter.SetRange("Package Code", "Package Code");
         ConfigPackageFilter.SetRange("Table ID", "Table ID");
         ConfigPackageFilter.SetRange("Processing Rule No.", RuleNo);
-        exit(ConfigPackageFilter.FindSet);
+        exit(ConfigPackageFilter.FindSet());
     end;
 }
 

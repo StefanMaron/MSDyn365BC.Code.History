@@ -47,14 +47,14 @@ page 5336 "CRM Coupling Record"
                         {
                             ApplicationArea = Suite;
                             Caption = 'Dataverse Name';
-                            Enabled = NOT "Create New";
+                            Enabled = not Rec."Create New" and not IsBidirectionalSalesOrderIntEnabled;
                             ShowCaption = false;
                             ToolTip = 'Specifies the name of the record in Dataverse that is coupled to the record in Business Central.';
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                LookUpCRMName;
-                                RefreshFields;
+                                LookUpCRMName();
+                                RefreshFields();
                             end;
 
                             trigger OnValidate()
@@ -88,6 +88,7 @@ page 5336 "CRM Coupling Record"
                                 ApplicationArea = Suite;
                                 Caption = 'Create New';
                                 Enabled = EnableCreateNew;
+                                Editable = not IsBidirectionalSalesOrderIntEnabled;
                                 ToolTip = 'Specifies if a new record in Dataverse is automatically created and coupled to the related record in Business Central.';
                             }
                         }
@@ -109,12 +110,13 @@ page 5336 "CRM Coupling Record"
 
     trigger OnAfterGetRecord()
     begin
-        RefreshFields
+        RefreshFields();
     end;
 
     var
         CRMProductName: Codeunit "CRM Product Name";
         EnableCreateNew: Boolean;
+        IsBidirectionalSalesOrderIntEnabled: Boolean;
         IntegrationRecordFilteredOutErr: Label 'The filters applied to table mapping %3 are preventing %1 record %2, from displaying.', Comment = '%1 = Dataverse service name, %2 = The record name entered by the user, %3 = Integration Table Mapping name';
 
     procedure GetCRMId(): Guid
@@ -128,10 +130,18 @@ page 5336 "CRM Coupling Record"
     end;
 
     procedure SetSourceRecordID(RecordID: RecordID; IsOption: Boolean)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         Rec.Initialize(RecordID, IsOption);
-        Rec.Insert;
-        EnableCreateNew := Rec."Sync Action" = Rec."Sync Action"::"To Integration Table";
+
+        if Rec."NAV Table ID" = Database::"Sales Header" then
+            IsBidirectionalSalesOrderIntEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
+        if IsBidirectionalSalesOrderIntEnabled then
+            Rec."Create New" := IsNullGuid(Rec."CRM ID");
+
+        Rec.Insert();
+        EnableCreateNew := (Rec."Sync Action" = Rec."Sync Action"::"To Integration Table") or IsBidirectionalSalesOrderIntEnabled;
     end;
 
     procedure SetSourceRecordID(RecordID: RecordID)

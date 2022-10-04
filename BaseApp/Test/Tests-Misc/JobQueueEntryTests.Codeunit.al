@@ -26,12 +26,12 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Entry]
         with JobQueueEntry do begin
-            Init;
-            ID := CreateGuid;
+            Init();
+            ID := CreateGuid();
             "Run in User Session" := false;
             "Object Type to Run" := "Object Type to Run"::Report;
             Validate("Run on Mondays", true);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -47,7 +47,7 @@ codeunit 139018 "Job Queue Entry Tests"
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
         NextRunDateTime := CreateDateTime(CalcDate(DateFormula, Today), 0T);
         with JobQueueEntry do begin
-            Init;
+            Init();
             Validate("Next Run Date Formula", DateFormula);
 
             TestField("Recurring Job");
@@ -66,7 +66,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Date Formula]
         Clear(DateFormula);
         with JobQueueEntry do begin
-            Init;
+            Init();
             "Recurring Job" := true;
             Validate("Next Run Date Formula", DateFormula);
 
@@ -84,7 +84,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Date Formula]
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
         with JobQueueEntry do begin
-            Init;
+            Init();
             Validate("Run on Mondays", true);
             Validate("Run on Tuesdays", true);
             Validate("Run on Wednesdays", true);
@@ -116,7 +116,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Date Formula]
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
         with JobQueueEntry do begin
-            Init;
+            Init();
             Validate("Next Run Date Formula", DateFormula);
             Validate("Run on Mondays", true);
             TestField("Recurring Job");
@@ -166,7 +166,7 @@ codeunit 139018 "Job Queue Entry Tests"
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
         ActualDateTime := CurrentDateTime;
         with JobQueueEntry do begin
-            Init;
+            Init();
             "Earliest Start Date/Time" := ActualDateTime;
             Validate("Next Run Date Formula", DateFormula);
             // [THEN] "Earliest Start Date/Time" is not changed
@@ -182,15 +182,15 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [SCENARIO 159943] If "Ending Time" specified for Job Queue Entry is earlier than "Starting Time", then calculated ending date should be the day after starting date
         with JobQueueEntry do begin
-            Init;
-            ID := CreateGuid;
+            Init();
+            ID := CreateGuid();
             "Recurring Job" := true;
             "Starting Time" := 180000T; // 18:00:00
             "Ending Time" := 001500T; // 00:15:00
         end;
         Assert.AreEqual(
           CreateDateTime(WorkDate + 1, JobQueueEntry."Ending Time"),
-          JobQueueEntry.GetEndingDateTime(CreateDateTime(WorkDate, 0T)),
+          JobQueueEntry.GetEndingDateTime(CreateDateTime(WorkDate(), 0T)),
           WrongEndingDateErr);
     end;
 
@@ -203,7 +203,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [GIVEN] An "On-Hold" Job Queue Entry
         with JobQueueEntry do begin
-            ID := CreateGuid;
+            ID := CreateGuid();
             "Starting Time" := DT2Time(CurrentDateTime - 1000 * 60 * 60);
             "Earliest Start Date/Time" := CurrentDateTime + 1000 * 60 * 10;
             Status := Status::"On Hold";
@@ -229,7 +229,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntryId: Guid;
     begin
         // [GIVEN] A "Ready" Job Queue Entry
-        JobQueueEntryId := CreateGuid;
+        JobQueueEntryId := CreateGuid();
         with JobQueueEntry do begin
             ID := JobQueueEntryId;
             "Starting Time" := DT2Time(CurrentDateTime - 1000 * 60 * 60);
@@ -315,7 +315,7 @@ codeunit 139018 "Job Queue Entry Tests"
         CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
 
         // [THEN] Job Queue Entry "A" and Log entry "X" got Status "Error", "Error Message" is "Err"
-        JobQueueLogEntry.Find;
+        JobQueueLogEntry.Find();
         VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedErrorMessage);
         UnbindSubscription(LibraryJobQueue);
     end;
@@ -347,7 +347,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.MarkAsError;
 
         // [THEN] Job Queue Entry "A" and Log entry "X" got Status "Error", "Error Message" is 'Marked as Error by UserID.'
-        JobQueueLogEntry.Find;
+        JobQueueLogEntry.Find();
         ExpectedMarkerMessage := StrSubstNo('Marked as an error by %1.', UserId);
         VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedMarkerMessage);
     end;
@@ -362,7 +362,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Job Queue Log Entry]
         // [GIVEN] Log Entry, where Status "In Process", ID refers to not existing parent entry
         JobQueueLogEntry.Init();
-        JobQueueLogEntry.ID := CreateGuid;
+        JobQueueLogEntry.ID := CreateGuid();
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
         JobQueueLogEntry.Insert(true);
 
@@ -370,7 +370,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.MarkAsError;
 
         // [THEN] Log entry "X" got Status "Error", "Error Message" is 'Marked as Error by UserID.'
-        JobQueueLogEntry.Find;
+        JobQueueLogEntry.Find();
         ExpectedMarkerMessage := StrSubstNo('Marked as an error by %1.', UserId);
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Error);
         JobQueueLogEntry.TestField("Error Message", ExpectedMarkerMessage);
@@ -493,7 +493,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         JobQueueEntry.Restart;
 
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField("No. of Attempts to Run", 0);
     end;
 
@@ -510,7 +510,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
 
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField("No. of Attempts to Run", 0);
     end;
 
@@ -527,7 +527,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
 
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField("No. of Attempts to Run", 0);
     end;
 
@@ -544,7 +544,7 @@ codeunit 139018 "Job Queue Entry Tests"
         OldNoOfAttempts := JobQueueEntry."No. of Attempts to Run";
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
 
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField("No. of Attempts to Run", OldNoOfAttempts);
     end;
 
@@ -610,7 +610,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry.ScheduleTask;
 
         // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField("User ID", UserId);
     end;
 
@@ -661,7 +661,7 @@ codeunit 139018 "Job Queue Entry Tests"
     local procedure MockJobQueueEntryWithUserID(var JobQueueEntry: Record "Job Queue Entry"; NewUserID: Text[65])
     begin
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry."User ID" := NewUserID;
         JobQueueEntry.Insert();
@@ -671,7 +671,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Error);
         JobQueueLogEntry.TestField("Error Message", ExpectedErrorMessage);
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
         JobQueueEntry.TestField("Error Message", ExpectedErrorMessage);
     end;

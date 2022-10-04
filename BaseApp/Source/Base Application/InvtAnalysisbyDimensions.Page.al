@@ -157,8 +157,8 @@ page 7159 "Invt. Analysis by Dimensions"
                     begin
                         ItemList.LookupMode(true);
                         OnLookupItemFilterOnBeforeRunItemList(ItemList, ItemAnalysisView);
-                        if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
@@ -186,8 +186,8 @@ page 7159 "Invt. Analysis by Dimensions"
                         LocationList: Page "Location List";
                     begin
                         LocationList.LookupMode(true);
-                        if LocationList.RunModal = ACTION::LookupOK then begin
-                            Text := LocationList.GetSelectionFilter;
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
+                            Text := LocationList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
@@ -396,9 +396,6 @@ page 7159 "Invt. Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the actual analysis report according to the selected filters and options.';
 
                 trigger OnAction()
@@ -420,9 +417,6 @@ page 7159 "Invt. Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -435,15 +429,29 @@ page 7159 "Invt. Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }

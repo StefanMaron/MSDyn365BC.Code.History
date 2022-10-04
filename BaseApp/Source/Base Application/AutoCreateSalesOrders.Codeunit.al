@@ -6,7 +6,7 @@ codeunit 5349 "Auto Create Sales Orders"
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         Commit();
-        CreateNAVSalesOrdersFromSubmittedCRMSalesorders;
+        CreateNAVSalesOrdersFromSubmittedCRMSalesorders();
     end;
 
     var

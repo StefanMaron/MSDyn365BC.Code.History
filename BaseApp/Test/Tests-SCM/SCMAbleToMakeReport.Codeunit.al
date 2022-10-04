@@ -70,11 +70,11 @@ codeunit 137392 "SCM - Able To Make Report"
           Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, GenProdPostingGroup, InventoryPostingGroup);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         LibraryTrees.CreateMixedTree(Item, Item."Replenishment System"::Assembly, Item."Costing Method"::Standard, Depth, ChildLeaves, 2);
-        LibraryTrees.CreateNodeSupply(Item."No.", Location.Code, WorkDate, SourceType, AbleToMake, BottleneckFactor, DirectAvailFactor);
+        LibraryTrees.CreateNodeSupply(Item."No.", Location.Code, WorkDate(), SourceType, AbleToMake, BottleneckFactor, DirectAvailFactor);
 
         Item.SetRange("No.", Item."No.");
         Evaluate(DueDateDelayDateFormula, DueDateDelay);
-        Item.SetRange("Date Filter", 0D, CalcDate(DueDateDelayDateFormula, WorkDate));
+        Item.SetRange("Date Filter", 0D, CalcDate(DueDateDelayDateFormula, WorkDate()));
 
         if TestLocation then
             LibraryWarehouse.CreateLocation(Location);
@@ -89,7 +89,7 @@ codeunit 137392 "SCM - Able To Make Report"
         CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
 
         // Verify: The Able To Make - Timeline report.
-        VerifyAbleToMakeReport(BOMBuffer, CalcDate(DueDateDelayDateFormula, WorkDate), DateInterval, Location.Code, '', '');
+        VerifyAbleToMakeReport(BOMBuffer, CalcDate(DueDateDelayDateFormula, WorkDate()), DateInterval, Location.Code, '', '');
         BOMBuffer.Get(BOMBuffer."Entry No.");
         BOMBuffer."Location Code" := Location.Code;
         BOMBuffer."Variant Code" := ItemVariant.Code;
@@ -280,11 +280,11 @@ codeunit 137392 "SCM - Able To Make Report"
           Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, GenProdPostingGroup, InventoryPostingGroup);
         LibraryTrees.CreateMixedTree(Item, Item."Replenishment System"::Assembly, Item."Costing Method"::Standard, Depth, ChildLeaves, 2);
         LibraryTrees.AddTreeVariants(Item."No.");
-        LibraryTrees.CreateNodeSupply(Item."No.", Location.Code, WorkDate, SourceType, AbleToMake, BottleneckFactor, DirectAvailFactor);
+        LibraryTrees.CreateNodeSupply(Item."No.", Location.Code, WorkDate(), SourceType, AbleToMake, BottleneckFactor, DirectAvailFactor);
 
         Item.SetRange("No.", Item."No.");
         Evaluate(DueDateDelayDateFormula, DueDateDelay);
-        Item.SetRange("Date Filter", 0D, CalcDate(DueDateDelayDateFormula, WorkDate));
+        Item.SetRange("Date Filter", 0D, CalcDate(DueDateDelayDateFormula, WorkDate()));
         Item.SetRange("Location Filter", Location.Code);
 
         // Exercise / Verify: Run Able To Make - Page.
@@ -340,7 +340,7 @@ codeunit 137392 "SCM - Able To Make Report"
             AssemblyQty := Round(AbleToMake, 1, '<') + AvailabilityCorrection;
 
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, CalcDate(DueDateDelayDateFormula, WorkDate), BOMBuffer."No.", BOMBuffer."Location Code", AssemblyQty, '');
+          AssemblyHeader, CalcDate(DueDateDelayDateFormula, WorkDate()), BOMBuffer."No.", BOMBuffer."Location Code", AssemblyQty, '');
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
         LibraryWarehouse.CreateLocation(Location);
 
@@ -361,7 +361,7 @@ codeunit 137392 "SCM - Able To Make Report"
 
         // Verify: Able to make report.
         VerifyAbleToMakeReport(
-          BOMBuffer, CalcDate(DueDateDelayDateFormula, WorkDate), GLBDateInterval::Day, AssemblyHeader."Location Code",
+          BOMBuffer, CalcDate(DueDateDelayDateFormula, WorkDate()), GLBDateInterval::Day, AssemblyHeader."Location Code",
           AssemblyHeader."No.", '');
     end;
 
@@ -432,10 +432,10 @@ codeunit 137392 "SCM - Able To Make Report"
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, BOMBuffer."No.",
           LibraryRandom.RandInt(Round(AbleToMake * 0.4, 1, '<')));
-        ProductionOrder.Validate("Due Date", CalcDate(DueDateDelayDateFormula, WorkDate));
+        ProductionOrder.Validate("Due Date", CalcDate(DueDateDelayDateFormula, WorkDate()));
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
-        ProductionOrder.Find;
+        ProductionOrder.Find();
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
         LibraryManufacturing.CreateProductionOrderComponent(
           ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
@@ -453,7 +453,7 @@ codeunit 137392 "SCM - Able To Make Report"
                     ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandInt(5));
                     ProdOrderComponent.Modify(true);
                     LibraryTrees.CreateSupply(
-                      Item."No.", '', BOMBuffer."Location Code", WorkDate, SupplyType::Inventory,
+                      Item."No.", '', BOMBuffer."Location Code", WorkDate(), SupplyType::Inventory,
                       ProductionOrder.Quantity * ProdOrderComponent."Quantity per");
                     LibraryManufacturing.UpdateProdOrderComp(ProdOrderComponent, ProdOrderComponent.FieldNo("Location Code"), Location.Code);
                     LibraryManufacturing.UpdateProdOrderLine(ProdOrderLine, ProdOrderLine.FieldNo("Location Code"), BOMBuffer."Location Code");
@@ -467,7 +467,7 @@ codeunit 137392 "SCM - Able To Make Report"
         CalculateBOMTree.GenerateTreeForProdLine(ProdOrderLine, BOMBuffer, TreeType::Availability);
 
         // Verify: Able to make report.
-        VerifyAbleToMakeReport(BOMBuffer, WorkDate, GLBDateInterval::Day, ProdOrderLine."Location Code", '', ProductionOrder."No.");
+        VerifyAbleToMakeReport(BOMBuffer, WorkDate(), GLBDateInterval::Day, ProdOrderLine."Location Code", '', ProductionOrder."No.");
     end;
 
     [Test]
@@ -564,7 +564,7 @@ codeunit 137392 "SCM - Able To Make Report"
             repeat
                 RunAbleToMakeReport(BOMBuffer."No.", LocationCode, StartDate, DateInterval, AsmHeaderNo, ProdOrderNo);
                 VerifyValuesForDate(StartDate, BOMBuffer);
-            until BOMBuffer.Next = 0;
+            until BOMBuffer.Next() = 0;
     end;
 
     [Normal]

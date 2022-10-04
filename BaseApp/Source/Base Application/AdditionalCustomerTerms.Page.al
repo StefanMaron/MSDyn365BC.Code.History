@@ -24,7 +24,7 @@ page 181 "Additional Customer Terms"
 
                     trigger OnDrillDown()
                     begin
-                        ShowEULA
+                        ShowEULA();
                     end;
                 }
                 label(Control3)
@@ -38,13 +38,13 @@ page 181 "Additional Customer Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the license agreement was accepted.';
                 }
-                field("Accepted By"; "Accepted By")
+                field("Accepted By"; Rec."Accepted By")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the person that accepted the license agreement.';
                 }
-                field("Accepted On"; "Accepted On")
+                field("Accepted On"; Rec."Accepted On")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -63,13 +63,11 @@ page 181 "Additional Customer Terms"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Read the Additional Customer Terms';
                 Image = Agreement;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Read the additional customer terms.';
 
                 trigger OnAction()
                 begin
-                    ShowEULA;
+                    ShowEULA();
                 end;
             }
             action("&Accept the Additional Customer Terms")
@@ -77,8 +75,6 @@ page 181 "Additional Customer Terms"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Accept the Additional Customer Terms';
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Accept the additional customer terms.';
 
                 trigger OnAction()
@@ -86,6 +82,20 @@ page 181 "Additional Customer Terms"
                     Validate(Accepted, true);
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Read the Additional Customer Terms_Promoted"; "Read the Additional Customer Terms")
+                {
+                }
+                actionref("&Accept the Additional Customer Terms_Promoted"; "&Accept the Additional Customer Terms")
+                {
+                }
             }
         }
     }

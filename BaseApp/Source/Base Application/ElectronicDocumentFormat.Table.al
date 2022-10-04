@@ -63,21 +63,22 @@ table 61 "Electronic Document Format"
 
     trigger OnInsert()
     begin
-        CheckCodeunitExist;
+        CheckCodeunitExist();
     end;
 
     trigger OnModify()
     begin
-        CheckCodeunitExist;
+        CheckCodeunitExist();
     end;
 
     var
+        DataCompression: Codeunit "Data Compression";
+
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 = Sales Document Type';
         NonExistingDocumentFormatErr: Label 'The electronic document format %1 does not exist for the document type %2.', Comment = '%1 : document format, %2 document use eq Invoice';
         UnSupportedDocumentTypeErr: Label 'The document type %1 is not supported.', Comment = '%1 : document ytp eq Invocie ';
         ElectronicDocumentNotCreatedErr: Label 'The electronic document has not been created.';
         ElectronicFormatErr: Label 'The electronic format %1 does not exist.', Comment = '%1=Specified Electronic Format';
-        DataCompression: Codeunit "Data Compression";
 
     [Scope('OnPrem')]
     procedure SendElectronically(var TempBlob: Codeunit "Temp Blob"; var ClientFileName: Text[250]; DocumentVariant: Variant; ElectronicFormat: Code[20])
@@ -104,6 +105,7 @@ table 61 "Electronic Document Format"
         RecRef.GetTable(DocumentVariant);
         OnSendElectronicallyOnAfterRecRefGetTable(RecRef);
 
+        StartID := 0;
         RecordExportBuffer.LockTable();
         if RecRef.FindSet() then
             repeat
@@ -210,12 +212,12 @@ table 61 "Electronic Document Format"
         if RecordExportBuffer.FindSet() then
             repeat
                 ErrorMessage.SetContext(RecordExportBuffer);
-                ErrorMessage.ClearLog;
+                ErrorMessage.ClearLog();
 
                 CODEUNIT.Run("Codeunit ID", RecordExportBuffer);
 
                 TempErrorMessage.CopyFromContext(RecordExportBuffer);
-                ErrorMessage.ClearLog; // Clean up
+                ErrorMessage.ClearLog(); // Clean up
 
                 if RecordExportBuffer.ServerFilePath = '' then
                     IsMissingServerFile := true;
@@ -230,7 +232,7 @@ table 61 "Electronic Document Format"
             ServerFilePath := CopyStr(FileManagement.ServerTempFileName('zip'), 1, 250);
             ZipFile.Create(ServerFilePath);
             ZipFile.CreateOutStream(ZipFileOutStream);
-            DataCompression.CreateZipArchive;
+            DataCompression.CreateZipArchive();
             ClientFileName := CopyStr(RecordExportBuffer.ZipFileName, 1, 250);
             RecordExportBuffer.FindSet();
             repeat
@@ -239,8 +241,8 @@ table 61 "Electronic Document Format"
                 DataCompression.AddEntry(EntryFileInStream, RecordExportBuffer.ClientFileName);
             until RecordExportBuffer.Next() = 0;
             DataCompression.SaveZipArchive(ZipFileOutStream);
-            DataCompression.CloseZipArchive;
-            ZipFile.Close;
+            DataCompression.CloseZipArchive();
+            ZipFile.Close();
         end else
             if RecordExportBuffer.FindFirst() then begin
                 ServerFilePath := RecordExportBuffer.ServerFilePath;

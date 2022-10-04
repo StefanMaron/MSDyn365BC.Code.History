@@ -32,7 +32,7 @@ report 99000758 "Compare List"
         dataitem(BOMLoop; "Integer")
         {
             DataItemTableView = SORTING(Number);
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(AsOfCalcDate; Text000 + Format(CalculateDate))
@@ -218,7 +218,7 @@ report 99000758 "Compare List"
 
         trigger OnInit()
         begin
-            CalculateDate := WorkDate;
+            CalculateDate := WorkDate();
         end;
     }
 
@@ -229,8 +229,6 @@ report 99000758 "Compare List"
     }
 
     var
-        Text000: Label 'As of ';
-        Item: array[2] of Record Item;
         CompItem: Record Item;
         BOMMatrixList: Record "Production Matrix BOM Line";
         BOMMatrixMgt: Codeunit "BOM Matrix Management";
@@ -246,6 +244,8 @@ report 99000758 "Compare List"
         Cost1: Decimal;
         Cost2: Decimal;
         CostDiff: Decimal;
+
+        Text000: Label 'As of ';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CompareListCaptionLbl: Label 'Compare List';
         BOMMatrixListItemNoCaptLbl: Label 'No.';
@@ -255,6 +255,9 @@ report 99000758 "Compare List"
         Item1NoCaptionLbl: Label 'Item No. 1';
         Item2NoCaptionLbl: Label 'Item No. 2';
         TotalCostDifferenceCaptLbl: Label 'Total Cost Difference';
+
+    protected var
+        Item: array[2] of Record Item;
 
     procedure InitializeRequest(NewItem1: Code[20]; NewItem2: Code[20]; NewCalculateDate: Date)
     begin

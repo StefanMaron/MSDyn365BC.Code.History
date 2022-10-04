@@ -1,5 +1,6 @@
 table 130062 "Reference Data Log"
 {
+    ReplicateData = false;
 
     fields
     {

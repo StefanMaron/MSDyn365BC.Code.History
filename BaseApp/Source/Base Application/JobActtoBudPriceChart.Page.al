@@ -25,7 +25,7 @@ page 731 "Job Act to Bud Price Chart"
                 trigger AddInReady()
                 begin
                     ChartIsReady := true;
-                    UpdateChart(DefaultChartType);
+                    UpdateChart(DefaultChartType());
                 end;
 
                 trigger Refresh()
@@ -55,7 +55,7 @@ page 731 "Job Act to Bud Price Chart"
 
                         trigger OnAction()
                         begin
-                            UpdateChart(DefaultChartType);
+                            UpdateChart(DefaultChartType());
                         end;
                     }
                     action(Column)

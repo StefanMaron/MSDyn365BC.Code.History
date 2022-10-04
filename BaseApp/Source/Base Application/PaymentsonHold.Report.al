@@ -12,7 +12,7 @@ report 319 "Payments on Hold"
         {
             DataItemTableView = SORTING("Vendor No.", Open, Positive, "Due Date") WHERE(Open = CONST(true), "On Hold" = FILTER(<> ''));
             RequestFilterFields = "Due Date";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Vendor_Ledger_Entry__TABLECAPTION__________VendLedgEntryFilter; TableCaption + ': ' + VendLedgEntryFilter)
@@ -117,7 +117,7 @@ report 319 "Payments on Hold"
 
     trigger OnPreReport()
     begin
-        VendLedgEntryFilter := "Vendor Ledger Entry".GetFilters;
+        VendLedgEntryFilter := "Vendor Ledger Entry".GetFilters();
     end;
 
     var

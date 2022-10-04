@@ -11,13 +11,13 @@ page 9181 "Generic Chart Filters"
         {
             repeater(Group)
             {
-                field("Filter Field ID"; "Filter Field ID")
+                field("Filter Field ID"; Rec."Filter Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Filter Field Name"; "Filter Field Name")
+                field("Filter Field Name"; Rec."Filter Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the filter field.';
@@ -35,7 +35,7 @@ page 9181 "Generic Chart Filters"
                           TempGenericChartSetup, "Filter Field ID", "Filter Field Name", "Filter Field Name", 0, true, DummyAggregation);
                     end;
                 }
-                field("Filter Value"; "Filter Value")
+                field("Filter Value"; Rec."Filter Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the filter value.';
@@ -58,7 +58,7 @@ page 9181 "Generic Chart Filters"
         if TempGenericChartFilter2.Find('-') then
             repeat
                 Rec := TempGenericChartFilter2;
-                Insert;
+                Insert();
             until TempGenericChartFilter2.Next() = 0;
     end;
 

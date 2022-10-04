@@ -11,7 +11,7 @@ codeunit 7324 "Whse.-Activity-Post"
     trigger OnRun()
     begin
         WhseActivLine.Copy(Rec);
-        Code;
+        Code();
         Rec := WhseActivLine;
     end;
 
@@ -33,6 +33,7 @@ codeunit 7324 "Whse.-Activity-Post"
         TransLine: Record "Transfer Line";
         SourceCodeSetup: Record "Source Code Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         PurchPostPrint: Codeunit "Purch.-Post + Print";
         SalesPostPrint: Codeunit "Sales-Post + Print";
@@ -44,7 +45,6 @@ codeunit 7324 "Whse.-Activity-Post"
         LineCount: Integer;
         PostingReference: Integer;
         HideDialog: Boolean;
-        Text003: Label 'There is nothing to post.';
         Text005: Label 'The source document %1 %2 is not released.';
         InvoiceSourceDoc: Boolean;
         PrintDoc: Boolean;
@@ -71,7 +71,7 @@ codeunit 7324 "Whse.-Activity-Post"
             WhseActivLine.SetRange("No.", WhseActivLine."No.");
             WhseActivLine.SetFilter("Qty. to Handle", '<>0');
             if not WhseActivLine.Find('-') then
-                Error(Text003);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             Get(WhseActivLine."Activity Type", WhseActivLine."No.");
             GetLocation("Location Code");
@@ -137,7 +137,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     ForceDelete := false;
                     OnBeforeWhseActivLineDelete(WhseActivLine, ForceDelete);
                     if (WhseActivLine."Qty. Outstanding" = WhseActivLine."Qty. to Handle") or ForceDelete then
-                        WhseActivLine.Delete
+                        WhseActivLine.Delete()
                     else begin
                         WhseActivLine.Validate(
                           "Qty. Outstanding", WhseActivLine."Qty. Outstanding" - WhseActivLine."Qty. to Handle");
@@ -159,7 +159,7 @@ codeunit 7324 "Whse.-Activity-Post"
                 Delete(true);
 
             if not HideDialog then
-                Window.Close;
+                Window.Close();
 
             if PrintDoc then
                 case "Source Document" of
@@ -356,7 +356,7 @@ codeunit 7324 "Whse.-Activity-Post"
 
         if (PurchHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
             PurchRelease.Reopen(PurchHeader);
-            PurchRelease.SetSkipCheckReleaseRestrictions;
+            PurchRelease.SetSkipCheckReleaseRestrictions();
             PurchHeader.SetHideValidationDialog(true);
             PurchHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
             OnReleasePurchDocumentOnBeforePurchReleaseRun(PurchHeader, WhseActivHeader);
@@ -378,7 +378,7 @@ codeunit 7324 "Whse.-Activity-Post"
 
         if (SalesHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
             SalesRelease.Reopen(SalesHeader);
-            SalesRelease.SetSkipCheckReleaseRestrictions;
+            SalesRelease.SetSkipCheckReleaseRestrictions();
             SalesHeader.SetHideValidationDialog(true);
             SalesHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
             OnReleaseSalesDocumentOnBeforeSalesReleaseRun(SalesHeader, WhseActivHeader);
@@ -526,7 +526,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     if "Outstanding Quantity" <> 0 then
                         Validate("Qty. to Ship", "Outstanding Quantity");
                     OnBeforeUnhandledTransLineModify(TransLine);
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -889,9 +889,9 @@ codeunit 7324 "Whse.-Activity-Post"
 
         TempWhseActivLine.Reset();
         TempWhseActivLine.Find('-');
-        InitSourceDocument;
+        InitSourceDocument();
         repeat
-            UpdateSourceDocument;
+            UpdateSourceDocument();
         until TempWhseActivLine.Next() = 0;
 
         PostSourceDocument(WhseActivHeader);

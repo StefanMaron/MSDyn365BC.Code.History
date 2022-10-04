@@ -1,5 +1,6 @@
-﻿codeunit 5817 "Undo Posting Management"
+codeunit 5817 "Undo Posting Management"
 {
+    Permissions = TableData "Reservation Entry" = i;
 
     trigger OnRun()
     begin
@@ -138,7 +139,7 @@
             DATABASE::"Posted Assembly Header":
                 begin
                     PostedAsmHeader.Get(UndoID);
-                    if not PostedAsmHeader.IsAsmToOrder then
+                    if not PostedAsmHeader.IsAsmToOrder() then
                         TestWarehouseBinContent(SourceType, SourceSubtype, SourceID, SourceRefNo, PostedAsmHeader."Quantity (Base)");
                     exit(true);
                 end;
@@ -256,7 +257,7 @@
             SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
             SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
             if not IsEmpty() then
-                Error(Text004, TableCaption, UndoLineNo);
+                Error(Text004, TableCaption(), UndoLineNo);
         end;
     end;
 
@@ -492,7 +493,7 @@
         with TempItemLedgEntry do begin
             Find('-'); // Assertion: will fail if not found.
             ItemRec.Get("Item No.");
-            if ItemRec.IsNonInventoriableType then
+            if ItemRec.IsNonInventoriableType() then
                 exit;
 
             repeat
@@ -507,10 +508,11 @@
                         else
                             TestField("Remaining Quantity", Quantity);
                 end else
-                    if InvoicedEntry then
-                        TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
-                    else
-                        TestField("Shipped Qty. Not Returned", Quantity);
+                    if "Entry Type" <> "Entry Type"::Transfer then
+                        if InvoicedEntry then
+                            TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
+                        else
+                            TestField("Shipped Qty. Not Returned", Quantity);
 
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
@@ -637,7 +639,8 @@
             if SourceType in [DATABASE::"Sales Shipment Line",
                               DATABASE::"Return Shipment Line",
                               DATABASE::"Service Shipment Line",
-                              DATABASE::"Posted Assembly Line"]
+                              DATABASE::"Posted Assembly Line",
+                              DATABASE::"Transfer Shipment Line"]
             then
                 BaseQty := BaseQty * -1;
             CheckMissingItemLedgers(TempItemLedgEntry, SourceType, DocumentNo, LineNo, BaseQty);
@@ -695,31 +698,31 @@
                     begin
                         "Return Qty. Shipped" := "Return Qty. Shipped" - UndoQty;
                         "Return Qty. Shipped (Base)" := "Return Qty. Shipped (Base)" - UndoQtyBase;
-                        InitOutstanding;
+                        InitOutstanding();
                         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then
                             "Qty. to Receive" := 0
                         else
-                            InitQtyToShip;
+                            InitQtyToShip();
                         OnUpdatePurchLineOnAfterSetQtyToShip(PurchLine);
-                        UpdateWithWarehouseReceive;
+                        UpdateWithWarehouseReceive();
                     end;
                 "Document Type"::Order:
                     begin
                         "Quantity Received" := "Quantity Received" - UndoQty;
                         "Qty. Received (Base)" := "Qty. Received (Base)" - UndoQtyBase;
-                        InitOutstanding;
+                        InitOutstanding();
                         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then
                             "Qty. to Receive" := 0
                         else
-                            InitQtyToReceive;
+                            InitQtyToReceive();
                         OnUpdatePurchLineOnAfterSetQtyToReceive(PurchLine);
-                        UpdateWithWarehouseReceive;
+                        UpdateWithWarehouseReceive();
                     end;
                 else
                     FieldError("Document Type");
             end;
             OnUpdatePurchLineOnBeforePurchLineModify(PurchLine);
-            Modify;
+            Modify();
             RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
             xPurchLine."Quantity (Base)" := 0;
             PurchLineReserveVerifyQuantity(PurchLine, xPurchLine);
@@ -775,30 +778,30 @@
                         "Return Qty. Received" := "Return Qty. Received" - UndoQty;
                         "Return Qty. Received (Base)" := "Return Qty. Received (Base)" - UndoQtyBase;
                         OnUpdateSalesLineOnBeforeInitOustanding(SalesLine, UndoQty, UndoQtyBase);
-                        InitOutstanding;
+                        InitOutstanding();
                         if SalesSetup."Default Quantity to Ship" = SalesSetup."Default Quantity to Ship"::Blank then
                             "Qty. to Ship" := 0
                         else
-                            InitQtyToReceive;
-                        UpdateWithWarehouseShip;
+                            InitQtyToReceive();
+                        UpdateWithWarehouseShip();
                     end;
                 "Document Type"::Order:
                     begin
                         "Quantity Shipped" := "Quantity Shipped" - UndoQty;
                         "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
                         OnUpdateSalesLineOnBeforeInitOustanding(SalesLine, UndoQty, UndoQtyBase);
-                        InitOutstanding;
+                        InitOutstanding();
                         if SalesSetup."Default Quantity to Ship" = SalesSetup."Default Quantity to Ship"::Blank then
                             "Qty. to Ship" := 0
                         else
-                            InitQtyToShip;
-                        UpdateWithWarehouseShip;
+                            InitQtyToShip();
+                        UpdateWithWarehouseShip();
                     end;
                 else
                     FieldError("Document Type");
             end;
             OnUpdateSalesLineOnBeforeSalesLineModify(SalesLine);
-            Modify;
+            Modify();
             RevertPostedItemTrackingFromSalesLine(SalesLine, TempUndoneItemLedgEntry);
             xSalesLine."Quantity (Base)" := 0;
             SalesLineReserveVerifyQuantity(SalesLine, xSalesLine);
@@ -912,11 +915,11 @@
                         "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
                         "Qty. to Invoice" := 0;
                         "Qty. to Invoice (Base)" := 0;
-                        InitOutstanding;
-                        InitQtyToShip;
+                        InitOutstanding();
+                        InitQtyToShip();
                         Validate("Line Discount %");
-                        ConfirmAdjPriceLineChange;
-                        Modify;
+                        ConfirmAdjPriceLineChange();
+                        Modify();
 
                         SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
@@ -927,7 +930,7 @@
                 else
                     FieldError("Document Type");
             end;
-            Modify;
+            Modify();
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date", false);
             xServLine."Quantity (Base)" := 0;
             ServiceLineCnsmReserveVerifyQuantity(ServLine, xServLine);
@@ -1044,7 +1047,7 @@
         ItemJnlLine2."Source No." := Job."Bill-to Customer No.";
         ItemJnlLine2."Source Type" := ItemJnlLine2."Source Type"::Customer;
         ItemJnlLine2."Discount Amount" := 0;
-        if ItemJnlLine2.IsPurchaseReturn then begin
+        if ItemJnlLine2.IsPurchaseReturn() then begin
             ItemJnlPostLine.Run(ItemJnlLine2);
             SetItemJnlLineAppliesToEntry(ItemJnlLine, ItemJnlLine2."Item Shpt. Entry No.");
             exit(true);

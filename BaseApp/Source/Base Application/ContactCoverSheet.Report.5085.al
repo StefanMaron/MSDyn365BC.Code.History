@@ -168,7 +168,7 @@ report 5085 "Contact Cover Sheet"
                 FormatAddress.ContactAddr(ContactAddress, SegmentLineContact);
 
                 if LogInteraction then
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         SegManagement.LogDocument(
                           17, '', 0, 0, DATABASE::Contact, SegmentLineContact."No.", '', '', '', '');
             end;
@@ -222,7 +222,7 @@ report 5085 "Contact Cover Sheet"
     begin
         CompanyInformation.Get();
         FormatAddress.Company(CompanyAddress, CompanyInformation);
-        Document_Date := Format(WorkDate, 0, 4);
+        Document_Date := Format(WorkDate(), 0, 4);
     end;
 
     var
@@ -248,7 +248,7 @@ report 5085 "Contact Cover Sheet"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure SetRunFromSegment()

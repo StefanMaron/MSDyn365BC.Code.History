@@ -15,7 +15,7 @@ report 5211 "Employee - Unions"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Union_TABLECAPTION__________UnionFilter; TableCaption + ': ' + UnionFilter)
@@ -49,7 +49,7 @@ report 5211 "Employee - Unions"
                 column(Employee__No__; "No.")
                 {
                 }
-                column(FullName; FullName)
+                column(FullName; FullName())
                 {
                 }
             }
@@ -74,7 +74,7 @@ report 5211 "Employee - Unions"
 
     trigger OnPreReport()
     begin
-        UnionFilter := Union.GetFilters;
+        UnionFilter := Union.GetFilters();
     end;
 
     var

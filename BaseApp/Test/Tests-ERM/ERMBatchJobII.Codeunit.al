@@ -78,7 +78,7 @@ codeunit 134919 "ERM Batch Job II"
         Initialize();
 
         // Exercise: Try to Run Copy GL Budget Batch job without Copy From GL Budget Name, GL Account No, Copy To GL Budget Name and Blank Rounding Method Code.
-        asserterror RunCopyGLBudget(FromSource::"G/L Entry", '', '', Format(WorkDate), '', 1, '');  // Take 1 as Adjustment Factor.
+        asserterror RunCopyGLBudget(FromSource::"G/L Entry", '', '', Format(WorkDate()), '', 1, '');  // Take 1 as Adjustment Factor.
 
         // Verify: Verify Error Message.
         Assert.ExpectedError(StrSubstNo(CopyToErrorMessage));
@@ -100,7 +100,7 @@ codeunit 134919 "ERM Batch Job II"
         NewBudgetName := Format(LibraryRandom.RandInt(100));
 
         // Exercise: Run Copy GL Budget Using blank for Copy From GL Budget, Rounding Method and 1 for Adjustment Factor.
-        RunCopyGLBudget(FromSource::"G/L Entry", '', GLAccountNo, Format(WorkDate), NewBudgetName, 1, '');
+        RunCopyGLBudget(FromSource::"G/L Entry", '', GLAccountNo, Format(WorkDate()), NewBudgetName, 1, '');
 
         // Verify: Verify that new GL Budget Exists.
         GLBudgetName.Get(NewBudgetName);
@@ -126,7 +126,7 @@ codeunit 134919 "ERM Batch Job II"
         GLBudgetName.FindFirst();
 
         // Exercise: Run Copy GL Budget using blank for Rounding Method, GL Account No. and 1 for Adjustment Factor.
-        RunCopyGLBudget(FromSource::"G/L Budget Entry", GLBudgetName.Name, '', Format(WorkDate), NewBudgetName, 1, '');
+        RunCopyGLBudget(FromSource::"G/L Budget Entry", GLBudgetName.Name, '', Format(WorkDate()), NewBudgetName, 1, '');
 
         // Verify: Verify that new GL Budget must not exists after declining to create a new Budget.
         GLBudgetName.SetRange(Name, NewBudgetName);
@@ -431,7 +431,7 @@ codeunit 134919 "ERM Batch Job II"
         BudgetName := GLBudgetName.Name;  // Assign GL Budget Name to global variable.
 
         // Exercise.
-        RunCopyGLBudget(FromSource, FromGLBudgetName, GLAccountNo, Format(WorkDate), BudgetName, AdjustmentFactor, RoundingMethodCode);
+        RunCopyGLBudget(FromSource, FromGLBudgetName, GLAccountNo, Format(WorkDate()), BudgetName, AdjustmentFactor, RoundingMethodCode);
 
         // Verify: Verify Amount on GL Budget Page.
         OpenGLBudgetPage;
@@ -458,7 +458,7 @@ codeunit 134919 "ERM Batch Job II"
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, AccountNo, GLBudgetName);
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), AccountNo, GLBudgetName);
         GLBudgetEntry.Validate(Amount, Amount2);  // Taking Variable name Amount2 due to global variable.
         GLBudgetEntry.Modify(true);
     end;
@@ -523,7 +523,7 @@ codeunit 134919 "ERM Batch Job II"
             JobPlanningLineInvoice.TestField("Job Ledger Entry No.");
             JobPlanningLineInvoice2.SetRange("Job Ledger Entry No.", JobPlanningLineInvoice."Job Ledger Entry No.");
             Assert.RecordCount(JobPlanningLineInvoice2, 1);
-        until JobPlanningLineInvoice.Next = 0;
+        until JobPlanningLineInvoice.Next() = 0;
     end;
 
     [PageHandler]
@@ -531,7 +531,7 @@ codeunit 134919 "ERM Batch Job II"
     procedure BudgetPageHandler(var Budget: TestPage Budget)
     begin
         Budget.PeriodType.SetValue('Day');
-        Budget.DateFilter.SetValue(WorkDate);
+        Budget.DateFilter.SetValue(WorkDate());
         Budget.IncomeBalGLAccFilter.SetValue(0);
         Budget.GLAccCategory.SetValue(0);
         Budget.GLAccFilter.SetValue(GLAccountNo);

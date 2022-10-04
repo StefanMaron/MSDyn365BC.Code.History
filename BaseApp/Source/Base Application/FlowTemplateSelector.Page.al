@@ -41,8 +41,8 @@ page 6400 "Flow Template Selector"
                             trigger OnLookup(var Text: Text): Boolean
                             begin
                                 if AddInReady then
-                                    CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID, SearchText,
-                                      FlowServiceManagement.GetFlowTemplatePageSize, FlowServiceManagement.GetFlowTemplateDestinationDetails);
+                                    CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID(), SearchText,
+                                      FlowServiceManagement.GetFlowTemplatePageSize(), FlowServiceManagement.GetFlowTemplateDestinationDetails());
                             end;
                         }
                         usercontrol(FlowAddin; "Microsoft.Dynamics.Nav.Client.FlowIntegration")
@@ -52,11 +52,11 @@ page 6400 "Flow Template Selector"
                             trigger ControlAddInReady()
                             begin
                                 CurrPage.FlowAddin.Initialize(
-                                  FlowServiceManagement.GetFlowUrl, FlowServiceManagement.GetLocale,
-                                  AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName, false)
+                                  FlowServiceManagement.GetFlowUrl(), FlowServiceManagement.GetLocale(),
+                                  AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName(), false)
                                 );
 
-                                LoadTemplates;
+                                LoadTemplates();
 
                                 AddInReady := true;
                             end;
@@ -69,13 +69,13 @@ page 6400 "Flow Template Selector"
                                 Company.Get(CompanyName); // Dummy record to attach to activity log
                                 ActivityLog.LogActivityForUser(
                                   Company.RecordId, ActivityLog.Status::Failed, 'Power Automate', description, error, UserId);
-                                ShowErrorMessage(FlowServiceManagement.GetGenericError);
+                                ShowErrorMessage(FlowServiceManagement.GetGenericError());
                             end;
 
                             trigger Refresh()
                             begin
                                 if AddInReady then
-                                    LoadTemplates;
+                                    LoadTemplates();
                             end;
                         }
                     }
@@ -106,8 +106,8 @@ page 6400 "Flow Template Selector"
         ClientTypeManagement: Codeunit "Client Type Management";
         TypeHelper: Codeunit "Type Helper";
     begin
-        if UrlHelper.IsPPE then begin
-            ShowErrorMessage(FlowServiceManagement.GetFlowPPEError);
+        if UrlHelper.IsPPE() then begin
+            ShowErrorMessage(FlowServiceManagement.GetFlowPPEError());
             exit;
         end;
 
@@ -121,14 +121,14 @@ page 6400 "Flow Template Selector"
         end;
 
         IsErrorMessageVisible := false;
-        if not TryInitialize then
+        if not TryInitialize() then
             ShowErrorMessage(GetLastErrorText);
-        if not FlowServiceManagement.IsUserReadyForFlow then
+        if not FlowServiceManagement.IsUserReadyForFlow() then
             Error('');
         IsUserReadyForFlow := true;
 
-        if not FlowServiceManagement.HasUserSelectedFlowEnvironment then
-            FlowServiceManagement.SetSelectedFlowEnvironmentIDToDefault;
+        if not FlowServiceManagement.HasUserSelectedFlowEnvironment() then
+            FlowServiceManagement.SetSelectedFlowEnvironmentIDToDefault();
     end;
 
     var
@@ -143,21 +143,21 @@ page 6400 "Flow Template Selector"
 
     procedure SetDefaultSearchText()
     begin
-        SetSearchText(FlowServiceManagement.GetTemplateFilter);
+        SetSearchText(FlowServiceManagement.GetTemplateFilter());
     end;
 
     procedure SetSearchText(Search: Text)
     begin
         if Search = '' then
-            Search := FlowServiceManagement.GetTemplateFilter;
+            Search := FlowServiceManagement.GetTemplateFilter();
         SearchText := Search;
     end;
 
     local procedure LoadTemplates()
     begin
-        EnvironmentNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName;
-        CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID, SearchText,
-          FlowServiceManagement.GetFlowTemplatePageSize, FlowServiceManagement.GetFlowTemplateDestinationDetails);
+        EnvironmentNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName();
+        CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID(), SearchText,
+          FlowServiceManagement.GetFlowTemplatePageSize(), FlowServiceManagement.GetFlowTemplateDestinationDetails());
         CurrPage.Update();
     end;
 
@@ -166,12 +166,12 @@ page 6400 "Flow Template Selector"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        IsUserReadyForFlow := FlowServiceManagement.IsUserReadyForFlow;
+        IsUserReadyForFlow := FlowServiceManagement.IsUserReadyForFlow();
 
         if not IsUserReadyForFlow then begin
             if EnvironmentInfo.IsSaaS() then
-                Error(FlowServiceManagement.GetGenericError);
-            if not TryGetAccessTokenForFlowService then
+                Error(FlowServiceManagement.GetGenericError());
+            if not TryGetAccessTokenForFlowService() then
                 ShowErrorMessage(GetLastErrorText);
             CurrPage.Update();
         end;
@@ -180,7 +180,7 @@ page 6400 "Flow Template Selector"
     [TryFunction]
     local procedure TryGetAccessTokenForFlowService()
     begin
-        AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName, true)
+        AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName(), true)
     end;
 
     local procedure ShowErrorMessage(TextToShow: Text)
@@ -188,7 +188,7 @@ page 6400 "Flow Template Selector"
         IsErrorMessageVisible := true;
         IsUserReadyForFlow := false;
         if TextToShow = '' then
-            TextToShow := FlowServiceManagement.GetGenericError;
+            TextToShow := FlowServiceManagement.GetGenericError();
         ErrorMessageText := TextToShow;
         CurrPage.Update();
     end;

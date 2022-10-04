@@ -5,7 +5,7 @@ codeunit 5766 "Whse.-Post Receipt + Pr. Pos."
     trigger OnRun()
     begin
         WhseReceiptLine.Copy(Rec);
-        Code;
+        Code();
     end;
 
     var
@@ -26,7 +26,7 @@ codeunit 5766 "Whse.-Post Receipt + Pr. Pos."
 
         with WhseReceiptLine do begin
             WhsePostReceipt.Run(WhseReceiptLine);
-            WhsePostReceipt.GetResultMessage;
+            WhsePostReceipt.GetResultMessage();
 
             PostedWhseRcptHeader.SetRange("Whse. Receipt No.", "No.");
             PostedWhseRcptHeader.SetRange("Location Code", "Location Code");

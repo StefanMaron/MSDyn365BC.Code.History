@@ -73,7 +73,6 @@ codeunit 138090 "My Records Demo Setup Test"
         CompanyInformation: Record "Company Information";
         MyCustomer: Record "My Customer";
         Customer: Record Customer;
-        CustomerNo: Code[20];
     begin
         // [GIVEN] The current company is a demo company, but not an evaluation company
         Initialize(true);
@@ -84,7 +83,7 @@ codeunit 138090 "My Records Demo Setup Test"
 
         // [GIVEN] Six customers with a balance that is not 0
         CreateCustomerWithBalance(3);
-        CustomerNo := CreateCustomerWithBalance(17);
+        CreateCustomerWithBalance(17);
         CreateCustomerWithBalance(20);
         CreateCustomerWithBalance(0);
         CreateCustomerWithBalance(21);
@@ -106,13 +105,6 @@ codeunit 138090 "My Records Demo Setup Test"
         // [THEN] There should still be 5 entries in the My Customer table
         Assert.AreEqual(5, MyCustomer.Count,
           'There should be 5 entries in the My Customer table with the current user ID');
-
-        // [WHEN] Filtering the My Customer table for CustomerNo
-        MyCustomer.SetRange("Customer No.", CustomerNo);
-
-        // [THEN] There should be exactly one entry in the My Customer table
-        Assert.AreEqual(1, MyCustomer.Count,
-          'There should be exactly one entry in the My Customer table for this Customer No.');
     end;
 
     [Test]
@@ -457,7 +449,7 @@ codeunit 138090 "My Records Demo Setup Test"
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        if CompanyInformation.Get then;
+        if CompanyInformation.Get() then;
         CompanyInformation."Demo Company" := IsDemoCompany;
         CompanyInformation.Modify();
     end;

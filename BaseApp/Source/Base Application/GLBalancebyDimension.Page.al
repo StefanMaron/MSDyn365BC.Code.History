@@ -32,7 +32,7 @@ page 408 "G/L Balance by Dimension"
 
                         Text := NewCode;
                         LineDimCode := NewCode;
-                        ValidateLineDimCode;
+                        ValidateLineDimCode();
                         exit(true);
                     end;
 
@@ -40,9 +40,9 @@ page 408 "G/L Balance by Dimension"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             ColumnDimCode := '';
-                            ValidateColumnDimCode;
+                            ValidateColumnDimCode();
                         end;
-                        ValidateLineDimCode;
+                        ValidateLineDimCode();
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -61,8 +61,8 @@ page 408 "G/L Balance by Dimension"
 
                         Text := NewCode;
                         ColumnDimCode := NewCode;
-                        ValidateColumnDimCode;
-                        ColumnDimCodeOnAfterValidate;
+                        ValidateColumnDimCode();
+                        ColumnDimCodeOnAfterValidate();
                         exit(true);
                     end;
 
@@ -70,10 +70,10 @@ page 408 "G/L Balance by Dimension"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             LineDimCode := '';
-                            ValidateLineDimCode;
+                            ValidateLineDimCode();
                         end;
-                        ValidateColumnDimCode;
-                        ColumnDimCodeOnAfterValidate;
+                        ValidateColumnDimCode();
+                        ColumnDimCodeOnAfterValidate();
                     end;
                 }
             }
@@ -112,16 +112,16 @@ page 408 "G/L Balance by Dimension"
                         GLAccList: Page "G/L Account List";
                     begin
                         GLAccList.LookupMode(true);
-                        if not (GLAccList.RunModal = ACTION::LookupOK) then
+                        if not (GLAccList.RunModal() = ACTION::LookupOK) then
                             exit(false);
 
-                        Text := GLAccList.GetSelectionFilter;
+                        Text := GLAccList.GetSelectionFilter();
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        GLAccFilterOnAfterValidate;
+                        GLAccFilterOnAfterValidate();
                     end;
                 }
                 field(BudgetFilter; "Budget Filter")
@@ -142,15 +142,15 @@ page 408 "G/L Balance by Dimension"
                         BusUnitList: Page "Business Unit List";
                     begin
                         BusUnitList.LookupMode(true);
-                        if not (BusUnitList.RunModal = ACTION::LookupOK) then
+                        if not (BusUnitList.RunModal() = ACTION::LookupOK) then
                             exit(false);
-                        Text := BusUnitList.GetSelectionFilter;
+                        Text := BusUnitList.GetSelectionFilter();
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        BusUnitFilterOnAfterValidate;
+                        BusUnitFilterOnAfterValidate();
                     end;
                 }
                 field(Dim1Filter; "Dimension 1 Filter")
@@ -168,7 +168,7 @@ page 408 "G/L Balance by Dimension"
 
                     trigger OnValidate()
                     begin
-                        GlobalDim1FilterOnAfterValidat;
+                        GlobalDim1FilterOnAfterValidat();
                     end;
                 }
                 field(Dim2Filter; "Dimension 2 Filter")
@@ -186,7 +186,7 @@ page 408 "G/L Balance by Dimension"
 
                     trigger OnValidate()
                     begin
-                        GlobalDim2FilterOnAfterValidat;
+                        GlobalDim2FilterOnAfterValidat();
                     end;
                 }
             }
@@ -236,7 +236,7 @@ page 408 "G/L Balance by Dimension"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnAfterValidate;
+                        ShowColumnNameOnAfterValidate();
                     end;
                 }
             }
@@ -251,7 +251,7 @@ page 408 "G/L Balance by Dimension"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        PeriodTypeOnAfterValidate;
+                        PeriodTypeOnAfterValidate();
                     end;
                 }
                 field(AmountType; "Amount Type")
@@ -263,7 +263,7 @@ page 408 "G/L Balance by Dimension"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        AmountTypeOnAfterValidate;
+                        AmountTypeOnAfterValidate();
                     end;
                 }
                 field(MATRIX_ColumnSet; "Column Set")
@@ -289,8 +289,6 @@ page 408 "G/L Balance by Dimension"
                     ApplicationArea = Dimensions;
                     Caption = 'Reverse Lines and Columns';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the display of the matrix by inverting the values in the Show as Lines and Show as Columns fields.';
 
                     trigger OnAction()
@@ -300,8 +298,8 @@ page 408 "G/L Balance by Dimension"
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
-                        ValidateLineDimCode;
-                        ValidateColumnDimCode;
+                        ValidateLineDimCode();
+                        ValidateColumnDimCode();
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
@@ -314,9 +312,6 @@ page 408 "G/L Balance by Dimension"
                 ApplicationArea = Dimensions;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -335,10 +330,6 @@ page 408 "G/L Balance by Dimension"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -351,15 +342,32 @@ page 408 "G/L Balance by Dimension"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+                actionref("Reverse Lines and Columns_Promoted"; "Reverse Lines and Columns")
+                {
+                }
             }
         }
     }
@@ -403,7 +411,7 @@ page 408 "G/L Balance by Dimension"
             "Show In Add. Currency" := false;
 
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
-            LineDimCode := GLAcc.TableCaption;
+            LineDimCode := GLAcc.TableCaption();
             ColumnDimCode := Text001;
         end;
         LineDimOption := DimCodeToOption(LineDimCode);
@@ -430,11 +438,8 @@ page 408 "G/L Balance by Dimension"
         Text001: Label 'Period';
         Text002: Label '%1 is not a valid line definition.';
         Text003: Label '%1 is not a valid column definition.';
-        GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
-        LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
-        ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
         LineDimCode: Text[30];
         ColumnDimCode: Text[30];
         InternalDateFilter: Text;
@@ -448,6 +453,11 @@ page 408 "G/L Balance by Dimension"
         Dim1FilterEnable: Boolean;
         [InDataSet]
         Dim2FilterEnable: Boolean;
+
+    protected var
+        GLSetup: Record "General Ledger Setup";
+        LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
+        ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
 
     local procedure DimCodeToOption(DimCode: Text[30]) Result: Integer
     var
@@ -476,7 +486,7 @@ page 408 "G/L Balance by Dimension"
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheGLAcc."No.";
             Name := TheGLAcc.Name;
             Totaling := TheGLAcc.Totaling;
@@ -490,7 +500,7 @@ page 408 "G/L Balance by Dimension"
         Period2: Record Date;
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
             if "Closing Entries" = "Closing Entries"::Include then
@@ -509,7 +519,7 @@ page 408 "G/L Balance by Dimension"
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheBusUnit.Code;
             Name := TheBusUnit.Name;
         end;
@@ -518,7 +528,7 @@ page 408 "G/L Balance by Dimension"
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheDimVal.Code;
             Name := TheDimVal.Name;
             Totaling := TheDimVal.Totaling;
@@ -558,8 +568,8 @@ page 408 "G/L Balance by Dimension"
     var
         DimSelection: Page "Dimension Selection";
     begin
-        DimSelection.InsertDimSelBuf(false, GLAcc.TableCaption, GLAcc.TableCaption);
-        DimSelection.InsertDimSelBuf(false, BusUnit.TableCaption, BusUnit.TableCaption);
+        DimSelection.InsertDimSelBuf(false, GLAcc.TableCaption(), GLAcc.TableCaption());
+        DimSelection.InsertDimSelBuf(false, BusUnit.TableCaption(), BusUnit.TableCaption());
         DimSelection.InsertDimSelBuf(false, Text001, Text001);
         if GLSetup."Global Dimension 1 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, GLSetup."Global Dimension 1 Code", '');
@@ -569,8 +579,8 @@ page 408 "G/L Balance by Dimension"
         OnGetDimSelectionOnBeforeDimSelectionLookup(GLSetup, DimSelection);
 
         DimSelection.LookupMode := true;
-        if DimSelection.RunModal = ACTION::LookupOK then
-            exit(DimSelection.GetDimSelCode);
+        if DimSelection.RunModal() = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode());
 
         exit(OldDimSelCode);
     end;
@@ -609,8 +619,8 @@ page 408 "G/L Balance by Dimension"
 
     local procedure IsNotValidDefinition(DimCode: Text[30]) Result: Boolean
     begin
-        Result := (UpperCase(DimCode) <> UpperCase(GLAcc.TableCaption)) and
-           (UpperCase(DimCode) <> UpperCase(BusUnit.TableCaption)) and
+        Result := (UpperCase(DimCode) <> UpperCase(GLAcc.TableCaption())) and
+           (UpperCase(DimCode) <> UpperCase(BusUnit.TableCaption())) and
            (UpperCase(DimCode) <> UpperCase(Text001)) and
            (UpperCase(DimCode) <> GLSetup."Global Dimension 1 Code") and
            (UpperCase(DimCode) <> GLSetup."Global Dimension 2 Code") and
@@ -757,7 +767,7 @@ page 408 "G/L Balance by Dimension"
         exit(ResultSteps);
     end;
 
-    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
+    protected procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         CurrentColumn: Record "Dimension Code Buffer";
         Found: Boolean;
@@ -773,7 +783,7 @@ page 408 "G/L Balance by Dimension"
                     if (ColumnDimOption = ColumnDimOption::Period) and ("Period Type" <> "Period Type"::"Accounting Period")
                        and ("Date Filter" = '')
                     then begin
-                        Evaluate(CurrentColumn.Code, Format(WorkDate));
+                        Evaluate(CurrentColumn.Code, Format(WorkDate()));
                         Which := '=><';
                     end else
                         Which := '-';
@@ -801,7 +811,7 @@ page 408 "G/L Balance by Dimension"
                 end;
         end;
 
-        MATRIX_PrimaryKeyFirstColInSet := CurrentColumn.GetPosition;
+        MATRIX_PrimaryKeyFirstColInSet := CurrentColumn.GetPosition();
 
         if Found then begin
             repeat
@@ -886,7 +896,7 @@ page 408 "G/L Balance by Dimension"
         GLAcc.SetFilter("Date Filter", DateFilter);
         DateFilter := GLAcc.GetFilter("Date Filter");
         InternalDateFilter := DateFilter;
-        DateFilterOnAfterValidate;
+        DateFilterOnAfterValidate();
     end;
 
     [IntegrationEvent(true, false)]

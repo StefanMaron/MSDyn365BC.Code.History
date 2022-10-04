@@ -11,22 +11,22 @@ page 1026 "Job WIP Warnings"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
                 }
-                field("Job WIP Total Entry No."; "Job WIP Total Entry No.")
+                field("Job WIP Total Entry No."; Rec."Job WIP Total Entry No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the entry number from the associated job WIP total.';
                 }
-                field("Warning Message"; "Warning Message")
+                field("Warning Message"; Rec."Warning Message")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a warning message that is related to a job WIP calculation.';

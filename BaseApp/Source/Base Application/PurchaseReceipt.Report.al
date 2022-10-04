@@ -388,14 +388,14 @@ report 408 "Purchase - Receipt"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Purch.Rcpt.-Printed", "Purch. Rcpt. Header");
                 end;
 
@@ -479,7 +479,7 @@ report 408 "Purchase - Receipt"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -492,12 +492,12 @@ report 408 "Purchase - Receipt"
     begin
         CompanyInfo.Get();
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Purch. Rcpt. Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
@@ -510,7 +510,7 @@ report 408 "Purchase - Receipt"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
@@ -529,7 +529,7 @@ report 408 "Purchase - Receipt"
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         ReferenceText: Text[80];
         MoreLines: Boolean;
         NoOfCopies: Integer;
@@ -585,7 +585,7 @@ report 408 "Purchase - Receipt"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var PurchRcptHeader: Record "Purch. Rcpt. Header")

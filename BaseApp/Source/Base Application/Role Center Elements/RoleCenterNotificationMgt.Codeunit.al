@@ -20,6 +20,7 @@ codeunit 1430 "Role Center Notification Mgt."
         PaidSuspendedNotificationIdTxt: Label '2751b488-ca52-42ef-b6d7-d7b4ba841e80', Locked = true;
         SandboxNotificationIdTxt: Label 'd82835d9-a005-451a-972b-0d6532de2071', Locked = true;
         ChangeToPremiumExpNotificationIdTxt: Label '58982418-e1d1-4879-bda2-6033ca151b83', Locked = true;
+        WSDeprecationNotificationIdTxt: Label 'a482b656-b7f4-46d9-8ca8-843083158057', Locked = true;
         TrialNotificationDaysSinceStartTxt: Label '15', Locked = true;
 #if not CLEAN21
         EvaluationNotificationLinkTxt: Label 'Set up a company';
@@ -35,6 +36,9 @@ codeunit 1430 "Role Center Notification Mgt."
 #if not CLEAN21
         EvaluationNotificationMsg: Label 'Ready to try Business Central with your own company data? We’ll walk you through the setup.';
 #endif
+        WSDeprecationNotificationMsg: Label 'Your user account is using access keys for web service authentication. Web service access keys are no longer supported and will stop working after October 1, 2022.';
+        ShowMoreWSDeprecationLinkTok: Label 'Learn more';
+        ShowWSDeprecationFixNowTok: Label 'Review required update...';
         TrialNotificationMsg: Label 'Your trial period expires in %1 days. Ready to subscribe, or do you need more time?', Comment = '%1=Count of days until trial expires';
         TrialNotificationPreviewMsg: Label 'Your trial period expires in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialSuspendedNotificationMsg: Label 'Your trial period has expired. You can subscribe or extend the period to get more time.';
@@ -69,6 +73,31 @@ codeunit 1430 "Role Center Notification Mgt."
         EvaluationNotification.Send();
     end;
 #endif
+    local procedure CreateAndSendWSDeprecationNotification()
+    var
+        WSDeprecationNotification: Notification;
+        NotificationsMessage: Text;
+        NotificationEndingLongTok: label ' (days left: %1).', Comment = '%1 number of days eq 23';
+        NotificationEndingShortTok: label '.';
+    begin
+        WSDeprecationNotification.Id := GetWSDeprecationNotificationId();
+        NotificationsMessage := WSDeprecationNotificationMsg;
+        if (DMY2Date(1, 10, 2022) - today) > 0 then
+            NotificationsMessage := NotificationsMessage + StrSubstNo(NotificationEndingLongTok, format(DMY2Date(1, 10, 2022) - today))
+        else
+            NotificationsMessage := NotificationsMessage + NotificationEndingShortTok;
+        WSDeprecationNotification.Message := NotificationsMessage;
+        WSDeprecationNotification.Scope := NotificationScope::LocalScope;
+        WSDeprecationNotification.AddAction(ShowMoreWSDeprecationLinkTok, CODEUNIT::"User Management", 'BasicAuthDepricationNotificationShowMore');
+        WSDeprecationNotification.AddAction(
+            ShowWSDeprecationFixNowTok, CODEUNIT::"Role Center Notification Mgt.", 'FixNowWSDeprecation');
+        WSDeprecationNotification.Send();
+    end;
+
+    procedure FixNowWSDeprecation(Notification: Notification)
+    begin
+        Page.Run(Page::"WS Access Key Wizard");
+    end;
 
     local procedure CreateAndSendTrialNotification()
     var
@@ -254,6 +283,14 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         Evaluate(PaidSuspendedNotificationId, PaidSuspendedNotificationIdTxt);
         exit(PaidSuspendedNotificationId);
+    end;
+
+    procedure GetWSDeprecationNotificationId(): Guid
+    var
+        WSDeprecationNotificationId: Guid;
+    begin
+        Evaluate(WSDeprecationNotificationId, WSDeprecationNotificationIdTxt);
+        exit(WSDeprecationNotificationId);
     end;
 
     procedure GetSandboxNotificationId(): Guid
@@ -454,6 +491,7 @@ codeunit 1430 "Role Center Notification Mgt."
         ResultTrialExtendedSuspended: Boolean;
         ResultPaidWarning: Boolean;
         ResultPaidSuspended: Boolean;
+        ResultWSDeprecationWarning: Boolean;
         ResultSandbox: Boolean;
     begin
         OnBeforeShowNotifications();
@@ -465,6 +503,7 @@ codeunit 1430 "Role Center Notification Mgt."
             ResultTrialExtended := ShowTrialExtendedNotification();
             ResultTrialExtendedSuspended := ShowTrialExtendedSuspendedNotification();
         end;
+        ResultWSDeprecationWarning := ShowWSDeprecationNotication();
         ResultPaidWarning := ShowPaidWarningNotification();
         ResultPaidSuspended := ShowPaidSuspendedNotification();
         ResultSandbox := ShowSandboxNotification();
@@ -478,7 +517,7 @@ codeunit 1430 "Role Center Notification Mgt."
           ResultTrial or ResultTrialSuspended or
           ResultTrialExtended or ResultTrialExtendedSuspended or
           ResultPaidWarning or ResultPaidSuspended or
-          ResultSandbox);
+          ResultSandbox or ResultWSDeprecationWarning);
     end;
 
 #if not CLEAN21
@@ -507,6 +546,26 @@ codeunit 1430 "Role Center Notification Mgt."
             exit(false);
 
         CreateAndSendTrialNotification();
+        exit(true);
+    end;
+
+    procedure ShowWSDeprecationNotication(): Boolean
+    var
+        User: Record User;
+        IdentityManagement: Codeunit "Identity Management";
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
+        WebServiceKey: Text[80];
+    begin
+        if not AreNotificationsSupported() then
+            exit(false);
+        if not NavTenantSettingsHelper.IsWSKeyAllowed() then
+            exit(false);
+        if not User.ReadPermission then
+            exit(false);
+        WebServiceKey := IdentityManagement.GetWebServicesKey(UserSecurityId());
+        if WebServiceKey = '' then
+            exit(false);
+        CreateAndSendWSDeprecationNotification();
         exit(true);
     end;
 
@@ -896,4 +955,3 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
     end;
 }
-

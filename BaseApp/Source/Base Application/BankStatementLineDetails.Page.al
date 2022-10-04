@@ -15,7 +15,7 @@ page 1221 "Bank Statement Line Details"
         {
             repeater(Group)
             {
-                field(Name; GetFieldName)
+                field(Name; GetFieldName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';

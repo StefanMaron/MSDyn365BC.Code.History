@@ -9,8 +9,8 @@ codeunit 91 "Purch.-Post (Yes/No)"
     begin
         OnBeforeOnRun(Rec);
 
-        if not Find then
-            Error(NothingToPostErr);
+        if not Find() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         PurchaseHeader.Copy(Rec);
         Code(PurchaseHeader);
@@ -18,10 +18,10 @@ codeunit 91 "Purch.-Post (Yes/No)"
     end;
 
     var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ReceiveInvoiceQst: Label '&Receive,&Invoice,Receive &and Invoice';
         PostConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
         ShipInvoiceQst: Label '&Ship,&Invoice,Ship &and Invoice';
-        NothingToPostErr: Label 'There is nothing to post.';
 
     local procedure "Code"(var PurchaseHeader: Record "Purchase Header")
     var

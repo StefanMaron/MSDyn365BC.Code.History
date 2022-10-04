@@ -19,18 +19,18 @@ codeunit 730 "Copy Item"
         if CopyItemPage.RunModal() <> ACTION::OK then
             exit;
 
-        CopyItemPage.GetParameters(CopyItemBuffer);
+        CopyItemPage.GetParameters(TempCopyItemBuffer);
 
         DoCopyItem();
 
-        OnRunOnAfterItemCopied(CopyItemBuffer);
+        OnRunOnAfterItemCopied(TempCopyItemBuffer);
 
         ShowNotification(Rec);
     end;
 
     var
         SourceItem: Record Item;
-        CopyItemBuffer: Record "Copy Item Buffer" temporary;
+        TempCopyItemBuffer: Record "Copy Item Buffer" temporary;
         InventorySetup: Record "Inventory Setup";
         FirstItemNo: Code[20];
         LastItemNo: Code[20];
@@ -45,17 +45,17 @@ codeunit 730 "Copy Item"
     begin
         InventorySetup.Get();
         SourceItem.LockTable();
-        SourceItem.Get(CopyItemBuffer."Source Item No.");
+        SourceItem.Get(TempCopyItemBuffer."Source Item No.");
 
-        for i := 1 to CopyItemBuffer."Number of Copies" do
+        for i := 1 to TempCopyItemBuffer."Number of Copies" do
             CopyItem(i);
     end;
 
     procedure SetCopyItemBuffer(NewCopyItemBuffer: Record "Copy Item Buffer" temporary)
     begin
-        CopyItemBuffer := NewCopyItemBuffer;
-        if SourceItem."No." <> CopyItemBuffer."Source Item No." then
-            SourceItem.Get(CopyItemBuffer."Source Item No.");
+        TempCopyItemBuffer := NewCopyItemBuffer;
+        if SourceItem."No." <> TempCopyItemBuffer."Source Item No." then
+            SourceItem.Get(TempCopyItemBuffer."Source Item No.");
     end;
 
     local procedure SetTargetItemNo(var TargetItem: Record Item; CopyCounter: Integer)
@@ -63,17 +63,17 @@ codeunit 730 "Copy Item"
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         with TargetItem do begin
-            if CopyItemBuffer."Target No. Series" <> '' then begin
+            if TempCopyItemBuffer."Target No. Series" <> '' then begin
                 OnBeforeInitSeries(SourceItem, InventorySetup);
                 InventorySetup.TestField("Item Nos.");
                 "No." := '';
-                NoSeriesMgt.InitSeries(CopyItemBuffer."Target No. Series", '', 0D, "No.", "No. Series");
+                NoSeriesMgt.InitSeries(TempCopyItemBuffer."Target No. Series", '', 0D, "No.", "No. Series");
             end else begin
                 NoSeriesMgt.TestManual(InventorySetup."Item Nos.");
 
                 if CopyCounter > 1 then
-                    CopyItemBuffer."Target Item No." := IncStr(CopyItemBuffer."Target Item No.");
-                "No." := CopyItemBuffer."Target Item No.";
+                    TempCopyItemBuffer."Target Item No." := IncStr(TempCopyItemBuffer."Target Item No.");
+                "No." := TempCopyItemBuffer."Target Item No.";
             end;
 
             CheckExistingItem("No.");
@@ -101,17 +101,17 @@ codeunit 730 "Copy Item"
     var
         TargetItem: Record Item;
     begin
-        OnBeforeCopyItem(SourceItem, TargetItem, CopyCounter, CopyItemBuffer);
+        OnBeforeCopyItem(SourceItem, TargetItem, CopyCounter, TempCopyItemBuffer);
 
         InitTargetItem(TargetItem, CopyCounter);
 
-        if not (CopyItemBuffer."Sales Line Discounts" or CopyItemBuffer."Purchase Line Discounts") then
+        if not (TempCopyItemBuffer."Sales Line Discounts" or TempCopyItemBuffer."Purchase Line Discounts") then
             TargetItem."Item Disc. Group" := '';
 
         CopyItemPicture(SourceItem, TargetItem);
         CopyItemUnisOfMeasure(SourceItem, TargetItem);
         CopyItemGlobalDimensions(SourceItem, TargetItem);
-        OnCopyItemOnBeforeTargetItemInsert(SourceItem, TargetItem, CopyCounter, CopyItemBuffer);
+        OnCopyItemOnBeforeTargetItemInsert(SourceItem, TargetItem, CopyCounter, TempCopyItemBuffer);
         TargetItem.Insert();
 
         CopyExtendedTexts(SourceItem."No.", TargetItem);
@@ -124,7 +124,7 @@ codeunit 730 "Copy Item"
         CopyTroubleshootingSetup(SourceItem."No.", TargetItem."No.");
         CopyItemResourceSkills(SourceItem."No.", TargetItem."No.");
         CopyItemPriceListLines(SourceItem."No.", TargetItem."No.");
-#if not CLEAN19
+#if not CLEAN21
         CopyItemSalesPrices(SourceItem."No.", TargetItem."No.");
         CopySalesLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyPurchasePrices(SourceItem."No.", TargetItem."No.");
@@ -133,7 +133,7 @@ codeunit 730 "Copy Item"
         CopyItemAttributes(SourceItem."No.", TargetItem."No.");
         CopyItemReferences(SourceItem."No.", TargetItem."No.");
 
-        OnAfterCopyItem(CopyItemBuffer, SourceItem, TargetItem);
+        OnAfterCopyItem(TempCopyItemBuffer, SourceItem, TargetItem);
     end;
 
     local procedure CheckExistingItem(ItemNo: Code[20])
@@ -146,7 +146,7 @@ codeunit 730 "Copy Item"
 
     local procedure CopyItemPicture(FromItem: Record Item; var ToItem: Record Item)
     begin
-        if CopyItemBuffer.Picture then
+        if TempCopyItemBuffer.Picture then
             ToItem.Picture := FromItem.Picture
         else
             Clear(ToItem.Picture);
@@ -193,7 +193,7 @@ codeunit 730 "Copy Item"
         CommentLine: Record "Comment Line";
         RecRef: RecordRef;
     begin
-        if not CopyItemBuffer.Comments then
+        if not TempCopyItemBuffer.Comments then
             exit;
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
@@ -207,7 +207,7 @@ codeunit 730 "Copy Item"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         RecRef: RecordRef;
     begin
-        if CopyItemBuffer."Units of Measure" then begin
+        if TempCopyItemBuffer."Units of Measure" then begin
             ItemUnitOfMeasure.SetRange("Item No.", FromItem."No.");
             RecRef.GetTable(ItemUnitOfMeasure);
             CopyItemRelatedTableFromRecRef(RecRef, ItemUnitOfMeasure.FieldNo("Item No."), FromItem."No.", ToItem."No.");
@@ -225,11 +225,11 @@ codeunit 730 "Copy Item"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCopyItemVariants(CopyItemBuffer, FromItemNo, ToItemNo, IsHandled);
+        OnBeforeCopyItemVariants(TempCopyItemBuffer, FromItemNo, ToItemNo, IsHandled);
         if IsHandled then
             exit;
 
-        if not CopyItemBuffer."Item Variants" then
+        if not TempCopyItemBuffer."Item Variants" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Item Variant", ItemVariant.FieldNo("Item No."), FromItemNo, ToItemNo);
@@ -243,11 +243,11 @@ codeunit 730 "Copy Item"
         ItemTranslation: Record "Item Translation";
         RecRef: RecordRef;
     begin
-        if not CopyItemBuffer.Translations then
+        if not TempCopyItemBuffer.Translations then
             exit;
 
         ItemTranslation.SetRange("Item No.", FromItemNo);
-        if not CopyItemBuffer."Item Variants" then
+        if not TempCopyItemBuffer."Item Variants" then
             ItemTranslation.SetRange("Variant Code", '');
 
         RecRef.GetTable(ItemTranslation);
@@ -261,7 +261,7 @@ codeunit 730 "Copy Item"
         NewExtendedTextHeader: Record "Extended Text Header";
         NewExtendedTextLine: Record "Extended Text Line";
     begin
-        if not CopyItemBuffer."Extended Texts" then
+        if not TempCopyItemBuffer."Extended Texts" then
             exit;
 
         ExtendedTextHeader.SetRange("Table Name", ExtendedTextHeader."Table Name"::Item);
@@ -291,7 +291,7 @@ codeunit 730 "Copy Item"
     var
         BOMComponent: Record "BOM Component";
     begin
-        if not CopyItemBuffer."BOM Components" then
+        if not TempCopyItemBuffer."BOM Components" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"BOM Component", BOMComponent.FieldNo("Parent Item No."), FromItemNo, ToItemNo);
@@ -301,7 +301,7 @@ codeunit 730 "Copy Item"
     var
         ItemVendor: Record "Item Vendor";
     begin
-        if not CopyItemBuffer."Item Vendors" then
+        if not TempCopyItemBuffer."Item Vendors" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Item Vendor", ItemVendor.FieldNo("Item No."), FromItemNo, ToItemNo);
@@ -312,7 +312,7 @@ codeunit 730 "Copy Item"
         DefaultDim: Record "Default Dimension";
         NewDefaultDim: Record "Default Dimension";
     begin
-        if CopyItemBuffer.Dimensions then begin
+        if TempCopyItemBuffer.Dimensions then begin
             DefaultDim.SetRange("Table ID", DATABASE::Item);
             DefaultDim.SetRange("No.", FromItem."No.");
             if DefaultDim.FindSet() then
@@ -326,7 +326,7 @@ codeunit 730 "Copy Item"
 
     local procedure CopyItemGlobalDimensions(FromItem: Record Item; var ToItem: Record Item)
     begin
-        if CopyItemBuffer.Dimensions then begin
+        if TempCopyItemBuffer.Dimensions then begin
             ToItem."Global Dimension 1 Code" := FromItem."Global Dimension 1 Code";
             ToItem."Global Dimension 2 Code" := FromItem."Global Dimension 2 Code";
         end else begin
@@ -340,7 +340,7 @@ codeunit 730 "Copy Item"
         TroubleshootingSetup: Record "Troubleshooting Setup";
         RecRef: RecordRef;
     begin
-        if not CopyItemBuffer.Troubleshooting then
+        if not TempCopyItemBuffer.Troubleshooting then
             exit;
 
         TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::Item);
@@ -354,7 +354,7 @@ codeunit 730 "Copy Item"
         ResourceSkill: Record "Resource Skill";
         RecRef: RecordRef;
     begin
-        if not CopyItemBuffer."Resource Skills" then
+        if not TempCopyItemBuffer."Resource Skills" then
             exit;
 
         ResourceSkill.SetRange(Type, ResourceSkill.Type::Item);
@@ -365,18 +365,18 @@ codeunit 730 "Copy Item"
 
     local procedure CopyItemPriceListLines(FromItemNo: Code[20]; ToItemNo: Code[20])
     begin
-        if CopyItemBuffer."Sales Prices" then
+        if TempCopyItemBuffer."Sales Prices" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Price);
-        if CopyItemBuffer."Sales Line Discounts" then
+        if TempCopyItemBuffer."Sales Line Discounts" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Discount);
-        if CopyItemBuffer."Sales Prices" or CopyItemBuffer."Sales Line Discounts" then
+        if TempCopyItemBuffer."Sales Prices" or TempCopyItemBuffer."Sales Line Discounts" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Sale, "Price Amount Type"::Any);
 
-        if CopyItemBuffer."Purchase Prices" then
+        if TempCopyItemBuffer."Purchase Prices" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Purchase, "Price Amount Type"::Price);
-        if CopyItemBuffer."Purchase Line Discounts" then
+        if TempCopyItemBuffer."Purchase Line Discounts" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Purchase, "Price Amount Type"::Discount);
-        if CopyItemBuffer."Purchase Prices" or CopyItemBuffer."Purchase Line Discounts" then
+        if TempCopyItemBuffer."Purchase Prices" or TempCopyItemBuffer."Purchase Line Discounts" then
             CopyItemPriceListLines(FromItemNo, ToItemNo, "Price Type"::Purchase, "Price Amount Type"::Any);
     end;
 
@@ -398,13 +398,13 @@ codeunit 730 "Copy Item"
             until PriceListLine.Next() = 0;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
     begin
-        if not CopyItemBuffer."Sales Prices" then
+        if not TempCopyItemBuffer."Sales Prices" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Sales Price", SalesPrice.FieldNo("Item No."), FromItemNo, ToItemNo);
@@ -416,7 +416,7 @@ codeunit 730 "Copy Item"
         SalesLineDiscount: Record "Sales Line Discount";
         RecRef: RecordRef;
     begin
-        if not CopyItemBuffer."Sales Line Discounts" then
+        if not TempCopyItemBuffer."Sales Line Discounts" then
             exit;
 
         SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
@@ -430,7 +430,7 @@ codeunit 730 "Copy Item"
     var
         PurchasePrice: Record "Purchase Price";
     begin
-        if not CopyItemBuffer."Purchase Prices" then
+        if not TempCopyItemBuffer."Purchase Prices" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Purchase Price", PurchasePrice.FieldNo("Item No."), FromItemNo, ToItemNo);
@@ -441,7 +441,7 @@ codeunit 730 "Copy Item"
     var
         PurchLineDiscount: Record "Purchase Line Discount";
     begin
-        if not CopyItemBuffer."Purchase Line Discounts" then
+        if not TempCopyItemBuffer."Purchase Line Discounts" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Purchase Line Discount", PurchLineDiscount.FieldNo("Item No."), FromItemNo, ToItemNo);
@@ -453,7 +453,7 @@ codeunit 730 "Copy Item"
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         RecRef: RecordRef;
     begin
-        if not CopyItemBuffer.Attributes then
+        if not TempCopyItemBuffer.Attributes then
             exit;
 
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
@@ -466,7 +466,7 @@ codeunit 730 "Copy Item"
     var
         ItemReference: Record "Item Reference";
     begin
-        if not CopyItemBuffer."Item References" then
+        if not TempCopyItemBuffer."Item References" then
             exit;
 
         CopyItemRelatedTable(DATABASE::"Item Reference", ItemReference.FieldNo("Item No."), FromItemNo, ToItemNo);

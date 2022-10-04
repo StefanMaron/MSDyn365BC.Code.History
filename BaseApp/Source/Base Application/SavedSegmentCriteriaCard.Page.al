@@ -50,7 +50,7 @@ page 5140 "Saved Segment Criteria Card"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 }
 

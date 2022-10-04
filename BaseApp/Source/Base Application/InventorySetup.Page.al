@@ -1,11 +1,10 @@
-﻿page 461 "Inventory Setup"
+page 461 "Inventory Setup"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Setup';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,General,Posting,Journal Templates';
     SourceTable = "Inventory Setup";
     UsageCategory = Administration;
 
@@ -16,80 +15,85 @@
             group(General)
             {
                 Caption = 'General';
-                field("Automatic Cost Posting"; "Automatic Cost Posting")
+                field("Automatic Cost Posting"; Rec."Automatic Cost Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if value entries are automatically posted to the inventory account, adjustment account, and COGS account in the general ledger when an item transaction is posted. Alternatively, you can manually post the values at regular intervals with the Post Inventory Cost to G/L batch job. Note that costs must be adjusted before posting to the general ledger.';
                 }
-                field("Expected Cost Posting to G/L"; "Expected Cost Posting to G/L")
+                field("Expected Cost Posting to G/L"; Rec."Expected Cost Posting to G/L")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if value entries originating from receipt or shipment posting, but not from invoice posting are recoded in the general ledger. Expected costs represent the estimation of, for example, a purchased item''s cost that you record before you receive the invoice for the item. To post expected costs, interim accounts must exist in the general ledger for the relevant posting groups. Expected costs are only managed for item transactions, not for immaterial transaction types, such as capacity and item charges.';
                 }
-                field("Automatic Cost Adjustment"; "Automatic Cost Adjustment")
+                field("Automatic Cost Adjustment"; Rec."Automatic Cost Adjustment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if item value entries are automatically adjusted when an item transaction is posted. This ensures correct inventory valuation in the general ledger, so that sales and profit statistics are up to date. The cost adjustment forwards any cost changes from inbound entries, such as those for purchases or production output, to the related outbound entries, such as sales or transfers. To minimize reduced performance during posting, select a time option to define how far back in time from the work date an inbound transaction can occur to potentially trigger adjustment of related outbound value entries. Alternatively, you can manually adjust costs at regular intervals with the Adjust Cost - Item Entries batch job.';
                 }
-                field("Default Costing Method"; "Default Costing Method")
+                field("Default Costing Method"; Rec."Default Costing Method")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how your items'' cost flow is recorded and whether an actual or budgeted value is capitalized and used in the cost calculation. Your choice of costing method determines how the unit cost is calculated by making assumptions about the flow of physical items through your company. A different costing method on item cards will override this default. For more information, see "Design Details: Costing Methods" in Help.';
                 }
-                field("Average Cost Calc. Type"; "Average Cost Calc. Type")
+                field("Average Cost Calc. Type"; Rec."Average Cost Calc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how costs are calculated for items using the Average costing method. Item: One average cost per item in the company is calculated. Item & Location & Variant: An average cost per item for each location and for each variant of the item in the company is calculated. This means that the average cost of this item depends on where it is stored and which variant, such as color, of the item you have selected.';
                 }
-                field("Average Cost Period"; "Average Cost Period")
+                field("Average Cost Period"; Rec."Average Cost Period")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     OptionCaption = ',Day,Week,Month,,,Accounting Period';
                     ToolTip = 'Specifies the period of time used to calculate the weighted average cost of items that apply the average costing method. All inventory decreases that were posted within an average cost period will receive the average cost calculated for that period. If you change the average cost period, only open fiscal years will be affected.';
                 }
-                field("Copy Comments Order to Shpt."; "Copy Comments Order to Shpt.")
+                field("Copy Comments Order to Shpt."; Rec."Copy Comments Order to Shpt.")
                 {
                     ApplicationArea = Comments;
                     Importance = Additional;
                     ToolTip = 'Specifies that you want the program to copy the comments entered on the transfer order to the transfer shipment.';
                 }
-                field("Copy Comments Order to Rcpt."; "Copy Comments Order to Rcpt.")
+                field("Copy Comments Order to Rcpt."; Rec."Copy Comments Order to Rcpt.")
                 {
                     ApplicationArea = Comments;
                     Importance = Additional;
                     ToolTip = 'Specifies that you want the program to copy the comments entered on the transfer order to the transfer receipt.';
                 }
-                field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
+                field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies a date formula that calculates the time it takes to get items ready to ship. The time element is used to calculate the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
                 }
-                field("Inbound Whse. Handling Time"; "Inbound Whse. Handling Time")
+                field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies a date formula that calculates the time it takes to make items available in inventory after they have been received. The time element is used to calculate the expected receipt date as follows: Order Date + Lead Time Calculation = Planned Receipt Date + Inbound Warehouse Handling Time + Safety Lead Time = Expected Receipt Date.';
                 }
-                field("Prevent Negative Inventory"; "Prevent Negative Inventory")
+                field("Prevent Negative Inventory"; Rec."Prevent Negative Inventory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether you can post a transaction that will bring the item''s inventory below zero. Negative inventory is always prevented for Consumption and Transfer type transactions.';
                 }
-                field("Skip Prompt to Create Item"; "Skip Prompt to Create Item")
+                field("Variant Mandatory if Exists"; Rec."Variant Mandatory if Exists")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether a variant must be selected if variants exist for an item. This is the default setting for all items. However, the same option is available on the Item Card page for items. That setting applies to the specific item. ';
+                }
+                field("Skip Prompt to Create Item"; Rec."Skip Prompt to Create Item")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a message about creating a new item card appears when you enter an item number that does not exist.';
                 }
-                field("Copy Item Descr. to Entries"; "Copy Item Descr. to Entries")
+                field("Copy Item Descr. to Entries"; Rec."Copy Item Descr. to Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the description on item cards to be copied to item ledger entries during posting.';
                 }
-                field("Allow Invt. Doc. Reservation"; "Allow Invt. Doc. Reservation")
+                field("Allow Invt. Doc. Reservation"; Rec."Allow Invt. Doc. Reservation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to allow reservation for inventory receipts and shipments.';
@@ -110,7 +114,7 @@
             group(Location)
             {
                 Caption = 'Location';
-                field("Location Mandatory"; "Location Mandatory")
+                field("Location Mandatory"; Rec."Location Mandatory")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies if a location code is required when posting item transactions. This field, together with the Components at Location field in the Manufacturing Setup window, is very important in governing how the planning system handles demand lines with/without location codes. For more information, see "Planning with or without Locations" in Help.';
@@ -119,12 +123,12 @@
             group(Dimensions)
             {
                 Caption = 'Dimensions';
-                field("Item Group Dimension Code"; "Item Group Dimension Code")
+                field("Item Group Dimension Code"; Rec."Item Group Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension code that you want to use for product groups in analysis reports.';
                 }
-                field("Package Caption"; "Package Caption")
+                field("Package Caption"; Rec."Package Caption")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the alternative caption of Package tracking dimension that you want to use for captions for this dimension. For example, Size.';
@@ -134,95 +138,95 @@
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("Item Nos."; "Item Nos.")
+                field("Item Nos."; Rec."Item Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to items.';
                 }
-                field("Nonstock Item Nos."; "Nonstock Item Nos.")
+                field("Nonstock Item Nos."; Rec."Nonstock Item Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Catalog Item Nos.';
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to catalog items.';
                 }
-                field("Transfer Order Nos."; "Transfer Order Nos.")
+                field("Transfer Order Nos."; Rec."Transfer Order Nos.")
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to transfer orders.';
                 }
-                field("Posted Transfer Shpt. Nos."; "Posted Transfer Shpt. Nos.")
+                field("Posted Transfer Shpt. Nos."; Rec."Posted Transfer Shpt. Nos.")
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to posted transfer shipments.';
                 }
-                field("Posted Transfer Rcpt. Nos."; "Posted Transfer Rcpt. Nos.")
+                field("Posted Transfer Rcpt. Nos."; Rec."Posted Transfer Rcpt. Nos.")
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to posted transfer receipts.';
                 }
-                field("Posted Direct Trans. Nos."; "Posted Direct Trans. Nos.")
+                field("Posted Direct Trans. Nos."; Rec."Posted Direct Trans. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-                field("Direct Transfer Posting"; "Direct Transfer Posting")
+                field("Direct Transfer Posting"; Rec."Direct Transfer Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if Direct Transfer should be posted separately as Shipment and Receipt or as single Direct Transfer document.';
                 }
-                field("Inventory Put-away Nos."; "Inventory Put-away Nos.")
+                field("Inventory Put-away Nos."; Rec."Inventory Put-away Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to inventory put-always.';
                 }
-                field("Posted Invt. Put-away Nos."; "Posted Invt. Put-away Nos.")
+                field("Posted Invt. Put-away Nos."; Rec."Posted Invt. Put-away Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to posted inventory put-always.';
                 }
-                field("Inventory Pick Nos."; "Inventory Pick Nos.")
+                field("Inventory Pick Nos."; Rec."Inventory Pick Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to inventory picks.';
                 }
-                field("Posted Invt. Pick Nos."; "Posted Invt. Pick Nos.")
+                field("Posted Invt. Pick Nos."; Rec."Posted Invt. Pick Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to posted inventory picks.';
                 }
-                field("Inventory Movement Nos."; "Inventory Movement Nos.")
+                field("Inventory Movement Nos."; Rec."Inventory Movement Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to inventory movements.';
                 }
-                field("Registered Invt. Movement Nos."; "Registered Invt. Movement Nos.")
+                field("Registered Invt. Movement Nos."; Rec."Registered Invt. Movement Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to registered inventory movements.';
                 }
-                field("Internal Movement Nos."; "Internal Movement Nos.")
+                field("Internal Movement Nos."; Rec."Internal Movement Nos.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to internal movements.';
                 }
-                field("Phys. Invt. Order Nos."; "Phys. Invt. Order Nos.")
+                field("Phys. Invt. Order Nos."; Rec."Phys. Invt. Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders.';
                 }
-                field("Posted Phys. Invt. Order Nos."; "Posted Phys. Invt. Order Nos.")
+                field("Posted Phys. Invt. Order Nos."; Rec."Posted Phys. Invt. Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -302,9 +306,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Schedule Cost Adjustment and Posting';
                 Image = AdjustItemCost;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 Visible = AdjustCostWizardVisible;
                 ToolTip = 'Get help with creating job queue entries for item entry cost adjustments and posting costs to G/L tasks.';
                 trigger OnAction()
@@ -317,9 +318,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Inventory Periods';
                 Image = Period;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Inventory Periods";
                 ToolTip = 'Set up periods in combinations with your accounting periods that define when you can post transactions that affect the value of your item inventory. When you close an inventory period, you cannot post any changes to the inventory value, either expected or actual value, before the ending date of the inventory period.';
             }
@@ -328,9 +326,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Units of Measure';
                 Image = UnitOfMeasure;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Units of Measure";
                 ToolTip = 'Set up the units of measure, such as PSC or HOUR, that you can select from in the Item Units of Measure window that you access from the item card.';
             }
@@ -339,9 +334,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item Discount Groups';
                 Image = Discount;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Item Disc. Groups";
                 ToolTip = 'Set up discount group codes that you can use as criteria when you define special discounts on a customer, vendor, or item card.';
             }
@@ -350,9 +342,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Import Item Pictures';
                 Image = Import;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Import Item Pictures";
                 ToolTip = 'Import item pictures from a ZIP file.';
             }
@@ -364,9 +353,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Posting Setup';
                     Image = PostedInventoryPick;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Inventory Posting Setup";
                     ToolTip = 'Set up links between inventory posting groups, inventory locations, and general ledger accounts to define where transactions for inventory items are recorded in the general ledger.';
                 }
@@ -375,9 +361,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Posting Groups';
                     Image = ItemGroup;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Inventory Posting Groups";
                     ToolTip = 'Set up the posting groups that you assign to item cards to link business transactions made for the item with an inventory account in the general ledger to group amounts for that item type.';
                 }
@@ -390,11 +373,54 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Journal Templates';
                     Image = JournalSetup;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "Item Journal Templates";
                     ToolTip = 'Set up number series and reason codes in the journals that you use for inventory adjustment. By using different templates you can design windows with different layouts and you can assign trace codes, number series, and reports to each template.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'General', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Schedule Cost Adjustment and Posting_Promoted"; "Schedule Cost Adjustment and Posting")
+                {
+                }
+                actionref("Inventory Periods_Promoted"; "Inventory Periods")
+                {
+                }
+                actionref("Units of Measure_Promoted"; "Units of Measure")
+                {
+                }
+                actionref("Item Discount Groups_Promoted"; "Item Discount Groups")
+                {
+                }
+                actionref("Import Item Pictures_Promoted"; "Import Item Pictures")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Inventory Posting Setup_Promoted"; "Inventory Posting Setup")
+                {
+                }
+                actionref("Inventory Posting Groups_Promoted"; "Inventory Posting Groups")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Journal Templates', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("Item Journal Templates_Promoted"; "Item Journal Templates")
+                {
                 }
             }
         }

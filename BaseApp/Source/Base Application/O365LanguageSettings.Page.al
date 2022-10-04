@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2139 "O365 Language Settings"
 {
     Caption = 'Language';
@@ -5,6 +6,9 @@ page 2139 "O365 Language Settings"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = CardPart;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,7 +20,7 @@ page 2139 "O365 Language Settings"
                 ShowCaption = false;
                 field(Language; Language)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Language';
                     Importance = Promoted;
                     QuickEntry = false;
@@ -41,10 +45,10 @@ page 2139 "O365 Language Settings"
         UserPersonalization: Record "User Personalization";
     begin
         with UserPersonalization do begin
-            Get(UserSecurityId);
+            Get(UserSecurityId());
             LanguageID := "Language ID";
         end;
-        
+
         Language := LanguageManagement.GetWindowsLanguageName(LanguageID);
     end;
 
@@ -53,7 +57,7 @@ page 2139 "O365 Language Settings"
         UserPersonalization: Record "User Personalization";
     begin
         with UserPersonalization do begin
-            Get(UserSecurityId);
+            Get(UserSecurityId());
             if "Language ID" <> LanguageID then begin
                 Validate("Language ID", LanguageID);
                 Modify(true);
@@ -68,4 +72,4 @@ page 2139 "O365 Language Settings"
         ReSignInMsg: Label 'You must sign out and then sign in again for the change to take effect.', Comment = '"sign out" and "sign in" are the same terms as shown in the Business Central client.';
         Language: Text;
 }
-
+#endif

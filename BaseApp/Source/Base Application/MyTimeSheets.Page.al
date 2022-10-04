@@ -11,18 +11,18 @@ page 9155 "My Time Sheets"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Time Sheet No."; "Time Sheet No.")
+                field("Time Sheet No."; Rec."Time Sheet No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No.';
                     ToolTip = 'Specifies the number of the time sheet.';
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the start date of the assignment.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the end date of the assignment.';
@@ -50,7 +50,7 @@ page 9155 "My Time Sheets"
 
                 trigger OnAction()
                 begin
-                    EditTimeSheet;
+                    EditTimeSheet();
                 end;
             }
         }
@@ -58,7 +58,7 @@ page 9155 "My Time Sheets"
 
     trigger OnAfterGetRecord()
     begin
-        GetTimeSheet;
+        GetTimeSheet();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

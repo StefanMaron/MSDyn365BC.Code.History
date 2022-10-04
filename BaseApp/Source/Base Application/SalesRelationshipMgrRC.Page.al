@@ -43,7 +43,17 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = RelationshipMgmt;
             }
+#if not CLEAN21
             part(Control2; "Power BI Report Spinner Part")
+            {
+                ApplicationArea = RelationshipMgmt;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = RelationshipMgmt;
             }
@@ -547,73 +557,6 @@ page 9026 "Sales & Relationship Mgr. RC"
                     ToolTip = 'View or edit detailed information for the customers that you trade with. From each customer card, you can open related information, such as sales statistics and ongoing orders, and you can define special prices and line discounts that you grant if certain conditions are met.';
                 }
             }
-#if not CLEAN18
-            group(SetupAndExtensions)
-            {
-                Caption = 'Setup & Extensions';
-                Image = Setup;
-                ToolTip = 'Overview and change system and application settings, and manage extensions and services';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                ObsoleteTag = '18.0';
-                action("Assisted Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Manual Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Manual Setup';
-                    RunObject = Page "Manual Setup";
-                    ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Service Connections")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Service Connections';
-                    Image = ServiceTasks;
-                    RunObject = Page "Service Connections";
-                    ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Extensions)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extensions';
-                    Image = NonStockItemSetup;
-                    RunObject = Page "Extension Management";
-                    ToolTip = 'Install Extensions for greater functionality of the system.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Workflows)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Workflows';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page Workflows;
-                    ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-            }
-#endif
         }
         area(creation)
         {
@@ -712,7 +655,7 @@ page 9026 "Sales & Relationship Mgr. RC"
             group("Sales Prices")
             {
                 Caption = 'Sales Prices';
-#if not CLEAN19
+#if not CLEAN21
                 action("Sales Price &Worksheet")
                 {
                     AccessByPermission = TableData "Sales Price Worksheet" = IMD;
@@ -771,9 +714,13 @@ page 9026 "Sales & Relationship Mgr. RC"
                 }
 #endif
             }
+#if not CLEAN21
             group(Flow)
             {
                 Caption = 'Power Automate';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This group has been moved to the tab dedicated to Power Automate';
+                ObsoleteTag = '21.0';
                 action("Manage Flows")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -781,8 +728,13 @@ page 9026 "Sales & Relationship Mgr. RC"
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View or edit automated flows created with Power Automate.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                    ObsoleteTag = '21.0';
                 }
             }
+#endif
             separator(History)
             {
                 Caption = 'History';

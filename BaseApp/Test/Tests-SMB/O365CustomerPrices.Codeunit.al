@@ -77,7 +77,7 @@ codeunit 138020 "O365 Customer Prices"
         SalesPriceAndLineDiscountsTestPage.Trap;
         SalesPriceAndLineDiscountsPage.Run();
         SalesPriceAndLineDiscountsTestPage.Code.Lookup; // handled by ShowItemPage
-        SalesPriceAndLineDiscountsPage.Close;
+        SalesPriceAndLineDiscountsPage.Close();
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 138020 "O365 Customer Prices"
           Format(SalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
         SalesPriceAndLineDiscounts.Type.Value := Format(SalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
         SalesPriceAndLineDiscounts.Code.Lookup; // handled by ShowItemDiscGroupsPage
-        SalesPriceAndLineDiscounts.Close;
+        SalesPriceAndLineDiscounts.Close();
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             Validate("Starting Date", Today);
             Validate("Ending Date", Today);
 
@@ -199,7 +199,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             Validate("Starting Date", Today - 1);
             asserterror
               Validate("Ending Date", Today - 2);
@@ -222,7 +222,7 @@ codeunit 138020 "O365 Customer Prices"
         Item.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Loaded Item No." := Item."No.";
             Validate(Type, Type::Item);
 
@@ -245,7 +245,7 @@ codeunit 138020 "O365 Customer Prices"
         Item.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Loaded Item No." := Item."No.";
             "Loaded Disc. Group" := 'G' + Format(LibraryRandom.RandInt(1000));
             "Line Type" := "Line Type"::"Sales Line Discount";
@@ -271,7 +271,7 @@ codeunit 138020 "O365 Customer Prices"
         Item.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Loaded Item No." := Item."No.";
             "Loaded Disc. Group" := '';
 
@@ -324,7 +324,7 @@ codeunit 138020 "O365 Customer Prices"
         Item.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Line Type" := "Line Type"::"Sales Price";
             "Sales Type" := "Sales Type"::"Customer Price/Disc. Group";
             "Sales Code" := CustPriceGr.Code;
@@ -358,7 +358,7 @@ codeunit 138020 "O365 Customer Prices"
         Item.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Line Type" := "Line Type"::"Sales Price";
             "Sales Type" := "Sales Type"::Customer;
 
@@ -390,7 +390,7 @@ codeunit 138020 "O365 Customer Prices"
         Item.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Line Type" := "Line Type"::"Sales Price";
             "Sales Type" := "Sales Type"::"All Customers";
 
@@ -422,7 +422,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
 
@@ -443,7 +443,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
 
@@ -464,7 +464,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
             "Loaded Customer No." := '';
@@ -486,7 +486,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
             "Line Type" := "Line Type"::"Sales Price";
@@ -510,7 +510,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
             "Line Type" := "Line Type"::"Sales Price";
@@ -534,7 +534,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
             "Line Type" := "Line Type"::"Sales Line Discount";
@@ -558,7 +558,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := 10;
             "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
             "Line Type" := "Line Type"::"Sales Line Discount";
@@ -582,7 +582,7 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" :=
               "Sales Type"::"All Customers";
 
@@ -623,7 +623,7 @@ codeunit 138020 "O365 Customer Prices"
             Assert.AreEqual(CustPriceGr."Allow Line Disc.", "Allow Line Disc.", 'Wrong "Allow Line Disc."');
             Assert.AreEqual(CustPriceGr."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong "Allow Invoice Disc."');
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -644,7 +644,7 @@ codeunit 138020 "O365 Customer Prices"
         Customer.Insert(true);
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             "Sales Type" := "Sales Type"::Customer;
             "Sales Code" := Customer."No.";
             "Line Type" := "Line Type"::"Sales Price";
@@ -660,7 +660,7 @@ codeunit 138020 "O365 Customer Prices"
             Assert.AreEqual(
               Customer."Allow Line Disc.", "Allow Line Disc.", 'Wrong "Allow Line Disc."');
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -678,7 +678,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Unit of Measure Code", 'V');
             Assert.ExpectedError('Type must be equal to');
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -691,13 +691,13 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         with TempSalesPriceAndLineDiscBuff do begin
-            Init;
+            Init();
             Type := Type::"Item Disc. Group";
             asserterror
               Validate("Variant Code", 'V');
             Assert.ExpectedError('Type must be equal to');
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -722,7 +722,7 @@ codeunit 138020 "O365 Customer Prices"
             "Ending Date" := Today - 1;
             Modify(true);
 
-            Reset;
+            Reset();
             FilterToActualRecords;
             Assert.AreEqual(ExpectedCount - 1, Count, 'Wrong filter after run FilterToActualRecords');
 
@@ -823,10 +823,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount.DeleteAll();
 
         with SalesPrice do begin
-            Init;
+            Init();
             "Sales Type" := "Sales Type"::Customer;
             "Sales Code" := Cust."No.";
-            Insert;
+            Insert();
         end;
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
@@ -848,10 +848,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount.DeleteAll();
 
         with SalesLineDiscount do begin
-            Init;
+            Init();
             "Sales Type" := "Sales Type"::Customer;
             "Sales Code" := Cust."No.";
-            Insert;
+            Insert();
         end;
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
@@ -876,10 +876,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount.DeleteAll();
 
         with SalesPrice do begin
-            Init;
+            Init();
             "Sales Type" := "Sales Type"::"Customer Price Group";
             "Sales Code" := GetPriceGroupCode(Cust."No.");
-            Insert;
+            Insert();
         end;
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
@@ -904,10 +904,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount.DeleteAll();
 
         with SalesLineDiscount do begin
-            Init;
+            Init();
             "Sales Type" := "Sales Type"::"Customer Disc. Group";
             "Sales Code" := GetDiscGroupCode(Cust."No.");
-            Insert;
+            Insert();
         end;
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
@@ -930,7 +930,7 @@ codeunit 138020 "O365 Customer Prices"
         with TempSalesPriceAndLineDiscBuff do begin
             LoadDataForCustomer(Customer);
             SetRange("Unit Price", LibraryRandom.RandDec(10, 2));
-            Reset;
+            Reset();
 
             Assert.AreEqual('', "Loaded Item No.", '<Item No.> incorrect');
             Assert.AreEqual(Customer."No.", "Loaded Customer No.", '<Customer No.> was reseted');
@@ -1781,7 +1781,7 @@ codeunit 138020 "O365 Customer Prices"
         CustPriceGrCode: Code[10];
     begin
         with CustPriceGr do begin
-            Init;
+            Init();
             CustPriceGrCode := 'PG' + Format(LibraryRandom.RandInt(100));
             if Get(CustPriceGrCode) then
                 exit;
@@ -1855,7 +1855,7 @@ codeunit 138020 "O365 Customer Prices"
     begin
         for i := 0 to 3 do
             with SalesLineDiscount do begin
-                Init;
+                Init();
                 "Sales Type" := i;
                 if "Sales Type" = "Sales Type"::"All Customers" then
                     "Sales Code" := ''
@@ -1875,7 +1875,7 @@ codeunit 138020 "O365 Customer Prices"
                 "Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
                 "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
 
-                Insert;
+                Insert();
             end;
     end;
 
@@ -1887,7 +1887,7 @@ codeunit 138020 "O365 Customer Prices"
         // what about the Price Groups?
         for i := 0 to 3 do
             with SalesPrice do begin
-                Init;
+                Init();
                 "Sales Type" := "Sales Price Type".FromInteger(i);
                 if i = "Sales Type"::"All Customers".AsInteger() then
                     "Sales Code" := ''
@@ -1911,7 +1911,7 @@ codeunit 138020 "O365 Customer Prices"
                 "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
                 "Allow Line Disc." := true;
 
-                Insert;
+                Insert();
             end;
     end;
 
@@ -2013,7 +2013,7 @@ codeunit 138020 "O365 Customer Prices"
     local procedure GetSLDiscountsForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Customer: Record Customer)
     begin
         with SalesLineDiscount do begin
-            Reset;
+            Reset();
             SetRange("Sales Type", "Sales Type"::Customer);
             SetRange("Sales Code", Customer."No.");
         end;
@@ -2022,7 +2022,7 @@ codeunit 138020 "O365 Customer Prices"
     local procedure GetSLDiscountsForAllCustomers(var SalesLineDiscount: Record "Sales Line Discount")
     begin
         with SalesLineDiscount do begin
-            Reset;
+            Reset();
             SetRange("Sales Type", "Sales Type"::"All Customers");
             SetRange("Sales Code", '');
         end;
@@ -2031,7 +2031,7 @@ codeunit 138020 "O365 Customer Prices"
     local procedure GetSLDiscountsForCustDiscGr(var SalesLineDiscount: Record "Sales Line Discount"; Customer: Record Customer)
     begin
         with SalesLineDiscount do begin
-            Reset;
+            Reset();
             SetRange("Sales Type", "Sales Type"::"Customer Disc. Group");
             SetRange("Sales Code", Customer."Customer Disc. Group");
         end;
@@ -2040,7 +2040,7 @@ codeunit 138020 "O365 Customer Prices"
     local procedure GetSPricesForCustomer(var SalesPrice: Record "Sales Price"; CustomerNo: Code[20])
     begin
         with SalesPrice do begin
-            Reset;
+            Reset();
             SetRange("Sales Type", "Sales Type"::Customer);
             SetRange("Sales Code", CustomerNo);
         end;
@@ -2049,7 +2049,7 @@ codeunit 138020 "O365 Customer Prices"
     local procedure GetSPricesForAllCustomers(var SalesPrice: Record "Sales Price")
     begin
         with SalesPrice do begin
-            Reset;
+            Reset();
             SetRange("Sales Type", "Sales Type"::"All Customers");
             SetRange("Sales Code", '');
         end;
@@ -2058,7 +2058,7 @@ codeunit 138020 "O365 Customer Prices"
     local procedure GetSPricesForPrGroup(var SalesPrice: Record "Sales Price"; CustomerPriceGroup: Code[20])
     begin
         with SalesPrice do begin
-            Reset;
+            Reset();
             SetRange("Sales Type", "Sales Type"::"Customer Price Group");
             SetRange("Sales Code", CustomerPriceGroup);
         end;

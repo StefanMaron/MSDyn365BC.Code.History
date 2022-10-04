@@ -26,10 +26,10 @@ page 7161 "Analysis Dim. Selection-Level"
                     begin
                         if Level <> Level::" " then begin
                             xAnalysisDimSelBuf.Copy(Rec);
-                            Reset;
+                            Reset();
                             SetFilter(Code, '<>%1', xAnalysisDimSelBuf.Code);
                             SetRange(Level, xAnalysisDimSelBuf.Level);
-                            HasError := not IsEmpty;
+                            HasError := not IsEmpty();
                             Copy(xAnalysisDimSelBuf);
                             if HasError then
                                 Error(Text000, FieldCaption(Level));
@@ -48,7 +48,7 @@ page 7161 "Analysis Dim. Selection-Level"
                     Editable = false;
                     ToolTip = 'Specifies a description of the selection.';
                 }
-                field("Dimension Value Filter"; "Dimension Value Filter")
+                field("Dimension Value Filter"; Rec."Dimension Value Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value that the analysis view is based on.';
@@ -82,7 +82,7 @@ page 7161 "Analysis Dim. Selection-Level"
             if Dim.Get(NewCode) then
                 NewDescription := Dim.GetMLName(GlobalLanguage);
 
-        Init;
+        Init();
         Selected := NewSelected;
         Code := NewCode;
         Description := NewDescription;
@@ -90,7 +90,7 @@ page 7161 "Analysis Dim. Selection-Level"
             "Dimension Value Filter" := NewDimValueFilter;
             Level := NewLevel;
         end;
-        Insert;
+        Insert();
     end;
 }
 

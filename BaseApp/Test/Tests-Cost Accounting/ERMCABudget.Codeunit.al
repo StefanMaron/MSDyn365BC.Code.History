@@ -962,7 +962,7 @@ codeunit 134814 "ERM CA Budget"
 
         Commit();
         LibraryVariableStorage.Enqueue('');
-        LibraryVariableStorage.Enqueue(Format(WorkDate));
+        LibraryVariableStorage.Enqueue(Format(WorkDate()));
         asserterror REPORT.Run(REPORT::"Transfer Budget to Actual");
     end;
 
@@ -1013,7 +1013,7 @@ codeunit 134814 "ERM CA Budget"
         // Exercise:
         Commit();
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
-        LibraryVariableStorage.Enqueue(Format(WorkDate));
+        LibraryVariableStorage.Enqueue(Format(WorkDate()));
         REPORT.Run(REPORT::"Transfer Budget to Actual");
 
         // Verify:
@@ -1040,7 +1040,7 @@ codeunit 134814 "ERM CA Budget"
         Amount := LibraryRandom.RandDec(1000, 2);
 
         // Exercise: Create and Post Cost Journal Line with Random Amount.
-        CreateAndPostCostJournalLine(WorkDate, CostType."No.", CostCenter.Code, Amount);
+        CreateAndPostCostJournalLine(WorkDate(), CostType."No.", CostCenter.Code, Amount);
 
         // Verify: Verify Cost Budget/Movement page for Net Change.
         VerifyCostBudgetMovement(CostBudgetName.Name, CostType."No.", 1, Amount); // Take 1 for option type Net Change.
@@ -1067,9 +1067,9 @@ codeunit 134814 "ERM CA Budget"
 
         // Exercise: Create and Post Cost Journal Line with Random Amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostCostJournalLine(CalcDate('<-1D>', WorkDate), CostType."No.", CostCenter.Code, Amount);
+        CreateAndPostCostJournalLine(CalcDate('<-1D>', WorkDate()), CostType."No.", CostCenter.Code, Amount);
         Amount2 := LibraryRandom.RandDec(100, 2);
-        CreateAndPostCostJournalLine(WorkDate, CostType."No.", CostCenter.Code, Amount2);
+        CreateAndPostCostJournalLine(WorkDate(), CostType."No.", CostCenter.Code, Amount2);
 
         // Verify: Verify Cost Budget/Movement page for Balance at Date.
         VerifyCostBudgetMovement(CostBudgetName.Name, CostType."No.", 2, Amount2 + Amount); // Take 2 for option type Balance at Date.
@@ -1112,7 +1112,7 @@ codeunit 134814 "ERM CA Budget"
                 if DimensionSetEntry."Dimension Code" = CostObjectDimension then
                     if CostObject.Get(DimensionSetEntry."Dimension Value Code") then
                         exit(true);
-            until DimensionSetEntry.Next = 0;
+            until DimensionSetEntry.Next() = 0;
 
         exit(false);
     end;
@@ -1168,7 +1168,7 @@ codeunit 134814 "ERM CA Budget"
     var
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
-        CostAccountMgt.CreateCostCenters;
+        CostAccountMgt.CreateCostCenters();
         CostAccountMgt.CreateCostObjects;
     end;
 
@@ -1220,7 +1220,7 @@ codeunit 134814 "ERM CA Budget"
                 DimensionValue.SetRange("Dimension Code", Dimension.Code);
                 if not DimensionValue.IsEmpty() then
                     exit(Dimension.Code);
-            until Dimension.Next = 0;
+            until Dimension.Next() = 0;
 
         exit('');
     end;
@@ -1257,7 +1257,7 @@ codeunit 134814 "ERM CA Budget"
             else
                 if not CCOrCOExists(GLBudgetEntry."Dimension Set ID") then // check for dimensions on Dimension Set Entry
                     NoSkipped := NoSkipped + 1;
-        until GLBudgetEntry.Next = 0;
+        until GLBudgetEntry.Next() = 0;
 
         exit(NoSkipped);
     end;
@@ -1385,7 +1385,7 @@ codeunit 134814 "ERM CA Budget"
             GLAccount.Get(GLBudgetEntry."G/L Account No.");
             GLAccount.Validate("Cost Type No.", '');
             GLAccount.Modify(true);
-            GLBudgetEntry.Next;
+            GLBudgetEntry.Next();
         end;
     end;
 
@@ -1397,7 +1397,7 @@ codeunit 134814 "ERM CA Budget"
         RecRef.GetTable(GLBudgetName);
         FieldRef := RecRef.Field(FieldNo);
 
-        RecRef.SetView(GLBudgetName.GetView);
+        RecRef.SetView(GLBudgetName.GetView());
         FieldRef.Validate(DimensionCode);
         RecRef.Modify(true);
     end;
@@ -1414,14 +1414,14 @@ codeunit 134814 "ERM CA Budget"
         FieldRef := RecRef.Field(FieldNo);
 
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName);
-        RecRef.SetView(GLBudgetEntry.GetView);
+        RecRef.SetView(GLBudgetEntry.GetView());
         RecRef.Next(LibraryRandom.RandInt(GLBudgetEntry.Count - 10));
         // Add dimension values to some GL Budget Entries
         for I := 1 to 10 do begin
             LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
             FieldRef.Validate(DimensionValue.Code);
             RecRef.Modify(true);
-            RecRef.Next;
+            RecRef.Next();
         end;
     end;
 
@@ -1442,7 +1442,7 @@ codeunit 134814 "ERM CA Budget"
                   LibraryDimension.CreateDimSet(0, DimensionCode, DimensionValue.Code));
                 GLBudgetEntry.Modify(true);
             end;
-            GLBudgetEntry.Next;
+            GLBudgetEntry.Next();
         end;
     end;
 
@@ -1514,7 +1514,7 @@ codeunit 134814 "ERM CA Budget"
                 TotalAmount := TotalAmount + CostBudgetEntry.Amount;
                 // Validate Allocated flag
                 CostBudgetEntry.TestField(Allocated, false);
-            until CostBudgetEntry.Next = 0;
+            until CostBudgetEntry.Next() = 0;
 
         CostBudgetRegister.TestField(Amount, TotalAmount);
     end;
@@ -1578,7 +1578,7 @@ codeunit 134814 "ERM CA Budget"
         FieldNo := GetGLBudgetEntryFieldNo(GLBudgetName, DimensionCode);
         if FieldNo <> -1 then begin
             RecordRef.GetTable(GLBudgetEntry);
-            RecordRef.SetView(GLBudgetEntry.GetView);
+            RecordRef.SetView(GLBudgetEntry.GetView());
             RecordRef.FindSet();
             if Format(RecordRef.Field(FieldNo)) = DimensionValueCode then
                 exit(true);
@@ -1587,7 +1587,7 @@ codeunit 134814 "ERM CA Budget"
         // Look in Dimension Set Entry
         DimensionSetEntry.SetRange("Dimension Set ID", GLBudgetEntry."Dimension Set ID");
         DimensionSetEntry.SetRange("Dimension Value Code", DimensionValueCode);
-        exit(DimensionSetEntry.FindFirst);
+        exit(DimensionSetEntry.FindFirst())
     end;
 
     local procedure VerifyCompressedEntries(BudgetName: Code[10]; ExpectedEntries: Integer; ExpectedAmount: Decimal)
@@ -1601,7 +1601,7 @@ codeunit 134814 "ERM CA Budget"
         CostBudgetEntry.FindSet();
         repeat
             TotalAmount := TotalAmount + CostBudgetEntry.Amount;
-        until CostBudgetEntry.Next = 0;
+        until CostBudgetEntry.Next() = 0;
         Assert.AreEqual(ExpectedAmount, TotalAmount, TotalBudgetEntriesAmountError);
     end;
 
@@ -1626,7 +1626,7 @@ codeunit 134814 "ERM CA Budget"
         CostBudgetEntry.TestField("Cost Type No.", CostTypeNo);
         CostBudgetEntry.TestField("Cost Center Code", CostCenterCode);
         CostBudgetEntry.TestField(Amount, Amount);
-        CostBudgetEntry.TestField(Date, WorkDate);
+        CostBudgetEntry.TestField(Date, WorkDate());
     end;
 
     local procedure VerifyTransferToActual(ExpectedCostEntriesCount: Integer)
@@ -1664,9 +1664,9 @@ codeunit 134814 "ERM CA Budget"
         CostTypeBalanceBudget.CostObjectFilter.SetValue('');
         CostTypeBalanceBudget.FILTER.SetFilter(Name, Name);
         if AmountType = 1 then // Net Change
-            CostTypeBalanceBudget.FILTER.SetFilter("Date Filter", Format(WorkDate))
+            CostTypeBalanceBudget.FILTER.SetFilter("Date Filter", Format(WorkDate()))
         else
-            CostTypeBalanceBudget.FILTER.SetFilter("Date Filter", StrSubstNo(BalanceAtDateFilter, Format(WorkDate)));
+            CostTypeBalanceBudget.FILTER.SetFilter("Date Filter", StrSubstNo(BalanceAtDateFilter, Format(WorkDate())));
 
         CostTypeBalanceBudget."Net Change".AssertEquals(Amount);
     end;
@@ -1686,7 +1686,7 @@ codeunit 134814 "ERM CA Budget"
         repeat
             ExpectedDate := CalcDate(StrSubstNo(DateFilter, DateFormula), ExpectedDate);
             Assert.AreEqual(ExpectedDate, CostBudgetEntry.Date, CostBudgetEntryDateErr);
-        until CostBudgetEntry.Next = 0;
+        until CostBudgetEntry.Next() = 0;
     end;
 
     [RequestPageHandler]
@@ -1696,7 +1696,7 @@ codeunit 134814 "ERM CA Budget"
         SourceBudget: Variant;
     begin
         LibraryVariableStorage.Dequeue(SourceBudget);
-        LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate, '', SourceBudget);
+        LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate(), '', SourceBudget);
         AllocCostsReqPage.OK.Invoke;
     end;
 
@@ -1781,7 +1781,7 @@ codeunit 134814 "ERM CA Budget"
         BudgetAmount: Variant;
     begin
         LibraryVariableStorage.Dequeue(BudgetAmount);
-        CostBudgetEntriesPage.Date.SetValue(WorkDate);
+        CostBudgetEntriesPage.Date.SetValue(WorkDate());
         CostBudgetEntriesPage.Amount.SetValue(BudgetAmount);
         CostBudgetEntriesPage.OK.Invoke;
     end;

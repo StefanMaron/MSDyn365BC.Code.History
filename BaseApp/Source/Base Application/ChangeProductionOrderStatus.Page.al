@@ -3,7 +3,6 @@ page 99000914 "Change Production Order Status"
     ApplicationArea = Manufacturing;
     Caption = 'Change Production Order Status';
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Prod. Order';
     SourceTable = "Production Order";
     UsageCategory = Tasks;
 
@@ -23,7 +22,7 @@ page 99000914 "Change Production Order Status"
 
                     trigger OnValidate()
                     begin
-                        ProdOrderStatusOnAfterValidate;
+                        ProdOrderStatusOnAfterValidate();
                     end;
                 }
                 field(StartingDate; StartingDate)
@@ -34,7 +33,7 @@ page 99000914 "Change Production Order Status"
 
                     trigger OnValidate()
                     begin
-                        StartingDateOnAfterValidate;
+                        StartingDateOnAfterValidate();
                     end;
                 }
                 field(EndingDate; EndingDate)
@@ -45,7 +44,7 @@ page 99000914 "Change Production Order Status"
 
                     trigger OnValidate()
                     begin
-                        EndingDateOnAfterValidate;
+                        EndingDateOnAfterValidate();
                     end;
                 }
             }
@@ -53,7 +52,7 @@ page 99000914 "Change Production Order Status"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -63,47 +62,47 @@ page 99000914 "Change Production Order Status"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date on which you created the production order.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the source type of the production order.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting time of the production order.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date of the production order.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending time of the production order.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date of the production order.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the due date of the production order.';
                 }
-                field("Finished Date"; "Finished Date")
+                field("Finished Date"; Rec."Finished Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the actual finishing date of a finished production order.';
@@ -142,8 +141,6 @@ page 99000914 "Change Production Order Status"
                         ApplicationArea = Manufacturing;
                         Caption = 'Item Ledger E&ntries';
                         Image = ItemLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ShortCutKey = 'Ctrl+F7';
                         ToolTip = 'View the item ledger entries of the item on the document or journal line.';
 
@@ -166,8 +163,6 @@ page 99000914 "Change Production Order Status"
                         ApplicationArea = Manufacturing;
                         Caption = 'Capacity Ledger Entries';
                         Image = CapacityLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
 
                         trigger OnAction()
@@ -189,8 +184,6 @@ page 99000914 "Change Production Order Status"
                         ApplicationArea = Manufacturing;
                         Caption = 'Value Entries';
                         Image = ValueLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ToolTip = 'View the value entries of the item on the document or journal line.';
 
                         trigger OnAction()
@@ -213,8 +206,6 @@ page 99000914 "Change Production Order Status"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Comment Sheet";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("No.");
@@ -226,15 +217,13 @@ page 99000914 "Change Production Order Status"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(Statistics)
@@ -242,8 +231,6 @@ page 99000914 "Change Production Order Status"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Production Order Statistics";
                     RunPageLink = Status = FIELD(Status),
                                   "No." = FIELD("No."),
@@ -265,9 +252,6 @@ page 99000914 "Change Production Order Status"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Change the production order to another status, such as Released.';
 
                     trigger OnAction()
@@ -284,7 +268,7 @@ page 99000914 "Change Production Order Status"
                     begin
                         ChangeStatusForm.Set(Rec);
 
-                        if ChangeStatusForm.RunModal <> ACTION::Yes then
+                        if ChangeStatusForm.RunModal() <> ACTION::Yes then
                             exit;
 
                         ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
@@ -310,11 +294,49 @@ page 99000914 "Change Production Order Status"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Change &Status_Promoted"; "Change &Status")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prod. Order', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Item Ledger E&ntries_Promoted"; "Item Ledger E&ntries")
+                {
+                }
+                actionref("Capacity Ledger Entries_Promoted"; "Capacity Ledger Entries")
+                {
+                }
+                actionref("Value Entries_Promoted"; "Value Entries")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        BuildForm;
+        BuildPage();
     end;
 
     var
@@ -324,7 +346,7 @@ page 99000914 "Change Production Order Status"
         StartingDate: Date;
         EndingDate: Date;
 
-    local procedure BuildForm()
+    protected procedure BuildPage()
     begin
         FilterGroup(2);
         SetRange(Status, ProdOrderStatus);
@@ -345,17 +367,17 @@ page 99000914 "Change Production Order Status"
 
     local procedure ProdOrderStatusOnAfterValidate()
     begin
-        BuildForm;
+        BuildPage();
     end;
 
     local procedure StartingDateOnAfterValidate()
     begin
-        BuildForm;
+        BuildPage();
     end;
 
     local procedure EndingDateOnAfterValidate()
     begin
-        BuildForm;
+        BuildPage();
     end;
 
     [IntegrationEvent(false, false)]

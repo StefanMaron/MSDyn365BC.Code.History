@@ -18,17 +18,17 @@ page 6058 "Contract/Service Discounts"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the contract/service discount.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the discount becomes applicable to the contract or quote.';
                 }
-                field("Discount %"; "Discount %")
+                field("Discount %"; Rec."Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount percentage.';

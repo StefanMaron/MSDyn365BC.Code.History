@@ -45,16 +45,16 @@ codeunit 1804 "Approval Workflow Setup Mgt."
             case "App. Trigger" of
                 "App. Trigger"::"The user sends an approval requests manually":
                     begin
-                        EventConditions := WorkflowSetup.BuildCustomerTypeConditions;
+                        EventConditions := WorkflowSetup.BuildCustomerTypeConditions();
                         CreateCustomerOrItemApprovalWorkflow(Workflow, TempApprovalWorkflowWizard, DATABASE::Customer,
-                          WorkflowSetup.CustomerWorkflowCode, CustomerApprWorkflowDescTxt, EventConditions,
-                          WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode,
-                          WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode);
+                          WorkflowSetup.CustomerWorkflowCode(), CustomerApprWorkflowDescTxt, EventConditions,
+                          WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode(),
+                          WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode());
                     end;
                 "App. Trigger"::"The user changes a specific field":
                     CreateCustomerOrItemChangeApprovalWorkflow(Workflow, TempApprovalWorkflowWizard, DATABASE::Customer,
-                      WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode, CustomerChangeApprWorkflowDescTxt,
-                      WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+                      WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode(), CustomerChangeApprWorkflowDescTxt,
+                      WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
             end;
 
         Workflow.Validate(Enabled, true);
@@ -73,16 +73,16 @@ codeunit 1804 "Approval Workflow Setup Mgt."
             case "App. Trigger" of
                 "App. Trigger"::"The user sends an approval requests manually":
                     begin
-                        EventConditions := WorkflowSetup.BuildItemTypeConditions;
+                        EventConditions := WorkflowSetup.BuildItemTypeConditions();
                         CreateCustomerOrItemApprovalWorkflow(Workflow, TempApprovalWorkflowWizard, DATABASE::Item,
-                          WorkflowSetup.ItemWorkflowCode, ItemApprWorkflowDescTxt, EventConditions,
-                          WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode,
-                          WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode);
+                          WorkflowSetup.ItemWorkflowCode(), ItemApprWorkflowDescTxt, EventConditions,
+                          WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode(),
+                          WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode());
                     end;
                 "App. Trigger"::"The user changes a specific field":
                     CreateCustomerOrItemChangeApprovalWorkflow(Workflow, TempApprovalWorkflowWizard, DATABASE::Item,
-                      WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode, ItemChangeApprWorkflowDescTxt,
-                      WorkflowEventHandling.RunWorkflowOnItemChangedCode);
+                      WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode(), ItemChangeApprWorkflowDescTxt,
+                      WorkflowEventHandling.RunWorkflowOnItemChangedCode());
             end;
 
         Workflow.Validate(Enabled, true);
@@ -100,8 +100,8 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         InsertWorkflow(Workflow, GenerateWorkflowCode(InitialWorkflowCode),
           WorkflowDescription, SalesMktCategoryTxt);
         WorkflowSetup.InsertRecApprovalWorkflowSteps(Workflow, EventConditions,
-          StartEvent, WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+          StartEvent, WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
           CancelEvent, WorkflowStepArgument, true, true);
 
         ChangeWorkflowStepArgument(WorkflowStepArgument, Workflow.Code, TempApprovalWorkflowWizard."Approver ID");
@@ -117,8 +117,8 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         InsertWorkflow(Workflow, GenerateWorkflowCode(InitialWorkflowCode),
           WorkflowDescription, SalesMktCategoryTxt);
         WorkflowSetup.InsertRecChangedApprovalWorkflowSteps(Workflow, TempApprovalWorkflowWizard."Field Operator",
-          StartEvent, WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+          StartEvent, WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
           WorkflowStepArgument, TableNo, TempApprovalWorkflowWizard.Field, TempApprovalWorkflowWizard."Custom Message");
 
         ChangeWorkflowStepArgument(WorkflowStepArgument, Workflow.Code, TempApprovalWorkflowWizard."Approver ID");
@@ -155,15 +155,15 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowSetup: Codeunit "Workflow Setup";
+        OneWeekDateFormula: DateFormula;
         WizardWorkflowCode: Code[20];
         EventConditions: Text;
-        OneWeekDateFormula: DateFormula;
     begin
         // Specific Workflow code is used: WZ-****
-        WizardWorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        WizardWorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
         EventConditions := WorkflowSetup.BuildGeneralJournalLineTypeConditions(GenJournalLine);
         DisableWorkflowWithEntryPointEventConditions(DATABASE::"Gen. Journal Batch",
-          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode, EventConditions);
+          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode(), EventConditions);
         InsertWorkflow(Workflow, GenerateWorkflowCode(WizardWorkflowCode),
           GeneralJournalLineApprWorkflowDescTxt, FinCategoryDescTxt);
 
@@ -187,12 +187,12 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowSetup: Codeunit "Workflow Setup";
+        BlankDateFormula: DateFormula;
         WizardWorkflowCode: Code[20];
         EventConditions: Text;
-        BlankDateFormula: DateFormula;
     begin
         // Specific Workflow code is used: WZ-SIAPW
-        WizardWorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        WizardWorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
         if Workflow.Get(WizardWorkflowCode) then
             UpdateWorkflow(Workflow, DATABASE::"Sales Header", BlankDateFormula)
         else begin
@@ -223,19 +223,19 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowSetup: Codeunit "Workflow Setup";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        BlankDateFormula: DateFormula;
         WizardWorkflowCode: Code[20];
         EventConditions: Text;
-        BlankDateFormula: DateFormula;
     begin
         // Specific Workflow code is used: WZ-PIAPW
-        WizardWorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        WizardWorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         if Workflow.Get(WizardWorkflowCode) then
             UpdateWorkflow(Workflow, DATABASE::"Purchase Header", BlankDateFormula)
         else begin
             EventConditions :=
                 WorkflowSetup.BuildPurchHeaderTypeConditionsText("Purchase Document Type".FromInteger(DocumentType), PurchaseHeader.Status::Open);
             DisableWorkflowWithEntryPointEventConditions(
-                DATABASE::"Purchase Header", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, EventConditions);
+                DATABASE::"Purchase Header", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(), EventConditions);
 
             WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
                 Workflow, "Purchase Document Type".FromInteger(DocumentType), WorkflowStepArgument."Approver Type"::Approver,
@@ -308,7 +308,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        if FindWorkflowStepArgument(WorkflowStepArgument, WorkflowCode, WorkflowResponseHandling.CreateApprovalRequestsCode) then begin
+        if FindWorkflowStepArgument(WorkflowStepArgument, WorkflowCode, WorkflowResponseHandling.CreateApprovalRequestsCode()) then begin
             // User input
             WorkflowStepArgument."Approver Type" := ApproverType;
             WorkflowStepArgument."Approver Limit Type" := ApproverLimitType;
@@ -345,10 +345,10 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowDefinition.SetRange(Enabled, true);
         WorkflowDefinition.SetRange(Type, WorkflowDefinition.Type::"Event");
         WorkflowDefinition.SetRange(Function_Name, FunctionName);
-        WorkflowDefinition.Open;
-        while WorkflowDefinition.Read do begin
+        WorkflowDefinition.Open();
+        while WorkflowDefinition.Read() do begin
             WorkflowStepArgument.Get(WorkflowDefinition.Argument);
-            if WorkflowStepArgument.GetEventFilters = EventFilters then begin
+            if WorkflowStepArgument.GetEventFilters() = EventFilters then begin
                 Workflow.Get(WorkflowDefinition.Code);
                 exit(true);
             end;
@@ -377,8 +377,8 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowDefinition.SetRange(Enabled, true);
         WorkflowDefinition.SetRange(Type, WorkflowDefinition.Type::"Event");
         WorkflowDefinition.SetRange(Function_Name, FunctionName);
-        WorkflowDefinition.Open;
-        while WorkflowDefinition.Read do begin
+        WorkflowDefinition.Open();
+        while WorkflowDefinition.Read() do begin
             WorkflowRule.SetRange("Workflow Code", WorkflowDefinition.Code);
             if WorkflowRule.FindFirst() then
                 if WorkflowRule."Field No." = FieldNo then begin
@@ -414,7 +414,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
             WorkflowStep.SetRange("Previous Workflow Step ID", 0);
             WorkflowStep.FindFirst();
             WorkflowStepArgument.Get(WorkflowStep.Argument);
-            EventConditions := WorkflowStepArgument.GetEventFilters;
+            EventConditions := WorkflowStepArgument.GetEventFilters();
             DisableWorkflowWithEntryPointEventConditions(TableID, WorkflowStep."Function Name", EventConditions);
         end;
 
@@ -449,7 +449,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         if WorkflowStep.FindFirst() then begin
             WorkflowStepArgument.Get(WorkflowStep.Argument);
             WorkflowStepArgument."Approver Type" := WorkflowStepArgument."Approver Type"::Approver;

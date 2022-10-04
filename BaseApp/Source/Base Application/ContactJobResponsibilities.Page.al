@@ -12,12 +12,12 @@ page 5081 "Contact Job Responsibilities"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Job Responsibility Code"; "Job Responsibility Code")
+                field("Job Responsibility Code"; Rec."Job Responsibility Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the job responsibility code.';
                 }
-                field("Job Responsibility Description"; "Job Responsibility Description")
+                field("Job Responsibility Description"; Rec."Job Responsibility Description")
                 {
                     ApplicationArea = All;
                     DrillDown = false;

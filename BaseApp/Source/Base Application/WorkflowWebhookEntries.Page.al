@@ -21,12 +21,12 @@ page 830 "Workflow Webhook Entries"
                     Caption = 'Record';
                     ToolTip = 'Specifies the record that is involved in the workflow. ';
                 }
-                field("Date-Time Initiated"; "Date-Time Initiated")
+                field("Date-Time Initiated"; Rec."Date-Time Initiated")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time of the workflow entries.';
                 }
-                field("Initiated By User ID"; "Initiated By User ID")
+                field("Initiated By User ID"; Rec."Initiated By User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the User ID which has initiated the workflow.';
@@ -43,7 +43,7 @@ page 830 "Workflow Webhook Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the affected workflow response.';
                 }
-                field("Last Modified By User ID"; "Last Modified By User ID")
+                field("Last Modified By User ID"; Rec."Last Modified By User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user who last modified the workflow entry.';
@@ -55,7 +55,7 @@ page 830 "Workflow Webhook Entries"
                         UserMgt.DisplayUserInformation("Last Modified By User ID");
                     end;
                 }
-                field("Last Date-Time Modified"; "Last Date-Time Modified")
+                field("Last Date-Time Modified"; Rec."Last Date-Time Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the workflow entry was last modified.';
@@ -86,9 +86,6 @@ page 830 "Workflow Webhook Entries"
                 Caption = 'Cancel Re&quest';
                 Enabled = CanCancel;
                 Image = CancelApprovalRequest;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Cancel the request.';
 
                 trigger OnAction()
@@ -104,9 +101,6 @@ page 830 "Workflow Webhook Entries"
                 Caption = 'Resubmit';
                 Enabled = CanResendNotification;
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Resubmit';
 
                 trigger OnAction()
@@ -126,9 +120,6 @@ page 830 "Workflow Webhook Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Refresh';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Refresh the page.';
 
                 trigger OnAction()
@@ -141,15 +132,32 @@ page 830 "Workflow Webhook Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Record';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Open the document, journal line, or card that the Power Automate flow entry is for.';
 
                 trigger OnAction()
                 begin
-                    ShowRecord;
+                    ShowRecord();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CancelRequest_Promoted; CancelRequest)
+                {
+                }
+                actionref(Resubmit_Promoted; Resubmit)
+                {
+                }
+                actionref(Refresh_Promoted; Refresh)
+                {
+                }
+                actionref(Record_Promoted; Record)
+                {
+                }
             }
         }
     }
@@ -189,7 +197,7 @@ page 830 "Workflow Webhook Entries"
     local procedure FindWorkflowWebhookNotification(WorkflowStepInstanceID: Guid; var WorkflowWebhookNotification: Record "Workflow Webhook Notification"): Boolean
     begin
         WorkflowWebhookNotification.SetRange("Workflow Step Instance ID", WorkflowStepInstanceID);
-        exit(WorkflowWebhookNotification.FindFirst);
+        exit(WorkflowWebhookNotification.FindFirst());
     end;
 
     procedure Setfilters(RecordIDValue: RecordID)

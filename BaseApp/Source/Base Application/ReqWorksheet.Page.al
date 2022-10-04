@@ -8,7 +8,6 @@ page 291 "Req. Worksheet"
     DelayedInsert = true;
     LinksAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Drop Shipment,Special Order,Line,Item Availability by';
     SaveValues = true;
     SourceTable = "Requisition Line";
     UsageCategory = Tasks;
@@ -26,7 +25,7 @@ page 291 "Req. Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ReqJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
 
@@ -36,7 +35,7 @@ page 291 "Req. Worksheet"
                 trigger OnValidate()
                 begin
                     ReqJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
@@ -52,40 +51,53 @@ page 291 "Req. Worksheet"
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                         ShowShortcutDimCode(ShortcutDimCode);
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
+                field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for unit cost calculation in the line.';
                 }
-                field("Action Message"; "Action Message")
+                field("Action Message"; Rec."Action Message")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies an action to take to rebalance the demand-supply situation.';
                 }
-                field("Accept Action Message"; "Accept Action Message")
+                field("Accept Action Message"; Rec."Accept Action Message")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether to accept the action message proposed for the line.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the bin of the item on the line.';
@@ -96,24 +108,24 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies text that describes the entry.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
                 }
-                field("Original Quantity"; "Original Quantity")
+                field("Original Quantity"; Rec."Original Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity stated on the production or purchase order, when an action message proposes to change the quantity on an order.';
@@ -123,17 +135,17 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of units of the item or resource specified on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Planning;
                     AssistEdit = true;
@@ -142,36 +154,36 @@ page 291 "Req. Worksheet"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                     Visible = false;
                 }
-                field("Original Due Date"; "Original Due Date")
+                field("Original Due Date"; Rec."Original Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the due date stated on the production or purchase order, when an action message proposes to reschedule an order.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when the related order was created.';
                     Visible = false;
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
@@ -182,36 +194,36 @@ page 291 "Req. Worksheet"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Order Address Code"; "Order Address Code")
+                field("Order Address Code"; Rec."Order Address Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the order address of the related vendor.';
                     Visible = false;
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the customer.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the related production order.';
                     Visible = false;
                 }
-                field("Requester ID"; "Requester ID")
+                field("Requester ID"; Rec."Requester ID")
                 {
                     ApplicationArea = Planning;
                     LookupPageID = "User Lookup";
@@ -224,13 +236,13 @@ page 291 "Req. Worksheet"
                     ToolTip = 'Specifies whether the items on the line have been approved for purchase.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -320,42 +332,42 @@ page 291 "Req. Worksheet"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Ref. Order No."; "Ref. Order No.")
+                field("Ref. Order No."; Rec."Ref. Order No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the relevant production or purchase order.';
                     Visible = false;
                 }
-                field("Ref. Order Type"; "Ref. Order Type")
+                field("Ref. Order Type"; Rec."Ref. Order Type")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the order is a purchase order, a production order, or a transfer order.';
                     Visible = false;
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies which kind of order to use to create replenishment orders and order proposals.';
                 }
-                field("Supply From"; "Supply From")
+                field("Supply From"; Rec."Supply From")
                 {
                     ApplicationArea = Planning;
                     Visible = false;
                     ToolTip = 'Specifies a value, according to the selected replenishment system, before a supply order can be created for the line.';
                 }
-                field("Ref. Line No."; "Ref. Line No.")
+                field("Ref. Line No."; Rec."Ref. Line No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the purchase or production order line.';
                     Visible = false;
                 }
-                field("Planning Flexibility"; "Planning Flexibility")
+                field("Planning Flexibility"; Rec."Planning Flexibility")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
                     Visible = false;
                 }
-                field("Blanket Purch. Order Exists"; "Blanket Purch. Order Exists")
+                field("Blanket Purch. Order Exists"; Rec."Blanket Purch. Order Exists")
                 {
                     ApplicationArea = Planning;
                     BlankZero = true;
@@ -418,9 +430,6 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Planning;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = false;
                     RunObject = Codeunit "Req. Wksh.-Show Card";
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the item or resource.';
@@ -434,13 +443,11 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Event';
                         Image = "Event";
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -448,13 +455,11 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Period';
                         Image = Period;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'Show the projected quantity of the item over time according to time periods, such as day, week, or month.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -462,13 +467,11 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Variant';
                         Image = ItemVariant;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -477,13 +480,11 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Location;
                         Caption = 'Location';
                         Image = Warehouse;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View the actual and projected quantity of the item per location.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -502,30 +503,31 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Assembly;
                         Caption = 'BOM Level';
                         Image = BOMLevel;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
+#if not CLEAN21
                     action(Timeline)
                     {
                         ApplicationArea = Planning;
                         Caption = 'Timeline';
                         Image = Timeline;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
+                        ObsoleteTag = '21.0';
 
                         trigger OnAction()
                         begin
                             ShowTimeline(Rec);
                         end;
                     }
+#endif                
                 }
                 action(Dimensions)
                 {
@@ -533,16 +535,13 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -550,9 +549,6 @@ page 291 "Req. Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
@@ -575,9 +571,6 @@ page 291 "Req. Worksheet"
                     Caption = 'Calculate Plan';
                     Ellipsis = true;
                     Image = CalculatePlan;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Use a batch job to help you calculate a supply plan for items and stockkeeping units that have the Replenishment System field set to Purchase or Transfer.';
 
                     trigger OnAction()
@@ -599,8 +592,6 @@ page 291 "Req. Worksheet"
                         Caption = 'Get &Sales Orders';
                         Ellipsis = true;
                         Image = "Order";
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ToolTip = 'Copy sales lines to the requisition worksheet. You can use the batch job to create requisition worksheet proposal lines from sales lines for drop shipments or special orders.';
 
                         trigger OnAction()
@@ -617,8 +608,6 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Sales &Order';
                         Image = Document;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         Enabled = "Sales Order No." <> '';
                         ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
@@ -642,8 +631,6 @@ page 291 "Req. Worksheet"
                         Caption = 'Get &Sales Orders';
                         Ellipsis = true;
                         Image = "Order";
-                        Promoted = true;
-                        PromotedCategory = Category5;
                         ToolTip = 'Copy sales lines to the requisition worksheet. You can use the batch job to create requisition worksheet proposal lines from sales lines for drop shipments or special orders.';
 
                         trigger OnAction()
@@ -660,8 +647,6 @@ page 291 "Req. Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Sales &Order';
                         Image = Document;
-                        Promoted = true;
-                        PromotedCategory = Category5;
                         Enabled = "Sales Order No." <> '';
                         ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
@@ -682,14 +667,11 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Reservation;
                     Caption = '&Reserve';
                     Image = Reserve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reserve one or more units of the item on the job planning line, either from inventory or from incoming supply.';
 
                     trigger OnAction()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowReservation();
                     end;
                 }
@@ -699,9 +681,6 @@ page 291 "Req. Worksheet"
                     Caption = 'Carry &Out Action Message';
                     Ellipsis = true;
                     Image = CarryOutActionMessage;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
 
                     trigger OnAction()
@@ -721,9 +700,6 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Planning;
                     Caption = 'Order &Tracking';
                     Image = OrderTracking;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
 
                     trigger OnAction()
@@ -743,8 +719,6 @@ page 291 "Req. Worksheet"
                 ApplicationArea = Planning;
                 Caption = 'Inventory Availability';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Inventory Availability";
                 ToolTip = 'View, print, or save a summary of historical inventory transactions with selected items, for example, to decide when to purchase the items. The report specifies quantity on sales order, quantity on purchase order, back orders from vendors, minimum inventory, and whether there are reorders.';
             }
@@ -753,8 +727,6 @@ page 291 "Req. Worksheet"
                 ApplicationArea = Planning;
                 Caption = 'Status';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report Status;
                 ToolTip = 'View the status of the worksheet.';
             }
@@ -763,8 +735,6 @@ page 291 "Req. Worksheet"
                 ApplicationArea = Planning;
                 Caption = 'Inventory - Availability Plan';
                 Image = ItemAvailability;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Inventory - Availability Plan";
                 ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
@@ -773,7 +743,6 @@ page 291 "Req. Worksheet"
                 ApplicationArea = Planning;
                 Caption = 'Inventory Order Details';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Inventory Order Details";
@@ -784,10 +753,118 @@ page 291 "Req. Worksheet"
                 ApplicationArea = Planning;
                 Caption = 'Inventory Purchase Orders';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Inventory Purchase Orders";
                 ToolTip = 'View a list of items on order from vendors. It also shows the expected receipt date and the quantity and amount on back orders. The report can be used, for example, to see when items should be received and whether a reminder of a back order should be issued.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CarryOutActionMessage_Promoted; CarryOutActionMessage)
+                {
+                }
+                actionref(CalculatePlan_Promoted; CalculatePlan)
+                {
+                }
+                actionref(Reserve_Promoted; Reserve)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Drop Shipment', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Get &Sales Orders_Promoted"; "Get &Sales Orders")
+                {
+                }
+                actionref("Sales &Order_Promoted"; "Sales &Order")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Special Order', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Action53_Promoted; Action53)
+                {
+                }
+                actionref(Action75_Promoted; Action75)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("Order &Tracking_Promoted"; "Order &Tracking")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Item Availability by', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Event_Promoted; "Event")
+                {
+                }
+                actionref(Location_Promoted; Location)
+                {
+                }
+                actionref(Period_Promoted; Period)
+                {
+                }
+                actionref("BOM Level_Promoted"; "BOM Level")
+                {
+                }
+                actionref(Variant_Promoted; Variant)
+                {
+                }
+                actionref(Lot_Promoted; Lot)
+                {
+                }
+#if not CLEAN21
+                actionref(Timeline_Promoted; Timeline)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Inventory Availability_Promoted"; "Inventory Availability")
+                {
+                }
+                actionref(Status_Promoted; Status)
+                {
+                }
+                actionref("Inventory - Availability Plan_Promoted"; "Inventory - Availability Plan")
+                {
+                }
+                actionref("Inventory Purchase Orders_Promoted"; "Inventory Purchase Orders")
+                {
+                }
             }
         }
     }
@@ -798,8 +875,12 @@ page 291 "Req. Worksheet"
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record "Item";
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -838,15 +919,16 @@ page 291 "Req. Worksheet"
     var
         SalesHeader: Record "Sales Header";
         GetSalesOrder: Report "Get Sales Orders";
-        CalculatePlan: Report "Calculate Plan - Req. Wksh.";
         ReqJnlManagement: Codeunit ReqJnlManagement;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ChangeExchangeRate: Page "Change Exchange Rate";
         SalesOrder: Page "Sales Order";
         ExtendedPriceEnabled: Boolean;
+        VariantCodeMandatory: Boolean;
         OpenedFromBatch: Boolean;
 
     protected var
+        CalculatePlan: Report "Calculate Plan - Req. Wksh.";
         CurrentJnlBatchName: Code[10];
         Description2: Text[100];
         BuyFromVendorName: Text[100];
@@ -854,7 +936,7 @@ page 291 "Req. Worksheet"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ReqJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

@@ -12,10 +12,12 @@ codeunit 104030 "Upgrade Plan Permissions"
 
         SetBackupRestorePermissions();
         SetExcelExportActionPermissions();
+        SetAutomateActionPermissions();
         RemoveExtensionManagementFromPlan();
         RemoveExtensionManagementFromUsers();
         SetMonitorSensitiveFieldPermisions();
         AddFeatureDataUpdatePermissions();
+        CreateMicrosoft365Permissions();
     end;
 
     var
@@ -34,8 +36,15 @@ codeunit 104030 "Upgrade Plan Permissions"
         EditInExcelTok: Label 'Edit in Excel - View', Locked = true, MaxLength = 20;
         ExcelExportActionTok: Label 'EXCEL EXPORT ACTION', Locked = true, MaxLength = 20;
         ExcelExportActionDescriptionTxt: Label 'D365 Excel Export Action', Locked = true, MaxLength = 30;
+        AutomateExecPermissionSetTok: Label 'Automate - Exec', Locked = true, MaxLength = 20;
+        AutomateActionUserGroupTok: Label 'AUTOMATE ACTION', Locked = true;
+        AutomateActionUserGroupDescriptionTxt: Label 'Allow action Automate', Locked = true, MaxLength = 30;
         D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
         SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
+        TeamsUsersTok: Label 'TEAMS USERS', Locked = true;
+        TeamsUsersDescriptionTxt: Label 'Teams Users', Locked = true, MaxLength = 30;
+        EmployeeTok: Label 'EMPLOYEE', Locked = true;
+        LoginTok: Label 'LOGIN', Locked = true;
         CannotCreatePermissionSetLbl: Label 'Permission Set %1 is missing from this environment and cannot be created.', Locked = true;
 
     local procedure AddFeatureDataUpdatePermissions()
@@ -253,6 +262,35 @@ codeunit 104030 "Upgrade Plan Permissions"
         UserGroupPlan.Insert();
     end;
 
+    local procedure AddUserGroupToUsers(UserGroupCode: Code[20])
+    var
+        UserGroupMember: Record "User Group Member";
+    begin
+        UserGroupMember.SetCurrentKey("User Security ID", "Company Name");
+        UserGroupMember.SetFilter("User Group Code", '<>%1', UserGroupCode);
+
+        if UserGroupMember.FindSet() then
+            repeat
+                AddUserToUserGroupForCompany(UserGroupMember."User Security ID", UserGroupCode, UserGroupMember."Company Name");
+
+                if UserGroupMember."Company Name" = '' then
+                    UserGroupMember.SetFilter("User Security ID", '<>%1', UserGroupMember."User Security ID");
+            until UserGroupMember.Next() = 0;
+    end;
+
+    local procedure AddUserToUserGroupForCompany(UserSID: Guid; UserGroupCode: Code[20]; CompanyName: Text[30])
+    var
+        UserGroupMember: Record "User Group Member";
+    begin
+        if UserGroupMember.Get(UserGroupCode, UserSID, CompanyName) then
+            exit;
+
+        UserGroupMember."User Security ID" := UserSID;
+        UserGroupMember."User Group Code" := UserGroupCode;
+        UserGroupMember."Company Name" := CompanyName;
+        UserGroupMember.Insert();
+    end;
+
     local procedure SetExcelExportActionPermissions()
     var
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -310,6 +348,59 @@ codeunit 104030 "Upgrade Plan Permissions"
         AddUserGroupToPlan(ExcelExportActionTok, PlanIds.GetInfrastructurePlanId());
     end;
 
+    local procedure SetAutomateActionPermissions()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAutomateActionPermissionSetUpgradeTag()) then
+            exit;
+
+        if EnvironmentInformation.IsSaaS() then begin
+            AddAutomateActionUserGroup();
+            AddAutomateActionPermissionSetToGroup();
+            AddAutomateActionUserGroupToExistingPlans();
+            AddUserGroupToUsers(AutomateActionUserGroupTok);
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAutomateActionPermissionSetUpgradeTag());
+    end;
+
+    local procedure AddAutomateActionUserGroup();
+    begin
+        InsertUserGroup(AutomateActionUserGroupTok, AutomateActionUserGroupDescriptionTxt, true);
+    end;
+
+    local procedure AddAutomateActionPermissionSetToGroup();
+    begin
+        AddPermissionSetToUserGroup(AutomateExecPermissionSetTok, AutomateActionUserGroupTok);
+    end;
+
+    local procedure AddAutomateActionUserGroupToExistingPlans();
+    var
+        PlanIds: Codeunit "Plan Ids";
+    begin
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetBasicPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetTeamMemberPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetEssentialPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetPremiumPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetViralSignupPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetExternalAccountantPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetDelegatedAdminPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetInternalAdminPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetTeamMemberISVPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetEssentialISVPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetPremiumISVPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetDeviceISVPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetDevicePlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetBasicFinancialsISVPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetAccountantHubPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetHelpDeskPlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetInfrastructurePlanId());
+        AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetPremiumPartnerSandboxPlanId());
+    end;
+
     local procedure SetMonitorSensitiveFieldPermisions()
     var
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -329,5 +420,49 @@ codeunit 104030 "Upgrade Plan Permissions"
     begin
         AddPermissionSetToUserGroup(CopyStr(D365MonitorFieldsTxt, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
            CopyStr(SecurityUserGroupTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+    end;
+
+    local procedure CreateMicrosoft365Permissions()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PlanIds: Codeunit "Plan Ids";
+    begin
+
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetTeamsUsersUserGroupUpgradeTag()) then
+            exit;
+
+        // Insert TEAMS USERS user group and add it to the plan
+        InsertUserGroup(TeamsUsersTok, TeamsUsersDescriptionTxt, false);
+        UpdateUserGroupProfile(TeamsUsersTok, Page::"Blank Role Center");
+        AddUserGroupToPlan(TeamsUsersTok, PlanIds.GetMicrosoft365PlanId());
+
+        // Add LOGIN permission sets to TEAMS USERS user group
+        AddPermissionSetToUserGroup(CopyStr(LoginTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
+            CopyStr(TeamsUsersTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetTeamsUsersUserGroupUpgradeTag());
+    end;
+
+    local procedure UpdateUserGroupProfile(UserGroupCode: Code[20]; RoleCenterId: Integer)
+    var
+        AllProfile: Record "All Profile";
+        UserGroup: Record "User Group";
+    begin
+        // Both Teams Users and Blank profile uses Blank Role Center. So we need to get the profile by Profile ID explicitly. Rest we can find by role center id.
+        If (UserGroupCode = TeamsUsersTok) then begin
+            AllProfile.SetRange("Profile ID", EmployeeTok);
+            AllProfile.FindFirst();
+        end else begin
+            AllProfile.SetRange("Role Center ID", RoleCenterId);
+            AllProfile.FindFirst();
+        end;
+
+        UserGroup.Get(UserGroupCode);
+        UserGroup."Default Profile ID" := AllProfile."Profile ID";
+        UserGroup."Default Profile App ID" := AllProfile."App ID";
+        UserGroup."Default Profile Scope" := AllProfile.Scope;
+        UserGroup.Modify();
     end;
 }

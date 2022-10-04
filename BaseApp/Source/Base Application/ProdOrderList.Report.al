@@ -15,7 +15,7 @@ report 99000763 "Prod. Order - List"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Production_Order__TABLECAPTION_________ProdOrderFilter; TableCaption + ':' + ProdOrderFilter)
@@ -90,7 +90,7 @@ report 99000763 "Prod. Order - List"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
             end;
         }
     }

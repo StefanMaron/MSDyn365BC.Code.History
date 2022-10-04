@@ -32,7 +32,7 @@ table 7325 "Whse. Pick Request"
 
             trigger OnLookup()
             begin
-                LookupDocumentNo;
+                LookupDocumentNo();
             end;
         }
         field(4; "Location Code"; Code[10])

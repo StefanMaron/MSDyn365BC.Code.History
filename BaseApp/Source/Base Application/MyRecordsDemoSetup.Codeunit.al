@@ -29,16 +29,16 @@ codeunit 280 "My Records Demo Setup"
         if not CompanyInformationMgt.IsDemoCompany() then
             exit;
 
-        if SetupMyCustomer then
+        if SetupMyCustomer() then
             exit;
 
-        if SetupMyItem then
+        if SetupMyItem() then
             exit;
 
-        if SetupMyVendor then
+        if SetupMyVendor() then
             exit;
 
-        SetupMyAccount;
+        SetupMyAccount();
     end;
 
     local procedure SetupMyCustomer(): Boolean

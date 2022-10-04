@@ -445,7 +445,7 @@ page 9295 "Work Ctr. Grp. Calendar Matrix"
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
     begin
         SetDateFilter(MATRIX_ColumnOrdinal);
-        "Capacity (Effective)" := CalculateCapacity;
+        "Capacity (Effective)" := CalculateCapacity();
         MATRIX_CellData[MATRIX_ColumnOrdinal] := "Capacity (Effective)";
     end;
 

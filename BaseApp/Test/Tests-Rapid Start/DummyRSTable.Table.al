@@ -1,6 +1,7 @@
 table 136607 DummyRSTable
 {
     DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {

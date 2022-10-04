@@ -6,7 +6,6 @@ page 99000886 "Subcontracting Worksheet"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line';
     SaveValues = true;
     SourceTable = "Requisition Line";
     UsageCategory = Tasks;
@@ -24,7 +23,7 @@ page 99000886 "Subcontracting Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ReqJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -32,7 +31,7 @@ page 99000886 "Subcontracting Worksheet"
                 trigger OnValidate()
                 begin
                     ReqJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
@@ -48,7 +47,7 @@ page 99000886 "Subcontracting Worksheet"
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -58,27 +57,27 @@ page 99000886 "Subcontracting Worksheet"
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                     end;
                 }
-                field("Accept Action Message"; "Accept Action Message")
+                field("Accept Action Message"; Rec."Accept Action Message")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies whether to accept the action message proposed for the line.';
                 }
-                field("Action Message"; "Action Message")
+                field("Action Message"; Rec."Action Message")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an action to take to rebalance the demand-supply situation.';
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
                 }
-                field("Operation No."; "Operation No.")
+                field("Operation No."; Rec."Operation No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the operation number for this routing line.';
                 }
-                field("Work Center No."; "Work Center No.")
+                field("Work Center No."; Rec."Work Center No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the work center number of the journal line.';
@@ -88,25 +87,25 @@ page 99000886 "Subcontracting Worksheet"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies text that describes the entry.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
@@ -117,12 +116,12 @@ page 99000886 "Subcontracting Worksheet"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of units of the item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
@@ -132,30 +131,30 @@ page 99000886 "Subcontracting Worksheet"
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                     end;
                 }
-                field("Order Address Code"; "Order Address Code")
+                field("Order Address Code"; Rec."Order Address Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the order address of the related vendor.';
                     Visible = false;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the customer.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Manufacturing;
                     AssistEdit = true;
@@ -166,36 +165,36 @@ page 99000886 "Subcontracting Worksheet"
                     var
                         ChangeExchangeRate: Page "Change Exchange Rate";
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the discount percentage used to calculate the purchase line discount.';
                     Visible = false;
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the order date that will apply to the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
-                field("Requester ID"; "Requester ID")
+                field("Requester ID"; Rec."Requester ID")
                 {
                     ApplicationArea = Manufacturing;
                     LookupPageID = "User Lookup";
@@ -268,8 +267,6 @@ page 99000886 "Subcontracting Worksheet"
                     ApplicationArea = Manufacturing;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Codeunit "Req. Wksh.-Show Card";
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
@@ -279,8 +276,6 @@ page 99000886 "Subcontracting Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
@@ -295,15 +290,13 @@ page 99000886 "Subcontracting Worksheet"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -320,8 +313,6 @@ page 99000886 "Subcontracting Worksheet"
                     Caption = 'Calculate Subcontracts';
                     Ellipsis = true;
                     Image = Calculate;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Calculate the external work centers that are managed by a supplier under contract.';
 
                     trigger OnAction()
@@ -338,8 +329,6 @@ page 99000886 "Subcontracting Worksheet"
                     Caption = 'Carry &Out Action Message';
                     Ellipsis = true;
                     Image = CarryOutActionMessage;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
 
                     trigger OnAction()
@@ -347,6 +336,44 @@ page 99000886 "Subcontracting Worksheet"
                         CarryOutActionMsg();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Calculate Subcontracts_Promoted"; "Calculate Subcontracts")
+                {
+                }
+                actionref(CarryOutActionMessage_Promoted; CarryOutActionMessage)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -389,7 +416,7 @@ page 99000886 "Subcontracting Worksheet"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ReqJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

@@ -15,7 +15,7 @@ report 5621 "Insurance - List"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Insurance_TABLECAPTION___________InsuranceFilter; TableCaption + ': ' + InsuranceFilter)
@@ -99,7 +99,7 @@ report 5621 "Insurance - List"
 
     trigger OnPreReport()
     begin
-        InsuranceFilter := Insurance.GetFilters;
+        InsuranceFilter := Insurance.GetFilters();
     end;
 
     var

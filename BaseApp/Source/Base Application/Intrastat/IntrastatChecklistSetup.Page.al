@@ -14,7 +14,7 @@ page 8451 "Intrastat Checklist Setup"
         {
             repeater(Group)
             {
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
@@ -24,16 +24,16 @@ page 8451 "Intrastat Checklist Setup"
                     var
                         ClientTypeManagement: Codeunit "Client Type Management";
                     begin
-                        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
-                            LookupFieldName;
+                        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
+                            LookupFieldName();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         ClientTypeManagement: Codeunit "Client Type Management";
                     begin
-                        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows then
-                            LookupFieldName;
+                        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows then
+                            LookupFieldName();
                     end;
                 }
             }

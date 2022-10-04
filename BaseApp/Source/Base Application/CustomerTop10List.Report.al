@@ -21,21 +21,21 @@ report 111 "Customer - Top 10 List"
                 CalcFields("Sales (LCY)", "Balance (LCY)");
                 if ("Sales (LCY)" = 0) and ("Balance (LCY)" = 0) then
                     CurrReport.Skip();
-                CustAmount.Init();
-                CustAmount."Customer No." := "No.";
+                TempCustomerAmount.Init();
+                TempCustomerAmount."Customer No." := "No.";
                 if ShowType = ShowType::"Sales (LCY)" then begin
-                    CustAmount."Amount (LCY)" := -"Sales (LCY)";
-                    CustAmount."Amount 2 (LCY)" := -"Balance (LCY)";
+                    TempCustomerAmount."Amount (LCY)" := -"Sales (LCY)";
+                    TempCustomerAmount."Amount 2 (LCY)" := -"Balance (LCY)";
                 end else begin
-                    CustAmount."Amount (LCY)" := -"Balance (LCY)";
-                    CustAmount."Amount 2 (LCY)" := -"Sales (LCY)";
+                    TempCustomerAmount."Amount (LCY)" := -"Balance (LCY)";
+                    TempCustomerAmount."Amount 2 (LCY)" := -"Sales (LCY)";
                 end;
-                CustAmount.Insert();
+                TempCustomerAmount.Insert();
                 if (NoOfRecordsToPrint = 0) or (i < NoOfRecordsToPrint) then
                     i := i + 1
                 else begin
-                    CustAmount.Find('+');
-                    CustAmount.Delete();
+                    TempCustomerAmount.Find('+');
+                    TempCustomerAmount.Delete();
                 end;
 
                 TotalSales += "Sales (LCY)";
@@ -48,7 +48,7 @@ report 111 "Customer - Top 10 List"
             begin
                 Window.Open(Text000);
                 i := 0;
-                CustAmount.DeleteAll();
+                TempCustomerAmount.DeleteAll();
             end;
         }
         dataitem("Integer"; "Integer")
@@ -57,7 +57,7 @@ report 111 "Customer - Top 10 List"
             column(SortingCustomersCustDateFilter; StrSubstNo(Text001, CustDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(RankedAccordingShowType; StrSubstNo(Text002, SelectStr(ShowType + 1, Text004)))
@@ -116,22 +116,22 @@ report 111 "Customer - Top 10 List"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not CustAmount.Find('-') then
+                    if not TempCustomerAmount.Find('-') then
                         CurrReport.Break();
                 end else
-                    if CustAmount.Next() = 0 then
+                    if TempCustomerAmount.Next() = 0 then
                         CurrReport.Break();
-                CustAmount."Amount (LCY)" := -CustAmount."Amount (LCY)";
-                Customer.Get(CustAmount."Customer No.");
+                TempCustomerAmount."Amount (LCY)" := -TempCustomerAmount."Amount (LCY)";
+                Customer.Get(TempCustomerAmount."Customer No.");
                 Customer.CalcFields("Sales (LCY)", "Balance (LCY)");
                 if MaxAmount = 0 then
-                    MaxAmount := CustAmount."Amount (LCY)";
-                CustAmount."Amount (LCY)" := -CustAmount."Amount (LCY)";
+                    MaxAmount := TempCustomerAmount."Amount (LCY)";
+                TempCustomerAmount."Amount (LCY)" := -TempCustomerAmount."Amount (LCY)";
             end;
 
             trigger OnPreDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
         }
     }
@@ -207,10 +207,7 @@ report 111 "Customer - Top 10 List"
     end;
 
     var
-        Text000: Label 'Sorting customers    #1##########';
-        Text001: Label 'Period: %1';
-        Text002: Label 'Ranked according to %1';
-        CustAmount: Record "Customer Amount" temporary;
+        TempCustomerAmount: Record "Customer Amount" temporary;
         Window: Dialog;
         CustFilter: Text;
         CustDateFilter: Text;
@@ -219,13 +216,17 @@ report 111 "Customer - Top 10 List"
         MaxAmount: Decimal;
         i: Integer;
         TotalSales: Decimal;
-        Text004: Label 'Sales (LCY),Balance (LCY)';
         TotalBalance: Decimal;
         ChartType: Option "Bar chart","Pie chart";
         ChartTypeNo: Integer;
         ShowTypeNo: Integer;
         [InDataSet]
         ChartTypeVisible: Boolean;
+
+        Text000: Label 'Sorting customers    #1##########';
+        Text001: Label 'Period: %1';
+        Text002: Label 'Ranked according to %1';
+        Text004: Label 'Sales (LCY),Balance (LCY)';
         CustomerTop10ListCaptionLbl: Label 'Customer - Top 10 List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';

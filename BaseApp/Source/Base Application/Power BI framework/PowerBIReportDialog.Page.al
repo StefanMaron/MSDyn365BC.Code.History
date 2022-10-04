@@ -22,27 +22,12 @@ page 6305 "Power BI Report Dialog"
                 var
                     LoadReportMessage: Text;
                 begin
-#if not CLEAN18
-                    if LegacyPostMessage <> '' then begin
-                        CurrPage.WebPageViewer.PostMessage(LegacyPostMessage, '*', false);
-                        exit;
-                    end;
-#endif
                     PowerBIEmbedHelper.TryGetLoadReportMessage(LoadReportMessage);
                     CurrPage.WebPageViewer.PostMessage(LoadReportMessage, PowerBIEmbedHelper.TargetOrigin(), false)
                 end;
 
                 trigger Callback(data: Text)
                 begin
-#if not CLEAN18
-                    if LegacyFilterPostMessage <> '' then begin
-                        if StrPos(data, 'reportPageLoaded') > 0 then begin
-                            CurrPage.WebPageViewer.PostMessage(LegacyFilterPostMessage, '*', true);
-                            CurrPage.WebPageViewer.PostMessage(ReportPageMessage, '*', true);
-                        end;
-                        exit;
-                    end;
-#endif
                     HandleAddinCallback(data);
                 end;
 
@@ -60,29 +45,9 @@ page 6305 "Power BI Report Dialog"
     var
         PowerBIEmbedHelper: Codeunit "Power BI Embed Helper";
         EmbedUrl: Text;
-#if not CLEAN18
-        LegacyPostMessage: Text;  // For backwards compatibility only, remove with SetUrl
-        LegacyFilterPostMessage: Text; // For backwards compatibility only, remove with SetFilter
-#endif
         LatestReceivedFilterInfo: Text;
         CurrentListSelection: Text;
         ReportPageMessage: Text;
-
-#if not CLEAN18
-    [Obsolete('Use SetReportUrl instead', '18.0')]
-    procedure SetUrl(Url: Text; Message: Text)
-    begin
-        EmbedUrl := Url;
-        LegacyPostMessage := Message;
-    end;
-
-    [Obsolete('Use SetFilterValue instead (pass as first parameter the filter value instead of the post message).', '18.0')]
-    procedure SetFilter(filterMessage: Text; firstpage: Text)
-    begin
-        LegacyFilterPostMessage := filterMessage;
-        ReportPageMessage := firstpage;
-    end;
-#endif
 
     procedure SetReportUrl(Url: Text)
     begin

@@ -105,7 +105,7 @@ table 1520 "Workflow Event"
                 exit(false);
 
         FilterPageBuilder.PageCaption := StrSubstNo(EventConditionsCaptionTxt, Description);
-        if not FilterPageBuilder.RunModal then
+        if not FilterPageBuilder.RunModal() then
             exit(false);
 
         ReturnFilters :=
@@ -154,7 +154,7 @@ table 1520 "Workflow Event"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        if not HasPredecessors then
+        if not HasPredecessors() then
             exit;
 
         WFEventResponseCombination.MakeEventResponseIndependent(WFEventResponseCombination.Type::"Event", "Function Name");

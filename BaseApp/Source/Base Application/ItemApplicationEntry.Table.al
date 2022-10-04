@@ -112,15 +112,16 @@ table 339 "Item Application Entry"
     }
 
     var
-        Text001: Label 'You have to run the %1 batch job, before you can revalue %2 %3.';
         TempVisitedItemApplnEntry: Record "Item Application Entry" temporary;
-        ItemLedgEntryInChainNo: Record "Integer" temporary;
+        TempItemLedgEntryInChainNo: Record "Integer" temporary;
         TrackChain: Boolean;
         MaxValuationDate: Date;
 
+        Text001: Label 'You have to run the %1 batch job, before you can revalue %2 %3.';
+
     procedure AppliedOutbndEntryExists(InbndItemLedgEntryNo: Integer; CostApplication: Boolean; FilterOnOnlyCostNotAdjusted: Boolean): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey(
           "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application");
         SetRange("Inbound Item Entry No.", InbndItemLedgEntryNo);
@@ -132,28 +133,28 @@ table 339 "Item Application Entry"
         if FilterOnOnlyCostNotAdjusted then
             SetRange("Outbound Entry is Updated", false);
 
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure AppliedInbndTransEntryExists(InbndItemLedgEntryNo: Integer; CostApplication: Boolean): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.");
         SetRange("Inbound Item Entry No.", InbndItemLedgEntryNo);
         if IsEmpty() then
             exit(false);
 
-        Reset;
+        Reset();
         SetCurrentKey("Transferred-from Entry No.", "Cost Application");
         SetRange("Transferred-from Entry No.", InbndItemLedgEntryNo);
         if CostApplication then
             SetRange("Cost Application", true);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure AppliedInbndEntryExists(OutbndItemLedgEntryNo: Integer; CostApplication: Boolean): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey(
           "Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application", "Transferred-from Entry No.");
         SetRange("Outbound Item Entry No.", OutbndItemLedgEntryNo);
@@ -161,16 +162,16 @@ table 339 "Item Application Entry"
         SetRange("Transferred-from Entry No.", 0);
         if CostApplication then
             SetRange("Cost Application", true);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure AppliedFromEntryExists(InbndItemLedgEntryNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.");
         SetFilter("Outbound Item Entry No.", '<>%1', 0);
         SetRange("Item Ledger Entry No.", InbndItemLedgEntryNo);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure GetInboundEntriesTheOutbndEntryAppliedTo(OutbndItemLedgEntryNo: Integer): Boolean
@@ -205,7 +206,7 @@ table 339 "Item Application Entry"
                     Error(
                       Text001,
                       ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Adjust Cost - Item Entries"),
-                      OutbndItemLedgEntry.TableCaption, InbndItemLedgEntryNo);
+                      OutbndItemLedgEntry.TableCaption(), InbndItemLedgEntryNo);
             until Next() = 0;
     end;
 
@@ -270,7 +271,7 @@ table 339 "Item Application Entry"
         if CheckItemLedgEntry."Entry No." = FromItemLedgEntry."Entry No." then
             exit(true);
         TempVisitedItemApplnEntry.DeleteAll();
-        ItemLedgEntryInChainNo.DeleteAll();
+        TempItemLedgEntryInChainNo.DeleteAll();
 
         if FromItemLedgEntry.Positive then begin
             if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, FromItemLedgEntry."Entry No.") then
@@ -314,9 +315,9 @@ table 339 "Item Application Entry"
         if ItemLedgEntry.FindSet() then
             repeat
                 if TrackChain then
-                    if not ItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
-                        ItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
-                        ItemLedgEntryInChainNo.Insert();
+                    if not TempItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
+                        TempItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
+                        TempItemLedgEntryInChainNo.Insert();
                     end;
 
                 if ItemLedgEntry."Entry No." = CheckItemLedgEntry."Entry No." then
@@ -352,9 +353,9 @@ table 339 "Item Application Entry"
         if ItemLedgEntry.FindSet() then
             repeat
                 if TrackChain then
-                    if not ItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
-                        ItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
-                        ItemLedgEntryInChainNo.Insert();
+                    if not TempItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
+                        TempItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
+                        TempItemLedgEntryInChainNo.Insert();
                     end;
 
                 if ItemLedgEntry."Entry No." = CheckItemLedgEntry."Entry No." then
@@ -427,9 +428,9 @@ table 339 "Item Application Entry"
 
             if CheckLatestItemLedgEntryValuationDate(ItemApplnEntry."Item Ledger Entry No.", MaxValuationDate) then begin
                 if TrackChain then
-                    if not ItemLedgEntryInChainNo.Get(ToEntryNo) then begin
-                        ItemLedgEntryInChainNo.Number := ToEntryNo;
-                        ItemLedgEntryInChainNo.Insert();
+                    if not TempItemLedgEntryInChainNo.Get(ToEntryNo) then begin
+                        TempItemLedgEntryInChainNo.Number := ToEntryNo;
+                        TempItemLedgEntryInChainNo.Insert();
                     end;
 
                 if ToEntryNo = CheckItemLedgEntry."Entry No." then
@@ -455,13 +456,13 @@ table 339 "Item Application Entry"
                 if Quantity = 2 then
                     exit(true);
                 Quantity := Quantity + 1;
-                Modify;
+                Modify();
                 exit(false);
             end;
-            Init;
+            Init();
             "Entry No." := EntryNo;
             Quantity := Quantity + 1;
-            Insert;
+            Insert();
             exit(false);
         end;
     end;
@@ -494,12 +495,12 @@ table 339 "Item Application Entry"
         DummyItemLedgEntry.Init();
         DummyItemLedgEntry."Entry No." := -1;
         CheckIsCyclicalLoop(DummyItemLedgEntry, FromItemLedgEntry);
-        if ItemLedgEntryInChainNo.FindSet() then
+        if TempItemLedgEntryInChainNo.FindSet() then
             repeat
-                ToItemLedgEntry.Get(ItemLedgEntryInChainNo.Number);
+                ToItemLedgEntry.Get(TempItemLedgEntryInChainNo.Number);
                 ItemLedgEntryInChain := ToItemLedgEntry;
                 ItemLedgEntryInChain.Insert();
-            until ItemLedgEntryInChainNo.Next() = 0;
+            until TempItemLedgEntryInChainNo.Next() = 0;
     end;
 
     procedure OutboundApplied(EntryNo: Integer; SameType: Boolean): Decimal
@@ -525,7 +526,7 @@ table 339 "Item Application Entry"
                             Quantity := Quantity + Applications.Quantity
                     end else
                         Quantity := Quantity + Applications.Quantity;
-            until Applications.Next <= 0;
+            until Applications.Next() <= 0;
         exit(Quantity);
     end;
 
@@ -616,14 +617,14 @@ table 339 "Item Application Entry"
 
     procedure IsAppliedFromIncrease(InbndItemLedgEntryNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey(
           "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application");
         SetRange("Inbound Item Entry No.", InbndItemLedgEntryNo);
         SetRange("Item Ledger Entry No.", InbndItemLedgEntryNo);
         SetFilter("Outbound Item Entry No.", '<>%1', 0);
         SetRange("Cost Application", true);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure IsOutbndItemApplEntryCostApplication(OutboundItemLedgEntryNo: Integer): Boolean

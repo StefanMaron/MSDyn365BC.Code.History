@@ -12,17 +12,17 @@ page 6505 "Lot No. Information Card"
             group(General)
             {
                 Caption = 'General';
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies this number from the Tracking Specification table when a lot number information record is created.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies this number from the Tracking Specification table when a lot number information record is created.';
@@ -32,12 +32,12 @@ page 6505 "Lot No. Information Card"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a description of the lot no. information record.';
                 }
-                field("Test Quality"; "Test Quality")
+                field("Test Quality"; Rec."Test Quality")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the quality of a given lot if you have inspected the items.';
                 }
-                field("Certificate Number"; "Certificate Number")
+                field("Certificate Number"; Rec."Certificate Number")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number provided by the supplier to indicate that the batch or lot meets the specified requirements.';
@@ -56,7 +56,7 @@ page 6505 "Lot No. Information Card"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the inventory quantity of the specified lot number.';
                 }
-                field("Expired Inventory"; "Expired Inventory")
+                field("Expired Inventory"; Rec."Expired Inventory")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the inventory of the lot number with an expiration date before the posting date on the associated document.';
@@ -135,7 +135,7 @@ page 6505 "Lot No. Information Card"
                         ItemTracingBuffer.SetRange("Variant Code", "Variant Code");
                         ItemTracingBuffer.SetRange("Lot No.", "Lot No.");
                         ItemTracing.InitFilters(ItemTracingBuffer);
-                        ItemTracing.FindRecords;
+                        ItemTracing.FindRecords();
                         ItemTracing.RunModal();
                     end;
                 }
@@ -168,13 +168,13 @@ page 6505 "Lot No. Information Card"
                         ShowRecords.SetRange("Variant Code", "Variant Code");
 
                         FocusOnRecord.Copy(ShowRecords);
-                        FocusOnRecord.SetRange("Lot No.", TrackingSpec."Lot No.");
+                        FocusOnRecord.SetRange("Lot No.", TrackingSpecification."Lot No.");
 
                         LotNoInfoList.SetTableView(ShowRecords);
 
                         if FocusOnRecord.FindFirst() then
                             LotNoInfoList.SetRecord(FocusOnRecord);
-                        if LotNoInfoList.RunModal = ACTION::LookupOK then begin
+                        if LotNoInfoList.RunModal() = ACTION::LookupOK then begin
                             LotNoInfoList.GetRecord(SelectedRecord);
                             ItemTrackingMgt.CopyLotNoInformation(SelectedRecord, "Lot No.");
                         end;
@@ -186,8 +186,6 @@ page 6505 "Lot No. Information Card"
                 ApplicationArea = ItemTracking;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -202,6 +200,17 @@ page 6505 "Lot No. Information Card"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -212,23 +221,25 @@ page 6505 "Lot No. Information Card"
     end;
 
     var
-        TrackingSpec: Record "Tracking Specification";
         ShowButtonFunctions: Boolean;
         [InDataSet]
         ButtonFunctionsVisible: Boolean;
 
-    procedure Init(CurrentTrackingSpec: Record "Tracking Specification")
+    protected var
+        TrackingSpecification: Record "Tracking Specification";
+
+    procedure Init(CurrentTrackingSpecification: Record "Tracking Specification")
     begin
-        TrackingSpec := CurrentTrackingSpec;
+        TrackingSpecification := CurrentTrackingSpecification;
         ShowButtonFunctions := true;
     end;
 
-    procedure InitWhse(CurrentTrackingSpec: Record "Whse. Item Tracking Line")
+    procedure InitWhse(CurrentTrackingSpecification: Record "Whse. Item Tracking Line")
     begin
-        TrackingSpec."Lot No." := CurrentTrackingSpec."Lot No.";
+        TrackingSpecification."Lot No." := CurrentTrackingSpecification."Lot No.";
         ShowButtonFunctions := true;
 
-        OnAfterInitWhse(TrackingSpec, CurrentTrackingSpec);
+        OnAfterInitWhse(TrackingSpecification, CurrentTrackingSpecification);
     end;
 
     [IntegrationEvent(false, false)]

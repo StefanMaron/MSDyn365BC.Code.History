@@ -17,7 +17,7 @@ page 5189 "Create Rating"
                 Caption = 'Step 3';
                 InstructionalText = 'Please specify the range of points required to get the different answer options.';
                 Visible = Step3Visible;
-                field(GetProfileLineAnswerDesc; GetProfileLineAnswerDesc)
+                field(GetProfileLineAnswerDesc; GetProfileLineAnswerDesc())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Please select one of the options below to specify the points your contact must earn in order to receive this rating.';
@@ -27,7 +27,7 @@ page 5189 "Create Rating"
                 group(Control3)
                 {
                     ShowCaption = false;
-                    field("Interval Option"; "Interval Option")
+                    field("Interval Option"; Rec."Interval Option")
                     {
                         ApplicationArea = RelationshipMgmt;
                         ValuesAllowed = Interval;
@@ -35,10 +35,10 @@ page 5189 "Create Rating"
                         trigger OnValidate()
                         begin
                             if "Interval Option" = "Interval Option"::Interval then
-                                IntervalIntervalOptionOnValida;
+                                IntervalIntervalOptionOnValida();
                         end;
                     }
-                    field("Wizard From Value"; "Wizard From Value")
+                    field("Wizard From Value"; Rec."Wizard From Value")
                     {
                         ApplicationArea = RelationshipMgmt;
                         BlankZero = true;
@@ -46,7 +46,7 @@ page 5189 "Create Rating"
                         DecimalPlaces = 0 :;
                         Enabled = WizardFromValueEnable;
                     }
-                    field("Wizard To Value"; "Wizard To Value")
+                    field("Wizard To Value"; Rec."Wizard To Value")
                     {
                         ApplicationArea = RelationshipMgmt;
                         BlankZero = true;
@@ -58,7 +58,7 @@ page 5189 "Create Rating"
                 group(Control32)
                 {
                     ShowCaption = false;
-                    field("Interval Option2"; "Interval Option")
+                    field("Interval Option2"; Rec."Interval Option")
                     {
                         ApplicationArea = RelationshipMgmt;
                         ValuesAllowed = Minimum;
@@ -66,7 +66,7 @@ page 5189 "Create Rating"
                         trigger OnValidate()
                         begin
                             if "Interval Option" = "Interval Option"::Minimum then
-                                MinimumIntervalOptionOnValidat;
+                                MinimumIntervalOptionOnValidat();
                         end;
                     }
                     field(Minimum; "Wizard From Value")
@@ -81,7 +81,7 @@ page 5189 "Create Rating"
                 group(Control33)
                 {
                     ShowCaption = false;
-                    field("Interval Option3"; "Interval Option")
+                    field("Interval Option3"; Rec."Interval Option")
                     {
                         ApplicationArea = RelationshipMgmt;
                         ValuesAllowed = Maximum;
@@ -89,7 +89,7 @@ page 5189 "Create Rating"
                         trigger OnValidate()
                         begin
                             if "Interval Option" = "Interval Option"::Maximum then
-                                MaximumIntervalOptionOnValidat;
+                                MaximumIntervalOptionOnValidat();
                         end;
                     }
                     field(Maximum; "Wizard To Value")
@@ -107,7 +107,7 @@ page 5189 "Create Rating"
                 Caption = 'Step 1';
                 InstructionalText = 'This wizard helps you define the methods you will use to rate your contacts.';
                 Visible = Step1Visible;
-                field("Profile Questionnaire Code"; "Profile Questionnaire Code")
+                field("Profile Questionnaire Code"; Rec."Profile Questionnaire Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'For which questionnaire should this rating be created';
@@ -119,7 +119,7 @@ page 5189 "Create Rating"
                     Caption = 'Describe the type of rating (for example, Overall Customer Rating)';
                     MultiLine = true;
                 }
-                field("Min. % Questions Answered"; "Min. % Questions Answered")
+                field("Min. % Questions Answered"; Rec."Min. % Questions Answered")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'What percentage of questions need to be answered before a rating is assigned?';
@@ -142,7 +142,7 @@ page 5189 "Create Rating"
             {
                 Caption = 'Step 2';
                 Visible = Step2Visible;
-                field("Answer Option"; "Answer Option")
+                field("Answer Option"; Rec."Answer Option")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Specify which of the following grouping methods you will use to rate your contacts.';
@@ -151,14 +151,14 @@ page 5189 "Create Rating"
                     trigger OnValidate()
                     begin
                         if "Answer Option" = "Answer Option"::Custom then
-                            CustomAnswerOptionOnValidate;
+                            CustomAnswerOptionOnValidate();
                         if "Answer Option" = "Answer Option"::ABC then
-                            ABCAnswerOptionOnValidate;
+                            ABCAnswerOptionOnValidate();
                         if "Answer Option" = "Answer Option"::HighLow then
-                            HighLowAnswerOptionOnValidate;
+                            HighLowAnswerOptionOnValidate();
                     end;
                 }
-                field(NoOfAnswers; NoOfProfileAnswers)
+                field(NoOfAnswers; NoOfProfileAnswers())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Number of possible answers:';
@@ -166,7 +166,7 @@ page 5189 "Create Rating"
 
                     trigger OnDrillDown()
                     begin
-                        ShowAnswers;
+                        ShowAnswers();
                         CurrPage.Update();
                     end;
                 }
@@ -189,9 +189,9 @@ page 5189 "Create Rating"
                 trigger OnAction()
                 begin
                     ShowStep(false);
-                    PerformPrevWizardStatus;
+                    PerformPrevWizardStatus();
                     ShowStep(true);
-                    UpdateCntrls;
+                    UpdateCntrls();
                     CurrPage.Update(true);
                 end;
             }
@@ -205,11 +205,11 @@ page 5189 "Create Rating"
 
                 trigger OnAction()
                 begin
-                    CheckStatus;
+                    CheckStatus();
                     ShowStep(false);
-                    PerformNextWizardStatus;
+                    PerformNextWizardStatus();
                     ShowStep(true);
-                    UpdateCntrls;
+                    UpdateCntrls();
                     CurrPage.Update(true);
                 end;
             }
@@ -223,9 +223,9 @@ page 5189 "Create Rating"
 
                 trigger OnAction()
                 begin
-                    CheckStatus;
-                    FinishWizard;
-                    CurrPage.Close;
+                    CheckStatus();
+                    FinishWizard();
+                    CurrPage.Close();
                 end;
             }
         }
@@ -250,14 +250,14 @@ page 5189 "Create Rating"
 
         Validate("Auto Contact Classification", true);
         Validate("Contact Class. Field", "Contact Class. Field"::Rating);
-        Modify;
+        Modify();
 
-        ValidateAnswerOption;
-        ValidateIntervalOption;
+        ValidateAnswerOption();
+        ValidateIntervalOption();
 
         ShowStep(true);
 
-        UpdateCntrls;
+        UpdateCntrls();
     end;
 
     var
@@ -328,7 +328,7 @@ page 5189 "Create Rating"
                     FinishEnable := true;
                     NextEnable := false;
                     Step4Visible := Visible;
-                    CurrPage.SubForm.PAGE.UpdateForm;
+                    CurrPage.SubForm.PAGE.UpdateForm();
                 end;
         end;
     end;
@@ -344,39 +344,39 @@ page 5189 "Create Rating"
 
     local procedure IntervalIntervalOptionOnValida()
     begin
-        ValidateIntervalOption;
-        UpdateCntrls;
+        ValidateIntervalOption();
+        UpdateCntrls();
     end;
 
     local procedure MinimumIntervalOptionOnValidat()
     begin
-        ValidateIntervalOption;
-        UpdateCntrls
+        ValidateIntervalOption();
+        UpdateCntrls();
     end;
 
     local procedure MaximumIntervalOptionOnValidat()
     begin
-        ValidateIntervalOption;
-        UpdateCntrls
+        ValidateIntervalOption();
+        UpdateCntrls();
     end;
 
     local procedure HighLowAnswerOptionOnValidate()
     begin
-        ValidateAnswerOption;
-        UpdateCntrls;
+        ValidateAnswerOption();
+        UpdateCntrls();
     end;
 
     local procedure ABCAnswerOptionOnValidate()
     begin
-        ValidateAnswerOption;
-        UpdateCntrls;
+        ValidateAnswerOption();
+        UpdateCntrls();
     end;
 
     local procedure CustomAnswerOptionOnValidate()
     begin
-        ValidateAnswerOption;
-        ShowAnswers;
-        UpdateCntrls;
+        ValidateAnswerOption();
+        ShowAnswers();
+        UpdateCntrls();
     end;
 }
 

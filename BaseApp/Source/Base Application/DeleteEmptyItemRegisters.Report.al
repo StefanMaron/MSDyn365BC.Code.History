@@ -16,14 +16,14 @@ report 799 "Delete Empty Item Registers"
                 ItemLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 PhysInvtLedgEntry.SetRange("Entry No.", "From Phys. Inventory Entry No.", "To Phys. Inventory Entry No.");
                 CapLedgEntry.SetRange("Entry No.", "From Capacity Entry No.", "To Capacity Entry No.");
-                if ItemLedgEntry.FindFirst or
-                   PhysInvtLedgEntry.FindFirst or
-                   CapLedgEntry.FindFirst
+                if ItemLedgEntry.FindFirst() or
+                   PhysInvtLedgEntry.FindFirst() or
+                   CapLedgEntry.FindFirst()
                 then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");
-                Delete;
+                Delete();
                 NoOfDeleted := NoOfDeleted + 1;
                 Window.Update(3, NoOfDeleted);
                 if NoOfDeleted >= NoOfDeleted2 + 10 then begin
@@ -66,11 +66,6 @@ report 799 "Delete Empty Item Registers"
     }
 
     var
-        DeleteRegistersQst: Label 'Do you want to delete the registers?';
-        Text001: Label 'Deleting item registers...\\';
-        Text002: Label 'No.                      #1######\';
-        Text003: Label 'Posted on                #2######\\';
-        Text004: Label 'No. of registers deleted #3######';
         ItemLedgEntry: Record "Item Ledger Entry";
         PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
         CapLedgEntry: Record "Capacity Ledger Entry";
@@ -78,6 +73,12 @@ report 799 "Delete Empty Item Registers"
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;
         SkipConfirm: Boolean;
+
+        DeleteRegistersQst: Label 'Do you want to delete the registers?';
+        Text001: Label 'Deleting item registers...\\';
+        Text002: Label 'No.                      #1######\';
+        Text003: Label 'Posted on                #2######\\';
+        Text004: Label 'No. of registers deleted #3######';
 
     procedure SetSkipConfirm()
     begin

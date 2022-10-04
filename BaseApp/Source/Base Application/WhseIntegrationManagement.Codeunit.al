@@ -164,11 +164,11 @@ codeunit 7317 "Whse. Integration Management"
     begin
         case SourceTable of
             DATABASE::"Work Center":
-                CaptionText := WorkCenter.TableCaption;
+                CaptionText := WorkCenter.TableCaption();
             DATABASE::"Machine Center":
-                CaptionText := MachineCenter.TableCaption;
+                CaptionText := MachineCenter.TableCaption();
             DATABASE::Location:
-                CaptionText := Location.TableCaption;
+                CaptionText := Location.TableCaption();
         end;
         if not Location."Bin Mandatory" then
             Error(Text003,

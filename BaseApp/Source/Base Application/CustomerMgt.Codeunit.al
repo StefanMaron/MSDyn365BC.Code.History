@@ -28,10 +28,8 @@ codeunit 1302 "Customer Mgt."
                         "Closed at Date" > "Posting Date":
                             UpdateDaysToPay("Closed at Date" - "Posting Date", TotalDaysToPay, TotalNoOfInv);
                         "Closed by Entry No." <> 0:
-                            begin
-                                if CustLedgEntry2.Get("Closed by Entry No.") then
-                                    UpdateDaysToPay(CustLedgEntry2."Posting Date" - "Posting Date", TotalDaysToPay, TotalNoOfInv);
-                            end;
+                            if CustLedgEntry2.Get("Closed by Entry No.") then
+                                UpdateDaysToPay(CustLedgEntry2."Posting Date" - "Posting Date", TotalDaysToPay, TotalNoOfInv);
                         else begin
                                 CustLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                 CustLedgEntry2.SetRange("Closed by Entry No.", "Entry No.");
@@ -200,7 +198,7 @@ codeunit 1302 "Customer Mgt."
     begin
         with SalesInvoiceHeader do begin
             SetRange("Bill-to Customer No.", CustNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
 
             PAGE.Run(PAGE::"Posted Sales Invoices", SalesInvoiceHeader);
         end;
@@ -213,7 +211,7 @@ codeunit 1302 "Customer Mgt."
     begin
         with SalesCrMemoHeader do begin
             SetRange("Bill-to Customer No.", CustNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
 
             PAGE.Run(PAGE::"Posted Sales Credit Memos", SalesCrMemoHeader);
         end;
@@ -276,7 +274,7 @@ codeunit 1302 "Customer Mgt."
     begin
         with SalesHeader do begin
             SetRange("Bill-to Customer No.", CustNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
 
             if DocumentType = -1 then
                 SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo")
@@ -290,7 +288,7 @@ codeunit 1302 "Customer Mgt."
         with SalesLine do begin
             SetRange("Bill-to Customer No.", CustNo);
             if Posted then
-                SetFilter("Posting Date", GetCurrentYearFilter);
+                SetFilter("Posting Date", GetCurrentYearFilter());
 
             SetRange("Document Type", DocumentType);
         end;
@@ -302,7 +300,7 @@ codeunit 1302 "Customer Mgt."
     begin
         with CustLedgEntry do begin
             SetRange("Customer No.", CustNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
             SetRange("Document Type", DocumentType);
         end;
 
@@ -321,9 +319,9 @@ codeunit 1302 "Customer Mgt."
             exit(CustDateFilter);
 
         if FiscalYearTotals then
-            DateFilterCalc.CreateAccountingPeriodFilter(CustDateFilter, CustDateName, WorkDate, 0)
+            DateFilterCalc.CreateAccountingPeriodFilter(CustDateFilter, CustDateName, WorkDate(), 0)
         else
-            DateFilterCalc.CreateFiscalYearFilter(CustDateFilter, CustDateName, WorkDate, 0);
+            DateFilterCalc.CreateFiscalYearFilter(CustDateFilter, CustDateName, WorkDate(), 0);
 
         exit(CustDateFilter);
     end;
@@ -375,19 +373,19 @@ codeunit 1302 "Customer Mgt."
               ("Ship-to Name" = "Sell-to Customer Name") and ("Ship-to Name 2" = "Sell-to Customer Name 2");
 
             case true of
-                ("Ship-to Code" = '') and ShipToNameEqualsSellToName and ShipToAddressEqualsSellToAddress:
+                ("Ship-to Code" = '') and ShipToNameEqualsSellToName and ShipToAddressEqualsSellToAddress():
                     ShipToOptions := ShipToOptions::"Default (Sell-to Address)";
                 ("Ship-to Code" = '') and
-              (not ShipToNameEqualsSellToName or not ShipToAddressEqualsSellToAddress):
+              (not ShipToNameEqualsSellToName or not ShipToAddressEqualsSellToAddress()):
                     ShipToOptions := ShipToOptions::"Custom Address";
                 "Ship-to Code" <> '':
                     ShipToOptions := ShipToOptions::"Alternate Shipping Address";
             end;
 
             case true of
-                ("Bill-to Customer No." = "Sell-to Customer No.") and BillToAddressEqualsSellToAddress:
+                ("Bill-to Customer No." = "Sell-to Customer No.") and BillToAddressEqualsSellToAddress():
                     BillToOptions := BillToOptions::"Default (Customer)";
-                ("Bill-to Customer No." = "Sell-to Customer No.") and (not BillToAddressEqualsSellToAddress):
+                ("Bill-to Customer No." = "Sell-to Customer No.") and (not BillToAddressEqualsSellToAddress()):
                     BillToOptions := BillToOptions::"Custom Address";
                 "Bill-to Customer No." <> "Sell-to Customer No.":
                     BillToOptions := BillToOptions::"Another Customer";

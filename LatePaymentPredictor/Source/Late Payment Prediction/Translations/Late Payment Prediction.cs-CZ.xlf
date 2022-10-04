@@ -417,6 +417,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType SetupNotificationNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 1378938356" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Late Payment Prediction extension can help you reduce outstanding receivables by predicting whether sales invoices will be paid on time. Set it up now.</source>
+          <target state="translated">Rozšíření Predikce opožděných plateb vám může pomoci snížit neuhrazené pohledávky tím, že předpoví, zda budou prodejní faktury zaplaceny včas. Nastavte ji nyní.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 530150016" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Late Payment Prediction</source>
+          <target state="translated">Predikce opožděných plateb</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 2882172826" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Late Payment Prediction</source>
+          <target state="translated">Nastavení predikce opožděných plateb</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2361022759 - NamedType 2502994393" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>LatePaymentML</source>
           <target state="translated">LatePaymentML</target>

@@ -40,7 +40,7 @@ codeunit 5320 "Exchange Web Services Client"
     [Scope('OnPrem')]
     procedure GetPublicFolders(var ExchangeFolder: Record "Exchange Folder"): Boolean
     begin
-        if not IsServiceValid then begin
+        if not IsServiceValid() then begin
             Session.LogMessage('0000D87', ConnectionFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Error(Text001);
         end;
@@ -74,8 +74,8 @@ codeunit 5320 "Exchange Web Services Client"
             exit(false);
         end;
 
-        if ExchangeFolder."Unique ID".HasValue then begin
-            ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID, ExchangeFolder.FullPath);
+        if ExchangeFolder."Unique ID".HasValue() then begin
+            ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID(), ExchangeFolder.FullPath);
             ExchangeFolder.Cached := true;
             ExchangeFolder.Modify();
         end;
@@ -86,22 +86,22 @@ codeunit 5320 "Exchange Web Services Client"
         SubFolders := ServiceOnClient.GetPublicFolders(ParentInfo, 1000);
 
         if not IsNull(SubFolders) then begin
-            while SubFolders.MoveNextPage do
-                while SubFolders.MoveNext do
+            while SubFolders.MoveNextPage() do
+                while SubFolders.MoveNext() do
                     if StrLen(SubFolders.Current.FullPath) > 250 then
                         LongPathsDetected := true
                     else
-                        if not TempExchangeFolder.Get(SubFolders.Current.FullPath) then
+                        if not TempExchangeFolder.Get(CopyStr(SubFolders.Current.FullPath, 1, 250)) then
                             if IsAllowedFolderType(SubFolders.Current.FolderClass) then begin
                                 FoundAny := true;
                                 with TempExchangeFolder do begin
-                                    Init;
+                                    Init();
                                     FullPath := SubFolders.Current.FullPath;
                                     Depth := SubFolders.Current.Depth;
                                     SetUniqueID(SubFolders.Current.UniqueId);
                                     Name := SubFolders.Current.Name;
                                     Cached := false;
-                                    Insert;
+                                    Insert();
                                 end;
                             end;
             if LongPathsDetected then
@@ -127,8 +127,8 @@ codeunit 5320 "Exchange Web Services Client"
             exit(false);
         end;
 
-        if ExchangeFolder."Unique ID".HasValue then begin
-            ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID, ExchangeFolder.FullPath);
+        if ExchangeFolder."Unique ID".HasValue() then begin
+            ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID(), ExchangeFolder.FullPath);
             ExchangeFolder.Cached := true;
             ExchangeFolder.Modify();
         end;
@@ -139,22 +139,22 @@ codeunit 5320 "Exchange Web Services Client"
         SubFolders := ServiceOnServer.GetPublicFolders(ParentInfo, 1000);
 
         if not IsNull(SubFolders) then begin
-            while SubFolders.MoveNextPage do
-                while SubFolders.MoveNext do
+            while SubFolders.MoveNextPage() do
+                while SubFolders.MoveNext() do
                     if StrLen(SubFolders.Current.FullPath) > 250 then
                         LongPathsDetected := true
                     else
-                        if not TempExchangeFolder.Get(SubFolders.Current.FullPath) then
+                        if not TempExchangeFolder.Get(CopyStr(SubFolders.Current.FullPath, 1, 250)) then
                             if IsAllowedFolderType(SubFolders.Current.FolderClass) then begin
                                 FoundAny := true;
                                 with TempExchangeFolder do begin
-                                    Init;
+                                    Init();
                                     FullPath := SubFolders.Current.FullPath;
                                     Depth := SubFolders.Current.Depth;
                                     SetUniqueID(SubFolders.Current.UniqueId);
                                     Name := SubFolders.Current.Name;
                                     Cached := false;
-                                    Insert;
+                                    Insert();
                                 end;
                             end;
             if LongPathsDetected then
@@ -178,11 +178,11 @@ codeunit 5320 "Exchange Web Services Client"
         ServiceFactoryOnClient: DotNet ServiceWrapperFactory;
         Initialized: Boolean;
     begin
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows then
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Windows then
             exit(false);
         if IsNull(ServiceOnClient) then begin
-            InvalidateService;
-            ServiceOnClient := ServiceFactoryOnClient.CreateServiceWrapper;
+            InvalidateService();
+            ServiceOnClient := ServiceFactoryOnClient.CreateServiceWrapper();
         end;
 
         if ServiceUri <> '' then
@@ -208,7 +208,7 @@ codeunit 5320 "Exchange Web Services Client"
         Initialized: Boolean;
     begin
         if IsNull(ServiceOnServer) then begin
-            InvalidateService;
+            InvalidateService();
             ServiceOnServer := ServiceFactoryOnServer.CreateServiceWrapperWithCredentials(Credentials);
         end;
 
@@ -265,7 +265,7 @@ codeunit 5320 "Exchange Web Services Client"
     var
         Exists: Boolean;
     begin
-        if not IsServiceValid then begin
+        if not IsServiceValid() then begin
             Session.LogMessage('0000D8L', ConnectionFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Error(Text001);
         end;

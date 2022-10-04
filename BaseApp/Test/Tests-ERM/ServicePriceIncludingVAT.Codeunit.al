@@ -210,7 +210,7 @@ codeunit 136123 "Service Price Including VAT"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure ExecuteConfirmHandlerInvoiceES()
@@ -239,13 +239,13 @@ codeunit 136123 "Service Price Including VAT"
               TempServiceLine."Amount Including VAT", ServiceInvoiceLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(
                 AmountErrorErr, ServiceInvoiceLine.FieldCaption("Amount Including VAT"), ServiceInvoiceLine."Amount Including VAT",
-                ServiceInvoiceLine.TableCaption));
+                ServiceInvoiceLine.TableCaption()));
             Assert.AreNearlyEqual(
               TempServiceLine."Line Amount", ServiceInvoiceLine."Line Amount", LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(
                 AmountErrorErr, ServiceInvoiceLine.FieldCaption("Line Amount"), ServiceInvoiceLine."Line Amount",
-                ServiceInvoiceLine.TableCaption));
-        until TempServiceLine.Next = 0;
+                ServiceInvoiceLine.TableCaption()));
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyGeneralLedgerEntry(OrderNo: Code[20])
@@ -262,7 +262,7 @@ codeunit 136123 "Service Price Including VAT"
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(var TempServiceLine: Record "Service Line" temporary; PreAssignedNo: Code[20])
@@ -282,7 +282,7 @@ codeunit 136123 "Service Price Including VAT"
             Assert.AreNearlyEqual(
               TempServiceLine."Unit Price" / (1 + TempServiceLine."VAT %" / 100), ServiceLedgerEntry."Unit Price", 0.01,
               'Unit price incorrect');
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     [ConfirmHandler]

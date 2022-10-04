@@ -43,7 +43,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Excercise - Export the Workflow
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
 
         // Verify
@@ -66,7 +66,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create 2 Workflows
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
 
         // Excercise - Export the selected workflows
@@ -95,7 +95,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         WorkflowCode := Workflow.Code;
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
         Workflow.DeleteAll(true);
 
@@ -124,7 +124,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create a Workflow and export it to a file
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
         Workflow.ExportToBlob(TempBlob);
@@ -136,7 +136,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Workflow.ImportFromBlob(TempBlob);
 
         // Verify
-        CheckWorkflowStepsAreEqual(Workflow1.Code, 'MS-' + WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        CheckWorkflowStepsAreEqual(Workflow1.Code, 'MS-' + WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         CheckWorkflowStepsAreEqual(Workflow2.Code, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
     end;
 
@@ -159,7 +159,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
         WorkflowCode := Workflow.Code;
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
 
         // Excercise
@@ -187,7 +187,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // Setup - Create a Workflow and export it to a file
         Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
         Workflow.DeleteAll(true);
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -220,7 +220,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // Setup - Create a Workflow and export it to a file
         Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
         Workflow.ExportToBlob(TempBlob);
         Workflow.DeleteAll(true);
@@ -252,11 +252,11 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
 
         // [GIVEN] Workflow with setup for Specific Approver assigned to "User"
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         LibraryWorkflow.SetWorkflowSpecificApprover(Workflow.Code, UserSetup."User ID");
 
         // [GIVEN] Workflow exported and deleted from database
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
         Workflow.Delete(true);
 
@@ -292,11 +292,11 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
 
         // [GIVEN] Workflow with setup for Specific Approver assigned to "User"
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         LibraryWorkflow.SetWorkflowSpecificApprover(Workflow.Code, UserSetup."User ID");
 
         // [GIVEN] Workflow exported and deleted from database
-        Workflow.SetRecFilter;
+        Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
         Workflow.Delete(true);
 
@@ -352,7 +352,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
                 Node := NodeList.Item(NodeIndex);
                 NodeIndex += 1;
                 VerifyWorkflow(Workflow, Node);
-            until Workflow.Next = 0;
+            until Workflow.Next() = 0;
     end;
 
     local procedure VerifyWorkflow(Workflow: Record Workflow; CurrNode: DotNet XmlNode)
@@ -378,7 +378,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
                 Node := NodeList.Item(NodeIndex);
                 NodeIndex += 1;
                 VerifyWorkflowStep(WorkflowStep, Node);
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     local procedure VerifyWorkflowStep(WorkflowStep: Record "Workflow Step"; CurrNode: DotNet XmlNode)
@@ -419,7 +419,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
                 Node := NodeList.Item(NodeIndex);
                 NodeIndex += 1;
                 VerifyWorkflowStepRule(WorkflowRule, Node);
-            until WorkflowRule.Next = 0;
+            until WorkflowRule.Next() = 0;
         end;
     end;
 
@@ -511,7 +511,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
                 Assert.AreNotEqual(WorkflowStep."Workflow Code", CompareToWorkflowStep."Workflow Code", 'Workflow Code are equal');
                 CheckWorkflowRulesAreEqual(WorkflowStep."Workflow Code", WorkflowStep.ID,
                   CompareToWorkflowStep."Workflow Code", CompareToWorkflowStep.ID);
-            until (WorkflowStep.Next = 0) or (CompareToWorkflowStep.Next = 0);
+            until (WorkflowStep.Next() = 0) or (CompareToWorkflowStep.Next() = 0);
         end;
     end;
 
@@ -576,7 +576,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
                 Assert.AreEqual(WorkflowRule."Field No.", CompareToWorkflowRule."Field No.", 'Field No. are different');
                 Assert.AreEqual(WorkflowRule.Operator, CompareToWorkflowRule.Operator, 'Operator is different');
                 Assert.AreEqual(WorkflowRule."Table ID", CompareToWorkflowRule."Table ID", 'Function Name are not equal');
-            until (WorkflowRule.Next = 0) or (CompareToWorkflowRule.Next = 0);
+            until (WorkflowRule.Next() = 0) or (CompareToWorkflowRule.Next() = 0);
         end;
     end;
 

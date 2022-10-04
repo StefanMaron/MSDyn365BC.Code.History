@@ -11,14 +11,14 @@ page 1217 "Data Exch Field Mapping Part"
         {
             repeater(Group)
             {
-                field("Column No."; "Column No.")
+                field("Column No."; Rec."Column No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the column in the external file that is mapped to the field in the Target Table ID field, when you are using an intermediate table for data import.';
 
                     trigger OnValidate()
                     begin
-                        ColumnCaptionText := GetColumnCaption;
+                        ColumnCaptionText := GetColumnCaption();
                     end;
                 }
                 field(ColumnCaptionText; ColumnCaptionText)
@@ -28,7 +28,7 @@ page 1217 "Data Exch Field Mapping Part"
                     Editable = false;
                     ToolTip = 'Specifies the caption of the column in the external file that is mapped to the field in the Target Table ID field, when you are using an intermediate table for data import.';
                 }
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -46,13 +46,13 @@ page 1217 "Data Exch Field Mapping Part"
                                 exit;
                             TableFilter.CheckDuplicateField(Field);
                             FillSourceRecord(Field);
-                            FieldCaptionText := GetFieldCaption;
+                            FieldCaptionText := GetFieldCaption();
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        FieldCaptionText := GetFieldCaption;
+                        FieldCaptionText := GetFieldCaption();
                     end;
                 }
                 field(FieldCaptionText; FieldCaptionText)
@@ -72,12 +72,12 @@ page 1217 "Data Exch Field Mapping Part"
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
-                field("Transformation Rule"; "Transformation Rule")
+                field("Transformation Rule"; Rec."Transformation Rule")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the rule that transforms imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365. When you choose a value in this field, the same value is entered in the Transformation Rule field in the Data Exch. Field Mapping Buf. table and vice versa.';
                 }
-                field("Overwrite Value"; "Overwrite Value")
+                field("Overwrite Value"; Rec."Overwrite Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the current value will be overwritten by a new value.';
@@ -97,8 +97,8 @@ page 1217 "Data Exch Field Mapping Part"
 
     trigger OnAfterGetRecord()
     begin
-        ColumnCaptionText := GetColumnCaption;
-        FieldCaptionText := GetFieldCaption;
+        ColumnCaptionText := GetColumnCaption();
+        FieldCaptionText := GetFieldCaption();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

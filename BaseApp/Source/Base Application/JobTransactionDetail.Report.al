@@ -42,7 +42,7 @@ report 1007 "Job - Transaction Detail"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -352,8 +352,8 @@ report 1007 "Job - Transaction Detail"
 
     trigger OnPreReport()
     begin
-        JobFilter := Job.GetFilters;
-        JobLedgEntryFilter := "Job Ledger Entry".GetFilters;
+        JobFilter := Job.GetFilters();
+        JobLedgEntryFilter := "Job Ledger Entry".GetFilters();
     end;
 
     var

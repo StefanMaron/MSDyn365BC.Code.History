@@ -2,7 +2,7 @@
     "id":  "51ba3799-d76c-4cf0-afd3-e2c2f6c0576b",
     "name":  "Italian language (Italy)",
     "publisher":  "Microsoft",
-    "version":  "20.5.45456.45889",
+    "version":  "21.0.46256.46853",
     "dependencies":  [
 
                      ],
@@ -12,8 +12,8 @@
     "description":  "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the Italian language (Italy)",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
-    "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
+    "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "20.5.0.0"
+    "application":  "21.0.0.0"
 }

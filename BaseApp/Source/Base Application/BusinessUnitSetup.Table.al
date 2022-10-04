@@ -49,7 +49,7 @@ table 1827 "Business Unit Setup"
                 if Language.ChangeCompany(Company.Name) then begin
                     "Company Name" := Company.Name;
                     Include := true;
-                    Insert;
+                    Insert();
                 end;
             until Company.Next() = 0;
     end;

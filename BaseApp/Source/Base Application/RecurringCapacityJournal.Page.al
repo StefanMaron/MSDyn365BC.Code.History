@@ -23,7 +23,7 @@ page 99000778 "Recurring Capacity Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -93,7 +93,7 @@ page 99000778 "Recurring Capacity Journal"
                         ItemJnlMgt.GetCapacity(Rec.Type, Rec."No.", CapDescription);
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -398,7 +398,6 @@ page 99000778 "Recurring Capacity Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ledger E&ntries';
                     Image = CapacityLedger;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Capacity Ledger Entries";
@@ -434,9 +433,6 @@ page 99000778 "Recurring Capacity Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -452,9 +448,6 @@ page 99000778 "Recurring Capacity Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -464,6 +457,20 @@ page 99000778 "Recurring Capacity Journal"
                         CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
                 }
             }
         }
@@ -492,7 +499,7 @@ page 99000778 "Recurring Capacity Journal"
     begin
         SetDimensionsVisibility();
 
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             exit;

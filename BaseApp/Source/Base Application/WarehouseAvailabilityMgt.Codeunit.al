@@ -22,11 +22,20 @@ codeunit 7314 "Warehouse Availability Mgt."
         PickQty: Decimal;
     begin
         // Returns the reserved quantity against ILE for the demand line
-        if SourceType = DATABASE::"Prod. Order Component" then begin
-            ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceSubLineNo, true);
-            ReservEntry.SetSourceFilter('', SourceLineNo);
-        end else
-            ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        case SourceType of
+            Database::"Prod. Order Component":
+                begin
+                    ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceSubLineNo, true);
+                    ReservEntry.SetSourceFilter('', SourceLineNo);
+                end;
+            Database::Job:
+                begin
+                    ReservEntry.SetSourceFilter(Database::"Job Planning Line", 2, SourceNo, SourceSubLineNo, true);
+                    ReservEntry.SetSourceFilter('', 0);
+                end;
+            else
+                ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        end;
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.Find('-') then
             repeat
@@ -101,14 +110,14 @@ codeunit 7314 "Warehouse Availability Mgt."
             TempReservEntryBuffer."Source Prod. Order Line" := CalcRsvQtyOnPicksShipsWithIT.Source_Prod__Order_Line;
             TempReservEntryBuffer."Source Ref. No." := CalcRsvQtyOnPicksShipsWithIT.Source_Ref__No_;
 
-            if TempReservEntryBuffer.Find then begin
+            if TempReservEntryBuffer.Find() then begin
                 TempReservEntryBuffer."Quantity (Base)" += CalcRsvQtyOnPicksShipsWithIT.Quantity__Base_;
                 TempReservEntryBuffer.Modify();
             end else
                 TempReservEntryBuffer.Insert();
         end;
 
-        if TempReservEntryBuffer.FindSet then
+        if TempReservEntryBuffer.FindSet() then
             repeat
                 QtyPicked :=
                   CalcQtyRegisteredPick(
@@ -333,7 +342,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             if RespectUOMCode then
                 SetRange("Unit of Measure Code", DefWhseWkshLine."Unit of Measure Code");
             CalcSums("Qty. to Handle (Base)");
-            if ExcludeLine and DefWhseWkshLine.Find then
+            if ExcludeLine and DefWhseWkshLine.Find() then
                 "Qty. to Handle (Base)" := "Qty. to Handle (Base)" - DefWhseWkshLine."Qty. to Handle (Base)";
             exit("Qty. to Handle (Base)");
         end;
@@ -556,10 +565,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     procedure CalcQtyOnBlockedItemTracking(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
     var
-        SerialNoInformation: Record "Serial No. Information";
-        LotNoInformation: Record "Lot No. Information";
-        PackageNoInformation: Record "Package No. Information";
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        CalcQtyOnBlockedITOnSNQuery: Query "CalcQtyOnBlockedITOnSNQuery";
+        CalcQtyOnBlockedITOnLNQuery: Query "CalcQtyOnBlockedITOnLNQuery";
+        CalcQtyOnBlockedITOnPNQuery: Query "CalcQtyOnBlockedITOnPNQuery";
+        LotsBlocked: List of [Code[50]];
+        PackagesBlocked: List of [Code[50]];
         SNQtyBlocked: Decimal;
         LotQtyBlocked: Decimal;
         PackageQtyBlocked: Decimal;
@@ -573,78 +583,63 @@ codeunit 7314 "Warehouse Availability Mgt."
         if IsHandled then
             exit(QtyBlocked);
 
-        ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Variant Code", VariantCode);
-        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        //Calculating packages blocked
+        CalcQtyOnBlockedITOnPNQuery.SetRange(Item_No_, ItemNo);
+        CalcQtyOnBlockedITOnPNQuery.SetRange(Variant_Code, VariantCode);
+        CalcQtyOnBlockedITOnPNQuery.SetRange(Blocked, true);
 
-        ItemLedgerEntry.ClearTrackingFilter();
-        SerialNoInformation.SetRange("Item No.", ItemNo);
-        SerialNoInformation.SetRange("Variant Code", VariantCode);
-        SerialNoInformation.SetRange(Blocked, true);
-        if SerialNoInformation.FindSet() then
-            repeat
-                ItemLedgerEntry.SetRange("Serial No.", SerialNoInformation."Serial No.");
-                ItemLedgerEntry.CalcSums(Quantity);
-                SNQtyBlocked += ItemLedgerEntry.Quantity;
-            until SerialNoInformation.Next() = 0;
+        CalcQtyOnBlockedITOnPNQuery.SetRange(ILE_Item_No_, ItemNo);
+        CalcQtyOnBlockedITOnPNQuery.SetRange(ILE_Variant_Code, VariantCode);
+        CalcQtyOnBlockedITOnPNQuery.SetRange(ILE_Location_Code, LocationCode);
 
-        ItemLedgerEntry.ClearTrackingFilter();
-        LotNoInformation.SetRange("Item No.", ItemNo);
-        LotNoInformation.SetRange("Variant Code", VariantCode);
-        LotNoInformation.SetRange(Blocked, true);
-        if LotNoInformation.FindSet() then
-            repeat
-                ItemLedgerEntry.SetRange("Lot No.", LotNoInformation."Lot No.");
-                ItemLedgerEntry.CalcSums(Quantity);
-                LotQtyBlocked += ItemLedgerEntry.Quantity;
-            until LotNoInformation.Next() = 0;
+        CalcQtyOnBlockedITOnPNQuery.Open();
 
-        ItemLedgerEntry.ClearTrackingFilter();
-        PackageNoInformation.SetRange("Item No.", ItemNo);
-        PackageNoInformation.SetRange("Variant Code", VariantCode);
-        PackageNoInformation.SetRange(Blocked, true);
-        if PackageNoInformation.FindSet() then
-            repeat
-                ItemLedgerEntry.SetRange("Package No.", PackageNoInformation."Package No.");
-                ItemLedgerEntry.CalcSums(Quantity);
-                PackageQtyBlocked += ItemLedgerEntry.Quantity;
-            until PackageNoInformation.Next() = 0;
+        while CalcQtyOnBlockedITOnPNQuery.Read() do begin
+            if (not PackagesBlocked.Contains(CalcQtyOnBlockedITOnPNQuery.Package_No_)) then
+                PackagesBlocked.Add(CalcQtyOnBlockedITOnPNQuery.Package_No_);
+            PackageQtyBlocked += CalcQtyOnBlockedITOnPNQuery.Quantity;
+        end;
 
-        ItemLedgerEntry.ClearTrackingFilter();
-        if SerialNoInformation.FindSet() and not LotNoInformation.IsEmpty() then
-            repeat
-                LotNoInformation.FindSet();
-                repeat
-                    ItemLedgerEntry.SetRange("Lot No.", LotNoInformation."Lot No.");
-                    ItemLedgerEntry.SetRange("Serial No.", SerialNoInformation."Serial No.");
-                    ItemLedgerEntry.CalcSums(Quantity);
-                    SNLotQtyBlocked += ItemLedgerEntry.Quantity;
-                until LotNoInformation.Next() = 0;
-            until SerialNoInformation.Next() = 0;
+        //Calculating lots blocked
+        CalcQtyOnBlockedITOnLNQuery.SetRange(Item_No_, ItemNo);
+        CalcQtyOnBlockedITOnLNQuery.SetRange(Variant_Code, VariantCode);
+        CalcQtyOnBlockedITOnLNQuery.SetRange(Blocked, true);
 
-        ItemLedgerEntry.ClearTrackingFilter();
-        if SerialNoInformation.FindSet() and not PackageNoInformation.IsEmpty() then
-            repeat
-                PackageNoInformation.FindSet();
-                repeat
-                    ItemLedgerEntry.SetRange("Package No.", PackageNoInformation."Package No.");
-                    ItemLedgerEntry.SetRange("Serial No.", SerialNoInformation."Serial No.");
-                    ItemLedgerEntry.CalcSums(Quantity);
-                    SNPackageQtyBlocked += ItemLedgerEntry.Quantity;
-                until PackageNoInformation.Next() = 0;
-            until SerialNoInformation.Next() = 0;
+        CalcQtyOnBlockedITOnLNQuery.SetRange(ILE_Item_No_, ItemNo);
+        CalcQtyOnBlockedITOnLNQuery.SetRange(ILE_Variant_Code, VariantCode);
+        CalcQtyOnBlockedITOnLNQuery.SetRange(ILE_Location_Code, LocationCode);
 
-        ItemLedgerEntry.ClearTrackingFilter();
-        if LotNoInformation.FindSet() and not PackageNoInformation.IsEmpty() then
-            repeat
-                PackageNoInformation.FindSet();
-                repeat
-                    ItemLedgerEntry.SetRange("Package No.", PackageNoInformation."Package No.");
-                    ItemLedgerEntry.SetRange("Lot No.", LotNoInformation."Lot No.");
-                    ItemLedgerEntry.CalcSums(Quantity);
-                    LotPackageQtyBlocked += ItemLedgerEntry.Quantity;
-                until PackageNoInformation.Next() = 0;
-            until LotNoInformation.Next() = 0;
+        CalcQtyOnBlockedITOnLNQuery.Open();
+
+        while CalcQtyOnBlockedITOnLNQuery.Read() do begin
+            if (PackagesBlocked.Contains(CalcQtyOnBlockedITOnLNQuery.Package_No_)) then
+                LotPackageQtyBlocked += CalcQtyOnBlockedITOnLNQuery.Quantity;
+
+            if (not LotsBlocked.Contains(CalcQtyOnBlockedITOnLNQuery.Lot_No_)) then
+                LotsBlocked.Add(CalcQtyOnBlockedITOnLNQuery.Lot_No_);
+            LotQtyBlocked += CalcQtyOnBlockedITOnLNQuery.Quantity;
+        end;
+
+        //Calculating serial no blocked
+        CalcQtyOnBlockedITOnSNQuery.SetRange(Item_No_, ItemNo);
+        CalcQtyOnBlockedITOnSNQuery.SetRange(Variant_Code, VariantCode);
+        CalcQtyOnBlockedITOnSNQuery.SetRange(Blocked, true);
+
+        CalcQtyOnBlockedITOnSNQuery.SetRange(ILE_Item_No_, ItemNo);
+        CalcQtyOnBlockedITOnSNQuery.SetRange(ILE_Variant_Code, VariantCode);
+        CalcQtyOnBlockedITOnSNQuery.SetRange(ILE_Location_Code, LocationCode);
+
+        CalcQtyOnBlockedITOnSNQuery.Open();
+
+        while CalcQtyOnBlockedITOnSNQuery.Read() do begin
+            if (LotsBlocked.Contains(CalcQtyOnBlockedITOnSNQuery.Lot_No_)) then
+                SNLotQtyBlocked += CalcQtyOnBlockedITOnSNQuery.Quantity
+            else
+                if (PackagesBlocked.Contains(CalcQtyOnBlockedITOnSNQuery.Package_No_)) then
+                    SNPackageQtyBlocked += CalcQtyOnBlockedITOnSNQuery.Quantity;
+
+            SNQtyBlocked += CalcQtyOnBlockedITOnSNQuery.Quantity;
+        end;
 
         QtyBlocked := SNQtyBlocked + LotQtyBlocked + PackageQtyBlocked - SNLotQtyBlocked - SNPackageQtyBlocked - LotPackageQtyBlocked;
 
@@ -665,6 +660,17 @@ codeunit 7314 "Warehouse Availability Mgt."
         end;
 
         exit(0);
+    end;
+
+    local procedure CalcQtyPickedOnJobPlanningLine(SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.SetRange(Status, SourceSubtype);
+        JobPlanningLine.SetRange("Job No.", SourceID);
+        JobPlanningLine.SetRange("Job Contract Entry No.", SourceRefNo);
+        if JobPlanningLine.FindFirst() then
+            exit(JobPlanningLine."Qty. Picked (Base)");
     end;
 
     local procedure CalcQtyPickedOnAssemblyLine(SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
@@ -739,6 +745,9 @@ codeunit 7314 "Warehouse Availability Mgt."
 
         if SourceType = DATABASE::"Assembly Line" then
             exit(CalcQtyPickedOnAssemblyLine(SourceSubType, SourceID, SourceRefNo));
+
+        if SourceType = Database::"Job Planning Line" then
+            exit(CalcQtyPickedOnJobPlanningLine(SourceSubType, SourceID, SourceRefNo));
 
         if Location.RequireShipment(LocationCode) then begin
             if Location.Get(LocationCode) and Location."Bin Mandatory" then

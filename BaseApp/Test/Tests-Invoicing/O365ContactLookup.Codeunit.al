@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138933 "O365 Contact Lookup"
 {
     Subtype = Test;
@@ -137,7 +138,7 @@ codeunit 138933 "O365 Contact Lookup"
         // [THEN] Customer CUST2 linked to CONT2 created
         NewCustomerNo := FindCustomerNoByContact(Contact."No.");
         // [THEN] Estimate Sell-to Customer No. = CUST2
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer No.", NewCustomerNo);
     end;
 
@@ -148,14 +149,14 @@ codeunit 138933 "O365 Contact Lookup"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Contact Lookup");
 
         LibraryVariableStorage.Clear();
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
         if Initialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Contact Lookup");
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -176,7 +177,7 @@ codeunit 138933 "O365 Contact Lookup"
     local procedure CreateContact(var Contact: Record Contact)
     begin
         with Contact do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Contact));
             Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Contact));
             Type := Type::Company;
@@ -185,7 +186,7 @@ codeunit 138933 "O365 Contact Lookup"
             Validate("Phone No.",
               LibraryUtility.GenerateRandomCode(FieldNo("Phone No."), DATABASE::Contact));
             Validate("Country/Region Code", 'DK');
-            Insert;
+            Insert();
         end;
     end;
 
@@ -220,4 +221,4 @@ codeunit 138933 "O365 Contact Lookup"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

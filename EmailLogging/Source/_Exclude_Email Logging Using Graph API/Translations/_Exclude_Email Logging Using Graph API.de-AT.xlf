@@ -737,6 +737,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Email Address - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2810311271 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the error occurred.</source>
+          <target state="translated">Gibt den aufgetretenen Fehler an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ErrorText - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 580021373 - Control 2810311271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ErrorText - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 580021373 - Control 1264306775 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The connection test was not successful.</source>
           <target state="translated">Der Verbindungstest war nicht erfolgreich.</target>

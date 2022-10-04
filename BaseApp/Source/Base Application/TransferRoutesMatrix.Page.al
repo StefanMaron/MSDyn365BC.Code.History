@@ -436,7 +436,7 @@ page 9285 "Transfer Routes Matrix"
 
     trigger OnOpenPage()
     begin
-        SetColumnVisibility;
+        SetColumnVisibility();
     end;
 
     var

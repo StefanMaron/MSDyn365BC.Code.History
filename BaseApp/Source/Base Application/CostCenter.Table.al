@@ -186,7 +186,7 @@ table 1112 "Cost Center"
 
     trigger OnDelete()
     begin
-        SetRecFilter;
+        SetRecFilter();
         ConfirmDeleteIfEntriesExist(Rec, true);
         SetRange(Code);
         SetCurrentKey("Sorting Order");
@@ -214,7 +214,7 @@ table 1112 "Cost Center"
         if CostCenter.FindSet() then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(CostAccSetup."Cost Center Dimension", CostCenter.Code);
-                DimFilter := DimensionMgt.GetDimSetFilter;
+                DimFilter := DimensionMgt.GetDimSetFilter();
                 if DimFilter <> '' then begin
                     GLEntry.SetFilter("Dimension Set ID", DimFilter);
                     if GLEntry.FindFirst() then
@@ -224,13 +224,13 @@ table 1112 "Cost Center"
                 if not EntriesFound then begin
                     CostBudgetEntry.SetCurrentKey("Budget Name", "Cost Center Code");
                     CostBudgetEntry.SetRange("Cost Center Code", CostCenter.Code);
-                    EntriesFound := not CostBudgetEntry.IsEmpty;
+                    EntriesFound := not CostBudgetEntry.IsEmpty();
                 end;
 
                 if not EntriesFound then begin
                     CostEntry.SetCurrentKey("Cost Center Code");
                     CostEntry.SetRange("Cost Center Code", CostCenter.Code);
-                    EntriesFound := not CostEntry.IsEmpty;
+                    EntriesFound := not CostEntry.IsEmpty();
                 end;
             until (CostCenter.Next() = 0) or EntriesFound;
     end;
@@ -249,7 +249,7 @@ table 1112 "Cost Center"
         CostCenter2: Record "Cost Center";
     begin
         CostCenter2 := CostCenter;
-        CostCenter2.SetRecFilter;
+        CostCenter2.SetRecFilter();
         if EntriesExist(CostCenter2) then
             if not Confirm(Text002, true) then
                 Error('');
@@ -260,8 +260,8 @@ table 1112 "Cost Center"
         ChartOfCostCenters: Page "Chart of Cost Centers";
     begin
         ChartOfCostCenters.LookupMode(true);
-        if ChartOfCostCenters.RunModal = ACTION::LookupOK then begin
-            Text := ChartOfCostCenters.GetSelectionFilter;
+        if ChartOfCostCenters.RunModal() = ACTION::LookupOK then begin
+            Text := ChartOfCostCenters.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

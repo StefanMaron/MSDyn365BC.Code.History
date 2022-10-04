@@ -26,7 +26,7 @@ table 360 "Dimension Buffer"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDim("Dimension Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
             end;
         }
         field(4; "Dimension Value Code"; Code[20])
@@ -39,7 +39,7 @@ table 360 "Dimension Buffer"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDimValue("Dimension Code", "Dimension Value Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
             end;
         }
         field(5; "New Dimension Value Code"; Code[20])
@@ -51,7 +51,7 @@ table 360 "Dimension Buffer"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDimValue("Dimension Code", "New Dimension Value Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
             end;
         }
         field(6; "Line No."; Integer)

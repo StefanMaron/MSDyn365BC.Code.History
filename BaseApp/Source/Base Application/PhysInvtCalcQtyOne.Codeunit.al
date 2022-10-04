@@ -11,9 +11,9 @@ codeunit 5888 "Phys. Invt.-Calc. Qty. One"
         then
             exit;
 
-        if not PhysInvtOrderLine.EmptyLine then begin
+        if not PhysInvtOrderLine.EmptyLine() then begin
             PhysInvtOrderLine.TestField("Item No.");
-            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
             PhysInvtOrderLine.Modify();
         end;
 

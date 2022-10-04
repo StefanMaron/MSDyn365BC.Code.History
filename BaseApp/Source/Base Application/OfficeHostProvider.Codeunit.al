@@ -144,7 +144,7 @@ codeunit 1633 "Office Host Provider"
 
         if not (OfficeHost.CallbackToken in ['', ' ']) then
             with ExchangeWebServicesServer do begin
-                InitializeWithOAuthToken(OfficeHost.CallbackToken, GetEndpoint);
+                InitializeWithOAuthToken(OfficeHost.CallbackToken, GetEndpoint());
                 Result := EmailHasAttachments(TempOfficeAddinContextInternal."Item ID");
             end;
     end;
@@ -205,7 +205,7 @@ codeunit 1633 "Office Host Provider"
 
         if not (OfficeHost.CallbackToken in ['', ' ']) then
             with ExchangeWebServicesServer do begin
-                InitializeWithOAuthToken(OfficeHost.CallbackToken, GetEndpoint);
+                InitializeWithOAuthToken(OfficeHost.CallbackToken, GetEndpoint());
                 EmailBody := GetEmailBody(ItemID);
             end;
     end;

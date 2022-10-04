@@ -651,7 +651,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
@@ -667,7 +667,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         Assert.IsFalse(IncomingDocumentCard.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(IncomingDocumentCard.RejectApproval.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(IncomingDocumentCard.Delegate.Visible, 'Delegate should NOT be visible');
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         IncomingDocumentCard.OpenEdit;
@@ -682,7 +682,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         Assert.IsTrue(IncomingDocumentCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(IncomingDocument.RecordId);
@@ -735,7 +735,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        IncomingDocuments.Close;
+        IncomingDocuments.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         CreateIncomingDocApprovalWorkflow(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
@@ -748,7 +748,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(IncomingDocuments.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(IncomingDocuments.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        IncomingDocuments.Close;
+        IncomingDocuments.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         // LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -819,7 +819,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
 
         CheckCommentsForDocumentOnDocumentCard(IncomingDocument, 0, true);
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, IncomingDocument.RecordId);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
 
         // Verify - Approval requests and their data
@@ -1023,7 +1023,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentCard.OpenView;
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         IncomingDocumentCard.SendApprovalRequest.Invoke;
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -1039,7 +1039,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
 
     local procedure RegetIncomingDocument(var IncomingDocument: Record "Incoming Document")
     begin
-        IncomingDocument.SetRecFilter;
+        IncomingDocument.SetRecFilter();
         IncomingDocument.FindFirst();
     end;
 
@@ -1068,7 +1068,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentCard.OpenView;
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         IncomingDocumentCard.Approve.Invoke;
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
     end;
 
     local procedure RejectIncomingDocument(var IncomingDocument: Record "Incoming Document")
@@ -1078,7 +1078,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentCard.OpenView;
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         IncomingDocumentCard.RejectApproval.Invoke;
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
     end;
 
     local procedure DelegateIncomingDocument(var IncomingDocument: Record "Incoming Document")
@@ -1088,7 +1088,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentCard.OpenView;
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         IncomingDocumentCard.Delegate.Invoke;
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
     end;
 
     local procedure CancelIncomingDocument(var IncomingDocument: Record "Incoming Document")
@@ -1098,7 +1098,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentCard.OpenView;
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         IncomingDocumentCard.CancelApprovalRequest.Invoke;
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
     end;
 
     local procedure EnableIncDocWorkflow()
@@ -1128,9 +1128,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID3, Status3);
     end;
 
@@ -1168,15 +1168,15 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        IncomingDocumentPage.Close;
+        IncomingDocumentPage.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1194,12 +1194,12 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1217,12 +1217,12 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(IncomingDocument: Record "Incoming Document"; CancelActionExpectedEnabled: Boolean)
@@ -1234,13 +1234,13 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentPage.GotoRecord(IncomingDocument);
         Assert.AreEqual(CancelActionExpectedEnabled, IncomingDocumentPage.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        IncomingDocumentPage.Close;
+        IncomingDocumentPage.Close();
 
         IncomingDocuments.OpenView;
         IncomingDocuments.GotoRecord(IncomingDocument);
         Assert.AreEqual(CancelActionExpectedEnabled, IncomingDocuments.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        IncomingDocuments.Close;
+        IncomingDocuments.Close();
     end;
 }
 

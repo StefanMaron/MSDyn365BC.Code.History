@@ -13,17 +13,17 @@ page 5207 "Qualified Employees"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a number for the employee.';
                 }
-                field("From Date"; "From Date")
+                field("From Date"; Rec."From Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee started working on obtaining this qualification.';
                 }
-                field("To Date"; "To Date")
+                field("To Date"; Rec."To Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee is considered to have obtained this qualification.';
@@ -38,7 +38,7 @@ page 5207 "Qualified Employees"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description of the qualification.';
                 }
-                field("Institution/Company"; "Institution/Company")
+                field("Institution/Company"; Rec."Institution/Company")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the institution from which the employee obtained the qualification.';
@@ -49,7 +49,7 @@ page 5207 "Qualified Employees"
                     ToolTip = 'Specifies the cost of the qualification.';
                     Visible = false;
                 }
-                field("Course Grade"; "Course Grade")
+                field("Course Grade"; Rec."Course Grade")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the grade that the employee received for the course, specified by the qualification on this line.';

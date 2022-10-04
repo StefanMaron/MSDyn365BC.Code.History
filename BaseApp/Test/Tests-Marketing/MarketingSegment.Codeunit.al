@@ -612,7 +612,7 @@ codeunit 136213 "Marketing Segment"
     local procedure CreateSegmentLines(Segment: TestPage Segment; ContactNo: Code[20]; ContactNo2: Code[20])
     begin
         CreateSegmentLineByPage(Segment, ContactNo);
-        Segment.SegLines.Next;
+        Segment.SegLines.Next();
         CreateSegmentLineByPage(Segment, ContactNo2);
     end;
 
@@ -664,7 +664,7 @@ codeunit 136213 "Marketing Segment"
     begin
         SegmentLine.SetRange("Segment No.", SegmentNo);
         SegmentLine.SetRange("Salesperson Code", SalesPersonCode);
-        exit(SegmentLine.FindFirst);
+        exit(SegmentLine.FindFirst())
     end;
 
     local procedure GetAttachmentNoFromSegmentLine(SegmentHeaderNo: Code[20]; SegmentLineNo: Integer): Integer
@@ -728,7 +728,7 @@ codeunit 136213 "Marketing Segment"
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationVATRegNo', CompanyInformation."VAT Registration No.");
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationBankName', CompanyInformation."Bank Name");
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationBankAccountNo', CompanyInformation."Bank Account No.");
-        LibraryReportDataset.AssertElementWithValueExists('Document_Date', Format(WorkDate, 0, 4));
+        LibraryReportDataset.AssertElementWithValueExists('Document_Date', Format(WorkDate(), 0, 4));
     end;
 
     local procedure VerifyContactCoverSheetContactInfoReport(Contact: Record Contact)

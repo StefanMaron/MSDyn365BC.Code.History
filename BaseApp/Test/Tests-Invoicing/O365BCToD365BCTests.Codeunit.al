@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138956 "O365 BC To D365 BC Tests"
 {
     Subtype = Test;
@@ -68,7 +69,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         O365ToD365Trial: TestPage "O365 To D365 Trial";
     begin
         // [GIVEN] A clean Invoicing App that contains My Company and Cronus evaluation Company
-        Init;
+        Init();
         CreateEvalCompany;
         LibraryLowerPermissions.SetInvoiceApp;
 
@@ -88,7 +89,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
     begin
         // [GIVEN] A clean Invoicing App
-        Init;
+        Init();
         CreateEvalCompany;
         LibraryLowerPermissions.SetInvoiceApp;
 
@@ -106,7 +107,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
     begin
         // [GIVEN] A Invoicing user with Eval company
-        Init;
+        Init();
         CreateEvalCompany;
 
         // [WHEN] User has only read permissions to access evaluation company
@@ -123,7 +124,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
     begin
         // [GIVEN] A Invoicing user with Eval company and no write permissions to Eval Company
-        Init;
+        Init();
         CreateEvalCompany;
 
         // [WHEN] User has only read permissions to view customer and not sales header record
@@ -137,7 +138,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
     begin
         DeleteCompany(EvalCompanyName);
         LibraryVariableStorage.Clear();
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -224,4 +225,4 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         Assert.AreEqual('', TestSecret, 'Cleanup failed');
     end;
 }
-
+#endif

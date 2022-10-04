@@ -49,11 +49,20 @@ page 112 "Inventory Posting Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Inventory Posting Setup";
                 RunPageLink = "Invt. Posting Group Code" = FIELD(Code);
                 ToolTip = 'Specify the locations for the inventory posting group that you can link to general ledger accounts. Posting groups create links between application areas and the General Ledger application area.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
             }
         }
     }

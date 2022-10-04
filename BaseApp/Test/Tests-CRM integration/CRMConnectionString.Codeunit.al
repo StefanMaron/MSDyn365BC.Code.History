@@ -512,7 +512,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] "User Name" is validated
         CRMConnectionSetup.Validate("User Name", 'admin@domain.com');
         // [THEN] "Connection String" generated and contains '{PASSWORD}'
-        Assert.ExpectedMessage('{CLIENTSECRET}', CRMConnectionSetup.GetConnectionString);
+        Assert.ExpectedMessage('{CLIENTSECRET}', CRMConnectionSetup.GetConnectionString());
     end;
 
     [Test]
@@ -533,7 +533,7 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup.Validate("User Name", 'somedomain\admin');
 
         // [THEN] "Connection String" contains parameters: AuthType=O365, Url, Domain, Username, Password.
-        ConnectionString := CRMConnectionSetup.GetConnectionString;
+        ConnectionString := CRMConnectionSetup.GetConnectionString();
         Assert.ExpectedMessage('AuthType=AD', ConnectionString);
         Assert.ExpectedMessage(
           'Url=' + CRMConnectionSetup."Server Address", ConnectionString);
@@ -561,7 +561,7 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup.Validate("User Name", 'admin@somedomain.com');
 
         // [THEN] "Connection String" contains parameters: AuthType=OAuth, Url, Domain, Username, Password.
-        ConnectionString := CRMConnectionSetup.GetConnectionString;
+        ConnectionString := CRMConnectionSetup.GetConnectionString();
         Assert.ExpectedMessage('AuthType=OAuth', ConnectionString);
         Assert.ExpectedMessage(
           'Url=' + CRMConnectionSetup."Server Address", ConnectionString);
@@ -595,7 +595,7 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup.Validate("User Name", 'somedomain\admin');
 
         // [THEN] "Connection String" contains parameters: AuthType=O365, Url, Domain, Username, Password.
-        ConnectionString := CRMConnectionSetup.GetConnectionString;
+        ConnectionString := CRMConnectionSetup.GetConnectionString();
         Assert.ExpectedMessage('AuthType=IFD', ConnectionString);
         Assert.ExpectedMessage(
           'Url=' + CRMConnectionSetup."Server Address", ConnectionString);
@@ -621,7 +621,7 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup.SetConnectionString(ConnectionStringValue);
 
         // [THEN] The text value is saved to CRM Connection Setup record
-        Assert.ExpectedMessage(ConnectionStringValue, CRMConnectionSetup.GetConnectionString);
+        Assert.ExpectedMessage(ConnectionStringValue, CRMConnectionSetup.GetConnectionString());
     end;
 
     [Test]
@@ -639,12 +639,12 @@ codeunit 139178 "CRM Connection String"
         ConnectionStringValue := LibraryUtility.GenerateRandomText(100) + '{PASSWORD}';
         CRMConnectionSetup.SetConnectionString(ConnectionStringValue);
         CRMConnectionSetup.Insert();
-        Assert.ExpectedMessage(ConnectionStringValue, CRMConnectionSetup.GetConnectionString);
+        Assert.ExpectedMessage(ConnectionStringValue, CRMConnectionSetup.GetConnectionString());
 
         // [WHEN] Connection string is updated with empty value
         ConnectionStringValue := '';
         CRMConnectionSetup.SetConnectionString(ConnectionStringValue);
-        CRMConnectionSetup.Find;
+        CRMConnectionSetup.Find();
         // [THEN] No error appear and the value is saved
         Assert.AreEqual('', CRMConnectionSetup.GetConnectionString, 'Wrong connection string value');
     end;

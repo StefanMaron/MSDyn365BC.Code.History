@@ -365,7 +365,7 @@ page 6512 "Item Tracking Code Card"
                         Caption = 'Package Purchase Tracking';
                         ToolTip = 'Specifies that outbound purchase document lines require a package number.';
                     }
-                    field("Package Sales Outb. Tracking"; "Package Sales Outb. Tracking")
+                    field("Package Sales Outb. Tracking"; Rec."Package Sales Outb. Tracking")
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'Package Sales Tracking';

@@ -9,10 +9,11 @@ codeunit 7030 "Campaign Target Group Mgt"
         ContBusRel: Record "Contact Business Relation";
         SegLine: Record "Segment Line";
         CampaignTargetGr: Record "Campaign Target Group";
+        InteractLogEntry: Record "Interaction Log Entry";
+
         Text000: Label '%1 %2 is now activated.';
         Text001: Label '%1 %2 is now deactivated.';
         Text002: Label 'To activate the sales prices and/or line discounts, you must apply the relevant %1(s) to the %2 and place a check mark in the %3 field on the %1.';
-        InteractLogEntry: Record "Interaction Log Entry";
         Text004: Label 'There are no Sales Prices or Sales Line Discounts currently linked to this %1. Do you still want to activate?';
         Text006: Label 'Activating prices for the Contacts...\\';
         Text007: Label 'Segment Lines  @1@@@@@@@@@@';
@@ -35,7 +36,7 @@ codeunit 7030 "Campaign Target Group Mgt"
 
         if NoPriceDiscForCampaign(Campaign."No.") then begin
             Continue :=
-                ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Campaign.TableCaption), true);
+                ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Campaign.TableCaption()), true);
             if not Continue then
                 exit;
         end;
@@ -59,7 +60,7 @@ codeunit 7030 "Campaign Target Group Mgt"
                     AddSegLinetoTargetGr(SegLine);
                     Window.Update(1, Round(i / NoOfRecords * 10000, 1));
                 until Next() = 0;
-                Window.Close;
+                Window.Close();
             end;
         end;
 
@@ -80,14 +81,14 @@ codeunit 7030 "Campaign Target Group Mgt"
                     AddInteractionLogEntry(InteractLogEntry);
                     Window.Update(1, Round(i / NoOfRecords * 10000, 1));
                 until Next() = 0;
-                Window.Close;
+                Window.Close();
             end;
         end;
         if Found then begin
             Commit();
-            Message(Text000, Campaign.TableCaption, Campaign."No.")
+            Message(Text000, Campaign.TableCaption(), Campaign."No.")
         end else
-            Error(Text002, SegLine.TableCaption, Campaign.TableCaption, SegLine.FieldCaption("Campaign Target"));
+            Error(Text002, SegLine.TableCaption(), Campaign.TableCaption(), SegLine.FieldCaption("Campaign Target"));
     end;
 
     procedure DeactivateCampaign(var Campaign: Record Campaign; ShowMessage: Boolean)
@@ -106,7 +107,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         if not CampaignTargetGr.IsEmpty() then
             CampaignTargetGr.DeleteAll();
         if ShowMessage then
-            Message(Text001, Campaign.TableCaption, Campaign."No.");
+            Message(Text001, Campaign.TableCaption(), Campaign."No.");
     end;
 
     procedure AddSegLinetoTargetGr(SegLine: Record "Segment Line")
@@ -254,11 +255,11 @@ codeunit 7030 "Campaign Target Group Mgt"
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
     var
         PriceListLine: Record "Price List Line";
-#if not CLEAN19
+#if not CLEAN21
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
-#if not CLEAN19
+#if not CLEAN21
         if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
             exit(NoPriceDiscV15ForCampaign(CampaignNo));
 #endif
@@ -267,7 +268,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         exit(PriceListLine.IsEmpty());
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by NoPriceDiscForCampaign', '17.0')]
     local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
     var

@@ -52,7 +52,7 @@ page 603 "IC Dimension Value List"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLine;
+        FormatLine();
     end;
 
     var

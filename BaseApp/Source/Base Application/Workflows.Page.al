@@ -4,7 +4,6 @@ page 1500 Workflows
     Caption = 'Workflows';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage,Power Automate';
     RefreshOnActivate = true;
     SourceTable = "Workflow Buffer";
     SourceTableTemporary = true;
@@ -32,13 +31,13 @@ page 1500 Workflows
                     Caption = 'Source';
                     ToolTip = 'Specifies the source of the workflow.';
                 }
-                field("Category Code"; "Category Code")
+                field("Category Code"; Rec."Category Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the workflow type, such as Administration or Finance.';
                     Visible = false;
                 }
-                field("Workflow Code"; "Workflow Code")
+                field("Workflow Code"; Rec."Workflow Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the workflow that the workflow step belongs to.';
@@ -79,9 +78,6 @@ page 1500 Workflows
                     ApplicationArea = Suite;
                     Caption = 'New';
                     Image = NewDocument;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a new workflow.';
 
                     trigger OnAction()
@@ -91,7 +87,7 @@ page 1500 Workflows
                     begin
                         if IsEmpty() then begin
                             Clear(Rec);
-                            Insert;
+                            Insert();
                         end;
                         Workflow.SetRange(Template, false);
                         if Workflow.IsEmpty() then
@@ -108,9 +104,6 @@ page 1500 Workflows
                     ApplicationArea = Suite;
                     Caption = 'New Workflow from Template';
                     Image = Copy;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a new workflow quickly using a template.';
 
                     trigger OnAction()
@@ -119,7 +112,7 @@ page 1500 Workflows
                     begin
                         if IsEmpty() then begin
                             Clear(Rec);
-                            Insert;
+                            Insert();
                         end;
                         if PAGE.RunModal(PAGE::"Workflow Templates", TempWorkflowBuffer) = ACTION::LookupOK then begin
                             CopyWorkflow(TempWorkflowBuffer);
@@ -128,7 +121,7 @@ page 1500 Workflows
                             if Count = 1 then
                                 Rec := TempWorkflowBuffer;
 
-                            RefreshTempWorkflowBuffer;
+                            RefreshTempWorkflowBuffer();
                         end;
                     end;
                 }
@@ -138,9 +131,6 @@ page 1500 Workflows
                     Caption = 'Copy Workflow';
                     Enabled = "Workflow Code" <> '';
                     Image = Copy;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    PromotedIsBig = true;
                     ToolTip = 'Copy an existing workflow.';
 
                     trigger OnAction()
@@ -158,9 +148,6 @@ page 1500 Workflows
                     Caption = 'Edit';
                     Enabled = "Workflow Code" <> '';
                     Image = Edit;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Return';
                     ToolTip = 'Edit an existing workflow.';
 
@@ -178,9 +165,6 @@ page 1500 Workflows
                     Caption = 'View';
                     Enabled = "Workflow Code" <> '';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View an existing workflow.';
 
                     trigger OnAction()
@@ -200,9 +184,6 @@ page 1500 Workflows
                     Caption = 'Delete';
                     Enabled = "Workflow Code" <> '';
                     Image = Delete;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Delete the record.';
 
                     trigger OnAction()
@@ -220,9 +201,6 @@ page 1500 Workflows
                     ApplicationArea = Suite;
                     Caption = 'Import from File';
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import workflow from a file.';
 
                     trigger OnAction()
@@ -233,7 +211,7 @@ page 1500 Workflows
                     begin
                         if FileManagement.BLOBImport(TempBlob, '') <> '' then begin
                             Workflow.ImportFromBlob(TempBlob);
-                            RefreshTempWorkflowBuffer;
+                            RefreshTempWorkflowBuffer();
                         end;
                     end;
                 }
@@ -243,9 +221,6 @@ page 1500 Workflows
                     Caption = 'Export to File';
                     Enabled = ExportEnabled;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Export the workflow to a file that can be imported in another Dynamics 365 database.';
 
                     trigger OnAction()
@@ -255,7 +230,7 @@ page 1500 Workflows
                         FileManagement: Codeunit "File Management";
                         "Filter": Text;
                     begin
-                        Filter := GetFilterFromSelection;
+                        Filter := GetFilterFromSelection();
                         if Filter = '' then
                             exit;
                         Workflow.SetFilter(Code, Filter);
@@ -273,9 +248,6 @@ page 1500 Workflows
                     Caption = 'View';
                     Enabled = ExternalLinkEnabled;
                     Image = Flow;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'View flow definition';
                     Visible = IsSaaS;
@@ -302,17 +274,72 @@ page 1500 Workflows
                 ToolTip = 'View the existing workflow templates.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+                ShowAs = SplitButton;
+
+                actionref(CopyFromTemplate_Promoted; CopyFromTemplate)
+                {
+                }
+                actionref(CopyWorkflow_Promoted; CopyWorkflow)
+                {
+                }
+                actionref(NewAction_Promoted; NewAction)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ImportWorkflow_Promoted; ImportWorkflow)
+                {
+                }
+                actionref(ExportWorkflow_Promoted; ExportWorkflow)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditAction_Promoted; EditAction)
+                {
+                }
+                actionref(DeleteAction_Promoted; DeleteAction)
+                {
+                }
+                actionref(ViewAction_Promoted; ViewAction)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Power Automate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(WebhookClientLink_Promoted; WebhookClientLink)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        RefreshTempWorkflowBufferRow;
+        RefreshTempWorkflowBufferRow();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        RefreshTempWorkflowBuffer;
-        ExportEnabled := not IsEmpty;
+        RefreshTempWorkflowBuffer();
+        ExportEnabled := not IsEmpty();
 
         if "Workflow Code" = '' then begin
             DescriptionStyle := 'Strong';
@@ -339,11 +366,11 @@ page 1500 Workflows
     begin
         FeatureTelemetry.LogUptake('0000GDR', 'Workflows', Enum::"Feature Uptake Status"::Discovered);
 
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
         if not WorkflowBufferInitialized then
             InitBufferForWorkflows(Rec);
 
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
     end;
 
     var
@@ -403,7 +430,7 @@ page 1500 Workflows
         Workflow.Get("Workflow Code");
         "Category Code" := Workflow.Category;
         Description := Workflow.Description;
-        Modify;
+        Modify();
     end;
 
     local procedure GetFilterFromSelection() "Filter": Text

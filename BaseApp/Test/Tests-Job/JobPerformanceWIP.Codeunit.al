@@ -358,7 +358,7 @@ codeunit 136304 "Job Performance WIP"
             WIPScenario(100, 10, 200, 40, JobWIPMethod);
             // with accrued costs
             WIPScenario(100, 10, 200, 10, JobWIPMethod)
-        until JobWIPMethod.Next = 0
+        until JobWIPMethod.Next() = 0
     end;
 
     [Test]
@@ -516,7 +516,7 @@ codeunit 136304 "Job Performance WIP"
             CreateJobTaskWIPTotal(JobTask, Job, JobTask."Job Task Type"::Total);
             JobTask.Validate("WIP Method", JobWIPMethod.Code);
             JobTask.Modify(true);
-        until JobWIPMethod.Next = 0;
+        until JobWIPMethod.Next() = 0;
 
         // Setup: execute job
         FilterJobTaskByType(JobTask, Job."No.");
@@ -1017,7 +1017,7 @@ codeunit 136304 "Job Performance WIP"
         PostWIP2GL(Job);
 
         // 2. Exercise: Run "Job Post WIP to G/L" batch job after changing the Workdate.
-        CurrentWorkDate := WorkDate;
+        CurrentWorkDate := WorkDate();
         WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', CurrentWorkDate);
         PostWIP2GL(Job);
 
@@ -1132,7 +1132,7 @@ codeunit 136304 "Job Performance WIP"
         JobCard.OpenEdit;
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(Job.Status::Completed);
-        JobCard.Close;
+        JobCard.Close();
 
         // Exercise: Calculate WIP for Job.
         CalculateWIP(Job);
@@ -1539,7 +1539,7 @@ codeunit 136304 "Job Performance WIP"
         Job.Modify(true);
 
         // [THEN] "Job" Ending Date is populated with WORKDATE
-        Assert.AreEqual(WorkDate, Job."Ending Date", 'Job Ending Date should not be empty.');
+        Assert.AreEqual(WorkDate(), Job."Ending Date", 'Job Ending Date should not be empty.');
     end;
 
     [Test]
@@ -2137,8 +2137,8 @@ codeunit 136304 "Job Performance WIP"
             JobPlanningLine.FindSet();
             repeat
                 CreateMockJobLedgerEntry(JobPlanningLine, Fraction, JobLedgerEntry)
-            until JobPlanningLine.Next = 0
-        until JobTask.Next = 0
+            until JobPlanningLine.Next() = 0
+        until JobTask.Next() = 0
     end;
 
     local procedure InvoiceJobTasks(var JobTask: Record "Job Task"; Fraction: Decimal)
@@ -2156,8 +2156,8 @@ codeunit 136304 "Job Performance WIP"
             JobPlanningLine.FindSet();
             repeat
                 CreateMockJobLedgerEntry(JobPlanningLine, Fraction, JobLedgerEntry)
-            until JobPlanningLine.Next = 0
-        until JobTask.Next = 0
+            until JobPlanningLine.Next() = 0
+        until JobTask.Next() = 0
     end;
 
     local procedure CreateMockJobLedgerEntry(JobPlanningLine: Record "Job Planning Line"; Fraction: Decimal; var JobLedgerEntry: Record "Job Ledger Entry")
@@ -2167,11 +2167,11 @@ codeunit 136304 "Job Performance WIP"
 
         with JobLedgerEntry do begin
             if FindLast() then;
-            Init;
+            Init();
             "Entry No." += 1;
             "Job No." := JobPlanningLine."Job No.";
             "Job Task No." := JobPlanningLine."Job Task No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Type := JobPlanningLine.Type;
             "No." := JobPlanningLine."No.";
             case JobPlanningLine."Line Type" of
@@ -2191,7 +2191,7 @@ codeunit 136304 "Job Performance WIP"
                 else
                     Assert.Fail(StrSubstNo('Unsupported line type: %1', JobPlanningLine."Line Type"));
             end;
-            Insert;
+            Insert();
         end
     end;
 
@@ -2273,7 +2273,7 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         Job.Get(Job."No.");
-        Job.Validate("Starting Date", WorkDate - 1);
+        Job.Validate("Starting Date", WorkDate() - 1);
         Job.Validate("Ending Date", 0D);
         Job.Modify(true);
     end;
@@ -2302,7 +2302,7 @@ codeunit 136304 "Job Performance WIP"
         JobCard.OpenEdit;
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(Job.Status::Completed);
-        JobCard.Close;
+        JobCard.Close();
     end;
 
     local procedure AttachDimension2JobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; DimensionSetID: Integer)
@@ -2359,7 +2359,7 @@ codeunit 136304 "Job Performance WIP"
     var
         JobCalculateWIP: Codeunit "Job Calculate WIP";
     begin
-        JobCalculateWIP.CalcGLWIP(JobNo, JustReverse, Format(Time - 000000T), WorkDate, false);
+        JobCalculateWIP.CalcGLWIP(JobNo, JustReverse, Format(Time - 000000T), WorkDate(), false);
     end;
 
     local procedure UpdateJobAdjustmentAccounts(JobPostingGroupCode: Code[20])
@@ -2403,7 +2403,7 @@ codeunit 136304 "Job Performance WIP"
             JobWIPTotal.SetRange("Job Task No.", JobTask."Job Task No.");
             JobWIPTotal.FindLast();
             VerifyJobWIPTotal(JobWIPTotal, JobWIPMethod)
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
 
         // verify cost and sales recognition for the WIP totals
         JobTask.SetRange("Job Task Type");
@@ -2414,7 +2414,7 @@ codeunit 136304 "Job Performance WIP"
               GetRoundingPrecision, 'WIP cost amounts do not match');
             Assert.AreNearlyEqual(TotalRecogSalesGL(JobTask) - ContractInvoicedPrice(JobTask), WIPSalesAmount(JobTask),
               GetRoundingPrecision, 'WIP sales amounts do not match')
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
 
         // verify cost and sales recognition for the job
         Job.CalcFields("Recog. Costs Amount", "Recog. Sales Amount", "Recog. Costs G/L Amount", "Recog. Sales G/L Amount");
@@ -2500,7 +2500,7 @@ codeunit 136304 "Job Performance WIP"
         FindJobTask(JobTask, Job."No.");
         repeat
             RecogCosts += UsageTotalCost(JobTask) - WIPCostAmount(JobTask)
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
 
         RecogCosts := Max(RecogCosts, 0)
     end;
@@ -2541,7 +2541,7 @@ codeunit 136304 "Job Performance WIP"
         FindJobTask(JobTask, Job."No.");
         repeat
             RecogSales += WIPSalesAmount(JobTask) + ContractInvoicedPrice(JobTask)
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
 
         RecogSales := Max(RecogSales, 0)
     end;
@@ -2567,7 +2567,7 @@ codeunit 136304 "Job Performance WIP"
                 JobWIPMethod."Recognized Sales"::"Percentage of Completion":
                     AccruedSales += RecogSalesAmt;
             end;
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     local procedure InvoicedSalesAmount(Job: Record Job) InvoicedSales: Decimal
@@ -2588,7 +2588,7 @@ codeunit 136304 "Job Performance WIP"
                 InvoicedSales -= ContractInvPriceAmt
             else
                 InvoicedSales += -(Max(RecogSalesAmt, ContractInvPriceAmt) - RecogSalesAmt)
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     local procedure SalesAdjAmount(Job: Record Job) SalesAdj: Decimal
@@ -2603,7 +2603,7 @@ codeunit 136304 "Job Performance WIP"
             JobWIPMethod.Get(JobTask."WIP Method");
             if JobWIPMethod."Recognized Sales" <> JobWIPMethod."Recognized Sales"::"Percentage of Completion" then
                 SalesAdj += -Max(WIPSalesAmount(JobTask), 0);
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     local procedure SalesAppliedAmount(Job: Record Job) SalesApplied: Decimal
@@ -2628,7 +2628,7 @@ codeunit 136304 "Job Performance WIP"
                 else
                     SalesApplied += ContractInvPriceAmt;
             end;
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     local procedure WIPSalesAmount(var JobTask: Record "Job Task"): Decimal
@@ -2746,7 +2746,7 @@ codeunit 136304 "Job Performance WIP"
         JobTask.FindSet();
         repeat
             AddJobTasks(JobTask, TotalJobTask);
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     local procedure GetTotalJobTask(JobTask: Record "Job Task"; var TotalJobTask: Record "Job Task")
@@ -2780,7 +2780,7 @@ codeunit 136304 "Job Performance WIP"
         JobTask.FindSet();
         repeat
             AddJobTasks(JobTask, TotalJobTask)
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
 
         TotalJobTask."WIP Method" := GetWIPMethod(JobTask, JobWIPMethod)
     end;
@@ -2869,7 +2869,7 @@ codeunit 136304 "Job Performance WIP"
         JobPostingGroup.Get(JobTask."Job Posting Group");
         GLEntry.SetRange("Job No.", JobTask."Job No.");
         GLEntry.SetRange("G/L Account No.", JobPostingGroup."Job Costs Applied Account");
-        GLEntry.SetRange("Posting Date", WorkDate);
+        GLEntry.SetRange("Posting Date", WorkDate());
         GLEntry.FindFirst();
         GLEntry.TestField("Bal. Account No.", JobPostingGroup."WIP Costs Account");
         GLEntry.TestField(Amount, CostAmount);
@@ -2885,7 +2885,7 @@ codeunit 136304 "Job Performance WIP"
 
         with GLEntry do begin
             SetRange("Job No.", JobTask."Job No.");
-            SetRange("Posting Date", WorkDate);
+            SetRange("Posting Date", WorkDate());
 
             case AccountType of
                 AccountType::"WIP Costs Account":

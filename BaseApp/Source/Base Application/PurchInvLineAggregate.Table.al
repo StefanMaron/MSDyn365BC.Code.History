@@ -25,7 +25,7 @@ table 5478 "Purch. Inv. Line Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateItemId;
+                UpdateItemId();
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -206,7 +206,7 @@ table 5478 "Purch. Inv. Line Aggregate"
             trigger OnValidate()
             begin
                 Validate(Type, Type::Item);
-                UpdateNo;
+                UpdateNo();
             end;
         }
         field(9031; "Account Id"; Guid)
@@ -217,7 +217,7 @@ table 5478 "Purch. Inv. Line Aggregate"
             trigger OnValidate()
             begin
                 Validate(Type, Type::"G/L Account");
-                UpdateNo;
+                UpdateNo();
             end;
         }
         field(9032; "Unit of Measure Id"; Guid)
@@ -298,17 +298,17 @@ table 5478 "Purch. Inv. Line Aggregate"
 
     trigger OnInsert()
     begin
-        UpdateCalculatedFields;
+        UpdateCalculatedFields();
     end;
 
     trigger OnModify()
     begin
-        UpdateCalculatedFields;
+        UpdateCalculatedFields();
     end;
 
     trigger OnRename()
     begin
-        UpdateCalculatedFields;
+        UpdateCalculatedFields();
     end;
 
     procedure UpdateItemId()
@@ -366,7 +366,7 @@ table 5478 "Purch. Inv. Line Aggregate"
 
     local procedure UpdateCalculatedFields()
     begin
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
         "API Type" := Type;
     end;
 
@@ -385,8 +385,8 @@ table 5478 "Purch. Inv. Line Aggregate"
 
     procedure UpdateReferencedRecordIds()
     begin
-        UpdateItemId;
-        UpdateAccountId;
+        UpdateItemId();
+        UpdateAccountId();
         UpdateUnitOfMeasureId();
         UpdateLocationId();
     end;

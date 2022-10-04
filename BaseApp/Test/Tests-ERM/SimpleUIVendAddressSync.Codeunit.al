@@ -45,15 +45,15 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         UpdateBuyFromAddressOnPurchaseHeader(PurchaseHeader);
 
         // Pre-verify.
-        Vendor.Find;
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Vendor.Find();
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
 
         // Exercise.
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Vendor.Find;
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Vendor.Find();
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -79,15 +79,15 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         UpdateShipToAddressOnPurchaseHeader(PurchaseHeader);
 
         // Pre-verify.
-        Vendor.Find;
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Vendor.Find();
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
 
         // Exercise.
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Vendor.Find;
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Vendor.Find();
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -123,9 +123,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Verify
         FindBuyFromVendorPurchaseInvoice(PurchaseHeader, ReplacementVendor."No.");
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
 
         // Teardown
         LibraryVariableStorage.AssertEmpty;
@@ -162,9 +162,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Verify
         FindPayToVendorPurchaseInvoice(PurchaseHeader, ReplacementVendor."No.");
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
 
         // Teardown
         LibraryVariableStorage.AssertEmpty;
@@ -203,9 +203,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Verify
         FindBuyFromVendorPurchaseInvoice(PurchaseHeader, ReplacementVendor."No.");
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
 
         // Teardown
         LibraryVariableStorage.AssertEmpty;
@@ -269,7 +269,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -287,7 +287,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -305,7 +305,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -323,7 +323,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -341,7 +341,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -377,7 +377,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption));
+        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -398,9 +398,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -421,9 +421,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -444,9 +444,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -467,9 +467,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -490,9 +490,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -513,9 +513,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -536,9 +536,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -559,9 +559,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -582,9 +582,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -605,9 +605,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -628,9 +628,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -651,9 +651,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -674,9 +674,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -697,9 +697,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -720,9 +720,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -743,9 +743,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -766,9 +766,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -789,9 +789,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -812,9 +812,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -835,9 +835,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -858,9 +858,9 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -936,7 +936,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryERM.CreatePostCode(PayToPostCode);
 
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice."Posting Date".SetValue(WorkDate);
+        PurchaseInvoice."Posting Date".SetValue(WorkDate());
         PurchaseInvoice."Buy-from Post Code".SetValue(BuyFromPostCode.Code);
         PurchaseInvoice."Buy-from Address".SetValue(GenerateBuyFromAddress);
         PurchaseInvoice."Pay-to Post Code".SetValue(PayToPostCode.Code);

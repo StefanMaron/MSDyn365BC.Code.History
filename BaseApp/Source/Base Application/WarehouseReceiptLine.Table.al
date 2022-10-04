@@ -113,7 +113,7 @@ table 7317 "Warehouse Receipt Line"
             begin
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
                 "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
-                InitOutstandingQtys;
+                InitOutstandingQtys();
             end;
         }
         field(16; "Qty. (Base)"; Decimal)
@@ -293,7 +293,7 @@ table 7317 "Warehouse Receipt Line"
             begin
                 CrossDockMgt.GetUseCrossDock(UseCrossDock, "Location Code", "Item No.");
                 if not UseCrossDock then
-                    Error(Text006, Item.TableCaption, Location.TableCaption);
+                    Error(Text006, Item.TableCaption(), Location.TableCaption());
                 if "Qty. to Cross-Dock" > "Qty. to Receive" then
                     Error(
                       Text005,
@@ -460,7 +460,7 @@ table 7317 "Warehouse Receipt Line"
         OnBeforeConfirmDelete(Rec, SkipConfirm);
 
         if (Quantity <> "Qty. Outstanding") and ("Qty. Outstanding" <> 0) and not SkipConfirm then
-            if not Confirm(Text004, false, TableCaption, "Line No.") then
+            if not Confirm(Text004, false, TableCaption(), "Line No.") then
                 Error(Text003);
 
         WhseRcptHeader.Get("No.");
@@ -494,14 +494,14 @@ table 7317 "Warehouse Receipt Line"
 
     procedure InitNewLine(DocNo: Code[20])
     begin
-        Reset;
+        Reset();
         "No." := DocNo;
         SetRange("No.", "No.");
         LockTable();
         if FindLast() then;
 
-        Init;
-        SetIgnoreErrors;
+        Init();
+        SetIgnoreErrors();
         "Line No." := "Line No." + 10000;
     end;
 
@@ -521,14 +521,13 @@ table 7317 "Warehouse Receipt Line"
         if IsHandled then
             exit;
 
-        with WhseReceiptLine do begin
+        with WhseReceiptLine do
             if Find('-') then
                 repeat
                     Validate("Qty. to Receive", "Qty. Outstanding");
                     OnAutoFillQtyToReceiveOnBeforeModify(WhseReceiptLine);
-                    Modify;
+                    Modify();
                 until Next() = 0;
-        end;
     end;
 
     procedure DeleteQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line")
@@ -647,7 +646,7 @@ table 7317 "Warehouse Receipt Line"
         TestField("No.");
         TestField("Qty. (Base)");
 
-        GetItem;
+        GetItem();
         Item.TestField("Item Tracking Code");
 
         SecondSourceQtyArray[1] := DATABASE::"Warehouse Receipt Line";
@@ -656,15 +655,11 @@ table 7317 "Warehouse Receipt Line"
 
         case "Source Type" of
             DATABASE::"Purchase Line":
-                begin
-                    if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
-                end;
+                if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
+                    PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
             DATABASE::"Sales Line":
-                begin
-                    if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        SalesLineReserve.CallItemTracking(SalesLine, SecondSourceQtyArray);
-                end;
+                if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
+                    SalesLineReserve.CallItemTracking(SalesLine, SecondSourceQtyArray);
             DATABASE::"Transfer Line":
                 begin
                     Direction := Direction::Inbound;

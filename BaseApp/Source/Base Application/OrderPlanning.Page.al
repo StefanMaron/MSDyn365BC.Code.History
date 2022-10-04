@@ -5,7 +5,6 @@ page 5522 "Order Planning"
     Caption = 'Order Planning';
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Item,Item Availability by';
     SourceTable = "Requisition Line";
     SourceTableTemporary = true;
     UsageCategory = Tasks;
@@ -27,7 +26,7 @@ page 5522 "Order Planning"
 
                     trigger OnValidate()
                     begin
-                        DemandOrderFilterOnAfterValida;
+                        DemandOrderFilterOnAfterValida();
                     end;
                 }
             }
@@ -37,7 +36,7 @@ page 5522 "Order Planning"
                 IndentationControls = Description;
                 ShowAsTree = true;
                 ShowCaption = false;
-                field("Demand Date"; "Demand Date")
+                field("Demand Date"; Rec."Demand Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the demanded date of the demand that the planning line represents.';
@@ -66,7 +65,7 @@ page 5522 "Order Planning"
                     Editable = false;
                     Visible = false;
                 }
-                field("Demand Order No."; "Demand Order No.")
+                field("Demand Order No."; Rec."Demand Order No.")
                 {
                     ApplicationArea = Planning;
                     Caption = 'Order No.';
@@ -75,33 +74,33 @@ page 5522 "Order Planning"
                     StyleExpr = DemandOrderNoEmphasize;
                     ToolTip = 'Specifies the number of the demanded order that represents the planning line.';
                 }
-                field("Demand Line No."; "Demand Line No.")
+                field("Demand Line No."; Rec."Demand Line No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the line number of the demand, such as a sales order line.';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     Caption = 'Item No.';
                     Editable = false;
                     ToolTip = 'Specifies the number of the item with insufficient availability and must be planned.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the bin of the item on the line.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
@@ -116,27 +115,27 @@ page 5522 "Order Planning"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies text that describes the entry.';
                 }
-                field("Demand Quantity"; "Demand Quantity")
+                field("Demand Quantity"; Rec."Demand Quantity")
                 {
                     ApplicationArea = Planning;
                     HideValue = DemandQuantityHideValue;
                     ToolTip = 'Specifies the quantity on the demand that the planning line represents.';
                     Visible = false;
                 }
-                field("Demand Qty. Available"; "Demand Qty. Available")
+                field("Demand Qty. Available"; Rec."Demand Qty. Available")
                 {
                     ApplicationArea = Planning;
                     HideValue = DemandQtyAvailableHideValue;
                     ToolTip = 'Specifies how many of the demand quantity are available.';
                     Visible = false;
                 }
-                field("Needed Quantity"; "Needed Quantity")
+                field("Needed Quantity"; Rec."Needed Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the demand quantity that is not available and must be ordered to meet the demand represented on the planning line.';
                     Visible = true;
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Planning;
                     HideValue = ReplenishmentSystemHideValue;
@@ -144,10 +143,10 @@ page 5522 "Order Planning"
 
                     trigger OnValidate()
                     begin
-                        ReplenishmentSystemOnAfterVali;
+                        ReplenishmentSystemOnAfterVali();
                     end;
                 }
-                field("Supply From"; "Supply From")
+                field("Supply From"; Rec."Supply From")
                 {
                     ApplicationArea = Planning;
                     Editable = SupplyFromEditable;
@@ -166,59 +165,59 @@ page 5522 "Order Planning"
                     HideValue = QuantityHideValue;
                     ToolTip = 'Specifies the quantity that will be ordered on the supply order, such as purchase or assembly, that you can create from the planning line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when the related order was created.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting date of the manufacturing process, if the planned supply is a production order.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the currency code for the requisition lines.';
                     Visible = false;
                 }
-                field("Purchasing Code"; "Purchasing Code")
+                field("Purchasing Code"; Rec."Purchasing Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -301,13 +300,11 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Open the document that the selected line exists on.';
 
                     trigger OnAction()
                     begin
-                        ShowDemandOrder;
+                        ShowDemandOrder();
                     end;
                 }
                 separator(Action63)
@@ -318,8 +315,6 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Components';
                     Image = Components;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Planning Components";
                     RunPageLink = "Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
@@ -331,8 +326,6 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Ro&uting';
                     Image = Route;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Planning Routing";
                     RunPageLink = "Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
@@ -345,15 +338,13 @@ page 5522 "Order Planning"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -366,8 +357,6 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
 
@@ -390,13 +379,11 @@ page 5522 "Order Planning"
                         ApplicationArea = Planning;
                         Caption = 'Event';
                         Image = "Event";
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -404,13 +391,11 @@ page 5522 "Order Planning"
                         ApplicationArea = Planning;
                         Caption = 'Period';
                         Image = Period;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -418,13 +403,11 @@ page 5522 "Order Planning"
                         ApplicationArea = Planning;
                         Caption = 'Variant';
                         Image = ItemVariant;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant);
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -433,13 +416,11 @@ page 5522 "Order Planning"
                         ApplicationArea = Location;
                         Caption = 'Location';
                         Image = Warehouse;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         ToolTip = 'View the actual and projected quantity of the item per location.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation);
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -458,13 +439,11 @@ page 5522 "Order Planning"
                         ApplicationArea = Assembly;
                         Caption = 'BOM Level';
                         Image = BOMLevel;
-                        Promoted = true;
-                        PromotedCategory = Category6;
                         ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -481,13 +460,11 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = '&Calculate Plan';
                     Image = CalculatePlan;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Start the calculation of supply orders needed to fulfill the specified demand. Remember that each time, you choose the Calculate Plan action, only one product level is planned.';
 
                     trigger OnAction()
                     begin
-                        CalcPlan;
+                        CalcPlan();
                         CurrPage.Update(false);
                     end;
                 }
@@ -503,7 +480,7 @@ page 5522 "Order Planning"
 
                     trigger OnAction()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowReservation();
                     end;
                 }
@@ -528,8 +505,6 @@ page 5522 "Order Planning"
                     Caption = 'Refresh &Planning Line';
                     Ellipsis = true;
                     Image = RefreshPlanningLine;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Update the planning components and the routing lines for the selected planning line with any changes.';
 
                     trigger OnAction()
@@ -551,8 +526,6 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Alternative Supply';
                     Image = TransferToLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Get alternative supply locations for the selected line.';
 
                     trigger OnAction()
@@ -566,8 +539,6 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Select Item Substitutes';
                     Image = SelectItemSubstitution;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Get substitutes for the selected line.';
 
                     trigger OnAction()
@@ -579,9 +550,9 @@ page 5522 "Order Planning"
                         ReqLine3 := Rec;
                         OrderPlanningMgt.InsertAltSupplySubstitution(ReqLine3);
                         Rec := ReqLine3;
-                        Modify;
+                        Modify();
 
-                        if OrderPlanningMgt.DeleteLine then begin
+                        if OrderPlanningMgt.DeleteLine() then begin
                             xReqLine := Rec;
                             ReqLine2.SetCurrentKey("User ID", "Demand Type", "Demand Subtype", "Demand Order No.");
                             ReqLine2.SetRange("User ID", UserId);
@@ -595,12 +566,12 @@ page 5522 "Order Planning"
                                 ReqLine2.SetRange(Level, 0);
                                 if ReqLine2.FindFirst() then begin // Find and delete parent
                                     Rec := ReqLine2;
-                                    Delete;
+                                    Delete();
                                 end;
                             end;
 
                             Rec := xReqLine;
-                            Delete;
+                            Delete();
                             CurrPage.Update(false);
                         end else
                             CurrPage.Update(true);
@@ -613,8 +584,6 @@ page 5522 "Order Planning"
                 Caption = 'Make &Orders';
                 Ellipsis = true;
                 Image = NewOrder;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create the suggested supply orders according to options that you specify in a new window.';
 
                 trigger OnAction()
@@ -624,11 +593,83 @@ page 5522 "Order Planning"
                     ActionMsgCarriedOut := MakeSupplyOrders();
 
                     if ActionMsgCarriedOut then begin
-                        RefreshTempTable;
-                        SetRecFilters;
+                        RefreshTempTable();
+                        SetRecFilters();
                         CurrPage.Update(false);
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CalculatePlan_Promoted; CalculatePlan)
+                {
+                }
+                actionref("Make &Orders_Promoted"; "Make &Orders")
+                {
+                }
+                actionref("Refresh &Planning Line_Promoted"; "Refresh &Planning Line")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
+                }
+                actionref(Card_Promoted; Card)
+                {
+                }
+                actionref("Alternative Supply_Promoted"; "Alternative Supply")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Substitutes_Promoted; Substitutes)
+                {
+                }
+                actionref(Components_Promoted; Components)
+                {
+                }
+                actionref("Ro&uting_Promoted"; "Ro&uting")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Item Availability by', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Event_Promoted; "Event")
+                {
+                }
+                actionref(Location_Promoted; Location)
+                {
+                }
+                actionref("BOM Level_Promoted"; "BOM Level")
+                {
+                }
+                actionref(Period_Promoted; Period)
+                {
+                }
+                actionref(Variant_Promoted; Variant)
+                {
+                }
             }
         }
     }
@@ -637,14 +678,14 @@ page 5522 "Order Planning"
     begin
         if ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then begin
             Rec := ReqLine;
-            Modify;
+            Modify();
             OnUpdateReqLineOnAfterGetCurrRecord(Rec);
         end else
             if Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
-                Delete;
+                Delete();
 
-        UpdateSupplyFrom;
-        CalcItemAvail;
+        UpdateSupplyFrom();
+        CalcItemAvail();
     end;
 
     trigger OnAfterGetRecord()
@@ -656,13 +697,13 @@ page 5522 "Order Planning"
         DemandTypeTextOnFormat(DemandTypeText);
         DemandSubtypeText := Format("Demand Subtype");
         DemandSubtypeTextOnFormat(DemandSubtypeText);
-        DemandOrderNoOnFormat;
-        DescriptionOnFormat;
-        DemandQuantityOnFormat;
-        DemandQtyAvailableOnFormat;
-        ReplenishmentSystemOnFormat;
-        QuantityOnFormat;
-        ReserveOnFormat;
+        DemandOrderNoOnFormat();
+        DescriptionOnFormat();
+        DemandQuantityOnFormat();
+        DemandQtyAvailableOnFormat();
+        ReplenishmentSystemOnFormat();
+        QuantityOnFormat();
+        ReserveOnFormat();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -670,11 +711,11 @@ page 5522 "Order Planning"
         xReqLine: Record "Requisition Line";
     begin
         xReqLine := Rec;
-        while (Next <> 0) and (Level > xReqLine.Level) do
+        while (Next() <> 0) and (Level > xReqLine.Level) do
             Delete(true);
         Rec := xReqLine;
         xReqLine.Delete(true);
-        Delete;
+        Delete();
         exit(false);
     end;
 
@@ -707,7 +748,7 @@ page 5522 "Order Planning"
             MfgUserTempl.Insert();
         end;
 
-        InitTempRec;
+        InitTempRec();
     end;
 
     var
@@ -817,7 +858,7 @@ page 5522 "Order Planning"
         if ReqLine.FindSet() then
             repeat
                 Rec := ReqLine;
-                Insert;
+                Insert();
                 if ReqLine.Level = 0 then
                     FindReqLineForCursor(ReqLineWithCursor, ReqLine);
             until ReqLine.Next() = 0;
@@ -826,7 +867,7 @@ page 5522 "Order Planning"
             if ReqLineWithCursor."Line No." > 0 then
                 Rec := ReqLineWithCursor;
 
-        SetRecFilters;
+        SetRecFilters();
     end;
 
     protected procedure FindReqLineForCursor(var ReqLineWithCursor: Record "Requisition Line"; ActualReqLine: Record "Requisition Line")
@@ -848,19 +889,19 @@ page 5522 "Order Planning"
     begin
         TempReqLine2.Copy(Rec);
 
-        Reset;
+        Reset();
         if Find('-') then
             repeat
                 ReqLine := Rec;
-                if not ReqLine.Find or
+                if not ReqLine.Find() or
                    ((Level = 0) and ((ReqLine.Next() = 0) or (ReqLine.Level = 0)))
                 then begin
                     if Level = 0 then begin
                         ReqLine := Rec;
-                        ReqLine.Find;
+                        ReqLine.Find();
                         ReqLine.Delete(true);
                     end;
-                    Delete
+                    Delete();
                 end;
             until Next() = 0;
 
@@ -869,7 +910,7 @@ page 5522 "Order Planning"
 
     procedure SetRecFilters()
     begin
-        Reset;
+        Reset();
         FilterGroup(2);
         SetRange("User ID", UserId);
         SetRange("Worksheet Template Name", '');
@@ -973,10 +1014,10 @@ page 5522 "Order Planning"
 
     local procedure CalcItemAvail()
     begin
-        QtyOnOtherLocations := CalcQtyOnOtherLocations;
-        SubstitionAvailable := CalcSubstitionAvailable;
-        QtyATP := CalcQtyATP;
-        EarliestShptDateAvailable := CalcEarliestShptDateAvailable;
+        QtyOnOtherLocations := CalcQtyOnOtherLocations();
+        SubstitionAvailable := CalcSubstitionAvailable();
+        QtyATP := CalcQtyATP();
+        EarliestShptDateAvailable := CalcEarliestShptDateAvailable();
     end;
 
     local procedure CalcQtyOnOtherLocations(): Decimal
@@ -989,7 +1030,7 @@ page 5522 "Order Planning"
         QtyOnOtherLocation := OrderPlanningMgt.AvailQtyOnOtherLocations(Rec); // Base Unit
         if "Qty. per Unit of Measure" = 0 then
             "Qty. per Unit of Measure" := 1;
-        QtyOnOtherLocation := Round(QtyOnOtherLocation / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+        QtyOnOtherLocation := Round(QtyOnOtherLocation / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
         exit(QtyOnOtherLocation);
     end;
@@ -1004,7 +1045,7 @@ page 5522 "Order Planning"
         QtyATP := OrderPlanningMgt.CalcATPQty("No.", "Variant Code", "Location Code", "Demand Date"); // Base Unit
         if "Qty. per Unit of Measure" = 0 then
             "Qty. per Unit of Measure" := 1;
-        QtyATP := Round(QtyATP / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+        QtyATP := Round(QtyATP / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
         exit(QtyATP);
     end;
@@ -1035,26 +1076,26 @@ page 5522 "Order Planning"
     var
         ReqLine: Record "Requisition Line";
     begin
-        Reset;
+        Reset();
         DeleteAll();
 
         Clear(OrderPlanningMgt);
         case DemandOrderFilter of
             DemandOrderFilter::"Sales Demand":
-                OrderPlanningMgt.SetSalesOrder;
+                OrderPlanningMgt.SetSalesOrder();
             DemandOrderFilter::"Assembly Demand":
-                OrderPlanningMgt.SetAsmOrder;
+                OrderPlanningMgt.SetAsmOrder();
             DemandOrderFilter::"Production Demand":
-                OrderPlanningMgt.SetProdOrder;
+                OrderPlanningMgt.SetProdOrder();
             DemandOrderFilter::"Service Demand":
-                OrderPlanningMgt.SetServOrder;
+                OrderPlanningMgt.SetServOrder();
             DemandOrderFilter::"Job Demand":
-                OrderPlanningMgt.SetJobOrder;
+                OrderPlanningMgt.SetJobOrder();
         end;
         OnCalcPlanOnBeforeGetOrdersToPlan(ReqLine);
         OrderPlanningMgt.GetOrdersToPlan(ReqLine);
 
-        InitTempRec;
+        InitTempRec();
     end;
 
     local procedure UpdateSupplyFrom()
@@ -1065,13 +1106,13 @@ page 5522 "Order Planning"
 
     local procedure DemandOrderFilterOnAfterValida()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ReplenishmentSystemOnAfterVali()
     begin
-        UpdateSupplyFrom;
+        UpdateSupplyFrom();
     end;
 
     local procedure StatusTextOnFormat(var Text: Text[1024])
@@ -1185,6 +1226,11 @@ page 5522 "Order Planning"
         MakeSupplyOrdersYesNo.SetManufUserTemplate(MfgUserTempl);
         MakeSupplyOrdersYesNo.Run(Rec);
         ActionMsgCarriedOut := MakeSupplyOrdersYesNo.ActionMsgCarriedOut();
+    end;
+
+    procedure SetDemandOrderFilter(NewDemandOrderFilter: Option)
+    begin
+        DemandOrderFilter := NewDemandOrderFilter;
     end;
 
     [IntegrationEvent(false, false)]

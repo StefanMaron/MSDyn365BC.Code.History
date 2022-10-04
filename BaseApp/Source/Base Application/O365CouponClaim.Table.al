@@ -1,10 +1,18 @@
 table 2115 "O365 Coupon Claim"
 {
     Caption = 'O365 Coupon Claim';
-    DrillDownPageID = "O365 Coupon";
-    LookupPageID = "O365 Coupon";
     Permissions = TableData "O365 Posted Coupon Claim" = imd;
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    DrillDownPageID = "O365 Coupon";
+    LookupPageID = "O365 Coupon";
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -15,11 +23,12 @@ table 2115 "O365 Coupon Claim"
         field(2; "Graph Contact ID"; Text[250])
         {
             Caption = 'Graph Contact ID';
-
+#if not CLEAN21
             trigger OnValidate()
             begin
-                UpdateCustomerId;
+                UpdateCustomerId();
             end;
+#endif
         }
         field(3; Usage; Option)
         {
@@ -47,22 +56,24 @@ table 2115 "O365 Coupon Claim"
         {
             AutoFormatType = 1;
             Caption = 'Discount Value';
-
+#if not CLEAN21
             trigger OnValidate()
             begin
-                UpdateAmountText;
+                UpdateAmountText();
             end;
+#endif
         }
         field(9; "Discount Type"; Option)
         {
             Caption = 'Discount Type';
             OptionCaption = 'Custom,%,Amount';
             OptionMembers = Custom,"%",Amount;
-
+#if not CLEAN21
             trigger OnValidate()
             begin
-                UpdateAmountText;
+                UpdateAmountText();
             end;
+#endif            
         }
         field(10; "Created DateTime"; DateTime)
         {
@@ -136,20 +147,20 @@ table 2115 "O365 Coupon Claim"
         {
         }
     }
-
+#if not CLEAN21
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var
@@ -170,6 +181,7 @@ table 2115 "O365 Coupon Claim"
         CouponAlreadyUsedOnEstimateErr: Label 'This coupon has already been applied to estimate %1. Remove it there, and then use it here.', Comment = '%1 = document no.';
         NoCouponsTxt: Label 'You have one or more coupons that you can apply.';
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetAppliedClaimsForSalesDocument(SalesHeader: Record "Sales Header") CouponCodes: Text
     begin
         SetRange("Document Type Filter", SalesHeader."Document Type");
@@ -178,29 +190,31 @@ table 2115 "O365 Coupon Claim"
         if not FindSet() then
             exit(NoCouponsTxt);
 
-        UpdateAmountText;
+        UpdateAmountText();
         if Code <> '' then
             CouponCodes := Code
         else
             CouponCodes := "Amount Text";
-        if Next <> 0 then
+        if Next() <> 0 then
             repeat
-                CouponCodes += StrSubstNo(', %1', GetCouponPseudoCode);
+                CouponCodes += StrSubstNo(', %1', GetCouponPseudoCode());
             until Next() = 0;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetOffer(): Text
     var
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
         CalcFields("Offer Blob");
-        if not "Offer Blob".HasValue then
+        if not "Offer Blob".HasValue() then
             exit(Offer);
         "Offer Blob".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetOffer(NewOffer: Text)
     var
         OutStream: OutStream;
@@ -214,21 +228,23 @@ table 2115 "O365 Coupon Claim"
 
         "Offer Blob".CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(NewOffer);
-        Modify;
+        Modify();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetTerms(): Text
     var
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
         CalcFields("Terms Blob");
-        if not "Terms Blob".HasValue then
+        if not "Terms Blob".HasValue() then
             exit(Terms);
         "Terms Blob".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetTerms(NewTerms: Text)
     var
         OutStream: OutStream;
@@ -241,15 +257,16 @@ table 2115 "O365 Coupon Claim"
             exit;
         "Offer Blob".CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(NewTerms);
-        Modify;
+        Modify();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetCouponPseudoCode(): Text
     begin
         if Code <> '' then
             exit(Code);
 
-        UpdateAmountText;
+        UpdateAmountText();
         exit("Amount Text");
     end;
 
@@ -268,11 +285,13 @@ table 2115 "O365 Coupon Claim"
             "Amount Text" := StrSubstNo(AmountDiscountTxt, Currency.ResolveGLCurrencySymbol(''), "Discount Value");
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure UpdateStatusText()
     begin
-        "Status Text" := GetStatusText;
+        "Status Text" := GetStatusText();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure Apply(): Boolean
     var
         O365CouponClaimDocLink: Record "O365 Coupon Claim Doc. Link";
@@ -301,7 +320,7 @@ table 2115 "O365 Coupon Claim"
             O365SalesInvoiceDiscount.SetRecord(SalesHeader);
             O365SalesInvoiceDiscount.SetInitialDiscountPercentage("Discount Value");
             O365SalesInvoiceDiscount.LookupMode := true;
-            if O365SalesInvoiceDiscount.RunModal <> ACTION::LookupOK then
+            if O365SalesInvoiceDiscount.RunModal() <> ACTION::LookupOK then
                 exit;
         end else begin
             Message(MustApplyDiscountManuallyMsg);
@@ -318,6 +337,7 @@ table 2115 "O365 Coupon Claim"
         exit(true);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure Unapply(): Boolean
     var
         O365CouponClaimDocLink: Record "O365 Coupon Claim Doc. Link";
@@ -355,12 +375,14 @@ table 2115 "O365 Coupon Claim"
         exit(true);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure RedeemCouponsForSalesDocument(PostedSalesHeader: Record "Sales Header")
     begin
         if PostedSalesHeader."No." <> '' then
             exit;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure RedeemCoupon(CustomerNo: Code[20])
     begin
         if CustomerNo <> '' then
@@ -378,7 +400,7 @@ table 2115 "O365 Coupon Claim"
         if not "Is Valid" then
             exit(ClaimedTxt);
 
-        DaysUntilExpiration := Expiration - WorkDate;
+        DaysUntilExpiration := Expiration - WorkDate();
 
         if DaysUntilExpiration < 0 then
             exit(ExpiredTxt);
@@ -392,16 +414,19 @@ table 2115 "O365 Coupon Claim"
         exit(StrSubstNo(ExpiresInTxt, DaysUntilExpiration));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure AppliedStatusText(): Text[50]
     begin
         exit(AppliedTxt);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CouponsExistForCustomer(CustomerNo: Code[20]): Boolean
     begin
         exit(false);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure UpdateCustomerId()
     begin
     end;
@@ -410,5 +435,6 @@ table 2115 "O365 Coupon Claim"
     begin
         "Last Modified DateTime" := CurrentDateTime;
     end;
+#endif
 }
 

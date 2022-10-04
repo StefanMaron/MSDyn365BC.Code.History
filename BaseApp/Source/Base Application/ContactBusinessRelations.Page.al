@@ -78,14 +78,23 @@ page 5061 "Contact Business Relations"
                 ApplicationArea = RelationshipMgmt;
                 Image = Card;
                 Caption = 'Open Card Page';
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the card page for the current business relation.';
 
                 trigger OnAction()
                 begin
                     Rec.ShowRelatedCardPage();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenCardPage_Promoted; OpenCardPage)
+                {
+                }
             }
         }
     }

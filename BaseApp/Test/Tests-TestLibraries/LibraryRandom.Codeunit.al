@@ -50,8 +50,8 @@ codeunit 130440 "Library - Random"
     procedure RandDate(Delta: Integer): Date
     begin
         if Delta = 0 then
-            exit(WorkDate);
-        exit(CalcDate(StrSubstNo('<%1D>', Delta / Abs(Delta) * RandInt(Abs(Delta))), WorkDate));
+            exit(WorkDate());
+        exit(CalcDate(StrSubstNo('<%1D>', Delta / Abs(Delta) * RandInt(Abs(Delta))), WorkDate()));
     end;
 
     procedure RandDateFrom(FromDate: Date; Range: Integer): Date
@@ -78,7 +78,7 @@ codeunit 130440 "Library - Random"
         GuidTxt: Text;
     begin
         while StrLen(GuidTxt) < Length do
-            GuidTxt += LowerCase(DelChr(Format(CreateGuid), '=', '{}-'));
+            GuidTxt += LowerCase(DelChr(Format(CreateGuid()), '=', '{}-'));
         exit(CopyStr(GuidTxt, 1, Length));
     end;
 

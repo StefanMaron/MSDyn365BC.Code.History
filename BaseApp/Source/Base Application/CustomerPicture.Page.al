@@ -37,7 +37,7 @@ page 785 "Customer Picture"
 
                 trigger OnAction()
                 begin
-                    TakeNewPicture;
+                    TakeNewPicture();
                 end;
             }
             action(ImportPicture)
@@ -57,7 +57,7 @@ page 785 "Customer Picture"
                     if Name = '' then
                         Error(MustSpecifyNameErr);
 
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then
                             exit;
 
@@ -122,7 +122,7 @@ page 785 "Customer Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()

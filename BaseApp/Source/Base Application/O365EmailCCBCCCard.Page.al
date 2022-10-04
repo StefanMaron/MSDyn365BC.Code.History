@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2149 "O365 Email CC/BCC Card"
 {
     Caption = 'CC/BCC Email';
     PageType = Card;
     SourceTable = "O365 Email Setup";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,7 +17,7 @@ page 2149 "O365 Email CC/BCC Card"
                 Caption = 'General';
                 field(Email; Email)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ExtendedDatatype = EMail;
                 }
             }
@@ -36,4 +40,4 @@ page 2149 "O365 Email CC/BCC Card"
         CCPageCaptionTxt: Label 'Enter CC email address';
         BCCPageCaptionTxt: Label 'Enter BCC email address';
 }
-
+#endif

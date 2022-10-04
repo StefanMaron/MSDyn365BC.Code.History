@@ -13,7 +13,7 @@ report 5805 "Item Register - Value"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemRegistryCaption; TableCaption + ': ' + ItemRegFilter)
@@ -664,7 +664,7 @@ report 5805 "Item Register - Value"
 
     trigger OnPreReport()
     begin
-        ItemRegFilter := "Item Register".GetFilters;
+        ItemRegFilter := "Item Register".GetFilters();
         for i := 1 to ArrayLen(ItemEntryTypeDescription) do begin
             "Value Entry"."Item Ledger Entry Type" := "Item Ledger Entry Type".FromInteger(i - 1);
             ItemEntryTypeDescription[i] := Format("Value Entry"."Item Ledger Entry Type");

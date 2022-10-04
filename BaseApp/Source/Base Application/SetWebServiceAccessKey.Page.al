@@ -45,12 +45,11 @@ page 9812 "Set Web Service Access Key"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if CloseAction = ACTION::OK then begin
+        if CloseAction = ACTION::OK then
             if NeverExpires then
                 IdentityManagement.CreateWebServicesKeyNoExpiry("User Security ID")
             else
                 IdentityManagement.CreateWebServicesKey("User Security ID", ExpirationDate);
-        end;
     end;
 
     var

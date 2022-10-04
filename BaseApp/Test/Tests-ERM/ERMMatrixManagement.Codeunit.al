@@ -18,7 +18,6 @@ codeunit 134490 "ERM Matrix Management"
         WrongNumberOfColumnsMsg: Label 'Wrong NumberOfLines value';
         DimTotalingTxt: Label '%1|%2', Comment = '%1 - Field Value; %2 - Field Value';
         WrongDimTotalingErr: Label 'Wrong dimension totaling filter.';
-        RoundingFactorRef: Option "None","1","1000","1000000";
         WrongRoundedValueErr: Label 'Wrong value for %1 rounding';
         WrongFormatValueErr: Label 'Wrong value format for %1 rounding';
 
@@ -128,8 +127,7 @@ codeunit 134490 "ERM Matrix Management"
         // [FEATURE] [Rounding Factor] [UT]
         // [SCENARIO 362971] MatrixMgt.RoundValue function does not make any rounding for RoundingFactor::None. Value = 123.45678 is not rounded
         Value := LibraryRandom.RandDec(100, 5);
-        RoundValueWithRoundingFactor(
-          Value, Value, RoundingFactorRef::None);
+        RoundValueWithRoundingFactor(Value, Value, "Analysis Rounding Factor"::None);
     end;
 
     [Test]
@@ -141,8 +139,7 @@ codeunit 134490 "ERM Matrix Management"
         // [FEATURE] [Rounding Factor] [UT]
         // [SCENARIO 362971] MatrixMgt.RoundValue function makes rounding with presicion = 1 for RoundingFactor::"1". Value = 123.45678 is rounded to 123
         Value := LibraryRandom.RandDec(100, 5);
-        RoundValueWithRoundingFactor(
-          Round(Value, 1), Value, RoundingFactorRef::"1");
+        RoundValueWithRoundingFactor(Round(Value, 1), Value, "Analysis Rounding Factor"::"1");
     end;
 
     [Test]
@@ -154,8 +151,7 @@ codeunit 134490 "ERM Matrix Management"
         // [FEATURE] [Rounding Factor] [UT]
         // [SCENARIO 362971] MatrixMgt.RoundValue function makes division by 1000 and rounding with presicion = 0.1 for RoundingFactor::"1000". Value = 12345.67891 is "rounded" to 12.3
         Value := LibraryRandom.RandDecInRange(10000, 20000, 5);
-        RoundValueWithRoundingFactor(
-          Round(Value / 1000, 0.1), Value, RoundingFactorRef::"1000");
+        RoundValueWithRoundingFactor(Round(Value / 1000, 0.1), Value, "Analysis Rounding Factor"::"1000");
     end;
 
     [Test]
@@ -168,7 +164,7 @@ codeunit 134490 "ERM Matrix Management"
         // [SCENARIO 362971] MatrixMgt.RoundValue function makes division by 1000000 and rounding with presicion = 0.1 for RoundingFactor::"1000000". Value = 1234567.89123 is "rounded" to 1.2
         Value := LibraryRandom.RandIntInRange(1000000, 2000000) + LibraryRandom.RandDec(1, 5);
         RoundValueWithRoundingFactor(
-          Round(Value / 1000000, 0.1), Value, RoundingFactorRef::"1000000");
+          Round(Value / 1000000, 0.1), Value, "Analysis Rounding Factor"::"1000000");
     end;
 
     [Test]
@@ -181,7 +177,7 @@ codeunit 134490 "ERM Matrix Management"
         // [SCENARIO 362971] MatrixMgt.FormatValue returns value with format based on GLSetup."Amount Decimal Places" for RoundingFactor::None. Value = 123.45678 converted to '123,46' when GLSetup."Amount Decimal Places" = 2:2
         Value := LibraryRandom.RandDec(100, 5);
         FormatValueWithRoundingFactor(
-          Format(Value, 0, LibraryAccSchedule.GetAutoFormatString), Value, RoundingFactorRef::None, false);
+          Format(Value, 0, LibraryAccSchedule.GetAutoFormatString), Value, "Analysis Rounding Factor"::None, false);
     end;
 
     [Test]
@@ -190,7 +186,7 @@ codeunit 134490 "ERM Matrix Management"
     begin
         // [FEATURE] [Rounding Factor] [UT]
         // [SCENARIO 362971] MatrixMgt.FormatValue returns empty string for Value = 0 for RoundingFactor::None.
-        FormatValueWithRoundingFactor('', 0, RoundingFactorRef::None, false);
+        FormatValueWithRoundingFactor('', 0, "Analysis Rounding Factor"::None, false);
     end;
 
     [Test]
@@ -212,8 +208,7 @@ codeunit 134490 "ERM Matrix Management"
         ExpectedValue :=
           Format(IntPart) + CopyStr(Format(Value - IntPart, 0, LibraryAccSchedule.GetCustomFormatString(Format(Decimals))), 2);
 
-        FormatValueWithRoundingFactor(
-          ExpectedValue, Value, RoundingFactorRef::None, true);
+        FormatValueWithRoundingFactor(ExpectedValue, Value, "Analysis Rounding Factor"::None, true);
     end;
 
     [Test]
@@ -226,7 +221,7 @@ codeunit 134490 "ERM Matrix Management"
         // [SCENARIO 362971] MatrixMgt.FormatValue returns value without decimals for RoundingFactor::1. Value = 123.45678 converted to '123'
         Value := LibraryRandom.RandDec(100, 5);
         FormatValueWithRoundingFactor(
-          Format(Round(Value, 1)), Value, RoundingFactorRef::"1", false);
+          Format(Round(Value, 1)), Value, "Analysis Rounding Factor"::"1", false);
     end;
 
     [Test]
@@ -240,7 +235,7 @@ codeunit 134490 "ERM Matrix Management"
         Value := LibraryRandom.RandDecInRange(10000, 20000, 5);
 
         FormatValueWithRoundingFactor(
-          Format(Value / 1000, 0, LibraryAccSchedule.GetCustomFormatString('1')), Value, RoundingFactorRef::"1000", false);
+          Format(Value / 1000, 0, LibraryAccSchedule.GetCustomFormatString('1')), Value, "Analysis Rounding Factor"::"1000", false);
     end;
 
     [Test]
@@ -258,8 +253,8 @@ codeunit 134490 "ERM Matrix Management"
         ZeroValue := 0;
         ZeroDecimalTxt := CopyStr(Format(ZeroValue, 0, LibraryAccSchedule.GetCustomFormatString('1')), 2);
         Assert.IsTrue(
-          StrPos(MatrixMgt.FormatAmount(Value, RoundingFactorRef::"1000", false), ZeroDecimalTxt) > 0,
-          StrSubstNo(WrongFormatValueErr, RoundingFactorRef::"1000"));
+          StrPos(MatrixMgt.FormatAmount(Value, "Analysis Rounding Factor"::"1000", false), ZeroDecimalTxt) > 0,
+          StrSubstNo(WrongFormatValueErr, "Analysis Rounding Factor"::"1000"));
     end;
 
     [Test]
@@ -272,10 +267,10 @@ codeunit 134490 "ERM Matrix Management"
         // [SCENARIO 362971] MatrixMgt.FormatValue returns value divided by 1000000 with 1 decimal for RoundingFactor::1000000. Value = 1234567.89123 converted to '1,2'
         Value := LibraryRandom.RandIntInRange(1000000, 2000000) + LibraryRandom.RandDec(1, 5);
         FormatValueWithRoundingFactor(
-          Format(Value / 1000000, 0, LibraryAccSchedule.GetCustomFormatString('1')), Value, RoundingFactorRef::"1000000", false);
+          Format(Value / 1000000, 0, LibraryAccSchedule.GetCustomFormatString('1')), Value, "Analysis Rounding Factor"::"1000000", false);
     end;
 
-    local procedure RoundValueWithRoundingFactor(ExpectedValue: Decimal; Value: Decimal; RoundingFactor: Option)
+    local procedure RoundValueWithRoundingFactor(ExpectedValue: Decimal; Value: Decimal; RoundingFactor: Enum "Analysis Rounding Factor")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
@@ -285,7 +280,7 @@ codeunit 134490 "ERM Matrix Management"
           StrSubstNo(WrongRoundedValueErr, RoundingFactor));
     end;
 
-    local procedure FormatValueWithRoundingFactor(ExpectedValue: Text; Value: Decimal; RoundingFactor: Option; AddCurrency: Boolean)
+    local procedure FormatValueWithRoundingFactor(ExpectedValue: Text; Value: Decimal; RoundingFactor: Enum "Analysis Rounding Factor"; AddCurrency: Boolean)
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
@@ -397,7 +392,7 @@ codeunit 134490 "ERM Matrix Management"
 
         DimensionValue.Copy(TotalingDimValue);
         for i := 1 to ArrayLen(DimValueCode) do begin
-            DimensionValue.Next;
+            DimensionValue.Next();
             DimValueCode[i] := DimensionValue.Code;
         end;
 
@@ -413,7 +408,7 @@ codeunit 134490 "ERM Matrix Management"
         with Currency do begin
             LibraryERM.CreateCurrency(Currency);
             "Amount Decimal Places" := Format(Decimals);
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -423,9 +418,9 @@ codeunit 134490 "ERM Matrix Management"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Additional Reporting Currency" := AddCurrencyCode;
-            Modify;
+            Modify();
         end;
     end;
 }

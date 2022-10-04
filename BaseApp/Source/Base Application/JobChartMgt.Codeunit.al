@@ -6,14 +6,15 @@ codeunit 759 "Job Chart Mgt"
     end;
 
     var
-        XAxisStringTxt: Label 'Job';
         Job: Record Job;
-        TotalRevenueTxt: Label 'Total Revenue';
-        TotalCostTxt: Label 'Total Cost';
-        ProfitMarginTxt: Label 'Profit Margin';
         JobCalcStatistics: Codeunit "Job Calculate Statistics";
         CL: array[16] of Decimal;
         PL: array[16] of Decimal;
+
+        XAxisStringTxt: Label 'Job';
+        TotalRevenueTxt: Label 'Total Revenue';
+        TotalCostTxt: Label 'Total Cost';
+        ProfitMarginTxt: Label 'Profit Margin';
         ActualTotalCostTxt: Label 'Actual Total Cost';
         BudgetTotalCostTxt: Label 'Budget Total Cost';
         CostVarianceTxt: Label 'Cost Variance';
@@ -180,7 +181,7 @@ codeunit 759 "Job Chart Mgt"
     begin
         Clear(JobCalcStatistics);
         JobCalcStatistics.JobCalculateCommonFilters(RangeJob);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         JobRevenue := PL[16];
@@ -191,7 +192,7 @@ codeunit 759 "Job Chart Mgt"
     begin
         Clear(JobCalcStatistics);
         JobCalcStatistics.JobCalculateCommonFilters(RangeJob);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         ActualCost := CL[8];
@@ -202,7 +203,7 @@ codeunit 759 "Job Chart Mgt"
     begin
         Clear(JobCalcStatistics);
         JobCalcStatistics.JobCalculateCommonFilters(RangeJob);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         ActualPrice := PL[16];

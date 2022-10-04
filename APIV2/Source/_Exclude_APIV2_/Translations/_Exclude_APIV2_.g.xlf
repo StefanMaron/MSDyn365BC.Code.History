@@ -33,6 +33,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1345440638 - NamedType 3637975764" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please add at least one line item to the invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1345440638 - NamedType 1331280005" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please add at least one line item to the estimate.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellQuoteErr</note>
+        </trans-unit>
         <trans-unit id="Page 3262323309 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Accounts</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5335,17 +5345,17 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3911703272" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1\\An invoice is posted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedInvoiceCreatedAndPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3551748667" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1\\An invoice is created but not posted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedInvoiceCreatedButNotPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2570812846" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedNothingCreatedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3210053793" size-unit="char" translate="yes" xml:space="preserve">
@@ -5895,17 +5905,17 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 3395541992" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1\\A credit memo is posted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedCreditMemoCreatedAndPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 554130235" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1\\A credit memo is created but not posted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedCreditMemoCreatedButNotPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 31512856" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedNothingCreatedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 3210053793" size-unit="char" translate="yes" xml:space="preserve">

@@ -37,7 +37,7 @@ page 9851 "Permission Set List"
                     Editable = false;
                     Enabled = false;
                 }
-                field("App Name"; "App Name")
+                field("App Name"; Rec."App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension Name';
@@ -54,7 +54,7 @@ page 9851 "Permission Set List"
 
     trigger OnOpenPage()
     begin
-        FillRecordBuffer;
+        FillRecordBuffer();
     end;
 
     procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")

@@ -78,7 +78,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         CreateCurrencyExchangeDataExchangeSetup(DataExchLineDef);
         MapMandatoryFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchFieldMapping.SetRange("Field ID", TempCurrencyExchangeRate.FieldNo("Currency Code"));
@@ -107,7 +107,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         CreateCurrencyExchangeDataExchangeSetup(DataExchLineDef);
         MapMandatoryFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchFieldMapping.SetRange("Field ID", TempCurrencyExchangeRate.FieldNo("Relational Exch. Rate Amount"));
@@ -165,7 +165,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         CreateCurrencyExchangeDataExchangeSetup(DataExchLineDef);
         MapMandatoryFields(DataExchLineDef);
         MapCommonFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchFieldMapping.SetRange("Field ID", TempCurrencyExchangeRate.FieldNo("Exchange Rate Amount"));
@@ -198,7 +198,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MapMandatoryFields(DataExchLineDef);
         MapCommonFields(DataExchLineDef);
         MapAdditionalFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
@@ -229,7 +229,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MapMandatoryFields(DataExchLineDef);
         MapCommonFields(DataExchLineDef);
         MapAdditionalFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
@@ -270,7 +270,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MapMandatoryFields(DataExchLineDef);
         MapCommonFields(DataExchLineDef);
         MapAdditionalFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
@@ -312,7 +312,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MapMandatoryFields(DataExchLineDef);
         MapCommonFields(DataExchLineDef);
         MapAdditionalFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
@@ -351,7 +351,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MapMandatoryFields(DataExchLineDef);
         MapCommonFields(DataExchLineDef);
         MapAdditionalFields(DataExchLineDef);
-        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate, NumberOfCurrencies);
+        CreateCurrencies(Currency, TempCurrencyExchangeRate, WorkDate(), NumberOfCurrencies);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempCurrencyExchangeRate);
 
         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
@@ -365,7 +365,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
               CalcDate('<-2D>', TempTwoDaysBeforeCurrencyExchangeRate."Starting Date");
             TempTwoDaysBeforeCurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDecInRange(1, 1000, 2));
             TempTwoDaysBeforeCurrencyExchangeRate.Insert();
-        until TempCurrencyExchangeRate.Next = 0;
+        until TempCurrencyExchangeRate.Next() = 0;
 
         Clear(DataExch);
         CreateDataExchangeTestData(DataExch, DataExchLineDef, TempTwoDaysBeforeCurrencyExchangeRate);
@@ -403,7 +403,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         // [THEN] All fields are not editable except for field Enabled on page Curr. Exch. Rate Service Card
         Assert.IsTrue(CurrExchRateServiceCard.Enabled.Editable, '');
         VerifyFieldsNotEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -428,7 +428,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         // [THEN] All fields are editable except for ShowEnableWarning on page Curr. Exch. Rate Service Card
         Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Editable, '');
         VerifyFieldsEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -452,7 +452,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         // [THEN] All fields aren't editable on page Curr. Exch. Rate Service Card
         Assert.IsFalse(CurrExchRateServiceCard.Enabled.Editable, '');
         VerifyFieldsNotEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -477,7 +477,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         // [THEN] All fields aren't editable on page Curr. Exch. Rate Service Card
         Assert.IsFalse(CurrExchRateServiceCard.Enabled.Editable, '');
         VerifyFieldsNotEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -500,7 +500,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         // [THEN] ShowEnableWarning is enabled on page Curr. Exch. Rate Service Card
         Assert.IsTrue(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         // [THEN] ShowEnableWarning is disabled on page Curr. Exch. Rate Service Card
         Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -547,7 +547,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         // [THEN] ShowEnableWarning is disabled on page Curr. Exch. Rate Service Card
         Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     [Test]
@@ -571,7 +571,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
         // [THEN] ShowEnableWarning is disabled on page Curr. Exch. Rate Service Card
         Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
-        CurrExchRateServiceCard.Close;
+        CurrExchRateServiceCard.Close();
     end;
 
     local procedure Initialize()
@@ -769,7 +769,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
                   DataExch, DataExchLineDef, CurrencyExchangeRate.FieldNo("Relational Adjmt Exch Rate Amt"),
                   Format(CurrencyExchangeRate."Relational Adjmt Exch Rate Amt"), CurrentNodeID, LineNo);
                 LineNo += 1;
-            until CurrencyExchangeRate.Next = 0;
+            until CurrencyExchangeRate.Next() = 0;
     end;
 
     local procedure CreateCurrencies(var Currency: Record Currency; var TempExpectedCurrencyExchangeRate: Record "Currency Exchange Rate" temporary; StartDate: Date; NumberToInsert: Integer)
@@ -861,7 +861,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
             Assert.AreEqual(
               TempExpectedCurrencyExchangeRate."Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Adjmt Exch Rate Amt",
               'Relational Adjmt Exch Rate Amt field does not match');
-        until TempExpectedCurrencyExchangeRate.Next = 0;
+        until TempExpectedCurrencyExchangeRate.Next() = 0;
     end;
 
     local procedure VerifyFieldsNotEditableOnCurrExchRateServiceCard(var CurrExchRateServiceCard: TestPage "Curr. Exch. Rate Service Card")

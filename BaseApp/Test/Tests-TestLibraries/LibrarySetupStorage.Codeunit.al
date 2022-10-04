@@ -23,7 +23,7 @@ codeunit 131009 "Library - Setup Storage"
 
         RecRef.Open(TableId);
         Assert.AreEqual(1, RecRef.Count, OnlyOneEntryAllowedErr);
-        RecRef.Find;
+        RecRef.Find();
         ValidatePrimaryKey(RecRef);
 
         TempIntegerStoredTables.Number := TableId;
@@ -73,7 +73,7 @@ codeunit 131009 "Library - Setup Storage"
             RecordRefDestination.Open(RecordRefSource.Number);
             CopyFields(RecordRefSource, RecordRefDestination);
             RecordRefDestination.Modify();
-            RecordRefDestination.Close;
+            RecordRefDestination.Close();
             Index -= 1;
         end;
     end;

@@ -5,20 +5,21 @@ codeunit 5671 "FA. Jnl.-B.Post+Print"
     trigger OnRun()
     begin
         FAJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(FAJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to post the journals and print the posting report?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlBatch: Record "FA Journal Batch";
         FAJnlLine: Record "FA Journal Line";
         FAReg: Record "FA Register";
         JournalWithErrors: Boolean;
+
+        Text000: Label 'Do you want to post the journals and print the posting report?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     var
@@ -42,7 +43,7 @@ codeunit 5671 "FA. Jnl.-B.Post+Print"
                 FAJnlLine."Line No." := 1;
                 if CODEUNIT.Run(CODEUNIT::"FA Jnl.-Post Batch", FAJnlLine) then begin
                     if FAReg.Get(FAJnlLine."Line No.") then begin
-                        FAReg.SetRecFilter;
+                        FAReg.SetRecFilter();
                         if FAReg."From Entry No." > 0 then
                             REPORT.Run(FAJnlTemplate."Posting Report ID", false, false, FAReg);
                         if FAReg."From Maintenance Entry No." > 0 then
@@ -64,7 +65,7 @@ codeunit 5671 "FA. Jnl.-B.Post+Print"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup := 0;

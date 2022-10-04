@@ -13,12 +13,12 @@ page 5088 "Campaign Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("Target Contacts Contacted"; "Target Contacts Contacted")
+                field("Target Contacts Contacted"; Rec."Target Contacts Contacted")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of target contacts that you have contacted with this campaign. The field is not editable.';
                 }
-                field("Contacts Responded"; "Contacts Responded")
+                field("Contacts Responded"; Rec."Contacts Responded")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of contacts who have responded to the campaign. This field is not editable.';
@@ -30,7 +30,7 @@ page 5088 "Campaign Statistics"
                     DecimalPlaces = 1 : 1;
                     ToolTip = 'Specifies how many participated in the campaign, represented as a percentage of the number of target contacts contacted.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total cost of all the interactions created as part of the campaign. This field is not editable.';
@@ -42,7 +42,7 @@ page 5088 "Campaign Statistics"
                     Caption = 'Avg. Cost per Response';
                     ToolTip = 'Specifies the cost of the campaign per response.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DecimalPlaces = 0 : 0;
@@ -59,17 +59,17 @@ page 5088 "Campaign Statistics"
             group(Opportunities)
             {
                 Caption = 'Opportunities';
-                field("No. of Opportunities"; "No. of Opportunities")
+                field("No. of Opportunities"; Rec."No. of Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of opportunities created as part of this campaign. This field is not editable.';
                 }
-                field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+                field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the estimated value of the opportunities created as part of this campaign. This field is not editable.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the calculated current value of the opportunities linked to the campaign. This field is not editable.';

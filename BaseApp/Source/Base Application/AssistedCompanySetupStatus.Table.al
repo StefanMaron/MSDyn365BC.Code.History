@@ -124,7 +124,7 @@ table 1802 "Assisted Company Setup Status"
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
         if AssistedCompanySetupStatus.GetCompanySetupStatusValue(CompanyNameFrom) = Enum::"Company Setup Status"::Completed then begin

@@ -5,7 +5,6 @@ page 448 "Finance Charge Memo List"
     CardPageID = "Finance Charge Memo";
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Memo,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Finance Charge Memo Header";
     UsageCategory = Lists;
@@ -17,12 +16,12 @@ page 448 "Finance Charge Memo List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the customer you want to create a finance charge memo for.';
@@ -32,18 +31,18 @@ page 448 "Finance Charge Memo List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer the finance charge memo is for.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code of the finance charge memo.';
                 }
-                field("Interest Amount"; "Interest Amount")
+                field("Interest Amount"; Rec."Interest Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the total of the interest amounts on the finance charge memo lines.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -55,21 +54,21 @@ page 448 "Finance Charge Memo List"
                     ToolTip = 'Specifies the city name of the customer the finance charge memo is for.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -104,8 +103,6 @@ page 448 "Finance Charge Memo List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Fin. Charge Comment Sheet";
                     RunPageLink = Type = CONST("Finance Charge Memo"),
                                   "No." = FIELD("No.");
@@ -116,8 +113,6 @@ page 448 "Finance Charge Memo List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ustomer';
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Customer List";
                     RunPageLink = "No." = FIELD("Customer No.");
                     ToolTip = 'Open the card of the customer that the reminder or finance charge applies to. ';
@@ -130,9 +125,6 @@ page 448 "Finance Charge Memo List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Finance Charge Memo Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -152,8 +144,6 @@ page 448 "Finance Charge Memo List"
                     Caption = 'Create Finance Charge Memos';
                     Ellipsis = true;
                     Image = CreateFinanceChargememo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create finance charge memos for one or more customers with overdue payments.';
 
                     trigger OnAction()
@@ -207,7 +197,7 @@ page 448 "Finance Charge Memo List"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(FinChrgMemoHeader);
-                        FinChrgMemoHeader.PrintRecords;
+                        FinChrgMemoHeader.PrintRecords();
                         FinChrgMemoHeader.Reset();
                     end;
                 }
@@ -217,8 +207,6 @@ page 448 "Finance Charge Memo List"
                     Caption = 'Issue';
                     Ellipsis = true;
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Post the specified finance charge entries according to your specifications in the Finance Charge Terms window. This specification determines whether interest and/or additional fees are posted to the customer''s account and the general ledger.';
 
@@ -239,7 +227,6 @@ page 448 "Finance Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Finance Charge Memo Nos.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Finance Charge Memo Nos.";
@@ -250,8 +237,6 @@ page 448 "Finance Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Customer - Balance to Date';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Customer - Balance to Date";
                 ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
             }
@@ -260,11 +245,51 @@ page 448 "Finance Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Customer - Detail Trial Bal.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Customer - Detail Trial Bal.";
                 ToolTip = 'View the balance for customers with balances on a specified date. The report can be used at the close of an accounting period, for example, or for an audit.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create Finance Charge Memos_Promoted"; "Create Finance Charge Memos")
+                {
+                }
+                actionref(Issue_Promoted; Issue)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Customer - Balance to Date_Promoted"; "Customer - Balance to Date")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Memo', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("C&ustomer_Promoted"; "C&ustomer")
+                {
+                }
             }
         }
     }

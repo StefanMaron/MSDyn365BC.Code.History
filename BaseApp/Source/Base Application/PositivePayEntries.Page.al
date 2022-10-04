@@ -13,7 +13,7 @@ page 1231 "Positive Pay Entries"
         {
             repeater(Group)
             {
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -33,54 +33,54 @@ page 1231 "Positive Pay Entries"
                     Editable = false;
                     ToolTip = 'Specifies the time when the Positive Pay file was uploaded.';
                 }
-                field("Last Upload Date"; "Last Upload Date")
+                field("Last Upload Date"; Rec."Last Upload Date")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the last date that you exported a Positive Pay file.';
                 }
-                field("Last Upload Time"; "Last Upload Time")
+                field("Last Upload Time"; Rec."Last Upload Time")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the last time that you exported a Positive Pay file.';
                 }
-                field("Number of Uploads"; "Number of Uploads")
+                field("Number of Uploads"; Rec."Number of Uploads")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies how many times the related Positive Pay file was uploaded.';
                 }
-                field("Number of Checks"; "Number of Checks")
+                field("Number of Checks"; Rec."Number of Checks")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies how many checks were processed with the Positive Pay entry.';
                 }
-                field("Number of Voids"; "Number of Voids")
+                field("Number of Voids"; Rec."Number of Voids")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies how many of the related checks were voided.';
                 }
-                field("Check Amount"; "Check Amount")
+                field("Check Amount"; Rec."Check Amount")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount on the check.';
                 }
-                field("Void Amount"; "Void Amount")
+                field("Void Amount"; Rec."Void Amount")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount in the Positive Pay file that is related to voided checks.';
                 }
-                field("Confirmation Number"; "Confirmation Number")
+                field("Confirmation Number"; Rec."Confirmation Number")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the confirmation number that you receive when the file upload to the bank is successful.';
                 }
-                field("Upload Date-Time"; "Upload Date-Time")
+                field("Upload Date-Time"; Rec."Upload Date-Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the Positive Pay file was uploaded.';
@@ -113,15 +113,23 @@ page 1231 "Positive Pay Entries"
                     ApplicationArea = Suite;
                     Caption = 'Reexport Positive Pay to File';
                     Image = ExportElectronicDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Export the Positive Pay file again.';
 
                     trigger OnAction()
                     begin
-                        Reexport;
+                        Reexport();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ReexportPositivePay_Promoted; ReexportPositivePay)
+                {
                 }
             }
         }

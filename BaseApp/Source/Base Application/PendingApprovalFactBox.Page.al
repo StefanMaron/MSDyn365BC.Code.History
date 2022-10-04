@@ -8,7 +8,7 @@ page 9103 "Pending Approval FactBox"
     {
         area(content)
         {
-            field("Sender ID"; "Sender ID")
+            field("Sender ID"; Rec."Sender ID")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the ID of the user who sent the approval request for the document to be approved.';
@@ -20,7 +20,7 @@ page 9103 "Pending Approval FactBox"
                     UserMgt.DisplayUserInformation("Sender ID");
                 end;
             }
-            field("Due Date"; "Due Date")
+            field("Due Date"; Rec."Due Date")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies when the record must be approved, by one or more approvers.';

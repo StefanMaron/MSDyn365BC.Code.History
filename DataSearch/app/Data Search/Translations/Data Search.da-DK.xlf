@@ -1,0 +1,747 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="da-DK" original="Data Search">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 3305910297 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Search Result</source>
+          <target state="translated">Resultat af datasøgning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - NamedType 4241124041" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lines</source>
+          <target state="translated">linjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - NamedType linesLbl</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 883711285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <target state="translated">Løbenr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 158172202 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line Type</source>
+          <target state="translated">Linjetype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Line Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 158172202 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Header,Data,MoreHeader,MoreData</source>
+          <target state="translated">Overskrift,Data,MereOverskrift,FlereData</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Line Type - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 495416724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Hits</source>
+          <target state="translated">Antal hit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field No. of Hits - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 2674482667 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parent ID</source>
+          <target state="translated">Overordnet id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Parent ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 1393533604 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Caption</source>
+          <target state="translated">Tabeltitel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Table Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 3017471043 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <target state="translated">Tabelnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Table No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3305910297 - Field 3371953150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Subtype</source>
+          <target state="translated">Tabelundertype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Result - Field Table Subtype - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4025139878 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Setup (Field)</source>
+          <target state="translated">Søgekonfiguration (felt)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Table 4025139878 - Field 470122249 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable Search</source>
+          <target state="translated">Aktivér søgning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Table 4025139878 - Field 823559016 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Caption</source>
+          <target state="translated">Felttitel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Table 4025139878 - Field 3531868071 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field No.</source>
+          <target state="translated">Feltnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Table 4025139878 - Field 1393533604 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Caption</source>
+          <target state="translated">Tabeltitel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Table 4025139878 - Field 3017471043 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <target state="translated">Tabelnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Setup (Table)</source>
+          <target state="translated">Søgekonfiguration (tabel)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Field 495416724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Hits</source>
+          <target state="translated">Antal hit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Field 655387622 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Role Center ID</source>
+          <target state="translated">Rollecenter-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Field 1393533604 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Caption</source>
+          <target state="translated">Tabeltitel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Field 3017471043 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <target state="translated">Tabelnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Field 3371953150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Subtype</source>
+          <target state="translated">Tabelundertype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Table 2849192698 - Field 3501343248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table/Type ID</source>
+          <target state="translated">Tabel/type-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4165554626 - NamedType 3390914320" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Navigation menu only.</source>
+          <target state="translated">Kun navigationsmenu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Search Defaults - NamedType AllProfileDescriptionFilterTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4165554626 - NamedType 2955544161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>(default)</source>
+          <target state="translated">(standard)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Search Defaults - NamedType BaseLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in company data [Preview]</source>
+          <target state="translated">Søg i virksomhedsdata [Forhåndsversion]</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - NamedType 570321828" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No tables defined for search.</source>
+          <target state="translated">Der er ikke defineret tabeller til søgning.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - NamedType NoTablesDefinedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - NamedType 3193096050" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Searching ...</source>
+          <target state="translated">Søger...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - NamedType StatusLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - NamedType 3848749407" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Search started. No. of search words: %1. No. of tables to search: %2.</source>
+          <target state="translated">Datasøgning er startet. Antal søgeord: %1. Antal tabeller, der skal søges i: %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 and %2 are integer numbers equal to or greater than 1</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - NamedType TelemetryLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Control 3906556071 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Results</source>
+          <target state="translated">Resultater</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Control lines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Control 2210060298 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Text to search for (enter at least 3 characters)</source>
+          <target state="translated">Tekst, der skal søges efter (angiv mindst tre tegn)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Control SearchStringgrp - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Control 2400258197 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter at least three characters to search for.</source>
+          <target state="translated">Angiv mindst tre tegn, der skal søges efter.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Control SearchString - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Control 2400258197 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Text to search for</source>
+          <target state="translated">Tekst, der skal søges efter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Control SearchString - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3789408733 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Results</source>
+          <target state="translated">Resultater</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search lines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3789408733 - NamedType 3932260845" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1: Show all results</source>
+          <target state="translated">%1: Vis alle resultater</target>
+          <note from="Developer" annotates="general" priority="2">%1 is a table name, e.g. Customer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search lines - NamedType MoreRecLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3789408733 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the found entry.</source>
+          <target state="translated">Angiver den fundne post.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search lines - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3789408733 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search lines - Control Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3789408733 - Action 1514883969 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a page that lists which tables are searched for your role center. If you have permissions, you can change which tables and fields are searched.</source>
+          <target state="translated">Åbner en side, der viser, hvilke tabeller der søges i for dit rollecenter. Hvis du har rettigheder, kan du ændre, hvilke tabeller og felter der søges i.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search lines - Action Setup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3789408733 - Action 1514883969 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show tables to search</source>
+          <target state="translated">Vis tabeller, der skal søges i</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search lines - Action Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Column,Record</source>
+          <target state="translated">Ny,Proces,Rapport,Kolonne,Record</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Property PromotedActionCategories</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Result Records</source>
+          <target state="translated">Poster i søgeresultat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 736664577 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues1 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 2168185985 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues10 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 2805882602 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues11 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 892792751 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues12 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 98967960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues2 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 3756238639 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues3 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 3925147662 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues4 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 3287451045 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues5 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 2649754428 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues6 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 2012057811 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues7 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 2180966834 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues8 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Control 1543270217 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a field in the table.</source>
+          <target state="translated">Angiver et felt i tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Control ColumnValues9 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 3277981215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Columns</source>
+          <target state="translated">Kolonner</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action Columns - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 3760561947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Go to the next column.</source>
+          <target state="translated">Gå til den næste kolonne.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action NextColumn - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 3760561947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next Column</source>
+          <target state="translated">Næste kolonne</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action NextColumn - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 2393674465 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Go to the previous column.</source>
+          <target state="translated">Gå til den forrige kolonne.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action PreviousColumn - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 2393674465 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Previous Column</source>
+          <target state="translated">Forrige kolonne</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action PreviousColumn - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 3875867463 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record</source>
+          <target state="translated">Record</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action Record - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 1794018898 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the record in its list or card page.</source>
+          <target state="translated">Åbn recorden på dens liste eller på kortside.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action ShowRecord - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 218848851 - Action 1794018898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Record</source>
+          <target state="translated">Vis record</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Result Records - Action ShowRecord - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Setup (Field) List</source>
+          <target state="translated">Liste med søgekonfiguration (felt)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - NamedType 1516037821" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to remove the current setup and insert the default?</source>
+          <target state="translated">Vil du fjerne den aktuelle opsætning og indsætte standardindstillingen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 470122249 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether search is enabled for this field.</source>
+          <target state="translated">Angiver, om søgning er aktiveret for dette felt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 470122249 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable search</source>
+          <target state="translated">Aktivér søgning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 823559016 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption of the field, that is, the name that will be shown in the user interface.</source>
+          <target state="translated">Angiver feltets tekst, dvs. det navn, der vises i brugergrænsefladen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 823559016 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Caption</source>
+          <target state="translated">Felttitel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 3526251870 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of the field.</source>
+          <target state="translated">Angiver felttypen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 3526251870 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Type</source>
+          <target state="translated">Felttype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the field.</source>
+          <target state="translated">Angiver feltets nummer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Control 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Action 807937578 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Removes the field selection for this table and inserts the default.</source>
+          <target state="translated">Fjerner feltvalget for denne tabel og indsætter standardindstillingen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3477219812 - Action 807937578 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset to default</source>
+          <target state="translated">Gendan standardværdi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3888767375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Enabled Fields</source>
+          <target state="translated">Søgeaktiverede felter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3888767375 - Control 2780874720 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption of the field, that is, the name that will be shown in the user interface.</source>
+          <target state="translated">Angiver feltets tekst, dvs. det navn, der vises i brugergrænsefladen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3888767375 - Control 2780874720 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Name</source>
+          <target state="translated">Feltnavn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3888767375 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the field.</source>
+          <target state="translated">Angiver feltets nummer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 3888767375 - Control 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Field</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Setup (Table) List</source>
+          <target state="translated">Liste med søgekonfiguration (tabel)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - NamedType 1516037821" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to remove the current setup and insert the default?</source>
+          <target state="translated">Vil du fjerne den aktuelle opsætning og indsætte standardindstillingen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 1599953061 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the table.</source>
+          <target state="translated">Angiver navnet på tabellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 1599953061 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <target state="translated">Tabelnavn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 568116884 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the table. </source>
+          <target state="translated">Angiver id'et for tabellen. </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 568116884 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <target state="translated">Tabelnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 3986492796 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether this table is included in search.</source>
+          <target state="translated">Angiver, om denne tabel medtages i søgningen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 3986492796 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search Enabled</source>
+          <target state="translated">Søgning aktiveret</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 3669144757 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies which role the search setup is valid for.</source>
+          <target state="translated">Angiver, hvilken rolle som søgekonfigurationen gælder for.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Control 3669144757 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Role</source>
+          <target state="translated">Rolle</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Action 2402477966 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Removes the current selection for this rolecenter and inserts the default table selection.</source>
+          <target state="translated">Fjerner den aktuelle markering for dette rollecenter og indsætter standardtabelvalget.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Action 2402477966 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset to default</source>
+          <target state="translated">Gendan standardværdi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Action 4207440265 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select this action if you want to see all tables and/or select more tables to be included in the search.</source>
+          <target state="translated">Vælg denne handling, hvis du vil have vist alle tabeller og/eller vælge flere tabeller, der skal inkluderes i søgningen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Action 4207440265 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show all tables</source>
+          <target state="translated">Vis alle tabeller</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Action 2618468921 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Compacts the view, so you only see the tables that have been selected for search.</source>
+          <target state="translated">Komprimerer visningen, så du kun kan få vist de tabeller, der er valgt til søgning.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="Page 1032144280 - Action 2618468921 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Filter to selected tables</source>
+          <target state="translated">Filtrer til udvalgte tabeller</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search Setup (Table</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3918992016 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3470244815</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3918992016 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3470244815</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2304533500 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2304533500 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1882099586 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2747922353</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1882099586 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2747922353</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2592606864 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3365016562</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2592606864 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3365016562</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1798731205 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3353361819</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1798731205 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3353361819</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2433752065 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1843660047</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2433752065 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1843660047</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4257341140 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1267036282</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4257341140 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1267036282</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 146764562 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1696917291</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 146764562 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1696917291</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1193268780 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2035704742</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1193268780 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2035704742</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2630671652 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1007119265</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2630671652 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1007119265</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3300909889 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3738778758</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3300909889 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3738778758</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4082266850 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søg på tværs af et foruddefineret sæt tabeller for denne rolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3782393827</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4082266850 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søg i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3782393827</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

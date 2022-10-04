@@ -8,7 +8,6 @@ page 99000852 "Planning Worksheet"
     DelayedInsert = true;
     MultipleNewLines = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Prepare,Line,Item,Item Availability by';
     SaveValues = true;
     SourceTable = "Requisition Line";
     SourceTableView = where(Type = const(Item));
@@ -26,7 +25,7 @@ page 99000852 "Planning Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ReqJnlManagement.LookupName(CurrentWkshBatchName, Rec);
                     CurrPage.Update(false);
 
@@ -36,13 +35,11 @@ page 99000852 "Planning Worksheet"
                 trigger OnValidate()
                 begin
                     ReqJnlManagement.CheckName(CurrentWkshBatchName, Rec);
-                    CurrentWkshBatchNameOnAfterVal;
+                    CurrentWkshBatchNameOnAfterVal();
                 end;
             }
             repeater(Control1)
             {
-                IndentationColumn = DescriptionIndent;
-                IndentationControls = Description;
                 ShowCaption = false;
                 field(Warning; Warning)
                 {
@@ -64,95 +61,114 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'Specifies the type of requisition worksheet line you are creating.';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         PlanningWkshManagement.GetDescriptionAndRcptName(Rec, ItemDescription, RoutingDescription);
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Planning Level"; "Planning Level")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Indicates the planning level of the item in multi-level production orders. The planning level is calculated only for items that have Make-to-Order specified in the Manufacturing Policy field.';
+                    Visible = false;
+                }
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the bin of the item on the line.';
                     Visible = false;
                 }
-                field("Action Message"; "Action Message")
+                field("Action Message"; Rec."Action Message")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies an action to take to rebalance the demand-supply situation.';
                 }
-                field("Accept Action Message"; "Accept Action Message")
+                field("Accept Action Message"; Rec."Accept Action Message")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether to accept the action message proposed for the line.';
                 }
-                field("Original Due Date"; "Original Due Date")
+                field("Original Due Date"; Rec."Original Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the due date stated on the production or purchase order, when an action message proposes to reschedule an order.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when the related order was created.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
-                field("Transfer Shipment Date"; "Transfer Shipment Date")
+                field("Transfer Shipment Date"; Rec."Transfer Shipment Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the shipment date of the transfer order proposal.';
                     Visible = false;
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting time of the manufacturing process.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting date of the manufacturing process, if the planned supply is a production order.';
                     Visible = false;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending time for the manufacturing process.';
                     Visible = false;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending date of the manufacturing process, if the planned supply is a production order.';
                     Visible = false;
                 }
-                field("Low-Level Code"; "Low-Level Code")
+                field("Low-Level Code"; Rec."Low-Level Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the planning level of this item entry in the planning worksheet.';
@@ -163,25 +179,25 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies text that describes the entry.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Production BOM No."; "Production BOM No.")
+                field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the production BOM number for this production order.';
                     Visible = false;
                 }
-                field("Production BOM Version Code"; "Production BOM Version Code")
+                field("Production BOM Version Code"; Rec."Production BOM Version Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the version code of the BOM.';
                     Visible = false;
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the routing number.';
@@ -192,19 +208,19 @@ page 99000852 "Planning Worksheet"
                         PlanningWkshManagement.GetDescriptionAndRcptName(Rec, ItemDescription, RoutingDescription);
                     end;
                 }
-                field("Routing Version Code"; "Routing Version Code")
+                field("Routing Version Code"; Rec."Routing Version Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the version code of the routing.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -300,24 +316,24 @@ page 99000852 "Planning Worksheet"
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
                     Visible = false;
                 }
-                field("Original Quantity"; "Original Quantity")
+                field("Original Quantity"; Rec."Original Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity stated on the production or purchase order, when an action message proposes to change the quantity on an order.';
                 }
-                field("MPS Order"; "MPS Order")
+                field("MPS Order"; Rec."MPS Order")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the requisition worksheet line is an MPS order, that is, whether it is linked to a demand forecast or a sales order.';
@@ -327,59 +343,59 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of units of the item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies which kind of order to use to create replenishment orders and order proposals.';
                     Visible = false;
                 }
-                field("Supply From"; "Supply From")
+                field("Supply From"; Rec."Supply From")
                 {
                     ApplicationArea = Planning;
                     Visible = false;
                     ToolTip = 'Specifies a value, according to the selected replenishment system, before a supply order can be created for the line.';
                 }
-                field("Ref. Order Type"; "Ref. Order Type")
+                field("Ref. Order Type"; Rec."Ref. Order Type")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the order is a purchase order, a production order, or a transfer order.';
                 }
-                field("Ref. Order No."; "Ref. Order No.")
+                field("Ref. Order No."; Rec."Ref. Order No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the relevant production or purchase order.';
                 }
-                field("Ref. Order Status"; "Ref. Order Status")
+                field("Ref. Order Status"; Rec."Ref. Order Status")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the status of the production order.';
                 }
-                field("Ref. Line No."; "Ref. Line No.")
+                field("Ref. Line No."; Rec."Ref. Line No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the purchase or production order line.';
                     Visible = false;
                 }
-                field("Planning Flexibility"; "Planning Flexibility")
+                field("Planning Flexibility"; Rec."Planning Flexibility")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the supply, represented by the requisition worksheet line, is considered by the planning system, when calculating action messages.';
                     Visible = false;
                 }
-                field("Blanket Purch. Order Exists"; "Blanket Purch. Order Exists")
+                field("Blanket Purch. Order Exists"; Rec."Blanket Purch. Order Exists")
                 {
                     ApplicationArea = Planning;
                     BlankZero = true;
                     ToolTip = 'Specifies if a blanket purchase order exists for the item on the requisition line.';
                     Visible = false;
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of this item have been reserved.';
@@ -390,31 +406,31 @@ page 99000852 "Planning Worksheet"
                         ShowReservationEntries(true);
                     end;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Gen. Business Posting Group"; "Gen. Business Posting Group")
+                field("Gen. Business Posting Group"; Rec."Gen. Business Posting Group")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code of the general business posting group to be used for the item when you post the planning worksheet.';
                     Visible = false;
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the total costs for the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
@@ -504,15 +520,13 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -520,9 +534,7 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -540,8 +552,6 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Manufacturing;
                     Caption = 'Components';
                     Image = Components;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Planning Components";
                     RunPageLink = "Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
@@ -553,8 +563,6 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ro&uting';
                     Image = Route;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Planning Routing";
                     RunPageLink = "Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
@@ -570,13 +578,11 @@ page 99000852 "Planning Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Event';
                         Image = "Event";
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -584,13 +590,11 @@ page 99000852 "Planning Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Period';
                         Image = Period;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -598,13 +602,11 @@ page 99000852 "Planning Worksheet"
                         ApplicationArea = Planning;
                         Caption = 'Variant';
                         Image = ItemVariant;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -613,13 +615,11 @@ page 99000852 "Planning Worksheet"
                         ApplicationArea = Location;
                         Caption = 'Location';
                         Image = Warehouse;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View the actual and projected quantity of the item per location.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -638,30 +638,31 @@ page 99000852 "Planning Worksheet"
                         ApplicationArea = Assembly;
                         Caption = 'BOM Level';
                         Image = BOMLevel;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
+#if not CLEAN21
                     action(Timeline)
                     {
                         ApplicationArea = Planning;
                         Caption = 'Timeline';
                         Image = Timeline;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
+                        ObsoleteTag = '21.0';
 
                         trigger OnAction()
                         begin
                             ShowTimeline(Rec);
                         end;
                     }
+#endif
                 }
             }
         }
@@ -702,8 +703,6 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Calculate Regenerative Plan';
                     Ellipsis = true;
                     Image = CalculateRegenerativePlan;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Plan for all items, regardless of changes since the previous planning run. You calculate a regenerative plan when there are changes to master data or capacity, such as shop calendars, that affect all items and therefore the whole supply plan.';
 
                     trigger OnAction()
@@ -725,13 +724,11 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Get &Action Messages';
                     Ellipsis = true;
                     Image = GetActionMessages;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Obtain an immediate view of the effect of schedule changes, without running a regenerative or net change planning process. This function serves as a short-term planning tool by issuing action messages to alert the user of any modifications made since the last regenerative or net change plan was calculated.';
 
                     trigger OnAction()
                     begin
-                        GetActionMessages;
+                        GetActionMessages();
 
                         if not Find('-') then
                             SetUpNewLine(Rec);
@@ -746,8 +743,6 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Re&fresh Planning Line';
                     Ellipsis = true;
                     Image = RefreshPlanningLine;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Update the selected planning line with any changes that are made to planning components and routing lines since the planning line was created.';
 
                     trigger OnAction()
@@ -783,8 +778,6 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Carry &Out Action Message';
                     Ellipsis = true;
                     Image = CarryOutActionMessage;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
 
                     trigger OnAction()
@@ -805,7 +798,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowReservation();
                     end;
                 }
@@ -814,8 +807,6 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Planning;
                     Caption = 'Order &Tracking';
                     Image = OrderTracking;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
 
                     trigger OnAction()
@@ -828,6 +819,93 @@ page 99000852 "Planning Worksheet"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CarryOutActionMessage_Promoted; CarryOutActionMessage)
+                {
+                }
+                actionref("Re&fresh Planning Line_Promoted"; "Re&fresh Planning Line")
+                {
+                }
+                actionref("&Reserve_Promoted"; "&Reserve")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prepare', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CalculateRegenerativePlan_Promoted; CalculateRegenerativePlan)
+                {
+                }
+                actionref("Get &Action Messages_Promoted"; "Get &Action Messages")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(OrderTracking_Promoted; OrderTracking)
+                {
+                }
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Components_Promoted; Components)
+                {
+                }
+                actionref("Ro&uting_Promoted"; "Ro&uting")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Item Availability by', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Event_Promoted; "Event")
+                {
+                }
+                actionref(Period_Promoted; Period)
+                {
+                }
+                actionref("BOM Level_Promoted"; "BOM Level")
+                {
+                }
+                actionref(Location_Promoted; Location)
+                {
+                }
+                actionref(Variant_Promoted; Variant)
+                {
+                }
+                actionref(Lot_Promoted; Lot)
+                {
+                }
+#if not CLEAN21
+                actionref(Timeline_Promoted; Timeline)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -836,20 +914,22 @@ page 99000852 "Planning Worksheet"
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record "Item";
     begin
-        DescriptionIndent := 0;
         ShowShortcutDimCode(ShortcutDimCode);
-        StartingDateTimeOnFormat;
-        StartingDateOnFormat;
-        DescriptionOnFormat;
-        RefOrderNoOnFormat;
-        PlanningWarningLevel1OnFormat;
+        StartingDateTimeOnFormat();
+        StartingDateOnFormat();
+        RefOrderNoOnFormat();
+        PlanningWarningLevel1OnFormat();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
         "Accept Action Message" := false;
-        DeleteMultiLevel;
+        DeleteMultiLevel();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -883,8 +963,8 @@ page 99000852 "Planning Worksheet"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentWkshBatchName: Code[10];
         OpenedFromBatch: Boolean;
+        VariantCodeMandatory: Boolean;
         [InDataSet]
-        DescriptionIndent: Integer;
         Warning: Option " ",Emergency,Exception,Attention;
 
     protected var
@@ -901,14 +981,14 @@ page 99000852 "Planning Worksheet"
 
     local procedure CurrentWkshBatchNameOnAfterVal()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ReqJnlManagement.SetName(CurrentWkshBatchName, Rec);
         CurrPage.Update(false);
     end;
 
     local procedure StartingDateTimeOnFormat()
     begin
-        if ("Starting Date" < WorkDate) and
+        if ("Starting Date" < WorkDate()) and
            ("Action Message" in ["Action Message"::New, "Action Message"::Reschedule, "Action Message"::"Resched. & Chg. Qty."])
         then
             ;
@@ -916,12 +996,7 @@ page 99000852 "Planning Worksheet"
 
     local procedure StartingDateOnFormat()
     begin
-        if "Starting Date" < WorkDate then;
-    end;
-
-    local procedure DescriptionOnFormat()
-    begin
-        DescriptionIndent := "Planning Level";
+        if "Starting Date" < WorkDate() then;
     end;
 
     local procedure RefOrderNoOnFormat()
@@ -947,7 +1022,7 @@ page 99000852 "Planning Worksheet"
 
     local procedure PlanningWarningLevel1OnFormat()
     begin
-        PlanningWarningLevel;
+        PlanningWarningLevel();
     end;
 
     procedure OpenPlanningComponent(var PlanningComponent: Record "Planning Component")

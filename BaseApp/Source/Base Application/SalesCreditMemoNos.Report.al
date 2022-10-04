@@ -14,7 +14,7 @@ report 125 "Sales Credit Memo Nos."
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'Posted Sales Credit Memo';
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_SalesCrMemoHeaderFilter_; StrSubstNo(Text004, SalesCrMemoHeaderFilter))
@@ -171,15 +171,10 @@ report 125 "Sales Credit Memo Nos."
 
     trigger OnPreReport()
     begin
-        SalesCrMemoHeaderFilter := "Sales Cr.Memo Header".GetFilters;
+        SalesCrMemoHeaderFilter := "Sales Cr.Memo Header".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'Posted Sales Credit Memo: %1';
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
         SalesCrMemoHeaderFilter: Text;
@@ -191,6 +186,12 @@ report 125 "Sales Credit Memo Nos."
         ErrorText: array[10] of Text[250];
         ErrorCounter: Integer;
         PageGroupNo: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'Posted Sales Credit Memo: %1';
         Sales_Credit_Memo_Nos_CaptionLbl: Label 'Sales Credit Memo Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         SourceCode_DescriptionCaptionLbl: Label 'Source Description';

@@ -18,7 +18,7 @@ page 965 "Time Sheet Line Res. Detail"
                     Editable = AllowEdit;
                     ToolTip = 'Specifies a description of the time sheet line.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = WorkTypeCodeAllowEdit;
@@ -38,7 +38,7 @@ page 965 "Time Sheet Line Res. Detail"
         WorkTypeCodeAllowEdit := GetAllowEdit(FieldNo("Work Type Code"), ManagerRole);
     end;
 
-    var
+    protected var
         ManagerRole: Boolean;
         AllowEdit: Boolean;
         WorkTypeCodeAllowEdit: Boolean;
@@ -46,7 +46,7 @@ page 965 "Time Sheet Line Res. Detail"
     procedure SetParameters(TimeSheetLine: Record "Time Sheet Line"; NewManagerRole: Boolean)
     begin
         Rec := TimeSheetLine;
-        Insert;
+        Insert();
         ManagerRole := NewManagerRole;
     end;
 }

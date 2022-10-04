@@ -25,7 +25,7 @@ page 99000902 "Item Availability Line List"
 
                     trigger OnDrillDown()
                     begin
-                        LookupEntries;
+                        LookupEntries();
                     end;
                 }
             }
@@ -39,14 +39,10 @@ page 99000902 "Item Availability Line List"
     trigger OnOpenPage()
     begin
         DeleteAll();
-        MakeWhat;
+        MakeWhat();
     end;
 
     var
-        Text000: Label '%1 Receipt';
-        Text001: Label '%1 Release';
-        Text002: Label 'Firm planned %1';
-        Text003: Label 'Released %1';
         Item: Record Item;
         ItemLedgerEntry: Record "Item Ledger Entry";
         SalesLine: Record "Sales Line";
@@ -64,6 +60,11 @@ page 99000902 "Item Availability Line List"
         Sign: Integer;
         QtyByUnitOfMeasure: Decimal;
 
+        Text000: Label '%1 Receipt';
+        Text001: Label '%1 Release';
+        Text002: Label 'Firm planned %1';
+        Text003: Label 'Released %1';
+
     procedure Init(NewType: Option "Gross Requirement","Planned Order Receipt","Scheduled Order Receipt","Planned Order Release",All; var NewItem: Record Item)
     begin
         AvailType := NewType;
@@ -78,27 +79,27 @@ page 99000902 "Item Availability Line List"
                     InsertEntry(
                       DATABASE::"Sales Line",
                       Item.FieldNo("Qty. on Sales Order"),
-                      SalesLine.TableCaption,
+                      SalesLine.TableCaption(),
                       Item."Qty. on Sales Order");
                     InsertEntry(
                       DATABASE::"Service Line",
                       Item.FieldNo("Qty. on Service Order"),
-                      ServLine.TableCaption,
+                      ServLine.TableCaption(),
                       Item."Qty. on Service Order");
                     InsertEntry(
                       DATABASE::"Job Planning Line",
                       Item.FieldNo("Qty. on Job Order"),
-                      JobPlanningLine.TableCaption,
+                      JobPlanningLine.TableCaption(),
                       Item."Qty. on Job Order");
                     InsertEntry(
                       DATABASE::"Prod. Order Component",
                       Item.FieldNo("Qty. on Component Lines"),
-                      ProdOrderComp.TableCaption,
+                      ProdOrderComp.TableCaption(),
                       Item."Qty. on Component Lines");
                     InsertEntry(
                       DATABASE::"Planning Component",
                       Item.FieldNo("Planning Issues (Qty.)"),
-                      PlanningComponent.TableCaption,
+                      PlanningComponent.TableCaption(),
                       Item."Planning Issues (Qty.)");
                     InsertEntry(
                       DATABASE::"Transfer Line",
@@ -108,12 +109,12 @@ page 99000902 "Item Availability Line List"
                     InsertEntry(
                       DATABASE::"Purchase Line",
                       0,
-                      PurchLine.TableCaption,
+                      PurchLine.TableCaption(),
                       Item."Qty. on Purch. Return");
                     InsertEntry(
                       DATABASE::"Assembly Line",
                       Item.FieldNo("Qty. on Asm. Component"),
-                      AssemblyLine.TableCaption,
+                      AssemblyLine.TableCaption(),
                       Item."Qty. on Asm. Component");
                 end;
             AvailType::"Planned Order Receipt":
@@ -121,12 +122,12 @@ page 99000902 "Item Availability Line List"
                     InsertEntry(
                       DATABASE::"Requisition Line",
                       Item.FieldNo("Purch. Req. Receipt (Qty.)"),
-                      ReqLine.TableCaption,
+                      ReqLine.TableCaption(),
                       Item."Purch. Req. Receipt (Qty.)");
                     InsertEntry(
                       DATABASE::"Prod. Order Line",
                       Item.FieldNo("Planned Order Receipt (Qty.)"),
-                      StrSubstNo(Text000, ProdOrderLine.TableCaption),
+                      StrSubstNo(Text000, ProdOrderLine.TableCaption()),
                       Item."Planned Order Receipt (Qty.)");
                 end;
             AvailType::"Planned Order Release":
@@ -134,17 +135,17 @@ page 99000902 "Item Availability Line List"
                     InsertEntry(
                       DATABASE::"Requisition Line",
                       Item.FieldNo("Purch. Req. Release (Qty.)"),
-                      ReqLine.TableCaption,
+                      ReqLine.TableCaption(),
                       Item."Purch. Req. Release (Qty.)");
                     InsertEntry(
                       DATABASE::"Prod. Order Line",
                       Item.FieldNo("Planned Order Release (Qty.)"),
-                      StrSubstNo(Text001, ProdOrderLine.TableCaption),
+                      StrSubstNo(Text001, ProdOrderLine.TableCaption()),
                       Item."Planned Order Release (Qty.)");
                     InsertEntry(
                       DATABASE::"Requisition Line",
                       Item.FieldNo("Planning Release (Qty.)"),
-                      ReqLine.TableCaption,
+                      ReqLine.TableCaption(),
                       Item."Planning Release (Qty.)");
                 end;
             AvailType::"Scheduled Order Receipt":
@@ -152,17 +153,17 @@ page 99000902 "Item Availability Line List"
                     InsertEntry(
                       DATABASE::"Purchase Line",
                       Item.FieldNo("Qty. on Purch. Order"),
-                      PurchLine.TableCaption,
+                      PurchLine.TableCaption(),
                       Item."Qty. on Purch. Order");
                     InsertEntry(
                       DATABASE::"Prod. Order Line",
                       Item.FieldNo("FP Order Receipt (Qty.)"),
-                      StrSubstNo(Text002, ProdOrderLine.TableCaption),
+                      StrSubstNo(Text002, ProdOrderLine.TableCaption()),
                       Item."FP Order Receipt (Qty.)");
                     InsertEntry(
                       DATABASE::"Prod. Order Line",
                       Item.FieldNo("Rel. Order Receipt (Qty.)"),
-                      StrSubstNo(Text003, ProdOrderLine.TableCaption),
+                      StrSubstNo(Text003, ProdOrderLine.TableCaption()),
                       Item."Rel. Order Receipt (Qty.)");
                     InsertEntry(
                       DATABASE::"Transfer Line",
@@ -177,12 +178,12 @@ page 99000902 "Item Availability Line List"
                     InsertEntry(
                       DATABASE::"Sales Line",
                       0,
-                      SalesLine.TableCaption,
+                      SalesLine.TableCaption(),
                       Item."Qty. on Sales Return");
                     InsertEntry(
                       DATABASE::"Assembly Header",
                       Item.FieldNo("Qty. on Assembly Order"),
-                      AssemblyHeader.TableCaption,
+                      AssemblyHeader.TableCaption(),
                       Item."Qty. on Assembly Order");
                 end;
         end;
@@ -194,7 +195,7 @@ page 99000902 "Item Availability Line List"
     begin
         Sign := 1;
         if AvailType <> AvailType::All then
-            MakeEntries
+            MakeEntries()
         else begin
             Item.SetRange("Date Filter", 0D, Item.GetRangeMax("Date Filter"));
             OnItemSetFilter(Item);
@@ -227,19 +228,19 @@ page 99000902 "Item Availability Line List"
             if Item.Inventory <> 0 then begin
                 "Table No." := DATABASE::"Item Ledger Entry";
                 QuerySource := Item.FieldNo(Inventory);
-                Name := ItemLedgerEntry.TableCaption;
+                Name := ItemLedgerEntry.TableCaption();
                 Quantity := AdjustWithQtyByUnitOfMeasure(Item.Inventory);
-                Insert;
+                Insert();
             end;
             AvailType := AvailType::"Gross Requirement";
             Sign := -1;
-            MakeEntries;
+            MakeEntries();
             AvailType := AvailType::"Planned Order Receipt";
             Sign := 1;
-            MakeEntries;
+            MakeEntries();
             AvailType := AvailType::"Scheduled Order Receipt";
             Sign := 1;
-            MakeEntries;
+            MakeEntries();
             AvailType := AvailType::All;
         end;
     end;
@@ -392,7 +393,7 @@ page 99000902 "Item Availability Line List"
         QuerySource := Field;
         Name := CopyStr(TableName, 1, MaxStrLen(Name));
         Quantity := AdjustWithQtyByUnitOfMeasure(Qty * Sign);
-        Insert;
+        Insert();
     end;
 
     local procedure AdjustWithQtyByUnitOfMeasure(Quantity: Decimal): Decimal

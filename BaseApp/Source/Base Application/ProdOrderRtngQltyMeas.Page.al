@@ -2,7 +2,7 @@ page 99000834 "Prod. Order Rtng Qlty Meas."
 {
     AutoSplitKey = true;
     Caption = 'Prod. Order Rtng Qlty Meas.';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Prod. Order Rtng Qlty Meas.";
@@ -14,7 +14,7 @@ page 99000834 "Prod. Order Rtng Qlty Meas."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Qlty Measure Code"; "Qlty Measure Code")
+                field("Qlty Measure Code"; Rec."Qlty Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quality measure code.';
@@ -24,17 +24,17 @@ page 99000834 "Prod. Order Rtng Qlty Meas."
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description of the quality measure.';
                 }
-                field("Min. Value"; "Min. Value")
+                field("Min. Value"; Rec."Min. Value")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a minimum value, which is to be reached in the quality control.';
                 }
-                field("Max. Value"; "Max. Value")
+                field("Max. Value"; Rec."Max. Value")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the maximum value, which may be reached in the quality control.';
                 }
-                field("Mean Tolerance"; "Mean Tolerance")
+                field("Mean Tolerance"; Rec."Mean Tolerance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the mean tolerance.';

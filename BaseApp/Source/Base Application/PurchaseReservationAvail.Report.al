@@ -15,7 +15,7 @@ report 409 "Purchase Reservation Avail."
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ShowPurchLines; ShowPurchLines)
@@ -146,7 +146,7 @@ report 409 "Purchase Reservation Avail."
                 LineQuantityOnHand := 0;
                 if "Outstanding Qty. (Base)" = 0 then
                     LineStatus := LineStatus::Shipped
-                else begin
+                else
                     if PurchLineReserve.ReservQuantity("Purchase Line") > 0 then begin
                         ReservEntry.Reset();
                         ReservEntry.InitSortingAndFilters(true);
@@ -175,7 +175,6 @@ report 409 "Purchase Reservation Avail."
                         end;
                     end else
                         LineStatus := LineStatus::"Full Shipment";
-                end;
 
                 if ModifyQtyToShip and ("Document Type" = "Document Type"::Order) and
                    ("Qty. to Receive (Base)" <> LineQuantityOnHand)
@@ -183,8 +182,8 @@ report 409 "Purchase Reservation Avail."
                     if "Qty. per Unit of Measure" = 0 then
                         "Qty. per Unit of Measure" := 1;
                     Validate("Qty. to Receive",
-                      Round(LineQuantityOnHand / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
-                    Modify;
+                      Round(LineQuantityOnHand / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+                    Modify();
                     OnAfterPurchLineModify("Purchase Line");
                 end;
 

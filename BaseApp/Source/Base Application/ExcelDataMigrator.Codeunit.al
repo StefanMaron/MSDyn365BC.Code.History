@@ -6,10 +6,11 @@ codeunit 1806 "Excel Data Migrator"
     end;
 
     var
-        PackageCodeTxt: Label 'GB.ENU.EXCEL';
-        PackageNameTxt: Label 'Excel Data Migration';
         ConfigPackageManagement: Codeunit "Config. Package Management";
         ConfigExcelExchange: Codeunit "Config. Excel Exchange";
+
+        PackageCodeTxt: Label 'GB.ENU.EXCEL';
+        PackageNameTxt: Label 'Excel Data Migration';
         DataMigratorDescriptionTxt: Label 'Import from Excel';
         Instruction1Txt: Label '1) Download the Excel template.';
         Instruction2Txt: Label '2) Fill in the template with your data.';
@@ -53,10 +54,10 @@ codeunit 1806 "Excel Data Migrator"
         Window.Open(ImportingMsg);
 
         FileManagement.ValidateFileExtension(FileName, ExcelFileExtensionTok);
-        CreatePackageMetadata;
+        CreatePackageMetadata();
         ValidateTemplateAndImportData(FileName);
 
-        Window.Close;
+        Window.Close();
     end;
 
     procedure ImportExcelDataStream(): Boolean
@@ -65,7 +66,7 @@ codeunit 1806 "Excel Data Migrator"
         FileStream: InStream;
         Name: Text;
     begin
-        ClearLastError;
+        ClearLastError();
 
         // There is no way to check if NVInStream is null before using it after calling the
         // UPLOADINTOSTREAM therefore if result is false this is the only way we can throw the error.
@@ -83,10 +84,10 @@ codeunit 1806 "Excel Data Migrator"
     begin
         Window.Open(ImportingMsg);
 
-        CreatePackageMetadata;
+        CreatePackageMetadata();
         ValidateTemplateAndImportDataStream(FileStream);
 
-        Window.Close;
+        Window.Close();
     end;
 
     [Scope('OnPrem')]
@@ -108,7 +109,7 @@ codeunit 1806 "Excel Data Migrator"
             FileName :=
               StrSubstNo(ExcelFileNameTok, Format(CurrentDateTime, 0, '<Day,2>_<Month,2>_<Year4>_<Hours24>_<Minutes,2>_<Seconds,2>'));
 
-        CreatePackageMetadata;
+        CreatePackageMetadata();
         ConfigPackageTable.SetRange("Package Code", PackageCodeTxt);
         ConfigExcelExchange.SetHideDialog(HideDialog);
         exit(ConfigExcelExchange.ExportExcel(FileName, ConfigPackageTable, false, true));
@@ -130,13 +131,13 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackage.DeleteAll(true);
 
         ConfigPackageManagement.InsertPackage(ConfigPackage, PackageCodeTxt, PackageNameTxt, false);
-        ConfigPackage."Language ID" := Language.GetDefaultApplicationLanguageId;
+        ConfigPackage."Language ID" := Language.GetDefaultApplicationLanguageId();
         ConfigPackage."Product Version" :=
-          CopyStr(ApplicationSystemConstants.ApplicationVersion, 1, StrLen(ConfigPackage."Product Version"));
+          CopyStr(ApplicationSystemConstants.ApplicationVersion(), 1, StrLen(ConfigPackage."Product Version"));
         ConfigPackage.Modify();
 
-        InsertPackageTables;
-        InsertPackageFields;
+        InsertPackageTables();
+        InsertPackageFields();
     end;
 
     local procedure InsertPackageTables()
@@ -144,7 +145,7 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackageField: Record "Config. Package Field";
         DataMigrationSetup: Record "Data Migration Setup";
     begin
-        if not DataMigrationSetup.Get then begin
+        if not DataMigrationSetup.Get() then begin
             DataMigrationSetup.Init();
             DataMigrationSetup.Insert();
         end;
@@ -160,10 +161,10 @@ codeunit 1806 "Excel Data Migrator"
 
     local procedure InsertPackageFields()
     begin
-        InsertPackageFieldsCustomer;
-        InsertPackageFieldsVendor;
-        InsertPackageFieldsItem;
-        InsertPackageFieldsAccount;
+        InsertPackageFieldsCustomer();
+        InsertPackageFieldsVendor();
+        InsertPackageFieldsItem();
+        InsertPackageFieldsAccount();
     end;
 
     local procedure InsertPackageTableCustomer(var DataMigrationSetup: Record "Data Migration Setup")
@@ -318,7 +319,7 @@ codeunit 1806 "Excel Data Migrator"
                     ValidateTemplateAndImportDataCommon(TempExcelBuffer, ConfigPackageField, ConfigPackageTable)
                 else begin
                     // Table is removed from the configuration package because it doen't exist in the Excel file
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     ConfigPackageTable.Delete(true);
                 end;
             until ConfigPackageTable.Next() = 0;
@@ -343,7 +344,7 @@ codeunit 1806 "Excel Data Migrator"
                     ValidateTemplateAndImportDataCommon(TempExcelBuffer, ConfigPackageField, ConfigPackageTable)
                 else begin
                     // Table is removed from the configuration package because it doen't exist in the Excel file
-                    TempExcelBuffer.CloseBook;
+                    TempExcelBuffer.CloseBook();
                     ConfigPackageTable.Delete(true);
                 end;
             until ConfigPackageTable.Next() = 0;
@@ -360,7 +361,7 @@ codeunit 1806 "Excel Data Migrator"
     begin
         ColumnHeaderRow := 3; // Data is stored in the Excel sheets starting from row 3
 
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         // Jump to the Columns' header row
         TempExcelBuffer.SetFilter("Row No.", '%1..', ColumnHeaderRow);
 
@@ -381,7 +382,7 @@ codeunit 1806 "Excel Data Migrator"
                         ConfigPackageField.Modify();
                         ColumnCount += 1;
                     end else // Error is thrown when the template is corrupted (i.e., there are columns in Excel file that cannot be mapped to NAV)
-                        Error(ExcelValidationErr, PRODUCTNAME.Marketing);
+                        Error(ExcelValidationErr, PRODUCTNAME.Marketing());
                 end else begin // Read data row by row
                                // A record is created with every new row
                     ConfigPackageManagement.InitPackageRecord(ConfigPackageRecord, PackageCodeTxt,
@@ -391,16 +392,15 @@ codeunit 1806 "Excel Data Migrator"
                         for I := 1 to ColumnCount do
                             if TempExcelBuffer.Get(TempExcelBuffer."Row No.", I) then // Mapping for Account fields
                                 InsertAccountsFieldData(ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text")
-                    end else begin
+                    end else
                         for I := 1 to ColumnCount do
                             if TempExcelBuffer.Get(TempExcelBuffer."Row No.", I) then
                                 // Fields are populated in the record created
                                 InsertFieldData(
-                      ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text")
+                                    ConfigPackageTable."Table ID", RecordNo, FieldID[I], TempExcelBuffer."Cell Value as Text")
                             else
                                 InsertFieldData(
                                   ConfigPackageTable."Table ID", RecordNo, FieldID[I], '');
-                    end;
 
                     // Go to next line
                     TempExcelBuffer.SetFilter("Row No.", '%1..', TempExcelBuffer."Row No." + 1);
@@ -409,7 +409,7 @@ codeunit 1806 "Excel Data Migrator"
 
         TempExcelBuffer.Reset();
         TempExcelBuffer.DeleteAll();
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
     end;
 
     [TryFunction]
@@ -471,13 +471,13 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnRegisterDataMigrator', '', false, false)]
     local procedure RegisterExcelDataMigrator(var Sender: Record "Data Migrator Registration")
     begin
-        Sender.RegisterDataMigrator(GetCodeunitNumber, DataMigratorDescriptionTxt);
+        Sender.RegisterDataMigrator(GetCodeunitNumber(), DataMigratorDescriptionTxt);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasSettings', '', false, false)]
     local procedure HasSettings(var Sender: Record "Data Migrator Registration"; var HasSettings: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         HasSettings := true;
@@ -486,7 +486,7 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnOpenSettings', '', false, false)]
     local procedure OpenSettings(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         PAGE.RunModal(PAGE::"Data Migration Settings");
@@ -498,7 +498,7 @@ codeunit 1806 "Excel Data Migrator"
     var
         DataMigrationSetup: Record "Data Migration Setup";
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         DataMigrationSetup.Get();
@@ -513,7 +513,7 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasTemplate', '', false, false)]
     local procedure HasTemplate(var Sender: Record "Data Migrator Registration"; var HasTemplate: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         HasTemplate := true;
@@ -525,10 +525,10 @@ codeunit 1806 "Excel Data Migrator"
         TypeHelper: Codeunit "Type Helper";
         CRLF: Text[2];
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        CRLF := TypeHelper.CRLFSeparator;
+        CRLF := TypeHelper.CRLFSeparator();
 
         Instructions := Instruction1Txt + CRLF + Instruction2Txt + CRLF + Instruction3Txt + CRLF + Instruction4Txt;
 
@@ -538,10 +538,10 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDownloadTemplate', '', false, false)]
     local procedure DownloadTemplate(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if ExportExcelTemplate then begin
+        if ExportExcelTemplate() then begin
             Handled := true;
             exit;
         end;
@@ -550,10 +550,10 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDataImport', '', false, false)]
     local procedure ImportData(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
-        if ImportExcelData then begin
+        if ImportExcelData() then begin
             Handled := true;
             exit;
         end;
@@ -564,7 +564,7 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnSelectDataToApply', '', false, false)]
     local procedure SelectDataToApply(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         CreateDataMigrationEntites(DataMigrationEntity);
@@ -575,7 +575,7 @@ codeunit 1806 "Excel Data Migrator"
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasAdvancedApply', '', false, false)]
     local procedure HasAdvancedApply(var Sender: Record "Data Migrator Registration"; var HasAdvancedApply: Boolean)
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         HasAdvancedApply := false;
@@ -586,7 +586,7 @@ codeunit 1806 "Excel Data Migrator"
     var
         ConfigPackage: Record "Config. Package";
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         if not Confirm(OpenAdvancedQst, true) then
@@ -608,7 +608,7 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackageManagement: Codeunit "Config. Package Management";
         Window: Dialog;
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         ConfigPackage.Get(PackageCodeTxt);
@@ -644,7 +644,7 @@ codeunit 1806 "Excel Data Migrator"
         Window.Open(ApplyingMsg);
         RemoveDemoData(ConfigPackageTable);// Remove the demo data before importing Accounts(if any)
         ConfigPackageManagement.ApplyPackage(ConfigPackage, ConfigPackageTable, true);
-        Window.Close;
+        Window.Close();
         Handled := true;
     end;
 
@@ -653,7 +653,7 @@ codeunit 1806 "Excel Data Migrator"
     var
         ConfigPackage: Record "Config. Package";
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         ConfigPackage.Get(PackageCodeTxt);
@@ -666,7 +666,7 @@ codeunit 1806 "Excel Data Migrator"
     var
         ConfigPackageError: Record "Config. Package Error";
     begin
-        if Sender."No." <> GetCodeunitNumber then
+        if Sender."No." <> GetCodeunitNumber() then
             exit;
 
         ConfigPackageError.SetRange("Package Code", PackageCodeTxt);

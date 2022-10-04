@@ -33,7 +33,7 @@ page 6321 "Power BI Deployments"
                         // Handles clicking the ellipsis button next to the user field.
                         Users.SetRecord(User);
                         Users.LookupMode(true);
-                        if Users.RunModal in [ACTION::OK, ACTION::LookupOK] then begin
+                        if Users.RunModal() in [ACTION::OK, ACTION::LookupOK] then begin
                             Users.GetRecord(User);
                             SelectedUser := User."User Name";
                             SelectedUserSecurityId := User."User Security ID";
@@ -86,10 +86,6 @@ page 6321 "Power BI Deployments"
                 Caption = 'Delete';
                 Ellipsis = true;
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Removes the deployed report from your Power BI account.';
 
@@ -114,6 +110,17 @@ page 6321 "Power BI Deployments"
                     PowerBIServiceMgt.SynchronizeReportsInBackground();
                     LoadReports();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(Delete_Promoted; Delete)
+                {
+                }
             }
         }
     }

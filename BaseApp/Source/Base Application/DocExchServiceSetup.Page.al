@@ -7,7 +7,6 @@ page 1275 "Doc. Exch. Service Setup"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Page,Encryption';
     ShowFilter = false;
     SourceTable = "Doc. Exch. Service Setup";
     UsageCategory = Administration;
@@ -19,7 +18,7 @@ page 1275 "Doc. Exch. Service Setup"
             group(General)
             {
                 Caption = 'General';
-                field("User Agent"; "User Agent")
+                field("User Agent"; Rec."User Agent")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
@@ -94,14 +93,14 @@ page 1275 "Doc. Exch. Service Setup"
             {
                 Caption = 'Token';
                 Visible = StatusVisible;
-                field("Token Issued At"; "Token Issued At")
+                field("Token Issued At"; Rec."Token Issued At")
                 {
                     Caption = 'Issued At';
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the time at which the token was issued.';
                 }
-                field("Token Expired"; "Token Expired")
+                field("Token Expired"; Rec."Token Expired")
                 {
                     Caption = 'Expired';
                     ApplicationArea = Basic, Suite;
@@ -126,14 +125,14 @@ page 1275 "Doc. Exch. Service Setup"
             group(Service)
             {
                 Caption = 'Service';
-                field("Sign-up URL"; "Sign-up URL")
+                field("Sign-up URL"; Rec."Sign-up URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
                     ToolTip = 'Specifies the web page where you sign up for the document exchange service.';
 
                 }
-                field("Sign-in URL"; "Sign-in URL")
+                field("Sign-in URL"; Rec."Sign-in URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
@@ -152,7 +151,7 @@ page 1275 "Doc. Exch. Service Setup"
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the app URL in the document exchange service app store.';
                 }
-                field("Service URL"; "Service URL")
+                field("Service URL"; Rec."Service URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
@@ -164,7 +163,7 @@ page 1275 "Doc. Exch. Service Setup"
                         Sandbox := DocExchServiceMgt.IsSandbox(Rec);
                     end;
                 }
-                field("Auth URL"; "Auth URL")
+                field("Auth URL"; Rec."Auth URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = OAuth2Visible;
@@ -172,7 +171,7 @@ page 1275 "Doc. Exch. Service Setup"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the authentication URL address of the document exchange service.';
                 }
-                field("Token URL"; "Token URL")
+                field("Token URL"; Rec."Token URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = OAuth2Visible;
@@ -180,7 +179,7 @@ page 1275 "Doc. Exch. Service Setup"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the token URL address of the document exchange service.';
                 }
-                field("Log Web Requests"; "Log Web Requests")
+                field("Log Web Requests"; Rec."Log Web Requests")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
@@ -285,7 +284,7 @@ page 1275 "Doc. Exch. Service Setup"
                     }
                 }
 #endif
-                field("Client Id"; "Client Id")
+                field("Client Id"; Rec."Client Id")
                 {
                     Caption = 'Client ID';
                     ApplicationArea = Basic, Suite;
@@ -335,7 +334,7 @@ page 1275 "Doc. Exch. Service Setup"
                         SavedClientSecret := ClientSecret;
                     end;
                 }
-                field("Redirect URL"; "Redirect URL")
+                field("Redirect URL"; Rec."Redirect URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled and not SoftwareAsAService;
@@ -355,8 +354,6 @@ page 1275 "Doc. Exch. Service Setup"
                 Caption = 'Set URLs to Default';
                 Enabled = EditableByNotEnabled;
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Change the service, sign-up, and sign-in URLs back to their default values. The changes occur immediately when you choose this action.';
 
                 trigger OnAction()
@@ -370,8 +367,6 @@ page 1275 "Doc. Exch. Service Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Renew Token';
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Renew the token for connecting to the document exchange service. This might require administrator account credentials for the document exchange service.';
 
                 trigger OnAction()
@@ -388,9 +383,6 @@ page 1275 "Doc. Exch. Service Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Test Connection';
                 Image = Link;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Check that the settings that you added are correct and the connection to the document exchange service is working.';
 
                 trigger OnAction()
@@ -406,8 +398,6 @@ page 1275 "Doc. Exch. Service Setup"
                 Caption = 'Job Queue Entry';
                 Enabled = Enabled;
                 Image = JobListSetup;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the jobs that automatically process the incoming and outgoing electronic documents.';
 
                 trigger OnAction()
@@ -423,9 +413,6 @@ page 1275 "Doc. Exch. Service Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Encryption Management';
                 Image = EncryptionKeys;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Data Encryption Management";
                 RunPageMode = View;
                 ToolTip = 'Enable or disable data encryption. Data encryption helps make sure that unauthorized users cannot read business data.';
@@ -443,6 +430,38 @@ page 1275 "Doc. Exch. Service Setup"
                 begin
                     ActivityLog.ShowEntries(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(TestConnection_Promoted; TestConnection)
+                {
+                }
+                actionref(SetURLsToDefault_Promoted; SetURLsToDefault)
+                {
+                }
+                actionref(RenewToken_Promoted; RenewToken)
+                {
+                }
+                actionref(JobQueueEntry_Promoted; JobQueueEntry)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Encryption', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EncryptionManagement_Promoted; EncryptionManagement)
+                {
+                }
             }
         }
     }

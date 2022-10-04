@@ -11,10 +11,12 @@ table 5209 Union
             Caption = 'Code';
             NotBlank = true;
         }
-        field(2; Name; Text[50])
+#pragma warning disable AS0086
+        field(2; Name; Text[100])
         {
             Caption = 'Name';
         }
+#pragma warning restore AS0086
         field(3; Address; Text[100])
         {
             Caption = 'Address';
@@ -35,8 +37,13 @@ table 5209 Union
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(5; City; Text[30])
@@ -55,8 +62,13 @@ table 5209 Union
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(6; "Phone No."; Text[30])
@@ -66,7 +78,7 @@ table 5209 Union
         }
         field(7; "No. of Members Employed"; Integer)
         {
-            CalcFormula = Count (Employee WHERE(Status = FILTER(<> Terminated),
+            CalcFormula = Count(Employee WHERE(Status = FILTER(<> Terminated),
                                                 "Union Code" = FIELD(Code)));
             Caption = 'No. of Members Employed';
             Editable = false;
@@ -132,5 +144,15 @@ table 5209 Union
 
     var
         PostCode: Record "Post Code";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Union: Record Union; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Union: Record Union; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
 }
 

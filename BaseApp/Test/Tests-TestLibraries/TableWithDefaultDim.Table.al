@@ -1,5 +1,6 @@
 table 134482 "Table With Default Dim"
 {
+    ReplicateData = false;
 
     fields
     {

@@ -42,7 +42,7 @@ table 1213 "Data Exchange Type"
 
     procedure FindEntry(Type: Option): Code[20]
     begin
-        Reset;
+        Reset();
         SetRange("Entity Type", Type);
         if not FindFirst() then
             exit('');

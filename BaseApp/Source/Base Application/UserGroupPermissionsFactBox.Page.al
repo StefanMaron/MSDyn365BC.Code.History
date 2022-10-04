@@ -11,12 +11,12 @@ page 9835 "User Group Permissions FactBox"
         {
             repeater(Group)
             {
-                field("Role ID"; "Role ID")
+                field("Role ID"; Rec."Role ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of a permission set.';
                 }
-                field("Role Name"; "Role Name")
+                field("Role Name"; Rec."Role Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the permission set.';

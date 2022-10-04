@@ -31,7 +31,7 @@ page 7138 "Purchase Budget Overview"
                         ItemBudgetManagement.ValidateColumnDimTypeAndCode(
                           ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        UpdateDimCtrls;
+                        UpdateDimCtrls();
                         UpdateMatrixSubForm();
                         CurrPage.Update(false);
                     end;
@@ -40,7 +40,7 @@ page 7138 "Purchase Budget Overview"
                     begin
                         ItemBudgetManagement.CheckBudgetName(CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName);
                         UpdateMatrixSubForm();
-                        CurrentBudgetNameOnAfterValida;
+                        CurrentBudgetNameOnAfterValida();
                     end;
                 }
                 field(LineDimCode; LineDimCode)
@@ -71,7 +71,7 @@ page 7138 "Purchase Budget Overview"
                         ItemBudgetManagement.ValidateLineDimTypeAndCode(
                           ItemBudgetName, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        LineDimCodeOnAfterValidate;
+                        LineDimCodeOnAfterValidate();
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -115,7 +115,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        ValueTypeOnAfterValidate;
+                        ValueTypeOnAfterValidate();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -174,7 +174,7 @@ page 7138 "Purchase Budget Overview"
                         ItemStatisticsBuffer.SetFilter("Date Filter", DateFilter);
                         DateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
                         InternalDateFilter := DateFilter;
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(SalesCodeFilterCtrl; SourceNoFilter)
@@ -192,7 +192,7 @@ page 7138 "Purchase Budget Overview"
                             SourceTypeFilter::Customer:
                                 begin
                                     CustList.LookupMode := true;
-                                    if CustList.RunModal = ACTION::LookupOK then
+                                    if CustList.RunModal() = ACTION::LookupOK then
                                         Text := CustList.GetSelectionFilter()
                                     else
                                         exit(false);
@@ -200,7 +200,7 @@ page 7138 "Purchase Budget Overview"
                             SourceTypeFilter::Vendor:
                                 begin
                                     VendList.LookupMode := true;
-                                    if VendList.RunModal = ACTION::LookupOK then
+                                    if VendList.RunModal() = ACTION::LookupOK then
                                         Text := VendList.GetSelectionFilter()
                                     else
                                         exit(false);
@@ -226,7 +226,7 @@ page 7138 "Purchase Budget Overview"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
@@ -234,7 +234,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        ItemFilterOnAfterValidate;
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(BudgetDim1Filter; BudgetDim1Filter)
@@ -252,7 +252,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        BudgetDim1FilterOnAfterValidat;
+                        BudgetDim1FilterOnAfterValidat();
                     end;
                 }
                 field(BudgetDim2Filter; BudgetDim2Filter)
@@ -457,9 +457,6 @@ page 7138 "Purchase Budget Overview"
                 ApplicationArea = PurchaseBudget;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -476,9 +473,6 @@ page 7138 "Purchase Budget Overview"
                 ApplicationArea = PurchaseBudget;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -495,10 +489,6 @@ page 7138 "Purchase Budget Overview"
                 ApplicationArea = PurchaseBudget;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -512,10 +502,6 @@ page 7138 "Purchase Budget Overview"
                 ApplicationArea = PurchaseBudget;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -529,10 +515,6 @@ page 7138 "Purchase Budget Overview"
                 ApplicationArea = PurchaseBudget;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -546,10 +528,6 @@ page 7138 "Purchase Budget Overview"
                 ApplicationArea = PurchaseBudget;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -557,6 +535,32 @@ page 7138 "Purchase Budget Overview"
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                     UpdateMatrixSubForm();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Previous Column_Promoted"; "Previous Column")
+                {
+                }
+                actionref("Next Column_Promoted"; "Next Column")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+                actionref("Next Period_Promoted"; "Next Period")
+                {
+                }
+                actionref("Previous Period_Promoted"; "Previous Period")
+                {
+                }
             }
         }
     }
@@ -591,7 +595,7 @@ page 7138 "Purchase Budget Overview"
         GLSetup.Get();
         SourceTypeFilter := SourceTypeFilter::Vendor;
 
-        UpdateDimCtrls;
+        UpdateDimCtrls();
 
         FindPeriod('');
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
@@ -821,9 +825,9 @@ page 7138 "Purchase Budget Overview"
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
         DimValList.LookupMode(true);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
         end;
         exit(true);
     end;
@@ -863,7 +867,7 @@ page 7138 "Purchase Budget Overview"
         ItemBudgetManagement.ValidateColumnDimTypeAndCode(
           ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-        UpdateDimCtrls;
+        UpdateDimCtrls();
         CurrPage.Update(false);
     end;
 

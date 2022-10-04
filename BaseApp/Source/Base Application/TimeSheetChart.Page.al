@@ -32,17 +32,17 @@ page 972 "Time Sheet Chart"
                 trigger AddInReady()
                 begin
                     TimeSheetChartMgt.OnOpenPage(TimeSheetChartSetup);
-                    UpdateStatus;
+                    UpdateStatus();
                     IsChartAddInReady := true;
                     if IsChartDataReady then
-                        UpdateChart;
+                        UpdateChart();
                 end;
 
                 trigger Refresh()
                 begin
                     if IsChartDataReady and IsChartAddInReady then begin
                         NeedsUpdate := true;
-                        UpdateChart;
+                        UpdateChart();
                     end;
                 end;
             }
@@ -63,7 +63,7 @@ page 972 "Time Sheet Chart"
                 trigger OnAction()
                 begin
                     TimeSheetChartSetup.FindPeriod(SetWanted::Previous);
-                    UpdateStatus;
+                    UpdateStatus();
                 end;
             }
             action("Next Period")
@@ -76,7 +76,7 @@ page 972 "Time Sheet Chart"
                 trigger OnAction()
                 begin
                     TimeSheetChartSetup.FindPeriod(SetWanted::Next);
-                    UpdateStatus;
+                    UpdateStatus();
                 end;
             }
             group("Show by")
@@ -93,7 +93,7 @@ page 972 "Time Sheet Chart"
                     trigger OnAction()
                     begin
                         TimeSheetChartSetup.SetShowBy(TimeSheetChartSetup."Show by"::Status);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(Type)
@@ -105,7 +105,7 @@ page 972 "Time Sheet Chart"
                     trigger OnAction()
                     begin
                         TimeSheetChartSetup.SetShowBy(TimeSheetChartSetup."Show by"::Type);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
                 action(Posted)
@@ -118,7 +118,7 @@ page 972 "Time Sheet Chart"
                     trigger OnAction()
                     begin
                         TimeSheetChartSetup.SetShowBy(TimeSheetChartSetup."Show by"::Posted);
-                        UpdateStatus;
+                        UpdateStatus();
                     end;
                 }
             }
@@ -127,12 +127,12 @@ page 972 "Time Sheet Chart"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateChart;
+        UpdateChart();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        UpdateChart;
+        UpdateChart();
         IsChartDataReady := true;
     end;
 
@@ -154,19 +154,19 @@ page 972 "Time Sheet Chart"
             exit;
         TimeSheetChartMgt.UpdateData(Rec);
         Update(CurrPage.BusinessChart);
-        UpdateStatus;
+        UpdateStatus();
 
         NeedsUpdate := false;
     end;
 
     local procedure UpdateStatus()
     begin
-        NeedsUpdate := NeedsUpdate or IsSetupChanged;
+        NeedsUpdate := NeedsUpdate or IsSetupChanged();
 
         OldTimeSheetChartSetup := TimeSheetChartSetup;
 
         if NeedsUpdate then
-            StatusText := TimeSheetChartSetup.GetCurrentSelectionText;
+            StatusText := TimeSheetChartSetup.GetCurrentSelectionText();
     end;
 
     local procedure IsSetupChanged(): Boolean

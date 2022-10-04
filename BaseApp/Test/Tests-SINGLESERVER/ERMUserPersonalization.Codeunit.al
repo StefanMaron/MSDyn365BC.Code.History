@@ -184,7 +184,7 @@ codeunit 134912 "ERM User Personalization"
         ProfileCard.FILTER.SetFilter("Profile ID", Format(AllObjWithCaption."Object ID"));
 
         // [THEN] 'Role Center ID' is set for Default one
-        Assert.AreEqual(Format(ConfPersonalizationMgt.DefaultRoleCenterID), ProfileCard.RoleCenterIdField.Value, NotDefaultRoleCenterIDErr);
+        Assert.AreEqual(Format(ConfPersonalizationMgt.DefaultRoleCenterID()), ProfileCard.RoleCenterIdField.Value, NotDefaultRoleCenterIDErr);
         DeleteProfile(AllObjWithCaption);
     end;
 
@@ -1167,7 +1167,7 @@ codeunit 134912 "ERM User Personalization"
         UserGroups.OpenEdit;
         UserGroups.FILTER.SetFilter(Code, UserGroup.Code);
         UserGroups.YourProfileID.Lookup();
-        UserGroups.Close;
+        UserGroups.Close();
 
         // [THEN] User group's default profile successfully changed
         UserGroup.Get(UserGroup.Code);
@@ -1402,7 +1402,7 @@ codeunit 134912 "ERM User Personalization"
         ProfileListPage.First;
         repeat
             I += 1;
-        until ProfileListPage.Next = false;
+        until ProfileListPage.Next() = false;
         Assert.IsTrue(I = ExpectedProfilesCount, ProfilesErr);
     end;
 

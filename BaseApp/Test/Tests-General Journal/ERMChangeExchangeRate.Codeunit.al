@@ -77,7 +77,7 @@ codeunit 134075 "ERM Change Exchange Rate"
             VerifyAmountLCY(TempGenJournalLine)
         else
             Assert.AreEqual(CalculateCurrencyFactor(Customer."Currency Code"), TempGenJournalLine."Currency Factor",
-              StrSubstNo(AmountError, TempGenJournalLine.FieldCaption("Currency Factor"), TempGenJournalLine.TableCaption));
+              StrSubstNo(AmountError, TempGenJournalLine.FieldCaption("Currency Factor"), TempGenJournalLine.TableCaption()));
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -163,7 +163,7 @@ codeunit 134075 "ERM Change Exchange Rate"
         AmountLCY := (AmountLCY / CurrencyExchangeRate."Exchange Rate Amount") * CurrencyExchangeRate."Relational Exch. Rate Amount";
         Assert.AreNearlyEqual(
           AmountLCY, TempGenJournalLine."Amount (LCY)", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, TempGenJournalLine.FieldCaption("Amount (LCY)"), TempGenJournalLine.TableCaption));
+          StrSubstNo(AmountError, TempGenJournalLine.FieldCaption("Amount (LCY)"), TempGenJournalLine.TableCaption()));
     end;
 }
 

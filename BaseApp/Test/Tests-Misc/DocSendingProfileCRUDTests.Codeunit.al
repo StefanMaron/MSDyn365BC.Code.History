@@ -227,7 +227,7 @@ codeunit 139152 DocSendingProfileCRUDTests
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
         Assert.AreEqual(ElectronicDocumentFormat.Description, ElectronicDocumentFormatPage.Description.Value,
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
-        ElectronicDocumentFormatPage.Next;
+        ElectronicDocumentFormatPage.Next();
         Assert.AreEqual(0, ElectronicDocumentFormatPage.Usage.AsInteger, TooManyResultsErr);
         Assert.AreEqual('', ElectronicDocumentFormatPage.Description.Value, TooManyResultsErr);
 
@@ -239,11 +239,11 @@ codeunit 139152 DocSendingProfileCRUDTests
         ElectronicDocumentFormatPage.First;
         Assert.AreEqual(ElectronicDocumentFormat.Code, ElectronicDocumentFormatPage.Code.Value,
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
-        ElectronicDocumentFormatPage.Next;
+        ElectronicDocumentFormatPage.Next();
         Assert.AreEqual(AdditionalElectronicFormatCode, ElectronicDocumentFormatPage.Code.Value,
           StrSubstNo(UnableToFindFormatErr, AdditionalElectronicFormatCode, AdditionalElectronicFormatDescription));
 
-        ElectronicDocumentFormatPage.Close;
+        ElectronicDocumentFormatPage.Close();
     end;
 
     [Test]

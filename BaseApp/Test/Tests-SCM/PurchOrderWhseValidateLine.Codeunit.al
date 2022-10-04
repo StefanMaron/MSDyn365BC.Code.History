@@ -63,12 +63,12 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         TestPurchaseOrderSetup(PurchaseHeader, PurchaseLine, Item, Location);
 
         ExpectedErrorMessage := StrSubstNo(ErrFieldMustNotBeChanged,
-            PurchaseLine.FieldName(Type), WhseReceiptLine.TableCaption, PurchaseLine.TableCaption);
+            PurchaseLine.FieldName(Type), WhseReceiptLine.TableCaption(), PurchaseLine.TableCaption());
 
         asserterror PurchaseLine.Validate(Type, PurchaseLine.Type::"Fixed Asset");
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         PurchaseHeader: Record "Purchase Header";
         ExpectedErrorMessage: Text[1024];
     begin
-        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, PurchaseHeader.TableCaption);
+        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, PurchaseHeader.TableCaption());
 
         PurchaseOrderDelLines(false, ExpectedErrorMessage);
     end;
@@ -177,7 +177,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         ExpectedErrorMessage: Text[1024];
     begin
         ExpectedErrorMessage := StrSubstNo(ErrCannotBeDeleted,
-            PurchaseLine.TableCaption, WhseReceiptLine.TableCaption);
+            PurchaseLine.TableCaption(), WhseReceiptLine.TableCaption());
 
         PurchaseOrderDelLines(true, ExpectedErrorMessage);
     end;
@@ -255,14 +255,14 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         if Reopen then begin
             LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
             ExpectedErrorMessage := StrSubstNo(ErrFieldMustNotBeChanged,
-                FieldRef.Name, WhseReceiptLine.TableCaption, PurchaseLine.TableCaption);
+                FieldRef.Name, WhseReceiptLine.TableCaption(), PurchaseLine.TableCaption());
         end else
-            ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, PurchaseHeader.TableCaption);
+            ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, PurchaseHeader.TableCaption());
 
         asserterror UpdatePurchaseLine(PurchaseLine, FieldNo, Value);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure PurchaseOrderDelLines(Reopen: Boolean; ExpectedErrorMessage: Text[1024])
@@ -284,7 +284,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         asserterror PurchaseLine.DeleteAll(true);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]

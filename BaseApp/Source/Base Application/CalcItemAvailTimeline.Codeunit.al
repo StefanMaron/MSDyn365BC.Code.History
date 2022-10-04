@@ -1,14 +1,21 @@
+#pragma warning disable AS0018
+#pragma warning disable AS0088
+#if not CLEAN21
 codeunit 5540 "Calc. Item Avail. Timeline"
 {
-
+    ObsoleteReason = 'This codeunit is obsolete as the TimeLineVisualizer is not available on the web client.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+    
     trigger OnRun()
     begin
     end;
 
     var
         TempInventoryEventBuffer: Record "Inventory Event Buffer" temporary;
-        TXT002: Label '%1 not supported: %2.';
         CalcItemAvailEventBuf: Codeunit "Calc. Item Availability";
+
+        TXT002: Label '%1 not supported: %2.';
         TXT004: Label 'One or more lines in the planning or requisition worksheet have been changed by another user. Click Reload, make the changes again, and then click Save Changes.';
         TXT010: Label 'Inventory';
         TXT011: Label 'Sales';
@@ -35,8 +42,8 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         InitialDate: Date;
         FinalDate: Date;
     begin
-        InitialDate := WorkDate;
-        FinalDate := WorkDate;
+        InitialDate := WorkDate();
+        FinalDate := WorkDate();
 
         with TempInventoryEventBuffer do begin
             SetCurrentKey("Availability Date", Type);
@@ -83,7 +90,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                 until Next() = 0;
 
             // Final Inventory
-            Reset;
+            Reset();
             if FindLast() then
                 InsertFinalEvent(TempTimelineEvent, "Entry No." + 1, FinalDate);
         end;
@@ -207,7 +214,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                         RecRef.GetTable(ProdOrder);
                         TempToTimelineEvent."Source Document ID" := RecRef.RecordId;
                         TempToTimelineEvent.Description :=
-                          StrSubstNo('%1 %2 %3', ProdOrder.TableCaption, ProdOrder."No.", ProdOrder.Description);
+                          StrSubstNo('%1 %2 %3', ProdOrder.TableCaption(), ProdOrder."No.", ProdOrder.Description);
                     end;
                 DATABASE::"Prod. Order Component":
                     begin
@@ -215,7 +222,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                         RecRef.GetTable(ProdOrder);
                         TempToTimelineEvent."Source Document ID" := RecRef.RecordId;
                         TempToTimelineEvent.Description :=
-                          StrSubstNo('%1 %2 %3', ProdOrder.TableCaption, ProdOrder."No.", ProdOrder.Description);
+                          StrSubstNo('%1 %2 %3', ProdOrder.TableCaption(), ProdOrder."No.", ProdOrder.Description);
                     end;
                 DATABASE::"Service Line":
                     begin
@@ -231,7 +238,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                         RecRef.GetTable(Job);
                         TempToTimelineEvent."Source Document ID" := RecRef.RecordId;
                         TempToTimelineEvent.Description :=
-                          StrSubstNo('%1 %2 %3', Job.TableCaption, Job."No.", Job."Bill-to Customer No.");
+                          StrSubstNo('%1 %2 %3', Job.TableCaption(), Job."No.", Job."Bill-to Customer No.");
                     end;
                 DATABASE::"Requisition Line":
                     begin
@@ -240,7 +247,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                         TempToTimelineEvent."Source Document ID" := RecRef.RecordId;
                         TempToTimelineEvent.Description :=
                           StrSubstNo(
-                            '%1 %2 %3 %4', ReqLine.TableCaption, ReqLine."Worksheet Template Name",
+                            '%1 %2 %3 %4', ReqLine.TableCaption(), ReqLine."Worksheet Template Name",
                             ReqLine."Journal Batch Name", ReqLine.Description);
                     end;
                 DATABASE::"Planning Component":
@@ -262,7 +269,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                         TempToTimelineEvent.Description :=
                           StrSubstNo(
                             '%1 %2 %3',
-                            ProdForecastName.TableCaption, ProdForecastName.Name,
+                            ProdForecastName.TableCaption(), ProdForecastName.Name,
                             ProdForecastName.Description);
                     end;
                 DATABASE::"Assembly Header":
@@ -362,11 +369,12 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         WorksheetNameFieldRef: FieldRef;
         LineNoFieldRef: FieldRef;
         Qty: Decimal;
+        LineNo: Integer;
     begin
         RecRef.Open(DATABASE::"Requisition Line");
 
         if not GetSourcePlanningLine(TempTimelineEventChange, RecRef) then begin
-            if TempTimelineEventChange.NewSupply then
+            if TempTimelineEventChange.NewSupply() then
                 InsertNewPlanningLine(
                   TempTimelineEventChange, ItemNo, CurrTemplateName, CurrWorksheetName, CurrLocationCode, CurrVariantCode)
             else
@@ -377,7 +385,8 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             LineNoFieldRef := RecRef.Field(3);
 
             with ReqLine do begin
-                Get(TemplateNameFieldRef.Value, WorksheetNameFieldRef.Value, LineNoFieldRef.Value);
+                LineNo := LineNoFieldRef.Value();
+                Get(Format(TemplateNameFieldRef.Value()), Format(WorksheetNameFieldRef.Value()), LineNo);
 
                 if SourcePlanningLineChanged(ReqLine, ItemNo) then
                     Error(TXT004);
@@ -417,7 +426,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             if (CurrTemplateName = '') or (CurrWorksheetName = '') then
                 GetPlanningWorksheetName(ItemNo, CurrTemplateName, CurrWorksheetName);
 
-            Init;
+            Init();
             "Worksheet Template Name" := CurrTemplateName;
             "Journal Batch Name" := CurrWorksheetName;
             "Line No." := GetNextLineNo("Worksheet Template Name", "Journal Batch Name");
@@ -497,7 +506,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         ReqLine: Record "Requisition Line";
     begin
         with ReqLine do begin
-            Reset;
+            Reset();
             SetRange("Worksheet Template Name", CurrTemplateName);
             SetRange("Journal Batch Name", CurrWorksheetName);
             if FindLast() then
@@ -567,7 +576,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
     local procedure BlankFilterStr(FilterStr: Text): Boolean
     begin
-        exit((FilterStr = '') or (DelChr(FilterStr, '=') = BlankValue))
+        exit((FilterStr = '') or (DelChr(FilterStr, '=') = BlankValue()))
     end;
 
     procedure BlankValue(): Text[2]
@@ -592,7 +601,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
     local procedure InsertFinalEvent(var TempTimelineEvent: Record "Timeline Event" temporary; ID: Integer; FinalDate: Date)
     begin
-        InsertInventoryEvent(TempTimelineEvent, ID, FinalTransactionType, FinalDate);
+        InsertInventoryEvent(TempTimelineEvent, ID, FinalTransactionType(), FinalDate);
     end;
 
     procedure FinalTimespanDays(): Integer
@@ -620,7 +629,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
     var
         RecID: RecordID;
     begin
-        if TempTimelineEventChange.NewSupply then
+        if TempTimelineEventChange.NewSupply() then
             exit(false);
 
         Evaluate(RecID, TempTimelineEventChange.ChangeRefNo);
@@ -642,7 +651,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                   TimelineEventChange, ItemNo, TemplateNameNewSupply, WorksheetNameNewSupply, LocationCodeNewSupply, VariantCodeNewSupply);
 
                 if not NewSupplyTransfer then
-                    NewSupplyTransfer := TimelineEventChange.NewSupply;
+                    NewSupplyTransfer := TimelineEventChange.NewSupply();
 
             until TimelineEventChange.Next() = 0;
     end;
@@ -672,4 +681,6 @@ codeunit 5540 "Calc. Item Avail. Timeline"
     begin
     end;
 }
-
+#endif
+#pragma warning restore AS0018
+#pragma warning restore AS0088

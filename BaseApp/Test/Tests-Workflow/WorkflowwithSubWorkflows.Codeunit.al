@@ -529,7 +529,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
 
         Assert.IsTrue(WorkflowStepInstance.IsEmpty,
-          StrSubstNo(RecordFoundErr, WorkflowStepInstance.TableCaption, WorkflowStepInstance.GetFilters));
+          StrSubstNo(RecordFoundErr, WorkflowStepInstance.TableCaption(), WorkflowStepInstance.GetFilters));
     end;
 
     [Test]
@@ -1040,7 +1040,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
 
         repeat
             CheckStepEqualsInstance(WorkflowStep, WorkflowStepInstance);
-        until (WorkflowStep.Next = 0) and (WorkflowStepInstance.Next = 0);
+        until (WorkflowStep.Next() = 0) and (WorkflowStepInstance.Next() = 0);
     end;
 
     local procedure FindStepAndRelatedInstances(var WorkflowStep: Record "Workflow Step"; var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowCode: Code[20])
@@ -1123,7 +1123,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
                 if NextWorkflowStep.Get(WorkflowCode, WorkflowStep."Next Workflow Step ID") then
                     CheckWorkflowStepInstance(NextWorkflowStep);
             end;
-        until WorkflowStep.Next = 0;
+        until WorkflowStep.Next() = 0;
     end;
 
     local procedure CheckWorkflowStepInstance(WorkflowStep: Record "Workflow Step"): Boolean
@@ -1135,10 +1135,10 @@ codeunit 134308 "Workflow with Sub-Workflows"
 
         if WorkflowStep.Type = WorkflowStep.Type::"Sub-Workflow" then
             Assert.IsTrue(WorkflowStepInstance.IsEmpty,
-              StrSubstNo(RecordFoundErr, WorkflowStepInstance.TableCaption, WorkflowStepInstance.GetFilters))
+              StrSubstNo(RecordFoundErr, WorkflowStepInstance.TableCaption(), WorkflowStepInstance.GetFilters))
         else
             Assert.IsFalse(WorkflowStepInstance.IsEmpty,
-              StrSubstNo(RecordNotFoundErr, WorkflowStepInstance.TableCaption, WorkflowStepInstance.GetFilters));
+              StrSubstNo(RecordNotFoundErr, WorkflowStepInstance.TableCaption(), WorkflowStepInstance.GetFilters));
 
         exit(not WorkflowStepInstance.IsEmpty);
     end;

@@ -48,7 +48,7 @@ page 2821 "Native - PDFs"
         FilterView: Text;
     begin
         if not PdfGenerated then begin
-            FilterView := GetView;
+            FilterView := GetView();
             DocumentIdFilter := GetFilter("Document Id");
             if DocumentIdFilter = '' then
                 DocumentIdFilter := GetFilter(Id);

@@ -74,12 +74,12 @@ codeunit 5340 "CRM Integration Table Synch."
 
         CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
-            Error(ConnectionNotEnabledErr, CRMProductName.FULL);
+            Error(ConnectionNotEnabledErr, CRMProductName.FULL());
 
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
 
         CRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
-        ClearCache;
+        ClearCache();
     end;
 
     local procedure GetIntegrationUserId(): Guid
@@ -104,7 +104,7 @@ codeunit 5340 "CRM Integration Table Synch."
     begin
         CRMIntegrationManagement.OnTestCDSConnection(testConnectionHandled);
         if not testConnectionHandled then
-            if not CRMConnectionSetup.TryReadSystemUsers then
+            if not CRMConnectionSetup.TryReadSystemUsers() then
                 Error(GetLastErrorText);
     end;
 
@@ -114,7 +114,7 @@ codeunit 5340 "CRM Integration Table Synch."
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         closeConnectionHandled: Boolean;
     begin
-        ClearCache;
+        ClearCache();
 
         CRMIntegrationManagement.OnCloseCDSConnection(ConnectionName, closeConnectionHandled);
         if closeConnectionHandled then
@@ -126,7 +126,7 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure ClearCache()
     begin
         Session.LogMessage('0000CM6', ClearCacheTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-        CRMIntTableSubscriber.ClearCache;
+        CRMIntTableSubscriber.ClearCache();
         Clear(CRMIntTableSubscriber);
     end;
 
@@ -452,7 +452,7 @@ codeunit 5340 "CRM Integration Table Synch."
                     if RecordID.TableNo = 0 then
                         Error(CannotDetermineSourceOriginErr, SourceID);
                     if not (RecordID.TableNo = IntegrationTableMapping."Table ID") then
-                        Error(SourceRecordIsNotInMappingErr, IntegrationTableMapping.TableCaption, IntegrationTableMapping.Name);
+                        Error(SourceRecordIsNotInMappingErr, IntegrationTableMapping.TableCaption(), IntegrationTableMapping.Name);
                     if not RecordRef.Get(RecordID) then
                         Error(RecordNotFoundErr, RecordRef.Caption, Format(RecordID, 0, 1));
                     exit(IntegrationTableMapping.FindFilteredRec(RecordRef, OutOfMapFilter));
@@ -463,7 +463,7 @@ codeunit 5340 "CRM Integration Table Synch."
                     if IsNullGuid(CRMID) then
                         Error(CannotDetermineSourceOriginErr, SourceID);
                     if not IntegrationTableMapping.GetRecordRef(CRMID, RecordRef) then
-                        Error(RecordNotFoundErr, IntegrationTableMapping.GetExtendedIntegrationTableCaption, CRMID);
+                        Error(RecordNotFoundErr, IntegrationTableMapping.GetExtendedIntegrationTableCaption(), CRMID);
                     exit(IntegrationTableMapping.FindFilteredRec(RecordRef, OutOfMapFilter));
                 end;
             else
@@ -483,7 +483,7 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure FillCodeBufferFromOption(FieldRef: FieldRef; var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Boolean
     begin
         CollectEnumValues(FieldRef, TempNameValueBuffer);
-        exit(TempNameValueBuffer.FindSet);
+        exit(TempNameValueBuffer.FindSet());
     end;
 
     local procedure CollectEnumValues(FieldRef: FieldRef; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
@@ -600,13 +600,13 @@ codeunit 5340 "CRM Integration Table Synch."
 
     procedure SynchOption(var IntegrationTableMapping: Record "Integration Table Mapping")
     var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMOptionMapping: Record "CRM Option Mapping";
         "Field": Record "Field";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        RecordRef: RecordRef;
         FieldRef: FieldRef;
         KeyRef: KeyRef;
-        RecordRef: RecordRef;
         NewPK: Text;
     begin
         if TypeHelper.GetField(
@@ -618,7 +618,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 else begin
                     RecordRef.Open(Field.TableNo);
                     FieldRef := RecordRef.Field(Field."No.");
-                    RecordRef.Close;
+                    RecordRef.Close();
                     if FillCodeBufferFromOption(FieldRef, TempNameValueBuffer) then begin
                         CRMOptionMapping.SetRange("Table ID", IntegrationTableMapping."Table ID");
                         CRMOptionMapping.DeleteAll();
@@ -629,7 +629,7 @@ codeunit 5340 "CRM Integration Table Synch."
                         repeat
                             NewPK := CopyStr(TempNameValueBuffer.Name, 1, FieldRef.Length);
                             FieldRef.SetRange(NewPK);
-                            if not RecordRef.FindFirst then begin
+                            if not RecordRef.FindFirst() then begin
                                 RecordRef.Init();
                                 FieldRef.Value := NewPK;
                                 RecordRef.Insert(true);
@@ -644,7 +644,7 @@ codeunit 5340 "CRM Integration Table Synch."
                             CRMOptionMapping."Integration Field ID" := IntegrationTableMapping."Integration Table UID Fld. No.";
                             CRMOptionMapping.Insert();
                         until TempNameValueBuffer.Next() = 0;
-                        RecordRef.Close;
+                        RecordRef.Close();
                     end;
                 end;
     end;
@@ -659,7 +659,7 @@ codeunit 5340 "CRM Integration Table Synch."
             JobID := IntegrationTableSynch.BeginIntegrationSynchJob(TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, FromRecordRef.Number);
             if not IsNullGuid(JobID) then begin
                 IntegrationTableSynch.Synchronize(FromRecordRef, ToRecordRef, ForceModify, IgnoreSynchOnlyCoupledRecords);
-                IntegrationTableSynch.EndIntegrationSynchJob;
+                IntegrationTableSynch.EndIntegrationSynchJob();
             end;
         end;
     end;
@@ -671,6 +671,29 @@ codeunit 5340 "CRM Integration Table Synch."
         IntegrationRecordRef: RecordRef;
     begin
         if not IntegrationTableMapping.FindMappingForTable(RecordsToSynchRecordRef.Number) then
+            Error(NoMappingErr, RecordsToSynchRecordRef.Name);
+
+        if not RecordsToSynchRecordRef.FindLast() then
+            Error(SynchronizeEmptySetErr);
+
+        JobID :=
+          IntegrationTableSynch.BeginIntegrationSynchJob(
+            TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, RecordsToSynchRecordRef.Number);
+        if not IsNullGuid(JobID) then begin
+            repeat
+                IntegrationTableSynch.Synchronize(RecordsToSynchRecordRef, IntegrationRecordRef, IgnoreChanges, IgnoreSynchOnlyCoupledRecords)
+            until RecordsToSynchRecordRef.Next(-1) = 0;
+            IntegrationTableSynch.EndIntegrationSynchJob();
+        end;
+    end;
+
+    procedure SynchRecordsFromIntegrationTable(RecordsToSynchRecordRef: RecordRef; SourceTableNo: Integer; IgnoreChanges: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean) JobID: Guid
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
+        IntegrationRecordRef: RecordRef;
+    begin
+        if not IntegrationTableMapping.FindMapping(SourceTableNo, RecordsToSynchRecordRef.Number) then
             Error(NoMappingErr, RecordsToSynchRecordRef.Name);
 
         if not RecordsToSynchRecordRef.FindLast() then
@@ -763,7 +786,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 OnQueryPostFilterIgnoreRecord(CloneSourceRecordRef, IgnoreRecord);
                 if not IgnoreRecord then begin
                     if TempCRMIntegrationRecord.IsCRMRecordRefCoupled(CloneSourceRecordRef) then
-                        TempCRMIntegrationRecord.Delete
+                        TempCRMIntegrationRecord.Delete()
                     else
                         IgnoreRecord := IntegrationTableMapping."Synch. Only Coupled Records";
                     if not IgnoreRecord then
@@ -799,7 +822,7 @@ codeunit 5340 "CRM Integration Table Synch."
         if not IsNullGuid(JobId) then begin
             CRMFullSynchReviewLine.FullSynchStarted(IntegrationTableMapping, JobId, IntegrationTableMapping.Direction::ToIntegrationTable);
             LatestLocalModifiedOn := SynchNAVTableToCRM(IntegrationTableMapping, IntegrationTableSynch);
-            IntegrationTableSynch.EndIntegrationSynchJob;
+            IntegrationTableSynch.EndIntegrationSynchJob();
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable);
         end;
     end;
@@ -817,7 +840,7 @@ codeunit 5340 "CRM Integration Table Synch."
         if not IsNullGuid(JobId) then begin
             CRMFullSynchReviewLine.FullSynchStarted(IntegrationTableMapping, JobId, IntegrationTableMapping.Direction::FromIntegrationTable);
             LatestIntegrationModifiedOn := SynchCRMTableToNAV(IntegrationTableMapping, IntegrationTableSynch, SourceRecordRef);
-            IntegrationTableSynch.EndIntegrationSynchJob;
+            IntegrationTableSynch.EndIntegrationSynchJob();
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::FromIntegrationTable);
         end;
     end;

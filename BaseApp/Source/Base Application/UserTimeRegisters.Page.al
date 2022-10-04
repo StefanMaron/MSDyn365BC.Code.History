@@ -13,7 +13,7 @@ page 71 "User Time Registers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "User Lookup";

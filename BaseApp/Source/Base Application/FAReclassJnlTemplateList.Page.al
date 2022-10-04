@@ -22,13 +22,13 @@ page 5638 "FA Reclass. Jnl. Template List"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the journal template that you are creating.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = FixedAssets;
                     DrillDown = false;

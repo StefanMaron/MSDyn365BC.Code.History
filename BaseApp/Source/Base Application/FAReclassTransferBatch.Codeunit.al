@@ -6,14 +6,11 @@ codeunit 5643 "FA Reclass. Transfer Batch"
     trigger OnRun()
     begin
         FAReclassJnlLine.Copy(Rec);
-        Code;
+        Code();
         Rec := FAReclassJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         FAReclassJnlLine: Record "FA Reclass. Journal Line";
         FAReclassJnlTempl: Record "FA Reclass. Journal Template";
         FAReclassJnlBatch: Record "FA Reclass. Journal Batch";
@@ -26,6 +23,10 @@ codeunit 5643 "FA Reclass. Transfer Batch"
         LineCounter: Integer;
         StartLineNo: Integer;
         NoOfRecords: Integer;
+
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
 
     local procedure "Code"()
     begin
@@ -70,7 +71,7 @@ codeunit 5643 "FA Reclass. Transfer Batch"
                 FAReclassTransferLine.FAReclassLine(FAReclassJnlLine, OneFAReclassDone);
             until Next() = 0;
 
-            Init;
+            Init();
             if OneFAReclassDone then
                 "Line No." := 1
             else

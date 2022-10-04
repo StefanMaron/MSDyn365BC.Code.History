@@ -61,9 +61,9 @@ table 99000776 "Production BOM Comment Line"
         ProductionBOMCommentLine.SetRange("Production BOM No.", "Production BOM No.");
         ProductionBOMCommentLine.SetRange("Version Code", "Version Code");
         ProductionBOMCommentLine.SetRange("BOM Line No.", "BOM Line No.");
-        ProductionBOMCommentLine.SetRange(Date, WorkDate);
+        ProductionBOMCommentLine.SetRange(Date, WorkDate());
         if not ProductionBOMCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, ProductionBOMCommentLine);
     end;

@@ -1,7 +1,7 @@
 table 1304 "Sales Price and Line Disc Buff"
 {
     Caption = 'Sales Price and Line Disc Buff';
-#if not CLEAN19
+#if not CLEAN21
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
@@ -16,7 +16,7 @@ table 1304 "Sales Price and Line Disc Buff"
         {
             Caption = 'Code';
             DataClassification = SystemMetadata;
-#if not CLEAN19
+#if not CLEAN21
             NotBlank = true;
             TableRelation = IF (Type = CONST(Item)) Item
             ELSE
@@ -58,7 +58,7 @@ table 1304 "Sales Price and Line Disc Buff"
                         then
                             exit;
 
-                    UpdateValuesFromItem;
+                    UpdateValuesFromItem();
                 end;
             end;
 #endif
@@ -187,7 +187,7 @@ table 1304 "Sales Price and Line Disc Buff"
                         end;
                 end;
 
-                UpdateValuesFromItem;
+                UpdateValuesFromItem();
             end;
         }
         field(14; "Minimum Quantity"; Decimal)
@@ -211,7 +211,7 @@ table 1304 "Sales Price and Line Disc Buff"
             Caption = 'Type';
             DataClassification = SystemMetadata;
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
                 case Type of
@@ -323,10 +323,10 @@ table 1304 "Sales Price and Line Disc Buff"
     {
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnDelete()
     begin
-        DeleteOldRecordVersion;
+        DeleteOldRecordVersion();
     end;
 
     trigger OnInsert()
@@ -337,13 +337,13 @@ table 1304 "Sales Price and Line Disc Buff"
             TestField("Sales Code");
         TestField(Code);
 
-        InsertNewRecordVersion;
+        InsertNewRecordVersion();
     end;
 
     trigger OnModify()
     begin
-        DeleteOldRecordVersion;
-        InsertNewRecordVersion;
+        DeleteOldRecordVersion();
+        InsertNewRecordVersion();
     end;
 
     trigger OnRename()
@@ -353,8 +353,8 @@ table 1304 "Sales Price and Line Disc Buff"
 
         TestField(Code);
 
-        DeleteOldRecordVersion;
-        InsertNewRecordVersion;
+        DeleteOldRecordVersion();
+        InsertNewRecordVersion();
     end;
 #endif
 
@@ -363,7 +363,7 @@ table 1304 "Sales Price and Line Disc Buff"
         MustBeBlankErr: Label '%1 must be blank.';
         CustNotInPriceGrErr: Label 'This customer is not assigned to any price group, therefore a price group could not be used in context of this customer.';
         CustNotInDiscGrErr: Label 'This customer is not assigned to any discount group, therefore a discount group could not be used in context of this customer.';
-#if not CLEAN19
+#if not CLEAN21
         ItemNotInDiscGrErr: Label 'This item is not assigned to any discount group, therefore a discount group could not be used in context of this item.';
         IncludeVATQst: Label 'One or more of the sales prices do not include VAT.\Do you want to update all sales prices to include VAT?';
         ExcludeVATQst: Label 'One or more of the sales prices include VAT.\Do you want to update all sales prices to exclude VAT?';
@@ -387,14 +387,14 @@ table 1304 "Sales Price and Line Disc Buff"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure LoadDataForItem(Item: Record Item)
     var
         SalesPrice: Record "Sales Price";
         SalesLineDiscountItem: Record "Sales Line Discount";
         SalesLineDiscountItemGroup: Record "Sales Line Discount";
     begin
-        Reset;
+        Reset();
         DeleteAll();
 
         "Loaded Item No." := Item."No.";
@@ -424,7 +424,7 @@ table 1304 "Sales Price and Line Disc Buff"
         LoadedLines: Integer;
         RemainingLinesToLoad: Integer;
     begin
-        Reset;
+        Reset();
         DeleteAll();
         LoadedLines := 0;
         if MaxNoOfLines > 0 then
@@ -556,7 +556,7 @@ table 1304 "Sales Price and Line Disc Buff"
     begin
         if SalesLineDiscount.FindSet() then
             repeat
-                Init;
+                Init();
                 "Line Type" := "Line Type"::"Sales Line Discount";
 
                 Code := SalesLineDiscount.Code;
@@ -573,7 +573,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 "Ending Date" := SalesLineDiscount."Ending Date";
                 "Variant Code" := SalesLineDiscount."Variant Code";
                 OnLoadSalesLineDiscountOnBeforeInsert(Rec, SalesLineDiscount);
-                Insert;
+                Insert();
                 NoOfRows += 1;
             until (SalesLineDiscount.Next() = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
         exit(NoOfRows);
@@ -585,7 +585,7 @@ table 1304 "Sales Price and Line Disc Buff"
     begin
         if SalesPrice.FindSet() then
             repeat
-                Init;
+                Init();
                 "Line Type" := "Line Type"::"Sales Price";
 
                 Code := SalesPrice."Item No.";
@@ -607,7 +607,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 "Allow Invoice Disc." := SalesPrice."Allow Invoice Disc.";
                 "Allow Line Disc." := SalesPrice."Allow Line Disc.";
                 OnLoadSalesPriceOnBeforeInsert(Rec, SalesPrice);
-                Insert;
+                Insert();
                 NoOfRows += 1;
             until (SalesPrice.Next() = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
         exit(NoOfRows);
@@ -704,9 +704,9 @@ table 1304 "Sales Price and Line Disc Buff"
 
         TestField("Line Type");
         if xRec."Line Type" = xRec."Line Type"::"Sales Line Discount" then
-            DeleteOldRecordVersionFromDiscounts
+            DeleteOldRecordVersionFromDiscounts()
         else
-            DeleteOldRecordVersionFromPrices;
+            DeleteOldRecordVersionFromPrices();
     end;
 
     local procedure DeleteOldRecordVersionFromDiscounts()
@@ -753,9 +753,9 @@ table 1304 "Sales Price and Line Disc Buff"
     begin
         TestField("Line Type");
         if "Line Type" = "Line Type"::"Sales Line Discount" then
-            InsertNewDiscountLine
+            InsertNewDiscountLine()
         else
-            InsertNewPriceLine
+            InsertNewPriceLine();
     end;
 
     procedure CustHasLines(Cust: Record Customer): Boolean
@@ -763,7 +763,7 @@ table 1304 "Sales Price and Line Disc Buff"
         SalesLineDiscount: Record "Sales Line Discount";
         SalesPrice: Record "Sales Price";
     begin
-        Reset;
+        Reset();
 
         "Loaded Customer No." := Cust."No.";
         "Loaded Disc. Group" := Cust."Customer Disc. Group";
@@ -806,7 +806,7 @@ table 1304 "Sales Price and Line Disc Buff"
         SalesLineDiscount: Record "Sales Line Discount";
         SalesPrice: Record "Sales Price";
     begin
-        Reset;
+        Reset();
 
         "Loaded Item No." := Item."No.";
         "Loaded Disc. Group" := Item."Item Disc. Group";

@@ -1,4 +1,4 @@
-﻿codeunit 5896 "Calc. Inventory Adjmt. - Order"
+codeunit 5896 "Calc. Inventory Adjmt. - Order"
 {
     Permissions = TableData "Capacity Ledger Entry" = r,
                   TableData "Inventory Adjmt. Entry (Order)" = imd;
@@ -181,7 +181,7 @@
 
     local procedure CalcStandardCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OutputQty: Decimal)
     begin
-        if not InvtAdjmtEntryOrder.Find or not InvtAdjmtEntryOrder."Completely Invoiced" then
+        if not InvtAdjmtEntryOrder.Find() or not InvtAdjmtEntryOrder."Completely Invoiced" then
             InvtAdjmtEntryOrder.GetCostsFromItem(OutputQty)
         else begin
             InvtAdjmtEntryOrder.RoundCosts(OutputQty);
@@ -397,7 +397,7 @@
                 SetRange("Order Line No.", SourceInvtAdjmtEntryOrder."Order Line No.");
             OnOutputItemLedgEntryExistOnAfterSetFilters(FromItemLedgEntry, SourceInvtAdjmtEntryOrder);
             CopyILEToILE(FromItemLedgEntry, ToItemLedgEntry);
-            exit(ToItemLedgEntry.FindFirst);
+            exit(ToItemLedgEntry.FindFirst());
         end;
     end;
 

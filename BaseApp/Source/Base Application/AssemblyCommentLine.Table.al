@@ -55,7 +55,7 @@ table 906 "Assembly Comment Line"
     trigger OnInsert()
     begin
         if Date = 0D then
-            Date := WorkDate
+            Date := WorkDate();
     end;
 
     procedure SetupNewLine()
@@ -66,9 +66,9 @@ table 906 "Assembly Comment Line"
         AssemblyCommentLine.SetRange("Document No.", "Document No.");
         AssemblyCommentLine.SetRange("Document Line No.", "Document Line No.");
         AssemblyCommentLine.SetRange("Line No.", "Line No.");
-        AssemblyCommentLine.SetRange(Date, WorkDate);
+        AssemblyCommentLine.SetRange(Date, WorkDate());
         if not AssemblyCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, AssemblyCommentLine);
     end;

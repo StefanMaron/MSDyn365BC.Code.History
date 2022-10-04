@@ -31,7 +31,7 @@ report 915 "Assemble to Order - Sales"
             trigger OnPreDataItem()
             begin
                 ItemFilters.Copy(Item);
-                Reset;
+                Reset();
             end;
         }
         dataitem(ATOConsumptionLoop; "Integer")
@@ -69,7 +69,7 @@ report 915 "Assemble to Order - Sales"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTABLECAPTION_ItemFilter; TableCaption + ': ' + ItemFilters.GetFilters)
@@ -142,7 +142,7 @@ report 915 "Assemble to Order - Sales"
 
                 TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::Assembly);
 
-                ItemHasAsmDetails := not TempATOSalesBuffer.IsEmpty;
+                ItemHasAsmDetails := not TempATOSalesBuffer.IsEmpty();
                 if not ShowAsmDetails then
                     TempATOSalesBuffer.DeleteAll();
 
@@ -252,7 +252,7 @@ report 915 "Assemble to Order - Sales"
         ToATOSalesBuffer.Reset();
 
         with FromCompATOSalesBuffer do begin
-            Reset;
+            Reset();
             if Find('-') then
                 repeat
                     ToATOSalesBuffer.UpdateBufferWithComp(FromCompATOSalesBuffer, ProfitPct, false);
@@ -285,8 +285,8 @@ report 915 "Assemble to Order - Sales"
     local procedure FindNextRecord(var ATOSalesBuffer: Record "ATO Sales Buffer"; Position: Integer): Boolean
     begin
         if Position = 1 then
-            exit(ATOSalesBuffer.FindSet);
-        exit(ATOSalesBuffer.Next <> 0);
+            exit(ATOSalesBuffer.FindSet());
+        exit(ATOSalesBuffer.Next() <> 0);
     end;
 }
 

@@ -6,7 +6,6 @@ page 6304 "Power BI Report Selection"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage,Get Reports';
     SourceTable = "Power BI Report Buffer";
     SourceTableTemporary = true;
     ObsoleteState = Pending;
@@ -103,10 +102,6 @@ page 6304 "Power BI Report Selection"
                 Enabled = NOT Enabled;
                 Gesture = LeftSwipe;
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Enables the report selection.';
 
@@ -123,10 +118,6 @@ page 6304 "Power BI Report Selection"
                 Enabled = Enabled;
                 Gesture = RightSwipe;
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Disables the report selection.';
 
@@ -141,10 +132,6 @@ page 6304 "Power BI Report Selection"
                 ApplicationArea = All;
                 Caption = 'Refresh List';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Update the report list with any newly added reports.';
 
                 trigger OnAction()
@@ -161,9 +148,6 @@ page 6304 "Power BI Report Selection"
                 ApplicationArea = All;
                 Caption = 'My Organization';
                 Image = PowerBI;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Browse content packs that other people in your organization have published.';
 
                 trigger OnAction()
@@ -177,9 +161,6 @@ page 6304 "Power BI Report Selection"
                 ApplicationArea = All;
                 Caption = 'Services';
                 Image = PowerBI;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Choose content packs from online services that you use.';
 
                 trigger OnAction()
@@ -193,9 +174,6 @@ page 6304 "Power BI Report Selection"
                 ApplicationArea = All;
                 Caption = 'Connection Information';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 RunObject = Page "Content Pack Setup Wizard";
                 ToolTip = 'Show information for connecting to Power BI content packs.';
                 Visible = NOT IsSaaS;
@@ -205,9 +183,6 @@ page 6304 "Power BI Report Selection"
                 ApplicationArea = All;
                 Caption = 'Default Reports';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Manage your deployed default reports.';
 
                 trigger OnAction()
@@ -215,6 +190,44 @@ page 6304 "Power BI Report Selection"
                     PAGE.RunModal(PAGE::"Power BI Deployments");
                     // TODO: Set this button's visibility to equal "IsSaaS" so it's not visible for on-prem, where we won't have OOB uploads anyways.
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EnableReport_Promoted; EnableReport)
+                {
+                }
+                actionref(DisableReport_Promoted; DisableReport)
+                {
+                }
+                actionref(CleanDeployments_Promoted; CleanDeployments)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Get Reports', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Refresh_Promoted; Refresh)
+                {
+                }
+                actionref(MyOrganization_Promoted; MyOrganization)
+                {
+                }
+                actionref(Services_Promoted; Services)
+                {
+                }
+                actionref(ConnectionInfo_Promoted; ConnectionInfo)
+                {
+                }
             }
         }
     }
@@ -279,7 +292,7 @@ page 6304 "Power BI Report Selection"
         DeleteAll();
         PowerBIServiceMgt.GetReports(Rec, ExceptionMessage, ExceptionDetails, Context);
 
-        HasReports := not IsEmpty;
+        HasReports := not IsEmpty();
         if IsEmpty() then
             Insert(); // Hack to prevent empty list error.
 

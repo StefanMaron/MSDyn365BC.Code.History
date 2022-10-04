@@ -660,7 +660,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         GLAccount.CalcFields(Picture);
         GLAccount.Picture.CreateInStream(InStream2, TEXTENCODING::UTF8);
         Assert.AreEqual(
-          Base64Convert.ToBase64(InStream), TypeHelper.ReadAsTextWithSeparator(InStream2, TypeHelper.CRLFSeparator),
+          Base64Convert.ToBase64(InStream), TypeHelper.ReadAsTextWithSeparator(InStream2, TypeHelper.CRLFSeparator()),
           'Big Xml Data does not match!');
     end;
 
@@ -1159,7 +1159,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         while 0 <> InStream.ReadText(EncodedText) do
             Writer.WriteLine(EncodedText);
 
-        Writer.Close;
+        Writer.Close();
     end;
 
     local procedure SetupSourceMock(var DataExchDef: Record "Data Exch. Def"; TempBlob: Codeunit "Temp Blob")
@@ -1187,8 +1187,9 @@ codeunit 132547 "Test Data Exch.Import - XML"
         CreateDataExchDef(DataExchDef);
         CreateDataExchLineDef(DataExchLineDef, DataExchDef.Code, NamespaceTxt);
         CreateDataExch(DataExch, DataExchDef.Code, DataExchLineDef.Code, TempBlob);
-        DataExchColumnDef.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code, 1,
-          LibraryUtility.GenerateGUID, '', false, DataExchColumnDef."Data Type"::Text, '', '');
+        DataExchColumnDef.InsertRecordForImport(
+			DataExchDef.Code, DataExchLineDef.Code, 1,
+            LibraryUtility.GenerateGUID, '', false, DataExchColumnDef."Data Type"::Text, '', '');
         DataExchColumnDef.Path := Path;
         DataExchColumnDef.Modify(true);
     end;
@@ -1196,13 +1197,13 @@ codeunit 132547 "Test Data Exch.Import - XML"
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def")
     begin
         with DataExchDef do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Data Exch. Def");
             Type := Type::"Bank Statement Import";
             "File Encoding" := "File Encoding"::"UTF-8";
             "File Type" := "File Type"::Xml;
             "Reading/Writing Codeunit" := CODEUNIT::"Import Bank Statement";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1246,7 +1247,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));
-        until (ExpectedDataExchField.Next = 0) or (ActualDataExchField.Next = 0);
+        until (ExpectedDataExchField.Next() = 0) or (ActualDataExchField.Next() = 0);
         Assert.AreEqual(ExpectedDataExchField.Count, ActualDataExchField.Count, 'Row count does not match');
     end;
 

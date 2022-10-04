@@ -1,5 +1,6 @@
 table 132511 TestTableB
 {
+    ReplicateData = false;
 
     fields
     {

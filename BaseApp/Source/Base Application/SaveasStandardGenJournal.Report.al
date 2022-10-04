@@ -1,4 +1,4 @@
-﻿report 750 "Save as Standard Gen. Journal"
+report 750 "Save as Standard Gen. Journal"
 {
     Caption = 'Save as Standard Gen. Journal';
     ProcessingOnly = true;
@@ -35,7 +35,7 @@
 
                             StdGenJnls.LookupMode := true;
                             StdGenJnls.Editable := false;
-                            if StdGenJnls.RunModal = ACTION::LookupOK then begin
+                            if StdGenJnls.RunModal() = ACTION::LookupOK then begin
                                 StdGenJnls.GetRecord(StdGenJnl);
                                 Code := StdGenJnl.Code;
                                 Description := StdGenJnl.Description;
@@ -73,7 +73,7 @@
             Error(Text000);
 
         StdJournalCreated := false;
-        SaveGenJnlAsStandardJnl;
+        SaveGenJnlAsStandardJnl();
     end;
 
     var
@@ -111,14 +111,14 @@
         StdGenJnl.Code := Code;
         StdGenJnl.Description := Description;
 
-        if StdGenJnlExists then
+        if StdGenJnlExists() then
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, StdGenJnl.Code), true) then
                 exit;
 
         StdGenJnlLine.LockTable();
         StdGenJnl.LockTable();
 
-        if StdGenJnlExists then begin
+        if StdGenJnlExists() then begin
             StdGenJnl.Modify(true);
             StdGenJnlLine.SetRange("Journal Template Name", StdGenJnl."Journal Template Name");
             StdGenJnlLine.SetRange("Standard Journal Code", StdGenJnl.Code);
@@ -177,7 +177,7 @@
         StdGenJnl.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         StdGenJnl.SetRange(Code, Code);
 
-        exit(StdGenJnl.FindFirst);
+        exit(StdGenJnl.FindFirst());
     end;
 
     procedure GetStdGeneralJournal(var StdGenJnl1: Record "Standard General Journal"): Boolean

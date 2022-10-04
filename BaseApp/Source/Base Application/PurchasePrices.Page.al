@@ -1,8 +1,8 @@
-#if not CLEAN19
+#if not CLEAN21
 page 7012 "Purchase Prices"
 {
     Caption = 'Purchase Prices';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Purchase Price";
@@ -28,8 +28,8 @@ page 7012 "Purchase Prices"
                         VendList: Page "Vendor List";
                     begin
                         VendList.LookupMode := true;
-                        if VendList.RunModal = ACTION::LookupOK then
-                            Text := VendList.GetSelectionFilter
+                        if VendList.RunModal() = ACTION::LookupOK then
+                            Text := VendList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -38,7 +38,7 @@ page 7012 "Purchase Prices"
 
                     trigger OnValidate()
                     begin
-                        VendNoFilterOnAfterValidate;
+                        VendNoFilterOnAfterValidate();
                     end;
                 }
                 field(ItemNoFIlterCtrl; ItemNoFilter)
@@ -52,8 +52,8 @@ page 7012 "Purchase Prices"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then
-                            Text := ItemList.GetSelectionFilter
+                        if ItemList.RunModal() = ACTION::LookupOK then
+                            Text := ItemList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -62,7 +62,7 @@ page 7012 "Purchase Prices"
 
                     trigger OnValidate()
                     begin
-                        ItemNoFilterOnAfterValidate;
+                        ItemNoFilterOnAfterValidate();
                     end;
                 }
                 field(StartingDateFilter; StartingDateFilter)
@@ -76,56 +76,56 @@ page 7012 "Purchase Prices"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(StartingDateFilter);
-                        StartingDateFilterOnAfterValid;
+                        StartingDateFilterOnAfterValid();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor who offers the line discount on the item.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that the purchase price applies to.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the purchase price.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Minimum Quantity"; "Minimum Quantity")
+                field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the minimum quantity of the item that you must buy from the vendor in order to get the purchase price.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which the purchase price is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date to which the purchase price is valid.';
@@ -156,24 +156,33 @@ page 7012 "Purchase Prices"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Prices';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Select prices and press OK to copy them to Vendor No.';
                 Visible = NOT IsLookupMode;
 
                 trigger OnAction()
                 begin
-                    CopyPricesToVendor;
+                    CopyPricesToVendor();
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CopyPrices_Promoted; CopyPrices)
+                {
+                }
             }
         }
     }
 
     trigger OnOpenPage()
     begin
-        GetRecFilters;
-        SetRecFilters;
+        GetRecFilters();
+        SetRecFilters();
         IsLookupMode := CurrPage.LookupMode;
     end;
 
@@ -225,7 +234,7 @@ page 7012 "Purchase Prices"
         SourceTableName: Text[250];
         Description: Text[100];
     begin
-        GetRecFilters;
+        GetRecFilters();
 
         if ItemNoFilter <> '' then
             SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 27)
@@ -243,20 +252,20 @@ page 7012 "Purchase Prices"
         Item: Record Item;
     begin
         if Item.Get("Item No.") then
-            CurrPage.SaveRecord;
-        SetRecFilters;
+            CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ItemNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     procedure CheckFilters(TableNo: Integer; FilterTxt: Text)
@@ -291,7 +300,7 @@ page 7012 "Purchase Prices"
         PurchasePrice.SetFilter("Vendor No.", '<>%1', VendNoFilter);
         PurchasePrices.LookupMode(true);
         PurchasePrices.SetTableView(PurchasePrice);
-        if PurchasePrices.RunModal = ACTION::LookupOK then begin
+        if PurchasePrices.RunModal() = ACTION::LookupOK then begin
             PurchasePrices.GetSelectionFilter(SelectedPurchasePrice);
             CopyPurchPriceToVendorsPurchPrice(SelectedPurchasePrice, CopyToVendorNo);
         end;

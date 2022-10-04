@@ -502,7 +502,7 @@ codeunit 137076 "SCM Manuf Calendars"
     begin
         Initialize();
 
-        ProdOrderDueDate := CalcDate('<CW>', WorkDate);
+        ProdOrderDueDate := CalcDate('<CW>', WorkDate());
         CreateMachineCenterWithHolidays(MachineCenter, 1, 75, CalcDate('<-1W>', ProdOrderDueDate), ProdOrderDueDate);
         CreateRouting(RoutingHeader, RoutingLine, MachineCenter."No.", 1, 1, 24, 13);
         UpdateRoutingTimesUOM(RoutingLine);
@@ -526,13 +526,13 @@ codeunit 137076 "SCM Manuf Calendars"
     begin
         // Verify that the selected absence entry is updated when "Update" action is run in the Absence page
         Initialize();
-        CreateMachineCenterWithoutHolidays(MachineCenter, LibraryRandom.RandIntInRange(3, 10), 100, WorkDate, WorkDate);
+        CreateMachineCenterWithoutHolidays(MachineCenter, LibraryRandom.RandIntInRange(3, 10), 100, WorkDate(), WorkDate());
         CreateAndUpdateMachineCenterAbsence(CalendarAbsenceEntry, MachineCenter."No.", MachineCenter.Capacity - 1, 0, 1);
         CreateMachineCenterAbsence(CalendarAbsenceEntry, MachineCenter."No.", MachineCenter.Capacity, 0, 2);
 
         RunUpdateAbsenceAction(CalendarAbsenceEntry);
 
-        CalendarAbsenceEntry.Find;
+        CalendarAbsenceEntry.Find();
         Assert.IsTrue(CalendarAbsenceEntry.Updated, AbsenceEntryNotUpdatedErr);
     end;
 
@@ -548,7 +548,7 @@ codeunit 137076 "SCM Manuf Calendars"
     begin
         // Verify that the selected entry having "Updated" status set, is not updated when the "Update" action is run
         Initialize();
-        CreateMachineCenterWithoutHolidays(MachineCenter, LibraryRandom.RandIntInRange(3, 10), 100, WorkDate, WorkDate);
+        CreateMachineCenterWithoutHolidays(MachineCenter, LibraryRandom.RandIntInRange(3, 10), 100, WorkDate(), WorkDate());
         CreateAndUpdateMachineCenterAbsence(CalendarAbsenceEntryToUpdate, MachineCenter."No.", MachineCenter.Capacity - 1, 0, 1);
         CreateAndUpdateMachineCenterAbsence(CalendarAbsenceEntry, MachineCenter."No.", MachineCenter.Capacity, 0, 2);
 
@@ -619,7 +619,7 @@ codeunit 137076 "SCM Manuf Calendars"
     local procedure CreateAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; MachineCenterNo: Code[20]; AbsentCapacity: Decimal; AbsenceDate: Date; StartingTime: Time; EndingTime: Time)
     begin
         with CalendarAbsenceEntry do begin
-            Init;
+            Init();
             Validate("Capacity Type", "Capacity Type"::"Machine Center");
             Validate("No.", MachineCenterNo);
             Validate(Date, AbsenceDate);
@@ -651,7 +651,7 @@ codeunit 137076 "SCM Manuf Calendars"
     begin
         WorkStartingTime := GetWorkStartingTime(MachineCenterNo);
         CreateAbsenceEntry(
-          CalAbsenceEntry, MachineCenterNo, AbsentCapacity, WorkDate, CalcTimeShift(WorkStartingTime, AbsenceTimeStartShift),
+          CalAbsenceEntry, MachineCenterNo, AbsentCapacity, WorkDate(), CalcTimeShift(WorkStartingTime, AbsenceTimeStartShift),
           CalcTimeShift(WorkStartingTime, AbsenceTimeEndShift));
     end;
 
@@ -755,7 +755,7 @@ codeunit 137076 "SCM Manuf Calendars"
             CapacityEffective +=
               WorkCenter."Capacity (Effective)" *
               CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code") / CalendarManagement.TimeFactor(CapacityUnitOfMeasureCode);
-        until WorkCenter.Next = 0;
+        until WorkCenter.Next() = 0;
     end;
 
     local procedure EnqueueAbsenceEntry(CalendarAbsenceEntry: Record "Calendar Absence Entry")
@@ -803,12 +803,12 @@ codeunit 137076 "SCM Manuf Calendars"
 
     local procedure GetMonth(Month: Integer; SignFactor: Integer) NewDate: Date
     begin
-        NewDate := CalcDate('<' + Format(SignFactor * Month) + 'M>', WorkDate);
+        NewDate := CalcDate('<' + Format(SignFactor * Month) + 'M>', WorkDate());
     end;
 
     local procedure GetYear(Year: Integer; SignFactor: Integer) NewDate: Date
     begin
-        NewDate := CalcDate('<' + Format(SignFactor * Year) + 'Y>', WorkDate);
+        NewDate := CalcDate('<' + Format(SignFactor * Year) + 'Y>', WorkDate());
     end;
 
     local procedure GetWorkStartingTime(MachineCenterNo: Code[20]): Time

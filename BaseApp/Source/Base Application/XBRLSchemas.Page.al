@@ -71,8 +71,6 @@ page 588 "XBRL Schemas"
                     ApplicationArea = XBRL;
                     Caption = 'Linkbases';
                     Image = LinkWithExisting;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "XBRL Linkbases";
                     RunPageLink = "XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                                   "XBRL Schema Line No." = FIELD("Line No.");
@@ -87,9 +85,6 @@ page 588 "XBRL Schemas"
                     Caption = 'Import';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import an XBRL taxonomy into your company database by first importing one or more schemas in .sad format. After you have completed the import of both schemas and linkbases and have applied the linkbases to the schema, you can set up the lines and map the general ledger accounts in the chart of accounts to the appropriate taxonomy lines.';
 
                     trigger OnAction()
@@ -123,7 +118,7 @@ page 588 "XBRL Schemas"
                             "Folder Name" := CopyStr(FileName, 1, i);
                         end else
                             schemaLocation := ConvertStr(FileName, ' ', '_');
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CODEUNIT.Run(CODEUNIT::"XBRL Import Taxonomy Spec. 2", Rec);
                     end;
                 }
@@ -141,11 +136,25 @@ page 588 "XBRL Schemas"
                         FileMgt: Codeunit "File Management";
                     begin
                         CalcFields(XSD);
-                        if XSD.HasValue then begin
+                        if XSD.HasValue() then begin
                             TempBlob.FromRecord(Rec, FieldNo(XSD));
                             FileMgt.BLOBExport(TempBlob, '*.xsd', true);
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Import_Promoted; Import)
+                {
+                }
+                actionref(Linkbases_Promoted; Linkbases)
+                {
                 }
             }
         }

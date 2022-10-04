@@ -42,7 +42,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(TotalAmount; +Amount)
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     Caption = 'Total Amount';
@@ -58,7 +58,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field1; MATRIX_CellData[1])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[1];
@@ -75,7 +75,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field2; MATRIX_CellData[2])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[2];
@@ -92,7 +92,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field3; MATRIX_CellData[3])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[3];
@@ -109,7 +109,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field4; MATRIX_CellData[4])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[4];
@@ -126,7 +126,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field5; MATRIX_CellData[5])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[5];
@@ -143,7 +143,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field6; MATRIX_CellData[6])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[6];
@@ -160,7 +160,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field7; MATRIX_CellData[7])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[7];
@@ -177,7 +177,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field8; MATRIX_CellData[8])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[8];
@@ -194,7 +194,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field9; MATRIX_CellData[9])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[9];
@@ -211,7 +211,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field10; MATRIX_CellData[10])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[10];
@@ -228,7 +228,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field11; MATRIX_CellData[11])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[11];
@@ -245,7 +245,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field12; MATRIX_CellData[12])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[12];
@@ -262,7 +262,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field13; MATRIX_CellData[13])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[13];
@@ -279,7 +279,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field14; MATRIX_CellData[14])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[14];
@@ -296,7 +296,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field15; MATRIX_CellData[15])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[15];
@@ -313,7 +313,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field16; MATRIX_CellData[16])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[16];
@@ -330,7 +330,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field17; MATRIX_CellData[17])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[17];
@@ -347,7 +347,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field18; MATRIX_CellData[18])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[18];
@@ -364,7 +364,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field19; MATRIX_CellData[19])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[19];
@@ -381,7 +381,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field20; MATRIX_CellData[20])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[20];
@@ -398,7 +398,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field21; MATRIX_CellData[21])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[21];
@@ -415,7 +415,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field22; MATRIX_CellData[22])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[22];
@@ -432,7 +432,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field23; MATRIX_CellData[23])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[23];
@@ -449,7 +449,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field24; MATRIX_CellData[24])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[24];
@@ -466,7 +466,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field25; MATRIX_CellData[25])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[25];
@@ -483,7 +483,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field26; MATRIX_CellData[26])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[26];
@@ -500,7 +500,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field27; MATRIX_CellData[27])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[27];
@@ -517,7 +517,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field28; MATRIX_CellData[28])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[28];
@@ -534,7 +534,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field29; MATRIX_CellData[29])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[29];
@@ -551,7 +551,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field30; MATRIX_CellData[30])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[30];
@@ -568,7 +568,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field31; MATRIX_CellData[31])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[31];
@@ -585,7 +585,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 field(Field32; MATRIX_CellData[32])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaptions[32];
@@ -616,8 +616,6 @@ page 9249 "Analysis by Dimensions Matrix"
                     ApplicationArea = Dimensions;
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Export the information in the analysis report to Excel.';
 
                     trigger OnAction()
@@ -632,6 +630,17 @@ page 9249 "Analysis by Dimensions Matrix"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ExportToExcel_Promoted; ExportToExcel)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -643,13 +652,13 @@ page 9249 "Analysis by Dimensions Matrix"
 
         MATRIX_CurrentColumnOrdinal := 0;
         if MATRIX_PrimKeyFirstCol <> '' then
-            MatrixRecord.SetPosition(MATRIX_PrimKeyFirstCol);
+            TempDimensionCodeBuffer.SetPosition(MATRIX_PrimKeyFirstCol);
         if MATRIX_OnFindRecord('=><') then begin
             MATRIX_CurrentColumnOrdinal := 1;
 
             repeat
                 MATRIX_ColumnOrdinal := MATRIX_CurrentColumnOrdinal;
-                MATRIX_OnAfterGetRecord;
+                MATRIX_OnAfterGetRecord();
                 MATRIX_Steps := MATRIX_OnNextRecord(1);
                 MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + MATRIX_Steps;
             until (MATRIX_CurrentColumnOrdinal - MATRIX_Steps = MATRIX_NoOfMatrixColumns) or (MATRIX_Steps = 0);
@@ -657,8 +666,8 @@ page 9249 "Analysis by Dimensions Matrix"
                 MATRIX_OnNextRecord(1 - MATRIX_CurrentColumnOrdinal);
         end;
 
-        SetVisible;
-        FormatLine;
+        SetVisible();
+        FormatLine();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -714,22 +723,22 @@ page 9249 "Analysis by Dimensions Matrix"
     begin
         MATRIX_NoOfMatrixColumns := ArrayLen(MATRIX_CellData);
 
-        ValidateAnalysisViewCode;
+        ValidateAnalysisViewCode();
 
         InitRecord(Rec, AnalysisByDimParameters."Line Dim Option");
-        InitRecord(MatrixRecord, AnalysisByDimParameters."Column Dim Option");
+        InitRecord(TempDimensionCodeBuffer, AnalysisByDimParameters."Column Dim Option");
 
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
             if GLAccountSource then
                 LineDimCode := GLAcc.TableCaption
             else
-                LineDimCode := CashFlowForecast.TableCaption;
+                LineDimCode := CashFlowForecast.TableCaption();
             ColumnDimCode := Text000;
         end;
 
-        CalculateClosingDateFilter;
+        CalculateClosingDateFilter();
 
-        SetVisible;
+        SetVisible();
         if AnalysisByDimParameters."Line Dim Option" = AnalysisByDimParameters."Line Dim Option"::Period then
             Code := '';
     end;
@@ -737,12 +746,12 @@ page 9249 "Analysis by Dimensions Matrix"
     var
         Text000: Label 'Period';
         Text002: Label 'You have not yet defined an analysis view.';
-        MatrixRecord: Record "Dimension Code Buffer" temporary;
+        TempDimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
         GLSetup: Record "General Ledger Setup";
         AnalysisView: Record "Analysis View";
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
-        AVBreakdownBuffer: Record "Dimension Code Amount Buffer" temporary;
+        TempDimensionCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary;
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         PeriodOption: Record Date;
@@ -828,7 +837,7 @@ page 9249 "Analysis by Dimensions Matrix"
         Emphasize: Boolean;
 
     protected var
-        AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
 
     local procedure InitRecord(var DimCodeBuf: Record "Dimension Code Buffer"; DimOption: Enum "Analysis Dimension Option")
     var
@@ -951,26 +960,26 @@ page 9249 "Analysis by Dimensions Matrix"
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheGLAcc."No.";
             Name := TheGLAcc.Name;
             Totaling := TheGLAcc.Totaling;
             Indentation := TheGLAcc.Indentation;
             "Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CopyCFAccToBuf(var TheCFAcc: Record "Cash Flow Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheCFAcc."No.";
             Name := TheCFAcc.Name;
             Totaling := TheCFAcc.Totaling;
             Indentation := TheCFAcc.Indentation;
             "Show in Bold" := TheCFAcc."Account Type" <> TheCFAcc."Account Type"::Entry;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -979,7 +988,7 @@ page 9249 "Analysis by Dimensions Matrix"
         Period2: Record Date;
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
             if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
@@ -999,34 +1008,34 @@ page 9249 "Analysis by Dimensions Matrix"
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheBusUnit.Code;
             Name := TheBusUnit.Name;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CopyCashFlowToBuf(var TheCashFlowForecast: Record "Cash Flow Forecast"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheCashFlowForecast."No.";
             Name := TheCashFlowForecast.Description;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheDimVal.Code;
             Name := TheDimVal.Name;
             Totaling := TheDimVal.Totaling;
             Indentation := TheDimVal.Indentation;
             "Show in Bold" :=
               TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1123,7 +1132,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 if ExcludeClosingDateFilter <> '' then
                     DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
             end;
-            Reset;
+            Reset();
 
             SetRange("Analysis View Code", AnalysisView.Code);
             if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
@@ -1159,7 +1168,7 @@ page 9249 "Analysis by Dimensions Matrix"
             DimCodeBuf := Rec;
             DimOption := AnalysisByDimParameters."Line Dim Option";
         end else begin
-            DimCodeBuf := MatrixRecord;
+            DimCodeBuf := TempDimensionCodeBuffer;
             DimOption := AnalysisByDimParameters."Column Dim Option";
         end;
         case DimOption of
@@ -1216,7 +1225,7 @@ page 9249 "Analysis by Dimensions Matrix"
     local procedure SetCommonBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry")
     begin
         with TheAnalysisViewBudgetEntry do begin
-            Reset;
+            Reset();
             SetRange("Analysis View Code", AnalysisView.Code);
             if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
                 SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
@@ -1248,7 +1257,7 @@ page 9249 "Analysis by Dimensions Matrix"
             DimCodeBuf := Rec;
             DimOption := AnalysisByDimParameters."Line Dim Option";
         end else begin
-            DimCodeBuf := MatrixRecord;
+            DimCodeBuf := TempDimensionCodeBuffer;
             DimOption := AnalysisByDimParameters."Column Dim Option";
         end;
         case DimOption of
@@ -1334,11 +1343,11 @@ page 9249 "Analysis by Dimensions Matrix"
         ColumnCode: Code[20];
     begin
         if SetColFilter then
-            ColumnCode := MatrixRecord.Code
+            ColumnCode := TempDimensionCodeBuffer.Code
         else
             ColumnCode := '';
-        if AVBreakdownBuffer.Get(Code, ColumnCode) then
-            exit(AVBreakdownBuffer.Amount);
+        if TempDimensionCodeAmountBuffer.Get(Code, ColumnCode) then
+            exit(TempDimensionCodeAmountBuffer.Amount);
         case AnalysisByDimParameters."Show Actual/Budgets" of
             AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts":
                 Amount := CalcActualAmount(SetColFilter);
@@ -1361,10 +1370,10 @@ page 9249 "Analysis by Dimensions Matrix"
         end;
         if AnalysisByDimParameters."Show Opposite Sign" then
             Amount := -Amount;
-        AVBreakdownBuffer."Line Code" := Code;
-        AVBreakdownBuffer."Column Code" := ColumnCode;
-        AVBreakdownBuffer.Amount := Amount;
-        AVBreakdownBuffer.Insert();
+        TempDimensionCodeAmountBuffer."Line Code" := Code;
+        TempDimensionCodeAmountBuffer."Column Code" := ColumnCode;
+        TempDimensionCodeAmountBuffer.Amount := Amount;
+        TempDimensionCodeAmountBuffer.Insert();
         exit(Amount);
     end;
 
@@ -1442,7 +1451,7 @@ page 9249 "Analysis by Dimensions Matrix"
         end;
         if (Amount <> 0) and AnalysisByDimParameters."Show In Add. Currency" then begin
             if AnalysisViewBudgetEntry.GetFilter("Posting Date") = '' then
-                CurrExchDate := WorkDate
+                CurrExchDate := WorkDate()
             else
                 CurrExchDate := AnalysisViewBudgetEntry.GetRangeMin("Posting Date");
             Amount :=
@@ -1461,7 +1470,7 @@ page 9249 "Analysis by Dimensions Matrix"
     local procedure MATRIX_UpdateMatrixRecord(MATRIX_NewColumnOrdinal: Integer)
     begin
         MATRIX_ColumnOrdinal := MATRIX_NewColumnOrdinal;
-        MatrixRecord.SetPosition(MATRIX_PrimKeyFirstCol);
+        TempDimensionCodeBuffer.SetPosition(MATRIX_PrimKeyFirstCol);
         MATRIX_OnFindRecord('=');
         if MATRIX_ColumnOrdinal <> 1 then
             MATRIX_OnNextRecord(MATRIX_ColumnOrdinal - 1);
@@ -1469,12 +1478,12 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure MATRIX_OnFindRecord(Which: Text[1024]): Boolean
     begin
-        exit(FindRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Which));
+        exit(FindRec(AnalysisByDimParameters."Column Dim Option", TempDimensionCodeBuffer, Which));
     end;
 
     local procedure MATRIX_OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRecord(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Steps));
+        exit(NextRecord(AnalysisByDimParameters."Column Dim Option", TempDimensionCodeBuffer, Steps));
     end;
 
     local procedure MATRIX_OnAfterGetRecord()

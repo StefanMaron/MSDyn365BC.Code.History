@@ -40,16 +40,16 @@ codeunit 1174 "User Task Management"
     var
         MyTasksUserGroups: Text;
     begin
-        MyTasksUserGroups := GetMyTasksUserGroupsAsFilterText;
+        MyTasksUserGroups := GetMyTasksUserGroupsAsFilterText();
 
         if MyTasksUserGroups <> '' then begin
             UserTask.FilterGroup(-1);
             UserTask.SetFilter("User Task Group Assigned To", MyTasksUserGroups);
-            UserTask.SetFilter("Assigned To", UserSecurityId);
+            UserTask.SetFilter("Assigned To", UserSecurityId());
             UserTask.FilterGroup(25);
             UserTask.SetFilter("Percent Complete", '<>100');
         end else begin
-            UserTask.SetFilter("Assigned To", UserSecurityId);
+            UserTask.SetFilter("Assigned To", UserSecurityId());
             UserTask.SetFilter("Percent Complete", '<>100');
         end;
 
@@ -92,12 +92,11 @@ codeunit 1174 "User Task Management"
         // Returns a text contaning all the groups that logged in user belong to which can be used for setting filter
         // Example - If user belongs to 'A' and 'C' user tasks groups this function will return 'A|C' as filter text.
         UserTaskGroupMember.Reset();
-        UserTaskGroupMember.SetRange("User Security ID", UserSecurityId);
-        if UserTaskGroupMember.FindSet() then begin
+        UserTaskGroupMember.SetRange("User Security ID", UserSecurityId());
+        if UserTaskGroupMember.FindSet() then
             repeat
                 FilterTxt := FilterTxt + UserTaskGroupMember."User Task Group Code" + '|';
             until UserTaskGroupMember.Next() = 0;
-        end;
 
         // delete last char (|) to create a filter string
         if StrLen(FilterTxt) > 1 then

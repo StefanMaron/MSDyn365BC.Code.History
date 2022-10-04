@@ -13,17 +13,17 @@ page 63 "Applied Employee Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee entry''s document type.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee entry''s document number.';
@@ -33,30 +33,30 @@ page 63 "Applied Employee Entries"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description of the employee entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = DimVisible1;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = DimVisible2;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies which purchaser is assigned to the employee.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount of the original entry.';
@@ -67,24 +67,24 @@ page 63 "Applied Employee Entries"
                     ToolTip = 'Specifies the amount of the entry.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Closed by Amount"; "Closed by Amount")
+                field("Closed by Amount"; Rec."Closed by Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount that the entry was finally applied to (closed) with.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -97,7 +97,7 @@ page 63 "Applied Employee Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
@@ -162,8 +162,6 @@ page 63 "Applied Employee Entries"
                 ApplicationArea = BasicHR;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -172,6 +170,17 @@ page 63 "Applied Employee Entries"
                     Navigate.SetDoc("Posting Date", "Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
             }
         }
     }
@@ -183,8 +192,8 @@ page 63 "Applied Employee Entries"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        SetControlVisibility;
+        Reset();
+        SetControlVisibility();
 
         if "Entry No." <> 0 then begin
             CreateEmplLedgEntry := Rec;
@@ -194,7 +203,7 @@ page 63 "Applied Employee Entries"
                 Heading := Format(CreateEmplLedgEntry."Document Type");
             Heading := Heading + ' ' + CreateEmplLedgEntry."Document No.";
 
-            FindApplnEntriesDtldtLedgEntry;
+            FindApplnEntriesDtldtLedgEntry();
             SetCurrentKey("Entry No.");
             SetRange("Entry No.");
 
@@ -218,7 +227,6 @@ page 63 "Applied Employee Entries"
     end;
 
     var
-        DocumentTxt: Label 'Document';
         CreateEmplLedgEntry: Record "Employee Ledger Entry";
         Navigate: Page Navigate;
         Heading: Text[50];
@@ -226,6 +234,8 @@ page 63 "Applied Employee Entries"
         DebitCreditVisible: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
+
+        DocumentTxt: Label 'Document';
 
     local procedure FindApplnEntriesDtldtLedgEntry()
     var

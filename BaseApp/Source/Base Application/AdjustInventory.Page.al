@@ -99,10 +99,11 @@ page 1327 "Adjust Inventory"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LineNo: Integer;
     begin
-        GetLocationsIncludingUnspecifiedLocation(not ApplicationAreaMgmtFacade.IsLocationEnabled, true);
+        GetLocationsIncludingUnspecifiedLocation(not ApplicationAreaMgmtFacade.IsLocationEnabled(), true);
         SetRange("Bin Mandatory", false);
         LocationCount := Count;
 
+        LineNo := 0;
         FindSet();
         repeat
             TempItemJournalLine.Init();

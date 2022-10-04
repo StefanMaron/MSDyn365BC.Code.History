@@ -1,14 +1,18 @@
+#if not CLEAN21
 page 2309 "BC O365 Hist. Sell-to FactBox"
 {
     Caption = 'Sell-to Customer Sales History';
     PageType = CardPart;
     SourceTable = Customer;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
@@ -17,7 +21,7 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             cuegroup(Control2)
@@ -25,7 +29,7 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
                 ShowCaption = false;
                 field(NoofInvoicesTile; "No. of Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Draft Invoices';
                     ToolTip = 'Specifies the number of unposted sales invoices that have been registered for the customer.';
 
@@ -40,7 +44,7 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
                 }
                 field(NoofQuotesTile; "No. of Quotes")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Estimates';
                     ToolTip = 'Specifies the number of sales quotes that have been registered for the customer.';
 
@@ -55,7 +59,7 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
                 }
                 field(NoofPstdInvoicesTile; "No. of Pstd. Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Sent Invoices';
                     ToolTip = 'Specifies the number of posted sales invoices that have been registered for the customer.';
 
@@ -81,4 +85,4 @@ page 2309 "BC O365 Hist. Sell-to FactBox"
         PAGE.Run(PAGE::"BC O365 Sales Customer Card", Rec);
     end;
 }
-
+#endif

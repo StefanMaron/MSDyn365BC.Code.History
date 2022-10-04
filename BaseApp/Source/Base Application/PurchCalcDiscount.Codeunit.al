@@ -82,7 +82,7 @@ codeunit 70 "Purch.-Calc.Discount"
                 PurchHeader.Modify();
 
             if PurchHeader."Posting Date" = 0D then
-                CurrencyDate := WorkDate
+                CurrencyDate := WorkDate()
             else
                 CurrencyDate := PurchHeader."Posting Date";
 
@@ -116,7 +116,7 @@ codeunit 70 "Purch.-Calc.Discount"
                         PurchLine2.SetPurchHeader(PurchHeader);
                     PurchLine2."Line No." := PurchLine2."Line No." + 10000;
                     PurchLine2.Type := PurchLine2.Type::"G/L Account";
-                    PurchLine2.Validate("No.", VendPostingGr.GetServiceChargeAccount);
+                    PurchLine2.Validate("No.", VendPostingGr.GetServiceChargeAccount());
                     PurchLine2.Description := Text000;
                     PurchLine2.Validate(Quantity, 1);
                     OnCalculateInvoiceDiscountOnAfterPurchLine2ValidateQuantity(PurchHeader, PurchLine2, VendInvDisc);
@@ -192,7 +192,7 @@ codeunit 70 "Purch.-Calc.Discount"
         VendInvDisc: Record "Vendor Invoice Disc.";
     begin
         VendInvDisc.SetRange(Code, InvDiscCode);
-        exit(VendInvDisc.FindFirst);
+        exit(VendInvDisc.FindFirst());
     end;
 
     procedure CalculateIncDiscForHeader(var PurchHeader: Record "Purchase Header")
@@ -238,7 +238,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     repeat
                         if not ZeroAmountLine(0) and ("Prepayment %" = PurchaseHeader."Prepayment %") then begin
                             "Prepmt. Line Amount" := Amount;
-                            Modify;
+                            Modify();
                         end;
                     until Next() = 0;
             end;

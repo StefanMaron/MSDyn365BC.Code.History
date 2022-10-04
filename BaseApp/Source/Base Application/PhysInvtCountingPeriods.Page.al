@@ -24,7 +24,7 @@ page 7381 "Phys. Invt. Counting Periods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the physical inventory counting period.';
                 }
-                field("Count Frequency per Year"; "Count Frequency per Year")
+                field("Count Frequency per Year"; Rec."Count Frequency per Year")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of times you want the item or stockkeeping unit to be counted each year.';

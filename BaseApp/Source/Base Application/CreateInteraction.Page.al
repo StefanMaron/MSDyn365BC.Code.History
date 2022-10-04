@@ -1,7 +1,7 @@
 page 5077 "Create Interaction"
 {
     Caption = 'Create Interaction';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -16,7 +16,7 @@ page 5077 "Create Interaction"
             group(General)
             {
                 Caption = 'General';
-                field("Wizard Contact Name"; "Wizard Contact Name")
+                field("Wizard Contact Name"; Rec."Wizard Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact';
@@ -55,7 +55,7 @@ page 5077 "Create Interaction"
                         SetContactNo(Contact)
                     end;
                 }
-                field("Interaction Template Code"; "Interaction Template Code")
+                field("Interaction Template Code"; Rec."Interaction Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Importance = Promoted;
@@ -65,13 +65,13 @@ page 5077 "Create Interaction"
 
                     trigger OnValidate()
                     begin
-                        UpdateUIFlags;
+                        UpdateUIFlags();
 
                         if Campaign.Get("Campaign No.") then
                             "Campaign Description" := Campaign.Description;
 
                         if "Attachment No." <> xRec."Attachment No." then
-                            AttachmentReload;
+                            AttachmentReload();
                     end;
                 }
                 field(Description; Description)
@@ -83,7 +83,7 @@ page 5077 "Create Interaction"
                     ShowMandatory = true;
                     ToolTip = 'Specifies what the interaction is about.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Caption = 'Salesperson';
@@ -91,7 +91,7 @@ page 5077 "Create Interaction"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the salesperson who is responsible for this interaction.';
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
@@ -99,15 +99,15 @@ page 5077 "Create Interaction"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LanguageCodeOnLookup;
+                        LanguageCodeOnLookup();
                         if "Attachment No." <> xRec."Attachment No." then
-                            AttachmentReload;
+                            AttachmentReload();
                     end;
 
                     trigger OnValidate()
                     begin
                         if "Attachment No." <> xRec."Attachment No." then
-                            AttachmentReload;
+                            AttachmentReload();
                     end;
                 }
             }
@@ -131,7 +131,7 @@ page 5077 "Create Interaction"
             {
                 Caption = 'Interaction Details';
                 Enabled = IsMainInfoSet;
-                field("Correspondence Type"; "Correspondence Type")
+                field("Correspondence Type"; Rec."Correspondence Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
@@ -140,7 +140,7 @@ page 5077 "Create Interaction"
 
                     trigger OnValidate()
                     begin
-                        ValidateCorrespondenceType;
+                        ValidateCorrespondenceType();
                     end;
                 }
                 field(Date; Date)
@@ -151,21 +151,21 @@ page 5077 "Create Interaction"
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the interaction took place.';
                 }
-                field("Time of Interaction"; "Time of Interaction")
+                field("Time of Interaction"; Rec."Time of Interaction")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
                     Importance = Additional;
                     ToolTip = 'Specifies the time when the interaction took place';
                 }
-                field("Information Flow"; "Information Flow")
+                field("Information Flow"; Rec."Information Flow")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
                     Importance = Additional;
                     ToolTip = 'Specifies the direction of the interaction, inbound or outbound.';
                 }
-                field("Initiated By"; "Initiated By")
+                field("Initiated By"; Rec."Initiated By")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
@@ -179,7 +179,7 @@ page 5077 "Create Interaction"
                     Importance = Additional;
                     ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
                 }
-                field("Interaction Successful"; "Interaction Successful")
+                field("Interaction Successful"; Rec."Interaction Successful")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Was Successful';
@@ -187,21 +187,21 @@ page 5077 "Create Interaction"
                     Importance = Additional;
                     ToolTip = 'Specifies if the interaction was successful. Clear this check box to indicate that the interaction was not a success.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
                     Importance = Additional;
                     ToolTip = 'Specifies the cost of the interaction with the contact that this segment line applies to.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IsMainInfoSet;
                     Importance = Additional;
                     ToolTip = 'Specifies the duration of the interaction with the contact.';
                 }
-                field("Campaign Description"; "Campaign Description")
+                field("Campaign Description"; Rec."Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaign';
@@ -225,7 +225,7 @@ page 5077 "Create Interaction"
                         end;
                     end;
                 }
-                field("Campaign Target"; "Campaign Target")
+                field("Campaign Target"; Rec."Campaign Target")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact is Targeted';
@@ -233,7 +233,7 @@ page 5077 "Create Interaction"
                     Importance = Additional;
                     ToolTip = 'Specifies that the segment involved in this interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
                 }
-                field("Campaign Response"; "Campaign Response")
+                field("Campaign Response"; Rec."Campaign Response")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaign Response';
@@ -241,7 +241,7 @@ page 5077 "Create Interaction"
                     Importance = Additional;
                     ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
                 }
-                field("Opportunity Description"; "Opportunity Description")
+                field("Opportunity Description"; Rec."Opportunity Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Opportunity';
@@ -277,9 +277,6 @@ page 5077 "Create Interaction"
                 Caption = 'Preview';
                 Enabled = HTMLAttachment;
                 Image = PreviewChecks;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Test the setup of the interaction.';
                 Visible = HTMLAttachment;
 
@@ -294,16 +291,13 @@ page 5077 "Create Interaction"
                 Enabled = IsMainInfoSet;
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
                     FinishSegLineWizard(true);
                     IsFinished := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -314,16 +308,29 @@ page 5077 "Create Interaction"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Co&mments';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View or add comments for the record.';
 
                 trigger OnAction()
                 begin
-                    ShowComment;
+                    ShowComment();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref(Finish_Promoted; Finish)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
             }
         }
     }
@@ -333,7 +340,7 @@ page 5077 "Create Interaction"
         SalespersonCodeEditable := true;
         OpportunityDescriptionEditable := true;
         CampaignDescriptionEditable := true;
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
     end;
 
     trigger OnOpenPage()
@@ -341,12 +348,12 @@ page 5077 "Create Interaction"
         CampaignDescriptionEditable := false;
         OpportunityDescriptionEditable := false;
         SetContactEditable();
-        UpdateUIFlags;
+        UpdateUIFlags();
 
         if SalesPurchPerson.Get(GetFilter("Salesperson Code")) then
             SalespersonCodeEditable := false;
 
-        AttachmentReload;
+        AttachmentReload();
 
         IsFinished := false;
         CurrPage.Update(false);
@@ -402,17 +409,17 @@ page 5077 "Create Interaction"
         exit(CaptionStr);
     end;
 
-    local procedure UpdateUIFlags()
+    procedure UpdateUIFlags()
     begin
         IsMainInfoSet := "Interaction Template Code" <> '';
     end;
 
-    local procedure AttachmentReload()
+    procedure AttachmentReload()
     begin
         LoadSegLineAttachment(true);
-        HTMLAttachment := IsHTMLAttachment;
+        HTMLAttachment := IsHTMLAttachment();
         if HTMLAttachment then
-            HTMLContentBodyText := LoadContentBodyTextFromCustomLayoutAttachment;
+            HTMLContentBodyText := LoadContentBodyTextFromCustomLayoutAttachment();
     end;
 
     local procedure SetContactNo(Contact: Record Contact)

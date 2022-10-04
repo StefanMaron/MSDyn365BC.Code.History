@@ -15,7 +15,7 @@ page 971 "Activity Details FactBox"
                 DrillDown = false;
                 ToolTip = 'Specifies that a comment about this document has been entered.';
             }
-            field("Total Quantity"; "Total Quantity")
+            field("Total Quantity"; Rec."Total Quantity")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Line Total';
@@ -29,7 +29,7 @@ page 971 "Activity Details FactBox"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    LookupActivity;
+                    LookupActivity();
                 end;
             }
             field(ActivitySubID; ActivitySubID)
@@ -39,7 +39,7 @@ page 971 "Activity Details FactBox"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    LookupSubActivity;
+                    LookupSubActivity();
                 end;
             }
         }

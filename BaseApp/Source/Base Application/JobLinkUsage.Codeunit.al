@@ -7,9 +7,17 @@ codeunit 1026 "Job Link Usage"
     end;
 
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
+        CalledFromInvtPutawayPick: Boolean;
+
         Text001: Label 'The specified %1 does not have %2 enabled.', Comment = 'The specified Job Planning Line does not have Usage Link enabled.';
         ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the job planning line because the Line Type field is empty.\\Do you want to continue?';
-        UOMMgt: Codeunit "Unit of Measure Management";
+
+    internal procedure ApplyUsage(JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line"; IsCalledFromInventoryPutawayPick: Boolean)
+    begin
+        CalledFromInvtPutawayPick := IsCalledFromInventoryPutawayPick;
+        ApplyUsage(JobLedgerEntry, JobJournalLine);
+    end;
 
     procedure ApplyUsage(JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
     begin
@@ -76,7 +84,7 @@ codeunit 1026 "Job Link Usage"
 
         JobPlanningLine.Get(JobLedgerEntry."Job No.", JobLedgerEntry."Job Task No.", JobJournalLine."Job Planning Line No.");
         if not JobPlanningLine."Usage Link" then
-            Error(Text001, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Usage Link"));
+            Error(Text001, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Usage Link"));
 
         HandleMatchUsageSpecifiedJobPlanningLine(JobPlanningLine, JobJournalLine, JobLedgerEntry);
 
@@ -94,10 +102,14 @@ codeunit 1026 "Job Link Usage"
         TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
         TotalQtyBase := PostedQtyBase + TotalRemainingQtyPrePostBase;
         JobPlanningLine.SetBypassQtyValidation(true);
-        JobPlanningLine.Validate(Quantity,
-            UOMMgt.CalcQtyFromBase(
-                JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
-                TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+
+        // Skip this quantity validation for Inventory Pick posting as quantity cannot be updated with an active Warehouse Activity Line.
+        if not CalledFromInvtPutawayPick then
+            JobPlanningLine.Validate(Quantity,
+                UOMMgt.CalcQtyFromBase(
+                    JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                    TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+
         JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgerEntry);
         JobPlanningLine.Use(
             UOMMgt.CalcQtyFromBase(

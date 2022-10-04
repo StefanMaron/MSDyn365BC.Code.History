@@ -7,6 +7,7 @@ table 2003 "Cortana Intelligence Usage"
     ObsoleteState = Removed;
     ObsoleteReason = 'Renamed to Azure AI Usage';
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {
@@ -70,7 +71,7 @@ table 2003 "Cortana Intelligence Usage"
 
         if GetSingleInstance(ServiceOption) then begin
             "Total Resource Usage" += AzureMLServiceProcessingTime;
-            "Last DateTime Updated" := GetCurrentDateTime;
+            "Last DateTime Updated" := GetCurrentDateTime();
             Modify(true);
         end;
     end;
@@ -107,15 +108,15 @@ table 2003 "Cortana Intelligence Usage"
         CallModify: Boolean;
         ResetTotalProcessingTime: Boolean;
     begin
-        if (ServiceOption = Service::"Machine Learning") and (not EnvironmentInfo.IsSaaS) then
+        if (ServiceOption = Service::"Machine Learning") and (not EnvironmentInfo.IsSaaS()) then
             exit(false);
 
         SetRange(Service, ServiceOption);
         if not FindFirst() then begin
-            Init;
+            Init();
             Service := ServiceOption;
-            "Last DateTime Updated" := GetCurrentDateTime;
-            Insert;
+            "Last DateTime Updated" := GetCurrentDateTime();
+            Insert();
         end;
 
         case ServiceOption of
@@ -126,14 +127,14 @@ table 2003 "Cortana Intelligence Usage"
                         "Limit Period" := "Limit Period"::Year;
                     end;
 
-                    if not ImageAnalysisSetup.Get then begin
+                    if not ImageAnalysisSetup.Get() then begin
                         ImageAnalysisSetup.Init();
                         ImageAnalysisSetup.Insert();
                     end;
 
                     if (not ImageAnalysisIsSetup) and
-                       (ImageAnalysisSetup.GetApiKey = '') and (ImageAnalysisSetup."Api Uri" = '') and
-                       EnvironmentInfo.IsSaaS
+                       (ImageAnalysisSetup.GetApiKey() = '') and (ImageAnalysisSetup."Api Uri" = '') and
+                       EnvironmentInfo.IsSaaS()
                     then
                         if ImageAnalysisManagement.GetImageAnalysisCredentials(ApiKey, ApiUri, LimitType, LimitValueInt) then begin
                             "Original Resource Limit" := LimitValueInt;
@@ -165,7 +166,7 @@ table 2003 "Cortana Intelligence Usage"
         end;
 
         if CallModify then
-            Modify;
+            Modify();
         exit(true);
     end;
 
@@ -186,7 +187,7 @@ table 2003 "Cortana Intelligence Usage"
 
     local procedure GetCurentDate(): Date
     begin
-        exit(DT2Date(GetCurrentDateTime));
+        exit(DT2Date(GetCurrentDateTime()));
     end;
 
     procedure HasChangedYear(PreviousDateTime: DateTime): Boolean
@@ -206,7 +207,7 @@ table 2003 "Cortana Intelligence Usage"
 
     local procedure HasChangedPeriod(PreviousDateTime: DateTime; What: Integer): Boolean
     begin
-        exit(Date2DMY(GetCurentDate, What) <> Date2DMY(DT2Date(PreviousDateTime), What));
+        exit(Date2DMY(GetCurentDate(), What) <> Date2DMY(DT2Date(PreviousDateTime), What));
     end;
 
     procedure HasChangedHour(PreviousDateTime: DateTime): Boolean
@@ -215,7 +216,7 @@ table 2003 "Cortana Intelligence Usage"
         CurrentRounded: DateTime;
     begin
         PreviousRounded := RoundDateTime(PreviousDateTime, 1000 * 3600, '<');
-        CurrentRounded := RoundDateTime(GetCurrentDateTime, 1000 * 3600, '<');
+        CurrentRounded := RoundDateTime(GetCurrentDateTime(), 1000 * 3600, '<');
         exit(CurrentRounded <> PreviousRounded);
     end;
 

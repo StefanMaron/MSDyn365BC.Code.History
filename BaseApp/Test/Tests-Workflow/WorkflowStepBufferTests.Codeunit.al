@@ -77,7 +77,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.TestField(Indent, 0);
         TempWorkflowStepBuffer.TestField("Event Step ID", RootWorkflowStep1.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Order, 20000);
         TempWorkflowStepBuffer.TestField(Indent, 0);
         TempWorkflowStepBuffer.TestField("Event Step ID", RootWorkflowStep2.ID);
@@ -110,12 +110,12 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.TestField(Indent, 0);
         TempWorkflowStepBuffer.TestField("Event Step ID", RootWorkflowStep.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Order, 20000);
         TempWorkflowStepBuffer.TestField(Indent, 1);
         TempWorkflowStepBuffer.TestField("Event Step ID", MiddleWorkflowStep.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Order, 30000);
         TempWorkflowStepBuffer.TestField(Indent, 2);
         TempWorkflowStepBuffer.TestField("Event Step ID", LeafWorkflowStep.ID);
@@ -146,11 +146,11 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.TestField(Indent, 0);
         TempWorkflowStepBuffer.TestField("Event Step ID", RootWorkflowStep.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Indent, 1);
         TempWorkflowStepBuffer.TestField("Event Step ID", WorkflowStep1.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Indent, 1);
         TempWorkflowStepBuffer.TestField("Event Step ID", WorkflowStep2.ID);
     end;
@@ -181,7 +181,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         WorkflowEvent.Get(EventWorkflowStep."Function Name");
         TempWorkflowStepBuffer.TestField("Event Description", WorkflowEvent.Description);
         TempWorkflowStepBuffer.TestField(Condition, '<Always>');
-        TempWorkflowStepBuffer.TestField("Response Description", ResponseWorkflowStep.GetDescription);
+        TempWorkflowStepBuffer.TestField("Response Description", ResponseWorkflowStep.GetDescription());
         TempWorkflowStepBuffer.TestField("Event Step ID", EventWorkflowStep.ID);
         TempWorkflowStepBuffer.TestField("Response Step ID", ResponseWorkflowStep.ID);
         TempWorkflowStepBuffer.TestField("Workflow Code", Workflow.Code);
@@ -212,7 +212,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         // Validate
         Assert.AreEqual(1, TempWorkflowStepBuffer.Count, 'Wrong number of lines');
 
-        TempWorkflowStepBuffer.TestField("Response Description", '(+) ' + ResponseWorkflowStep1.GetDescription);
+        TempWorkflowStepBuffer.TestField("Response Description", '(+) ' + ResponseWorkflowStep1.GetDescription());
         TempWorkflowStepBuffer.TestField("Response Step ID", -1);
         TempWorkflowStepBuffer.TestField("Response Description Style", 'StandardAccent');
     end;
@@ -330,13 +330,13 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.TestField("Parent Event Step ID", EventWorkflowStep.ID);
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", EventWorkflowStep.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Order, 20000);
         TempWorkflowStepBuffer.TestField("Response Step ID", ResponseWorkflowStep2.ID);
         TempWorkflowStepBuffer.TestField("Parent Event Step ID", EventWorkflowStep.ID);
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", ResponseWorkflowStep1.ID);
 
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField(Order, 30000);
         TempWorkflowStepBuffer.TestField("Response Step ID", ResponseWorkflowStep3.ID);
         TempWorkflowStepBuffer.TestField("Parent Event Step ID", EventWorkflowStep.ID);
@@ -361,7 +361,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         // Exercise
-        TempWorkflowStepBuffer.ClearBuffer;
+        TempWorkflowStepBuffer.ClearBuffer();
 
         // Validate
         Assert.IsTrue(TempWorkflowStepBuffer.IsEmpty, 'Buffer should be empty');
@@ -499,14 +499,14 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.Validate("Entry Point", true);
 
         // Verify - Set Entry Point
-        LeafEventWorkflowStep.Find;
+        LeafEventWorkflowStep.Find();
         LeafEventWorkflowStep.TestField("Entry Point", true);
 
         // Exercise - Clear Entry Point
         TempWorkflowStepBuffer.Validate("Entry Point", false);
 
         // Verify - Clear Entry Point
-        LeafEventWorkflowStep.Find;
+        LeafEventWorkflowStep.Find();
         LeafEventWorkflowStep.TestField("Entry Point", false);
     end;
 
@@ -539,7 +539,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         // Verify
         NewWorkflowStep.Get(Workflow.Code, TempWorkflowStepBuffer."Event Step ID");
         NewWorkflowStep.TestField("Sequence No.", 2);
-        LeafEventWorkflowStep2.Find;
+        LeafEventWorkflowStep2.Find();
         LeafEventWorkflowStep2.TestField("Sequence No.", 3)
     end;
 
@@ -567,9 +567,9 @@ codeunit 134312 "Workflow Step Buffer Tests"
         // Verify
         TempWorkflowStepBuffer.FindSet();
         TempWorkflowStepBuffer.TestField("Event Step ID", RootEventWorkflowStep.ID);
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField("Event Step ID", LeafEventWorkflowStep2.ID);
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField("Event Step ID", LeafEventWorkflowStep1.ID);
     end;
 
@@ -602,7 +602,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveLeft;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", EntryEventWorkflowStep."Previous Workflow Step ID");
     end;
 
@@ -635,7 +635,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", EntryEventWorkflowStep.ID);
     end;
 
@@ -672,7 +672,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveLeft;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", EntryEventWorkflowStep."Previous Workflow Step ID");
     end;
 
@@ -709,7 +709,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", FirstResponseWorkflowStep.ID);
     end;
 
@@ -763,7 +763,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", FirstResponseWorkflowStep.ID);
 
         // Exercise
@@ -773,7 +773,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveLeft;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", 0);
     end;
 
@@ -836,7 +836,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveLeft;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         Assert.AreEqual(0, TempWorkflowStepBuffer."Previous Workflow Step ID",
           'The third step should be an entry point.');
 
@@ -854,7 +854,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         Assert.AreEqual(FirstResponseWorkflowStep.ID, TempWorkflowStepBuffer."Previous Workflow Step ID",
           'The thirs step should point to the first events response');
 
@@ -892,7 +892,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", 0);
     end;
 
@@ -968,7 +968,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveLeft;
 
         // Verify.
-        TempWorkflowStepBuffer.Find;
+        TempWorkflowStepBuffer.Find();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", 0);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep2.ID);
@@ -981,10 +981,10 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
-        EventWorkflowStep.Find;
+        EventWorkflowStep.Find();
         EventWorkflowStep.TestField("Previous Workflow Step ID", EntryEventWorkflowStep.ID);
 
-        EventWorkflowStep2.Find;
+        EventWorkflowStep2.Find();
         EventWorkflowStep2.TestField("Previous Workflow Step ID", EntryEventWorkflowStep.ID);
     end;
 
@@ -1015,8 +1015,8 @@ codeunit 134312 "Workflow Step Buffer Tests"
         // Verify
         TempWorkflowStepBuffer.FindSet();
         TempWorkflowStepBuffer.TestField("Next Step Description", '');
-        TempWorkflowStepBuffer.Next;
-        TempWorkflowStepBuffer.TestField("Next Step Description", StrSubstNo(WhenNextStepDescTxt, RootEventWorkflowStep.GetDescription));
+        TempWorkflowStepBuffer.Next();
+        TempWorkflowStepBuffer.TestField("Next Step Description", StrSubstNo(WhenNextStepDescTxt, RootEventWorkflowStep.GetDescription()));
     end;
 
     [Test]
@@ -1040,14 +1040,14 @@ codeunit 134312 "Workflow Step Buffer Tests"
 
         // Verify
         TempWorkflowStepBuffer.FindSet();
-        TempWorkflowStepBuffer.TestField("Event Description", RootEventWorkflowStep.GetDescription);
+        TempWorkflowStepBuffer.TestField("Event Description", RootEventWorkflowStep.GetDescription());
         TempWorkflowStepBuffer.TestField("Response Description", '');
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField("Event Description", '');
-        TempWorkflowStepBuffer.TestField("Response Description", ResponseWorkflowStep1.GetDescription);
-        TempWorkflowStepBuffer.Next;
+        TempWorkflowStepBuffer.TestField("Response Description", ResponseWorkflowStep1.GetDescription());
+        TempWorkflowStepBuffer.Next();
         TempWorkflowStepBuffer.TestField("Event Description", '');
-        TempWorkflowStepBuffer.TestField("Response Description", ResponseWorkflowStep2.GetDescription);
+        TempWorkflowStepBuffer.TestField("Response Description", ResponseWorkflowStep2.GetDescription());
     end;
 
     [Test]

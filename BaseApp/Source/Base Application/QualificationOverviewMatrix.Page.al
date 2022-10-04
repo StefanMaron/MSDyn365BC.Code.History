@@ -14,12 +14,12 @@ page 9271 "Qualification Overview Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Full Name"; FullName)
+                field("Full Name"; FullName())
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Full Name';
@@ -559,7 +559,7 @@ page 9271 "Qualification Overview Matrix"
         EmployeeQualification.SetRange("Employee No.");
         EmployeeQualification.SetRange("Qualification Code");
         MATRIX_CellData[ColumnID] := Qualified;
-        SetVisible;
+        SetVisible();
     end;
 
     procedure SetVisible()

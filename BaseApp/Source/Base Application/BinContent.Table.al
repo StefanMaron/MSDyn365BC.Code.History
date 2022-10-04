@@ -115,7 +115,7 @@ table 7302 "Bin Content"
             trigger OnValidate()
             begin
                 if "Max. Qty." <> xRec."Max. Qty." then
-                    CheckBinMaxCubageAndWeight;
+                    CheckBinMaxCubageAndWeight();
             end;
         }
         field(21; "Bin Ranking"; Integer)
@@ -495,6 +495,10 @@ table 7302 "Bin Content"
         Item: Record Item;
         Location: Record Location;
         Bin: Record Bin;
+        UOMMgt: Codeunit "Unit of Measure Management";
+        WMSManagement: Codeunit "WMS Management";
+        StockProposal: Boolean;
+
         Text000: Label 'You cannot delete this %1, because the %1 contains items.';
         Text001: Label 'You cannot delete this %1, because warehouse document lines have items allocated to this %1.';
         Text002: Label 'The total cubage %1 of the %2 for the %5 exceeds the %3 %4 of the %5.\Do you still want enter this %2?';
@@ -502,13 +506,10 @@ table 7302 "Bin Content"
         Text004: Label 'Cancelled.';
         Text005: Label 'The %1 %2 must not be less than the %3 %4.';
         Text006: Label 'available must not be less than %1';
-        UOMMgt: Codeunit "Unit of Measure Management";
         Text007: Label 'You cannot modify the %1, because the %2 contains items.';
         Text008: Label 'You cannot modify the %1, because warehouse document lines have items allocated to this %2.';
         Text009: Label 'You must first set up user %1 as a warehouse employee.';
         Text010: Label 'There is already a default bin content for location code %1, item no. %2 and variant code %3.';
-        WMSManagement: Codeunit "WMS Management";
-        StockProposal: Boolean;
 
     procedure SetUpNewLine()
     begin
@@ -565,7 +566,7 @@ table 7302 "Bin Content"
         GetItem("Item No.");
         if Item."No." <> '' then
             exit(
-              Round(CalcQtyAvailToTake(0) / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision));
+              Round(CalcQtyAvailToTake(0) / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure CalcTotalQtyAvailToTake(ExcludeQtyBase: Decimal): Decimal
@@ -574,10 +575,10 @@ table 7302 "Bin Content"
         TotalNegativeAdjmtQtyBase: Decimal;
         TotalATOComponentsPickQtyBase: Decimal;
     begin
-        TotalQtyBase := CalcTotalQtyBase;
-        TotalNegativeAdjmtQtyBase := CalcTotalNegativeAdjmtQtyBase;
-        TotalATOComponentsPickQtyBase := CalcTotalATOComponentsPickQtyBase;
-        SetFilterOnUnitOfMeasure;
+        TotalQtyBase := CalcTotalQtyBase();
+        TotalNegativeAdjmtQtyBase := CalcTotalNegativeAdjmtQtyBase();
+        TotalATOComponentsPickQtyBase := CalcTotalATOComponentsPickQtyBase();
+        SetFilterOnUnitOfMeasure();
         CalcFields("Pick Quantity (Base)");
         OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(Rec, ExcludeQtyBase, TotalNegativeAdjmtQtyBase);
         exit(
@@ -595,13 +596,13 @@ table 7302 "Bin Content"
             exit;
 
         if (not Dedicated) and (not ("Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All])) then
-            exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking);
+            exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking());
     end;
 
     procedure CalcQtyAvailToPickIncludingDedicated(ExcludeQtyBase: Decimal): Decimal
     begin
         if not ("Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All]) then
-            exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking);
+            exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking());
     end;
 
     procedure CalcQtyWithBlockedItemTracking(): Decimal
@@ -633,14 +634,14 @@ table 7302 "Bin Content"
         CopyFilter("Lot No. Filter", LotNoInfo."Lot No.");
         LotNoInfo.SetRange(Blocked, true);
 
-        if SerialNoInfo.IsEmpty and LotNoInfo.IsEmpty() then
+        if SerialNoInfo.IsEmpty() and LotNoInfo.IsEmpty() then
             exit;
 
         SNGiven := not (GetFilter("Serial No. Filter") = '');
         LNGiven := not (GetFilter("Lot No. Filter") = '');
 
         XBinContent.Copy(Rec);
-        ClearTrackingFilters;
+        ClearTrackingFilters();
 
         NoITGiven := not SNGiven and not LNGiven;
         if SNGiven or NoITGiven then
@@ -681,7 +682,7 @@ table 7302 "Bin Content"
     begin
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
-          Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision) -
+          Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) -
           ("Quantity (Base)" + "Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)"));
     end;
 
@@ -689,7 +690,7 @@ table 7302 "Bin Content"
     begin
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
-          Round("Min. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision) >
+          Round("Min. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) >
           "Quantity (Base)" +
           Abs("Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)"));
     end;
@@ -698,7 +699,7 @@ table 7302 "Bin Content"
     begin
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
-          Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision) -
+          Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) -
           ("Quantity (Base)" + "Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)"));
     end;
 
@@ -743,14 +744,14 @@ table 7302 "Bin Content"
                 if not Confirm(
                      Text002,
                      false, TotalCubage, FieldCaption("Max. Qty."),
-                     Bin.FieldCaption("Maximum Cubage"), Bin."Maximum Cubage", Bin.TableCaption)
+                     Bin.FieldCaption("Maximum Cubage"), Bin."Maximum Cubage", Bin.TableCaption())
                 then
                     Error(Text004);
             if (Bin."Maximum Weight" > 0) and (Bin."Maximum Weight" - TotalWeight < 0) then
                 if not Confirm(
                      Text003,
                      false, TotalWeight, FieldCaption("Max. Qty."),
-                     Bin.FieldCaption("Maximum Weight"), Bin."Maximum Weight", Bin.TableCaption)
+                     Bin.FieldCaption("Maximum Weight"), Bin."Maximum Weight", Bin.TableCaption())
                 then
                     Error(Text004);
         end;
@@ -792,7 +793,7 @@ table 7302 "Bin Content"
         if QtyAvailToPickBase < QtyBase then begin
             GetItem("Item No.");
             QtyAvailToPick :=
-              Round(QtyAvailToPickBase / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision);
+              Round(QtyAvailToPickBase / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision());
             if QtyAvailToPick = Qty then
                 QtyBase := QtyAvailToPickBase // rounding issue- qty is same, but not qty (base)
             else
@@ -827,7 +828,7 @@ table 7302 "Bin Content"
                 if "Max. Qty." <> 0 then begin
                     QtyAvailToPutAwayBase := CalcQtyAvailToPutAway(DeductQtyBase);
                     WMSMgt.CheckPutAwayAvailability(
-                      "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption, QtyBase, QtyAvailToPutAwayBase,
+                      "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, QtyAvailToPutAwayBase,
                       (Location."Bin Capacity Policy" =
                        Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                 end else begin
@@ -841,13 +842,13 @@ table 7302 "Bin Content"
 
                         if (Bin."Maximum Cubage" <> 0) and (PutawayCubage > AvailableCubage) then
                             WMSMgt.CheckPutAwayAvailability(
-                              "Bin Code", WhseActivLine.FieldCaption(Cubage), Bin.TableCaption, PutawayCubage, AvailableCubage,
+                              "Bin Code", WhseActivLine.FieldCaption(Cubage), Bin.TableCaption(), PutawayCubage, AvailableCubage,
                               (Location."Bin Capacity Policy" =
                                Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
 
                         if (Bin."Maximum Weight" <> 0) and (PutawayWeight > AvailableWeight) then
                             WMSMgt.CheckPutAwayAvailability(
-                              "Bin Code", WhseActivLine.FieldCaption(Weight), Bin.TableCaption, PutawayWeight, AvailableWeight,
+                              "Bin Code", WhseActivLine.FieldCaption(Weight), Bin.TableCaption(), PutawayWeight, AvailableWeight,
                               (Location."Bin Capacity Policy" =
                                Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                     end;
@@ -897,7 +898,7 @@ table 7302 "Bin Content"
     local procedure GetBin(LocationCode: Code[10]; BinCode: Code[20])
     begin
         if (LocationCode = '') or (BinCode = '') then
-            Bin.Init
+            Bin.Init()
         else
             if (Bin."Location Code" <> LocationCode) or
                (Bin.Code <> BinCode)
@@ -911,7 +912,7 @@ table 7302 "Bin Content"
             exit;
 
         if ItemNo = '' then
-            Item.Init
+            Clear(Item)
         else
             Item.Get(ItemNo);
     end;
@@ -922,6 +923,7 @@ table 7302 "Bin Content"
         ItemVariant: Record "Item Variant";
         OldItemNo: Code[20];
     begin
+        OldItemNo := '';
         ItemDescription := '';
         if ItemNo <> OldItemNo then begin
             ItemDescription := '';
@@ -968,7 +970,7 @@ table 7302 "Bin Content"
                     end
                     ;
                 if CurrentLocationCode = '' then begin
-                    CurrentLocationCode := WMSMgt.GetDefaultLocation;
+                    CurrentLocationCode := WMSMgt.GetDefaultLocation();
                     if CurrentLocationCode <> '' then begin
                         Location.Get(CurrentLocationCode);
                         if not Location."Bin Mandatory" then
@@ -1055,7 +1057,7 @@ table 7302 "Bin Content"
         CalcFields("Quantity (Base)");
         if Item."No." <> '' then
             exit(
-              Round("Quantity (Base)" / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision));
+              Round("Quantity (Base)" / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision()));
     end;
 
     procedure GetCaption(): Text
@@ -1151,7 +1153,7 @@ table 7302 "Bin Content"
         WarehouseJournalLine.SetRange("Item No.", "Item No.");
         WarehouseJournalLine.SetRange("Variant Code", "Variant Code");
         OnCalcTotalNegativeAdjmtQtyBaseOnAfterSetFilters(WarehouseJournalLine, Rec);
-        if not TrackingFiltersExist then begin
+        if not TrackingFiltersExist() then begin
             WarehouseJournalLine.CalcSums("Qty. (Absolute, Base)");
             TotalNegativeAdjmtQtyBase := WarehouseJournalLine."Qty. (Absolute, Base)";
         end else begin
@@ -1210,7 +1212,7 @@ table 7302 "Bin Content"
             SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup);
         Ascending(false);
         OnAfterBinContentExists(Rec);
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure ClearTrackingFilters()

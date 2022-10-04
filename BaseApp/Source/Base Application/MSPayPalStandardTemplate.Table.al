@@ -3,8 +3,8 @@ table 7861 "MS- PayPal Standard Template"
     Caption = 'MS- PayPal Standard Template';
     ObsoleteReason = 'This table is no longer used by any user.';
     ObsoleteState = Removed;
-    ReplicateData = false;
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {

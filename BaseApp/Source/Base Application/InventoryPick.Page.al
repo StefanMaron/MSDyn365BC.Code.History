@@ -2,7 +2,6 @@ page 7377 "Inventory Pick"
 {
     Caption = 'Inventory Pick';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Posting';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Warehouse Activity Header";
@@ -15,7 +14,7 @@ page 7377 "Inventory Pick"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,7 +25,7 @@ page 7377 "Inventory Pick"
                             CurrPage.Update();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location where the warehouse activity takes place.';
@@ -38,7 +37,7 @@ page 7377 "Inventory Pick"
                     Lookup = false;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
@@ -49,7 +48,7 @@ page 7377 "Inventory Pick"
                             FeatureTelemetry.LogUsage('0000GQW', 'Picks on jobs', 'create inventory picks');
                         CODEUNIT.Run(CODEUNIT::"Create Inventory Pick/Movement", Rec);
                         CurrPage.Update();
-                        CurrPage.WhseActivityLines.PAGE.UpdateForm;
+                        CurrPage.WhseActivityLines.PAGE.UpdateForm();
                     end;
 
                     trigger OnValidate()
@@ -57,7 +56,7 @@ page 7377 "Inventory Pick"
                         SourceNoOnAfterValidate();
                     end;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 0));
@@ -72,30 +71,30 @@ page 7377 "Inventory Pick"
                     Editable = false;
                     ToolTip = 'Specifies the name of the inventory picks used for these outbound source documents: sales orders, purchase return orders, and outbound transfer orders.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity should be recorded as being posted.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 2));
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("External Document No.2"; "External Document No.2")
+                field("External Document No.2"; Rec."External Document No.2")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 3));
                     ToolTip = 'Specifies an additional part of the document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -210,8 +209,6 @@ page 7377 "Inventory Pick"
                     Caption = '&Get Source Document';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'Select the source document that you want to pick items for.';
 
@@ -229,7 +226,7 @@ page 7377 "Inventory Pick"
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandleInLine;
+                        AutofillQtyToHandleInLine();
                     end;
                 }
                 action("Delete Qty. to Handle")
@@ -241,7 +238,7 @@ page 7377 "Inventory Pick"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
             }
@@ -255,15 +252,12 @@ page 7377 "Inventory Pick"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
                     begin
-                        PostPickYesNo;
+                        PostPickYesNo();
                     end;
                 }
                 action(PostAndPrint)
@@ -272,15 +266,12 @@ page 7377 "Inventory Pick"
                     Caption = 'Post and &Print';
                     Ellipsis = true;
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
                     begin
-                        PostAndPrintLine;
+                        PostAndPrintLine();
                     end;
                 }
             }
@@ -290,8 +281,6 @@ page 7377 "Inventory Pick"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -314,11 +303,57 @@ page 7377 "Inventory Pick"
                 ApplicationArea = Warehouse;
                 Caption = 'Picking List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Picking List";
                 ToolTip = 'View or print a detailed list of items that must be picked.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category5)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+                    actionref(PostAndPrint_Promoted; PostAndPrint)
+                    {
+                    }
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref(AutofillQtyToHandle_Promoted; AutofillQtyToHandle)
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Get Source Document_Promoted"; "&Get Source Document")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -330,14 +365,14 @@ page 7377 "Inventory Pick"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Location Code" := GetUserLocation;
+        "Location Code" := GetUserLocation();
     end;
 
     trigger OnOpenPage()
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard
@@ -350,30 +385,30 @@ page 7377 "Inventory Pick"
 
     local procedure AutofillQtyToHandleInLine()
     begin
-        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure PostPickYesNo()
     begin
         OnBeforePostPickYesNo(Rec);
-        CurrPage.WhseActivityLines.PAGE.PostPickYesNo;
+        CurrPage.WhseActivityLines.PAGE.PostPickYesNo();
     end;
 
     local procedure PostAndPrintLine()
     begin
         OnBeforePostAndPrintLine(Rec);
-        CurrPage.WhseActivityLines.PAGE.PostAndPrint;
+        CurrPage.WhseActivityLines.PAGE.PostAndPrint();
     end;
 
     local procedure SourceNoOnAfterValidate()
     begin
         CurrPage.Update();
-        CurrPage.WhseActivityLines.PAGE.UpdateForm;
+        CurrPage.WhseActivityLines.PAGE.UpdateForm();
     end;
 
     [IntegrationEvent(false, false)]

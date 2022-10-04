@@ -24,7 +24,7 @@ codeunit 869 "Cash Flow Chart Mgt."
                 Show := Show::Combined;
                 "Chart Type" := "Chart Type"::"Stacked Column";
                 "Group By" := "Group By"::"Source Type";
-                Insert;
+                Insert();
             end;
     end;
 
@@ -39,7 +39,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         BusChartBuf."Period Length" := CashFlowChartSetup."Period Length";
         CashFlowForecast.Reset();
         CashFlowForecast.SetCashFlowDateFilter(BusChartBuf.CalcFromDate(ToDate), ToDate);
-        DrillDownAmountForGroupBy(CashFlowForecast, CashFlowChartSetup."Group By", BusChartBuf.GetCurrMeasureValueString);
+        DrillDownAmountForGroupBy(CashFlowForecast, CashFlowChartSetup."Group By", BusChartBuf.GetCurrMeasureValueString());
     end;
 
     local procedure DrillDownAmountForGroupBy(var CashFlowForecast: Record "Cash Flow Forecast"; GroupBy: Option; Value: Text[30])
@@ -49,7 +49,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         PositiveAmount: Boolean;
     begin
         if Value = '' then
-            CashFlowForecast.DrillDown
+            CashFlowForecast.DrillDown()
         else
             case GroupBy of
                 CashFlowChartSetup."Group By"::"Positive/Negative":
@@ -80,7 +80,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         ToDate: Date;
         Accumulate: Boolean;
     begin
-        if not CashFlowSetup.Get or CashFlowForecast.IsEmpty() then
+        if not CashFlowSetup.Get() or CashFlowForecast.IsEmpty() then
             exit(false);
         if CashFlowSetup."CF No. on Chart in Role Center" = '' then begin
             Message(Text001);
@@ -92,7 +92,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         with BusChartBuf do begin
             Initialize();
             "Period Length" := CashFlowChartSetup."Period Length";
-            SetPeriodXAxis;
+            SetPeriodXAxis();
 
             if CalcPeriods(CashFlowForecast, BusChartBuf) then begin
                 case CashFlowChartSetup.Show of
@@ -112,11 +112,11 @@ codeunit 869 "Cash Flow Chart Mgt."
                         Accumulate := BusChartMapMeasure.Name = TextTotal;
                         if FindFirstColumn(BusChartMapColumn) then
                             repeat
-                                ToDate := BusChartMapColumn.GetValueAsDate;
+                                ToDate := BusChartMapColumn.GetValueAsDate();
 
                                 if Accumulate then begin
                                     if CashFlowChartSetup."Start Date" = CashFlowChartSetup."Start Date"::"Working Date" then
-                                        FromDate := WorkDate
+                                        FromDate := WorkDate()
                                     else
                                         FromDate := 0D
                                 end else
@@ -141,7 +141,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         PositiveAmount: Boolean;
     begin
         if Value = '' then
-            exit(CashFlowForecast.CalcAmount);
+            exit(CashFlowForecast.CalcAmount());
 
         case GroupBy of
             CashFlowChartSetup."Group By"::"Positive/Negative":
@@ -183,7 +183,7 @@ codeunit 869 "Cash Flow Chart Mgt."
     begin
         if Which = Which::First then
             if CashFlowChartSetup."Start Date" = CashFlowChartSetup."Start Date"::"Working Date" then
-                exit(WorkDate);
+                exit(WorkDate());
         exit(CashFlowForecast.GetEntryDate(Which));
     end;
 
@@ -199,11 +199,11 @@ codeunit 869 "Cash Flow Chart Mgt."
         Index: Integer;
     begin
         Index := 0;
-        FromDate := CashFlowChartSetup.GetStartDate;
+        FromDate := CashFlowChartSetup.GetStartDate();
         ToDate := CashFlowForecast.GetEntryDate(Which::Last);
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
-        for SourceType := 1 to CashFlowWorksheetLine.GetNumberOfSourceTypes do begin
+        for SourceType := 1 to CashFlowWorksheetLine.GetNumberOfSourceTypes() do begin
             CFForecastEntry.SetRange("Source Type", SourceType);
             if not CFForecastEntry.IsEmpty() then begin
                 CashFlowForecast."Source Type Filter" := "Cash Flow Source Type".FromInteger(SourceType);
@@ -227,7 +227,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         Index: Integer;
     begin
         Index := 0;
-        FromDate := CashFlowChartSetup.GetStartDate;
+        FromDate := CashFlowChartSetup.GetStartDate();
         ToDate := CashFlowForecast.GetEntryDate(Which::Last);
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
@@ -256,7 +256,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         Positive: Boolean;
     begin
         Index := 0;
-        FromDate := CashFlowChartSetup.GetStartDate;
+        FromDate := CashFlowChartSetup.GetStartDate();
         ToDate := CashFlowForecast.GetEntryDate(Which::Last);
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);

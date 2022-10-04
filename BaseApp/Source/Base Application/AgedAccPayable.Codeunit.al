@@ -17,8 +17,8 @@ codeunit 764 "Aged Acc. Payable"
     begin
         with BusChartBuf do begin
             Initialize();
-            SetXAxis(OverDueText, "Data Type"::String);
-            AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
+            SetXAxis(OverDueText(), "Data Type"::String);
+            AddDecimalMeasure(AmountText(), 1, "Chart Type"::Column);
 
             InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
             CalculateAgedAccPayable(
@@ -43,8 +43,8 @@ codeunit 764 "Aged Acc. Payable"
     begin
         with BusChartBuf do begin
             Initialize();
-            SetXAxis(OverDueText, "Data Type"::String);
-            AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
+            SetXAxis(OverDueText(), "Data Type"::String);
+            AddDecimalMeasure(AmountText(), 1, "Chart Type"::Column);
 
             InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
             CalculateAgedAccPayablePerVendor(
@@ -104,8 +104,8 @@ codeunit 764 "Aged Acc. Payable"
             VendLedgEntryRemainAmt.SetFilter(
               Due_Date,
               DateFilterByAge(Index, StartDate, PeriodLength, NoOfPeriods, EndDate));
-            VendLedgEntryRemainAmt.Open;
-            if VendLedgEntryRemainAmt.Read then
+            VendLedgEntryRemainAmt.Open();
+            if VendLedgEntryRemainAmt.Read() then
                 RemainingAmountLCY := VendLedgEntryRemainAmt.Sum_Remaining_Amt_LCY;
 
             InsertAmountBuffer(Index, VendorGroupCode, RemainingAmountLCY, StartDate, EndDate, TempEntryNoAmountBuffer)
@@ -213,14 +213,14 @@ codeunit 764 "Aged Acc. Payable"
     var
         AgedAccReceivable: Codeunit "Aged Acc. Receivable";
     begin
-        exit(AgedAccReceivable.OverDueText);
+        exit(AgedAccReceivable.OverDueText());
     end;
 
     local procedure AmountText(): Text
     var
         AgedAccReceivable: Codeunit "Aged Acc. Receivable";
     begin
-        exit(AgedAccReceivable.AmountText);
+        exit(AgedAccReceivable.AmountText());
     end;
 }
 

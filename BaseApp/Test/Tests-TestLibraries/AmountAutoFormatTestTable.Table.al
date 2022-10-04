@@ -1,5 +1,7 @@
 table 132583 "Amount Auto Format Test Table"
 {
+    ReplicateData = false;
+
     fields
     {
         field(1; Case10GLSetup1; Decimal)

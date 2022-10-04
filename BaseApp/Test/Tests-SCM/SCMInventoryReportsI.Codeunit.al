@@ -72,7 +72,7 @@ codeunit 137301 "SCM Inventory Reports - I"
             LibraryReportDataset.AssertCurrentRowValueEquals('StandardCost_StockKeepingUnit',
               StockkeepingUnit."Standard Cost");
             LibraryReportDataset.AssertCurrentRowValueEquals('StandardCost_Item', Item."Standard Cost");
-        until StockkeepingUnit.Next = 0;
+        until StockkeepingUnit.Next() = 0;
     end;
 
     local procedure InvtCostAndPriceListSetup(var Item: Record Item; UseStockkeepingUnit: Boolean)
@@ -308,37 +308,6 @@ codeunit 137301 "SCM Inventory Reports - I"
         end;
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('MessageHandler,NonstockItemSalesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure NonstockItemSales()
-    var
-        NonstockItem: Record "Nonstock Item";
-        SalesHeader: Record "Sales Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ItemTemplate: Record "Item Template";
-    begin
-        // Setup: Create NonStock Item
-        Initialize();
-        LibraryInventory.CreateItemTemplate(ItemTemplate);
-        LibraryInventory.CreateNonStockItem(NonstockItem);
-        CreateSalesOrder(SalesHeader, '', NonstockItem."Vendor Item No.", LibraryRandom.RandDec(100, 2));
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // Exercise: Generate Inventory List Report.
-        ItemLedgerEntry.SetRange("Item No.", NonstockItem."Vendor Item No.");
-        REPORT.Run(REPORT::"Catalog Item Sales", true, false, ItemLedgerEntry);
-
-        // Verify: Item No. shown in Nonstock Item Sales Report is equal to the Item No. shown in Nonstock Item Table.
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('ItemLedgerEntryItemNo', NonstockItem."Vendor Item No.");
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('InvoicedQuantity', -ItemLedgerEntry.Quantity);
-    end;
-#endif
     [Test]
     [HandlerFunctions('RevalPostingTestItemRequestPageHandler')]
     [Scope('OnPrem')]
@@ -365,7 +334,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
         Item.SetRange("No.", Item."No.");
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate, ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
+          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
         UpdateRevaluationJrnl(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // Exercise: Generate Revaluation Posting - Test Report.
@@ -438,7 +407,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateItem(Item);
         SalesQuantity := LibraryRandom.RandDec(100, 2);
         CreateSalesOrder(SalesHeader, '', Item."No.", SalesQuantity);
-        SalesHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         SalesHeader.Modify(true);
 
         // Exercise : Run Inventory Order Details report.
@@ -468,7 +437,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateItem(Item);
         PurchaseQuantity := LibraryRandom.RandDec(100, 2);
         CreatePurchaseOrder(PurchaseHeader, Item."No.", PurchaseQuantity, LibraryRandom.RandDec(100, 2), 1);
-        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         PurchaseHeader.Modify(true);
 
         // Exercise : Run Inventory Purchase Orders report.
@@ -606,7 +575,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         Initialize();
         CreateItem(Item);
         CreateSalesOrder(SalesHeader, '', Item."No.", LibraryRandom.RandDec(100, 2));
-        SalesHeader.Validate("Shipment Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesHeader.Validate("Shipment Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         SalesHeader.Modify(true);
 
         // Exercise : Run Inventory - Sales Back Orders report.
@@ -638,7 +607,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         // Exercise : Run Status Report.
         Commit();
         Item.SetRange("No.", Item."No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::Status, true, false, Item);
 
         // Verify : Check Item Ledger Entry Quantity with Quantity on report.
@@ -672,13 +641,13 @@ codeunit 137301 "SCM Inventory Reports - I"
         ItemJournalLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
         ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
         Item.SetRange("No.", Item."No.");
-        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate, true, false);
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate(), true, false);
 
         // Verify : Check Purchase Quantity with Inventory Journal Line Physical Qty.
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, Location.Code);
         VerifyQuantity(
-          PurchaseQuantity, ItemJournalLine."Qty. (Phys. Inventory)", ItemJournalLine."Document No.", ItemJournalLine.TableCaption);
-        VerifyQuantity(PurchaseQuantity, ItemJournalLine."Qty. (Calculated)", ItemJournalLine."Document No.", ItemJournalLine.TableCaption);
+          PurchaseQuantity, ItemJournalLine."Qty. (Phys. Inventory)", ItemJournalLine."Document No.", ItemJournalLine.TableCaption());
+        VerifyQuantity(PurchaseQuantity, ItemJournalLine."Qty. (Calculated)", ItemJournalLine."Document No.", ItemJournalLine.TableCaption());
     end;
 
     [Test]
@@ -710,13 +679,13 @@ codeunit 137301 "SCM Inventory Reports - I"
         // Exercise: Generate Calculate Inventory Value Report.
         Item.SetRange("No.", Item."No.");
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate, ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
+          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
 
         // Verify : Verify that Revaluation Journal is created.
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, '');
 
         // Verify quantity on Revaluation Journal is equal to Item quantity.
-        VerifyQuantity(2 * Quantity, ItemJournalLine.Quantity, ItemJournalLine."Document No.", ItemJournalLine.TableCaption);
+        VerifyQuantity(2 * Quantity, ItemJournalLine.Quantity, ItemJournalLine."Document No.", ItemJournalLine.TableCaption());
     end;
 
     [Test]
@@ -835,7 +804,7 @@ codeunit 137301 "SCM Inventory Reports - I"
 
         // Exercise: Generate Inventory Valuation with include Expected Cost False.
         Commit();
-        RunInvtValuationReport(Item, '', 0D, WorkDate, IncludeExpectedCost);
+        RunInvtValuationReport(Item, '', 0D, WorkDate(), IncludeExpectedCost);
 
         // Verify Value Entry Quantity.
         LibraryReportDataset.LoadDataSetFile;
@@ -954,7 +923,7 @@ codeunit 137301 "SCM Inventory Reports - I"
 
         // Exercise: Generate Inventory Valuation.
         Commit();
-        RunInvtValuationReport(Item, ToLocation.Code, CalcDate('<1D>', WorkDate), CalcDate('<CM>', WorkDate), false);
+        RunInvtValuationReport(Item, ToLocation.Code, CalcDate('<1D>', WorkDate()), CalcDate('<CM>', WorkDate()), false);
 
         // Verify: Verify Quantity of Opening Balance on Inventory Valuation Report.
         VerifyOpeningBalanceOnInvtValuationReport(PurchaseQuantity / 2);
@@ -1059,7 +1028,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         BlankSetupErrText :=
             StrSubstNo(
                 SetupBlockedErr,
-                GeneralPostingSetup.TableCaption,
+                GeneralPostingSetup.TableCaption(),
                 GeneralPostingSetup.FieldCaption("Gen. Bus. Posting Group"), GeneralPostingSetup."Gen. Bus. Posting Group",
                 GeneralPostingSetup.FieldCaption("Gen. Prod. Posting Group"), GeneralPostingSetup."Gen. Prod. Posting Group");
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', BlankSetupErrText);
@@ -1084,7 +1053,7 @@ codeunit 137301 "SCM Inventory Reports - I"
 
         // [WHEN] Run Inventory Valuation report
         Commit();
-        RunInvtValuationReport(Item, '', 0D, WorkDate, false);
+        RunInvtValuationReport(Item, '', 0D, WorkDate(), false);
 
         // [THEN] Report doesn't contain info for Item "X"
         LibraryReportDataset.LoadDataSetFile;
@@ -1223,7 +1192,7 @@ codeunit 137301 "SCM Inventory Reports - I"
                   "Standard Cost",
                   LibraryRandom.RandDecInDecimalRange(StockkeepingUnit."Standard Cost", StockkeepingUnit."Standard Cost" + 100, 2));
                 StockkeepingUnit.Modify(true);
-            until StockkeepingUnit.Next = 0;
+            until StockkeepingUnit.Next() = 0;
     end;
 
     [Normal]
@@ -1320,12 +1289,12 @@ codeunit 137301 "SCM Inventory Reports - I"
 
     local procedure CreateInventoryPeriod(var InventoryPeriod: Record "Inventory Period")
     begin
-        InventoryPeriod.SetRange("Ending Date", WorkDate);
+        InventoryPeriod.SetRange("Ending Date", WorkDate());
         if InventoryPeriod.FindFirst() then
             exit;
 
         InventoryPeriod.Init();
-        InventoryPeriod.Validate("Ending Date", WorkDate);
+        InventoryPeriod.Validate("Ending Date", WorkDate());
         InventoryPeriod.Insert(true);
     end;
 
@@ -1380,7 +1349,7 @@ codeunit 137301 "SCM Inventory Reports - I"
     begin
         Item.SetRange("No.", ItemNo);
         InventoryValuation.SetTableView(Item);
-        InventoryValuation.InitializeRequest(0D, WorkDate, true);
+        InventoryValuation.InitializeRequest(0D, WorkDate(), true);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         InventoryValuation.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
@@ -1416,7 +1385,7 @@ codeunit 137301 "SCM Inventory Reports - I"
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('Item_Inventory', Item.Inventory);
             LibraryReportDataset.AssertCurrentRowValueEquals('Item__Sales__LCY__', Item."Sales (LCY)");
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     [Normal]
@@ -1447,9 +1416,9 @@ codeunit 137301 "SCM Inventory Reports - I"
     end;
 
     [Normal]
-    local procedure VerifyQuantity(ExpectedQuantity: Decimal; ActualQuantity: Decimal; DocumentNo: Code[20]; TableCaption: Text[1024])
+    local procedure VerifyQuantity(ExpectedQuantity: Decimal; ActualQuantity: Decimal; DocumentNo: Code[20]; TableCaption2: Text[1024])
     begin
-        Assert.AreEqual(ExpectedQuantity, ActualQuantity, StrSubstNo(QuantityErr, ActualQuantity, TableCaption, DocumentNo));
+        Assert.AreEqual(ExpectedQuantity, ActualQuantity, StrSubstNo(QuantityErr, ActualQuantity, TableCaption2, DocumentNo));
     end;
 
     local procedure VerifyOpeningBalanceOnInvtValuationReport(ExpectedOpenningBalance: Decimal)

@@ -63,7 +63,7 @@ table 418 "IC Inbox Transaction"
                     Error(Text000, "Transaction No.", "IC Partner Code");
 
                 if "Line Action" = "Line Action"::Accept then
-                    InboxCheckAccept;
+                    InboxCheckAccept();
             end;
         }
         field(11; "Original Document No."; Code[20])
@@ -180,15 +180,16 @@ table 418 "IC Inbox Transaction"
     var
         ICInboxTransaction2: Record "IC Inbox Transaction";
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
-        Text001: Label 'Transaction No. %2 is a copy of Transaction No. %1, which has already been set to Accept.\Do you also want to accept Transaction No. %2?';
-        TransactionAlreadyExistsInInboxHandledQst: Label '%1 %2 has already been received from intercompany partner %3. Accepting it again will create a duplicate %1. Do you want to accept the %1?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         ICInboxPurchHeader: Record "IC Inbox Purchase Header";
         PurchHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
-        Text003: Label 'A purchase order already exists for transaction %1. If you accept and post this document, you should delete the original purchase order %2 to avoid duplicate postings.';
-        Text004: Label 'Purchase invoice %1 has already been posted for transaction %2. If you accept and post this document, you will have duplicate postings.\Are you sure you want to accept the transaction?';
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
+
+        TransactionAlreadyExistsInInboxHandledQst: Label '%1 %2 has already been received from intercompany partner %3. Accepting it again will create a duplicate %1. Do you want to accept the %1?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
+        Text001: Label 'Transaction No. %2 is a copy of Transaction No. %1, which has already been set to Accept.\Do you also want to accept Transaction No. %2?';
+        Text003: Label 'A purchase order already exists for transaction %1. If you accept and post this document, you should delete the original purchase order %2 to avoid duplicate postings.';
+        Text004: Label 'Purchase invoice %1 has already been posted for transaction %2. If you accept and post this document, you will have duplicate postings.\Are you sure you want to accept the transaction?';
     begin
         IsHandled := false;
         OnBeforeInboxCheckAccept(Rec, IsHandled, xRec);
@@ -227,7 +228,7 @@ table 418 "IC Inbox Transaction"
             ICInboxPurchHeader.Get("Transaction No.", "IC Partner Code", "Transaction Source");
             if ICInboxPurchHeader."Your Reference" <> '' then begin
                 PurchHeader.SetRange("Your Reference", ICInboxPurchHeader."Your Reference");
-                if PurchHeader.FindFirst() then
+                if not PurchHeader.IsEmpty() then
                     Message(Text003, ICInboxPurchHeader."IC Transaction No.", ICInboxPurchHeader."Your Reference")
                 else begin
                     PurchInvHeader.SetRange("Your Reference", ICInboxPurchHeader."Your Reference");

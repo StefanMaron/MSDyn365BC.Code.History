@@ -7,7 +7,6 @@ page 190 "Incoming Documents"
     DataCaptionFields = Description;
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Release,Status,Show';
     RefreshOnActivate = true;
     SourceTable = "Incoming Document";
     UsageCategory = Lists;
@@ -18,7 +17,7 @@ page 190 "Incoming Documents"
         {
             repeater(Group)
             {
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -29,32 +28,32 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the incoming document. You must enter the description manually.';
                 }
-                field("Vendor Name"; "Vendor Name")
+                field("Vendor Name"; Rec."Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the vendor on the incoming document. The field may be filled automatically.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that is printed on the incoming document. This is the date when the vendor created the invoice, for example. The field may be filled automatically.';
                 }
-                field("Vendor Invoice No."; "Vendor Invoice No.")
+                field("Vendor Invoice No."; Rec."Vendor Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number of the original document you received from the vendor. You can require the document number for posting, or let it be optional. By default, it''s required, so that this document references the original. Making document numbers optional removes a step from the posting process. For example, if you attach the original invoice as a PDF, you might not need to enter the document number. To specify whether document numbers are required, in the Purchases & Payables Setup window, select or clear the Ext. Doc. No. Mandatory field.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code, if the document contains that code. The field may be filled automatically.';
                 }
-                field("Amount Incl. VAT"; "Amount Incl. VAT")
+                field("Amount Incl. VAT"; Rec."Amount Incl. VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount including VAT for the whole document. The field may be filled automatically.';
                 }
-                field(URL; URL)
+                field(URL; Rec.URL)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Link to Document';
@@ -65,17 +64,17 @@ page 190 "Incoming Documents"
 
                     trigger OnValidate()
                     begin
-                        SetURL(URL);
+                        Rec.SetURL(Rec.URL);
                     end;
                 }
-                field("Data Exchange Type"; "Data Exchange Type")
+                field("Data Exchange Type"; Rec."Data Exchange Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsDataExchTypeEditable;
                     ToolTip = 'Specifies the data exchange type that is used to process the incoming document when it is an electronic document.';
                     Visible = false;
                 }
-                field(StatusField; Status)
+                field(StatusField; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -90,7 +89,7 @@ page 190 "Incoming Documents"
                         ErrorMessage.ShowErrorMessages(false);
                     end;
                 }
-                field("OCR Status"; "OCR Status")
+                field("OCR Status"; Rec."OCR Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the incoming document record when it takes part in the OCR process.';
@@ -104,71 +103,71 @@ page 190 "Incoming Documents"
                             HyperLink(OCRServiceMgt.GetStatusHyperLink(Rec));
                     end;
                 }
-                field("OCR Track ID"; "OCR Track ID")
+                field("OCR Track ID"; Rec."OCR Track ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the process stage of the track ID in relation to the OCR service.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the incoming document line was created.';
                     Visible = false;
                 }
-                field("Created By User Name"; "Created By User Name")
+                field("Created By User Name"; Rec."Created By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the user who created the incoming document line.';
                     Visible = false;
                 }
-                field("Released Date-Time"; "Released Date-Time")
+                field("Released Date-Time"; Rec."Released Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the incoming document was approved.';
                     Visible = false;
                 }
-                field("Released By User Name"; "Released By User Name")
+                field("Released By User Name"; Rec."Released By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the user who approved the incoming document.';
                     Visible = false;
                 }
-                field("Last Date-Time Modified"; "Last Date-Time Modified")
+                field("Last Date-Time Modified"; Rec."Last Date-Time Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the incoming document line was last modified.';
                     Visible = false;
                 }
-                field("Last Modified By User Name"; "Last Modified By User Name")
+                field("Last Modified By User Name"; Rec."Last Modified By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the user who last modified the incoming document line.';
                     Visible = false;
                 }
-                field("Posted Date-Time"; "Posted Date-Time")
+                field("Posted Date-Time"; Rec."Posted Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the related document or journal line was posted.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document or journal that the incoming document can be connected to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the related document or journal line that is created for the incoming document.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the document or journal line that relates to the incoming document was posted.';
                     Visible = false;
                 }
-                field(Processed; Processed)
+                field(Processed; Rec.Processed)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -179,7 +178,7 @@ page 190 "Incoming Documents"
                     var
                         ErrorMessage: Record "Error Message";
                     begin
-                        ErrorMessage.SetContext(RecordId);
+                        ErrorMessage.SetContext(Rec.RecordId);
                         ErrorMessage.ShowErrorMessages(false);
                     end;
                 }
@@ -220,9 +219,6 @@ page 190 "Incoming Documents"
                 ApplicationArea = All;
                 Caption = 'Create from Camera';
                 Image = Camera;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
                 ToolTip = 'Create a new incoming document record by taking a picture.';
                 Visible = HasCamera;
 
@@ -232,7 +228,7 @@ page 190 "Incoming Documents"
                     PictureName: Text;
                 begin
                     if Camera.GetPicture(InStr, PictureName) then
-                        CreateIncomingDocument(InStr, PictureName);
+                        Rec.CreateIncomingDocument(InStr, PictureName);
                 end;
             }
             action(CreateFromAttachment)
@@ -240,14 +236,11 @@ page 190 "Incoming Documents"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create from File';
                 Image = ExportAttachment;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
                 ToolTip = 'Create a new incoming document record by first selecting the file it will be based on. The selected file will be attached.';
 
                 trigger OnAction()
                 begin
-                    CreateFromAttachment;
+                    Rec.CreateFromAttachment();
                 end;
             }
         }
@@ -284,10 +277,10 @@ page 190 "Incoming Documents"
                     begin
                         PAGE.RunModal(PAGE::"OCR Service Setup");
                         CurrPage.Update();
-                        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
-                            if OCRIsEnabled then begin
+                        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web then
+                            if OCRIsEnabled() then begin
                                 OnCloseIncomingDocumentsFromActions(Rec);
-                                CurrPage.Close;
+                                CurrPage.Close();
                             end;
                     end;
                 }
@@ -323,7 +316,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::CreateDocument);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreateDocument);
                         CurrPage.Update();
                     end;
                 }
@@ -337,7 +330,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::CreateGenJnlLineWithDataExchange);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreateGenJnlLineWithDataExchange);
                         CurrPage.Update();
                     end;
                 }
@@ -346,14 +339,11 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Manually';
                     Image = CreateCreditMemo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a document, such as a purchase invoice, manually from information in the file that is attached to the incoming document record.';
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::CreateManually);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreateManually);
                     end;
                 }
                 action(AttachFile)
@@ -366,7 +356,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        ImportAttachment(Rec);
+                        Rec.ImportAttachment(Rec);
                     end;
                 }
                 action(TextToAccountMapping)
@@ -386,15 +376,12 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Release';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Release the incoming document to indicate that it has been approved by the incoming document approver.';
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::Release);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::Release);
                     end;
                 }
                 action(Reopen)
@@ -402,15 +389,12 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reopen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Reopen the incoming document record after it has been approved by the incoming document approver.';
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::Reopen);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::Reopen);
                     end;
                 }
                 action(Reject)
@@ -418,15 +402,12 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Reject to approve the incoming document.';
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::Reject);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::Reject);
                     end;
                 }
             }
@@ -439,9 +420,6 @@ page 190 "Incoming Documents"
                     Caption = 'Set To Processed';
                     Enabled = SetToProcessedIsEnable;
                     Image = Archive;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Set the incoming document to processed. It will then be shown in the Incoming Documents window when the Show All view is selected.';
 
@@ -459,9 +437,6 @@ page 190 "Incoming Documents"
                     Caption = 'Set To Unprocessed';
                     Enabled = NOT SetToProcessedIsEnable;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Set the incoming document to unprocessed. It will then be shown in the Incoming Documents window when the Show Unprocessed view is selected.';
 
@@ -491,7 +466,7 @@ page 190 "Incoming Documents"
                     var
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        TestReadyForApproval;
+                        Rec.TestReadyForApproval();
                         if ApprovalsMgmt.CheckIncomingDocApprovalsWorkflowEnabled(Rec) then
                             ApprovalsMgmt.OnSendIncomingDocForApproval(Rec);
                     end;
@@ -526,7 +501,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        ShowRecord;
+                        Rec.ShowRecord();
                     end;
                 }
                 action(RemoveReferencedRecord)
@@ -539,7 +514,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        RemoveReferencedRecords;
+                        Rec.RemoveReferencedRecords();
                     end;
                 }
                 action(Navigate)
@@ -555,8 +530,8 @@ page 190 "Incoming Documents"
                     var
                         NavigatePage: Page Navigate;
                     begin
-                        TestField(Posted);
-                        NavigatePage.SetDoc("Posting Date", "Document No.");
+                        Rec.TestField(Posted);
+                        NavigatePage.SetDoc(Rec."Posting Date", Rec."Document No.");
                         NavigatePage.Run();
                     end;
                 }
@@ -579,8 +554,8 @@ page 190 "Incoming Documents"
                             GenJournalBatch: Record "Gen. Journal Batch";
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            IncomingDocumentMultiSelectAction(MultiSelectAction::CreateGenJnlLine);
-                            IncomingDocumentsSetup.Fetch;
+                            RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreateGenJnlLine);
+                            IncomingDocumentsSetup.Fetch();
                             GenJournalBatch.Get(IncomingDocumentsSetup."General Journal Template Name", IncomingDocumentsSetup."General Journal Batch Name");
                             GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
                         end;
@@ -595,7 +570,7 @@ page 190 "Incoming Documents"
 
                         trigger OnAction()
                         begin
-                            IncomingDocumentMultiSelectAction(MultiSelectAction::CreatePurchInvoice);
+                            RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreatePurchInvoice);
                         end;
                     }
                     action(PurchaseCreditMemo)
@@ -608,7 +583,7 @@ page 190 "Incoming Documents"
 
                         trigger OnAction()
                         begin
-                            IncomingDocumentMultiSelectAction(MultiSelectAction::CreatePurchCreditMemo);
+                            RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreatePurchCreditMemo);
                         end;
                     }
                     action(SalesInvoice)
@@ -621,7 +596,7 @@ page 190 "Incoming Documents"
 
                         trigger OnAction()
                         begin
-                            IncomingDocumentMultiSelectAction(MultiSelectAction::CreateSalesInvoice);
+                            RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreateSalesInvoice);
                         end;
                     }
                     action(SalesCreditMemo)
@@ -634,7 +609,7 @@ page 190 "Incoming Documents"
 
                         trigger OnAction()
                         begin
-                            IncomingDocumentMultiSelectAction(MultiSelectAction::CreateSalesCreditMemo);
+                            RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::CreateSalesCreditMemo);
                         end;
                     }
                 }
@@ -652,7 +627,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::SetReadyForOcr);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::SetReadyForOcr);
                     end;
                 }
                 action(UndoSetReadyForOCR)
@@ -665,7 +640,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::UndoReadyForOcr);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::UndoReadyForOcr);
                     end;
                 }
                 action(SendToOcr)
@@ -678,7 +653,7 @@ page 190 "Incoming Documents"
 
                     trigger OnAction()
                     begin
-                        IncomingDocumentMultiSelectAction(MultiSelectAction::SendToOcr);
+                        RunIncomingDocumentMultiSelectAction("Incoming Doc. Selection Action"::SendToOcr);
                     end;
                 }
                 action(ReceiveFromOCR)
@@ -705,9 +680,6 @@ page 190 "Incoming Documents"
                     Caption = 'Show All';
                     Enabled = NOT ShowAllDocsIsEnable;
                     Image = AllLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ToolTip = 'Show both processed and non-processed incoming documents.';
 
                     trigger OnAction()
@@ -721,9 +693,6 @@ page 190 "Incoming Documents"
                     Caption = 'Show Unprocessed';
                     Enabled = ShowAllDocsIsEnable;
                     Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ToolTip = 'Show only unprocessed incoming documents.';
 
                     trigger OnAction()
@@ -733,51 +702,121 @@ page 190 "Incoming Documents"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+                ShowAs = SplitButton;
+
+                actionref(CreateFromAttachment_Promoted; CreateFromAttachment)
+                {
+                }
+                actionref(CreateFromCamera_Promoted; CreateFromCamera)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreateManually_Promoted; CreateManually)
+                {
+                }
+                actionref(CreateDocument_Promoted; CreateDocument)
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                ShowAs = SplitButton;
+
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Status', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                ShowAs = SplitButton;
+
+                actionref(SetToProcessed_Promoted; SetToProcessed)
+                {
+                }
+                actionref(SetToUnprocessed_Promoted; SetToUnprocessed)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                ShowAs = SplitButton;
+
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+                actionref(ShowUnprocessed_Promoted; ShowUnprocessed)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         IsDataExchTypeEditable := not (Status in [Status::Created, Status::Posted]);
-        StatusStyleText := GetStatusStyleText;
-        SetControlVisibility;
+        StatusStyleText := Rec.GetStatusStyleText();
+        SetControlVisibility();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromIncomingDocument(Rec);
-        SetToProcessedIsEnable := not Processed;
+        SetToProcessedIsEnable := not Rec.Processed;
     end;
 
     trigger OnAfterGetRecord()
     begin
-        URL := GetURL;
-        StatusStyleText := GetStatusStyleText;
+        Rec.URL := Rec.GetURL();
+        StatusStyleText := Rec.GetStatusStyleText();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        URL := '';
-        StatusStyleText := GetStatusStyleText;
+        Rec.URL := '';
+        StatusStyleText := Rec.GetStatusStyleText();
     end;
 
     trigger OnOpenPage()
     begin
         IsDataExchTypeEditable := true;
-        if GuiAllowed then begin
-            HasCamera := Camera.IsAvailable()
-        end;
-        EnableReceiveFromOCR := WaitingToReceiveFromOCR;
-        UpdateOCRSetupVisibility;
+        if GuiAllowed then
+            HasCamera := Camera.IsAvailable();
+        EnableReceiveFromOCR := Rec.WaitingToReceiveFromOCR();
+        UpdateOCRSetupVisibility();
 
-        FilterGroup(0);
-        SetProcessedDocumentsVisibility(GetFilter(Processed) = Format(true));
+        Rec.FilterGroup(0);
+        SetProcessedDocumentsVisibility(Rec.GetFilter(Processed) = Format(true));
     end;
 
     var
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
-        AutomaticProcessingQst: Label 'The Data Exchange Type field is filled on at least one of the selected Incoming Documents.\\Are you sure you want to create documents manually?';
         ClientTypeManagement: Codeunit "Client Type Management";
         Camera: Codeunit Camera;
         [InDataSet]
         HasCamera: Boolean;
         StatusStyleText: Text;
-        MultiSelectAction: Option CreateGenJnlLine,CreatePurchInvoice,CreatePurchCreditMemo,CreateSalesInvoice,CreateSalesCreditMemo,Release,Reopen,Reject,CreateDocument,SetReadyForOcr,UndoReadyForOcr,SendToOcr,CreateGenJnlLineWithDataExchange,CreateManually;
+        MultiSelectAction: Enum "Incoming Doc. Selection Action";
         IsDataExchTypeEditable: Boolean;
         OpenApprovalEntriesExist: Boolean;
         EnableReceiveFromOCR: Boolean;
@@ -788,7 +827,9 @@ page 190 "Incoming Documents"
         SetToProcessedIsEnable: Boolean;
         ShowAllDocsIsEnable: Boolean;
 
-    local procedure IncomingDocumentMultiSelectAction(ActionName: Option)
+        AutomaticProcessingQst: Label 'The Data Exchange Type field is filled on at least one of the selected Incoming Documents.\\Are you sure you want to create documents manually?';
+
+    protected procedure RunIncomingDocumentMultiSelectAction(ActionName: Enum "Incoming Doc. Selection Action")
     var
         IncomingDocument: Record "Incoming Document";
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
@@ -798,55 +839,60 @@ page 190 "Incoming Documents"
 
         CurrPage.SetSelectionFilter(IncomingDocument);
         if IncomingDocument.FindSet() then
-            repeat
-                case ActionName of
-                    MultiSelectAction::CreateDocument:
-                        IncomingDocument.CreateDocumentWithDataExchange;
-                    MultiSelectAction::CreateManually:
-                        IncomingDocument.CreateManually;
-                    MultiSelectAction::CreateGenJnlLine:
-                        IncomingDocument.CreateGenJnlLine;
-                    MultiSelectAction::CreateGenJnlLineWithDataExchange:
-                        IncomingDocument.CreateGeneralJournalLineWithDataExchange;
-                    MultiSelectAction::CreatePurchInvoice:
-                        IncomingDocument.CreatePurchInvoice;
-                    MultiSelectAction::CreatePurchCreditMemo:
-                        IncomingDocument.CreatePurchCreditMemo;
-                    MultiSelectAction::CreateSalesInvoice:
-                        IncomingDocument.CreateSalesInvoice;
-                    MultiSelectAction::CreateSalesCreditMemo:
-                        IncomingDocument.CreateSalesCreditMemo;
-                    MultiSelectAction::Release:
-                        ReleaseIncomingDocument.PerformManualRelease(IncomingDocument);
-                    MultiSelectAction::Reopen:
-                        ReleaseIncomingDocument.PerformManualReopen(IncomingDocument);
-                    MultiSelectAction::Reject:
-                        ReleaseIncomingDocument.PerformManualReject(IncomingDocument);
-                    MultiSelectAction::SetReadyForOcr:
-                        IncomingDocument.SendToJobQueue(false);
-                    MultiSelectAction::UndoReadyForOcr:
-                        IncomingDocument.RemoveFromJobQueue(false);
-                    MultiSelectAction::SendToOcr:
-                        IncomingDocument.SendToOCR(false);
-                end;
-            until IncomingDocument.Next() = 0;
+                repeat
+                    case ActionName of
+                        "Incoming Doc. Selection Action"::CreateDocument:
+                            IncomingDocument.CreateDocumentWithDataExchange();
+                        "Incoming Doc. Selection Action"::CreateManually:
+                            IncomingDocument.CreateManually();
+                        "Incoming Doc. Selection Action"::CreateGenJnlLine:
+                            IncomingDocument.CreateGenJnlLine();
+                        "Incoming Doc. Selection Action"::CreateGenJnlLineWithDataExchange:
+                            IncomingDocument.CreateGeneralJournalLineWithDataExchange();
+                        "Incoming Doc. Selection Action"::CreatePurchInvoice:
+                            IncomingDocument.CreatePurchInvoice();
+                        "Incoming Doc. Selection Action"::CreatePurchCreditMemo:
+                            IncomingDocument.CreatePurchCreditMemo();
+                        "Incoming Doc. Selection Action"::CreateSalesInvoice:
+                            IncomingDocument.CreateSalesInvoice();
+                        "Incoming Doc. Selection Action"::CreateSalesCreditMemo:
+                            IncomingDocument.CreateSalesCreditMemo();
+                        "Incoming Doc. Selection Action"::Release:
+                            ReleaseIncomingDocument.PerformManualRelease(IncomingDocument);
+                        "Incoming Doc. Selection Action"::Reopen:
+                            ReleaseIncomingDocument.PerformManualReopen(IncomingDocument);
+                        "Incoming Doc. Selection Action"::Reject:
+                            ReleaseIncomingDocument.PerformManualReject(IncomingDocument);
+                        "Incoming Doc. Selection Action"::SetReadyForOcr:
+                            IncomingDocument.SendToJobQueue(false);
+                        "Incoming Doc. Selection Action"::UndoReadyForOcr:
+                            IncomingDocument.RemoveFromJobQueue(false);
+                        "Incoming Doc. Selection Action"::SendToOcr:
+                            IncomingDocument.SendToOCR(false);
+                        else
+                            OnRunIncomingDocumentMultiSelectActionOnCaseElse(IncomingDocument, ActionName);
+                    end;
+                until IncomingDocument.Next() = 0;
 
-        OnAfterIncomingDocumentMultiSelectAction(IncomingDocument, ActionName);
+#if not CLEAN21
+        OnAfterIncomingDocumentMultiSelectAction(IncomingDocument, ActionName.AsInteger());
+#endif
+        OnAfterRunIncomingDocumentMultiSelectAction(IncomingDocument, ActionName);
     end;
 
-    local procedure AskUserPermission(ActionName: Option): Boolean
+    local procedure AskUserPermission(ActionName: Enum "Incoming Doc. Selection Action"): Boolean
     var
         IncomingDocument: Record "Incoming Document";
     begin
         CurrPage.SetSelectionFilter(IncomingDocument);
-        if ActionName in [MultiSelectAction::Reject,
-                          MultiSelectAction::Release,
-                          MultiSelectAction::SetReadyForOcr,
-                          MultiSelectAction::CreateDocument]
+        if ActionName in ["Incoming Doc. Selection Action"::Reject,
+                          "Incoming Doc. Selection Action"::Release,
+                          "Incoming Doc. Selection Action"::SetReadyForOcr,
+                          "Incoming Doc. Selection Action"::CreateDocument]
         then
             exit(true);
 
-        if Status <> Status::New then
+        if Rec.Status <> Rec.Status::New then
             exit(true);
 
         IncomingDocument.SetFilter("Data Exchange Type", '<>%1', '');
@@ -861,10 +907,10 @@ page 190 "Incoming Documents"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
-        EnableReceiveFromOCR := WaitingToReceiveFromOCR;
-        UpdateOCRSetupVisibility;
+        EnableReceiveFromOCR := Rec.WaitingToReceiveFromOCR();
+        UpdateOCRSetupVisibility();
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
-        AutomaticCreationActionsAreEnabled := "Data Exchange Type" <> '';
+        AutomaticCreationActionsAreEnabled := Rec."Data Exchange Type" <> '';
     end;
 
     [IntegrationEvent(TRUE, TRUE)]
@@ -874,25 +920,38 @@ page 190 "Incoming Documents"
 
     local procedure SetProcessedDocumentsVisibility(ShowProcessedItems: Boolean)
     begin
-        FilterGroup(0);
+        Rec.FilterGroup(0);
 
         if ShowProcessedItems then begin
-            SetRange(Processed);
+            Rec.SetRange(Processed);
             ShowAllDocsIsEnable := true;
         end else begin
-            SetRange(Processed, false);
+            Rec.SetRange(Processed, false);
             ShowAllDocsIsEnable := false;
         end;
     end;
 
     local procedure UpdateOCRSetupVisibility()
     begin
-        OCRServiceIsEnabled := OCRIsEnabled;
+        OCRServiceIsEnabled := Rec.OCRIsEnabled();
         ShowOCRSetup := not OCRServiceIsEnabled;
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by event OnAfterRunIncomingDocumentMultiSelectAction() with enum action parameter', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncomingDocumentMultiSelectAction(var IncomingDocument: Record "Incoming Document"; ActionName: Option)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunIncomingDocumentMultiSelectAction(var IncomingDocument: Record "Incoming Document"; ActionName: Enum "Incoming Doc. Selection Action")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunIncomingDocumentMultiSelectActionOnCaseElse(var IncomingDocument: Record "Incoming Document"; ActionName: Enum "Incoming Doc. Selection Action")
     begin
     end;
 }

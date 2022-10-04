@@ -21,7 +21,7 @@ table 460 "Purchase Prepayment %"
 
             trigger OnValidate()
             begin
-                CheckDate;
+                CheckDate();
             end;
         }
         field(4; "Ending Date"; Date)
@@ -30,7 +30,7 @@ table 460 "Purchase Prepayment %"
 
             trigger OnValidate()
             begin
-                CheckDate;
+                CheckDate();
             end;
         }
         field(5; "Prepayment %"; Decimal)

@@ -158,13 +158,13 @@ page 5897 "Phys. Invt. Order Statistics"
     begin
         TestField(Status, Status::Finished);
 
-        ClearAll;
+        ClearAll();
 
         PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
         if PhysInvtOrderLine.Find('-') then
             repeat
-                if not PhysInvtOrderLine.EmptyLine then begin
+                if not PhysInvtOrderLine.EmptyLine() then begin
                     NoAllLines := NoAllLines + 1;
                     OnBeforeCalcAmounts(PhysInvtOrderLine);
                     ExpAmountAllLines +=

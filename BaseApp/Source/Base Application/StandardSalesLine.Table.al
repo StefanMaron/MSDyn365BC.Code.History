@@ -69,7 +69,7 @@ table 171 "Standard Sales Line"
                     Type::"G/L Account":
                         begin
                             GLAcc.Get("No.");
-                            GLAcc.CheckGLAcc;
+                            GLAcc.CheckGLAcc();
                             GLAcc.TestField("Direct Posting", true);
                             Description := GLAcc.Name;
                         end;
@@ -126,7 +126,7 @@ table 171 "Standard Sales Line"
         }
         field(7; "Amount Excl. VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Amount Excl. VAT';
@@ -251,7 +251,7 @@ table 171 "Standard Sales Line"
 
     procedure InsertLine(): Boolean
     begin
-        exit((Type = Type::" ") or (not EmptyLine));
+        exit((Type = Type::" ") or (not EmptyLine()));
     end;
 
     local procedure GetCurrency(): Code[10]

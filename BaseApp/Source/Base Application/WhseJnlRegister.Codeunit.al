@@ -5,18 +5,19 @@ codeunit 7303 "Whse. Jnl.-Register"
     trigger OnRun()
     begin
         WhseJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(WhseJnlLine);
     end;
 
     var
+        WhseJnlTemplate: Record "Warehouse Journal Template";
+        WhseJnlLine: Record "Warehouse Journal Line";
+        TempJnlBatchName: Code[10];
+
         Text001: Label 'Do you want to register the journal lines?';
         Text002: Label 'There is nothing to register.';
         Text003: Label 'The journal lines were successfully registered.';
         Text004: Label 'You are now in the %1 journal.';
-        WhseJnlTemplate: Record "Warehouse Journal Template";
-        WhseJnlLine: Record "Warehouse Journal Line";
-        TempJnlBatchName: Code[10];
         Text005: Label 'Do you want to register and post the journal lines?';
 
     local procedure "Code"()
@@ -51,7 +52,7 @@ codeunit 7303 "Whse. Jnl.-Register"
                       "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
@@ -75,10 +76,9 @@ codeunit 7303 "Whse. Jnl.-Register"
             if ItemTrackingReclass("Journal Template Name", "Journal Batch Name", "Location Code", 0) then begin
                 if not Confirm(Text005, false) then
                     exit(false)
-            end else begin
+            end else
                 if not Confirm(Text001, false) then
                     exit(false);
-            end;
 
         exit(true);
     end;

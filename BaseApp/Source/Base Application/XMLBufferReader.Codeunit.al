@@ -40,7 +40,7 @@ codeunit 1239 "XML Buffer Reader"
         TempXMLBuffer := XMLBuffer;
         TempXMLBuffer.SetCurrentKey("Parent Entry No.", Type, "Node Number");
         Header := '<?xml version="1.0" encoding="' + Encoding + '"?>' +
-          '<' + TempXMLBuffer.GetElementName + ' ';
+          '<' + TempXMLBuffer.GetElementName() + ' ';
         DefaultNamespace := TempXMLBuffer.GetAttributeValue('xmlns');
         if TempXMLBuffer.FindAttributes(TempAttributeXMLBuffer) then
             repeat
@@ -70,8 +70,8 @@ codeunit 1239 "XML Buffer Reader"
                     NamespaceURI := DefaultNamespace
                 else
                     NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefix(TempElementXMLBuffer.Namespace);
-                ChildElement := XmlDocument.CreateElement(TempElementXMLBuffer.GetElementName, NamespaceURI);
-                ElementValue := TempElementXMLBuffer.GetValue;
+                ChildElement := XmlDocument.CreateElement(TempElementXMLBuffer.GetElementName(), NamespaceURI);
+                ElementValue := TempElementXMLBuffer.GetValue();
                 if ElementValue <> '' then
                     ChildElement.InnerText := ElementValue;
                 XMLCurrElement.AppendChild(ChildElement);
@@ -81,7 +81,7 @@ codeunit 1239 "XML Buffer Reader"
             until TempElementXMLBuffer.Next() = 0;
     end;
 
-    local procedure SaveAttributes(var TempParentElementXMLBuffer: Record "XML Buffer" temporary; XMLCurrElement: DotNet XmlNode; XmlDocument: DotNet XmlDocument)
+    procedure SaveAttributes(var TempParentElementXMLBuffer: Record "XML Buffer" temporary; XMLCurrElement: DotNet XmlNode; XmlDocument: DotNet XmlDocument)
     var
         TempAttributeXMLBuffer: Record "XML Buffer" temporary;
         Attribute: DotNet XmlAttribute;
@@ -101,14 +101,14 @@ codeunit 1239 "XML Buffer Reader"
             until TempAttributeXMLBuffer.Next() = 0;
     end;
 
-    local procedure SaveProcessingInstructions(var TempParentElementXMLBuffer: Record "XML Buffer" temporary; XMLCurrElement: DotNet XmlNode; XmlDocument: DotNet XmlDocument)
+    procedure SaveProcessingInstructions(var TempParentElementXMLBuffer: Record "XML Buffer" temporary; XMLCurrElement: DotNet XmlNode; XmlDocument: DotNet XmlDocument)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ProcessingInstruction: DotNet XmlProcessingInstruction;
     begin
         if TempParentElementXMLBuffer.FindProcessingInstructions(TempXMLBuffer) then
             repeat
-                ProcessingInstruction := XmlDocument.CreateProcessingInstruction(TempXMLBuffer.Name, TempXMLBuffer.GetValue);
+                ProcessingInstruction := XmlDocument.CreateProcessingInstruction(TempXMLBuffer.Name, TempXMLBuffer.GetValue());
                 XMLCurrElement.AppendChild(ProcessingInstruction);
             until TempXMLBuffer.Next() = 0;
     end;

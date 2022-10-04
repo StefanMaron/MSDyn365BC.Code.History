@@ -63,7 +63,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         PostItemJournalAndUndoShipment(SalesLine);
 
         // Exercise: Run Inventory Valuation Report.
-        RunInventoryValuationReport(SalesLine."No.", WorkDate, CalcDate('<CY>', WorkDate));
+        RunInventoryValuationReport(SalesLine."No.", WorkDate(), CalcDate('<CY>', WorkDate()));
 
         // Verify: Verify Inventory Valuation Report.
         VerifyInventoryValuationReport(SalesLine);
@@ -135,7 +135,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Setup: Create and post Item Journal.
         Initialize();
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, CreateItem, WorkDate, LibraryRandom.RandInt(10),
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, CreateItem, WorkDate(), LibraryRandom.RandInt(10),
           LibraryRandom.RandDec(10, 2));  // Use Random value for Unit Amount and Quantity.
 
         // Exercise: Run Item Register Report.
@@ -184,13 +184,13 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         // Create and post Item Journal for Purchase and Revaluate it.
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, Item."No.", WorkDate, Item."Unit Cost", LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
-        CreateAndPostItemJournalForRevaluation(Item."No.", WorkDate);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, Item."No.", WorkDate(), Item."Unit Cost", LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreateAndPostItemJournalForRevaluation(Item."No.", WorkDate());
 
         // Create and post Item Journal for Sales and Revaluate it.
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", WorkDate, Item."Unit Cost", ItemJournalLine.Quantity / 2);  // Divide by 2 to Sale partial Quantity.
-        CreateAndPostItemJournalForRevaluation(Item."No.", WorkDate);
+          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", WorkDate(), Item."Unit Cost", ItemJournalLine.Quantity / 2);  // Divide by 2 to Sale partial Quantity.
+        CreateAndPostItemJournalForRevaluation(Item."No.", WorkDate());
 
         // Exercise: Run Inventory Valuation Cost Specification Report.
         RunInvtValuationCostSpecReport(Item."No.");
@@ -416,7 +416,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         UpdateAddCurrencySetup(CurrencyCode);
         Quantity := 10 + LibraryRandom.RandInt(100);  // Using Random value for Quantity.
         DirectUnitCost := LibraryRandom.RandDec(100, 2);  // Using Random for Direct Unit Cost.
-        TotalInventoryValueACY := LibraryERM.ConvertCurrency(Quantity * DirectUnitCost, '', CurrencyCode, WorkDate);
+        TotalInventoryValueACY := LibraryERM.ConvertCurrency(Quantity * DirectUnitCost, '', CurrencyCode, WorkDate());
         Component := PostValueEntryToGL(DirectUnitCost, Quantity);
 
         // Verify: Verify record count in Post Value Entry record,Total Inventory Cost on Inventory Cost To GL Report and  Quantity Expected/Actual Cost ACY for Component Item in Item Ledger Entry.
@@ -484,7 +484,7 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         // Exercise: Run Post Inventory Cost To GL Report.
         PostValueEntryToGL.SetRange("Item No.", ProductionItem."No.");
-        PostValueEntryToGL.SetRange("Posting Date", WorkDate);
+        PostValueEntryToGL.SetRange("Posting Date", WorkDate());
         RunPostInventoryCostToGL(PostValueEntryToGL, PostMethod::"per Entry", '', EntriesPostedToGLMsg);
 
         // Verify: Verify record count in Post Value Entry record,Total Inventory Cost on Inventory Cost To GL Report and  Quantity Expected/Actual Cost ACY for Component Item in Item Ledger Entry.
@@ -492,8 +492,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         FindPostValueEntry(PostValueEntryToGL, Component);
         Assert.IsTrue(PostValueEntryToGL.Count > 1, RecordCountError);
         repeat
-            PostValueEntryToGL.TestField("Posting Date", WorkDate);
-        until PostValueEntryToGL.Next = 0;
+            PostValueEntryToGL.TestField("Posting Date", WorkDate());
+        until PostValueEntryToGL.Next() = 0;
     end;
 
     [Test]
@@ -565,7 +565,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         FindReservationEntry(ReservationEntry, PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, false);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
-        RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate);
+        RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate());
 
         // Enqueue value for message handler.
         LibraryVariableStorage.Enqueue(ShowQuantity);
@@ -622,7 +622,7 @@ codeunit 137350 "SCM Inventory Reports - III"
             ItemJournalTemplate.Modify(true);
             for BatchIndex := 1 to BatchCount do begin
                 LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-                RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate);
+                RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate());
             end;
         end;
 
@@ -658,7 +658,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         FindReservationEntry(ReservationEntry, PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, false);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
-        RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate);
+        RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate());
 
         // Enqueue value for message handler.
         LibraryVariableStorage.Enqueue(true);
@@ -692,7 +692,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LotNo := CreateAndPostPurchaseOrderWithWMSLocation(PurchaseLine, false);
         RegisterWarehouseActivity(WarehouseActivityLine, PurchaseLine."Document No.");
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
-        RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate);
+        RunCalculateInventoryReport(ItemJournalBatch, PurchaseLine."No.", PurchaseLine."Location Code", WorkDate());
 
         // Enqueue value for message handler.
         LibraryVariableStorage.Enqueue(true);
@@ -776,7 +776,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         CreateAndPostPurchaseOrderWithWMSLocation(PurchaseLine, LotWarehouseTracking);
         RegisterWarehouseActivity(WarehouseActivityLine, PurchaseLine."Document No.");
         CreateWhseJournalBatch(WarehouseJournalBatch, PurchaseLine."Location Code");
-        CalculateWarehouseInventory(WarehouseJournalBatch, PurchaseLine."No.", WorkDate);
+        CalculateWarehouseInventory(WarehouseJournalBatch, PurchaseLine."No.", WorkDate());
 
         // Enqueue value for message handler.
         LibraryVariableStorage.Enqueue(ShowQuantity);
@@ -942,7 +942,7 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         // [WHEN] Run "Post inventory cost to G/L" report per posting group.
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostValueEntryToGL.SetRange("Posting Date", WorkDate);
+        PostValueEntryToGL.SetRange("Posting Date", WorkDate());
         RunPostInventoryCostToGL(
           PostValueEntryToGL, PostMethod::"per Posting Group", LibraryUtility.GenerateGUID, EntriesPostedToGLMsg);
 
@@ -985,7 +985,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // [GIVEN] Sales Order for Item "I" on Location "L".
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
-          LibraryRandom.RandInt(10), LocationCode, WorkDate);
+          LibraryRandom.RandInt(10), LocationCode, WorkDate());
 
         // [WHEN] Post Sales Order with "Ship & Invoice" option.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1023,7 +1023,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // [GIVEN] Sales Order for Item "I" on Location "L".
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
-          LibraryRandom.RandInt(10), LocationCode, WorkDate);
+          LibraryRandom.RandInt(10), LocationCode, WorkDate());
 
         // [WHEN] Post Sales Order with "Ship" option.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1058,12 +1058,12 @@ codeunit 137350 "SCM Inventory Reports - III"
             GenBusPostingGroupCode := "Gen. Bus. Posting Group";
             "Cost Posted to G/L" := "Cost Amount (Actual)";
             "Cost Posted to G/L (ACY)" := "Cost Amount (Actual) (ACY)";
-            Modify;
+            Modify();
         end;
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job on Item.
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostValueEntryToGL.SetRange("Posting Date", WorkDate);
+        PostValueEntryToGL.SetRange("Posting Date", WorkDate());
         RunPostInventoryCostToGL(PostValueEntryToGL, PostMethod::"per Entry", '', NothingToPostToGLMsg);
 
         // [THEN] "Gen. Bus. Posting Group" in the Skipped Entries section of the resulting report is equal to "X".
@@ -1183,18 +1183,18 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Create and Post Purchase Order.Create Production Order and Refresh Post Production Jounral.
         CreatAndPostPurchaseOrder(Item."No.", Location.Code);
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionItem."No.", Location.Code, LibraryRandom.RandDec(10, 2));
-        PostProductionJournalWithDate(ProductionOrder, WorkDate);
+        PostProductionJournalWithDate(ProductionOrder, WorkDate());
 
         // Post Consumption and Output Journal with Negative Quantity and Post Production Journal with greated than Work Date,also change status from Release to Finish..
         ConsumptionDocumentNo := CreateAndPostItemJournalLineWithConsumption(Item."No.", ProductionOrder."No.", Location.Code);
         CreateAndPostOutputJournal(ProductionOrder."Source No.", ProductionOrder."No.", -1 * LibraryRandom.RandInt(5),
           FindItemLedgerEntry(ProductionOrder."Source No.", ConsumptionDocumentNo, ItemLedgerEntry."Entry Type"::Output), false);
-        PostProductionJournalWithDate(ProductionOrder, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate));
+        PostProductionJournalWithDate(ProductionOrder, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate()));
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // Run Adjust Cost Item Entries and Post Revaluation Journal After one Month.
         LibraryCosting.AdjustCostItemEntries(ProductionOrder."Source No.", '');
-        CreateAndPostItemJournalForRevaluation(Item."No.", CalcDate('<1M>', WorkDate));
+        CreateAndPostItemJournalForRevaluation(Item."No.", CalcDate('<1M>', WorkDate()));
         LibraryCosting.AdjustCostItemEntries(ProductionOrder."Source No.", '');
 
         // Exercise: Run Inventory Valuation Report greater than Revaluation Posting Date.
@@ -1328,10 +1328,10 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         CreatePurchaseOrder(PurchLine, CreateItem, 10, '');
         PostPurchaseOrder(PurchLine, true, false);
-        PurchLine.Find;
+        PurchLine.Find();
 
         // Exercise: Run Inventory Valuation Report.
-        RunInventoryValuationReport(PurchLine."No.", CalcDate('<1M>', WorkDate), CalcDate('<CY>', WorkDate));
+        RunInventoryValuationReport(PurchLine."No.", CalcDate('<1M>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // Verify: Verify Inventory Valuation Report.
         VerifyInventoryValuationExpCost(PurchLine);
@@ -1365,40 +1365,6 @@ codeunit 137350 "SCM Inventory Reports - III"
         end;
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('MessageHandlerInvtSetup')]
-    [Scope('OnPrem')]
-    procedure ItemSubstitutionValidateEmptyNonstockItemNo_UT()
-    var
-        ItemSubstitution: Record "Item Substitution";
-        NonstockItem: Record "Nonstock Item";
-        ItemTemplate: Record "Item Template";
-    begin
-        // [FEATURE] [UT] [Item Substitution] [Nonstock Item]
-        // [SCENARIO]  Field "Description" in "Item Substitution" record with "Substitute Type" = "Nonstock Item" is reset to an empty string when setting empty "Substitute No."
-        with ItemSubstitution do begin
-            // [GIVEN] "Item Subsitution" "IS" with "Substitution Type" = "Nonstock Item"
-            LibraryInventory.CreateItemTemplate(ItemTemplate);
-            LibraryInventory.CreateNonStockItem(NonstockItem);
-            CreateItemSubstitution(ItemSubstitution, Type::"Nonstock Item", NonstockItem."Entry No.");
-            TestField(Description, '');
-
-            // [GIVEN] "Nonstock Item" "NI" with Description = "D"
-            LibraryInventory.CreateNonStockItem(NonstockItem);
-            Validate("Substitute Type", "Substitute Type"::"Nonstock Item");
-            // [GIVEN] "IS"."Substitution No." = "NI"
-            Validate("Substitute No.", NonstockItem."Entry No.");
-            // [GIVEN] "IS".Description = "D"
-            TestField(Description, NonstockItem.Description);
-
-            // [WHEN] When reset "IS"."Substitution No." = ''
-            Validate("Substitute No.", '');
-            // [THEN] "IS".Description = ''
-            TestField(Description, '');
-        end;
-    end;
-#endif
     [Test]
     [HandlerFunctions('PostInventoryCostToGLRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1581,7 +1547,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     local procedure CreateItemSubstitution(var ItemSubstitution: Record "Item Substitution"; ItemSubstitutionType: Enum "Item Substitution Type"; ItemNo: Code[20])
     begin
         with ItemSubstitution do begin
-            Init;
+            Init();
             Validate(Type, ItemSubstitutionType);
             Validate("No.", ItemNo);
             Validate("Substitute No.", '');
@@ -1598,7 +1564,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             TotalAmount += ItemLedgerEntry."Cost Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure CalculateInventoryValue(ItemNo: Code[20]): Decimal
@@ -1835,7 +1801,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         ItemNo := CreateItem;
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, WorkDate, LibraryRandom.RandInt(10),
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, ItemNo, WorkDate(), LibraryRandom.RandInt(10),
           LibraryRandom.RandDec(100, 2));
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
         exit(ItemNo);
@@ -1945,24 +1911,24 @@ codeunit 137350 "SCM Inventory Reports - III"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
     begin
         with ValueEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
             "Item Ledger Entry Type" := "Item Ledger Entry Type"::" ";
             "Item Ledger Entry No." := 0;
             "Capacity Ledger Entry No." := LibraryRandom.RandInt(100);
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Entry Type" := "Entry Type"::"Direct Cost";
             "Valued Quantity" := LibraryRandom.RandInt(10);
             "Cost per Unit" := LibraryRandom.RandDec(10, 2);
             "Cost Amount (Actual)" := "Valued Quantity" * "Cost per Unit";
-            Insert;
+            Insert();
         end;
 
         with PostValueEntryToGL do begin
-            Init;
+            Init();
             "Value Entry No." := ValueEntry."Entry No.";
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -2043,13 +2009,13 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         // Create and Post Item Journal.
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", WorkDate, Item."Unit Cost",
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", WorkDate(), Item."Unit Cost",
           LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
 
         // Create and Ship Sales Order. Use Random value for calculate Shipment Date.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate),
+          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()),
           ItemJournalLine.Quantity / 2);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
@@ -2057,7 +2023,7 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         CreateAndPostItemJournalLine(
           ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.",
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), LibraryRandom.RandDec(10, 2) +
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), LibraryRandom.RandDec(10, 2) +
           Item."Unit Cost", LibraryRandom.RandDec(10, 2));
 
         // Exercise: Undo the Posted Shipment.
@@ -2094,7 +2060,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ProdOrderLine.FindFirst();
 
         ProductionJournalMgt.InitSetupValues;
-        ProductionJournalMgt.SetTemplateAndBatchName;
+        ProductionJournalMgt.SetTemplateAndBatchName();
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
@@ -2220,7 +2186,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         Item.SetRange("No.", No);
         Evaluate(PeriodLength, '<1M>');  // Use 1M for monthly Period.
-        PeriodStartDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'y>', WorkDate);         // Adding Random Year to calculate Ending Date.
+        PeriodStartDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'y>', WorkDate());         // Adding Random Year to calculate Ending Date.
         LibraryVariableStorage.Enqueue(PeriodStartDate);
         LibraryVariableStorage.Enqueue(PeriodLength);
         REPORT.Run(REPORT::"Item Expiration - Quantity", true, false, Item);
@@ -2251,7 +2217,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Item: Record Item;
     begin
         Item.SetRange("No.", No);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Invt. Valuation - Cost Spec.", true, false, Item);
     end;
 
@@ -2271,7 +2237,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         StartingDate := 0D;
         LibraryVariableStorage.Enqueue(StartingDate);
-        LibraryVariableStorage.Enqueue(CalcDate('<CY+1Y>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<CY+1Y>', WorkDate()));
         Commit();  // Due to a limitation in Request Page Testability, COMMIT is needed for this case.
         Item.SetRange("No.", ItemNo);
         REPORT.Run(REPORT::"Inventory Valuation", true, false, Item);
@@ -2327,7 +2293,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         Item.SetRange("No.", No);
         Evaluate(PeriodLength, '<1M>');  // Use 1M for monthly Period.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(PeriodLength);
         Commit();
         REPORT.Run(REPORT::"Inventory - Availability Plan", true, false, Item);
@@ -2358,7 +2324,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         ProductionOrder: Record "Production Order";
     begin
-        LibraryVariableStorage.Enqueue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), WorkDate()));
         Commit();
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Finished);
         ProductionOrder.SetRange("No.", ProductionOrderNo);
@@ -2405,7 +2371,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         StockkeepingUnit.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(NewAutomaticCostAdjustment: Option)
+    local procedure UpdateInventorySetup(NewAutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -2435,7 +2401,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         repeat
             PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdateReservationEntryExpirationDate(ItemNo: Code[20])
@@ -2443,7 +2409,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ReservationEntry: Record "Reservation Entry";
     begin
         FindReservationEntry(ReservationEntry, ItemNo);
-        ReservationEntry.Validate("Expiration Date", WorkDate);
+        ReservationEntry.Validate("Expiration Date", WorkDate());
         ReservationEntry.Modify(true);
     end;
 
@@ -2855,7 +2821,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     [Scope('OnPrem')]
     procedure ItemAgeCompositionValueRequestPageHandler(var ItemAgeCompositionValue: TestRequestPage "Item Age Composition - Value")
     begin
-        ItemAgeCompositionValue.EndingDate.SetValue(CalcDate('<CY+1Y>', WorkDate));
+        ItemAgeCompositionValue.EndingDate.SetValue(CalcDate('<CY+1Y>', WorkDate()));
         ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

@@ -26,7 +26,7 @@ page 7371 "Bin Content Creation Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     BinCreateLine.LookupBinCreationName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrPage.Update(false);
                 end;
@@ -34,7 +34,7 @@ page 7371 "Bin Content Creation Worksheet"
                 trigger OnValidate()
                 begin
                     BinCreateLine.CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -49,44 +49,44 @@ page 7371 "Bin Content Creation Worksheet"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone where the bin on the worksheet will be located.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
 
                     trigger OnValidate()
                     begin
-                        BinCodeOnAfterValidate;
+                        BinCodeOnAfterValidate();
                     end;
                 }
-                field("Bin Type Code"; "Bin Type Code")
+                field("Bin Type Code"; Rec."Bin Type Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the bin type or bin content that should be created.';
                     Visible = false;
                 }
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the warehouse class of the bin or bin content that should be created.';
                     Visible = false;
                 }
-                field("Bin Ranking"; "Bin Ranking")
+                field("Bin Ranking"; Rec."Bin Ranking")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the ranking of the bin or bin content that should be created.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item number for which bin content should be created.';
@@ -97,7 +97,7 @@ page 7371 "Bin Content Creation Worksheet"
                         BinCreateLine.GetUnitOfMeasureDescr("Unit of Measure Code", UOMDescription);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -108,7 +108,7 @@ page 7371 "Bin Content Creation Worksheet"
                         VariantCodeOnAfterValidate();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -119,19 +119,19 @@ page 7371 "Bin Content Creation Worksheet"
                         BinCreateLine.GetUnitOfMeasureDescr("Unit of Measure Code", UOMDescription);
                     end;
                 }
-                field("Min. Qty."; "Min. Qty.")
+                field("Min. Qty."; Rec."Min. Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the minimum quantity for the bin content that should be created.';
                     Visible = false;
                 }
-                field("Max. Qty."; "Max. Qty.")
+                field("Max. Qty."; Rec."Max. Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum quantity for the bin content that should be created.';
                     Visible = false;
                 }
-                field("Block Movement"; "Block Movement")
+                field("Block Movement"; Rec."Block Movement")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how the movement of a particular item, or bin content, into or out of this bin, is blocked.';
@@ -147,7 +147,7 @@ page 7371 "Bin Content Creation Worksheet"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the bin is to be the default bin for the item on the bin worksheet line.';
                 }
-                field("Cross-Dock Bin"; "Cross-Dock Bin")
+                field("Cross-Dock Bin"; Rec."Cross-Dock Bin")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies new cross-dock bins.';
@@ -248,8 +248,6 @@ page 7371 "Bin Content Creation Worksheet"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -260,6 +258,17 @@ page 7371 "Bin Content Creation Worksheet"
                     BinCreateLine.SetRange(Type, BinCreateLine.Type::"Bin Content");
                     REPORT.Run(REPORT::"Bin Content Create Wksh Report", true, false, BinCreateLine);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
             }
         }
     }
@@ -316,7 +325,7 @@ page 7371 "Bin Content Creation Worksheet"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         BinCreateLine.SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

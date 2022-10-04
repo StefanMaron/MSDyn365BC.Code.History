@@ -5,18 +5,19 @@ codeunit 5644 "FA Reclass. Jnl.-Transfer"
     trigger OnRun()
     begin
         FAReclassJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(FAReclassJnlLine);
     end;
 
     var
+        FAReclassJnlTempl: Record "FA Reclass. Journal Template";
+        FAReclassJnlLine: Record "FA Reclass. Journal Line";
+        JnlBatchName2: Code[10];
+
         Text000: Label 'Do you want to reclassify the journal lines?';
         Text001: Label 'There is nothing to reclassify.';
         Text002: Label 'The journal lines were successfully reclassified.';
         Text003: Label 'The journal lines were successfully reclassified. You are now in the %1 journal.';
-        FAReclassJnlTempl: Record "FA Reclass. Journal Template";
-        FAReclassJnlLine: Record "FA Reclass. Journal Line";
-        JnlBatchName2: Code[10];
 
     local procedure "Code"()
     begin
@@ -41,7 +42,7 @@ codeunit 5644 "FA Reclass. Jnl.-Transfer"
                       "Journal Batch Name");
 
             if not Find('=><') or (JnlBatchName2 <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

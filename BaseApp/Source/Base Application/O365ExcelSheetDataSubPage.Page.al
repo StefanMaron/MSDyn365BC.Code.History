@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2181 "O365 Excel Sheet Data SubPage"
 {
     Caption = 'O365 Excel Sheet Data SubPage';
@@ -5,6 +6,9 @@ page 2181 "O365 Excel Sheet Data SubPage"
     PageType = ListPart;
     SourceTable = "Integer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +18,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
             {
                 field(Number; Number)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Row No.';
                     Style = Strong;
                     StyleExpr = Emphasize;
@@ -22,7 +26,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column1; CellValue[1])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[1];
                     Caption = 'Column 1';
                     Style = Strong;
@@ -31,7 +35,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column2; CellValue[2])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[2];
                     Caption = 'Column 2';
                     Style = Strong;
@@ -40,7 +44,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column3; CellValue[3])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[3];
                     Caption = 'Column 3';
                     Style = Strong;
@@ -49,7 +53,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column4; CellValue[4])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[4];
                     Caption = 'Column 4';
                     Style = Strong;
@@ -58,7 +62,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column5; CellValue[5])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[5];
                     Caption = 'Column 5';
                     Style = Strong;
@@ -67,7 +71,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column6; CellValue[6])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[6];
                     Caption = 'Column 6';
                     Style = Strong;
@@ -76,7 +80,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column7; CellValue[7])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[7];
                     Caption = 'Column 7';
                     Style = Strong;
@@ -85,7 +89,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column8; CellValue[8])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[8];
                     Caption = 'Column 8';
                     Style = Strong;
@@ -94,7 +98,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column9; CellValue[9])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[9];
                     Caption = 'Column 9';
                     Style = Strong;
@@ -103,7 +107,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column10; CellValue[10])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[10];
                     Caption = 'Column 10';
                     Style = Strong;
@@ -112,7 +116,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column11; CellValue[11])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[11];
                     Caption = 'Column 11';
                     Style = Strong;
@@ -121,7 +125,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
                 }
                 field(Column12; CellValue[12])
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     CaptionClass = '3,' + ColumnCaptions[12];
                     Caption = 'Column 12';
                     Style = Strong;
@@ -155,7 +159,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
 
     trigger OnOpenPage()
     begin
-        SetDefaultColumnVisibility;
+        SetDefaultColumnVisibility();
     end;
 
     var
@@ -182,13 +186,13 @@ page 2181 "O365 Excel Sheet Data SubPage"
 
     procedure SetExcelBuffer(var NewExcelBuffer: Record "Excel Buffer")
     begin
-        ClearExcelBuffer;
+        ClearExcelBuffer();
         if NewExcelBuffer.FindSet() then
             repeat
                 TempExcelBuffer := NewExcelBuffer;
                 TempExcelBuffer.Insert();
             until NewExcelBuffer.Next() = 0;
-        CreateLines;
+        CreateLines();
     end;
 
     local procedure ClearExcelBuffer()
@@ -207,13 +211,13 @@ page 2181 "O365 Excel Sheet Data SubPage"
     var
         i: Integer;
     begin
-        Reset;
+        Reset();
         DeleteAll();
         TempExcelBuffer.Reset();
         if TempExcelBuffer.FindLast() then;
         for i := 1 to TempExcelBuffer."Row No." do begin
             Number := i;
-            Insert;
+            Insert();
         end;
         if FindFirst() then;
     end;
@@ -225,7 +229,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
 
     procedure SetColumnMapping(var NewO365FieldExcelMapping: Record "O365 Field Excel Mapping")
     begin
-        ClearColumnMappingBuffer;
+        ClearColumnMappingBuffer();
         if NewO365FieldExcelMapping.FindSet() then
             repeat
                 TempO365FieldExcelMapping := NewO365FieldExcelMapping;
@@ -296,4 +300,4 @@ page 2181 "O365 Excel Sheet Data SubPage"
         UseEmphasizing := true;
     end;
 }
-
+#endif

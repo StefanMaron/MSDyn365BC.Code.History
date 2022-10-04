@@ -26,8 +26,8 @@ page 538 "Dimension Combinations"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnPush;
-                        ShowColumnNameOnAfterValidate;
+                        ShowColumnNameOnPush();
+                        ShowColumnNameOnAfterValidate();
                     end;
                 }
             }
@@ -47,10 +47,6 @@ page 538 "Dimension Combinations"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -65,10 +61,6 @@ page 538 "Dimension Combinations"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -83,9 +75,6 @@ page 538 "Dimension Combinations"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -100,9 +89,6 @@ page 538 "Dimension Combinations"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -111,6 +97,26 @@ page 538 "Dimension Combinations"
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                     UpdateMatrixSubform();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Previous Column_Promoted"; "Previous Column")
+                {
+                }
+                actionref("Next Column_Promoted"; "Next Column")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -167,7 +173,7 @@ page 538 "Dimension Combinations"
         repeat
             MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MatrixRecord);
             CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-        until (CurrentMatrixRecordOrdinal = ArrayLen(MatrixRecords)) or (MatrixRecord.Next <> 1);
+        until (CurrentMatrixRecordOrdinal = ArrayLen(MatrixRecords)) or (MatrixRecord.Next() <> 1);
     end;
 
     local procedure UpdateMatrixSubform()

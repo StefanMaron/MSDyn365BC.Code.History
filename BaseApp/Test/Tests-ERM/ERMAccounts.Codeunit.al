@@ -471,7 +471,7 @@ codeunit 134020 "ERM Accounts"
         GLBalanceByDimMatrix.OpenView;
 
         // [THEN] Default caption loaded for Field1 column
-        Assert.AreEqual(Format(WorkDate), GLBalanceByDimMatrix.Field1.Caption, IncorrectColumnCaptionErr);
+        Assert.AreEqual(Format(WorkDate()), GLBalanceByDimMatrix.Field1.Caption, IncorrectColumnCaptionErr);
     end;
 
     [Test]
@@ -542,7 +542,7 @@ codeunit 134020 "ERM Accounts"
         GLBalance.AmountType.SetValue(AmountType::"Net Change");
 
         // [THEN] "Date Filter" = "25-01-18..C25-01-18"
-        GLBalance.DateFilter.AssertEquals(StrSubstNo('%1..%2', WorkDate, ClosingDate(WorkDate)));
+        GLBalance.DateFilter.AssertEquals(StrSubstNo('%1..%2', WorkDate(), ClosingDate(WorkDate())));
     end;
 
     [Test]
@@ -565,7 +565,7 @@ codeunit 134020 "ERM Accounts"
         GLBalance.AmountType.SetValue(AmountType::"Balance at Date");
 
         // [THEN] "Date Filter" = "''..C25-01-18"
-        GLBalance.DateFilter.AssertEquals(StrSubstNo('%1..%2', '''''', ClosingDate(WorkDate)));
+        GLBalance.DateFilter.AssertEquals(StrSubstNo('%1..%2', '''''', ClosingDate(WorkDate())));
     end;
 
     [Test]
@@ -837,7 +837,7 @@ codeunit 134020 "ERM Accounts"
         if (GLAccountNo <> '') and (GLAccountNo2 <> '') then
             GLBalancebyDimension.GLAccFilter.SetValue(GLAccountNo + '|' + GLAccountNo2);
         GLBalancebyDimension.Dim2Filter.SetValue(Dim2Filter);
-        GLBalancebyDimension.DateFilter.SetValue(WorkDate);
+        GLBalancebyDimension.DateFilter.SetValue(WorkDate());
         GLBalancebyDimension.ShowMatrix.Invoke;
     end;
 
@@ -855,7 +855,7 @@ codeunit 134020 "ERM Accounts"
         GLAccountBalance.DebitCreditTotals.SetValue(DebitAndCreditTotals);
         GLAccountBalance.PeriodType.SetValue(PeriodType);
         GLAccountBalance.FILTER.SetFilter("No.", AccountNo);
-        GLAccountBalance.GLBalanceLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        GLAccountBalance.GLBalanceLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         GLAccountBalance.First;
     end;
 
@@ -967,7 +967,7 @@ codeunit 134020 "ERM Accounts"
         GLBalancebyDimMatrix.First;
         repeat
             GLBalancebyDimMatrix.TotalAmount.AssertEquals(0);
-        until not GLBalancebyDimMatrix.Next;
+        until not GLBalancebyDimMatrix.Next();
     end;
 
     [ModalPageHandler]

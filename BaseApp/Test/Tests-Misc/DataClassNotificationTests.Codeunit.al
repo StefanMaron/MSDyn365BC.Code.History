@@ -60,7 +60,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [THEN] No Data Classification Notification is shown
         LibraryVariableStorage.AssertEmpty;
 
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
 
         // [GIVEN] The company is not a demo nor an EU company, but they have a customer in the EU
         SetCompanyToDemo(false);
@@ -71,7 +71,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [THEN] The data classification notification is sent
         Assert.ExpectedMessage(DataClassificationNotificationMsg, LibraryVariableStorage.DequeueText);
 
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
 
         // [GIVEN] The company is an EU company
         SetCompanyInEU(true);
@@ -93,7 +93,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [THEN] No Data Classification Notification is shown
         LibraryVariableStorage.AssertEmpty;
 
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
 
         // [GIVEN] User has not classified any fields
         DataSensitivity.DeleteAll();
@@ -109,7 +109,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [THEN] The data classification notification is sent
         Assert.ExpectedMessage(DataClassificationNotificationMsg, LibraryVariableStorage.DequeueText);
 
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [THEN] The Unclassified fields notification shows
         Assert.ExpectedMessage(UnclassifiedFieldsNotificationMsg, LibraryVariableStorage.DequeueText);
 
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
     end;
 
     [Test]
@@ -177,7 +177,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [THEN] The Sync fields notification shows
         Assert.ExpectedMessage(SyncFieldsNotificationMsg, LibraryVariableStorage.DequeueText);
 
-        BusinessManagerRoleCenter.Close;
+        BusinessManagerRoleCenter.Close();
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 135151 "Data Class. Notification Tests"
         if DataClassificationWorksheet.First then
             repeat
                 NumberOfEntriesOnClassificationWorksheetPage += 1;
-            until not DataClassificationWorksheet.Next;
+            until not DataClassificationWorksheet.Next();
     end;
 
     local procedure SetCompanyToDemo(SetToDemo: Boolean)

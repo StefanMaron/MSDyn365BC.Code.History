@@ -678,7 +678,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         Assert.IsFalse(GeneralJournal.Delegate.Visible, '');
 
         // [THEN] Close the journal
-        GeneralJournal.Close;
+        GeneralJournal.Close();
 
         // [GIVEN] Workflow is enabled
         EnableWorkflow(Workflow);
@@ -701,7 +701,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         Assert.IsTrue(GeneralJournal.Delegate.Visible, '');
 
         // [THEN] Close the journal
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -741,7 +741,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         Assert.IsFalse(PaymentJournal.Delegate.Visible, '');
 
         // [THEN] Close the journal
-        PaymentJournal.Close;
+        PaymentJournal.Close();
 
         // [GIVEN] Workflow is enabled
         EnableWorkflow(Workflow);
@@ -764,7 +764,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         Assert.IsTrue(PaymentJournal.Delegate.Visible, '');
 
         // [THEN] Close the journal
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -804,7 +804,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         Assert.IsFalse(CashReceiptJournal.Delegate.Visible, '');
 
         // [THEN] Close the journal
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
 
         // [GIVEN] Workflow is enabled
         EnableWorkflow(Workflow);
@@ -827,7 +827,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         Assert.IsTrue(CashReceiptJournal.Delegate.Visible, '');
 
         // [THEN] Close the journal
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     [Test]
@@ -933,7 +933,7 @@ codeunit 134187 "WF Demo General Journal Batch"
 
         // [GIVEN] Workflow templates reinitiated
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // [GIVEN] Workflow = "X" without steps and instances
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -957,7 +957,7 @@ codeunit 134187 "WF Demo General Journal Batch"
 
         // [GIVEN] Workflow templates reinitiated
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // [GIVEN] Workflow = "X" without steps and instances
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -1263,7 +1263,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         Assert.AreEqual(CancelActionExpectedEnabled, GeneralJournal.CancelApprovalRequestJournalBatch.Enabled,
           'Wrong state for the Cancel action');
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequestForAPaymentJnlBatch(GenJournalBatch: Record "Gen. Journal Batch"; CancelActionExpectedEnabled: Boolean)
@@ -1274,7 +1274,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         Assert.AreEqual(CancelActionExpectedEnabled, PaymentJournal.CancelApprovalRequestJournalBatch.Enabled,
           'Wrong state for the Cancel action');
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequestForACashReceiptJnlBatch(GenJournalBatch: Record "Gen. Journal Batch"; CancelActionExpectedEnabled: Boolean)
@@ -1285,7 +1285,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         Assert.AreEqual(CancelActionExpectedEnabled, CashReceiptJournal.CancelApprovalRequestJournalBatch.Enabled,
           'Wrong state for the Cancel action');
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch: Record "Gen. Journal Batch"; NumberOfExpectedComments: Integer; CommentActionIsVisible: Boolean)
@@ -1306,15 +1306,15 @@ codeunit 134187 "WF Demo General Journal Batch"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch: Record "Gen. Journal Batch"; NumberOfExpectedComments: Integer; CommentActionIsVisible: Boolean)
@@ -1335,15 +1335,15 @@ codeunit 134187 "WF Demo General Journal Batch"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnPaymentPage(GenJournalBatch: Record "Gen. Journal Batch"; NumberOfExpectedComments: Integer; CommentActionIsVisible: Boolean)
@@ -1364,15 +1364,15 @@ codeunit 134187 "WF Demo General Journal Batch"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1390,12 +1390,12 @@ codeunit 134187 "WF Demo General Journal Batch"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1413,12 +1413,12 @@ codeunit 134187 "WF Demo General Journal Batch"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 }
 

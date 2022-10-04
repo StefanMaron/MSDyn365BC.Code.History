@@ -11,7 +11,7 @@ report 846 "Cash Flow Date List"
         dataitem(CashFlow; "Cash Flow Forecast")
         {
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CashFlow__No__; "No.")
@@ -224,7 +224,7 @@ report 846 "Cash Flow Date List"
 
         trigger OnOpenPage()
         begin
-            UserInputDateFrom := WorkDate;
+            UserInputDateFrom := WorkDate();
         end;
     }
 
@@ -236,14 +236,15 @@ report 846 "Cash Flow Date List"
 
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
+        Interval: DateFormula;
         UserInputDateFrom: Date;
         CurrentDateFrom: Date;
         CurrentDateTo: Date;
         PeriodNumber: Integer;
-        Interval: DateFormula;
         Values: array[15] of Decimal;
         BeforeSumTotal: Decimal;
         NewCFSumTotal: Decimal;
+
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         CashFlow_Date_ListCaptionLbl: Label 'Cash Flow Date List';
         Service_Orders__Control59CaptionLbl: Label 'Service Orders';

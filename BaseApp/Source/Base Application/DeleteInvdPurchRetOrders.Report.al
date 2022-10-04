@@ -59,7 +59,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                                 ItemChargeAssgntPurch.DeleteAll();
                                             end;
                                             if PurchLine.HasLinks then
-                                                PurchLine.DeleteLinks;
+                                                PurchLine.DeleteLinks();
                                             OnBeforePurchLineDelete(PurchLine);
                                             PurchLine.Delete();
                                             OnAfterPurchLineDelete(PurchLine);
@@ -86,7 +86,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
-                                    Delete;
+                                    Delete();
                                     OnAfterDeletePurchaseHeader("Purchase Header");
                                 end;
                                 Commit();
@@ -120,7 +120,6 @@ report 6661 "Delete Invd Purch. Ret. Orders"
     }
 
     var
-        Text000: Label 'Processing purch. orders #1##########';
         PurchLine: Record "Purchase Line";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -135,6 +134,8 @@ report 6661 "Delete Invd Purch. Ret. Orders"
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;
+
+        Text000: Label 'Processing purch. orders #1##########';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")

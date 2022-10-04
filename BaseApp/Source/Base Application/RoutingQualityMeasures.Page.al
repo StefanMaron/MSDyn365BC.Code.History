@@ -2,7 +2,7 @@ page 99000837 "Routing Quality Measures"
 {
     AutoSplitKey = true;
     Caption = 'Routing Quality Measures';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Routing Quality Measure";
@@ -14,7 +14,7 @@ page 99000837 "Routing Quality Measures"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Qlty Measure Code"; "Qlty Measure Code")
+                field("Qlty Measure Code"; Rec."Qlty Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quality measure code.';
@@ -24,17 +24,17 @@ page 99000837 "Routing Quality Measures"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description of the quality measure.';
                 }
-                field("Min. Value"; "Min. Value")
+                field("Min. Value"; Rec."Min. Value")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the minimum value that must be met.';
                 }
-                field("Max. Value"; "Max. Value")
+                field("Max. Value"; Rec."Max. Value")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the maximum value that may be achieved.';
                 }
-                field("Mean Tolerance"; "Mean Tolerance")
+                field("Mean Tolerance"; Rec."Mean Tolerance")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the acceptable mean tolerance.';

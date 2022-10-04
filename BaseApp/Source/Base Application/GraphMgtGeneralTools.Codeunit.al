@@ -7,7 +7,7 @@ codeunit 5465 "Graph Mgt - General Tools"
 
     trigger OnRun()
     begin
-        ApiSetup;
+        ApiSetup();
     end;
 
     var
@@ -43,6 +43,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         IntegrationManagement: Codeunit "Integration Management";
         FilterFieldRef: FieldRef;
         IDFieldRef: FieldRef;
+        ID: Guid;
         NullGuid: Guid;
     begin
         if not IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then
@@ -56,7 +57,8 @@ codeunit 5465 "Graph Mgt - General Tools"
         if SourceRecordRef.FindSet() then
             repeat
                 IDFieldRef := SourceRecordRef.Field(FieldNumber);
-                if not IntegrationRecord.Get(IDFieldRef.Value) then begin
+                ID := IDFieldRef.Value();
+                if not IntegrationRecord.Get(ID) then begin
                     IntegrationManagement.InsertUpdateIntegrationRecord(SourceRecordRef, CurrentDateTime);
                     if IsNullGuid(Format(IDFieldRef.Value)) then begin
                         UpdatedIntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
@@ -136,7 +138,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             exit;
 
         if ConfigTemplateManagement.ApplyTemplate(InsertedRecordRef, TempFieldSet, UpdatedRecRef, ConfigTemplateHeader) then
-            InsertedRecordRef := UpdatedRecRef.Duplicate;
+            InsertedRecordRef := UpdatedRecRef.Duplicate();
     end;
 
     [Scope('Cloud')]
@@ -150,7 +152,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             exit;
 
         if ConfigTemplateManagement.ApplyTemplate(InsertedRecordRef, TempFieldSet, UpdatedRecRef, ConfigTemplateHeader) then
-            InsertedRecordRef := UpdatedRecRef.Duplicate;
+            InsertedRecordRef := UpdatedRecRef.Duplicate();
     end;
 
     procedure ErrorIdImmutable()
@@ -179,7 +181,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         if Handled then
             exit(IsAPIEnabled);
 
-        exit(ServerSetting.GetApiServicesEnabled);
+        exit(ServerSetting.GetApiServicesEnabled());
     end;
 
     procedure IsApiSubscriptionEnabled(): Boolean
@@ -188,20 +190,20 @@ codeunit 5465 "Graph Mgt - General Tools"
         Handled: Boolean;
         APISubscriptionsEnabled: Boolean;
     begin
-        if not IsApiEnabled then
+        if not IsApiEnabled() then
             exit(false);
 
         OnGetAPISubscriptionsEnabled(Handled, APISubscriptionsEnabled);
         if Handled then
             exit(APISubscriptionsEnabled);
 
-        exit(ServerSetting.GetApiSubscriptionsEnabled);
+        exit(ServerSetting.GetApiSubscriptionsEnabled());
     end;
 
     procedure APISetupIfEnabled()
     begin
-        if IsApiEnabled then
-            ApiSetup;
+        if IsApiEnabled() then
+            ApiSetup();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnGetIntegrationActivated', '', false, false)]
@@ -217,7 +219,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             exit;
 
         if ForceIsApiEnabledVerification then
-            if not IsApiEnabled then
+            if not IsApiEnabled() then
                 exit;
 
         if not ApiWebService.ReadPermission then
@@ -230,7 +232,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         if not ODataEdmType.ReadPermission then
             exit;
 
-        IsSyncEnabled := not ODataEdmType.IsEmpty;
+        IsSyncEnabled := not ODataEdmType.IsEmpty();
     end;
 
     procedure TranslateNAVCurrencyCodeToCurrencyCode(var CachedLCYCurrencyCode: Code[10]; CurrencyCode: Code[10]): Code[10]
@@ -275,23 +277,23 @@ codeunit 5465 "Graph Mgt - General Tools"
         EnvironmentInfo: Codeunit "Environment Information";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             exit;
 
         if not CompanyInformation."Demo Company" then
             exit;
 
-        APIEntitiesSetup.SafeGet;
+        APIEntitiesSetup.SafeGet();
 
         if APIEntitiesSetup."Demo Company API Initialized" then
             exit;
 
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
-        APIEntitiesSetup.SafeGet;
+        APIEntitiesSetup.SafeGet();
         APIEntitiesSetup.Validate("Demo Company API Initialized", true);
         APIEntitiesSetup.Modify(true);
     end;

@@ -12,7 +12,7 @@ page 9198 "Profile Import Result List"
         {
             repeater(repeater)
             {
-                field("Profile ID"; "Profile ID")
+                field("Profile ID"; Rec."Profile ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies an ID that is used to identify the profile (role). There can be more than one profile with the same ID if they come from different extensions.';

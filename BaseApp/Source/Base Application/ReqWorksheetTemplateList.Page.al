@@ -29,7 +29,7 @@ page 292 "Req. Worksheet Template List"
                     ToolTip = 'Specifies whether the requisition worksheet template will be a recurring requisition worksheet.';
                     Visible = false;
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Planning;
                     LookupPageID = Objects;

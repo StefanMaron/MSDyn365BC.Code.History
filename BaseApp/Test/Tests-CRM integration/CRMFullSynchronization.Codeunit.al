@@ -77,7 +77,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
-#if not CLEAN19
+#if not CLEAN21
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
@@ -143,7 +143,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'ITEM UOM');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'RESOURCE UOM'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'RESOURCE UOM');
-#if not CLEAN19
+#if not CLEAN21
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
@@ -229,7 +229,7 @@ codeunit 139187 "CRM Full Synchronization"
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] New currency 'X' and Customer 'A'
         Currency.DeleteAll();
-        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3));
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 3, 3));
         Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
 
@@ -421,7 +421,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UT] [Event]
         // [GIVEN] Job Queue Entry, where Status is 'In Process', "Record ID to Process" is empty
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         Clear(JobQueueEntry."Record ID to Process");
         JobQueueEntry.Insert();
@@ -468,7 +468,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.TestField("Synch. Only Coupled Records");
         Assert.AreNotEqual('', IntegrationTableMapping.GetIntegrationTableFilter, 'IntegrationTableFilter should not be blank.');
         SalespersonPurchaser.SetFilter("E-Mail", '<>%1', '');
-        IntegrationTableMapping.SetTableFilter(SalespersonPurchaser.GetView);
+        IntegrationTableMapping.SetTableFilter(SalespersonPurchaser.GetView());
         IntegrationTableMapping.Modify();
         Assert.AreNotEqual('', IntegrationTableMapping.GetTableFilter, 'TableFilter should not be blank.');
 
@@ -610,7 +610,7 @@ codeunit 139187 "CRM Full Synchronization"
               IntegrationTableMapping.Direction, CRMFullSynchReview.Direction.AsInteger,
               StrSubstNo('Wrong Direction for %1', CRMFullSynchReview.Name));
             I += 1;
-            CRMFullSynchReview.Next;
+            CRMFullSynchReview.Next();
         until I > MapCount;
         CRMFullSynchReview.Name.AssertEquals(LastMapName);
     end;
@@ -634,7 +634,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         // [GIVEN] Open and close "CRM Full Synch Review"
         CRMFullSynchReview.OpenEdit;
-        CRMFullSynchReview.Close;
+        CRMFullSynchReview.Close();
         // [GIVEN] "CRM Full Synch Review Line" table contains 12 records.
         Assert.TableIsNotEmpty(DATABASE::"CRM Full Synch. Review Line");
         MapCount := CRMFullSynchReviewLine.Count();
@@ -803,7 +803,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;
 
-#if not CLEAN19
+#if not CLEAN21
         // [THEN] Lines 'CUSTPRCGRP-PRICE' and 'CUSTOMER' get "Status" = 'On Hold'
         OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'CUSTPRCGRP-PRICE|CUSTOMER|VENDOR');
@@ -841,7 +841,7 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-#if not CLEAN19
+#if not CLEAN21
         SetStatus('CUSTPRCGRP-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         Finished := 4;
 #else
@@ -851,7 +851,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;
 
-#if not CLEAN19
+#if not CLEAN21
         // [THEN] Lines 'CUSTPRCGRP-PRICE','RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
         OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'SALESPRC-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
@@ -1138,7 +1138,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [THEN] Customer 'A' is coupled, "Last Synch. CRM Modified On" = 'Y'
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         // [THEN] Integration Table Mapping "CUSTOMER",
-        IntegrationTableMapping.Find;
+        IntegrationTableMapping.Find();
         // [THEN] where "Synch. Modified On Filter" = 'Y' and "Synch. Int. Tbl. Mod. On Fltr." = 'X'
         IntegrationTableMapping.TestField("Synch. Int. Tbl. Mod. On Fltr.", Customer.SystemModifiedAt);
         IntegrationTableMapping.TestField("Synch. Modified On Filter", CRMIntegrationRecord."Last Synch. CRM Modified On");
@@ -1162,10 +1162,6 @@ codeunit 139187 "CRM Full Synchronization"
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
-        LibraryCRMIntegration.DisableUnitGroupMapping();
-        if EnableUnitGroupMapping then
-            LibraryCRMIntegration.EnableUnitGroupMapping();
-
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         CRMFullSynchReviewLine.DeleteAll();
@@ -1176,12 +1172,13 @@ codeunit 139187 "CRM Full Synchronization"
         CDSConnectionSetup.SetClientSecret('ClientSecret');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
-        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
-        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+        CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup.Modify();
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
     end;
 
@@ -1213,7 +1210,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.SetRange("Integration Table ID", ParentIntegrationTableMapping."Integration Table ID");
         IntegrationTableMapping.SetRange("Delete After Synchronization", true);
         IntegrationTableMapping.SetRange("Full Sync is Running", true);
-        exit(IntegrationTableMapping.FindFirst);
+        exit(IntegrationTableMapping.FindFirst())
     end;
 
     local procedure FindJobQueueEntryForMapping(MapName: Code[20]; var JobQueueEntry: Record "Job Queue Entry"): Boolean
@@ -1222,7 +1219,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         IntegrationTableMapping.Get(MapName);
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-        exit(JobQueueEntry.FindFirst);
+        exit(JobQueueEntry.FindFirst())
     end;
 
     local procedure MockIntegrationSynchJobs(ExpectedNo: Integer) ID: Guid
@@ -1238,7 +1235,7 @@ codeunit 139187 "CRM Full Synchronization"
 
         IntegrationSynchJob.DeleteAll();
         for I := 1 to 3 do begin
-            IntegrationSynchJob.ID := CreateGuid;
+            IntegrationSynchJob.ID := CreateGuid();
             IntegrationSynchJob.Modified := I;
             IntegrationSynchJob."Integration Table Mapping Name" := IntegrationTableMapping.Name;
             IntegrationSynchJob.Insert();
@@ -1255,7 +1252,7 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueLogEntry.DeleteAll();
         for I := 1 to 3 do begin
             JobQueueLogEntry."Entry No." := I;
-            JobQueueLogEntry.ID := CreateGuid;
+            JobQueueLogEntry.ID := CreateGuid();
             JobQueueLogEntry.Description := Format(I);
             JobQueueLogEntry.Insert();
             if ExpectedNo = I then

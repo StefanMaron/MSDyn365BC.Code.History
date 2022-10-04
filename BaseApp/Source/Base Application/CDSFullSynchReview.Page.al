@@ -127,10 +127,6 @@ page 7208 "CDS Full Synch. Review"
                     ApplicationArea = Suite;
                     Caption = 'Refresh recommendation';
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Refresh the initial synchronization recommendations.';
 
                     trigger OnAction()
@@ -149,10 +145,6 @@ page 7208 "CDS Full Synch. Review"
                     Caption = 'Recommend Full Synchronization';
                     Enabled = ActionRecommendFullSynchEnabled;
                     Image = RefreshLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Recommend full synchronization job for the selected line.';
 
                     trigger OnAction()
@@ -161,6 +153,20 @@ page 7208 "CDS Full Synch. Review"
                         Rec.Modify();
                         CurrPage.Update();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(RefreshRecommendations_Promoted; RefreshRecommendations)
+                {
+                }
+                actionref(ScheduleFullSynch_Promoted; ScheduleFullSynch)
+                {
                 }
             }
         }

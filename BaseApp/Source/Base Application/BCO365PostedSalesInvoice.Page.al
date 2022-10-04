@@ -1,12 +1,15 @@
+#if not CLEAN21
 page 2313 "BC O365 Posted Sales Invoice"
 {
     Caption = 'Sent Invoice';
     DataCaptionExpression = '';
     Editable = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     RefreshOnActivate = true;
     SourceTable = "Sales Invoice Header";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,21 +18,21 @@ page 2313 "BC O365 Posted Sales Invoice"
             group("Sell to")
             {
                 Caption = 'Sell to';
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer Name';
                     ToolTip = 'Specifies the customer''s name.';
                 }
                 field(CustomerEmail; CustomerEmail)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email Address';
                     ExtendedDatatype = EMail;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     Caption = 'Outstanding Amount';
                     Enabled = false;
@@ -40,7 +43,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ShowCaption = false;
                     field(Status; Status)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         Caption = 'Status';
                         Enabled = false;
@@ -54,7 +57,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     Visible = IsDevice;
                     field(FullAddress; FullAddress)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address of the customer.';
@@ -70,7 +73,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                 }
                 field(ViewContactCard; ViewContactDetailsLbl)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
 
@@ -86,39 +89,39 @@ page 2313 "BC O365 Posted Sales Invoice"
                 {
                     ShowCaption = false;
                     Visible = NOT IsDevice;
-                    field("Sell-to Address"; "Sell-to Address")
+                    field("Sell-to Address"; Rec."Sell-to Address")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         ToolTip = 'Specifies the address where the customer is located.';
                     }
-                    field("Sell-to Address 2"; "Sell-to Address 2")
+                    field("Sell-to Address 2"; Rec."Sell-to Address 2")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address 2';
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Sell-to City"; "Sell-to City")
+                    field("Sell-to City"; Rec."Sell-to City")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'City';
                         ToolTip = 'Specifies the address city.';
                     }
-                    field("Sell-to Post Code"; "Sell-to Post Code")
+                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Post Code';
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Sell-to County"; "Sell-to County")
+                    field("Sell-to County"; Rec."Sell-to County")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'County';
                         ToolTip = 'Specifies the address county.';
                     }
-                    field("Sell-to Country/Region Code"; "Sell-to Country/Region Code")
+                    field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Country/Region Code';
                         ToolTip = 'Specifies the address country/region.';
                     }
@@ -127,21 +130,21 @@ page 2313 "BC O365 Posted Sales Invoice"
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Invoice No.';
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment Terms';
                 }
 #if not CLEAN19
-                field("Payment Instructions Name"; "Payment Instructions Name")
+                field("Payment Instructions Name"; Rec."Payment Instructions Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment Instructions';
                     ToolTip = 'Specifies how you want your customers to pay you.';
                     Visible = false;
@@ -150,42 +153,42 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ObsoleteTag = '19.0';
                 }
 #endif
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Due Date';
                     Importance = Promoted;
                     ToolTip = 'Specifies when the posted sales invoice must be paid.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Invoice Date';
                     ToolTip = 'Specifies when the posted sales invoice was created.';
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer is tax liable';
                     ToolTip = 'Specifies if the sales invoice contains sales tax.';
                     Visible = NOT IsUsingVAT;
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer tax rate';
                     ToolTip = 'Specifies the tax area code that is used to calculate and post sales tax.';
                     Visible = NOT IsUsingVAT;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = IsUsingVAT;
                 }
             }
             part(Lines; "BC O365 Posted Sale Inv. Lines")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
                 Editable = false;
                 SubPageLink = "Document No." = FIELD("No.");
@@ -199,7 +202,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ShowCaption = false;
                     field(Amount; Amount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Net Total';
@@ -209,7 +212,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     }
                     field(AmountInclVAT; "Amount Including VAT")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Total Including VAT';
@@ -231,17 +234,17 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ShowCaption = false;
                     field(SubTotalAmount; SubTotalAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Subtotal';
                     }
                     field(InvoiceDiscountAmount; -InvoiceDiscountAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
-                        CaptionClass = GetInvDiscountCaption;
+                        CaptionClass = GetInvDiscountCaption();
                         Caption = 'Invoice Discount';
                         Enabled = false;
                         Importance = Promoted;
@@ -249,7 +252,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     }
                     field(Amount2; Amount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Net Total';
@@ -257,9 +260,9 @@ page 2313 "BC O365 Posted Sales Invoice"
                         Importance = Promoted;
                         ToolTip = 'Specifies the total amount on the sales invoice excluding VAT.';
                     }
-                    field("Amount Including VAT2"; "Amount Including VAT")
+                    field("Amount Including VAT2"; Rec."Amount Including VAT")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Total Including VAT';
@@ -279,7 +282,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ShowCaption = false;
                     field(WorkDescription; WorkDescription)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Note for customer';
                         Editable = false;
                         MultiLine = true;
@@ -287,7 +290,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     }
                     field(NoOfAttachments; NoOfAttachmentsValueTxt)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         DrillDown = true;
                         Editable = false;
                         ShowCaption = false;
@@ -304,12 +307,12 @@ page 2313 "BC O365 Posted Sales Invoice"
         {
             part(PaymentHistory; "O365 Payment History ListPart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Visible = NOT Cancelled;
             }
             part(CustomerStatisticsFactBox; "BC O365 Cust. Stats FactBox")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Customer statistics';
                 SubPageLink = "No." = FIELD("Sell-to Customer No.");
             }
@@ -322,31 +325,23 @@ page 2313 "BC O365 Posted Sales Invoice"
         {
             action(MarkAsPaid)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Register payment';
                 Image = ApplyEntries;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Pay the invoice as specified in the default Payment Registration Setup.';
                 Visible = NOT IsFullyPaid AND NOT InvoiceCancelled AND (Amount <> 0) AND NOT IsCustomerBlocked;
 
                 trigger OnAction()
                 begin
                     if O365SalesInvoicePayment.MarkAsPaid("No.") then
-                        CurrPage.Close;
+                        CurrPage.Close();
                 end;
             }
             action(ShowPayments)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View Payments';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show a list of payments made for this invoice.';
                 Visible = NOT InvoiceCancelled AND (Amount <> 0);
 
@@ -357,31 +352,23 @@ page 2313 "BC O365 Posted Sales Invoice"
             }
             action(MarkAsUnpaid)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Cancel payment';
                 Image = ReverseRegister;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Cancel payment registrations for this invoice.';
                 Visible = IsFullyPaid AND NOT InvoiceCancelled AND (Amount <> 0) AND NOT IsCustomerBlocked;
 
                 trigger OnAction()
                 begin
                     if O365SalesInvoicePayment.CancelSalesInvoicePayment("No.") then
-                        CurrPage.Close;
+                        CurrPage.Close();
                 end;
             }
             action(ViewPdf)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View PDF';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View the final invoice as a PDF file.';
 
                 trigger OnAction()
@@ -389,23 +376,19 @@ page 2313 "BC O365 Posted Sales Invoice"
                     ReportSelections: Record "Report Selections";
                     DocumentPath: Text[250];
                 begin
-                    SetRecFilter;
+                    SetRecFilter();
                     LockTable();
-                    Find;
+                    Find();
                     ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
-                    Find;
+                    Find();
                 end;
             }
             action(Send)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Resend';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Resend the invoice.';
                 Visible = NOT InvoiceCancelled AND NOT IsCustomerBlocked;
 
@@ -418,13 +401,9 @@ page 2313 "BC O365 Posted Sales Invoice"
             }
             action(CancelInvoice)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Cancel invoice';
                 Image = Cancel;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Cancels the invoice.';
                 Visible = NOT InvoiceCancelled AND NOT IsCustomerBlocked;
 
@@ -435,14 +414,44 @@ page 2313 "BC O365 Posted Sales Invoice"
                     O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
                 begin
                     if SalesInvoiceHeader.Get("No.") then begin
-                        SalesInvoiceHeader.SetRecFilter;
+                        SalesInvoiceHeader.SetRecFilter();
                         O365SalesCancelInvoice.CancelInvoice(SalesInvoiceHeader);
                     end;
 
                     SalesInvoiceHeader.CalcFields(Cancelled);
                     if SalesInvoiceHeader.Cancelled then
-                        O365DocumentSendMgt.RecallEmailFailedNotification;
+                        O365DocumentSendMgt.RecallEmailFailedNotification();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(MarkAsPaid_Promoted; MarkAsPaid)
+                {
+                }
+                actionref(ShowPayments_Promoted; ShowPayments)
+                {
+                }
+                actionref(MarkAsUnpaid_Promoted; MarkAsUnpaid)
+                {
+                }
+                actionref(ViewPdf_Promoted; ViewPdf)
+                {
+                }
+                actionref(Send_Promoted; Send)
+                {
+                }
+                actionref(CancelInvoice_Promoted; CancelInvoice)
+                {
+                }
             }
         }
     }
@@ -457,19 +466,19 @@ page 2313 "BC O365 Posted Sales Invoice"
         O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
     begin
         IsFullyPaid := O365SalesInvoicePayment.GetPaymentCustLedgerEntry(DummyCustLedgerEntry, "No.");
-        FullAddress := GetFullAddress;
-        WorkDescription := GetWorkDescription;
+        FullAddress := GetFullAddress();
+        WorkDescription := GetWorkDescription();
         UpdateNoOfAttachmentsLabel(O365SalesAttachmentMgt.GetNoOfAttachments(Rec));
         InvoiceCancelled := O365SalesCancelInvoice.IsInvoiceCanceled(Rec);
         if Customer.Get("Sell-to Customer No.") then begin
             CustomerEmail := Customer."E-Mail";
-            IsCustomerBlocked := Customer.IsBlocked;
+            IsCustomerBlocked := Customer.IsBlocked();
         end;
-        UpdateCurrencyFormat;
+        UpdateCurrencyFormat();
         if TaxArea.Get("Tax Area Code") then
             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
         TempStandardAddress.CopyFromSalesInvoiceHeaderSellTo(Rec);
-        CalcInvoiceDiscount;
+        CalcInvoiceDiscount();
         DiscountVisible := InvoiceDiscountAmount <> 0;
         O365DocumentSendMgt.ShowSalesInvoiceHeaderFailedNotification(Rec);
         if IsCustomerBlocked then
@@ -493,15 +502,14 @@ page 2313 "BC O365 Posted Sales Invoice"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
     end;
 
     var
         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
         O365SalesInvoicePayment: Codeunit "O365 Sales Invoice Payment";
         O365SalesCancelInvoice: Codeunit "O365 Sales Cancel Invoice";
-        NoOfAttachmentsTxt: Label 'Attachments (%1)', Comment = '%1=an integer number, starting at 0';
         ClientTypeManagement: Codeunit "Client Type Management";
         O365SalesAttachmentMgt: Codeunit "O365 Sales Attachment Mgt";
         O365SalesManagement: Codeunit "O365 Sales Management";
@@ -516,9 +524,11 @@ page 2313 "BC O365 Posted Sales Invoice"
         TaxAreaDescription: Text[100];
         Status: Text;
         OutStandingStatusStyle: Text[30];
-        ViewContactDetailsLbl: Label 'Open contact details';
         IsDevice: Boolean;
         FullAddress: Text;
+
+        NoOfAttachmentsTxt: Label 'Attachments (%1)', Comment = '%1=an integer number, starting at 0';
+        ViewContactDetailsLbl: Label 'Open contact details';
 
     protected var
         InvoiceCancelled: Boolean;
@@ -552,10 +562,10 @@ page 2313 "BC O365 Posted Sales Invoice"
     begin
         if "Currency Code" = '' then begin
             GLSetup.Get();
-            CurrencySymbol := GLSetup.GetCurrencySymbol;
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
             if Currency.Get("Currency Code") then;
-            CurrencySymbol := Currency.GetCurrencySymbol;
+            CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
     end;
@@ -565,7 +575,7 @@ page 2313 "BC O365 Posted Sales Invoice"
         TempStandardAddress: Record "Standard Address" temporary;
     begin
         TempStandardAddress.CopyFromSalesInvoiceHeaderSellTo(Rec);
-        exit(TempStandardAddress.ToString);
+        exit(TempStandardAddress.ToString());
     end;
 
     local procedure GetInvDiscountCaption(): Text
@@ -573,7 +583,7 @@ page 2313 "BC O365 Posted Sales Invoice"
         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
         DiscountPercentage: Decimal;
     begin
-        CalcInvoiceDiscount;
+        CalcInvoiceDiscount();
 
         if SubTotalAmount = 0 then
             DiscountPercentage := 0
@@ -583,3 +593,4 @@ page 2313 "BC O365 Posted Sales Invoice"
         exit(O365SalesInvoiceMgmt.GetInvoiceDiscountCaption(DiscountPercentage));
     end;
 }
+#endif

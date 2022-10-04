@@ -9,7 +9,7 @@ report 509 "Change Log Entries"
         dataitem("Change Log Entry"; "Change Log Entry")
         {
             RequestFilterFields = "Date and Time";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Change_Log_Entry__GETFILTERS; GetFilters)
@@ -27,10 +27,10 @@ report 509 "Change Log Entries"
             column(Change_Log_Entry__Type_of_Change_; "Type of Change")
             {
             }
-            column(Change_Log_Entry__Old_Value_; GetLocalOldValue)
+            column(Change_Log_Entry__Old_Value_; GetLocalOldValue())
             {
             }
-            column(Change_Log_Entry__New_Value_; GetLocalNewValue)
+            column(Change_Log_Entry__New_Value_; GetLocalNewValue())
             {
             }
             column(Change_Log_Entry__User_ID_; "User ID")

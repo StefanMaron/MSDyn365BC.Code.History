@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2162 "O365 Social Networks"
 {
     Caption = 'Company Social Networks';
@@ -5,6 +6,9 @@ page 2162 "O365 Social Networks"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "O365 Social Network";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,13 +18,13 @@ page 2162 "O365 Social Networks"
             {
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name.';
                 }
                 field(URL; URL)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
         }
@@ -30,4 +34,4 @@ page 2162 "O365 Social Networks"
     {
     }
 }
-
+#endif

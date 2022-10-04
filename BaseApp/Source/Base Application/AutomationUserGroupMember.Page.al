@@ -15,7 +15,7 @@ page 5442 "Automation User Group Member"
         {
             repeater(Group)
             {
-                field("code"; "User Group Code")
+                field("code"; Rec."User Group Code")
                 {
                     ApplicationArea = All;
                     Caption = 'code', Locked = true;

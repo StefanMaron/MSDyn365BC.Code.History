@@ -42,7 +42,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         ApplnRounding := GeneralLedgerSetup."Appln. Rounding Precision";
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandInt(100);
-        ExchRateAmount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate);
+        ExchRateAmount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
         ExchRateAmount2 := ExchRateAmount + LibraryUtility.GenerateRandomFraction;
         ApplyPaymentWithHigherValue(DocumentNo, CurrencyCode, -Amount, ExchRateAmount2, LibraryRandom.RandInt(2));
         Amount := ExchRateAmount2 - ExchRateAmount;
@@ -99,7 +99,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         Initialize();
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandDec(100, 2);
-        ExchRateAmount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate);
+        ExchRateAmount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
         ApplyPaymentWithLowerValue(DocumentNo, CurrencyCode, -Amount, ExchRateAmount, 0);
     end;
 
@@ -228,7 +228,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
 
         // Create and Post General Line for Two Invoices and apply Payment with currency to both invoices
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 3, 3);
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify();
@@ -329,7 +329,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         if VendLedgerEntry2.FindSet() then
             repeat
                 LibraryERM.SetAppliestoIdVendor(VendLedgerEntry2);
-            until VendLedgerEntry2.Next = 0;
+            until VendLedgerEntry2.Next() = 0;
 
         // Post Application Entries.
         LibraryERM.PostVendLedgerApplication(VendLedgerEntry);
@@ -366,7 +366,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         DetailedVendorLedgEntry.FindFirst();
         Currency.Get(CurrencyCode);
         Assert.AreNearlyEqual(Amount, DetailedVendorLedgEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption(Amount), Amount, DetailedVendorLedgEntry.TableCaption));
+          StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption(Amount), Amount, DetailedVendorLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyDetldLdgrWithoutRounding(DocumentNo: Code[20])
@@ -388,7 +388,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
         GLEntry.Find('-');
         Assert.AreEqual(PayablesAmount, GLEntry.Amount, StrSubstNo('G/L payables amount should be %1', PayablesAmount));
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(CorrectionAmount, GLEntry.Amount, StrSubstNo('G/L correction amount should be %1.', CorrectionAmount));
     end;
 

@@ -16,7 +16,7 @@ table 7506 "Filter Item Attributes Buffer"
             begin
                 if not FindItemAttributeCaseInsensitive(ItemAttribute) then
                     Error(AttributeDoesntExistErr, Attribute);
-                CheckForDuplicate;
+                CheckForDuplicate();
                 AdjustAttributeName(ItemAttribute);
             end;
         }
@@ -59,7 +59,7 @@ table 7506 "Filter Item Attributes Buffer"
     trigger OnInsert()
     begin
         if IsNullGuid(ID) then
-            ID := CreateGuid;
+            ID := CreateGuid();
     end;
 
     var
@@ -80,14 +80,14 @@ table 7506 "Filter Item Attributes Buffer"
 
         FilterItemsAssistEdit.SetTableView(ItemAttribute);
         FilterItemsAssistEdit.LookupMode(true);
-        if FilterItemsAssistEdit.RunModal = ACTION::LookupOK then
-            Value := CopyStr(FilterItemsAssistEdit.GenerateFilter, 1, MaxStrLen(Value));
+        if FilterItemsAssistEdit.RunModal() = ACTION::LookupOK then
+            Value := CopyStr(FilterItemsAssistEdit.GenerateFilter(), 1, MaxStrLen(Value));
     end;
 
     local procedure FindItemAttributeCaseSensitive(var ItemAttribute: Record "Item Attribute"): Boolean
     begin
         ItemAttribute.SetRange(Name, Attribute);
-        exit(ItemAttribute.FindFirst);
+        exit(ItemAttribute.FindFirst());
     end;
 
     local procedure FindItemAttributeCaseInsensitive(var ItemAttribute: Record "Item Attribute"): Boolean

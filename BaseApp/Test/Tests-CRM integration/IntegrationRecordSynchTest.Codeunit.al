@@ -613,7 +613,7 @@ codeunit 139166 "Integration Record Synch. Test"
                 Assert.IsTrue(SourceFieldRef.Value = DestinationFieldRef.Value, 'Expected the two fields to match')
             else
                 Assert.IsTrue(GetTextValue(SourceFieldRef) = GetTextValue(DestinationFieldRef), 'Expected the two fields to match')
-        until Field.Next = 0;
+        until Field.Next() = 0;
     end;
 
     local procedure GetTextValue(var FieldRef: FieldRef): Text

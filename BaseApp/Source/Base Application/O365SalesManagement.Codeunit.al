@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2107 "O365 Sales Management"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -15,14 +19,14 @@ codeunit 2107 "O365 Sales Management"
         CustContUpdate: Codeunit "CustCont-Update";
     begin
         if GuiAllowed then
-            if Customer.HasAnyOpenOrPostedDocuments then begin
-                if Customer.IsBlocked then
+            if Customer.HasAnyOpenOrPostedDocuments() then begin
+                if Customer.IsBlocked() then
                     Error(BlockedErr);
                 if not Confirm(BlockQst, false) then
                     exit;
             end;
         CustContUpdate.DeleteCustomerContacts(Customer);
-        if Customer.HasAnyOpenOrPostedDocuments then begin
+        if Customer.HasAnyOpenOrPostedDocuments() then begin
             Customer.Validate(Blocked, Customer.Blocked::All);
             Customer.Modify(true);
             if GuiAllowed then
@@ -41,7 +45,7 @@ codeunit 2107 "O365 Sales Management"
         Item.Type := Item.Type::Service;
         Item."Costing Method" := Item."Costing Method"::FIFO;
 
-        if TaxSetup.Get then begin
+        if TaxSetup.Get() then begin
             if TaxSetup."Non-Taxable Tax Group Code" <> '' then
                 TaxGroup.SetFilter(Code, '<>%1', TaxSetup."Non-Taxable Tax Group Code");
             if TaxGroup.FindFirst() then
@@ -56,7 +60,7 @@ codeunit 2107 "O365 Sales Management"
             if VATProductPostingGroup.FindFirst() then
                 Item."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
 
-        if Item.Modify then;
+        if Item.Modify() then;
     end;
 
     procedure GetO365DocumentBrickStyle(O365SalesDocument: Record "O365 Sales Document"; var OutStandingStatusStyle: Text)
@@ -67,7 +71,7 @@ codeunit 2107 "O365 Sales Management"
             case true of
                 Canceled, "Last Email Sent Status" = "Last Email Sent Status"::Error:
                     OutStandingStatusStyle := '';
-                IsOverduePostedInvoice:
+                IsOverduePostedInvoice():
                     OutStandingStatusStyle := 'Unfavorable';
             end;
         end;
@@ -88,7 +92,7 @@ codeunit 2107 "O365 Sales Management"
             case true of
                 O365SalesDocument."Last Email Sent Status" = O365SalesDocument."Last Email Sent Status"::Error:
                     OutStandingStatusStyle := 'Attention';
-                O365SalesDocument.IsOverduePostedInvoice:
+                O365SalesDocument.IsOverduePostedInvoice():
                     OutStandingStatusStyle := 'Attention';
                 O365SalesDocument.Canceled:
                     OutStandingStatusStyle := 'Attention';
@@ -146,7 +150,7 @@ codeunit 2107 "O365 Sales Management"
         O365CountryRegionList.LookupMode(true);
         O365CountryRegionList.Editable(false);
 
-        if O365CountryRegionList.RunModal <> ACTION::LookupOK then
+        if O365CountryRegionList.RunModal() <> ACTION::LookupOK then
             Error('');
 
         O365CountryRegionList.GetRecord(O365CountryRegion);
@@ -188,4 +192,5 @@ codeunit 2107 "O365 Sales Management"
         QbDesktopVisible := (QbDesktopTitle <> '') or (QbDesktopDescription <> '');
     end;
 }
+#endif
 

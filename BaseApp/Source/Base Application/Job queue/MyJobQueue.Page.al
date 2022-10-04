@@ -13,7 +13,7 @@ page 675 "My Job Queue"
         {
             repeater(Group)
             {
-                field("Object Caption to Run"; "Object Caption to Run")
+                field("Object Caption to Run"; Rec."Object Caption to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Attention;
@@ -21,7 +21,7 @@ page 675 "My Job Queue"
                     ToolTip = 'Specifies the name of the object that is selected in the Object ID to Run field.';
                     Visible = false;
                 }
-                field("Parameter String"; "Parameter String")
+                field("Parameter String"; Rec."Parameter String")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a text string that is used as a parameter by the job queue when it is run.';
@@ -41,52 +41,42 @@ page 675 "My Job Queue"
                     StyleExpr = StatusIsError;
                     ToolTip = 'Specifies the status of the job queue entry. When you create a job queue entry, its status is set to On Hold. You can set the status to Ready and back to On Hold. Otherwise, status information in this field is updated automatically.';
                 }
-                field("Earliest Start Date/Time"; "Earliest Start Date/Time")
+                field("Earliest Start Date/Time"; Rec."Earliest Start Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date and time when the job queue entry should be run.';
                 }
-                field("Expiration Date/Time"; "Expiration Date/Time")
+                field("Expiration Date/Time"; Rec."Expiration Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time when the job queue entry is to expire, after which the job queue entry will not be run.';
                     Visible = false;
                 }
-                field("Job Queue Category Code"; "Job Queue Category Code")
+                field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the job queue category to which the job queue entry belongs. Choose the field to select a code from the list.';
                     Visible = false;
                 }
             }
+#if not CLEAN21
             group(Control18)
             {
                 ShowCaption = false;
-                usercontrol(PingPong; "Microsoft.Dynamics.Nav.Client.PingPong")
+                ObsoleteState = Pending;
+                ObsoleteReason = 'PingPong control has been deprecated.';
+                ObsoleteTag = '21.0';
+                field(PingPong; DeprecatedFuncTxt)
                 {
-                    ApplicationArea = Basic, Suite;
-
-                    trigger AddInReady()
-                    begin
-                        AddInReady := true;
-                        if not PrevLastJobQueueEntry.FindLast() then
-                            Clear(PrevLastJobQueueEntry);
-                        CurrPage.PingPong.Ping(10000);
-                    end;
-
-                    trigger Pong()
-                    var
-                        CurrLastJobQueueEntry: Record "Job Queue Entry";
-                    begin
-                        if not CurrLastJobQueueEntry.FindLast() then
-                            Clear(CurrLastJobQueueEntry);
-                        if (CurrLastJobQueueEntry.ID <> PrevLastJobQueueEntry.ID) or (CurrLastJobQueueEntry.Status <> PrevLastJobQueueEntry.Status) then
-                            CurrPage.Update(false);
-                        PrevLastJobQueueEntry := CurrLastJobQueueEntry;
-                        CurrPage.PingPong.Ping(10000);
-                    end;
+                    Visible = false;
+                    Caption = 'Deprecated';
+                    ToolTip = 'Deprecated';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'PingPong control has been deprecated.';
+                    ObsoleteTag = '21.0';
                 }
             }
+#endif
         }
     }
 
@@ -103,7 +93,7 @@ page 675 "My Job Queue"
 
                 trigger OnAction()
                 begin
-                    ShowErrorMessage;
+                    ShowErrorMessage();
                 end;
             }
             action(Cancel)
@@ -115,7 +105,7 @@ page 675 "My Job Queue"
 
                 trigger OnAction()
                 begin
-                    Cancel;
+                    Cancel();
                 end;
             }
             action(Restart)
@@ -127,7 +117,7 @@ page 675 "My Job Queue"
 
                 trigger OnAction()
                 begin
-                    Restart;
+                    Restart();
                 end;
             }
             action(ShowRecord)
@@ -139,7 +129,7 @@ page 675 "My Job Queue"
 
                 trigger OnAction()
                 begin
-                    LookupRecordToProcess;
+                    LookupRecordToProcess();
                 end;
             }
             action(ScheduleReport)
@@ -147,13 +137,11 @@ page 675 "My Job Queue"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Schedule a Report';
                 Image = "Report";
-                ToolTip = 'Add a report to a job queue. You must already have set up a job queue for scheduled reports.';
+                ToolTip = 'Schedule a report.';
 
                 trigger OnAction()
                 begin
-                    CurrPage.PingPong.Stop;
                     PAGE.RunModal(PAGE::"Schedule a Report");
-                    CurrPage.PingPong.Ping(1000);
                 end;
             }
             action(EditJob)
@@ -177,20 +165,13 @@ page 675 "My Job Queue"
     trigger OnOpenPage()
     begin
         SetRange("User ID", UserId);
-        AddInReady := false;
-    end;
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if AddInReady then
-            CurrPage.PingPong.Stop;
-        exit(true);
     end;
 
     var
-        PrevLastJobQueueEntry: Record "Job Queue Entry";
         [InDataSet]
         StatusIsError: Boolean;
-        AddInReady: Boolean;
+#if not CLEAN21
+        DeprecatedFuncTxt: Label 'This function has been deprecated.';
+#endif        
 }
 

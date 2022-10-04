@@ -15,7 +15,7 @@ page 855 "Cash Flow Account List"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,7 +25,7 @@ page 855 "Cash Flow Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the cash flow account.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the purpose of the cash flow account. Newly created cash flow accounts are automatically assigned the Entry account type, but you can change this.';
@@ -45,19 +45,19 @@ page 855 "Cash Flow Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cash flow amount.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
                     Visible = false;
                 }
-                field("G/L Integration"; "G/L Integration")
+                field("G/L Integration"; Rec."G/L Integration")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the cash flow account has integration with the general ledger. When a cash flow account has integration with the general ledger, either the balances of the general ledger accounts or their budgeted values are used in the cash flow forecast.';
                     Visible = false;
                 }
-                field("G/L Account Filter"; "G/L Account Filter")
+                field("G/L Account Filter"; Rec."G/L Account Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that only the cash flow entries that are registered to the filtered general ledger accounts are included in the cash flow forecast.';
@@ -111,7 +111,7 @@ page 855 "Cash Flow Account List"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        NameOnFormat;
+        NameOnFormat();
     end;
 
     var

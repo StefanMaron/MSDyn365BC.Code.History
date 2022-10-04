@@ -9,7 +9,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         // [FEATURE] [Assembly] [SCM]
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -351,7 +351,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     var
         DueDate: Date;
     begin
-        DueDate := CalcDate('<1Y>', WorkDate);
+        DueDate := CalcDate('<1Y>', WorkDate());
         TestAsmOrderExplodeBOM(false, DueDate);
     end;
 
@@ -362,7 +362,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     var
         DueDate: Date;
     begin
-        DueDate := CalcDate('<-1Y>', WorkDate);
+        DueDate := CalcDate('<-1Y>', WorkDate());
         TestAsmOrderExplodeBOM(false, DueDate);
     end;
 
@@ -373,7 +373,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     var
         DueDate: Date;
     begin
-        DueDate := CalcDate('<1Y>', WorkDate);
+        DueDate := CalcDate('<1Y>', WorkDate());
         TestAsmOrderExplodeBOM(true, DueDate);
     end;
 
@@ -384,7 +384,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     var
         DueDate: Date;
     begin
-        DueDate := CalcDate('<-1Y>', WorkDate);
+        DueDate := CalcDate('<-1Y>', WorkDate());
         TestAsmOrderExplodeBOM(true, DueDate);
     end;
 
@@ -407,7 +407,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         DimValueCode := CreateSalesOrderForAssemblyItemWithDim(DimSetID, Item);
 
         // [WHEN] Calculate Regenerative Plan
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate(), WorkDate());
 
         // [THEN] Planning Component is created with Dimension = "Y" and "Shortcut Dimension Code 1" = "Z"
         PlanningComponent.SetRange("Item No.", Item[2]."No.");
@@ -438,7 +438,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         CreateSalesOrderForAssemblyItemWithDim(DimSetID, Item);
 
         // [GIVEN] Calculate Regenerative Plan for Parent Item
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate(), WorkDate());
         AcceptActionMessageOnReqLines(RequisitionLine, Item[1]."No.");
 
         // [WHEN] Carry Out Action Message
@@ -470,7 +470,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         CreateSalesOrderForAssemblyItemWithDim(DimSetID, Item);
 
         // [GIVEN] Calculate Regenerative Plan for Parent Item
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate(), WorkDate());
         AcceptActionMessageOnReqLines(RequisitionLine, Item[1]."No.");
 
         // [WHEN] Carry Out Action Message
@@ -518,7 +518,7 @@ codeunit 137907 "SCM Assembly Order Functions"
           BOMComponent, ParentItem."No.", BOMComponent.Type::Resource, LibraryAssembly.CreateResource(Resource, true, ''), 1, '');
 
         // [WHEN] Create Assembly Header for PAI and populate Quantity
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, ParentItem."No.", '', LibraryRandom.RandInt(10), '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), ParentItem."No.", '', LibraryRandom.RandInt(10), '');
 
         with AssemblyLine do begin
             SetRange("Document Type", AssemblyHeader."Document Type");
@@ -663,7 +663,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         BOMComponent.Modify(true);
 
         // [WHEN] Create Assembly Header for "A" and populate Quantity
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, ParentItem."No.", '', LibraryRandom.RandInt(10), '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), ParentItem."No.", '', LibraryRandom.RandInt(10), '');
 
         // [THEN] "Description" = "Modified" on the Assembly Line
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
@@ -755,7 +755,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         AssemblySetup: Record "Assembly Setup";
     begin
         with AssemblySetup do begin
-            Get;
+            Get();
             Validate("Copy Component Dimensions from", CopyComponentDimensionsFrom);
             Modify(true);
         end;
@@ -781,11 +781,11 @@ codeunit 137907 "SCM Assembly Order Functions"
         DimMgt: Codeunit DimensionManagement;
     begin
         with TempDimSetEntry do begin
-            Init;
+            Init();
             "Dimension Code" := DimensionValue."Dimension Code";
             "Dimension Value Code" := DimensionValue.Code;
             "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert;
+            Insert();
         end;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
@@ -951,7 +951,7 @@ codeunit 137907 "SCM Assembly Order Functions"
                         AsmLine.TestField(Description, ParentItemDesc2);
                     end;
             end;
-        until AsmLine.Next = 0;
+        until AsmLine.Next() = 0;
 
         Assert.AreEqual(
           ExpectedNoLines,

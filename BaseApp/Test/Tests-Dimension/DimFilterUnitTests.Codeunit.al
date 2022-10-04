@@ -40,10 +40,10 @@ codeunit 134822 "DimFilter Unit Tests"
         SetupTestData;
         DimensionMgt.GetDimSetIDsForFilter('', '');
         DimensionMgt.GetTempDimSetEntry(TempDimSetEntry);
-        Assert.IsFalse(TempDimSetEntry.IsEmpty, StrSubstNo(Text005, TempDimSetEntry.TableCaption));
-        DimensionMgt.ClearDimSetFilter;
+        Assert.IsFalse(TempDimSetEntry.IsEmpty, StrSubstNo(Text005, TempDimSetEntry.TableCaption()));
+        DimensionMgt.ClearDimSetFilter();
         DimensionMgt.GetTempDimSetEntry(TempDimSetEntry);
-        Assert.IsTrue(TempDimSetEntry.IsEmpty, StrSubstNo(Text005, TempDimSetEntry.TableCaption));
+        Assert.IsTrue(TempDimSetEntry.IsEmpty, StrSubstNo(Text005, TempDimSetEntry.TableCaption()));
     end;
 
     [Test]
@@ -53,9 +53,9 @@ codeunit 134822 "DimFilter Unit Tests"
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
         // See if returns 0 records if none were added.
-        DimensionMgt.ClearDimSetFilter;
+        DimensionMgt.ClearDimSetFilter();
         DimensionMgt.GetTempDimSetEntry(TempDimSetEntry);
-        Assert.IsTrue(TempDimSetEntry.IsEmpty, StrSubstNo(Text000, TempDimSetEntry.TableCaption));
+        Assert.IsTrue(TempDimSetEntry.IsEmpty, StrSubstNo(Text000, TempDimSetEntry.TableCaption()));
     end;
 
     [Test]
@@ -67,12 +67,12 @@ codeunit 134822 "DimFilter Unit Tests"
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
         // Try to add a nonexisting dimvalue
-        DimensionMgt.ClearDimSetFilter;
+        DimensionMgt.ClearDimSetFilter();
         DimensionMgt.GetDimSetIDsForFilter(
           CopyStr(LibraryUtility.GenerateRandomCode(Dimension.FieldNo(Code), DATABASE::Dimension), 1, 20),
           LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value"));
         DimensionMgt.GetTempDimSetEntry(TempDimSetEntry);
-        Assert.IsTrue(TempDimSetEntry.IsEmpty, StrSubstNo(Text000, TempDimSetEntry.TableCaption));
+        Assert.IsTrue(TempDimSetEntry.IsEmpty, StrSubstNo(Text000, TempDimSetEntry.TableCaption()));
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 134822 "DimFilter Unit Tests"
         SetupTestData;
         Count := 1;
         AddDimSetIDsToTemp(DimensionValue, DimSetEntry, TempDimSetEntry, DimCode3, Count);
-        Assert.AreEqual(0, TempDimSetEntry.Next, StrSubstNo(Text001, TempDimSetEntry.TableCaption));
+        Assert.AreEqual(0, TempDimSetEntry.Next, StrSubstNo(Text001, TempDimSetEntry.TableCaption()));
         DimSetEntry.TestField("Dimension Code", DimCode3);
         DimSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
         Assert.AreEqual(Count, TempDimSetEntry."Dimension Value ID", Text003);
@@ -107,7 +107,7 @@ codeunit 134822 "DimFilter Unit Tests"
         SetupTestData;
         count := 1 + LibraryRandom.RandInt(9);
         AddDimSetIDsToTemp(DimensionValue, DimSetEntry, TempDimSetEntry, DimCode3, count);
-        Assert.AreEqual(0, TempDimSetEntry.Next, StrSubstNo(Text001, TempDimSetEntry.TableCaption));
+        Assert.AreEqual(0, TempDimSetEntry.Next, StrSubstNo(Text001, TempDimSetEntry.TableCaption()));
         DimSetEntry.TestField("Dimension Code", DimCode3);
         DimSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
         Assert.AreEqual(count, TempDimSetEntry."Dimension Value ID", Text003);
@@ -135,7 +135,7 @@ codeunit 134822 "DimFilter Unit Tests"
         AddDimSetIDsToTemp(DimensionValue, DimSetEntry, TempDimSetEntry, DimCode4, count2);
         DimValueCode2 := DimensionValue.Code;
 
-        Assert.AreEqual(2, TempDimSetEntry.Count, StrSubstNo(Text004, TempDimSetEntry.TableCaption));
+        Assert.AreEqual(2, TempDimSetEntry.Count, StrSubstNo(Text004, TempDimSetEntry.TableCaption()));
 
         TempDimSetEntry.FindFirst();
         repeat
@@ -152,7 +152,7 @@ codeunit 134822 "DimFilter Unit Tests"
                         Assert.AreEqual(count2, TempDimSetEntry."Dimension Value ID", Text003);
                     end;
             end;
-        until TempDimSetEntry.Next = 0;
+        until TempDimSetEntry.Next() = 0;
     end;
 
     [Test]
@@ -316,7 +316,7 @@ codeunit 134822 "DimFilter Unit Tests"
         SetupTestData;
         InvalidDimValue := LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value");
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, InvalidDimValue);
-        DimFilter := DimensionMgt.GetDimSetFilter;
+        DimFilter := DimensionMgt.GetDimSetFilter();
         Assert.AreEqual(0, StrLen(DimFilter), Text007);
     end;
 
@@ -332,8 +332,8 @@ codeunit 134822 "DimFilter Unit Tests"
         // DimFiterChunk should not have a '|'
         SetupTestData;
         CreateTempActualTable(TempActualDimSetEntry, DimCode4, GetRandomDimValue(DimCode4));
-        DimFilter := DimensionMgt.GetDimSetFilter;
-        Assert.AreEqual(0, StrPos(DimFilter, '|'), StrSubstNo(Text001, TempActualDimSetEntry.TableCaption));
+        DimFilter := DimensionMgt.GetDimSetFilter();
+        Assert.AreEqual(0, StrPos(DimFilter, '|'), StrSubstNo(Text001, TempActualDimSetEntry.TableCaption()));
     end;
 
     [Test]
@@ -347,9 +347,9 @@ codeunit 134822 "DimFilter Unit Tests"
         // DimFilterChunk should have one '|'
         SetupTestData;
         CreateTempActualTable(TempActualDimSetEntry, DimCode5, GetRandomDimValue(DimCode5));
-        DimFilter := DimensionMgt.GetDimSetFilter;
+        DimFilter := DimensionMgt.GetDimSetFilter();
         Assert.AreEqual(0, StrPos(CopyStr(DimFilter, StrPos(DimFilter, '|') + 1), '|'),
-          StrSubstNo(Text001, TempActualDimSetEntry.TableCaption));
+          StrSubstNo(Text001, TempActualDimSetEntry.TableCaption()));
     end;
 
     [Test]
@@ -363,9 +363,9 @@ codeunit 134822 "DimFilter Unit Tests"
         // Compare the values in Temp table with FilterChunk
         SetupTestData;
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, GetRandomDimValue(DimCode1));
-        DimFilter := DimensionMgt.GetDimSetFilter;
+        DimFilter := DimensionMgt.GetDimSetFilter();
         CompareTempTableAndFilter(TempActualDimSetEntry, DimFilter);
-        Assert.AreEqual(0, TempActualDimSetEntry.Count, StrSubstNo(Text000, TempActualDimSetEntry.TableCaption));
+        Assert.AreEqual(0, TempActualDimSetEntry.Count, StrSubstNo(Text000, TempActualDimSetEntry.TableCaption()));
     end;
 
     [Test]
@@ -383,7 +383,7 @@ codeunit 134822 "DimFilter Unit Tests"
         // Exercise: Open Dimension Combinations Page and set Show Column Name.
         DimensionCombinations.OpenEdit;
         DimensionCombinations.ShowColumnName.SetValue(true);
-        DimensionCombinations.MatrixForm.Next;
+        DimensionCombinations.MatrixForm.Next();
         Dimension.Get(DimensionCombinations.MatrixForm.Code.Value);
         // Verify : Verify the Value of Field.
         Assert.AreEqual(
@@ -454,7 +454,7 @@ codeunit 134822 "DimFilter Unit Tests"
 
     local procedure SetupTestData()
     begin
-        DimensionMgt.ClearDimSetFilter;
+        DimensionMgt.ClearDimSetFilter();
         if TestDataSetUp then
             exit;
 
@@ -506,7 +506,7 @@ codeunit 134822 "DimFilter Unit Tests"
         if DimensionValue.FindSet() then
             repeat
                 LibraryDim.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code)
-            until DimensionValue.Next = 0;
+            until DimensionValue.Next() = 0;
     end;
 
     local procedure CreateCombDimensionSetIDs(BaseDimCode: Code[20]; AddDimCode: Code[20])
@@ -526,8 +526,8 @@ codeunit 134822 "DimFilter Unit Tests"
                 if DimensionSetEntry.FindSet() then
                     repeat
                         LibraryDim.CreateDimSet(DimensionSetEntry."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
-                    until DimensionSetEntry.Next = 0;
-            until DimensionValue.Next = 0;
+                    until DimensionSetEntry.Next() = 0;
+            until DimensionValue.Next() = 0;
     end;
 
     local procedure GetRandomDimValue(DimCode: Code[20]): Text[20]
@@ -591,13 +591,13 @@ codeunit 134822 "DimFilter Unit Tests"
                     DimSetEntry.SetRange("Dimension Value Code", DimValueFilter);
                 if DimSetEntry.FindFirst() then
                     exit(true);
-            until ExpectedDimSetEntry.Next = 0;
+            until ExpectedDimSetEntry.Next() = 0;
         exit(false);
     end;
 
     local procedure CreateTempActualTable(var TempActualDimSetEntry: Record "Dimension Set Entry" temporary; DimCode: Code[20]; DimValueFilter: Text[250])
     begin
-        DimensionMgt.ClearDimSetFilter;
+        DimensionMgt.ClearDimSetFilter();
         DimensionMgt.GetDimSetIDsForFilter(DimCode, DimValueFilter);
         DimensionMgt.GetTempDimSetEntry(TempActualDimSetEntry);
     end;

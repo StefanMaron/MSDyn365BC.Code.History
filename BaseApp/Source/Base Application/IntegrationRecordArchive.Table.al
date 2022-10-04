@@ -75,11 +75,11 @@ table 5152 "Integration Record Archive"
         if FindRecordId.TableNo = 0 then
             exit(false);
 
-        Reset;
+        Reset();
         SetCurrentKey("Table ID", "Record ID");
         SetRange("Table ID", FindRecordId.TableNo);
         SetRange("Record ID", FindRecordId);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 }
 

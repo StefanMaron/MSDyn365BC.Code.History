@@ -62,8 +62,8 @@ table 9510 "Email Parameter"
     procedure GetParameterValue(): Text
     begin
         CalcFields("Parameter BLOB");
-        if "Parameter BLOB".HasValue then
-            exit(GetTextFromBLOB);
+        if "Parameter BLOB".HasValue() then
+            exit(GetTextFromBLOB());
 
         exit("Parameter Value");
     end;
@@ -74,7 +74,7 @@ table 9510 "Email Parameter"
     begin
         ParameterAlreadyExists := Get(DocumentNo, DocumentType, ParameterType);
         if not ParameterAlreadyExists then begin
-            Init;
+            Init();
             "Document No" := DocumentNo;
             "Document Type" := "Sales Document Type".FromInteger(DocumentType);
             "Parameter Type" := "Email Parameter Type".FromInteger(ParameterType);
@@ -88,9 +88,9 @@ table 9510 "Email Parameter"
             WriteToBLOB(ParameterValue);
 
         if ParameterAlreadyExists then
-            Modify
+            Modify()
         else
-            Insert;
+            Insert();
     end;
 
     procedure SaveParameterValueWithReportUsage(DocumentNo: Code[20]; ReportUsage: Integer; ParameterType: Option; ParameterValue: Text)
@@ -120,7 +120,7 @@ table 9510 "Email Parameter"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Parameter BLOB"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 }
 

@@ -327,7 +327,7 @@ report 5176 "Archived Blanket Sales Order"
                         column(TotalExclVATText; TotalExclVATText)
                         {
                         }
-                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText)
+                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalInclVATText; TotalInclVATText)
@@ -361,7 +361,7 @@ report 5176 "Archived Blanket Sales Order"
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine_VATAmountText_Control133; TempVATAmountLine.VATAmountText)
+                        column(VATAmountLine_VATAmountText_Control133; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(VATAmount_Control134; VATAmount)
@@ -477,7 +477,7 @@ report 5176 "Archived Blanket Sales Order"
                             if Number = 1 then
                                 TempSalesLineArchive.Find('-')
                             else
-                                TempSalesLineArchive.Next;
+                                TempSalesLineArchive.Next();
                             "Sales Line Archive" := TempSalesLineArchive;
 
                             if not "Sales Header Archive"."Prices Including VAT" and
@@ -757,7 +757,7 @@ report 5176 "Archived Blanket Sales Order"
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Sales Header Archive"."Currency Code" = '') or
-                               (TempVATAmountLine.GetTotalVATAmount = 0)
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
@@ -859,14 +859,14 @@ report 5176 "Archived Blanket Sales Order"
                     TempVATAmountLine.DeleteAll();
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"SalesCount-PrintedArch", "Sales Header Archive");
                 end;
 
@@ -979,7 +979,7 @@ report 5176 "Archived Blanket Sales Order"
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -1053,7 +1053,7 @@ report 5176 "Archived Blanket Sales Order"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var SalesHeaderArchive: Record "Sales Header Archive")

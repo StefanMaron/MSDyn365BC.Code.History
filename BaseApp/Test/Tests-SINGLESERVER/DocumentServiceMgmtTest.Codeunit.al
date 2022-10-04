@@ -48,7 +48,7 @@ codeunit 139101 "Document Service Mgmt Test"
         CreateValidDocumentServiceConfig;
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
-        ClearLastError;
+        ClearLastError();
         DocumentServiceMgt.TestConnection;
         if GetLastErrorText <> '' then
             Error(TestUnexpectedErr, GetLastErrorText);
@@ -89,12 +89,12 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
         CreateValidDocumentServiceConfig;
-        if not DocumentServiceMgt.IsConfigured then
+        if not DocumentServiceMgt.IsConfigured() then
             Error(TestIsConfiguredTrue1Err);
 
         // IsConfigured should not care whether the configuration can successfully connect.
         CreateInvalidDocumentServiceConfig;
-        if not DocumentServiceMgt.IsConfigured then
+        if not DocumentServiceMgt.IsConfigured() then
             Error(TestIsConfiguredTrue2Err);
     end;
 
@@ -106,7 +106,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
         DocumentServiceConfiguration.DeleteAll();
-        if DocumentServiceMgt.IsConfigured then
+        if DocumentServiceMgt.IsConfigured() then
             Error(TestIsConfiguredFalseErr);
     end;
 
@@ -204,7 +204,7 @@ codeunit 139101 "Document Service Mgmt Test"
         SampleFile := CreateSampleFile;
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
-        ClearLastError;
+        ClearLastError();
         DocumentServiceMgt.SaveFile(SampleFile, MockNonExistingTargetFileTok, Enum::"Doc. Service Conflict Behavior"::Rename);
 
         Erase(SampleFile);
@@ -223,7 +223,7 @@ codeunit 139101 "Document Service Mgmt Test"
         SampleFile := CreateSampleFile;
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
-        ClearLastError;
+        ClearLastError();
         DocumentServiceMgt.SaveFile(SampleFile, MockExistingTargetFileTok, Enum::"Doc. Service Conflict Behavior"::Replace);
 
         Erase(SampleFile);
@@ -275,7 +275,7 @@ codeunit 139101 "Document Service Mgmt Test"
 
         DocumentServiceMgt.SetServiceType(AlternateMockServiceTypeTok);
 
-        ClearLastError;
+        ClearLastError();
         asserterror DocumentServiceMgt.TestConnection;
         Assert.ExpectedError(AlternateMockCannotConnectErr);
     end;
@@ -290,11 +290,11 @@ codeunit 139101 "Document Service Mgmt Test"
 
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
-        ClearLastError;
+        ClearLastError();
         asserterror DocumentServiceMgt.TestConnection;
         Assert.ExpectedError(MockConnectErr);
 
-        ClearLastError;
+        ClearLastError();
         asserterror DocumentServiceMgt.TestConnection;
         Assert.ExpectedError(MockConnectErr);
     end;
@@ -319,7 +319,7 @@ codeunit 139101 "Document Service Mgmt Test"
     begin
         // Clean configuration table to ensure SharePoint is NOT configured.
         DocumentService.DeleteAll();
-        if DocumentServiceManagement.IsConfigured then
+        if DocumentServiceManagement.IsConfigured() then
             Error(TestDocumentConfiguredErr);
 
         asserterror DocumentServiceManagement.OpenDocument('abc');
@@ -354,7 +354,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
         DocumentService.DeleteAll();
-        if DocumentServiceManagement.IsConfigured then
+        if DocumentServiceManagement.IsConfigured() then
             Error(TestDocumentConfiguredErr);
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
         Assert.IsFalse(DocumentServiceManagement.IsServiceUri(MockValidLocationTok),
@@ -369,7 +369,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
         DocumentService.DeleteAll();
-        if DocumentServiceManagement.IsConfigured then
+        if DocumentServiceManagement.IsConfigured() then
             Error(TestDocumentConfiguredErr);
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
         Assert.IsFalse(DocumentServiceManagement.IsServiceUri(''),
@@ -395,7 +395,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
         CreateValidDocumentServiceConfig;
-        if not DocumentServiceManagement.IsConfigured then
+        if not DocumentServiceManagement.IsConfigured() then
             Error(TestIsConfiguredTrue1Err);
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
         Assert.IsFalse(DocumentServiceManagement.IsServiceUri('C:\TEMP\File.ext'),
@@ -427,7 +427,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceConfiguration: Record "Document Service";
     begin
         with DocumentServiceConfiguration do begin
-            Init;
+            Init();
             "Service ID" := ServiceID;
             Description := ServiceDescription;
             Location := Loc;
@@ -466,12 +466,12 @@ codeunit 139101 "Document Service Mgmt Test"
     begin
         // Leverages CREATETEMPFILE to create a permanent file
         // with a generated, unique name and in a known location.
-        TempFile.CreateTempFile;
+        TempFile.CreateTempFile();
         FileName := TempFile.Name;
-        TempFile.Close;
+        TempFile.Close();
         TempFile.Create(FileName);
         TempFile.Write('Hello World!');
-        TempFile.Close;
+        TempFile.Close();
         exit(FileName);
     end;
 }

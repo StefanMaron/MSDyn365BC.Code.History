@@ -18,13 +18,13 @@ page 1880 "VAT Assisted Setup Template"
                     Editable = false;
                     ToolTip = 'Specifies a description of the VAT assisted setup.';
                 }
-                field("Default VAT Bus. Posting Grp"; "Default VAT Bus. Posting Grp")
+                field("Default VAT Bus. Posting Grp"; Rec."Default VAT Bus. Posting Grp")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default VAT business posting group for the customers and vendors.';
                     Visible = VATBusPostingVisible;
                 }
-                field("Default VAT Prod. Posting Grp"; "Default VAT Prod. Posting Grp")
+                field("Default VAT Prod. Posting Grp"; Rec."Default VAT Prod. Posting Grp")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default VAT production posting group for the customers and vendors.';
@@ -40,8 +40,8 @@ page 1880 "VAT Assisted Setup Template"
 
     trigger OnOpenPage()
     begin
-        PopulateRecFromTemplates;
-        ShowCustomerTemplate;
+        PopulateRecFromTemplates();
+        ShowCustomerTemplate();
     end;
 
     var
@@ -50,7 +50,7 @@ page 1880 "VAT Assisted Setup Template"
 
     procedure ShowCustomerTemplate()
     begin
-        ResetVisibility;
+        ResetVisibility();
         VATBusPostingVisible := true;
         SetRange("Table ID", DATABASE::Customer);
         CurrPage.Update();
@@ -58,7 +58,7 @@ page 1880 "VAT Assisted Setup Template"
 
     procedure ShowVendorTemplate()
     begin
-        ResetVisibility;
+        ResetVisibility();
         VATBusPostingVisible := true;
         SetRange("Table ID", DATABASE::Vendor);
         CurrPage.Update();
@@ -66,7 +66,7 @@ page 1880 "VAT Assisted Setup Template"
 
     procedure ShowItemTemplate()
     begin
-        ResetVisibility;
+        ResetVisibility();
         VATProdPostingVisible := true;
         SetRange("Table ID", DATABASE::Item);
         CurrPage.Update();

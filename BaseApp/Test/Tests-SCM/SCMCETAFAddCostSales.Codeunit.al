@@ -177,7 +177,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         Initialize();
 
         // Setup. Ship 2 orders.
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Qty := LibraryRandom.RandIntInRange(3, 100);
         QtyPer := LibraryRandom.RandIntInRange(3, 10);
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
@@ -334,7 +334,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         SetAverageCostCalcTypeItem;
 
         // Setup: purchase invoice/order with and without variant.
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Qty := LibraryRandom.RandIntInRange(3, 100);
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
@@ -511,7 +511,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         if Confirm('') then; // workaround for ES.
 
         // Setup: purchase invoice with and without variant.
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Qty := LibraryRandom.RandIntInRange(3, 100);
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);

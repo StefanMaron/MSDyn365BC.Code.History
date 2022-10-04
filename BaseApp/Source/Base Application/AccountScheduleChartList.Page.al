@@ -11,7 +11,7 @@ page 767 "Account Schedule Chart List"
         {
             repeater(Group)
             {
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -22,41 +22,41 @@ page 767 "Account Schedule Chart List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the specific chart.';
                 }
-                field("Account Schedule Name"; "Account Schedule Name")
+                field("Account Schedule Name"; Rec."Account Schedule Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the account schedule that is used to generate the chart that is shown in the Finance Performance window.';
                     Visible = false;
                 }
-                field("Column Layout Name"; "Column Layout Name")
+                field("Column Layout Name"; Rec."Column Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the column layout in the account schedule that is used to generate the advanced chart that is shown in the Finance Performance window.';
                     Visible = false;
                 }
-                field("Base X-Axis on"; "Base X-Axis on")
+                field("Base X-Axis on"; Rec."Base X-Axis on")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the values from the selected account schedule are displayed in the specific chart.';
                     Visible = false;
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the first date on which account schedule values are included in the chart.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which account schedule values are included in the chart.';
                 }
-                field("Period Length"; "Period Length")
+                field("Period Length"; Rec."Period Length")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the length of periods in the chart.';
                     Visible = false;
                 }
-                field("No. of Periods"; "No. of Periods")
+                field("No. of Periods"; Rec."No. of Periods")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many periods are shown in the chart.';
@@ -77,7 +77,7 @@ page 767 "Account Schedule Chart List"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Start Date" := WorkDate;
+        "Start Date" := WorkDate();
     end;
 }
 

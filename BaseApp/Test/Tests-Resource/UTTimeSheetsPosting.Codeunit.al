@@ -70,7 +70,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ResJnlLine.SetRange("Resource No.", TimeSheetHeader."Resource No.");
         repeat
             ResJnlPostLine.RunWithCheck(ResJnlLine);
-        until ResJnlLine.Next = 0;
+        until ResJnlLine.Next() = 0;
 
         // time sheet line must be marked as posted
         TimeSheetLine.Get(TimeSheetLine."Time Sheet No.", TimeSheetLine."Line No.");
@@ -133,7 +133,7 @@ codeunit 136502 "UT Time Sheets Posting"
         JobJnlLine.SetRange("No.", TimeSheetHeader."Resource No.");
         repeat
             JobJnlPostLine.RunWithCheck(JobJnlLine);
-        until JobJnlLine.Next = 0;
+        until JobJnlLine.Next() = 0;
 
         // time sheet line must be marked as posted
         TimeSheetLine.Get(TimeSheetLine."Time Sheet No.", TimeSheetLine."Line No.");
@@ -266,7 +266,7 @@ codeunit 136502 "UT Time Sheets Posting"
         Resource.Validate("Time Sheet Approver User ID", UserId);
         Resource.Modify();
 
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, WorkDate);
+        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, WorkDate());
 
         // create service line
         CreateServiceLine(ServiceLine, ServiceHeader, Resource."No.", LibraryTimeSheet.GetRandomDecimal);
@@ -421,8 +421,8 @@ codeunit 136502 "UT Time Sheets Posting"
                 repeat
                     ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity / 2);
                     ServiceLine.Modify();
-                until ServiceLine.Next = 0;
-            ServiceHeader.Find;
+                until ServiceLine.Next() = 0;
+            ServiceHeader.Find();
             LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
             LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, true);
         end;
@@ -461,8 +461,8 @@ codeunit 136502 "UT Time Sheets Posting"
                     ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity / 2);
                     ServiceLine.Validate("Qty. to Invoice", 0);
                     ServiceLine.Modify();
-                until ServiceLine.Next = 0;
-            ServiceHeader.Find;
+                until ServiceLine.Next() = 0;
+            ServiceHeader.Find();
             LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
             LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, false);
         end;
@@ -551,7 +551,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ServiceLine.Validate(Quantity, TimeSheetLine."Total Quantity" + LibraryTimeSheet.GetRandomDecimal);
         ServiceLine.Modify();
 
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
     end;
@@ -581,7 +581,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
         ServiceLine.Modify();
 
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
     end;
@@ -687,7 +687,7 @@ codeunit 136502 "UT Time Sheets Posting"
 
         ServiceLine.Validate("Qty. to Ship", Delta);
         ServiceLine.Modify();
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         ServiceShipmentLine.SetRange("Order No.", ServiceHeaderNo);
@@ -1016,7 +1016,7 @@ codeunit 136502 "UT Time Sheets Posting"
         TimeSheetPostingEntry.FindLast();
         Assert.AreEqual(
           Quantity, TimeSheetPostingEntry.Quantity,
-          StrSubstNo(Text024, TimeSheetPostingEntry.TableCaption, TimeSheetPostingEntry.FieldCaption(Quantity)));
+          StrSubstNo(Text024, TimeSheetPostingEntry.TableCaption(), TimeSheetPostingEntry.FieldCaption(Quantity)));
     end;
 
     local procedure CheckJobJnlLineRemainingQuantity(var JobJnlLine: Record "Job Journal Line"; ResourceNo: Code[20]; TimeSheetLineRemainingQuantity: Decimal)
@@ -1026,7 +1026,7 @@ codeunit 136502 "UT Time Sheets Posting"
         JobJnlLine.SetRange("No.", ResourceNo);
         JobJnlLine.FindLast();
         Assert.AreEqual(
-          TimeSheetLineRemainingQuantity, JobJnlLine.Quantity, StrSubstNo(Text024, JobJnlLine.TableCaption, JobJnlLine.FieldCaption(Quantity)));
+          TimeSheetLineRemainingQuantity, JobJnlLine.Quantity, StrSubstNo(Text024, JobJnlLine.TableCaption(), JobJnlLine.FieldCaption(Quantity)));
     end;
 
     local procedure CheckResJnlLineRemainingQuantity(var ResJnlLine: Record "Res. Journal Line"; ResourceNo: Code[20]; TimeSheetLineRemainingQuantity: Decimal)
@@ -1036,7 +1036,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ResJnlLine.SetRange("Resource No.", ResourceNo);
         ResJnlLine.FindLast();
         Assert.AreEqual(
-          TimeSheetLineRemainingQuantity, ResJnlLine.Quantity, StrSubstNo(Text024, ResJnlLine.TableCaption, ResJnlLine.FieldCaption(Quantity)));
+          TimeSheetLineRemainingQuantity, ResJnlLine.Quantity, StrSubstNo(Text024, ResJnlLine.TableCaption(), ResJnlLine.FieldCaption(Quantity)));
     end;
 
     local procedure CheckServicelLineRemainingQuantity(var ServiceLine: Record "Service Line"; ServiceHeaderNo: Code[20]; TimeSheetLine: Record "Time Sheet Line"; TimeSheetLineRemainingQuantity: Decimal; Consume: Boolean)

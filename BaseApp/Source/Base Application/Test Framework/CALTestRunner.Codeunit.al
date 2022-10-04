@@ -9,7 +9,7 @@ codeunit 130400 "CAL Test Runner"
         if CALTestSuite.Get("Test Suite") then begin
             CALTestLine.Copy(Rec);
             CALTestLine.SetRange("Test Suite", "Test Suite");
-            RunTests;
+            RunTests();
         end;
     end;
 
@@ -54,18 +54,18 @@ codeunit 130400 "CAL Test Runner"
     begin
         OnBeforeRunTests(CALTestLine);
         with CALTestLine do begin
-            OpenWindow;
+            OpenWindow();
             ModifyAll(Result, Result::" ");
             ModifyAll("First Error", '');
             Commit();
-            TestRunNo := CALTestResult.LastTestRunNo + 1;
-            CompanyWorkDate := WorkDate;
-            Filter := GetView;
+            TestRunNo := CALTestResult.LastTestRunNo() + 1;
+            CompanyWorkDate := WorkDate();
+            Filter := GetView();
             WindowNoOfTestCodeunitTotal := CountTestCodeunitsToRun(CALTestLine);
             SetRange("Line Type", "Line Type"::Codeunit);
             if Find('-') then
                 repeat
-                    if UpdateTCM then
+                    if UpdateTCM() then
                         CodeCoverageMgt.Start(true);
 
                     MinLineNo := "Line No.";
@@ -74,18 +74,18 @@ codeunit 130400 "CAL Test Runner"
                         WindowNoOfTestCodeunit += 1;
                     WindowNoOfFunction := 0;
 
-                    if CALTestMgt.ISPUBLISHMODE then
-                        DeleteChildren;
+                    if CALTestMgt.ISPUBLISHMODE() then
+                        DeleteChildren();
 
                     CODEUNIT.Run("Test Codeunit");
 
-                    if UpdateTCM then begin
-                        CodeCoverageMgt.Stop;
+                    if UpdateTCM() then begin
+                        CodeCoverageMgt.Stop();
                         CALTestMgt.ExtendTestCoverage("Test Codeunit");
                     end;
                 until Next() = 0;
 
-            CloseWindow;
+            CloseWindow();
         end;
     end;
 
@@ -100,7 +100,7 @@ codeunit 130400 "CAL Test Runner"
           WindowNoOfTestCodeunitTotal, WindowNoOfFunctionTotal,
           WindowNoOfTestCodeunit, WindowNoOfFunction);
 
-        InitCodeunitLine;
+        InitCodeunitLine();
 
         if FunctionName = '' then begin
             CALTestLine.Result := CALTestLine.Result::" ";
@@ -108,13 +108,13 @@ codeunit 130400 "CAL Test Runner"
             exit(true);
         end;
 
-        if CALTestMgt.ISPUBLISHMODE then
+        if CALTestMgt.ISPUBLISHMODE() then
             AddTestMethod(FunctionName)
         else begin
             if not TryFindTestFunctionInGroup(FunctionName) then
                 exit(false);
 
-            InitTestFunctionLine;
+            InitTestFunctionLine();
             if not CALTestLineFunction.Run or not CALTestLine.Run then
                 exit(false);
 
@@ -127,7 +127,7 @@ codeunit 130400 "CAL Test Runner"
 
         if FunctionName = 'OnRun' then
             exit(true);
-        exit(CALTestMgt.ISTESTMODE);
+        exit(CALTestMgt.ISTESTMODE());
     end;
 
     trigger OnAfterTestRun(CodeunitID: Integer; CodeunitName: Text; FunctionName: Text; FunctionTestPermissions: TestPermissions; IsSuccess: Boolean)
@@ -155,7 +155,7 @@ codeunit 130400 "CAL Test Runner"
 
         Commit();
         ApplicationArea('');
-        ClearLastError;
+        ClearLastError();
     end;
 
     procedure AddTestMethod(FunctionName: Text[128])
@@ -176,10 +176,10 @@ codeunit 130400 "CAL Test Runner"
     procedure InitCodeunitLine()
     begin
         with CALTestLine do begin
-            if CALTestMgt.ISTESTMODE and (Result = Result::" ") then
+            if CALTestMgt.ISTESTMODE() and (Result = Result::" ") then
                 Result := Result::Skipped;
             "Finish Time" := CurrentDateTime;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -187,7 +187,7 @@ codeunit 130400 "CAL Test Runner"
     procedure UpdateCodeunitLine(IsSuccess: Boolean)
     begin
         with CALTestLine do begin
-            if CALTestMgt.ISPUBLISHMODE and IsSuccess then
+            if CALTestMgt.ISPUBLISHMODE() and IsSuccess then
                 Result := Result::" "
             else
                 if Result <> Result::Failure then
@@ -198,7 +198,7 @@ codeunit 130400 "CAL Test Runner"
                         Result := Result::Failure
                     end;
             "Finish Time" := CurrentDateTime;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -208,7 +208,7 @@ codeunit 130400 "CAL Test Runner"
             "Start Time" := CurrentDateTime;
             "Finish Time" := "Start Time";
             Result := Result::Skipped;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -225,7 +225,7 @@ codeunit 130400 "CAL Test Runner"
                 Result := Result::Failure
             end;
             "Finish Time" := CurrentDateTime;
-            Modify;
+            Modify();
 
             CALTestResult.Add(CALTestLineFunction, TestRunNo);
         end;
@@ -234,7 +234,7 @@ codeunit 130400 "CAL Test Runner"
     procedure TryFindTestFunctionInGroup(FunctionName: Text[128]): Boolean
     begin
         with CALTestLineFunction do begin
-            Reset;
+            Reset();
             SetView(Filter);
             SetRange("Test Suite", CALTestLine."Test Suite");
             SetRange("Test Codeunit", CALTestLine."Test Codeunit");
@@ -250,7 +250,7 @@ codeunit 130400 "CAL Test Runner"
 
     procedure CountTestCodeunitsToRun(var CALTestLine: Record "CAL Test Line") NoOfTestCodeunits: Integer
     begin
-        if not CALTestMgt.ISTESTMODE then
+        if not CALTestMgt.ISTESTMODE() then
             exit;
 
         with CALTestLine do begin
@@ -262,12 +262,12 @@ codeunit 130400 "CAL Test Runner"
 
     procedure UpdateTCM(): Boolean
     begin
-        exit(CALTestMgt.ISTESTMODE and CALTestSuite."Update Test Coverage Map");
+        exit(CALTestMgt.ISTESTMODE() and CALTestSuite."Update Test Coverage Map");
     end;
 
     local procedure OpenWindow()
     begin
-        if not CALTestMgt.ISTESTMODE then
+        if not CALTestMgt.ISTESTMODE() then
             exit;
 
         Window.Open(
@@ -284,7 +284,7 @@ codeunit 130400 "CAL Test Runner"
 
     local procedure UpDateWindow(NewWindowTestSuite: Code[10]; NewWindowTestGroup: Text; NewWindowTestCodeunit: Text; NewWindowTestFunction: Text; NewWindowTestSuccess: Integer; NewWindowTestFailure: Integer; NewWindowTestSkip: Integer; NewWindowNoOfTestCodeunitTotal: Integer; NewWindowNoOfFunctionTotal: Integer; NewWindowNoOfTestCodeunit: Integer; NewWindowNoOfFunction: Integer)
     begin
-        if not CALTestMgt.ISTESTMODE then
+        if not CALTestMgt.ISTESTMODE() then
             exit;
 
         WindowTestSuite := NewWindowTestSuite;
@@ -300,9 +300,9 @@ codeunit 130400 "CAL Test Runner"
         WindowNoOfTestCodeunit := NewWindowNoOfTestCodeunit;
         WindowNoOfFunction := NewWindowNoOfFunction;
 
-        if IsTimeForUpdate then begin
+        if IsTimeForUpdate() then begin
             if not WindowIsOpen then
-                OpenWindow;
+                OpenWindow();
             Window.Update(1, WindowTestSuite);
             Window.Update(2, WindowTestCodeunit);
             Window.Update(4, WindowTestFunction);
@@ -319,11 +319,11 @@ codeunit 130400 "CAL Test Runner"
 
     local procedure CloseWindow()
     begin
-        if not CALTestMgt.ISTESTMODE then
+        if not CALTestMgt.ISTESTMODE() then
             exit;
 
         if WindowIsOpen then begin
-            Window.Close;
+            Window.Close();
             WindowIsOpen := false;
         end;
     end;

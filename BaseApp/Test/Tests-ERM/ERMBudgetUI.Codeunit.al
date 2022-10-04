@@ -49,8 +49,8 @@ codeunit 134927 "ERM Budget UI"
         // [THEN] "Date Filter" is "01.01.2017..31.12.2017" on Budget page
         Budget.DateFilter.AssertEquals(Format(CalcDate('<-CY>', Today)) + '..' + Format(CalcDate('<CY>', Today)));
 
-        Budget.Close;
-        GLBudgetNames.Close;
+        Budget.Close();
+        GLBudgetNames.Close();
     end;
 
     [Test]
@@ -87,10 +87,10 @@ codeunit 134927 "ERM Budget UI"
         repeat
             GLAccount.Get(Budget.MatrixForm.Code.Value);
             GLAccount.TestField("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
-        until not Budget.MatrixForm.Next;
+        until not Budget.MatrixForm.Next();
 
-        Budget.Close;
-        GLBudgetNames.Close;
+        Budget.Close();
+        GLBudgetNames.Close();
     end;
 
     [Test]
@@ -127,10 +127,10 @@ codeunit 134927 "ERM Budget UI"
         repeat
             GLAccount.Get(Budget.MatrixForm.Code.Value);
             GLAccount.TestField("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
-        until not Budget.MatrixForm.Next;
+        until not Budget.MatrixForm.Next();
 
-        Budget.Close;
-        GLBudgetNames.Close;
+        Budget.Close();
+        GLBudgetNames.Close();
     end;
 
     [Test]
@@ -167,10 +167,10 @@ codeunit 134927 "ERM Budget UI"
         repeat
             GLAccount.Get(Budget.MatrixForm.Code.Value);
             GLAccount.TestField("Account Category", GLAccount."Account Category"::Income);
-        until not Budget.MatrixForm.Next;
+        until not Budget.MatrixForm.Next();
 
-        Budget.Close;
-        GLBudgetNames.Close;
+        Budget.Close();
+        GLBudgetNames.Close();
     end;
 
     [Test]
@@ -216,8 +216,8 @@ codeunit 134927 "ERM Budget UI"
         // [THEN] "Date Filter" is "02.04.2017..27.04.2017" on "G/L Account Balance/Budget" page
         GLAccountBalanceBudget.DateFilter.AssertEquals(DateFilter);
 
-        GLAccountBalanceBudget.Close;
-        Budget.Close;
+        GLAccountBalanceBudget.Close();
+        Budget.Close();
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 134927 "ERM Budget UI"
         repeat
             GLAccount.Get(GLBalanceBudget."No.".Value);
             GLAccount.TestField("Account Category", GLAccount."Account Category"::Income);
-        until not Budget.MatrixForm.Next;
+        until not Budget.MatrixForm.Next();
 
         // [THEN] "Date Filter" is "01.04.2017..C30.04.2017" on "G/L Balance/Budget" page
         GLBalanceBudget.DateFilter.AssertEquals(GetClosingMonthFilterFromDateFilter(DateFilter));
@@ -269,8 +269,8 @@ codeunit 134927 "ERM Budget UI"
         // [THEN "Income Balance G/L Account Filter" is "Income Statement" on "G/L Balance/Budget" page
         GLBalanceBudget.IncomeBalGLAccFilter.AssertEquals(Budget.IncomeBalGLAccFilter.Value);
 
-        GLBalanceBudget.Close;
-        Budget.Close;
+        GLBalanceBudget.Close();
+        Budget.Close();
     end;
 
     [Test]
@@ -322,7 +322,7 @@ codeunit 134927 "ERM Budget UI"
         // [THEN] "Budgeted Debit Amount" is 130 for G/L Account "Y" on "G/L Account Balance/Budget" page
         GLAccountBalanceBudget.GLBalanceLines.BudgetedDebitAmount.AssertEquals(ExpectedAmount);
 
-        GLAccountBalanceBudget.Close;
+        GLAccountBalanceBudget.Close();
     end;
 
     [Test]
@@ -375,7 +375,7 @@ codeunit 134927 "ERM Budget UI"
         // [THEN] "Budgeted Debit Amount" is 130 for G/L Account "Y" on "G/L Balance/Budget" page
         GLBalanceBudget."Budgeted Debit Amount".AssertEquals(ExpectedAmount);
 
-        GLBalanceBudget.Close;
+        GLBalanceBudget.Close();
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 134927 "ERM Budget UI"
             GLAccount.TestField("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         until (not GLBalanceBudget.Next) or (GLBalanceBudget."No.".Value = '');
 
-        GLBalanceBudget.Close;
+        GLBalanceBudget.Close();
     end;
 
     [Test]
@@ -435,7 +435,7 @@ codeunit 134927 "ERM Budget UI"
             GLAccount.TestField("Account Category", GLAccount."Account Category"::Income);
         until (not GLBalanceBudget.Next) or (GLBalanceBudget."No.".Value = '');
 
-        GLBalanceBudget.Close;
+        GLBalanceBudget.Close();
     end;
 
     [Test]
@@ -471,8 +471,8 @@ codeunit 134927 "ERM Budget UI"
         // [THEN] Field "Income/Balance" is visible on "G/L Balance/Budget" page
         Assert.IsTrue(GLBalanceBudget."Income/Balance".Visible, 'Income/Balance field is not visible on page G/L Balance Budget');
 
-        GLBalanceBudget.Close;
-        Budget.Close;
+        GLBalanceBudget.Close();
+        Budget.Close();
     end;
 
     local procedure Initialize()
@@ -501,12 +501,12 @@ codeunit 134927 "ERM Budget UI"
         Budget.OpenEdit;
         Budget.GLAccCategory.SetValue(0);
         Budget.IncomeBalGLAccFilter.SetValue(0);
-        Budget.Close;
+        Budget.Close();
 
         GLBalanceBudget.OpenEdit;
         GLBalanceBudget.GLAccCategory.SetValue(0);
         GLBalanceBudget.IncomeBalGLAccFilter.SetValue(0);
-        GLBalanceBudget.Close;
+        GLBalanceBudget.Close();
     end;
 
     local procedure SetupGLBalBudgetBasedOnFiltersScenario(var DimValueCode: Code[20]; var DateFilter: Text; var ExpectedAmount: Decimal; GLBudgetName: Code[10]; GLAccNo: Code[20])
@@ -519,9 +519,9 @@ codeunit 134927 "ERM Budget UI"
         GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 1 Code");
-        MockGLBudgetEntry(GLAccNo, GLBudgetName, WorkDate, DimensionValue.Code, LibraryRandom.RandDec(100, 2));
-        MockGLBudgetEntry(GLAccNo, GLBudgetName, WorkDate, DimensionValue2.Code, LibraryRandom.RandDec(100, 2));
-        ExpectedDate := LibraryRandom.RandDateFrom(WorkDate, 50);
+        MockGLBudgetEntry(GLAccNo, GLBudgetName, WorkDate(), DimensionValue.Code, LibraryRandom.RandDec(100, 2));
+        MockGLBudgetEntry(GLAccNo, GLBudgetName, WorkDate(), DimensionValue2.Code, LibraryRandom.RandDec(100, 2));
+        ExpectedDate := LibraryRandom.RandDateFrom(WorkDate(), 50);
         ExpectedAmount := LibraryRandom.RandDec(100, 2);
         MockGLBudgetEntry(GLAccNo, GLBudgetName, ExpectedDate, DimensionValue.Code, LibraryRandom.RandDec(100, 2));
         MockGLBudgetEntry(GLAccNo, GLBudgetName, ExpectedDate, DimensionValue2.Code, ExpectedAmount);
@@ -575,14 +575,14 @@ codeunit 134927 "ERM Budget UI"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         with GLBudgetEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, FieldNo("Entry No."));
             "G/L Account No." := GLAccNo;
             Date := PostingDate;
             "Global Dimension 1 Code" := GlobalDimension1Code;
             Amount := EntryAmount;
             "Budget Name" := BudgetName;
-            Insert;
+            Insert();
         end;
     end;
 }

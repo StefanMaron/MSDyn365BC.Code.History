@@ -25,7 +25,7 @@ report 99000762 "Prod. Order - Job Card"
                 column(TodayFormatted; Format(Today, 0, 4))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(ProdOrderTableCaptionFilt; "Production Order".TableCaption + ':' + ProdOrderFilter)
@@ -176,7 +176,7 @@ report 99000762 "Prod. Order - Job Card"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
             end;
         }
     }

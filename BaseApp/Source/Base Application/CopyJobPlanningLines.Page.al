@@ -22,7 +22,7 @@ page 1042 "Copy Job Planning Lines"
                         SourceJob: Record Job;
                     begin
                         if (SourceJobNo <> '') and not SourceJob.Get(SourceJobNo) then
-                            Error(Text003, SourceJob.TableCaption, SourceJobNo);
+                            Error(Text003, SourceJob.TableCaption(), SourceJobNo);
 
                         SourceJobTaskNo := '';
                     end;
@@ -49,7 +49,7 @@ page 1042 "Copy Job Planning Lines"
                         JobTask: Record "Job Task";
                     begin
                         if (SourceJobTaskNo <> '') and not JobTask.Get(SourceJobNo, SourceJobTaskNo) then
-                            Error(Text003, JobTask.TableCaption, SourceJobTaskNo);
+                            Error(Text003, JobTask.TableCaption(), SourceJobTaskNo);
                     end;
                 }
                 field("Planning Line Type"; PlanningLineType)
@@ -87,7 +87,7 @@ page 1042 "Copy Job Planning Lines"
                         TargetJob: Record Job;
                     begin
                         if (TargetJobNo <> '') and not TargetJob.Get(TargetJobNo) then
-                            Error(Text003, TargetJob.TableCaption, TargetJobNo);
+                            Error(Text003, TargetJob.TableCaption(), TargetJobNo);
 
                         TargetJobTaskNo := '';
                     end;
@@ -114,7 +114,7 @@ page 1042 "Copy Job Planning Lines"
                         JobTask: Record "Job Task";
                     begin
                         if (TargetJobTaskNo <> '') and not JobTask.Get(TargetJobNo, TargetJobTaskNo) then
-                            Error(Text003, JobTask.TableCaption, TargetJobTaskNo);
+                            Error(Text003, JobTask.TableCaption(), TargetJobTaskNo);
                     end;
                 }
             }
@@ -138,7 +138,7 @@ page 1042 "Copy Job Planning Lines"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            ValidateUserInput;
+            ValidateUserInput();
             CopyJob.SetCopyQuantity(CopyQuantity);
             CopyJob.SetCopyJobPlanningLineType(PlanningLineType);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
@@ -170,14 +170,14 @@ page 1042 "Copy Job Planning Lines"
         Job: Record Job;
     begin
         if SourceJobNo = '' then
-            Error(Text004, Job.TableCaption);
+            Error(Text004, Job.TableCaption());
         if (SourceJobTaskNo = '') or not SourceJobTask.Get(SourceJobNo, SourceJobTaskNo) then
-            Error(Text004, SourceJobTask.TableCaption);
+            Error(Text004, SourceJobTask.TableCaption());
 
         if TargetJobNo = '' then
-            Error(Text005, Job.TableCaption);
+            Error(Text005, Job.TableCaption());
         if (TargetJobTaskNo = '') or not TargetJobTask.Get(TargetJobNo, TargetJobTaskNo) then
-            Error(Text005, TargetJobTask.TableCaption);
+            Error(Text005, TargetJobTask.TableCaption());
     end;
 
     procedure SetFromJobTask(SourceJobTask2: Record "Job Task")

@@ -5,23 +5,24 @@ codeunit 242 "Item Jnl.-Post+Print"
     trigger OnRun()
     begin
         ItemJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(ItemJnlLine);
     end;
 
     var
-        Text000: Label 'cannot be filtered when posting recurring journals';
-        Text001: Label 'Do you want to post the journal lines and print the posting report?';
-        Text002: Label 'There is nothing to post.';
-        Text003: Label 'The journal lines were successfully posted.';
-        Text004: Label 'The journal lines were successfully posted. ';
-        Text005: Label 'You are now in the %1 journal.';
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlLine: Record "Item Journal Line";
         ItemReg: Record "Item Register";
         WhseReg: Record "Warehouse Register";
         ItemJnlPostBatch: Codeunit "Item Jnl.-Post Batch";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         TempJnlBatchName: Code[10];
+
+        Text000: Label 'cannot be filtered when posting recurring journals';
+        Text001: Label 'Do you want to post the journal lines and print the posting report?';
+        Text003: Label 'The journal lines were successfully posted.';
+        Text004: Label 'The journal lines were successfully posted. ';
+        Text005: Label 'You are now in the %1 journal.';
 
     local procedure "Code"()
     var
@@ -53,17 +54,17 @@ codeunit 242 "Item Jnl.-Post+Print"
 
             OnAfterPostJournalBatch(ItemJnlLine);
 
-            if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo) then
+            if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo()) then
                 PrintItemRegister();
 
-            if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo) then
+            if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo()) then
                 PrintWhseRegister();
 
             if not HideDialog then
-                if (ItemJnlPostBatch.GetItemRegNo = 0) and
-                   (ItemJnlPostBatch.GetWhseRegNo = 0)
+                if (ItemJnlPostBatch.GetItemRegNo() = 0) and
+                   (ItemJnlPostBatch.GetWhseRegNo() = 0)
                 then
-                    Message(Text002)
+                    Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
                 else
                     if TempJnlBatchName = "Journal Batch Name" then
                         Message(Text003)
@@ -74,7 +75,7 @@ codeunit 242 "Item Jnl.-Post+Print"
                           "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

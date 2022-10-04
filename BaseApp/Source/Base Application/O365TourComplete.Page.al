@@ -53,9 +53,9 @@ page 1306 "O365 Tour Complete"
                     DummyO365GettingStarted: Page "O365 Getting Started";
                 begin
                     ShowToursWizard := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                     "Current Page" := DummyO365GettingStarted.GetNextPageID(1, "Current Page");
-                    Modify;
+                    Modify();
 
                     PAGE.Run(PAGE::"O365 Getting Started");
                 end;
@@ -65,7 +65,7 @@ page 1306 "O365 Tour Complete"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateImageAndBodyText;
+        UpdateImageAndBodyText();
     end;
 
     trigger OnInit()
@@ -76,9 +76,9 @@ page 1306 "O365 Tour Complete"
     trigger OnOpenPage()
     begin
         CurrentPage := 1;
-        if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then begin
-            UserTours := UserTours.Create;
-            UserTours.StopUserTour;
+        if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then begin
+            UserTours := UserTours.Create();
+            UserTours.StopUserTour();
         end;
     end;
 
@@ -89,11 +89,11 @@ page 1306 "O365 Tour Complete"
 
         if "Tour Completed" then begin
             "Tour in Progress" := false;
-            Modify;
+            Modify();
             exit(true);
         end;
 
-        exit(ConfirmClosingOfTheWizard);
+        exit(ConfirmClosingOfTheWizard());
     end;
 
     var
@@ -114,11 +114,11 @@ page 1306 "O365 Tour Complete"
     begin
         "Tour in Progress" := false;
         "Tour Completed" := true;
-        Modify;
+        Modify();
 
-        if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then begin
-            UserTours := UserTours.Create;
-            UserTours.StopNotifyShowTourWizard;
+        if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then begin
+            UserTours := UserTours.Create();
+            UserTours.StopNotifyShowTourWizard();
         end;
     end;
 
@@ -130,7 +130,7 @@ page 1306 "O365 Tour Complete"
         if not Confirm(ConfirmQst) then
             exit(false);
 
-        MarkWizardAsDone;
+        MarkWizardAsDone();
         exit(true);
     end;
 
@@ -140,7 +140,6 @@ page 1306 "O365 Tour Complete"
           ImageO365GettingStartedPageData, CurrentPage, PAGE::"O365 Tour Complete");
         if ImagePageDataMediaResources.Get(ImageO365GettingStartedPageData."Media Resources Ref") then;
 
-        BodyText := StrSubstNo(Tour1Txt, PRODUCTNAME.Marketing);
+        BodyText := StrSubstNo(Tour1Txt, PRODUCTNAME.Marketing());
     end;
 }
-

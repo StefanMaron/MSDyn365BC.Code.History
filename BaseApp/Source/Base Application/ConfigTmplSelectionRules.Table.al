@@ -78,7 +78,7 @@ table 8620 "Config. Tmpl. Selection Rules"
         TestField("Table ID");
         TestField("Template Code");
 
-        CurrentFilters := GetExistingFilters;
+        CurrentFilters := GetExistingFilters();
 
         if not RequestPageParametersHelper.ShowRequestPageAndGetFilters(NewFilters, CurrentFilters, '', "Table ID", DefineFiltersTxt) then begin
             if not ConfigTmplSelectionRules.Get("Table ID", "Template Code", "Page ID") then
@@ -99,7 +99,7 @@ table 8620 "Config. Tmpl. Selection Rules"
         FiltersInStream: InStream;
     begin
         CalcFields("Selection Criteria");
-        if not "Selection Criteria".HasValue then
+        if not "Selection Criteria".HasValue() then
             exit;
 
         "Selection Criteria".CreateInStream(FiltersInStream);
@@ -162,11 +162,11 @@ table 8620 "Config. Tmpl. Selection Rules"
 
         repeat
             TempBlob.FromRecord(ConfigTmplSelectionRules, ConfigTmplSelectionRules.FieldNo("Selection Criteria"));
-            if not TempBlob.HasValue then
+            if not TempBlob.HasValue() then
                 exit(ConfigTemplateHeader.Get(ConfigTmplSelectionRules."Template Code"));
 
             if RequestPageParametersHelper.ConvertParametersToFilters(SearchRecRef, TempBlob) then
-                if SearchRecRef.Find then
+                if SearchRecRef.Find() then
                     exit(ConfigTemplateHeader.Get(ConfigTmplSelectionRules."Template Code"));
 
         until ConfigTmplSelectionRules.Next() = 0;

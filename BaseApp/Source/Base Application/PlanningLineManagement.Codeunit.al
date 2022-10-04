@@ -64,8 +64,8 @@
             repeat
                 if PlanningResiliency and PlanningRoutingLine.Recalculate then
                     TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text011, PlanningRoutingLine.TableCaption),
-                      DATABASE::"Routing Header", RoutingHeader.GetPosition);
+                      StrSubstNo(Text011, PlanningRoutingLine.TableCaption()),
+                      DATABASE::"Routing Header", RoutingHeader.GetPosition());
                 PlanningRoutingLine.TestField(Recalculate, false);
                 CheckRoutingLine(RoutingHeader, RoutingLine);
                 TransferRoutingLine(PlanningRoutingLine, ReqLine, RoutingLine);
@@ -87,9 +87,9 @@
             OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);
             Validate("Direct Unit Cost");
 
-            UpdateDatetime;
+            UpdateDatetime();
             OnAfterTransferRtngLine(ReqLine, RoutingLine, PlanningRoutingLine);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -113,7 +113,7 @@
                 BOMHeader.Get(ReqLine."Production BOM No.");
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(Text014, ReqLine."Production BOM No.", ReqLine."No."),
-                  DATABASE::"Production BOM Header", BOMHeader.GetPosition);
+                  DATABASE::"Production BOM Header", BOMHeader.GetPosition());
             end;
             Error(
               Text000,
@@ -231,7 +231,7 @@
                 Item.Get(ReqLine."No.");
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(Text014, ReqLine."No.", ReqLine."No."),
-                  DATABASE::Item, Item.GetPosition);
+                  DATABASE::Item, Item.GetPosition());
             end;
             Error(
               Text000,
@@ -275,7 +275,7 @@
                                 PlanningComponent.Validate("Unit of Measure Code", AsmBOMComp[Level]."Unit of Measure Code");
                                 PlanningComponent."Quantity per" := Quantity * AsmBOMComp[Level]."Quantity per";
                                 OnTransferAsmBOMOnBeforeGetDefaultBin(PlanningComponent, AsmBOMComp[Level], ReqLine);
-                                PlanningComponent.GetDefaultBin;
+                                PlanningComponent.GetDefaultBin();
                                 PlanningComponent.Quantity := AsmBOMComp[Level]."Quantity per";
                                 PlanningComponent.Position := AsmBOMComp[Level].Position;
                                 PlanningComponent."Position 2" := AsmBOMComp[Level]."Position 2";
@@ -384,7 +384,7 @@
                     PlanningRtngLine."Starting Time" := 0T;
                     PlanningRtngLine."Starting Date" := 0D;
                     PlanningRtngLine."Ending Time" := 235959T;
-                    PlanningRtngLine."Ending Date" := CalendarMgt.GetMaxDate;
+                    PlanningRtngLine."Ending Date" := CalendarMgt.GetMaxDate();
                 end;
             Clear(CalcPlanningRtngLine);
             if PlanningResiliency then
@@ -427,7 +427,7 @@
                 ReqLine.CalcEndingDate('')
             else
                 ReqLine.CalcStartingDate('');
-            ReqLine.UpdateDatetime;
+            ReqLine.UpdateDatetime();
             OnCalculateRoutingOnAfterUpdateReqLine(ReqLine);
             exit;
         end;
@@ -470,7 +470,7 @@
         end;
 
         if IsLineModified then begin
-            ReqLine2.UpdateDatetime;
+            ReqLine2.UpdateDatetime();
             ReqLine2.Modify();
         end;
     end;
@@ -519,7 +519,7 @@
                     PlanningComponent.Delete(true);
                 until PlanningComponent.Next() = 0;
             if ReqLine."Planning Level" = 0 then
-                ReqLine.DeleteMultiLevel;
+                ReqLine.DeleteMultiLevel();
             if (ReqLine."Replenishment System" = ReqLine."Replenishment System"::Assembly) or
                ((ReqLine."Replenishment System" = ReqLine."Replenishment System"::"Prod. Order") and (ReqLine."Production BOM No." <> ''))
             then begin
@@ -554,8 +554,8 @@
         Item2: Record Item;
     begin
         with PlanningComponent do begin
-            Reset;
-            Init;
+            Reset();
+            Init();
             BlockDynamicTracking(Blocked);
             "Worksheet Template Name" := ReqLine."Worksheet Template Name";
             "Worksheet Batch Name" := ReqLine."Journal Batch Name";
@@ -571,7 +571,7 @@
             "Quantity per" := ProdBOMLine."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
             Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
             OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine);
-            GetDefaultBin;
+            GetDefaultBin();
             Length := ProdBOMLine.Length;
             Width := ProdBOMLine.Width;
             Weight := ProdBOMLine.Weight;
@@ -599,7 +599,7 @@
             "Ref. Order Status" := "Production Order Status".FromInteger(ReqLine."Ref. Order Status");
             "Ref. Order No." := ReqLine."Ref. Order No.";
             OnBeforeInsertPlanningComponent(ReqLine, ProdBOMLine, PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -617,7 +617,7 @@
         CalculateRouting(Direction);
         if ModifyRec then
             ReqLine.Modify(true);
-        CalculateComponents;
+        CalculateComponents();
         if ReqLine."Planning Level" > 0 then begin
             if Direction = Direction::Forward then
                 ReqLine."Due Date" := ReqLine."Ending Date"
@@ -633,7 +633,7 @@
                     ReqLine."Ending Date",
                     ReqLine."Vendor No.",
                     ReqLine."Ref. Order Type");
-        ReqLine.UpdateDatetime;
+        ReqLine.UpdateDatetime();
         ReqLine2 := ReqLine;
 
         OnAfterRecalculateWithOptionalModify(ReqLine2, Direction);
@@ -649,9 +649,9 @@
               StrSubstNo(
                 Text010,
                 RoutingLine.FieldCaption("Operation No."), RoutingLine."Operation No.",
-                RoutingHeader.TableCaption, RoutingHeader."No.",
+                RoutingHeader.TableCaption(), RoutingHeader."No.",
                 RoutingLine.FieldCaption("No.")),
-              DATABASE::"Routing Header", RoutingHeader.GetPosition);
+              DATABASE::"Routing Header", RoutingHeader.GetPosition());
         end;
         RoutingLine.TestField("No.");
 
@@ -661,9 +661,9 @@
               StrSubstNo(
                 Text012,
                 MachineCenter.FieldCaption("Work Center No."),
-                MachineCenter.TableCaption,
+                MachineCenter.TableCaption(),
                 MachineCenter."No."),
-              DATABASE::"Machine Center", MachineCenter.GetPosition);
+              DATABASE::"Machine Center", MachineCenter.GetPosition());
         end;
         RoutingLine.TestField("Work Center No.");
     end;
@@ -713,7 +713,7 @@
             repeat
                 if LineSpacing[PlanningLevel + 1] = 0 then begin
                     if PlanningResiliency then
-                        TempPlanningErrorLog.SetError(Text015, DATABASE::"Requisition Line", ReqLine.GetPosition);
+                        TempPlanningErrorLog.SetError(Text015, DATABASE::"Requisition Line", ReqLine.GetPosition());
                     Error(Text002);
                 end;
                 ReqLine3.Init();
@@ -766,7 +766,7 @@
                 ReqLine3.Quantity :=
                   Round(
                     ReqLine3."Quantity (Base)" /
-                    ReqLine3."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                    ReqLine3."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                 ReqLine3."Net Quantity (Base)" :=
                   (ReqLine3.Quantity -
                    ReqLine3."Original Quantity") *
@@ -950,7 +950,7 @@
         Item: Record Item;
     begin
         Item.Get(ItemNo);
-        exit(Item.IsInventoriableType);
+        exit(Item.IsInventoriableType());
     end;
 
     [IntegrationEvent(false, false)]

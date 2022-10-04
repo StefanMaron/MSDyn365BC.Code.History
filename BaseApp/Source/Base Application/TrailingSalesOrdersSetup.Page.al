@@ -13,7 +13,7 @@ page 761 "Trailing Sales Orders Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Use Work Date as Base"; "Use Work Date as Base")
+                field("Use Work Date as Base"; Rec."Use Work Date as Base")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want data in the Trailing Sales Orders chart to be based on a work date other than today''s date. This is generally relevant when you view the chart data in a demonstration database that has fictitious sales orders.';
@@ -31,7 +31,7 @@ page 761 "Trailing Sales Orders Setup"
         if not Get(UserId) then begin
             "User ID" := UserId;
             "Use Work Date as Base" := true;
-            Insert;
+            Insert();
         end;
         FilterGroup(2);
         SetRange("User ID", UserId);

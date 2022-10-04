@@ -13,17 +13,17 @@ page 5206 "Employee Qualifications"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Qualification Code"; "Qualification Code")
+                field("Qualification Code"; Rec."Qualification Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a qualification code for the employee.';
                 }
-                field("From Date"; "From Date")
+                field("From Date"; Rec."From Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee started working on obtaining this qualification.';
                 }
-                field("To Date"; "To Date")
+                field("To Date"; Rec."To Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee is considered to have obtained this qualification.';
@@ -38,13 +38,13 @@ page 5206 "Employee Qualifications"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description of the qualification.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the qualification on this line expires.';
                     Visible = false;
                 }
-                field("Institution/Company"; "Institution/Company")
+                field("Institution/Company"; Rec."Institution/Company")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the institution from which the employee obtained the qualification.';
@@ -55,7 +55,7 @@ page 5206 "Employee Qualifications"
                     ToolTip = 'Specifies the cost of the qualification.';
                     Visible = false;
                 }
-                field("Course Grade"; "Course Grade")
+                field("Course Grade"; Rec."Course Grade")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the grade that the employee received for the course, specified by the qualification on this line.';

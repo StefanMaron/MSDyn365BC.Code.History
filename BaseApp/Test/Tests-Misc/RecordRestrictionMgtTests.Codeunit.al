@@ -149,7 +149,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Exercise.
         Commit();
-        asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions;
+        asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(RestrictionErr, Format(Customer.RecordId, 0, 1)));
@@ -175,7 +175,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Exercise.
         Commit();
-        asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions;
+        asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(RestrictionErr, Format(GenJournalLine.RecordId, 0, 1)));
@@ -203,7 +203,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Exercise.
         Commit();
-        asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions;
+        asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(RestrictionErr, Format(GenJournalBatch.RecordId, 0, 1)));
@@ -526,7 +526,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         GLPostingPreview.Trap;
         GeneralJournal.GotoRecord(GenJournalLine);
         GeneralJournal.Preview.Invoke;
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         asserterror Error(''); // Rollback previewing inconsistencies
 
@@ -580,7 +580,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RecordRestrictionMgt.RestrictRecordUsage(
           TempCustomer, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(RestrictedRecord.Details) + 1, 0));
 
-        RestrictedRecord.Find;
+        RestrictedRecord.Find();
         RestrictedRecord.TestField(Details, SavedDetails);
     end;
 
@@ -843,7 +843,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         ApprovalEntry."Table ID" := RecRef.Number;
         ApprovalEntry."Record ID to Approve" := RecRef.RecordId;
         ApprovalEntry.Insert();
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
     end;
 
     local procedure VerifyRestrictionRecordExists(RecVar: Variant)

@@ -26,7 +26,7 @@ page 7703 Miniforms
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies your description of the miniform with the code on the header.';
                 }
-                field("No. of Records in List"; "No. of Records in List")
+                field("No. of Records in List"; Rec."No. of Records in List")
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the number of records that will be sent to the handheld if the miniform on the header is either Selection List or Data List.';

@@ -148,7 +148,7 @@ codeunit 134220 "WFWH General Journal Line"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -858,7 +858,7 @@ codeunit 134220 "WFWH General Journal Line"
         Assert.IsTrue(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line should be enabled');
 
         // [THEN] Close the journal
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -891,7 +891,7 @@ codeunit 134220 "WFWH General Journal Line"
         Assert.IsTrue(PaymentJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line should be enabled');
 
         // [THEN] Close the journal
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -924,7 +924,7 @@ codeunit 134220 "WFWH General Journal Line"
         Assert.IsTrue(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line should be enabled');
 
         // [THEN] Close the journal
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     [Test]
@@ -958,7 +958,7 @@ codeunit 134220 "WFWH General Journal Line"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // [THEN] Close the journal
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -992,7 +992,7 @@ codeunit 134220 "WFWH General Journal Line"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // [THEN] Close the journal
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -1026,7 +1026,7 @@ codeunit 134220 "WFWH General Journal Line"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // [THEN] Close the journal
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure Initialize()

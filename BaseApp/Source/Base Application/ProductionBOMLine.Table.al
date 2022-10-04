@@ -25,11 +25,11 @@ table 99000772 "Production BOM Line"
 
             trigger OnValidate()
             begin
-                TestStatus;
+                TestStatus();
 
                 xRec.Type := Type;
 
-                Init;
+                Init();
                 Type := xRec.Type;
             end;
         }
@@ -44,7 +44,7 @@ table 99000772 "Production BOM Line"
             begin
                 TestField(Type);
 
-                TestStatus;
+                TestStatus();
 
                 case Type of
                     Type::Item:
@@ -254,13 +254,13 @@ table 99000772 "Production BOM Line"
                     "Calculation Formula"::" ":
                         Quantity := "Quantity per";
                     "Calculation Formula"::Length:
-                        Quantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::"Length * Width":
-                        Quantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::"Length * Width * Depth":
-                        Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::Weight:
-                        Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::"Fixed Quantity":
                         begin
                             TestField(Type, Type::Item);
@@ -307,7 +307,7 @@ table 99000772 "Production BOM Line"
         PlanningAssignment: Record "Planning Assignment";
     begin
         if Type <> Type::" " then begin
-            TestStatus;
+            TestStatus();
             case Type of
                 Type::Item:
                     PlanningAssignment.AssignPlannedOrders("No.", false);
@@ -326,13 +326,13 @@ table 99000772 "Production BOM Line"
 
     trigger OnInsert()
     begin
-        TestStatus;
+        TestStatus();
     end;
 
     trigger OnModify()
     begin
         if Type <> Type::" " then
-            TestStatus;
+            TestStatus();
     end;
 
     var

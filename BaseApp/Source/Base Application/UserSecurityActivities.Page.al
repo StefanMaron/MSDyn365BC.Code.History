@@ -10,62 +10,10 @@ page 9062 "User Security Activities"
     {
         area(content)
         {
-#if not CLEAN18
-            cuegroup("Intelligent Cloud")
-            {
-                Caption = 'Intelligent Cloud';
-                Visible = false;
-                ObsoleteTag = '18.0';
-                ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                ObsoleteState = Pending;
-
-                actions
-                {
-                    action("Learn More")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Learn More';
-                        Image = TileInfo;
-                        RunPageMode = View;
-                        ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
-                        end;
-                    }
-                    action("Intelligent Cloud Insights")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Intelligent Cloud Insights';
-                        Image = TileCloud;
-                        RunPageMode = View;
-                        ToolTip = 'View your Intelligent Cloud insights.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
-                        end;
-                    }
-                }
-            }
-#endif
             cuegroup(Control2)
             {
                 ShowCaption = false;
-                field("Users - To review"; "Users - To review")
+                field("Users - To review"; Rec."Users - To review")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Users - To review';
@@ -82,7 +30,7 @@ page 9062 "User Security Activities"
                     ToolTip = 'Specifies users without subscription to use Business Central.';
                     Visible = SoftwareAsAService;
                 }
-                field("Users - Not Group Members"; "Users - Not Group Members")
+                field("Users - Not Group Members"; Rec."Users - Not Group Members")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Users - Not Group Members';
@@ -129,7 +77,7 @@ page 9062 "User Security Activities"
             {
                 Caption = 'Data Integration';
                 Visible = ShowDataIntegrationCues;
-                field("CDS Integration Errors"; "CDS Integration Errors")
+                field("CDS Integration Errors"; Rec."CDS Integration Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Integration Errors';
@@ -137,7 +85,7 @@ page 9062 "User Security Activities"
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowDataIntegrationCues;
                 }
-                field("Coupled Data Synch Errors"; "Coupled Data Synch Errors")
+                field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Coupled Data Synchronization Errors';
@@ -196,29 +144,29 @@ page 9062 "User Security Activities"
         MonitorSensitiveField: codeunit "Monitor Sensitive Field";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        SoftwareAsAService := EnvironmentInfo.IsSaaS();
         if SoftwareAsAService then
-            NumberOfPlans := GetNumberOfPlans;
-        UserSecurityStatus.LoadUsers;
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+            NumberOfPlans := GetNumberOfPlans();
+        UserSecurityStatus.LoadUsers();
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
 
         DataSensitivity.SetRange("Company Name", CompanyName);
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
         UnclassifiedFields := DataSensitivity.Count();
 
-        RoleCenterNotificationMgt.ShowNotifications;
-        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
+        RoleCenterNotificationMgt.ShowNotifications();
+        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
         ShowIntelligentCloud := not SoftwareAsAService;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
 
-        if PageNotifier.IsAvailable then begin
-            PageNotifier := PageNotifier.Create;
-            PageNotifier.NotifyPageReady;
+        if PageNotifier.IsAvailable() then begin
+            PageNotifier := PageNotifier.Create();
+            PageNotifier.NotifyPageReady();
         end;
 
         MonitorEntriesNotifications := MonitorSensitiveField.GetNotificationCount();

@@ -52,7 +52,7 @@ page 582 "XBRL Taxonomies"
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the uniform resource identifier (URI) of the schema file if there is an overall targetNamespace for this taxonomy.';
                 }
-                field("xmlns:xbrli"; "xmlns:xbrli")
+                field("xmlns:xbrli"; Rec."xmlns:xbrli")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the uniform resource identifier (uri) for the version of the specification.';
@@ -88,10 +88,6 @@ page 582 "XBRL Taxonomies"
                     ApplicationArea = XBRL;
                     Caption = 'Lines';
                     Image = AllLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "XBRL Taxonomy Lines";
                     RunPageLink = "XBRL Taxonomy Name" = FIELD(Name);
                     ToolTip = 'View the XBRL lines. The XBRL Taxonomies Lines window contains all definitions that exist within a given taxonomy and you can assign information to each line.';
@@ -104,13 +100,23 @@ page 582 "XBRL Taxonomies"
                     ApplicationArea = XBRL;
                     Caption = 'Schemas';
                     Image = Documents;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "XBRL Schemas";
                     RunPageLink = "XBRL Taxonomy Name" = FIELD(Name);
                     ToolTip = 'View the XBRL schemas.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Lines_Promoted; Lines)
+                {
+                }
+                actionref(Schemas_Promoted; Schemas)
+                {
                 }
             }
         }

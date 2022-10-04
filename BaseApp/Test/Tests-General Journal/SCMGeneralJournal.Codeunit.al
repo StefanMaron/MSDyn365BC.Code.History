@@ -303,7 +303,7 @@ codeunit 137043 "SCM General Journal"
         FindGenJournalLine(GenJournalLine, JournalTemplateName, JournalBatchName);
         repeat
             GenJournalLine.Delete(true);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
         Commit();
     end;
 
@@ -394,7 +394,7 @@ codeunit 137043 "SCM General Journal"
         repeat
             CustLedgerEntry.CalcFields(Amount);
             ActualAmount += CustLedgerEntry.Amount;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
         Assert.AreEqual(Amount, ActualAmount, 'Amount must be the Same');
     end;
 

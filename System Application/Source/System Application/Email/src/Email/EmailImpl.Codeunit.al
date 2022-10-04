@@ -338,9 +338,8 @@ codeunit 8900 "Email Impl"
     procedure GetSentEmailsForRecord(TableId: Integer; SystemId: Guid; var ResultSentEmails: Record "Sent Email" temporary)
     var
         NullGuid: Guid;
-        NullDate: DateTime;
     begin
-        GetSentEmails(NullGuid, NullDate, TableId, SystemId, ResultSentEmails);
+        GetSentEmails(NullGuid, 0DT, TableId, SystemId, ResultSentEmails);
     end;
 
     procedure GetSentEmails(AccountId: Guid; NewerThan: DateTime; var SentEmails: Record "Sent Email" temporary)
@@ -518,7 +517,7 @@ codeunit 8900 "Email Impl"
         EmailRelatedRecord: Record "Email Related Record";
         Email: Codeunit Email;
     begin
-        if EmailRelatedRecord.Get(EmailMessage.GetId(), TableId, SystemId) then
+        if EmailRelatedRecord.Get(TableId, SystemId, EmailMessage.GetId()) then
             if EmailRelatedRecord.Delete() then begin
                 Email.OnAfterRemoveRelation(EmailMessage.GetId(), TableId, SystemId);
                 exit(true);

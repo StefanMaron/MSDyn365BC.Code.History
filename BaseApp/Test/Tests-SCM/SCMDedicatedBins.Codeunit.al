@@ -86,7 +86,7 @@ codeunit 137502 "SCM Dedicated Bins"
               LocationCode, '', BinCode, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
             LibraryWarehouse.PostWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code);
             Item.SetRange("Location Filter", LocationCode);
-            LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+            LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
         end else begin
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
               ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
@@ -100,7 +100,7 @@ codeunit 137502 "SCM Dedicated Bins"
     local procedure CreateAndReserveSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; ReservedQty: Decimal)
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, ReservedQty, LocationCode, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, ReservedQty, LocationCode, WorkDate());
         LibrarySales.AutoReserveSalesLine(SalesLine);
         SalesLine.Validate(Quantity, Qty);
         SalesLine.Modify(true);
@@ -321,7 +321,7 @@ codeunit 137502 "SCM Dedicated Bins"
                 Location.Code,
                 WorkCenter."No.");
             Assert.IsTrue(StrPos(GetLastErrorText, ErrorText) > 0, 'Unexpected error message: ' + GetLastErrorText);
-            ClearLastError;
+            ClearLastError();
         end;
 
         // create an item and post 10 PCS on the outbound bin
@@ -336,7 +336,7 @@ codeunit 137502 "SCM Dedicated Bins"
               WarehouseJnlLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
               Location.Code, '', OutBin.Code, WarehouseJnlLine."Entry Type"::"Positive Adjmt.", Item."No.", 10);
             LibraryWarehouse.PostWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code);
-            LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+            LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
         end else begin
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
               ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 10);
@@ -352,7 +352,7 @@ codeunit 137502 "SCM Dedicated Bins"
               WarehouseJnlLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
               Location.Code, '', OutBin.Code, WarehouseJnlLine."Entry Type"::"Negative Adjmt.", Item."No.", -10);
             LibraryWarehouse.PostWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code);
-            LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+            LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
         end else begin
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
               ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", 10);
@@ -677,7 +677,7 @@ codeunit 137502 "SCM Dedicated Bins"
         repeat
             Assert.AreEqual(1, WhseActivityLine.Quantity, 'Expected 1 PCS.');
             Assert.AreNotEqual(Bin1.Code, WhseActivityLine."Bin Code", 'Nothing shud b taken from bin1');
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // Delete the inventory pick
         WhseActivityHeader.Get(WhseActivityHeader.Type::"Invt. Pick", WhseActivityLine."No.");
@@ -689,7 +689,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // set sales line to bin Shpt and create bin content
         LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', BinShpt.Code, Item."No.", '', Item."Base Unit of Measure");
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Bin Code", BinShpt.Code);
         SalesLine.Modify(true);
 
@@ -713,7 +713,7 @@ codeunit 137502 "SCM Dedicated Bins"
         repeat
             Assert.AreEqual(1, WhseActivityLine.Quantity, 'Expected 1 PCS.');
             Assert.AreNotEqual(Bin1.Code, WhseActivityLine."Bin Code", 'Nothing shud b taken from bin1');
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // delete previous activities
         WhseActivityHeader.Get(WhseActivityHeader.Type::Pick, WhseActivityLine."No.");
@@ -1163,7 +1163,7 @@ codeunit 137502 "SCM Dedicated Bins"
             end;
 
         // calculate consumption and post
-        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComp, WorkDate, false);
+        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComp, WorkDate(), false);
         LibraryManufacturing.PostConsumptionJournal;
     end;
 

@@ -90,7 +90,7 @@ table 5509 "Attachment Entity Buffer"
     var
         OutStream: OutStream;
     begin
-        Content.CreateOutStream(OutStream, GetContentTextEncoding);
+        Content.CreateOutStream(OutStream, GetContentTextEncoding());
         OutStream.Write(TextContent, StrLen(TextContent));
     end;
 
@@ -99,7 +99,7 @@ table 5509 "Attachment Entity Buffer"
     var
         OutStream: OutStream;
     begin
-        TempBlob.CreateOutStream(OutStream, GetContentTextEncoding);
+        TempBlob.CreateOutStream(OutStream, GetContentTextEncoding());
         OutStream.Write(TextContent, StrLen(TextContent));
     end;
 

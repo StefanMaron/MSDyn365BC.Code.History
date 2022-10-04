@@ -64,7 +64,7 @@ table 1265 "Data Exch. Field Mapping Buf."
                 case Type of
                     Type::Field:
                         if not DataExchColumnDef.Get("Data Exchange Def Code", "Data Exchange Line Def Code", "Column No.") then
-                            CreateDataExchColumnDef
+                            CreateDataExchColumnDef()
                         else begin
                             DataExchColumnDef.Validate(Path, Source);
                             DataExchColumnDef.Modify(true);
@@ -138,10 +138,10 @@ table 1265 "Data Exch. Field Mapping Buf."
     begin
         TestField(Type, Type::Field);
         if "Column No." = 0 then
-            CreateDataExchColumnDef;
+            CreateDataExchColumnDef();
 
         if not DataExchFieldMapping.Get("Data Exchange Def Code", "Data Exchange Line Def Code", "Table ID", "Column No.", "Field ID") then
-            CreateFieldMapping;
+            CreateFieldMapping();
     end;
 
     trigger OnRename()
@@ -229,7 +229,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
         InitializeDataExchangeSetupLine(
-          TempDataExchFieldMappingBuf, DataExchMapping, DataExchFieldMapping."Field ID", Indentation, DataExchFieldMapping.GetFieldCaption);
+          TempDataExchFieldMappingBuf, DataExchMapping, DataExchFieldMapping."Field ID", Indentation, DataExchFieldMapping.GetFieldCaption());
         TempDataExchFieldMappingBuf."Column No." := DataExchFieldMapping."Column No.";
         TempDataExchFieldMappingBuf."Default Value" := DataExchFieldMapping."Default Value";
         TempDataExchFieldMappingBuf."Transformation Rule" := DataExchFieldMapping."Transformation Rule";
@@ -303,7 +303,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         if DataExchColumnDef.FindLast() then
             exit(DataExchColumnDef."Column No.");
 
-        exit(GetIncrement);
+        exit(GetIncrement());
     end;
 
     local procedure GetIncrement(): Integer
@@ -316,7 +316,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
         if "Data Exchange Def Code" <> '' then begin
-            "Column No." := GetLastColumnNo + GetIncrement;
+            "Column No." := GetLastColumnNo() + GetIncrement();
             DataExchColumnDef.Init();
             DataExchColumnDef."Data Exch. Def Code" := "Data Exchange Def Code";
             DataExchColumnDef."Data Exch. Line Def Code" := "Data Exchange Line Def Code";

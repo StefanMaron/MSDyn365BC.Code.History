@@ -25,7 +25,7 @@ page 6308 "PBI Aged Acc. Receivable"
                     Caption = 'Value';
                     ToolTip = 'Specifies the value.';
                 }
-                field("Period Type"; "Period Type")
+                field("Period Type"; Rec."Period Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Period Type';
@@ -37,19 +37,19 @@ page 6308 "PBI Aged Acc. Receivable"
                     Caption = 'Date';
                     ToolTip = 'Specifies the sorting.';
                 }
-                field("Measure Name"; "Measure Name")
+                field("Measure Name"; Rec."Measure Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Measure Name';
                     ToolTip = 'Specifies the sorting.';
                 }
-                field("Date Sorting"; "Date Sorting")
+                field("Date Sorting"; Rec."Date Sorting")
                 {
                     ApplicationArea = All;
                     Caption = 'Date Sorting';
                     ToolTip = 'Specifies the sorting.';
                 }
-                field("Period Type Sorting"; "Period Type Sorting")
+                field("Period Type Sorting"; Rec."Period Type Sorting")
                 {
                     ApplicationArea = All;
                     Caption = 'Period Type Sorting';
@@ -68,7 +68,7 @@ page 6308 "PBI Aged Acc. Receivable"
         PBIAgedAccCalc: Codeunit "PBI Aged Acc. Calc";
         ChartManagement: Codeunit "Chart Management";
     begin
-        PBIAgedAccCalc.GetValues(Rec, CODEUNIT::"Aged Acc. Receivable", ChartManagement.AgedAccReceivableName);
+        PBIAgedAccCalc.GetValues(Rec, CODEUNIT::"Aged Acc. Receivable", ChartManagement.AgedAccReceivableName());
     end;
 }
 

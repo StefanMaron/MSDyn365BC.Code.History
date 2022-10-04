@@ -24,7 +24,7 @@ codeunit 2800 "Native - Setup APIs"
     var
         NativeEDMTypes: Codeunit "Native - EDM Types";
     begin
-        NativeEDMTypes.UpdateEDMTypes;
+        NativeEDMTypes.UpdateEDMTypes();
     end;
 
     procedure InsertNativeInvoicingWebServices(AllTenants: Boolean)
@@ -75,7 +75,7 @@ codeunit 2800 "Native - Setup APIs"
         with PaymentRegistrationSetup do begin
             if Get(UserId) then
                 exit;
-            if Get then begin
+            if Get() then begin
                 "User ID" := UserId;
                 Insert(true);
                 Commit();

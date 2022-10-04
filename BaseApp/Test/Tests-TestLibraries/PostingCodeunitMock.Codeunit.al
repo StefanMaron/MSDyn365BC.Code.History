@@ -61,7 +61,7 @@ codeunit 132479 "Posting Codeunit Mock"
         if not PostingCodeunitMock.Run(TempErrorMessage) then begin
             if Log then
                 exit(ErrorMessageHandler.WriteMessagesToFile(GetLogFileName, true));
-            exit(ErrorMessageHandler.ShowErrors);
+            exit(ErrorMessageHandler.ShowErrors());
         end;
     end;
 

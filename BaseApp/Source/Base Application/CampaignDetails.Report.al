@@ -15,7 +15,7 @@ report 5060 "Campaign - Details"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CampaignFilterCaption; TableCaption + ': ' + CampaignFilter)
@@ -194,9 +194,9 @@ report 5060 "Campaign - Details"
 
     trigger OnPreReport()
     begin
-        CampaignFilter := Campaign.GetFilters;
-        SegmentHeaderFilter := "Segment Header".GetFilters;
-        CampaignEntryFilter := "Campaign Entry".GetFilters;
+        CampaignFilter := Campaign.GetFilters();
+        SegmentHeaderFilter := "Segment Header".GetFilters();
+        CampaignEntryFilter := "Campaign Entry".GetFilters();
     end;
 
     var

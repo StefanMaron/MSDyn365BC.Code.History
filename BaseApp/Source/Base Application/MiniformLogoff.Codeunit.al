@@ -14,7 +14,7 @@ codeunit 7706 "Miniform Logoff"
         if Code <> CurrentCode then
             SendForm(1)
         else
-            Process;
+            Process();
 
         Clear(DOMxmlin);
     end;

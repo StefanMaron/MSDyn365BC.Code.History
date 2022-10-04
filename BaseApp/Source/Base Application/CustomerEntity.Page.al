@@ -115,7 +115,7 @@ page 5471 "Customer Entity"
                     begin
                         RegisterFieldSet(FieldNo("Tax Area ID"));
 
-                        if not GeneralLedgerSetup.UseVat then
+                        if not GeneralLedgerSetup.UseVat() then
                             RegisterFieldSet(FieldNo("Tax Area Code"))
                         else
                             RegisterFieldSet(FieldNo("VAT Bus. Posting Group"));
@@ -307,7 +307,7 @@ page 5471 "Customer Entity"
 
     trigger OnAfterGetRecord()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -322,11 +322,11 @@ page 5471 "Customer Entity"
 
         Customer.SetRange("No.", "No.");
         if not Customer.IsEmpty() then
-            Insert;
+            Insert();
 
         Insert(true);
 
-        ProcessPostalAddress;
+        ProcessPostalAddress();
 
         RecRef.GetTable(Rec);
         GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, CurrentDateTime, ConfigTemplateHeader);
@@ -336,7 +336,7 @@ page 5471 "Customer Entity"
 
         DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Rec."No.", DATABASE::Customer);
 
-        SetCalculatedFields;
+        SetCalculatedFields();
         exit(false);
     end;
 
@@ -345,7 +345,7 @@ page 5471 "Customer Entity"
         Customer: Record Customer;
     begin
         Customer.GetBySystemId(SystemId);
-        ProcessPostalAddress;
+        ProcessPostalAddress();
 
         if "No." = Customer."No." then
             Modify(true)
@@ -355,12 +355,12 @@ page 5471 "Customer Entity"
             TransferFields(Customer);
         end;
 
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearCalculatedFields;
+        ClearCalculatedFields();
     end;
 
     var
@@ -396,10 +396,10 @@ page 5471 "Customer Entity"
         PostalAddressJSON := GraphMgtCustomer.PostalAddressToJSON(Rec);
         CurrencyCodeTxt := GraphMgtGeneralTools.TranslateNAVCurrencyCodeToCurrencyCode(LCYCurrencyCode, "Currency Code");
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate() - 1);
         CalcFields("Balance Due (LCY)");
         OverdueAmount := "Balance Due (LCY)";
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
         CalcFields("Sales (LCY)", "Balance (LCY)");
         SalesLCY := "Sales (LCY)";
         BalanceLCY := "Balance (LCY)";

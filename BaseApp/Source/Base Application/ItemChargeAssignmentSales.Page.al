@@ -7,7 +7,6 @@ page 5814 "Item Charge Assignment (Sales)"
     InsertAllowed = false;
     PageType = Worksheet;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Item Charge';
     RefreshOnActivate = true;
     SourceTable = "Item Charge Assignment (Sales)";
 
@@ -18,36 +17,40 @@ page 5814 "Item Charge Assignment (Sales)"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
                     ToolTip = 'Specifies the type of the document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
                     ToolTip = 'Specifies the number of the document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Applies-to Doc. Line No."; "Applies-to Doc. Line No.")
+                field("Applies-to Doc. Line No."; Rec."Applies-to Doc. Line No.")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
                     ToolTip = 'Specifies the number of the line on the document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
+                    StyleExpr = Rec."Qty. to Handle" <> Rec."Qty. to Assign";
+                    Style = Unfavorable;
                     ToolTip = 'Specifies the item number on the document line that this item charge is assigned to.';
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = ItemCharges;
+                    StyleExpr = Rec."Qty. to Handle" <> Rec."Qty. to Assign";
+                    Style = Unfavorable;
                     ToolTip = 'Specifies a description of the item on the document line that this item charge is assigned to.';
                 }
-                field("Qty. to Assign"; "Qty. to Assign")
+                field("Qty. to Assign"; Rec."Qty. to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies how many units of the item charge will be assigned to the document line. If the document has more than one line of type Item, then this quantity reflects the distribution that you selected when you chose the Suggest Item Charge Assignment action.';
@@ -57,19 +60,38 @@ page 5814 "Item Charge Assignment (Sales)"
                         if SalesLine2.Quantity * "Qty. to Assign" < 0 then
                             Error(Text000,
                               FieldCaption("Qty. to Assign"), SalesLine2.FieldCaption(Quantity));
-                        QtytoAssignOnAfterValidate;
+                        QtytoAssignOnAfterValidate();
                     end;
                 }
-                field("Qty. Assigned"; "Qty. Assigned")
+                field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = ItemCharges;
-                    ToolTip = 'Specifies the number of units of the item charge will be the assigned to the document line.';
+                    ToolTip = 'Specifies how many items the item charge will be assigned to on the line. It can be either equal to Qty. to Assign or to zero. If it is zero, the item charge will not be assigned to the line.';
+
+                    trigger OnValidate()
+                    begin
+                        if SalesLine2.Quantity * Rec."Qty. to Handle" < 0 then
+                            Error(Text000,
+                                Rec.FieldCaption("Qty. to Handle"), SalesLine2.FieldCaption(Quantity));
+                        QtytoAssignOnAfterValidate();
+                    end;
                 }
-                field("Amount to Assign"; "Amount to Assign")
+                field("Qty. Assigned"; Rec."Qty. Assigned")
+                {
+                    ApplicationArea = ItemCharges;
+                    ToolTip = 'Specifies the number of units of the item charge will be assigned to the document line.';
+                }
+                field("Amount to Assign"; Rec."Amount to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     Editable = false;
-                    ToolTip = 'Specifies the value of the item charge that will be the assigned to the document line.';
+                    ToolTip = 'Specifies the value of the item charge that is going to be assigned to the document line.';
+                }
+                field("Amount to Handle"; Rec."Amount to Handle")
+                {
+                    ApplicationArea = ItemCharges;
+                    Editable = false;
+                    ToolTip = 'Specifies the value of the item charge that will be actually assigned to the document line.';
                 }
                 field(GrossWeight; GrossWeight)
                 {
@@ -147,7 +169,7 @@ page 5814 "Item Charge Assignment (Sales)"
                         {
                             ApplicationArea = ItemCharges;
                             Caption = 'Total (Amount)';
-                            DecimalPlaces = 0 : 5;
+                            DecimalPlaces = 2 : 5;
                             Editable = false;
                             ToolTip = 'Specifies the total value of the item charge that you can assign to the related document line.';
                         }
@@ -167,7 +189,7 @@ page 5814 "Item Charge Assignment (Sales)"
                         {
                             ApplicationArea = ItemCharges;
                             Caption = 'Amount to Assign';
-                            DecimalPlaces = 0 : 5;
+                            DecimalPlaces = 2 : 5;
                             Editable = false;
                             ToolTip = 'Specifies the total value of the item charge that you can assign to the related document line.';
                         }
@@ -189,10 +211,54 @@ page 5814 "Item Charge Assignment (Sales)"
                         {
                             ApplicationArea = ItemCharges;
                             Caption = 'Rem. Amount to Assign';
-                            DecimalPlaces = 0 : 5;
+                            DecimalPlaces = 2 : 5;
                             Editable = false;
                             Style = Unfavorable;
                             StyleExpr = RemAmountToAssign <> 0;
+                            ToolTip = 'Specifies the value of the quantity of the item charge that has not yet been assigned.';
+                        }
+                    }
+                    group("To Handle")
+                    {
+                        Caption = 'To Handle';
+                        field(TotalQtyToHandle; TotalQtyToHandle)
+                        {
+                            ApplicationArea = ItemCharges;
+                            Caption = 'Qty. to Handle';
+                            DecimalPlaces = 0 : 5;
+                            Editable = false;
+                            ToolTip = 'Specifies the total quantity of the item charge that you can assign to the related document line.';
+                        }
+                        field(TotalAmountToHandle; TotalAmountToHandle)
+                        {
+                            ApplicationArea = ItemCharges;
+                            Caption = 'Amount to Handle';
+                            DecimalPlaces = 2 : 5;
+                            Editable = false;
+                            ToolTip = 'Specifies the total value of the item charge that you can assign to the related document line.';
+                        }
+                    }
+                    group("Rem. to Handle")
+                    {
+                        Caption = 'Rem. to Handle';
+                        field(RemQtyToHandle; RemQtyToHandle)
+                        {
+                            ApplicationArea = ItemCharges;
+                            Caption = 'Rem. Qty. to Handle';
+                            DecimalPlaces = 0 : 5;
+                            Editable = false;
+                            Style = Unfavorable;
+                            StyleExpr = RemQtyToHandle <> 0;
+                            ToolTip = 'Specifies the quantity of the item charge that you have not yet assigned to items in the assignment lines.';
+                        }
+                        field(RemAmountToHandle; RemAmountToHandle)
+                        {
+                            ApplicationArea = ItemCharges;
+                            Caption = 'Rem. Amount to Handle';
+                            DecimalPlaces = 2 : 5;
+                            Editable = false;
+                            Style = Unfavorable;
+                            StyleExpr = RemAmountToHandle <> 0;
                             ToolTip = 'Specifies the value of the quantity of the item charge that has not yet been assigned.';
                         }
                     }
@@ -228,9 +294,6 @@ page 5814 "Item Charge Assignment (Sales)"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Get &Shipment Lines';
                     Image = Shipment;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Select multiple shipments to the same customer because you want to combine them on one invoice.';
 
                     trigger OnAction()
@@ -240,9 +303,9 @@ page 5814 "Item Charge Assignment (Sales)"
                     begin
                         SalesLine2.TestField("Qty. to Invoice");
 
-                        ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-                        ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-                        ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
+                        ItemChargeAssgntSales.SetRange("Document Type", Rec."Document Type");
+                        ItemChargeAssgntSales.SetRange("Document No.", Rec."Document No.");
+                        ItemChargeAssgntSales.SetRange("Document Line No.", Rec."Document Line No.");
 
                         ShipmentLines.SetTableView(SalesShptLine);
                         if ItemChargeAssgntSales.FindLast() then
@@ -267,9 +330,9 @@ page 5814 "Item Charge Assignment (Sales)"
                         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
                         ReceiptLines: Page "Return Receipt Lines";
                     begin
-                        ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-                        ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-                        ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
+                        ItemChargeAssgntSales.SetRange("Document Type", Rec."Document Type");
+                        ItemChargeAssgntSales.SetRange("Document No.", Rec."Document No.");
+                        ItemChargeAssgntSales.SetRange("Document Line No.", Rec."Document Line No.");
 
                         ReceiptLines.SetTableView(ReturnRcptLine);
                         if ItemChargeAssgntSales.FindLast() then
@@ -287,17 +350,32 @@ page 5814 "Item Charge Assignment (Sales)"
                     ApplicationArea = ItemCharges;
                     Caption = 'Suggest Item &Charge Assignment';
                     Image = Suggest;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Use a function that assigns and distributes the item charge when the document has more than one line of type Item. You can select between four distribution methods. ';
 
                     trigger OnAction()
                     var
                         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
                     begin
-                        AssignItemChargeSales.SuggestAssignment(SalesLine2, AssignableQty, AssignableAmount);
+                        AssignItemChargeSales.SuggestAssignment(SalesLine2, AssignableQty, AssignableAmount, AssignableQty, AssignableAmount);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Item Charge', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(GetShipmentLines_Promoted; GetShipmentLines)
+                {
+                }
+                actionref(SuggestItemChargeAssignment_Promoted; SuggestItemChargeAssignment)
+                {
                 }
             }
         }
@@ -305,17 +383,17 @@ page 5814 "Item Charge Assignment (Sales)"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateQtyAssgnt;
+        UpdateQtyAssgnt();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        UpdateQty;
+        UpdateQty();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        if "Document Type" = "Applies-to Doc. Type" then begin
+        if Rec."Document Type" = Rec."Applies-to Doc. Type" then begin
             SalesLine2.TestField("Shipment No.", '');
             SalesLine2.TestField("Return Receipt No.", '');
         end;
@@ -323,42 +401,47 @@ page 5814 "Item Charge Assignment (Sales)"
 
     trigger OnOpenPage()
     begin
-        FilterGroup(2);
-        SetRange("Document Type", SalesLine2."Document Type");
-        SetRange("Document No.", SalesLine2."Document No.");
-        SetRange("Document Line No.", SalesLine2."Line No.");
-        SetRange("Item Charge No.", SalesLine2."No.");
-        FilterGroup(0);
+        Rec.FilterGroup(2);
+        Rec.SetRange("Document Type", SalesLine2."Document Type");
+        Rec.SetRange("Document No.", SalesLine2."Document No.");
+        Rec.SetRange("Document Line No.", SalesLine2."Line No.");
+        Rec.SetRange("Item Charge No.", SalesLine2."No.");
+        Rec.FilterGroup(0);
     end;
 
     var
-        Text000: Label 'The sign of %1 must be the same as the sign of %2 of the item charge.';
         SalesLine: Record "Sales Line";
+
+        Text000: Label 'The sign of %1 must be the same as the sign of %2 of the item charge.';
+
+    protected var
+        SalesLine2: Record "Sales Line";
+        ReturnRcptLine: Record "Return Receipt Line";
+        SalesShptLine: Record "Sales Shipment Line";
+        DataCaption: Text[250];
+        QtyToRetReceiveBase: Decimal;
+        QtyRetReceivedBase: Decimal;
+        QtyToShipBase: Decimal;
+        QtyShippedBase: Decimal;
+        UnitCost: Decimal;
         AssignableQty: Decimal;
         TotalQtyToAssign: Decimal;
         RemQtyToAssign: Decimal;
         AssignableAmount: Decimal;
         TotalAmountToAssign: Decimal;
         RemAmountToAssign: Decimal;
+        TotalQtyToHandle: Decimal;
+        RemQtyToHandle: Decimal;
+        TotalAmountToHandle: Decimal;
+        RemAmountToHandle: Decimal;
         GrossWeight: Decimal;
         UnitVolume: Decimal;
-        DataCaption: Text[250];
-
-    protected var
-        SalesLine2: Record "Sales Line";
-        ReturnRcptLine: Record "Return Receipt Line";
-        SalesShptLine: Record "Sales Shipment Line";
-        QtyToRetReceiveBase: Decimal;
-        QtyRetReceivedBase: Decimal;
-        QtyToShipBase: Decimal;
-        QtyShippedBase: Decimal;
-        UnitCost: Decimal;
 
     local procedure UpdateQtyAssgnt()
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
     begin
-        SalesLine2.CalcFields("Qty. to Assign", "Qty. Assigned");
+        SalesLine2.CalcFields("Qty. to Assign", "Item Charge Qty. to Handle", "Qty. Assigned");
         AssignableQty := SalesLine2."Qty. to Invoice" + SalesLine2."Quantity Invoiced" - SalesLine2."Qty. Assigned";
         OnUpdateQtyAssgntOnAfterAssignableQty(SalesLine2, AssignableQty);
 
@@ -369,21 +452,25 @@ page 5814 "Item Charge Assignment (Sales)"
 
         ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetCurrentKey("Document Type", "Document No.", "Document Line No.");
-        ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-        ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-        ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
-        ItemChargeAssgntSales.CalcSums("Qty. to Assign", "Amount to Assign");
+        ItemChargeAssgntSales.SetRange("Document Type", Rec."Document Type");
+        ItemChargeAssgntSales.SetRange("Document No.", Rec."Document No.");
+        ItemChargeAssgntSales.SetRange("Document Line No.", Rec."Document Line No.");
+        ItemChargeAssgntSales.CalcSums("Qty. to Assign", "Amount to Assign", "Qty. to Handle", "Amount to Handle");
         TotalQtyToAssign := ItemChargeAssgntSales."Qty. to Assign";
         TotalAmountToAssign := ItemChargeAssgntSales."Amount to Assign";
+        TotalQtyToHandle := ItemChargeAssgntSales."Qty. to Handle";
+        TotalAmountToHandle := ItemChargeAssgntSales."Amount to Handle";
 
         RemQtyToAssign := AssignableQty - TotalQtyToAssign;
         RemAmountToAssign := AssignableAmount - TotalAmountToAssign;
+        RemQtyToHandle := AssignableQty - TotalQtyToHandle;
+        RemAmountToHandle := AssignableAmount - TotalAmountToHandle;
     end;
 
     local procedure UpdateQty()
     begin
-        case "Applies-to Doc. Type" of
-            "Applies-to Doc. Type"::Order, "Applies-to Doc. Type"::Invoice:
+        case Rec."Applies-to Doc. Type" of
+            "Sales Applies-to Document Type"::Order, "Sales Applies-to Document Type"::Invoice:
                 begin
                     SalesLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
                     QtyToShipBase := SalesLine."Qty. to Ship (Base)";
@@ -393,9 +480,9 @@ page 5814 "Item Charge Assignment (Sales)"
                     GrossWeight := SalesLine."Gross Weight";
                     UnitVolume := SalesLine."Unit Volume";
                 end;
-            "Applies-to Doc. Type"::"Return Order", "Applies-to Doc. Type"::"Credit Memo":
+            "Sales Applies-to Document Type"::"Return Order", "Sales Applies-to Document Type"::"Credit Memo":
                 begin
-                    SalesLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                    SalesLine.Get(Rec."Applies-to Doc. Type", Rec."Applies-to Doc. No.", Rec."Applies-to Doc. Line No.");
                     QtyToRetReceiveBase := SalesLine."Return Qty. to Receive (Base)";
                     QtyRetReceivedBase := SalesLine."Return Qty. Received (Base)";
                     QtyToShipBase := 0;
@@ -403,9 +490,9 @@ page 5814 "Item Charge Assignment (Sales)"
                     GrossWeight := SalesLine."Gross Weight";
                     UnitVolume := SalesLine."Unit Volume";
                 end;
-            "Applies-to Doc. Type"::"Return Receipt":
+            "Sales Applies-to Document Type"::"Return Receipt":
                 begin
-                    ReturnRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                    ReturnRcptLine.Get(Rec."Applies-to Doc. No.", Rec."Applies-to Doc. Line No.");
                     QtyToRetReceiveBase := 0;
                     QtyRetReceivedBase := ReturnRcptLine."Quantity (Base)";
                     QtyToShipBase := 0;
@@ -413,9 +500,9 @@ page 5814 "Item Charge Assignment (Sales)"
                     GrossWeight := SalesLine."Gross Weight";
                     UnitVolume := SalesLine."Unit Volume";
                 end;
-            "Applies-to Doc. Type"::Shipment:
+            "Sales Applies-to Document Type"::Shipment:
                 begin
-                    SalesShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
+                    SalesShptLine.Get(Rec."Applies-to Doc. No.", Rec."Applies-to Doc. Line No.");
                     QtyToRetReceiveBase := 0;
                     QtyRetReceivedBase := 0;
                     QtyToShipBase := 0;
@@ -437,8 +524,9 @@ page 5814 "Item Charge Assignment (Sales)"
 
     local procedure QtytoAssignOnAfterValidate()
     begin
-        CurrPage.Update(false);
+        CurrPage.SaveRecord();
         UpdateQtyAssgnt;
+        CurrPage.Update(false);
     end;
 
     [IntegrationEvent(false, false)]

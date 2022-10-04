@@ -6,7 +6,6 @@ page 9654 "Built-in Report Layouts"
     DeleteAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Layout';
     SourceTable = "Report Layout List";
     UsageCategory = Administration;
 
@@ -16,7 +15,7 @@ page 9654 "Built-in Report Layouts"
         {
             repeater(Group)
             {
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the report.';
@@ -39,5 +38,16 @@ page 9654 "Built-in Report Layouts"
             }
         }
     }
-}
+actions{        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Layout', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+        }
+}}
 

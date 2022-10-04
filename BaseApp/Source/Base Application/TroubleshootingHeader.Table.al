@@ -52,14 +52,15 @@ table 5943 "Troubleshooting Header"
     end;
 
     var
-        Text000: Label 'No %1 was found.';
-        Text001: Label 'No %1 was found for %2 %3.';
         ServMgtSetup: Record "Service Mgt. Setup";
         TblshtgHeader: Record "Troubleshooting Header";
         TblshtgHeader2: Record "Troubleshooting Header";
         TblshtgSetup: Record "Troubleshooting Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         Tblshtg: Page Troubleshooting;
+
+        Text000: Label 'No %1 was found.';
+        Text001: Label 'No %1 was found for %2 %3.';
 
     procedure AssistEdit(OldTblshtHeader: Record "Troubleshooting Header"): Boolean
     begin
@@ -95,10 +96,10 @@ table 5943 "Troubleshooting Header"
             TblshtFound := TblshtgSetup.FindFirst();
         end;
         if TblshtFound then
-            RunTroubleshooting
+            RunTroubleshooting()
         else
             Message(
-              Text000, TblshtgSetup.TableCaption);
+              Text000, TblshtgSetup.TableCaption());
     end;
 
     procedure ShowForServItem(ServItem: Record "Service Item")
@@ -122,9 +123,9 @@ table 5943 "Troubleshooting Header"
             TblshtFound := TblshtgSetup.FindFirst();
         end;
         if TblshtFound then
-            RunTroubleshooting
+            RunTroubleshooting()
         else
-            Message(Text001, TblshtgSetup.TableCaption, ServItem.TableCaption, ServItem."No.");
+            Message(Text001, TblshtgSetup.TableCaption(), ServItem.TableCaption(), ServItem."No.");
     end;
 
     procedure ShowForItem(Item: Record Item)
@@ -141,9 +142,9 @@ table 5943 "Troubleshooting Header"
             TblshtFound := TblshtgSetup.FindFirst();
         end;
         if TblshtFound then
-            RunTroubleshooting
+            RunTroubleshooting()
         else
-            Message(Text001, TblshtgSetup.TableCaption, Item.TableCaption, Item."No.");
+            Message(Text001, TblshtgSetup.TableCaption(), Item.TableCaption(), Item."No.");
     end;
 
     local procedure MarkTroubleShtgHeader(var TblshtgSetup2: Record "Troubleshooting Setup")

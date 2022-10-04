@@ -82,7 +82,7 @@ table 5302 "Outlook Synch. Link"
     begin
         "Outlook Entry ID Hash" := OEntryIDHash;
         FillEntryID(Rec, EntryID);
-        Modify;
+        Modify();
         exit("Outlook Entry ID".HasValue);
     end;
 
@@ -95,13 +95,13 @@ table 5302 "Outlook Synch. Link"
         if Get(UserID, RecID) then
             exit;
 
-        Init;
+        Init();
         "User ID" := UserID;
         "Record ID" := RecID;
         "Search Record ID" := Format(RecID);
         "Outlook Entry ID Hash" := OEntryIDHash;
         FillEntryID(Rec, EntryID);
-        Insert;
+        Insert();
     end;
 
     local procedure FillEntryID(var OSynchLink: Record "Outlook Synch. Link"; EntryID: Text)

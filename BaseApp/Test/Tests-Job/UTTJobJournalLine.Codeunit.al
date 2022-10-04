@@ -244,7 +244,7 @@ codeunit 136351 "UT T Job Journal Line"
         JobLinkUsage.ApplyUsage(JobLedgerEntry, JobJournalLine);
 
         // [THEN] Job Planning Line Quantity = 2, "Unit Cost (LCY)" = 100, "Unit Price" = 200
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         Assert.AreEqual(JobJournalLine.Quantity, JobPlanningLine.Quantity, JobPlanningLine.FieldCaption(Quantity));
         Assert.AreEqual(PlanLineUnitCost, JobPlanningLine."Unit Cost (LCY)", JobPlanningLine.FieldCaption("Unit Cost (LCY)"));
         Assert.AreEqual(PlanLineUnitPrice, JobPlanningLine."Unit Price", JobPlanningLine.FieldCaption("Unit Price"));
@@ -618,14 +618,14 @@ codeunit 136351 "UT T Job Journal Line"
     local procedure CreateJobLedgEntry(var JobLedgEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task")
     begin
         with JobLedgEntry do begin
-            Init;
+            Init();
             "Job No." := JobTask."Job No.";
             "Job Task No." := JobTask."Job Task No.";
             Type := Type::Item;
             "No." := LibraryJob.FindConsumable(Type);
             "Quantity (Base)" := LibraryRandom.RandDecInRange(1, 100, 2);
             "Qty. per Unit of Measure" := 1;
-            Insert;
+            Insert();
         end;
     end;
 

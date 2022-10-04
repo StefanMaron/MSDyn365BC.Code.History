@@ -79,7 +79,7 @@ table 5092 Opportunity
                                     Task.Modify(true);
                                 end;
                             until Task.Next() = 0;
-                            Window.Close;
+                            Window.Close();
                         end;
 
                     OppEntry.Reset();
@@ -92,7 +92,7 @@ table 5092 Opportunity
                             OppEntry.Modify();
                         until OppEntry.Next() = 0;
 
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -103,7 +103,7 @@ table 5092 Opportunity
 
             trigger OnLookup()
             begin
-                LookupCampaigns;
+                LookupCampaigns();
             end;
 
             trigger OnValidate()
@@ -114,8 +114,8 @@ table 5092 Opportunity
                 if ("Campaign No." <> xRec."Campaign No.") and
                    ("No." <> '')
                 then begin
-                    CheckCampaign;
-                    SetDefaultSegmentNo;
+                    CheckCampaign();
+                    SetDefaultSegmentNo();
                     Task.Reset();
                     Task.SetCurrentKey("Opportunity No.", Date, Closed);
                     Task.SetRange("Opportunity No.", "No.");
@@ -138,7 +138,7 @@ table 5092 Opportunity
                             OppEntry.Modify();
                         until OppEntry.Next() = 0;
 
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -187,10 +187,10 @@ table 5092 Opportunity
                     if ("Sales Document No." <> '') and ("Sales Document Type" = "Sales Document Type"::Quote) then begin
                         SalesHeader.Get(SalesHeader."Document Type"::Quote, "Sales Document No.");
                         if SalesHeader."Sell-to Contact No." <> "Contact No." then begin
-                            Modify;
+                            Modify();
                             SalesHeader.SetHideValidationDialog(true);
                             SalesHeader.Validate("Sell-to Contact No.", "Contact No.");
-                            SalesHeader.Modify
+                            SalesHeader.Modify();
                         end
                     end;
                     Task.Reset();
@@ -224,7 +224,7 @@ table 5092 Opportunity
                                     Task.Modify(true);
                                 end;
                             until Task.Next() = 0;
-                            Window.Close;
+                            Window.Close();
                         end;
 
                     OppEntry.Reset();
@@ -237,7 +237,7 @@ table 5092 Opportunity
                             OppEntry.Modify();
                         until OppEntry.Next() = 0;
 
-                    Modify;
+                    Modify();
                 end;
 
                 "Contact Company No." := Cont."Company No.";
@@ -283,7 +283,7 @@ table 5092 Opportunity
                     if xRec."Sales Document Type" = "Sales Document Type"::Quote then
                         if SalesHeader.Get(SalesHeader."Document Type"::Quote, xRec."Sales Document No.") then begin
                             SalesHeader."Opportunity No." := '';
-                            SalesHeader.Modify
+                            SalesHeader.Modify();
                         end
                 end else
                     if "Sales Document No." <> xRec."Sales Document No." then begin
@@ -298,12 +298,12 @@ table 5092 Opportunity
                         if xRec."Sales Document Type" = "Sales Document Type"::Quote then
                             if SalesHeader.Get(SalesHeader."Document Type"::Quote, xRec."Sales Document No.") then begin
                                 SalesHeader."Opportunity No." := '';
-                                SalesHeader.Modify
+                                SalesHeader.Modify();
                             end;
                         if "Sales Document Type" = "Sales Document Type"::Quote then
                             if SalesHeader.Get(SalesHeader."Document Type"::Quote, "Sales Document No.") then begin
                                 SalesHeader."Opportunity No." := "No.";
-                                SalesHeader.Modify
+                                SalesHeader.Modify();
                             end
                     end;
             end;
@@ -437,7 +437,7 @@ table 5092 Opportunity
 
             trigger OnLookup()
             begin
-                LookupSegments;
+                LookupSegments();
             end;
 
             trigger OnValidate()
@@ -445,7 +445,7 @@ table 5092 Opportunity
                 SegmentHeader: Record "Segment Header";
             begin
                 if ("Segment No." <> xRec."Segment No.") and ("Segment No." <> '') and ("Campaign No." <> '') then
-                    CheckSegmentCampaignNo;
+                    CheckSegmentCampaignNo();
                 if "Segment No." <> '' then
                     SegmentHeader.Get("Segment No.");
                 Validate("Segment Description", SegmentHeader.Description);
@@ -588,9 +588,9 @@ table 5092 Opportunity
         end;
 
         if "Salesperson Code" = '' then
-            SetDefaultSalesperson;
+            SetDefaultSalesperson();
 
-        "Creation Date" := WorkDate;
+        "Creation Date" := WorkDate();
     end;
 
     var
@@ -605,7 +605,7 @@ table 5092 Opportunity
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
         SegHeader: Record "Segment Header";
         OppEntry: Record "Opportunity Entry";
-        RMCommentLineTmp: Record "Rlshp. Mgt. Comment Line" temporary;
+        TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         Text006: Label 'Sales %1 %2 is already assigned to opportunity %3.';
         ChangeConfirmQst: Label 'Do you want to change %1 on the related open tasks with the same %1?', Comment = '%1 = Field Caption';
@@ -624,9 +624,9 @@ table 5092 Opportunity
 
     procedure CreateFromInteractionLogEntry(InteractionLogEntry: Record "Interaction Log Entry")
     begin
-        Init;
+        Init();
         "No." := '';
-        "Creation Date" := WorkDate;
+        "Creation Date" := WorkDate();
         Description := InteractionLogEntry.Description;
         "Segment No." := InteractionLogEntry."Segment No.";
         "Segment Description" := InteractionLogEntry.Description;
@@ -634,16 +634,16 @@ table 5092 Opportunity
         "Salesperson Code" := InteractionLogEntry."Salesperson Code";
         "Contact No." := InteractionLogEntry."Contact No.";
         "Contact Company No." := InteractionLogEntry."Contact Company No.";
-        SetDefaultSalesCycle;
+        SetDefaultSalesCycle();
         Insert(true);
         CopyCommentLinesFromIntLogEntry(InteractionLogEntry);
     end;
 
     procedure CreateFromSegmentLine(SegmentLine: Record "Segment Line")
     begin
-        Init;
+        Init();
         "No." := '';
-        "Creation Date" := WorkDate;
+        "Creation Date" := WorkDate();
         Description := SegmentLine.Description;
         "Segment No." := SegmentLine."Segment No.";
         "Segment Description" := SegmentLine.Description;
@@ -651,7 +651,7 @@ table 5092 Opportunity
         "Salesperson Code" := SegmentLine."Salesperson Code";
         "Contact No." := SegmentLine."Contact No.";
         "Contact Company No." := SegmentLine."Contact Company No.";
-        SetDefaultSalesCycle;
+        SetDefaultSalesCycle();
         Insert(true);
     end;
 
@@ -664,10 +664,10 @@ table 5092 Opportunity
         SegLine: Record "Segment Line";
     begin
         DeleteAll();
-        Init;
+        Init();
         OnCreateOppFromOppOnAfterInit(Opp);
-        "Creation Date" := WorkDate;
-        SetDefaultSalesCycle;
+        "Creation Date" := WorkDate();
+        SetDefaultSalesCycle();
         if Cont.Get(Opp.GetFilter("Contact Company No.")) then begin
             Validate("Contact No.", Cont."No.");
             "Salesperson Code" := Cont."Salesperson Code";
@@ -697,10 +697,10 @@ table 5092 Opportunity
             SetRange("Segment No.", "Segment No.");
         end;
 
-        StartWizard;
+        StartWizard();
     end;
 
-    local procedure InsertOpportunity(var Opp2: Record Opportunity; OppEntry2: Record "Opportunity Entry"; var RMCommentLineTmp: Record "Rlshp. Mgt. Comment Line"; ActivateFirstStage: Boolean)
+    local procedure InsertOpportunity(var Opp2: Record Opportunity; OppEntry2: Record "Opportunity Entry"; var TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; ActivateFirstStage: Boolean)
     var
         SegHeader: Record "Segment Header";
         SegLine: Record "Segment Line";
@@ -718,20 +718,19 @@ table 5092 Opportunity
         if SegHeader.Get(GetFilter("Segment No.")) then begin
             SegLine.SetRange("Segment No.", SegHeader."No.");
             SegLine.SetFilter("Contact No.", '<>%1', '');
-            if SegLine.Find('-') then begin
+            if SegLine.Find('-') then
                 if Confirm(Text002, true, SegHeader."No.") then
                     repeat
                         Opp."Contact No." := SegLine."Contact No.";
                         Opp."Contact Company No." := SegLine."Contact Company No.";
                         Clear(Opp."No.");
                         Opp.Insert(true);
-                        CreateCommentLines(RMCommentLineTmp, Opp."No.");
+                        CreateCommentLines(TempRlshpMgtCommentLine, Opp."No.");
                         ProcessFirstStage(OppEntry2, ActivateFirstStage, true);
                     until SegLine.Next() = 0;
-            end;
         end else begin
             Opp.Insert(true);
-            CreateCommentLines(RMCommentLineTmp, Opp."No.");
+            CreateCommentLines(TempRlshpMgtCommentLine, Opp."No.");
             ProcessFirstStage(OppEntry2, ActivateFirstStage, false);
         end;
 
@@ -781,7 +780,7 @@ table 5092 Opportunity
         if (Cont.Type = Cont.Type::Person) and (Cont."Company No." = '') then
             Error(
               Text005,
-              Cont.TableCaption, Cont."No.");
+              Cont.TableCaption(), Cont."No.");
 
         if SalesHeader.Get(SalesHeader."Document Type"::Quote, "Sales Document No.") then
             Error(Text011);
@@ -806,7 +805,7 @@ table 5092 Opportunity
         SalesHeader.Validate("Salesperson Code", "Salesperson Code");
         SalesHeader.Validate("Campaign No.", "Campaign No.");
         SalesHeader."Opportunity No." := "No.";
-        SalesHeader."Order Date" := GetEstimatedClosingDate;
+        SalesHeader."Order Date" := GetEstimatedClosingDate();
         SalesHeader."Shipment Date" := SalesHeader."Order Date";
         if NewCustTemplateCode <> '' then
             SalesHeader.Validate("Sell-to Customer Templ. Code", NewCustTemplateCode);
@@ -861,15 +860,15 @@ table 5092 Opportunity
             PAGE.RunModal(PAGE::"Sales Quote", SalesHeader);
     end;
 
-    local procedure CreateCommentLines(var RMCommentLineTmp: Record "Rlshp. Mgt. Comment Line"; OppNo: Code[20])
+    local procedure CreateCommentLines(var TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; OppNo: Code[20])
     begin
-        if RMCommentLineTmp.Find('-') then
+        if TempRlshpMgtCommentLine.Find('-') then
             repeat
                 RMCommentLine.Init();
-                RMCommentLine := RMCommentLineTmp;
+                RMCommentLine := TempRlshpMgtCommentLine;
                 RMCommentLine."No." := OppNo;
                 RMCommentLine.Insert();
-            until RMCommentLineTmp.Next() = 0;
+            until TempRlshpMgtCommentLine.Next() = 0;
     end;
 
     local procedure CopyCommentLinesFromIntLogEntry(InteractionLogEntry: Record "Interaction Log Entry")
@@ -911,7 +910,7 @@ table 5092 Opportunity
         if SegHeader.Get(GetFilter("Segment No.")) then
             "Segment Description" := SegHeader.Description;
 
-        Insert;
+        Insert();
         RunPageForRec(PAGE::"Create Opportunity");
 
     end;
@@ -977,8 +976,8 @@ table 5092 Opportunity
         "Wizard Campaign Description" := '';
 
         OnFinishWizardOnBeforeInsertOpportunity(Rec, OppEntry);
-        InsertOpportunity(Rec, OppEntry, RMCommentLineTmp, ActivateFirstStage);
-        Delete;
+        InsertOpportunity(Rec, OppEntry, TempRlshpMgtCommentLine, ActivateFirstStage);
+        Delete();
 
         OnAfterFinishWizard(Rec);
     end;
@@ -990,12 +989,12 @@ table 5092 Opportunity
 
     procedure SetComments(var RMCommentLine: Record "Rlshp. Mgt. Comment Line")
     begin
-        RMCommentLineTmp.DeleteAll();
+        TempRlshpMgtCommentLine.DeleteAll();
 
         if RMCommentLine.FindSet() then
             repeat
-                RMCommentLineTmp := RMCommentLine;
-                RMCommentLineTmp.Insert();
+                TempRlshpMgtCommentLine := RMCommentLine;
+                TempRlshpMgtCommentLine.Insert();
             until RMCommentLine.Next() = 0;
     end;
 
@@ -1017,10 +1016,10 @@ table 5092 Opportunity
     var
         SegmentNo: Code[20];
     begin
-        SegmentNo := GetFilterSegmentNo;
+        SegmentNo := GetFilterSegmentNo();
         if SegmentNo = '' then begin
             FilterGroup(2);
-            SegmentNo := GetFilterSegmentNo;
+            SegmentNo := GetFilterSegmentNo();
             FilterGroup(0);
         end;
         if SegmentNo <> '' then
@@ -1038,10 +1037,10 @@ table 5092 Opportunity
     var
         ContactNo: Code[20];
     begin
-        ContactNo := GetFilterContactNo;
+        ContactNo := GetFilterContactNo();
         if ContactNo = '' then begin
             FilterGroup(2);
-            ContactNo := GetFilterContactNo;
+            ContactNo := GetFilterContactNo();
             FilterGroup(0);
         end;
         if ContactNo <> '' then
@@ -1165,7 +1164,7 @@ table 5092 Opportunity
         "Segment No." := '';
         if "Campaign No." <> '' then begin
             SegmentHeader.SetRange("Campaign No.", "Campaign No.");
-            if SegmentHeader.FindFirst and (SegmentHeader.Count = 1) then
+            if SegmentHeader.FindFirst() and (SegmentHeader.Count = 1) then
                 "Segment No." := SegmentHeader."No."
         end;
     end;
@@ -1174,10 +1173,10 @@ table 5092 Opportunity
     var
         CampaignNo: Code[20];
     begin
-        CampaignNo := GetFilterCampaignNo;
+        CampaignNo := GetFilterCampaignNo();
         if CampaignNo = '' then begin
             FilterGroup(2);
-            CampaignNo := GetFilterCampaignNo;
+            CampaignNo := GetFilterCampaignNo();
             FilterGroup(0);
         end;
         if CampaignNo <> '' then

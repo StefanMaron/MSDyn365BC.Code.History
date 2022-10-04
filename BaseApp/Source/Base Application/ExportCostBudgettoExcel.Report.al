@@ -19,7 +19,7 @@ report 1142 "Export Cost Budget to Excel"
                 TempCostBudgetBuf1.Amount := Amount;
 
                 TempCostBudgetBuf2 := TempCostBudgetBuf1;
-                if TempCostBudgetBuf2.Find then begin
+                if TempCostBudgetBuf2.Find() then begin
                     TempCostBudgetBuf2.Amount := TempCostBudgetBuf2.Amount + TempCostBudgetBuf1.Amount;
                     TempCostBudgetBuf2.Modify();
                 end else
@@ -93,23 +93,22 @@ report 1142 "Export Cost Budget to Excel"
                                           MatrixMgt.FormatAmount(TempCostBudgetBuf2.Amount, RoundingFactor, false),
                                           CostType.Type <> CostType.Type::"Cost Type",
                                           false, '', TempExcelBuffer."Cell Type"::Number);
-                                        TempPeriod.Next;
+                                        TempPeriod.Next();
                                     until TempCostBudgetBuf2.Next() = 0;
                             end else
                                 Clear(TempCostBudgetBuf2);
                         end else
-                            if TempPeriod.Find('-') then begin
+                            if TempPeriod.Find('-') then
                                 repeat
                                     EnterFormula(
                                       RowNo, 4 + TempPeriod."Period No.",
                                       CostType.Totaling,
                                       CostType.Type <> CostType.Type::"Cost Type", false);
                                 until TempPeriod.Next() = 0;
-                            end;
                     until CostType.Next() = 0;
                 if IncludeTotalingFormulas then
                     HasFormulaError := TempExcelBuffer.ExportBudgetFilterToFormula(TempExcelBuffer);
-                Window.Close;
+                Window.Close();
                 LastBudgetRowNo := RowNo;
 
                 RowNo := RowNo + 200; // Move way below the budget
@@ -120,23 +119,22 @@ report 1142 "Export Cost Budget to Excel"
 
                 TempExcelBuffer.CreateBook(ServerFileName, TempExcelBuffer.GetExcelReference(10));
                 TempExcelBuffer.SetCurrent(HeaderRowNo + 1, 1);
-                TempExcelBuffer.StartRange;
+                TempExcelBuffer.StartRange();
                 TempExcelBuffer.SetCurrent(LastBudgetRowNo, 1);
-                TempExcelBuffer.EndRange;
+                TempExcelBuffer.EndRange();
                 TempExcelBuffer.CreateRange(TempExcelBuffer.GetExcelReference(11));
-                if TempPeriod.Find('-') then begin
+                if TempPeriod.Find('-') then
                     repeat
                         TempExcelBuffer.SetCurrent(HeaderRowNo + 1, 4 + TempPeriod."Period No.");
-                        TempExcelBuffer.StartRange;
+                        TempExcelBuffer.StartRange();
                         TempExcelBuffer.SetCurrent(LastBudgetRowNo, 4 + TempPeriod."Period No.");
-                        TempExcelBuffer.EndRange;
+                        TempExcelBuffer.EndRange();
                         TempExcelBuffer.CreateRange(TempExcelBuffer.GetExcelReference(9) + '_' + Format(TempPeriod."Period No."));
                     until TempPeriod.Next() = 0;
-                end;
 
                 TempExcelBuffer.WriteSheet(PadStr(CostBudgetName.Name, 30), CompanyName, UserId);
-                TempExcelBuffer.CloseBook;
-                TempExcelBuffer.OpenExcel;
+                TempExcelBuffer.CloseBook();
+                TempExcelBuffer.OpenExcel();
             end;
 
             trigger OnPreDataItem()
@@ -222,22 +220,23 @@ report 1142 "Export Cost Budget to Excel"
         CostBudgetName: Record "Cost Budget Name";
         TempExcelBuffer: Record "Excel Buffer" temporary;
         MatrixMgt: Codeunit "Matrix Management";
+        PeriodLength: DateFormula;
         ServerFileName: Text;
         StartDate: Date;
-        PeriodLength: DateFormula;
         RoundingFactor: Enum "Analysis Rounding Factor";
         NoOfPeriods: Integer;
         i: Integer;
         RowNo: Integer;
         ColNo: Integer;
         HeaderRowNo: Integer;
+        IncludeTotalingFormulas: Boolean;
+        HasFormulaError: Boolean;
+
         Text001: Label 'You can only export one budget at a time.';
         Text002: Label 'You must specify the starting date, number of periods, and period length.';
         Text005: Label 'Analyzing Data...\\';
         Text006: Label 'Export Filters';
         Text007: Label 'Some filters cannot be converted into Excel formulas. You must verify %1 errors in the Excel worksheet. Do you want to create the Excel worksheet?';
-        IncludeTotalingFormulas: Boolean;
-        HasFormulaError: Boolean;
 
     local procedure CalcPeriodStart(EntryDate: Date): Date
     begin

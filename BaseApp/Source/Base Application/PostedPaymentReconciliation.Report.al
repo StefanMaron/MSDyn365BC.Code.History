@@ -102,7 +102,7 @@ report 1409 "Posted Payment Reconciliation"
 
     trigger OnPreReport()
     begin
-        PostedPaymentReconciliationFilter := "Posted Payment Recon. Hdr".GetFilters;
+        PostedPaymentReconciliationFilter := "Posted Payment Recon. Hdr".GetFilters();
     end;
 
     var

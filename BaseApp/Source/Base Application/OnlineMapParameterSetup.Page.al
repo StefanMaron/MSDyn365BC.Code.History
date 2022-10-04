@@ -21,32 +21,32 @@ page 804 "Online Map Parameter Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the country/region. If you have selected the country/region code, the name is automatically inserted into this field.';
                 }
-                field("Map Service"; "Map Service")
+                field("Map Service"; Rec."Map Service")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the URL for the online map.';
                 }
-                field("Directions Service"; "Directions Service")
+                field("Directions Service"; Rec."Directions Service")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the URL for directions an on online map.';
                 }
-                field("Directions from Location Serv."; "Directions from Location Serv.")
+                field("Directions from Location Serv."; Rec."Directions from Location Serv.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the URL for directions from your location an on online map.';
                 }
-                field("URL Encode Non-ASCII Chars"; "URL Encode Non-ASCII Chars")
+                field("URL Encode Non-ASCII Chars"; Rec."URL Encode Non-ASCII Chars")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the URL is Non-ASCII encoded.';
                 }
-                field("Miles/Kilometers Option List"; "Miles/Kilometers Option List")
+                field("Miles/Kilometers Option List"; Rec."Miles/Kilometers Option List")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the options that measure the route distance.';
                 }
-                field("Quickest/Shortest Option List"; "Quickest/Shortest Option List")
+                field("Quickest/Shortest Option List"; Rec."Quickest/Shortest Option List")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the option for calculating the quickest or the shortest route.';
@@ -88,14 +88,23 @@ page 804 "Online Map Parameter Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Insert Default';
                 Image = Insert;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Insert default settings for the online map. This will overwrite any settings you may have.';
 
                 trigger OnAction()
                 begin
-                    InsertDefaults;
+                    InsertDefaults();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Insert Default_Promoted"; "&Insert Default")
+                {
+                }
             }
         }
     }
@@ -105,7 +114,7 @@ page 804 "Online Map Parameter Setup"
         OnlineMapParameterSetup: Record "Online Map Parameter Setup";
     begin
         if OnlineMapParameterSetup.IsEmpty() then
-            OnlineMapParameterSetup.InsertDefaults;
+            OnlineMapParameterSetup.InsertDefaults();
     end;
 }
 

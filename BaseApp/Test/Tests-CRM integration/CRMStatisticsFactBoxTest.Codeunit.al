@@ -303,7 +303,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         CaseCounter := 0;
         repeat
             CaseCounter += 1;
-        until CRMCaseList.Next = false;
+        until CRMCaseList.Next() = false;
         Assert.AreEqual(2, CaseCounter, 'Incorrect number of CRM Cases');
 
         // [THEN] The CRM Cases list page opens and it contains the correct information on the line
@@ -340,7 +340,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         OpportunityCounter := 0;
         repeat
             OpportunityCounter += 1;
-        until CRMOpportunityList.Next = false;
+        until CRMOpportunityList.Next() = false;
         Assert.AreEqual(2, OpportunityCounter, 'Incorrect number of CRM opportunities');
 
         // [THEN] The CRM Opportunities list page opens and it contains the correct information on the line
@@ -379,7 +379,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         QuoteCounter := 0;
         repeat
             QuoteCounter += 1;
-        until CRMQuoteList.Next = false;
+        until CRMQuoteList.Next() = false;
         Assert.AreEqual(3, QuoteCounter, 'Incorrect number of CRM Quotes');
 
         // [THEN] The CRM Quotes list page opens and it contains the correct information on the line

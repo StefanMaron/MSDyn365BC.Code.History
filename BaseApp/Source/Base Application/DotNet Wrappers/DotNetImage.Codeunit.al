@@ -52,7 +52,7 @@ codeunit 3010 DotNet_Image
     [Obsolete('Removed as we do not need to handle memory allocation in the new module.', '19.0')]
     procedure Dispose()
     begin
-        DotNetImage.Dispose;
+        DotNetImage.Dispose();
     end;
 
     [Obsolete('Removed as we only support streams', '19.0')]

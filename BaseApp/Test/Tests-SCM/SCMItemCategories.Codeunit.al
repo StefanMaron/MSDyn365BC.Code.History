@@ -65,8 +65,8 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard."Parent Category".SetValue(FirstItemCategory.Code);
         ItemCategoryCard.OK.Invoke;
 
-        LastItemCategory.Find;
-        FirstItemCategory.Find;
+        LastItemCategory.Find();
+        FirstItemCategory.Find();
         // [THEN] The last item category parent and the tree view is updated
         Assert.AreEqual(
           FirstItemCategory.Code, LastItemCategory."Parent Category",
@@ -90,14 +90,14 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.OpenEdit;
         ExpandTreeStructure(ItemCategories);
         ItemCategories.First;
-        ItemCategories.Next;
+        ItemCategories.Next();
         SecondItemCategory.Get(ItemCategories.Code);
         ItemCategoryCard.Trap;
         ItemCategories.Edit.Invoke;
         ItemCategoryCard."Parent Category".SetValue('');
         ItemCategoryCard.OK.Invoke;
 
-        SecondItemCategory.Find;
+        SecondItemCategory.Find();
         ItemCategories.GotoRecord(SecondItemCategory);
         // [THEN] The last item category parent and the tree view is updated
         Assert.AreEqual(
@@ -146,7 +146,7 @@ codeunit 137414 "SCM Item Categories"
         ExpandTreeStructure(ItemCategories);
         ItemCategories.First;
         FirstItemCategory.Get(ItemCategories.Code);
-        ItemCategories.Next;
+        ItemCategories.Next();
         SecondItemCategory.Get(ItemCategories.Code);
         ItemCategories.First;
         ItemCategoryCard.Trap;
@@ -179,8 +179,8 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard."Parent Category".SetValue(FirstItemCategory.Code);
         ItemCategoryCard.OK.Invoke;
 
-        SecondItemCategory.Find;
-        FirstItemCategory.Find;
+        SecondItemCategory.Find();
+        FirstItemCategory.Find();
         // [THEN] The last item category parent and the tree view is updated
         Assert.AreEqual(
           FirstItemCategory.Code, SecondItemCategory."Parent Category",
@@ -203,7 +203,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.OpenEdit;
         ItemCategories.Last;
         LastItemCategory.Get(ItemCategories.Code);
-        ItemCategories.Close;
+        ItemCategories.Close();
 
         // [WHEN] The user try to set a parent category to one of its children
         LastItemCategory.Rename(NewItemCategoryCode);
@@ -308,7 +308,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Attributes.First;
         Assert.AreEqual(FirstItemAttribute.Name, ItemCategoryCard.Attributes."Attribute Name".Value, '');
         Assert.AreEqual(FirstItemAttributeValue.Value, ItemCategoryCard.Attributes.Value.Value, '');
-        ItemCategoryCard.Attributes.Next;
+        ItemCategoryCard.Attributes.Next();
         Assert.AreEqual(LastItemAttribute.Name, ItemCategoryCard.Attributes."Attribute Name".Value, '');
         Assert.AreEqual('', ItemCategoryCard.Attributes.Value.Value, '');
     end;
@@ -463,7 +463,7 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
         FirstItemCategory.FindFirst();
         SecondItemCategory.Find('-');
-        SecondItemCategory.Next;
+        SecondItemCategory.Next();
         ChildItemCategory.SetRange("Parent Category", FirstItemCategory.Code);
         ChildItemCategory.FindFirst();
         FirstItemAttribute.FindFirst();
@@ -573,7 +573,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.ItemAttributesFactbox.First;
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
-        ItemCard.ItemAttributesFactbox.Next;
+        ItemCard.ItemAttributesFactbox.Next();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
     end;
@@ -621,7 +621,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.ItemAttributesFactbox.First;
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue.Value);
-        ItemCard.ItemAttributesFactbox.Next;
+        ItemCard.ItemAttributesFactbox.Next();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals('');
     end;
@@ -679,7 +679,7 @@ codeunit 137414 "SCM Item Categories"
             ItemCard.ItemAttributesFactbox.First;
             ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
             ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
-            ItemCard.ItemAttributesFactbox.Next;
+            ItemCard.ItemAttributesFactbox.Next();
             ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
             ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
         end;
@@ -721,7 +721,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
-        ItemCard.Close;
+        ItemCard.Close();
 
         FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::"Item Category", FirstItemCategory.Code, 0);
         ItemAttributeValueMapping.DeleteAll();
@@ -773,19 +773,19 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(FirstItem);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemCategoryCard.OpenEdit;
         ItemCategoryCard.GotoRecord(FirstItemCategory);
         ItemCategoryCard.Attributes.Last;
         LibraryVariableStorage.Enqueue(StrSubstNo(ChangingDefaultValueMsg, FirstItemCategory.Code));
         ItemCategoryCard.Attributes.Value.SetValue(LastItemAttributeValue);
-        ItemCategoryCard.Close;
+        ItemCategoryCard.Close();
 
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(SecondItem);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] the inherited attributes should show in the card and in the factbox
         ItemCard.OpenView;
@@ -793,7 +793,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.ItemAttributesFactbox.First;
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
-        ItemCard.ItemAttributesFactbox.Next;
+        ItemCard.ItemAttributesFactbox.Next();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals('');
 
@@ -801,7 +801,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.ItemAttributesFactbox.First;
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(FirstItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(FirstItemAttributeValue.Value);
-        ItemCard.ItemAttributesFactbox.Next;
+        ItemCard.ItemAttributesFactbox.Next();
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
     end;
@@ -833,7 +833,7 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
         FirstParentItemCategory.FindFirst();
         SecondParentItemCategory.Find('-');
-        SecondParentItemCategory.Next;
+        SecondParentItemCategory.Next();
         ChildItemCategory.SetRange("Parent Category", FirstParentItemCategory.Code);
         ChildItemCategory.FindFirst();
         FirstItemAttribute.FindFirst();
@@ -848,7 +848,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
         ItemCard."Item Category Code".SetValue(ChildItemCategory.Code);
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemCategoryCard.OpenEdit;
         ItemCategoryCard.GotoRecord(ChildItemCategory);
@@ -856,7 +856,7 @@ codeunit 137414 "SCM Item Categories"
           StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, ChildItemCategory.Code, FirstParentItemCategory.Code));
         LibraryVariableStorage.Enqueue(true);
         ItemCategoryCard."Parent Category".SetValue(SecondParentItemCategory.Code);
-        ItemCategoryCard.Close;
+        ItemCategoryCard.Close();
 
         // [THEN] the inherited attributes should show in the card and in the factbox
         ItemCard.OpenView;
@@ -893,7 +893,7 @@ codeunit 137414 "SCM Item Categories"
         // [WHEN]  assign 1 item attribute the first category and 1 attribute to the second one
         FirstItemCategory.FindFirst();
         SecondItemCategory.Find('-');
-        SecondItemCategory.Next;
+        SecondItemCategory.Next();
         FirstItemAttribute.FindFirst();
         LastItemAttribute.FindLast();
 
@@ -906,7 +906,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(FirstItem);
         ItemCard."Item Category Code".SetValue(FirstItemCategory.Code);
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(FirstItem);
@@ -915,7 +915,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard."Item Category Code".SetValue(SecondItemCategory.Code);
         ItemCard.ItemAttributesFactbox.Attribute.AssertEquals(LastItemAttribute.Name);
         ItemCard.ItemAttributesFactbox.Value.AssertEquals(LastItemAttributeValue);
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] the inherited attributes should show in the card and in the factbox
         ItemCard.OpenView;
@@ -1085,7 +1085,7 @@ codeunit 137414 "SCM Item Categories"
         // [THEN] ItemAttributesFactbox shows "AAA" with Name and Value with Unit of Measure.
         ItemCategories.ItemAttributesFactbox."Attribute Name".AssertEquals(ItemAttributeName);
         ItemCategories.ItemAttributesFactbox.Value.AssertEquals(AttributeTextValue + ' ' + TextUoM);
-        ItemCategories.Close;
+        ItemCategories.Close();
     end;
 
     [Test]
@@ -1118,7 +1118,7 @@ codeunit 137414 "SCM Item Categories"
         // [THEN] ItemAttributesFactbox displays "AAA" with Name and Value with Unit of Measure.
         ItemList.ItemAttributesFactBox."Attribute Name".AssertEquals(ItemAttributeName);
         ItemList.ItemAttributesFactBox.Value.AssertEquals(AttributeTextValue + ' ' + TextUoM);
-        ItemList.Close;
+        ItemList.Close();
     end;
 
     [Test]
@@ -1149,7 +1149,7 @@ codeunit 137414 "SCM Item Categories"
         ItemList.OpenView;
         ItemList.GotoRecord(Item);
         ItemList.Attributes.Invoke;
-        ItemList.Close;
+        ItemList.Close();
 
         // [THEN] "Item Attribute Values" page is populated with "AAA" Name and Value via the ItemAttributeValueEditorWithVerificationHandler.
         Assert.AreEqual(ItemAttributeName, LibraryVariableStorage.DequeueText, 'Attribute Name is expected');
@@ -1354,7 +1354,7 @@ codeunit 137414 "SCM Item Categories"
         Assert.RecordCount(Item, 2);
         Item.FindFirst();
         Assert.AreEqual('TEST80102-T', Item."No.", '');
-        Item.Next;
+        Item.Next();
         Assert.AreEqual('TEST80103-T', Item."No.", '');
     end;
 
@@ -1380,7 +1380,7 @@ codeunit 137414 "SCM Item Categories"
         Assert.RecordCount(Item, 2);
         Item.FindFirst();
         Assert.AreEqual('T80102', Item."No.", '');
-        Item.Next;
+        Item.Next();
         Assert.AreEqual('T80103', Item."No.", '');
     end;
 
@@ -1503,7 +1503,7 @@ codeunit 137414 "SCM Item Categories"
         SetNewItemAttributeValue(Item, ItemAttributeValue[2]);
 
         // [THEN] "V1" still exists in the database
-        ItemAttributeValue[1].Find;
+        ItemAttributeValue[1].Find();
     end;
 
     [Test]
@@ -1643,7 +1643,7 @@ codeunit 137414 "SCM Item Categories"
 
         // [THEN] The description for "C2" remains as set by the user
         ItemCategoryCard.Description.AssertEquals(Description);
-        ItemCategories.Close;
+        ItemCategories.Close();
     end;
 
     [Test]
@@ -2239,7 +2239,7 @@ codeunit 137414 "SCM Item Categories"
                 repeat
                     CreateItemCategory(ItemCategory.Code);
                     CreateItemCategory(ItemCategory.Code);
-                until ItemCategory.Next = 0;
+                until ItemCategory.Next() = 0;
         end;
     end;
 
@@ -2400,7 +2400,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributes.Name.SetValue(LowerCase(AttributeName));
         ItemAttributes.Type.SetValue(DummyItemAttribute.Type::Option);
         CreateTestOptionItemAttributeValues(ItemAttributes);
-        ItemAttributes.Close;
+        ItemAttributes.Close();
     end;
 
     local procedure CreateNonOptionTestItemAttribute(Type: Option; UoM: Text)
@@ -2413,7 +2413,7 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeCard.Name.SetValue(LowerCase(AttributeName));
         ItemAttributeCard.Type.SetValue(Type);
         ItemAttributeCard."Unit of Measure".SetValue(UoM);
-        ItemAttributeCard.Close;
+        ItemAttributeCard.Close();
     end;
 
     local procedure CreateTestOptionItemAttributeValues(var ItemAttributes: TestPage "Item Attributes")
@@ -2427,10 +2427,10 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeValues.First;
         FirstAttributeValueName := LibraryUtility.GenerateGUID();
         ItemAttributeValues.Value.SetValue(FirstAttributeValueName);
-        ItemAttributeValues.Next;
+        ItemAttributeValues.Next();
         SecondAttributeValueName := LibraryUtility.GenerateGUID();
         ItemAttributeValues.Value.SetValue(SecondAttributeValueName);
-        ItemAttributeValues.Close;
+        ItemAttributeValues.Close();
     end;
 
     local procedure CreateItemWithAttribute(var Item: Record Item; var ItemAttributeValue: Record "Item Attribute Value")
@@ -2448,7 +2448,7 @@ codeunit 137414 "SCM Item Categories"
         if ItemList.First then
             repeat
                 Count += 1;
-            until ItemList.Next = false;
+            until ItemList.Next() = false;
         exit(Count);
     end;
 
@@ -2488,7 +2488,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Attributes.New;
         ItemCategoryCard.Attributes."Attribute Name".SetValue(ItemAttribute.Name);
         ItemCategoryCard.Attributes.Value.SetValue(ItemAttributeValue);
-        ItemCategoryCard.Close;
+        ItemCategoryCard.Close();
     end;
 
     local procedure SetItemAttributeValue(Item: Record Item; ItemAttributeValue: Record "Item Attribute Value")
@@ -2514,7 +2514,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Attributes.Value.SetValue(AttributeTextValue);
         ItemCategoryCard.Attributes.Last;
         ItemCategoryCard.Attributes.New;
-        ItemCategoryCard.Close;
+        ItemCategoryCard.Close();
     end;
 
     local procedure CheckItemCategoryTreePresentation()
@@ -2546,7 +2546,7 @@ codeunit 137414 "SCM Item Categories"
                       StrSubstNo(IncorrectParentErr, ItemCategory.Code, PreviousItemCategory."Parent Category", ItemCategory."Parent Category"));
                 end;
             PreviousItemCategory.Get(ItemCategories.Code);
-        until not ItemCategories.Next;
+        until not ItemCategories.Next();
     end;
 
     local procedure ExpandTreeStructure(var ItemCategories: TestPage "Item Categories")
@@ -2554,7 +2554,7 @@ codeunit 137414 "SCM Item Categories"
         if ItemCategories.First then
             repeat
                 ItemCategories.Expand(true);
-            until not ItemCategories.Next;
+            until not ItemCategories.Next();
     end;
 
     local procedure FilterItemAttributeValueMapping(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; TableID: Integer; No: Code[20]; AttributeID: Integer)

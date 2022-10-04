@@ -55,7 +55,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             LibraryERMCountryData.CreateVATData();
             LibraryERMCountryData.CreateGeneralPostingSetupData();
         end;
@@ -144,7 +144,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesLine."Recalculate Invoice Disc." := true;
         SalesLine.Modify();
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // Execute
         SalesInvoice.OpenEdit;
@@ -189,7 +189,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         // Execute
         SalesInvoice.SalesLines.Quantity.SetValue(SalesInvoice.SalesLines.Quantity.AsDEcimal * 2);
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
 
         // Verify
@@ -209,7 +209,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         // Execute
         SalesInvoice.SalesLines."Line Amount".SetValue(Round(SalesInvoice.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
 
         // Verify
@@ -230,7 +230,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         // Execute
         SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal * 2);
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
 
         // Verify
@@ -256,7 +256,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         // Execute
         SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal * 2);
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.First;
 
         // Verify
@@ -612,7 +612,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Initialize();
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
 
-        TempGUID := CreateGuid;
+        TempGUID := CreateGuid();
         SalesInvoiceHeader.TransferFields(SalesHeader, true);
         SalesInvoiceHeader."Pre-Assigned No." := SalesHeader."No.";
         SalesInvoiceHeader.SystemId := TempGUID;
@@ -624,7 +624,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // Verify
         Assert.IsFalse(SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false), 'Draft Aggregated Invoice still exists');
 
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         Assert.AreEqual(SalesHeader.SystemId, SalesInvoiceHeader."Draft Invoice SystemId", 'Posted Invoice ID is incorrect');
         Assert.IsFalse(SalesHeader.Find, 'Draft Invoice still exists');
         SalesInvoiceEntityAggregate.Get(SalesInvoiceHeader."No.", true);
@@ -939,7 +939,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceEntityAggregate.Delete();
 
         // Execute
-        SalesInvoiceAggregator.UpdateAggregateTableRecords;
+        SalesInvoiceAggregator.UpdateAggregateTableRecords();
 
         // Verify
         VerifyAggregateTableIsUpdatedForInvoice(SalesHeader."No.");
@@ -1435,14 +1435,14 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ItemQuantity: Decimal;
     begin
         SalesInvoice.SalesLines.Last;
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines."No.".SetValue(ItemNo);
 
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
 
         // Trigger Save
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
     end;
 
@@ -1540,8 +1540,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
-        SalesHeader.Find;
-        SalesLine.Find;
+        SalesHeader.Find();
+        SalesLine.Find();
     end;
 
     local procedure CreateInvoiceWithLinesThroughCodeDiscountAmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -1625,7 +1625,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateCustomer(Customer);
         InvoiceDiscountAmount := LibraryRandom.RandDecInRange(1, 100, 2);
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             Customer."Prices Including VAT" := true;
             Customer.Modify();
         end;
@@ -1705,7 +1705,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
                 TargetTableFieldRef := TargetTableRecRef.Field(TempField."No.");
                 ValidateFieldDefinitionsMatch(SourceTableFieldRef, TargetTableFieldRef);
             end;
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
     end;
 
     local procedure VerifyFieldDefinitionsDontExistInTargetTable(TableID: Integer; var TempField: Record "Field" temporary)
@@ -1724,7 +1724,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
                   StrSubstNo(
                     'Field %1 is specific for Table %2 and should not be in the Table %3. TRANSFERFIELDS will break existing functionailty.',
                     TempField."No.", TempField.TableName, RecRef.Name));
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
     end;
 
     local procedure ValidateFieldDefinitionsMatch(FieldRef1: FieldRef; FieldRef2: FieldRef)
@@ -1820,8 +1820,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LinesRecordRef.FindFirst();
         repeat
             VerifyLineValuesMatch(LinesRecordRef, TempSalesInvoiceLineAggregate, SalesInvoiceEntityAggregate.Posted);
-            TempSalesInvoiceLineAggregate.Next;
-        until LinesRecordRef.Next = 0;
+            TempSalesInvoiceLineAggregate.Next();
+        until LinesRecordRef.Next() = 0;
     end;
 
     local procedure VerifyLineValuesMatch(var SourceRecordRef: RecordRef; var TempSalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate" temporary; Posted: Boolean)
@@ -1848,9 +1848,9 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
             Assert.AreEqual(
               Format(SourceFieldRef.Value), Format(AggregateLineFieldRef.Value),
               StrSubstNo('Value did not match for field no. %1', TempField."No."));
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("VAT Prod. Posting Group"));
             if VATProductPostingGroup.Get(SourceFieldRef.Value) then
                 TaxId := VATProductPostingGroup.SystemId;
@@ -1919,7 +1919,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
                 end;
         end;
 
-        SalesInvoiceEntityAggregate.Find;
+        SalesInvoiceEntityAggregate.Find();
 
         if NumberOfLines > 0 then
             Assert.IsTrue(ExpectedTotalExclTaxAmount > 0, 'One amount must be greated than zero');

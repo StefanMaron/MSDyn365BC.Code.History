@@ -12,12 +12,12 @@ page 5921 "Available Loaners"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number for the loaner for the service item.';
@@ -42,12 +42,12 @@ page 5921 "Available Loaners"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the loaner has been lent to a customer.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the document type of the loaner entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service document for the service item that was lent.';
@@ -142,7 +142,7 @@ page 5921 "Available Loaners"
                                 ServLoanerMgt.ReceiveLoaner(ServItemLine);
                             end;
                         end else
-                            Error(Text000, TableCaption, "No.");
+                            Error(Text000, TableCaption(), "No.");
                     end;
                 }
             }

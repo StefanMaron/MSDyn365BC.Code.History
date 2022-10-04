@@ -374,7 +374,7 @@ codeunit 136450 "Attachment Storage Type"
 
         InteractionLogEntry.Delete(true);
 
-        Attachment.SetRecFilter;
+        Attachment.SetRecFilter();
         Assert.RecordIsEmpty(Attachment);
     end;
 
@@ -933,7 +933,7 @@ codeunit 136450 "Attachment Storage Type"
 
         asserterror AttachmentManagement.Send(TempDeliverySorter);
         Assert.ExpectedErrorCode('DB:RecordNotFound');
-        Assert.ExpectedError(Contact.TableCaption);
+        Assert.ExpectedError(Contact.TableCaption());
     end;
 
     [Test]
@@ -1100,7 +1100,7 @@ codeunit 136450 "Attachment Storage Type"
                 end;
 
                 Attachment.CalcFields("Attachment File");
-                if not Attachment."Attachment File".HasValue then begin
+                if not Attachment."Attachment File".HasValue() then begin
                     Attachment."Attachment File".Import(CreateServerTxtFile(FileExtensionTxt));
                     Attachment."File Extension" := FileExtensionTxt;
                 end;
@@ -1230,7 +1230,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment.FindSet();
         repeat
             Attachment.CalcFields("Attachment File");
-            if Attachment."Attachment File".HasValue then
+            if Attachment."Attachment File".HasValue() then
                 exit;
         until Attachment.Next() = 0;
     end;

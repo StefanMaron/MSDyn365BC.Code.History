@@ -20,12 +20,11 @@ codeunit 1560 "Workflow Imp. / Exp. Mgt"
 
         XMLDOMManagement.FindNodes(XmlNode, '/Root/Workflow', XmlNodeList);
 
-        foreach XmlNode in XmlNodeList do begin
+        foreach XmlNode in XmlNodeList do
             if WorkflowCodes = '' then
                 WorkflowCodes := XMLDOMManagement.GetAttributeValue(XmlNode, 'Code')
             else
                 WorkflowCodes := WorkflowCodes + ',' + XMLDOMManagement.GetAttributeValue(XmlNode, 'Code');
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -41,7 +40,7 @@ codeunit 1560 "Workflow Imp. / Exp. Mgt"
             Error(MoreThanOneWorkflowImportErr);
 
         FromWorkflow.Init();
-        FromWorkflow.Code := CopyStr(Format(CreateGuid), 1, MaxStrLen(Workflow.Code));
+        FromWorkflow.Code := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Workflow.Code));
         FromWorkflow.ImportFromBlob(TempBlob);
 
         CopyWorkflow.InitCopyWorkflow(FromWorkflow, Workflow);

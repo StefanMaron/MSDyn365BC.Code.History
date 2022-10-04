@@ -14,7 +14,7 @@ page 99000839 "Prod. Order Comment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';

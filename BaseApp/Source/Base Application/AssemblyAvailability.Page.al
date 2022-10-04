@@ -17,12 +17,12 @@ page 908 "Assembly Availability"
             group(Details)
             {
                 Caption = 'Details';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number assigned to the assembly order from the number series that you set up in the Assembly Setup window.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that is being assembled with the assembly order.';
@@ -32,13 +32,13 @@ page 908 "Assembly Availability"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the description of the assembly item.';
                 }
-                field("Current Quantity"; "Remaining Quantity")
+                field("Current Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Current Quantity';
                     ToolTip = 'Specifies how many units of the assembly item remain to be posted as assembled output.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of the assembly item are reserved for this assembly order header.';
@@ -99,17 +99,17 @@ page 908 "Assembly Availability"
                     ApplicationArea = Planning;
                     Caption = 'Reserved Receipts';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code of the item variant of the item that is being assembled.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location to which you want to post output of the assembly item.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the unit of measure code of the assembly item.';

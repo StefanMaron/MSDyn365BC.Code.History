@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2121 "O365 Posted Sales Inv. Att."
 {
     Caption = 'Attachments';
@@ -5,8 +6,10 @@ page 2121 "O365 Posted Sales Inv. Att."
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "Sales Invoice Header";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +17,7 @@ page 2121 "O365 Posted Sales Inv. Att."
         {
             part(PhoneIncomingDocAttachFactBox; "O365 Incoming Doc. Attch. List")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attachments';
                 ShowFilter = false;
                 SubPageLink = "Posting Date" = FIELD("Posting Date"),
@@ -23,7 +26,7 @@ page 2121 "O365 Posted Sales Inv. Att."
             }
             part(WebIncomingDocAttachFactBox; "BC O365 Inc. Doc. Attch. List")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attachments';
                 ShowFilter = false;
                 SubPageLink = "Posting Date" = FIELD("Posting Date"),
@@ -39,69 +42,78 @@ page 2121 "O365 Posted Sales Inv. Att."
         {
             action(ImportNewPhone)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Attach Picture';
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Attach a picture to the invoice.';
                 Visible = IsPhone;
 
                 trigger OnAction()
                 begin
-                    CurrPage.PhoneIncomingDocAttachFactBox.PAGE.ImportNewFile;
+                    CurrPage.PhoneIncomingDocAttachFactBox.PAGE.ImportNewFile();
                 end;
             }
             action(ImportNewWeb)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Add Attachments';
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Attach an attachment to the invoice.';
                 Visible = NOT IsPhone;
 
                 trigger OnAction()
                 begin
-                    CurrPage.WebIncomingDocAttachFactBox.PAGE.ImportNewFile;
+                    CurrPage.WebIncomingDocAttachFactBox.PAGE.ImportNewFile();
                 end;
             }
             action(TakePicture)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Take Picture';
                 Gesture = None;
                 Image = Camera;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Activate the camera on the device.';
                 Visible = CameraAvailable;
 
                 trigger OnAction()
                 begin
                     if IsPhone then
-                        CurrPage.PhoneIncomingDocAttachFactBox.PAGE.TakeNewPicture
+                        CurrPage.PhoneIncomingDocAttachFactBox.PAGE.TakeNewPicture()
                     else
-                        CurrPage.WebIncomingDocAttachFactBox.PAGE.TakeNewPicture;
+                        CurrPage.WebIncomingDocAttachFactBox.PAGE.TakeNewPicture();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ImportNewPhone_Promoted; ImportNewPhone)
+                {
+                }
+                actionref(ImportNewWeb_Promoted; ImportNewWeb)
+                {
+                }
+                actionref(TakePicture_Promoted; TakePicture)
+                {
+                }
             }
         }
     }
 
     trigger OnOpenPage()
     begin
-        IsPhone := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsPhone := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
         if IsPhone then
-            CameraAvailable := CurrPage.PhoneIncomingDocAttachFactBox.PAGE.GetCameraAvailable
+            CameraAvailable := CurrPage.PhoneIncomingDocAttachFactBox.PAGE.GetCameraAvailable()
         else
-            CameraAvailable := CurrPage.WebIncomingDocAttachFactBox.PAGE.GetCameraAvailable;
+            CameraAvailable := CurrPage.WebIncomingDocAttachFactBox.PAGE.GetCameraAvailable();
     end;
 
     var
@@ -109,4 +121,4 @@ page 2121 "O365 Posted Sales Inv. Att."
         CameraAvailable: Boolean;
         IsPhone: Boolean;
 }
-
+#endif

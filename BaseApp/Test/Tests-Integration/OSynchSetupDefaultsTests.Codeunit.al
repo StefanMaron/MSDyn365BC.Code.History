@@ -56,7 +56,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         OutlookSynchFilter.DeleteAll(true);
         OutlookSynchField.DeleteAll(true);
 
-        OutlookSynchSetupDefaults.InsertOSynchDefaults;
+        OutlookSynchSetupDefaults.InsertOSynchDefaults();
         Assert.AreNotEqual(0, OutlookSynchEntity.Count, 'Expected more than one entity to be created');
 
         ValidateOSynchFilters;
@@ -102,7 +102,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         // [WHEN] Delete Outlook Synch. Entity
         asserterror OutlookSynchEntity.Delete(true);
         // [THEN] Error message thrown
-        Assert.ExpectedError(StrSubstNo(OSynchUserSetupDeleteErr, OutlookSynchUserSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(OSynchUserSetupDeleteErr, OutlookSynchUserSetup.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -205,7 +205,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
             MatchRecordValue(FieldRecordRef, 99, DocumentRowNode, 10);
 
             DocumentRowNode.ParentNode.RemoveChild(DocumentRowNode);
-        until FieldRecordRef.Next = 0;
+        until FieldRecordRef.Next() = 0;
 
         DocumentTableNode := Document.SelectSingleNode('/Workbook/Worksheet/Table');
         // Only the header can remain
@@ -239,7 +239,7 @@ codeunit 139024 "OSynch Setup Defaults Tests"
             MatchRecordValue(FieldRecordRef, 13, DocumentRowNode, 10);
 
             DocumentRowNode.ParentNode.RemoveChild(DocumentRowNode);
-        until FieldRecordRef.Next = 0;
+        until FieldRecordRef.Next() = 0;
 
         DocumentTableNode := Document.SelectSingleNode('/Workbook/Worksheet/Table');
         // Only the header can remain

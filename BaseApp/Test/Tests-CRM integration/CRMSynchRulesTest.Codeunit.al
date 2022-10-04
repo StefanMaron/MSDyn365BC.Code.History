@@ -137,7 +137,7 @@ codeunit 139181 "CRM Synch. Rules Test"
           CRMIntegrationRecord.FindRecordIDFromID(CRMContact.ContactId, DATABASE::Contact, ContactRecID),
           'CRM Contact should be coupled.');
         // [THEN] NAV Contact got "No." from the Series No.
-        ContactRecRef := ContactRecID.GetRecord;
+        ContactRecRef := ContactRecID.GetRecord();
         ContactRecRef.SetTable(Contact);
         Contact.TestField("No.", GetLastUsedContactNo);
     end;
@@ -502,7 +502,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
         Customer.SetFilter(Blocked, '<>%1', Customer.Blocked::Invoice);
-        IntegrationTableMapping.SetTableFilter(Customer.GetView);
+        IntegrationTableMapping.SetTableFilter(Customer.GetView());
         // [GIVEN] "Synch. Only Coupled Records" is 'No' in the 'CUSTOMER' mapping (to simulate full sync run)
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
         IntegrationTableMapping.Modify();
@@ -588,7 +588,7 @@ codeunit 139181 "CRM Synch. Rules Test"
 
         repeat
             Message := Message + IntegrationSynchJobErrors.Message + '\';
-        until IntegrationSynchJobErrors.Next = 0;
+        until IntegrationSynchJobErrors.Next() = 0;
     end;
 
     local procedure RunContactCard(Contact: Record Contact; var TestContactCard: TestPage "Contact Card")

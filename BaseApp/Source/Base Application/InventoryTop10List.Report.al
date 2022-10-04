@@ -20,25 +20,25 @@ report 711 "Inventory - Top 10 List"
                 if ("Sales (LCY)" = 0) and (Inventory = 0) and not PrintAlsoIfZero then
                     CurrReport.Skip();
 
-                ItemAmount.Init();
-                ItemAmount."Item No." := "No.";
+                TempItemAmount.Init();
+                TempItemAmount."Item No." := "No.";
                 if ShowType = ShowType::"Sales (LCY)" then begin
-                    ItemAmount.Amount := "Sales (LCY)";
-                    ItemAmount."Amount 2" := Inventory;
+                    TempItemAmount.Amount := "Sales (LCY)";
+                    TempItemAmount."Amount 2" := Inventory;
                 end else begin
-                    ItemAmount.Amount := Inventory;
-                    ItemAmount."Amount 2" := "Sales (LCY)";
+                    TempItemAmount.Amount := Inventory;
+                    TempItemAmount."Amount 2" := "Sales (LCY)";
                 end;
                 if ShowSorting = ShowSorting::Largest then begin
-                    ItemAmount.Amount := -ItemAmount.Amount;
-                    ItemAmount."Amount 2" := -ItemAmount."Amount 2";
+                    TempItemAmount.Amount := -TempItemAmount.Amount;
+                    TempItemAmount."Amount 2" := -TempItemAmount."Amount 2";
                 end;
-                ItemAmount.Insert();
+                TempItemAmount.Insert();
                 if (NoOfRecordsToPrint = 0) or (i < NoOfRecordsToPrint) then
                     i := i + 1
                 else begin
-                    ItemAmount.Find('+');
-                    ItemAmount.Delete();
+                    TempItemAmount.Find('+');
+                    TempItemAmount.Delete();
                 end;
 
                 TotalItemSales += "Sales (LCY)";
@@ -48,7 +48,7 @@ report 711 "Inventory - Top 10 List"
             trigger OnPreDataItem()
             begin
                 Window.Open(Text000);
-                ItemAmount.DeleteAll();
+                TempItemAmount.DeleteAll();
                 i := 0;
             end;
         }
@@ -58,7 +58,7 @@ report 711 "Inventory - Top 10 List"
             column(STRSUBSTNO_Text001_ItemDateFilter_; StrSubstNo(Text001, ItemDateFilter))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text002_Sequence_Heading_; StrSubstNo(Text002, Sequence, Heading))
@@ -67,7 +67,7 @@ report 711 "Inventory - Top 10 List"
             column(PrintAlsoIfZero; PrintAlsoIfZero)
             {
             }
-            column(STRSUBSTNO___1___2__Item_TABLECAPTION_ItemFilter_; StrSubstNo('%1: %2', Item.TableCaption, ItemFilter))
+            column(STRSUBSTNO___1___2__Item_TABLECAPTION_ItemFilter_; StrSubstNo('%1: %2', Item.TableCaption(), ItemFilter))
             {
             }
             column(ItemFilter; ItemFilter)
@@ -160,38 +160,38 @@ report 711 "Inventory - Top 10 List"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not ItemAmount.Find('-') then
+                    if not TempItemAmount.Find('-') then
                         CurrReport.Break();
                     if ShowSorting = ShowSorting::Largest then
-                        MaxAmount := -ItemAmount.Amount
+                        MaxAmount := -TempItemAmount.Amount
                     else begin
-                        ItemAmount2 := ItemAmount;
-                        if ItemAmount.Next(NoOfRecordsToPrint - 1) > 0 then;
-                        MaxAmount := ItemAmount.Amount;
-                        ItemAmount := ItemAmount2;
+                        ItemAmount2 := TempItemAmount;
+                        if TempItemAmount.Next(NoOfRecordsToPrint - 1) > 0 then;
+                        MaxAmount := TempItemAmount.Amount;
+                        TempItemAmount := ItemAmount2;
                     end;
                 end else
-                    if ItemAmount.Next() = 0 then
+                    if TempItemAmount.Next() = 0 then
                         CurrReport.Break();
-                Item.Get(ItemAmount."Item No.");
+                Item.Get(TempItemAmount."Item No.");
                 Item.CalcFields("Sales (LCY)", Inventory);
                 if ShowSorting = ShowSorting::Largest then begin
-                    ItemAmount.Amount := -ItemAmount.Amount;
-                    ItemAmount."Amount 2" := -ItemAmount."Amount 2";
+                    TempItemAmount.Amount := -TempItemAmount.Amount;
+                    TempItemAmount."Amount 2" := -TempItemAmount."Amount 2";
                 end;
-                if (MaxAmount > 0) and (ItemAmount.Amount > 0) then
-                    BarText := PadStr('', Round(ItemAmount.Amount / MaxAmount * 45, 1), '*')
+                if (MaxAmount > 0) and (TempItemAmount.Amount > 0) then
+                    BarText := PadStr('', Round(TempItemAmount.Amount / MaxAmount * 45, 1), '*')
                 else
                     BarText := '';
                 if ShowSorting = ShowSorting::Largest then begin
-                    ItemAmount.Amount := -ItemAmount.Amount;
-                    ItemAmount."Amount 2" := -ItemAmount."Amount 2";
+                    TempItemAmount.Amount := -TempItemAmount.Amount;
+                    TempItemAmount."Amount 2" := -TempItemAmount."Amount 2";
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                Window.Close;
+                Window.Close();
                 ItemSales := Item."Sales (LCY)";
                 QtyOnHand := Item.Inventory;
             end;
@@ -257,18 +257,14 @@ report 711 "Inventory - Top 10 List"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         ItemDateFilter := Item.GetFilter("Date Filter");
         Sequence := LowerCase(Format(SelectStr(ShowSorting + 1, Text004)));
         Heading := Format(SelectStr(ShowType + 1, Text005));
     end;
 
     var
-        Text000: Label 'Sorting items    #1##########';
-        Text001: Label 'Period: %1';
-        Text002: Label 'Ranked according to %1 %2';
-        Text003: Label 'Portion of %1';
-        ItemAmount: Record "Item Amount" temporary;
+        TempItemAmount: Record "Item Amount" temporary;
         ItemAmount2: Record "Item Amount";
         Window: Dialog;
         ItemFilter: Text;
@@ -286,10 +282,15 @@ report 711 "Inventory - Top 10 List"
         MaxAmount: Decimal;
         BarText: Text[50];
         i: Integer;
-        Text004: Label 'Largest,Smallest';
-        Text005: Label 'Sales (LCY),Inventory';
         TotalItemSales: Decimal;
         TotalItemBalance: Decimal;
+
+        Text000: Label 'Sorting items    #1##########';
+        Text001: Label 'Period: %1';
+        Text002: Label 'Ranked according to %1 %2';
+        Text003: Label 'Portion of %1';
+        Text004: Label 'Largest,Smallest';
+        Text005: Label 'Sales (LCY),Inventory';
         Inventory___Top_10_ListCaptionLbl: Label 'Inventory - Top 10 List';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         This_report_also_includes_items_not_on_inventory_or_that_are_not_sold_CaptionLbl: Label 'This report also includes items not on inventory or that are not sold.';

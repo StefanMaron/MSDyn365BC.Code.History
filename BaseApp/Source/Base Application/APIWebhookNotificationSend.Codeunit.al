@@ -91,7 +91,7 @@ codeunit 6154 "API Webhook Notification Send"
         SendNotificationMsg: Label 'Send notification. Notification URL number: %1.', Locked = true;
         AllPayloadsEmptyMsg: Label 'No one notification has been sent. All the payloads are empty.', Locked = true;
         SucceedNotificationMsg: Label 'Notification has been sent successfully. Notification URL number: %1.', Locked = true;
-        FailedNotificationRescheduleMsg: Label 'Server was not able to proceess the notification at this point. Notification URL number: %1. Response code %2. Notification is rescheduled.', Locked = true;
+        FailedNotificationRescheduleMsg: Label 'Server was not able to process the notification at this point. Notification URL number: %1. Response code %2. Notification is rescheduled.', Locked = true;
         FailedNotificationRejectedMsg: Label 'Server has rejected the notification. Notification URL number: %1. Response code %2.', Locked = true;
         NoPendingNotificationsMsg: Label 'No pending notifications.', Locked = true;
         NoActiveSubscriptionsMsg: Label 'No active subscriptions.', Locked = true;

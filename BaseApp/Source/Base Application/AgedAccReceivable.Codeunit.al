@@ -7,12 +7,13 @@ codeunit 763 "Aged Acc. Receivable"
     end;
 
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLSetupLoaded: Boolean;
+
         OverdueTxt: Label 'Overdue';
         AmountTxt: Label 'Amount';
         NotDueTxt: Label 'Not Overdue';
         OlderTxt: Label 'Older';
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GLSetupLoaded: Boolean;
         StatusNonPeriodicTxt: Label 'All receivables, not overdue and overdue';
         StatusPeriodLengthTxt: Label 'Period Length: ';
         Status2WeekOverdueTxt: Label '2 weeks overdue';
@@ -58,7 +59,7 @@ codeunit 763 "Aged Acc. Receivable"
                 Results.Add('Amount2¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf.Amount2, 0, 9));
                 Results.Add('EndDate¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf."End Date", 0, 9));
                 Results.Add('StartDate¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf."Start Date", 0, 9));
-            until TempEntryNoAmountBuf.Next = 0;
+            until TempEntryNoAmountBuf.Next() = 0;
 
         Page.SetBackgroundTaskResult(Results);
     end;
@@ -79,8 +80,8 @@ codeunit 763 "Aged Acc. Receivable"
     begin
         with BusChartBuf do begin
             Initialize();
-            SetXAxis(OverDueText, "Data Type"::String);
-            AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
+            SetXAxis(OverDueText(), "Data Type"::String);
+            AddDecimalMeasure(AmountText(), 1, "Chart Type"::Column);
             if AlreadyInitialized then
                 InitParameters(BusChartBuf, PeriodLength, NoOfPeriods)
             else begin
@@ -152,8 +153,8 @@ codeunit 763 "Aged Acc. Receivable"
             CustLedgEntryRemainAmt.SetFilter(
               Due_Date,
               DateFilterByAge(Index, StartDate, PeriodLength, NoOfPeriods, EndDate));
-            CustLedgEntryRemainAmt.Open;
-            if CustLedgEntryRemainAmt.Read then
+            CustLedgEntryRemainAmt.Open();
+            if CustLedgEntryRemainAmt.Read() then
                 RemainingAmountLCY := CustLedgEntryRemainAmt.Sum_Remaining_Amt_LCY;
 
             InsertAmountBuffer(Index, CustomerGroupCode, RemainingAmountLCY, StartDate, EndDate, TempEntryNoAmountBuffer)
@@ -172,8 +173,8 @@ codeunit 763 "Aged Acc. Receivable"
         PeriodEndDate: Date;
     begin
         CustRemainAmtByDueDate.SetRange(IsOpen, true);
-        CustRemainAmtByDueDate.Open;
-        while CustRemainAmtByDueDate.Read do begin
+        CustRemainAmtByDueDate.Open();
+        while CustRemainAmtByDueDate.Read() do begin
             EntryNo += 1;
             TempEntryNoAmtBuf."Entry No." := EntryNo;
             TempEntryNoAmtBuf."Business Unit Code" := CustRemainAmtByDueDate.Customer_Posting_Group;
@@ -217,13 +218,13 @@ codeunit 763 "Aged Acc. Receivable"
     procedure InsertAmountBuffer(Index: Integer; BussUnitCode: Code[20]; AmountLCY: Decimal; StartDate: Date; EndDate: Date; var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary)
     begin
         with TempEntryNoAmountBuffer do begin
-            Init;
+            Init();
             "Entry No." := Index;
             "Business Unit Code" := BussUnitCode;
             Amount := AmountLCY;
             "Start Date" := StartDate;
             "End Date" := EndDate;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -244,7 +245,7 @@ codeunit 763 "Aged Acc. Receivable"
     begin
         if BusChartBuf."Period Length" = BusChartBuf."Period Length"::None then
             exit('W');
-        exit(BusChartBuf.GetPeriodLength);
+        exit(BusChartBuf.GetPeriodLength());
     end;
 
     local procedure GetNoOfPeriods(BusChartBuf: Record "Business Chart Buffer"): Integer
@@ -345,22 +346,22 @@ codeunit 763 "Aged Acc. Receivable"
             BusChartBuf."Period Length"::Day:
                 StatusText := StatusText + ' | ' + Status2WeekOverdueTxt;
             BusChartBuf."Period Length"::Week:
-                if OfficeMgt.IsAvailable then
+                if OfficeMgt.IsAvailable() then
                     StatusText := StatusText + ' | ' + Status1MonthOverdueTxt
                 else
                     StatusText := StatusText + ' | ' + Status3MonthsOverdueTxt;
             BusChartBuf."Period Length"::Month:
-                if OfficeMgt.IsAvailable then
+                if OfficeMgt.IsAvailable() then
                     StatusText := StatusText + ' | ' + Status1QuarterOverdueTxt
                 else
                     StatusText := StatusText + ' | ' + Status1YearOverdueTxt;
             BusChartBuf."Period Length"::Quarter:
-                if OfficeMgt.IsAvailable then
+                if OfficeMgt.IsAvailable() then
                     StatusText := StatusText + ' | ' + Status1YearOverdueTxt
                 else
                     StatusText := StatusText + ' | ' + Status3YearsOverdueTxt;
             BusChartBuf."Period Length"::Year:
-                if OfficeMgt.IsAvailable then
+                if OfficeMgt.IsAvailable() then
                     StatusText := StatusText + ' | ' + Status3YearsOverdueTxt
                 else
                     StatusText := StatusText + ' | ' + Status5YearsOverdueTxt;

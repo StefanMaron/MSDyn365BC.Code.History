@@ -133,20 +133,20 @@ codeunit 139351 "Day Book Reports"
         MockGLEntry(GLEntry);
 
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
 
             "Document Type" := "Document Type"::Invoice;
             "Customer No." := MockCustomer;
             Open := true;
             Positive := true;
             "Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
-            "Due Date" := WorkDate;
-            "Posting Date" := WorkDate;
+            "Due Date" := WorkDate();
+            "Posting Date" := WorkDate();
             "Transaction No." := GLEntry."Transaction No.";
             "Closed by Entry No." := "Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -155,15 +155,15 @@ codeunit 139351 "Day Book Reports"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
 
             "Cust. Ledger Entry No." := CustLedgerEntryNo;
             "Entry Type" := "Entry Type"::"Realized Loss";
             "Amount (LCY)" := LibraryRandom.RandDec(10, 2);
             "Transaction No." := TransactionNo;
-            Modify;
+            Modify();
 
             exit("Entry No.");
         end;
@@ -186,21 +186,21 @@ codeunit 139351 "Day Book Reports"
         MockGLEntry(GLEntry);
 
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
 
             "Vendor No." := MockVendor;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Remaining Pmt. Disc. Possible" := LibraryRandom.RandDecInRange(10, 20, 2);
             "Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDecInRange(10, 20, 2);
-            "Pmt. Discount Date" := WorkDate;
+            "Pmt. Discount Date" := WorkDate();
 
             "Document Type" := "Document Type"::Invoice;
             "Transaction No." := GLEntry."Transaction No.";
             Open := true;
             "Closed by Entry No." := "Entry No.";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -211,14 +211,14 @@ codeunit 139351 "Day Book Reports"
         with DetailedVendorLedgEntry do begin
             "Entry No." :=
               LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
 
             "Vendor Ledger Entry No." := VendorLedgerEntryNo;
             "Entry Type" := "Entry Type"::"Realized Loss";
             Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
             "Amount (LCY)" := Amount;
             "Transaction No." := TransactionNo;
-            Modify;
+            Modify();
 
             exit("Entry No.");
         end;
@@ -237,24 +237,24 @@ codeunit 139351 "Day Book Reports"
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry")
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := LibraryUTUtility.GetNewCode;
             "Document No." := LibraryUTUtility.GetNewCode;
             "Transaction No." := LibraryUtility.GetLastTransactionNo + 1;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer)
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "Transaction No." := TransactionNo;
             Amount := LibraryRandom.RandDec(10, 2);
             Base := LibraryRandom.RandDec(10, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -270,7 +270,7 @@ codeunit 139351 "Day Book Reports"
         DayBookCustLedgerEntry.PrintCustLedgerDetails.SetValue(PrintCustLedgerDetails);
         DayBookCustLedgerEntry.PrintGLEntryDetails.SetValue(PrintCustLedgerDetails);
         DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Customer No.", CustomerNo);
-        DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookCustLedgerEntry.SaveAsExcel(LibraryVariableStorage.DequeueText);
     end;
 
@@ -286,7 +286,7 @@ codeunit 139351 "Day Book Reports"
         DayBookVendorLedgerEntry.PrintVendLedgerDetails.SetValue(PrintVendLedgerDetails);
         DayBookVendorLedgerEntry.PrintGLEntryDetails.SetValue(PrintVendLedgerDetails);
         DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Vendor No.", VendorNo);
-        DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookVendorLedgerEntry.SaveAsExcel(LibraryVariableStorage.DequeueText);
     end;
 }

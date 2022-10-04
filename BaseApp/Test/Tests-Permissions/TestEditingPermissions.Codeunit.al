@@ -151,6 +151,7 @@ codeunit 134612 "Test Editing Permissions"
         AssertPermissionSetLinkDoesNotExist(ExtensionPermissionSetRoleID, NewPermissionSetRoleID);
     end;
 
+#if not CLEAN21
     [Test]
     [HandlerFunctions('AddItemPermissionToTenantPermissionSetPageHandler')]
     [Scope('OnPrem')]
@@ -359,6 +360,7 @@ codeunit 134612 "Test Editing Permissions"
         AssertTenantPermissionSetHasSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter);
         LibraryVariableStorage.AssertEmpty;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -446,6 +448,7 @@ codeunit 134612 "Test Editing Permissions"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+#if not CLEAN21
     [Test]
     [HandlerFunctions('CannotAddItemPermissionToPermissionSetPageHandler')]
     [Scope('OnPrem')]
@@ -549,6 +552,7 @@ codeunit 134612 "Test Editing Permissions"
         // Verify
         AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(ExtensionPermissionSetRoleID, TempTableFilter."Table Number");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('CopyPermissionSetMissingNewNameRequestPageHandler')]
@@ -817,6 +821,7 @@ codeunit 134612 "Test Editing Permissions"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure StanBulkModifiesPermissionChangesTenantPermissionState()
@@ -858,7 +863,7 @@ codeunit 134612 "Test Editing Permissions"
           'Customer does not have Indirect permissions');
 
         // Exercise - Set read to Indirect on Sales Line
-        TenantPermissions.Next;
+        TenantPermissions.Next();
         TenantPermissions."Object ID".AssertEquals(DATABASE::"Sales Line");
         TenantPermissions.AllowReadIndirect.Invoke;
 
@@ -950,7 +955,9 @@ codeunit 134612 "Test Editing Permissions"
         Assert.AreEqual(TenantPermission."Read Permission"::" ", TenantPermission."Read Permission",
           'Customer is updated to have read permissions');
     end;
+#endif
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure StanCanExportTenantPermissionSets()
@@ -978,7 +985,7 @@ codeunit 134612 "Test Editing Permissions"
         TempBlob.CreateOutStream(OutStr);
         ExportPermissionSets.SetTableView(AggregatePermissionSet);
         ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export;
+        ExportPermissionSets.Export();
 
         // Verify
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, NewPermissionSetRoleID);
@@ -1056,7 +1063,7 @@ codeunit 134612 "Test Editing Permissions"
         TempBlob.CreateOutStream(OutStr);
         ExportPermissionSets.SetTableView(AggregatePermissionSet);
         ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export;
+        ExportPermissionSets.Export();
 
         // Verify
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, ZeroGuid, NewPermissionSetRoleID);
@@ -1135,7 +1142,7 @@ codeunit 134612 "Test Editing Permissions"
         TempBlob.CreateOutStream(OutStr);
         ExportPermissionSets.SetTableView(AggregatePermissionSet);
         ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export;
+        ExportPermissionSets.Export();
 
         // Verify
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
@@ -1170,7 +1177,7 @@ codeunit 134612 "Test Editing Permissions"
         ExportPermissionSets.SetExportToExtensionSchema(true);
         ExportPermissionSets.SetTableView(AggregatePermissionSet);
         ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export;
+        ExportPermissionSets.Export();
 
         // Verify
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, NewPermissionSetRoleID);
@@ -1207,7 +1214,7 @@ codeunit 134612 "Test Editing Permissions"
         TempBlob.CreateOutStream(OutStr);
         ExportPermissionSets.SetTableView(AggregatePermissionSet);
         ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export;
+        ExportPermissionSets.Export();
 
         // Delete the newly created Permission Set
         TenantPermission.SetRange("App ID", ZeroGuid);
@@ -1238,7 +1245,9 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermission.TestField("Delete Permission", TenantPermission."Delete Permission"::" ");
         TenantPermission.TestField("Execute Permission", TenantPermission."Execute Permission"::" ");
     end;
+#endif
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure StanSetsFirstPermission()
@@ -1295,6 +1304,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissions.Control5.AssertEquals(Format(TenantPermission."Delete Permission"::Yes));
         TenantPermissions.Control4.AssertEquals(Format(TenantPermission."Execute Permission"::" "));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1368,7 +1378,7 @@ codeunit 134612 "Test Editing Permissions"
         Assert.ExpectedError(Format(CannotRenameTenantPermissionSetHavingUsageErr));
     end;
 
-
+#if not CLEAN21
     [Test]
     [HandlerFunctions('StartStopRecorderConfirmHandler')]
     [Scope('OnPrem')]
@@ -1420,6 +1430,7 @@ codeunit 134612 "Test Editing Permissions"
         Assert.IsFalse(TenantPermissions.Stop.Enabled,
           StrSubstNo(EnabledActionErr, 'Stop', TenantPermissions.Caption));
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -1469,7 +1480,7 @@ codeunit 134612 "Test Editing Permissions"
 
     local procedure CreateNewExtensionPermissionSet(TenantPermissionSetRoleID: Code[20]) TenantPermissionSetAppID: Guid
     begin
-        TenantPermissionSetAppID := CreateGuid;
+        TenantPermissionSetAppID := CreateGuid();
         CreateNewTenantPermissionSetWithSpecificGUID(TenantPermissionSetRoleID, TenantPermissionSetAppID);
     end;
 
@@ -1562,7 +1573,7 @@ codeunit 134612 "Test Editing Permissions"
         AggregatePermissionSet.SetRange("Role ID", SourcePermissionSetRoleID);
         AggregatePermissionSet.SetRange("App ID", AppId);
         PermissionSets.CopyPermissionSet.Invoke;
-        PermissionSets.Close;
+        PermissionSets.Close();
     end;
 
     local procedure CopyTwoPermissionSetsToNewTenantPermissionSets(FirstSourcePermissionSetRoleID: Code[20]; SecondSourcePermissionSetRoleID: Code[20])
@@ -1583,6 +1594,7 @@ codeunit 134612 "Test Editing Permissions"
     begin
         TargetTenantPermissionSetRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
         CopyPermissionSet.NewPermissionSet.SetValue(TargetTenantPermissionSetRoleID);
+        CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
         NotifyFlagEnabled := LibraryVariableStorage.DequeueBoolean;
         Assert.AreEqual(NotifyFlagEnabled, CopyPermissionSet.CreateLink.Enabled, 'Enabled criteria not fulfilled');
         if NotifyFlagEnabled then
@@ -1600,6 +1612,7 @@ codeunit 134612 "Test Editing Permissions"
     begin
         TargetTenantPermissionSetRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
         CopyPermissionSet.NewPermissionSet.SetValue(TargetTenantPermissionSetRoleID);
+        CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
         NotifyFlagEnabled := LibraryVariableStorage.DequeueBoolean;
         Assert.AreEqual(NotifyFlagEnabled, CopyPermissionSet.CreateLink.Enabled, 'Enabled criteria not fulfilled');
         if NotifyFlagEnabled then
@@ -1625,6 +1638,7 @@ codeunit 134612 "Test Editing Permissions"
         Assert.ExpectedMessage(StrSubstNo(CopySuccessMsg, CopiedRoleID), Message);
     end;
 
+#if not CLEAN21
     local procedure DisplayPermissionsForPermissionSet(RoleID: Code[20])
     var
         PermissionSets: TestPage "Permission Sets";
@@ -1644,7 +1658,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissions."Object Type".SetValue(TenantPermission."Object Type"::"Table Data");
         TenantPermissions."Object ID".SetValue(LibraryVariableStorage.DequeueInteger);
         TenantPermissions.Control8.SetValue(TenantPermission."Read Permission"::Yes);
-        TenantPermissions.Close;
+        TenantPermissions.Close();
     end;
 
     [PageHandler]
@@ -1667,7 +1681,7 @@ codeunit 134612 "Test Editing Permissions"
         Assert.IsFalse(Permissions."Delete Permission".Editable,
           StrSubstNo(EditableControlErr, Permissions."Delete Permission".Caption, Permissions.Caption));
 
-        Permissions.Close;
+        Permissions.Close();
     end;
 
     [PageHandler]
@@ -1691,7 +1705,7 @@ codeunit 134612 "Test Editing Permissions"
         Assert.IsFalse(TenantPermissions.Stop.Enabled,
           StrSubstNo(EnabledActionErr, 'Stop', TenantPermissions.Caption));
 
-        TenantPermissions.Close;
+        TenantPermissions.Close();
     end;
 
     [PageHandler]
@@ -1699,8 +1713,9 @@ codeunit 134612 "Test Editing Permissions"
     procedure DisplaySecurityFiltersForTenantPermissionPageHandler(var TenantPermissions: TestPage "Tenant Permissions")
     begin
         TenantPermissions."Security Filter".AssistEdit;
-        TenantPermissions.Close;
+        TenantPermissions.Close();
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -1719,13 +1734,15 @@ codeunit 134612 "Test Editing Permissions"
         TableFilterPage.OK.Invoke;
     end;
 
+#if not CLEAN21
     [PageHandler]
     [Scope('OnPrem')]
     procedure DisplaySecurityFiltersForPermissionPageHandler(var Permissions: TestPage Permissions)
     begin
         Permissions."Security Filter".AssistEdit;
-        Permissions.Close;
+        Permissions.Close();
     end;
+#endif
 
     local procedure AssertTenantPermissionSetExists(ExpectedRoleID: Code[20])
     var
@@ -1797,7 +1814,7 @@ codeunit 134612 "Test Editing Permissions"
 
         repeat
             AssertTenantPermissionSetupEqualsPermissionSetup(ToTenantPermission, FromPermission);
-        until (ToTenantPermission.Next = 0) and (FromPermission.Next = 0);
+        until (ToTenantPermission.Next() = 0) and (FromPermission.Next() = 0);
     end;
 
     local procedure AssertTenantPermissionSetupEqualsPermissionSetup(var ToTenantPermission: Record "Tenant Permission"; var FromPermission: Record Permission)
@@ -1864,7 +1881,7 @@ codeunit 134612 "Test Editing Permissions"
 
         repeat
             AssertTenantPermissionSetupEqualsTenantPermissionSetup(ToTenantPermission, FromTenantPermission);
-        until (ToTenantPermission.Next = 0) and (FromTenantPermission.Next = 0);
+        until (ToTenantPermission.Next() = 0) and (FromTenantPermission.Next() = 0);
     end;
 
     local procedure AssertTenantPermissionSetupEqualsTenantPermissionSetup(var ToTenantPermission: Record "Tenant Permission"; var FromTenantPermission: Record "Tenant Permission")
@@ -2017,11 +2034,13 @@ codeunit 134612 "Test Editing Permissions"
         Assert.AreEqual(CannotEditPermissionSetMsg, Notification.Message, 'Message mismatch');
     end;
 
+#if not CLEAN21
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure StartStopRecorderConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
     end;
+#endif
 }
 

@@ -12,7 +12,7 @@ page 727 "Custom Address Format Factbox"
         {
             repeater(Group)
             {
-                field("Line Format"; "Line Format")
+                field("Line Format"; Rec."Line Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies address fields.';

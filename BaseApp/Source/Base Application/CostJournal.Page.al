@@ -6,7 +6,6 @@ page 1108 "Cost Journal"
     DataCaptionFields = "Journal Template Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page,Post/Print';
     SaveValues = true;
     SourceTable = "Cost Journal Line";
     UsageCategory = Tasks;
@@ -32,7 +31,7 @@ page 1108 "Cost Journal"
                 begin
                     CostJnlMgt.CheckName(CostJnlBatchName, Rec);
 
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     CostJnlMgt.SetName(CostJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -40,27 +39,27 @@ page 1108 "Cost Journal"
             repeater(Control7)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field("Cost Type No."; "Cost Type No.")
+                field("Cost Type No."; Rec."Cost Type No.")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the subtype of the cost center. This is an information field and is not used for any other purposes. Choose the field to select the cost subtype.';
                 }
-                field("Cost Center Code"; "Cost Center Code")
+                field("Cost Center Code"; Rec."Cost Center Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost center code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Cost Object Code"; "Cost Object Code")
+                field("Cost Object Code"; Rec."Cost Object Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost object code. The code serves as a default value for cost posting that is captured later in the cost journal.';
@@ -75,29 +74,29 @@ page 1108 "Cost Journal"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the amount of the entry in the cost journal.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Bal. Cost Type No."; "Bal. Cost Type No.")
+                field("Bal. Cost Type No."; Rec."Bal. Cost Type No.")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the number of the type that a balancing entry for the journal line is posted to.';
                 }
-                field("Bal. Cost Center Code"; "Bal. Cost Center Code")
+                field("Bal. Cost Center Code"; Rec."Bal. Cost Center Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the number of the cost center that a balancing entry for the journal line is posted to.';
                 }
-                field("Bal. Cost Object Code"; "Bal. Cost Object Code")
+                field("Bal. Cost Object Code"; Rec."Bal. Cost Object Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the number of the cost center that a balancing entry for the journal line is posted to.';
@@ -108,13 +107,13 @@ page 1108 "Cost Journal"
                     ToolTip = 'Specifies the balance of the cost type.';
                     Visible = false;
                 }
-                field("G/L Entry No."; "G/L Entry No.")
+                field("G/L Entry No."; Rec."G/L Entry No.")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the entry number of the corresponding general ledger entry that is associated with this cost entry. For combined entries, the entry number of the last general ledger entry is saved in the field. This is the entry with the highest entry number.';
                     Visible = false;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
@@ -190,9 +189,6 @@ page 1108 "Cost Journal"
                     ApplicationArea = CostAccounting;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Post information in the journal to the related cost register, such as pure cost entries, internal charges between cost centers, manual allocations, and corrective entries between cost types, cost centers, and cost objects.';
 
@@ -222,9 +218,6 @@ page 1108 "Cost Journal"
                     ApplicationArea = CostAccounting;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Post or print information in the journal to the related cost register, such as pure cost entries, internal charges between cost centers, manual allocations, and corrective entries between cost types, cost centers, and cost objects.';
 
@@ -244,10 +237,6 @@ page 1108 "Cost Journal"
                     ApplicationArea = CostAccounting;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -261,11 +250,37 @@ page 1108 "Cost Journal"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(PostandPrint_Promoted; PostandPrint)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateLineBalance;
+        UpdateLineBalance();
     end;
 
     trigger OnAfterGetRecord()
@@ -284,7 +299,7 @@ page 1108 "Cost Journal"
     begin
         SetUpNewLine(xRec);
         xRec := Rec;
-        UpdateLineBalance;
+        UpdateLineBalance();
     end;
 
     trigger OnOpenPage()
@@ -293,10 +308,10 @@ page 1108 "Cost Journal"
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CostJnlBatchName := "Journal Batch Name";
             CostJnlMgt.OpenJnl(CostJnlBatchName, Rec);
             exit;

@@ -177,7 +177,7 @@ report 24 "Sales Taxes Collected"
 
                     trigger OnAfterGetRecord()
                     begin
-                        ClearTaxAmounts;
+                        ClearTaxAmounts();
                         if ((Type = Type::Purchase) and IncludeUseTax and "Use Tax") or (Type = Type::Sale) then begin
                             if Type = Type::Sale then begin
                                 Amount := -Amount;
@@ -206,7 +206,7 @@ report 24 "Sales Taxes Collected"
 
                 trigger OnAfterGetRecord()
                 begin
-                    ClearTaxAmounts;
+                    ClearTaxAmounts();
                 end;
 
                 trigger OnPreDataItem()
@@ -220,7 +220,7 @@ report 24 "Sales Taxes Collected"
                 if Number = 1 then
                     TempTaxJurisdiction.Find('-')
                 else
-                    TempTaxJurisdiction.Next;
+                    TempTaxJurisdiction.Next();
                 SubTitle := TempTaxJurisdiction.FieldCaption("Report-to Jurisdiction") +
                   ': ' +
                   TempTaxJurisdiction.Code +
@@ -278,7 +278,7 @@ report 24 "Sales Taxes Collected"
         CompanyInfo.Get();
         ReportToFilter := "Tax Jurisdiction".GetFilter("Report-to Jurisdiction");
         "Tax Jurisdiction".SetRange("Report-to Jurisdiction");
-        JurisFilters := "Tax Jurisdiction".GetFilters;
+        JurisFilters := "Tax Jurisdiction".GetFilters();
 
         case ReportType of
             ReportType::Summary:
@@ -291,12 +291,6 @@ report 24 "Sales Taxes Collected"
     end;
 
     var
-        Text000: Label 'Sales Taxes Collected, Summary';
-        Text001: Label 'Sales Taxes Collected';
-        Text002: Label 'Sales Taxes Collected, Detail';
-        Text003: Label 'Unknown Jurisdiction';
-        Text004: Label 'Total Sales Taxes Collected for %1: %2';
-        Text005: Label 'Total for %1: %2';
         CompanyInfo: Record "Company Information";
         TempTaxJurisdiction: Record "Tax Jurisdiction" temporary;
         LookupTaxJurisdiction: Record "Tax Jurisdiction";
@@ -313,6 +307,13 @@ report 24 "Sales Taxes Collected"
         SalesTaxAmount: Decimal;
         IncludeUseTax: Boolean;
         UseTaxtxt: Text[30];
+
+        Text000: Label 'Sales Taxes Collected, Summary';
+        Text001: Label 'Sales Taxes Collected';
+        Text002: Label 'Sales Taxes Collected, Detail';
+        Text003: Label 'Unknown Jurisdiction';
+        Text004: Label 'Total Sales Taxes Collected for %1: %2';
+        Text005: Label 'Total for %1: %2';
         CurrReportPAGENOCaptionLbl: Label 'Page';
         SalesTaxAmountControl3CaptionLbl: Label 'Sales Tax Amount';
         TaxableSalesAmountCaptionLbl: Label 'Taxable Sales Amount';

@@ -71,7 +71,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
         PositivePayDetail: Record "Positive Pay Detail";
     begin
         PositivePayDetail.SetRange("Data Exch. Entry No.", EntryNo);
-        if PositivePayDetail.FindSet() then begin
+        if PositivePayDetail.FindSet() then
             repeat
                 PositivePayEntryDetail.Init();
                 PositivePayEntryDetail."Upload Date-Time" := PositivePayEntry."Upload Date-Time";
@@ -85,9 +85,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
                 end;
                 PositivePayEntry."Number of Uploads" += 1;
                 PositivePayEntryDetail.Insert();
-
             until PositivePayDetail.Next() = 0;
-        end;
     end;
 }
 

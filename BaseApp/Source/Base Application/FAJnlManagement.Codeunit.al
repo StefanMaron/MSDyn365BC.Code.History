@@ -176,7 +176,7 @@ codeunit 5638 FAJnlManagement
             if not FAJnlBatch.FindFirst() then begin
                 FAJnlBatch.Init();
                 FAJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                FAJnlBatch.SetupNewBatch;
+                FAJnlBatch.SetupNewBatch();
                 FAJnlBatch.Name := Text004;
                 FAJnlBatch.Description := Text005;
                 FAJnlBatch.Insert(true);

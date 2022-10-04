@@ -21,7 +21,7 @@ report 5180 "Delete Sales Order Versions"
                 SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
                 SalesHeader.SetRange("No.", "No.");
                 SalesHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                if not SalesHeader.FindFirst() then begin
+                if SalesHeader.IsEmpty() then begin
                     Delete(true);
                     DeletedDocuments += 1;
                 end;

@@ -212,7 +212,7 @@ codeunit 134812 "ERM CA GL Transfer"
         PostJournalLines(GLAccount."No.");
 
         // Delete GL Account
-        GLAccount.Find;
+        GLAccount.Find();
         GLAccount.Delete(true);
         ExpectedCostRegisterEntries := CostRegister.Count();
 
@@ -270,7 +270,7 @@ codeunit 134812 "ERM CA GL Transfer"
                     DimensionValue.Validate(Blocked, false);
                     DimensionValue.Modify(true);
                 end;
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
     end;
 
     [Normal]
@@ -345,7 +345,7 @@ codeunit 134812 "ERM CA GL Transfer"
             repeat
                 if DimensionCombination."Combination Restriction" = DimensionCombination."Combination Restriction"::Blocked then
                     DimensionCombination.Delete(true);
-            until DimensionCombination.Next = 0;
+            until DimensionCombination.Next() = 0;
     end;
 
     [Normal]
@@ -364,7 +364,7 @@ codeunit 134812 "ERM CA GL Transfer"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         SetupGeneralJnlBatch(GenJournalBatch);
-        CreateJnlLine(GenJournalLine, GenJournalBatch, WorkDate, AccountNo, Amount);
+        CreateJnlLine(GenJournalLine, GenJournalBatch, WorkDate(), AccountNo, Amount);
         if WithClosingDate then begin
             GenJournalLine.Validate("Posting Date", ClosingDate(CalcDate('<-1D>', LibraryFiscalYear.GetFirstPostingDate(false))));
             GenJournalLine.Modify(true);
@@ -519,7 +519,7 @@ codeunit 134812 "ERM CA GL Transfer"
               StrSubstNo(ExpectedValueIsDifferentError, CostEntry.FieldName(Amount)));
             TotalAmount := TotalAmount + CostEntry.Amount;
             GLEntry.Next(2);
-        until CostEntry.Next = 0;
+        until CostEntry.Next() = 0;
 
         // Validate Cost Register fields
         Assert.AreEqual(CostRegister."To Cost Entry No." - CostRegister."From Cost Entry No." + 1, CostRegister."No. of Entries",

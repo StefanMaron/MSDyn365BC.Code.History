@@ -75,10 +75,10 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         // Verify: Verify Additional Fee and Remaining Amount in LCY on Document Entries Report.
         VerifyDocumentEntries(
           IssuedReminderHeaderNo, IssuedReminderHeader."No.", AddFeeCaption,
-          LibraryERM.ConvertCurrency(IssuedReminderHeader."Additional Fee", IssuedReminderHeader."Currency Code", '', WorkDate));
+          LibraryERM.ConvertCurrency(IssuedReminderHeader."Additional Fee", IssuedReminderHeader."Currency Code", '', WorkDate()));
         VerifyDocumentEntries(
           IssuedReminderHeaderNo, IssuedReminderHeader."No.", RemAmountCaption,
-          LibraryERM.ConvertCurrency(IssuedReminderHeader."Remaining Amount", IssuedReminderHeader."Currency Code", '', WorkDate));
+          LibraryERM.ConvertCurrency(IssuedReminderHeader."Remaining Amount", IssuedReminderHeader."Currency Code", '', WorkDate()));
     end;
 
     [Test]
@@ -120,11 +120,11 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         VerifyDocumentEntries(
           IssuedFinChrgMemoHeaderNo, IssuedFinChargeMemoHeader."No.", FinChrgMemoAddFeeCaption,
           LibraryERM.ConvertCurrency(IssuedFinChargeMemoHeader."Additional Fee", IssuedFinChargeMemoHeader."Currency Code",
-            '', WorkDate));
+            '', WorkDate()));
         VerifyDocumentEntries(
           IssuedFinChrgMemoHeaderNo, IssuedFinChargeMemoHeader."No.", FinChrgMemoRemAmountCaption,
           LibraryERM.ConvertCurrency(IssuedFinChargeMemoHeader."Remaining Amount", IssuedFinChargeMemoHeader."Currency Code",
-            '', WorkDate));
+            '', WorkDate()));
     end;
 
     [Test]
@@ -150,13 +150,13 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderHeaderNo :=
           CreateAndSuggestReminderLineWithDueDate(Customer."No.");
         // [GIVEN] Issued Reminder for CLE of Invoice "X" and Posting Date = 27/01/17
-        IssueReminder(ReminderHeaderNo, WorkDate);
+        IssueReminder(ReminderHeaderNo, WorkDate());
 
         // [GIVEN] Posted Sales Invoice "Y" with Posting Date = 26/01/17
         ReminderHeaderNo :=
           CreateAndSuggestReminderLineWithDueDate(Customer."No.");
         // [GIVEN] Issued Reminder (Posting Date = 27/01/17) with Suggested CLE for Sales Invoice "Y" (Reminder Level 1) and "Not Due" line for Sales Invoice "X"
-        IssueReminder(ReminderHeaderNo, WorkDate);
+        IssueReminder(ReminderHeaderNo, WorkDate());
 
         // [WHEN] Suggested Reminder for Date = 09/02/17
         GetCustomerReminderLevel(GracePeriod, DueDateCalc, Customer."No.", 1);
@@ -197,7 +197,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         // [THEN] Line2: Type = "", "No." = "", Description = "ET2"
         VerifyReminderLineCount(ReminderHeader, 2);
         VerifyReminderLineDescription(ReminderLine, ReminderLine.Type::" ", StandardText.Code, StandardText.Description);
-        ReminderLine.Next;
+        ReminderLine.Next();
         VerifyReminderLineDescription(ReminderLine, ReminderLine.Type::" ", '', ExtendedText);
     end;
 
@@ -232,7 +232,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         VerifyFinChargeMemoLineCount(FinanceChargeMemoHeader, 2);
         VerifyFinChargeMemoLineDescription(
           FinanceChargeMemoLine, FinanceChargeMemoLine.Type::" ", StandardText.Code, StandardText.Description);
-        FinanceChargeMemoLine.Next;
+        FinanceChargeMemoLine.Next();
         VerifyFinChargeMemoLineDescription(FinanceChargeMemoLine, FinanceChargeMemoLine.Type::" ", '', ExtendedText);
     end;
 
@@ -338,13 +338,13 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Cancel issued reminder
         RunCancelIssuedReminder(IssuedReminderHeader);
 
         // [THEN] Issued reminder header has Cancelled = Yes
-        IssuedReminderHeader.Find;
+        IssuedReminderHeader.Find();
         IssuedReminderHeader.TestField(Canceled, true);
 
         // [THEN] Issued reminder header has Cancelled By = current user ID
@@ -376,13 +376,13 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [GIVEN] Cancel issued reminder
         RunCancelIssuedReminder(IssuedReminderHeader);
 
         // [WHEN] Run cancel issued reminder again
-        IssuedReminderHeader.Find;
+        IssuedReminderHeader.Find();
         asserterror RunCancelIssuedReminder(IssuedReminderHeader);
 
         // [THEN] Error "Cancelled must be equal to 'No' ..."
@@ -413,7 +413,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issued single level reminder
         ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true, false));
-        IssuedReminderHeader.SetRange("No.", IssueReminder(ReminderNo, WorkDate));
+        IssuedReminderHeader.SetRange("No.", IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Run cancel issued reminder with "Use Same Document No." = No
         IssuedReminderHeader.FindFirst();
@@ -438,10 +438,10 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issued single level reminder with "Posting Date" = 01.01.2020
         ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true, false));
-        IssuedReminderHeader.SetRange("No.", IssueReminder(ReminderNo, WorkDate));
+        IssuedReminderHeader.SetRange("No.", IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Run cancel issued reminder with "Use Same Posting Date" = No and New Posting Date = 10.01.2020
-        ExpectedPostingDate := CalcDate('<10D>', WorkDate);
+        ExpectedPostingDate := CalcDate('<10D>', WorkDate());
         IssuedReminderHeader.FindFirst();
         RunCancelIssuedReminderReportWithParameters(IssuedReminderHeader, true, false, ExpectedPostingDate);
 
@@ -467,7 +467,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder "1"
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [GIVEN] Cancel issued reminder "1"
         RunCancelIssuedReminder(IssuedReminderHeader);
@@ -496,7 +496,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Cancel issued reminder
         RunCancelIssuedReminder(IssuedReminderHeader);
@@ -526,7 +526,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Cancel issued reminder
         RunCancelIssuedReminder(IssuedReminderHeader);
@@ -557,7 +557,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Cancel issued reminder
         RunCancelIssuedReminder(IssuedReminderHeader);
@@ -592,13 +592,13 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderHeaderNo :=
           CreateAndSuggestReminderLineWithDueDate(Customer."No.");
         // [GIVEN] Issued Reminder "1" for CLE of Invoice "X" and Posting Date = 27/01/17
-        IssueReminder(ReminderHeaderNo, WorkDate);
+        IssueReminder(ReminderHeaderNo, WorkDate());
 
         // [GIVEN] Posted Sales Invoice "Y" with Posting Date = 26/01/17
         ReminderHeaderNo :=
           CreateAndSuggestReminderLineWithDueDate(Customer."No.");
         // [GIVEN] Issued Reminder "2" (Posting Date = 27/01/17) with Suggested CLE for Sales Invoice "Y" (Reminder Level 1) and "Not Due" line for Sales Invoice "X"
-        IssueReminder(ReminderHeaderNo, WorkDate);
+        IssueReminder(ReminderHeaderNo, WorkDate());
 
         // [GIVEN] Suggested Reminder for Date = 09/02/17
         GetCustomerReminderLevel(GracePeriod, DueDateCalc, Customer."No.", 1);
@@ -606,7 +606,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
           CreateReminder(Customer."No.", CalcDate(DueDateCalc, CalcDate(DueDateCalc, FindLastSalesInvPostingDate(Customer."No."))));
 
         // [GIVEN] Issued Reminder "3" (Posting Date = 09/02/17)
-        IssuedReminderHeader.Get(IssueReminder(ReminderHeaderNo, WorkDate));
+        IssuedReminderHeader.Get(IssueReminder(ReminderHeaderNo, WorkDate()));
 
         // [WHEN] Issued Reminder "3" is being cancelled
         RunCancelIssuedReminder(IssuedReminderHeader);
@@ -616,7 +616,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Last Issued Reminder Level", 1);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -643,7 +643,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderHeaderNo :=
           CreateAndSuggestReminderLineWithDueDate(Customer."No.");
         // [GIVEN] Issued Reminder "1" for CLE of Invoice "X" and Posting Date = 27/01/17
-        IssuedReminderHeader[1].Get(IssueReminder(ReminderHeaderNo, WorkDate));
+        IssuedReminderHeader[1].Get(IssueReminder(ReminderHeaderNo, WorkDate()));
 
         // [GIVEN] Suggested Reminder for Date = 09/02/17
         GetCustomerReminderLevel(GracePeriod, DueDateCalc, Customer."No.", 1);
@@ -651,13 +651,13 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
           CreateReminder(Customer."No.", CalcDate(DueDateCalc, CalcDate(DueDateCalc, FindLastSalesInvPostingDate(Customer."No."))));
 
         // [GIVEN] Issued Reminder "2" for CLE of Invoice "X" and Posting Date = 09/02/17
-        IssuedReminderHeader[2].Get(IssueReminder(ReminderHeaderNo, WorkDate));
+        IssuedReminderHeader[2].Get(IssueReminder(ReminderHeaderNo, WorkDate()));
 
         // [WHEN] Issued Reminder "1" is being cancelled
         RunCancelIssuedReminder(IssuedReminderHeader[1]);
 
         // [THEN] Issued Reminder "1" is not cancelled
-        IssuedReminderHeader[1].Find;
+        IssuedReminderHeader[1].Find();
         IssuedReminderHeader[1].TestField(Canceled, false);
 
         // [THEN] Notification "You cannot cancel issued reminder..." with action Show Issued Reminder "2"
@@ -694,7 +694,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder with Fee Amount = "10"
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [GIVEN] Payment with "Amount" = "10" applied to reminder fee customer ledger "123"
         ReminderCustLedgerEntryNo := CreatePostPaymentApplyToReminderFee(IssuedReminderHeader);
@@ -743,7 +743,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedReminderHeader.FindSet();
         repeat
             IssuedReminderHeader.TestField(Canceled, true);
-        until IssuedReminderHeader.Next = 0;
+        until IssuedReminderHeader.Next() = 0;
     end;
 
     [Test]
@@ -822,7 +822,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
 
         // [THEN] Issued fin. charge memo header has Cancelled = Yes
-        IssuedFinChargeMemoHeader.Find;
+        IssuedFinChargeMemoHeader.Find();
         IssuedFinChargeMemoHeader.TestField(Canceled, true);
 
         // [THEN] Issued fin. charge memo header has Cancelled By = current user ID
@@ -860,7 +860,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
 
         // [WHEN] Run cancel issued fin. charge memo again
-        IssuedFinChargeMemoHeader.Find;
+        IssuedFinChargeMemoHeader.Find();
         asserterror RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
 
         // [THEN] Error "Cancelled must be equal to 'No' ..."
@@ -923,7 +923,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedFinChargeMemoHeader.SetFilter("No.", IssuingFinanceChargeMemos(FinanceChargeMemoHeader."No."));
 
         // [WHEN] Run cancel issued fin. charge memo with "Use Same Posting Date" = No and New Posting Date = 10.01.2020
-        ExpectedPostingDate := CalcDate('<10D>', WorkDate);
+        ExpectedPostingDate := CalcDate('<10D>', WorkDate());
         IssuedFinChargeMemoHeader.FindFirst();
         RunCancelIssuedFinChargeMemoReportWithParameters(IssuedFinChargeMemoHeader, true, false, ExpectedPostingDate);
 
@@ -1051,7 +1051,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedFinChargeMemoHeader.FindSet();
         repeat
             IssuedFinChargeMemoHeader.TestField(Canceled, true);
-        until IssuedFinChargeMemoHeader.Next = 0;
+        until IssuedFinChargeMemoHeader.Next() = 0;
     end;
 
     [Test]
@@ -1193,7 +1193,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         MockIssuedReminder(IssuedReminderHeader);
 
         // [WHEN] Reminder is being printed
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
 
@@ -1218,7 +1218,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         MockIssuedFinanceChargeMemo(IssuedFinanceChargeMemoHeader);
 
         // [WHEN] Finance Charge Memo is being printed
-        IssuedFinanceChargeMemoHeader.SetRecFilter;
+        IssuedFinanceChargeMemoHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Finance Charge Memo", true, false, IssuedFinanceChargeMemoHeader);
 
@@ -1244,7 +1244,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
-          IssueReminder(ReminderNo, WorkDate));
+          IssueReminder(ReminderNo, WorkDate()));
 
         // [WHEN] Cancel issued reminder
         RunCancelIssuedReminder(IssuedReminderHeader);
@@ -1340,7 +1340,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERM.SetJournalTemplNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
@@ -1621,7 +1621,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         for i := 1 to NumberOfReminders do begin
             IssuedReminderHeader.Get(
-              IssueReminder(CreateReminderWithReminderTerms(CreateReminderTerms(true, true, true, false)), WorkDate));
+              IssueReminder(CreateReminderWithReminderTerms(CreateReminderTerms(true, true, true, false)), WorkDate()));
             if i = 1 then
                 FirstIssuedReminderNo := IssuedReminderHeader."No.";
             if i = NumberOfReminders then
@@ -1721,7 +1721,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         with ReminderLine do begin
             "Reminder No." := ReminderHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(ReminderLine, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1730,7 +1730,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         with FinanceChargeMemoLine do begin
             "Finance Charge Memo No." := FinanceChargeMemoHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(FinanceChargeMemoLine, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1743,23 +1743,23 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibrarySales.CreateCustomer(Customer);
         for RemindersQty := 1 to 2 do begin
             with IssuedReminderHeader do begin
-                Init;
+                Init();
                 "No." := LibraryUtility.GenerateGUID();
                 "Customer No." := Customer."No.";
                 "Customer Posting Group" := Customer."Gen. Bus. Posting Group";
                 "VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-                "Posting Date" := WorkDate;
-                "Document Date" := WorkDate;
-                "Due Date" := WorkDate;
-                Insert;
+                "Posting Date" := WorkDate();
+                "Document Date" := WorkDate();
+                "Due Date" := WorkDate();
+                Insert();
             end;
             with IssuedReminderLine do begin
-                Init;
+                Init();
                 "Reminder No." := IssuedReminderHeader."No.";
                 Amount := LibraryRandom.RandDec(100, 2);
                 Type := Type::"Customer Ledger Entry";
                 "Line No." := 1;
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -1961,8 +1961,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         FinanceChargeMemoHeader.Get(FinanceChargeMemoHeaderNo);
-        FinanceChargeMemoHeader.SetRecFilter;
-        IssuedFinChargeNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate, false);
+        FinanceChargeMemoHeader.SetRecFilter();
+        IssuedFinChargeNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
         LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -1973,7 +1973,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
+        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
         ReminderIssue.Set(ReminderHeader, false, DocumentDate);
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
@@ -2008,7 +2008,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
     local procedure RunCancelIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header")
     begin
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         RunCancelIssuedReminderReportWithParameters(IssuedReminderHeader, true, true, 0D);
     end;
 
@@ -2028,7 +2028,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
     local procedure RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
-        IssuedFinChargeMemoHeader.SetRecFilter;
+        IssuedFinChargeMemoHeader.SetRecFilter();
         RunCancelIssuedFinChargeMemoReportWithParameters(IssuedFinChargeMemoHeader, true, true, 0D);
     end;
 
@@ -2103,8 +2103,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             ReminderLine.TestField("No.", IssuedReminderLine."No.");
             ReminderLine.TestField("Document Type", IssuedReminderLine."Document Type");
             ReminderLine.TestField("Document No.", IssuedReminderLine."Document No.");
-            ReminderLine.Next;
-        until IssuedReminderLine.Next = 0;
+            ReminderLine.Next();
+        until IssuedReminderLine.Next() = 0;
     end;
 
     local procedure VerifyReminderReversedGLEntries(IssuedReminderNo: Code[20])
@@ -2140,8 +2140,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             ReversedGLEntry.TestField("Posting Date", CancelledDocumentPostingDate);
             ReversedGLEntry.TestField("G/L Account No.", SourceGLEntry."G/L Account No.");
             ReversedGLEntry.TestField(Amount, -SourceGLEntry.Amount);
-            ReversedGLEntry.Next;
-        until SourceGLEntry.Next = 0;
+            ReversedGLEntry.Next();
+        until SourceGLEntry.Next() = 0;
     end;
 
     local procedure VerifyReversedVATEntries(DocumentNo: Code[20])
@@ -2202,8 +2202,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             FinanceChargeMemoLine.TestField("No.", IssuedFinChargeMemoLine."No.");
             FinanceChargeMemoLine.TestField("Document Type", IssuedFinChargeMemoLine."Document Type");
             FinanceChargeMemoLine.TestField("Document No.", IssuedFinChargeMemoLine."Document No.");
-            FinanceChargeMemoLine.Next;
-        until IssuedFinChargeMemoLine.Next = 0;
+            FinanceChargeMemoLine.Next();
+        until IssuedFinChargeMemoLine.Next() = 0;
     end;
 
     [RequestPageHandler]
@@ -2273,7 +2273,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
                     IssuedReminders := IssuedReminderList."No.".Value
                 else
                     IssuedReminders := IssuedReminders + '|' + IssuedReminderList."No.".Value;
-            until not IssuedReminderList.Next;
+            until not IssuedReminderList.Next();
         LibraryVariableStorage.Enqueue(IssuedReminders);
     end;
 
@@ -2289,7 +2289,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
                     IssuedFinChargeMemos := IssuedFinChargeMemoList."No.".Value
                 else
                     IssuedFinChargeMemos := IssuedFinChargeMemos + '|' + IssuedFinChargeMemoList."No.".Value;
-            until not IssuedFinChargeMemoList.Next;
+            until not IssuedFinChargeMemoList.Next();
         LibraryVariableStorage.Enqueue(IssuedFinChargeMemos);
     end;
 

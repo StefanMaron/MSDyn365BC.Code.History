@@ -13,13 +13,13 @@ page 5916 "Service Hours"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Service Contract No."; "Service Contract No.")
+                field("Service Contract No."; Rec."Service Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract to which the service hours apply.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service hours become valid.';
@@ -29,17 +29,17 @@ page 5916 "Service Hours"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the day when the service hours are valid.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting time of the service hours.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending time of the service hours.';
                 }
-                field("Valid on Holidays"; "Valid on Holidays")
+                field("Valid on Holidays"; Rec."Valid on Holidays")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that service hours are valid on holidays.';
@@ -78,7 +78,7 @@ page 5916 "Service Hours"
 
                     trigger OnAction()
                     begin
-                        CopyDefaultServiceHours;
+                        CopyDefaultServiceHours();
                     end;
                 }
             }
@@ -108,10 +108,9 @@ page 5916 "Service Hours"
                 Weekdays[ServHour.Day + 1] := true;
             until ServHour.Next() = 0;
 
-            for i := 1 to 5 do begin
+            for i := 1 to 5 do
                 if not Weekdays[i] then
                     EntryMissing := true;
-            end;
 
             if EntryMissing then
                 if not Confirm(Text000)
@@ -121,10 +120,11 @@ page 5916 "Service Hours"
     end;
 
     var
-        Text000: Label 'You have not specified service hours for all working days.\\Do you want to close the window?';
         ServHour: Record "Service Hour";
         Weekdays: array[7] of Boolean;
         EntryMissing: Boolean;
         i: Integer;
+
+        Text000: Label 'You have not specified service hours for all working days.\\Do you want to close the window?';
 }
 

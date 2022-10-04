@@ -32,9 +32,9 @@ codeunit 2001 "Azure ML Connector"
         // To set HttpMessageHandler first call SetMessageHandler
         AzureMLRequest.SetHttpMessageHandler(HttpMessageHandler);
 
-        AzureMLInputBuilder := AzureMLInputBuilder.AzureMLInputBuilder;
+        AzureMLInputBuilder := AzureMLInputBuilder.AzureMLInputBuilder();
 
-        AzureMLParametersBuilder := AzureMLParametersBuilder.AzureMLParametersBuilder;
+        AzureMLParametersBuilder := AzureMLParametersBuilder.AzureMLParametersBuilder();
 
         OutputName := OutputNameTxt;
         InputName := InputNameTxt;
@@ -57,7 +57,7 @@ codeunit 2001 "Azure ML Connector"
     begin
         AzureMLRequest.SetUsingStandardCredentials(TrackUsage);
 
-        if not SendRequestToAzureML then
+        if not SendRequestToAzureML() then
             exit(false);
 
         if TrackUsage then begin
@@ -89,7 +89,7 @@ codeunit 2001 "Azure ML Connector"
     procedure SendRequestToAzureML()
     begin
         AzureMLRequest.SetHttpMessageHandler(HttpMessageHandler);
-        ProcessingTime := AzureMLRequest.InvokeRequestResponseService;
+        ProcessingTime := AzureMLRequest.InvokeRequestResponseService();
     end;
 
     [Scope('OnPrem')]
@@ -114,7 +114,7 @@ codeunit 2001 "Azure ML Connector"
     [TryFunction]
     procedure AddInputRow()
     begin
-        AzureMLInputBuilder.AddRow;
+        AzureMLInputBuilder.AddRow();
     end;
 
     [TryFunction]
@@ -163,7 +163,7 @@ codeunit 2001 "Azure ML Connector"
     [TryFunction]
     procedure GetInputLength(var Length: Integer)
     begin
-        Length := AzureMLInputBuilder.GetLength;
+        Length := AzureMLInputBuilder.GetLength();
     end;
 
     [TryFunction]

@@ -40,7 +40,7 @@ report 97 "Date Compr. G/L Budget Entries"
                       TempSelectedDim, "Dimension Set ID", "Entry No.", 0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewGLBudgetEntry, GLBudgetEntry2);
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         DimBufMgt.CollectDimEntryNo(
                           TempSelectedDim, "Dimension Set ID", "Entry No.", ComprDimEntryNo, true, DimEntryNo);
                         if DimEntryNo = ComprDimEntryNo then
@@ -49,12 +49,12 @@ report 97 "Date Compr. G/L Budget Entries"
 
                     InsertNewEntry(NewGLBudgetEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
-                    InsertRegister;
+                    InsertRegister();
                     Commit();
                     GLBudgetEntry2.LockTable();
                     GLBudgetEntry2.Reset();
@@ -66,7 +66,7 @@ report 97 "Date Compr. G/L Budget Entries"
             var
                 UpdateAnalysisView: Codeunit "Update Analysis View";
             begin
-                InsertRegister;
+                InsertRegister();
                 if AnalysisView.FindFirst() then
                     if LowestEntryNo < 2147483647 then
                         UpdateAnalysisView.SetLastBudgetEntryNo(LowestEntryNo - 1);
@@ -95,7 +95,7 @@ report 97 "Date Compr. G/L Budget Entries"
                 if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compr. G/L Budget Entries", true);
                     if not SkipAnalysisViewUpdateCheck then
-                        AnalysisView.CheckViewsAreUpdated;
+                        AnalysisView.CheckViewsAreUpdated();
                     Commit();
                 end;
 
@@ -224,7 +224,7 @@ report 97 "Date Compr. G/L Budget Entries"
 
         trigger OnOpenPage()
         begin
-            InitializeParameter;
+            InitializeParameter();
         end;
 
         trigger OnInit()
@@ -254,14 +254,6 @@ report 97 "Date Compr. G/L Budget Entries"
     end;
 
     var
-        Text002: Label '%1 must be specified.';
-        Text003: Label 'Date compressing G/L budget entries...\\';
-        Text004: Label 'Budget Name          #1##########\';
-        Text005: Label 'G/L Account No.      #2##########\';
-        Text006: Label 'Date                 #3######\\';
-        Text007: Label 'No. of new entries   #4######\';
-        Text008: Label 'No. of entries del.  #5######';
-        Text009: Label 'Retain Dimensions';
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
         EntrdGLBudgetEntry: Record "G/L Budget Entry";
@@ -292,6 +284,15 @@ report 97 "Date Compr. G/L Budget Entries"
         RegExists: Boolean;
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         SkipAnalysisViewUpdateCheck: Boolean;
+
+        Text002: Label '%1 must be specified.';
+        Text003: Label 'Date compressing G/L budget entries...\\';
+        Text004: Label 'Budget Name          #1##########\';
+        Text005: Label 'G/L Account No.      #2##########\';
+        Text006: Label 'Date                 #3######\\';
+        Text007: Label 'No. of new entries   #4######\';
+        Text008: Label 'No. of entries del.  #5######';
+        Text009: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -317,7 +318,7 @@ report 97 "Date Compr. G/L Budget Entries"
     begin
         with GLBudgetEntry do begin
             NewGLBudgetEntry.Amount := NewGLBudgetEntry.Amount + Amount;
-            Delete;
+            Delete();
             if "Entry No." < LowestEntryNo then
                 LowestEntryNo := "Entry No.";
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
@@ -350,7 +351,7 @@ report 97 "Date Compr. G/L Budget Entries"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewGLBudgetEntry: Record "G/L Budget Entry")
@@ -398,7 +399,7 @@ report 97 "Date Compr. G/L Budget Entries"
         DateComprReg2: Record "Date Compr. Register";
     begin
         if RegExists then
-            DateComprReg.Modify
+            DateComprReg.Modify()
         else begin
             DateComprReg2.LockTable();
             DateComprReg."No." := DateComprReg2.GetLastEntryNo() + 1;
@@ -433,7 +434,7 @@ report 97 "Date Compr. G/L Budget Entries"
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainBusinessUnitCode: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
-        InitializeParameter;
+        InitializeParameter();
         EntrdDateComprReg."Starting Date" := StartingDate;
         EntrdDateComprReg."Ending Date" := EndingDate;
         EntrdDateComprReg."Period Length" := PeriodLength;

@@ -26,7 +26,7 @@ page 543 "Default Dimension Priorities"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         LookupSourceCode(CurrentSourceCode, Rec);
                         CurrPage.Update(false);
                     end;
@@ -36,24 +36,24 @@ page 543 "Default Dimension Priorities"
                         SourceCode: Record "Source Code";
                     begin
                         SourceCode.Get(CurrentSourceCode);
-                        CurrentSourceCodeOnAfterValida;
+                        CurrentSourceCodeOnAfterValida();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the table ID for the account type, if you want to prioritize an account type.';
 
                     trigger OnValidate()
                     begin
-                        TableIDOnAfterValidate;
+                        TableIDOnAfterValidate();
                     end;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Dimensions;
                     DrillDown = false;
@@ -66,7 +66,7 @@ page 543 "Default Dimension Priorities"
 
                     trigger OnValidate()
                     begin
-                        PriorityOnAfterValidate;
+                        PriorityOnAfterValidate();
                     end;
                 }
             }
@@ -160,7 +160,7 @@ page 543 "Default Dimension Priorities"
 
     local procedure CurrentSourceCodeOnAfterValida()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SetSourceCode(CurrentSourceCode, Rec);
         CurrPage.Update(false);
     end;

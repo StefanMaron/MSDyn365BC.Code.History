@@ -14,7 +14,7 @@ page 5526 "Make Supply Orders"
             group("Order Planning")
             {
                 Caption = 'Order Planning';
-                field("Make Orders"; "Make Orders")
+                field("Make Orders"; Rec."Make Orders")
                 {
                     ApplicationArea = Planning;
                     Caption = 'Make Orders for';
@@ -30,7 +30,7 @@ page 5526 "Make Supply Orders"
             group(Options)
             {
                 Caption = 'Options';
-                field("Create Purchase Order"; "Create Purchase Order")
+                field("Create Purchase Order"; Rec."Create Purchase Order")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the filters users select in the Make Supply Orders window that opens from the Order Planning window.';
@@ -41,10 +41,10 @@ page 5526 "Make Supply Orders"
                           "Create Purchase Order" = "Create Purchase Order"::"Copy to Req. Wksh";
                         PurchaseWkshNameEnable :=
                           "Create Purchase Order" = "Create Purchase Order"::"Copy to Req. Wksh";
-                        CreatePurchaseOrderOnAfterVali;
+                        CreatePurchaseOrderOnAfterVali();
                     end;
                 }
-                field("Purchase Req. Wksh. Template"; "Purchase Req. Wksh. Template")
+                field("Purchase Req. Wksh. Template"; Rec."Purchase Req. Wksh. Template")
                 {
                     ApplicationArea = Planning;
                     Enabled = PurchaseReqWkshTemplateEnable;
@@ -52,10 +52,10 @@ page 5526 "Make Supply Orders"
 
                     trigger OnValidate()
                     begin
-                        PurchaseReqWkshTemplateOnAfter;
+                        PurchaseReqWkshTemplateOnAfter();
                     end;
                 }
-                field("Purchase Wksh. Name"; "Purchase Wksh. Name")
+                field("Purchase Wksh. Name"; Rec."Purchase Wksh. Name")
                 {
                     ApplicationArea = Planning;
                     Enabled = PurchaseWkshNameEnable;
@@ -63,10 +63,10 @@ page 5526 "Make Supply Orders"
 
                     trigger OnValidate()
                     begin
-                        PurchaseWkshNameOnAfterValidat;
+                        PurchaseWkshNameOnAfterValidat();
                     end;
                 }
-                field("Create Production Order"; "Create Production Order")
+                field("Create Production Order"; Rec."Create Production Order")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the filters users select in the Make Supply Orders window that opens from the Order Planning window.';
@@ -77,10 +77,10 @@ page 5526 "Make Supply Orders"
                           "Create Production Order" = "Create Production Order"::"Copy to Req. Wksh";
                         ProdWkshNameEnable :=
                           "Create Production Order" = "Create Production Order"::"Copy to Req. Wksh";
-                        CreateProductionOrderOnAfterVa;
+                        CreateProductionOrderOnAfterVa();
                     end;
                 }
-                field("Prod. Req. Wksh. Template"; "Prod. Req. Wksh. Template")
+                field("Prod. Req. Wksh. Template"; Rec."Prod. Req. Wksh. Template")
                 {
                     ApplicationArea = Manufacturing;
                     Enabled = ProdReqWkshTemplateEnable;
@@ -88,10 +88,10 @@ page 5526 "Make Supply Orders"
 
                     trigger OnValidate()
                     begin
-                        ProdReqWkshTemplateOnAfterVali;
+                        ProdReqWkshTemplateOnAfterVali();
                     end;
                 }
-                field("Prod. Wksh. Name"; "Prod. Wksh. Name")
+                field("Prod. Wksh. Name"; Rec."Prod. Wksh. Name")
                 {
                     ApplicationArea = Manufacturing;
                     Enabled = ProdWkshNameEnable;
@@ -99,10 +99,10 @@ page 5526 "Make Supply Orders"
 
                     trigger OnValidate()
                     begin
-                        ProdWkshNameOnAfterValidate;
+                        ProdWkshNameOnAfterValidate();
                     end;
                 }
-                field("Create Transfer Order"; "Create Transfer Order")
+                field("Create Transfer Order"; Rec."Create Transfer Order")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the filters users select in the Make Supply Orders window that opens from the Order Planning window.';
@@ -113,10 +113,10 @@ page 5526 "Make Supply Orders"
                           "Create Transfer Order" = "Create Transfer Order"::"Copy to Req. Wksh";
                         TransferWkshNameEnable :=
                           "Create Transfer Order" = "Create Transfer Order"::"Copy to Req. Wksh";
-                        CreateTransferOrderOnAfterVali;
+                        CreateTransferOrderOnAfterVali();
                     end;
                 }
-                field("Transfer Req. Wksh. Template"; "Transfer Req. Wksh. Template")
+                field("Transfer Req. Wksh. Template"; Rec."Transfer Req. Wksh. Template")
                 {
                     ApplicationArea = Planning;
                     Enabled = TransferReqWkshTemplateEnable;
@@ -124,10 +124,10 @@ page 5526 "Make Supply Orders"
 
                     trigger OnValidate()
                     begin
-                        TransferReqWkshTemplateOnAfter;
+                        TransferReqWkshTemplateOnAfter();
                     end;
                 }
-                field("Transfer Wksh. Name"; "Transfer Wksh. Name")
+                field("Transfer Wksh. Name"; Rec."Transfer Wksh. Name")
                 {
                     ApplicationArea = Planning;
                     Enabled = TransferWkshNameEnable;
@@ -135,10 +135,10 @@ page 5526 "Make Supply Orders"
 
                     trigger OnValidate()
                     begin
-                        TransferWkshNameOnAfterValidat;
+                        TransferWkshNameOnAfterValidat();
                     end;
                 }
-                field("Create Assembly Order"; "Create Assembly Order")
+                field("Create Assembly Order"; Rec."Create Assembly Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the filters users select in the Make Supply Orders window that opens from the Order Planning window.';

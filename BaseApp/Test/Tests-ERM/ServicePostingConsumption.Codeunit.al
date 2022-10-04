@@ -11,6 +11,7 @@ codeunit 136109 "Service Posting - Consumption"
 
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -24,7 +25,6 @@ codeunit 136109 "Service Posting - Consumption"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        NothingToPostError: Label 'There is nothing to post.';
         UnknownError: Label 'Unexpected Error';
         NothingToUndoServiceTier: Label 'Quantity Consumed must have a value in Service Shipment Line: Document No.=%1, Line No.=%2. It cannot be zero or empty.';
         OrderDoesNotExist: Label 'You cannot undo consumption because the original service order %1 is already closed.';
@@ -59,7 +59,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 3. Verify: Verify that Service Order shows Error "Nothing to Post" on Posting as Ship and Consume.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
-        Assert.AreEqual(StrSubstNo(NothingToPostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -829,7 +829,7 @@ codeunit 136109 "Service Posting - Consumption"
             ItemLedgerEntry.CalcFields("Cost Amount (Actual) (ACY)");
             ActualCostACY += ItemLedgerEntry."Cost Amount (Actual) (ACY)";
 
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         Assert.AreEqual(0, Quantity, ItemLedgerEntry.FieldCaption(Quantity));
         Assert.AreEqual(0, InvoicedQuantity, ItemLedgerEntry.FieldCaption("Invoiced Quantity"));
@@ -1677,7 +1677,7 @@ codeunit 136109 "Service Posting - Consumption"
             LibrarySales.PostSalesDocument(SalesHeader, false, false);
         end else begin
             ServiceShipmentLine.FindLast();
-            ServiceShipmentLine.SetRecFilter;
+            ServiceShipmentLine.SetRecFilter();
             CODEUNIT.Run(CODEUNIT::"Undo Service Consumption Line", ServiceShipmentLine);
         end;
         // 3. Verify: Verify Item Ledger Entry for Undo Consumption.
@@ -1685,7 +1685,7 @@ codeunit 136109 "Service Posting - Consumption"
         ItemLedgerEntry2.TestField("Shipped Qty. Not Returned", 0);
         if not UseCrMemo then begin
             ServiceShipmentLine2 := ServiceShipmentLine;
-            ServiceShipmentLine2.Next;
+            ServiceShipmentLine2.Next();
             ServiceShipmentLine2.TestField(Quantity, -ServiceShipmentLine.Quantity);
             // Value entries:
             VerifyValueEntries;
@@ -1776,7 +1776,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         PurchaseHeader.Validate("Location Code", '');
-        PurchaseHeader.Validate("Expected Receipt Date", WorkDate);
+        PurchaseHeader.Validate("Expected Receipt Date", WorkDate());
         PurchaseHeader.Modify(true);
     end;
 
@@ -1787,7 +1787,7 @@ codeunit 136109 "Service Posting - Consumption"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         ServiceHeader.Validate("Location Code", '');
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify(true);
     end;
 
@@ -2016,7 +2016,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             TempServiceLineBeforePosting := ServiceLine;
             TempServiceLineBeforePosting.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure InsertTempServiceLine(var TempServiceLine: Record "Service Line" temporary; Type: Enum "Service Line Type"; No: Code[20])
@@ -2084,7 +2084,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToShipOnServiceLine(ServiceLine: Record "Service Line"; ServiceItemLineLineNo: Integer; Quantity: Decimal; QtyToShip: Decimal)
@@ -2108,7 +2108,7 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Validate("Qty. to Ship", Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQtyOnServiceLines(ServiceItemLine: Record "Service Item Line")
@@ -2120,7 +2120,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
             UpdateQtyToShipOnServiceLine(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateFullQtyOnServiceLines(ServiceItemLine: Record "Service Item Line")
@@ -2132,7 +2132,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
             UpdateQtyToShipOnServiceLine(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePostingDateOnServiceLines(ServiceItemLine: Record "Service Item Line"; NewPostingDate: Date)
@@ -2143,7 +2143,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             ServiceLine.Validate("Posting Date", NewPostingDate);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateFullQtyToConsume(ServiceItemLine: Record "Service Item Line")
@@ -2154,7 +2154,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQtyToInvoice(ServiceItemLine: Record "Service Item Line")
@@ -2166,7 +2166,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
             UpdateQtyToInvoice(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToInvoice(ServiceLine: Record "Service Line"; ServiceItemLineLineNo: Integer; Quantity: Decimal; QtyForPost: Decimal)
@@ -2216,7 +2216,7 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
             ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
             TempServiceLine.Delete();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyCreditMemoServiceLedger(PreAssignedNo: Code[20]; Quantity: Integer; CustomerNo: Code[20])
@@ -2232,13 +2232,13 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             ServiceLedgerEntry.TestField(Quantity, Quantity);
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyPostedShipmentLine(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines"; Type: Enum "Service Line Type")
     begin
         PostedServiceShipmentLines.FILTER.SetFilter(Type, Format(Type));
-        PostedServiceShipmentLines.Next;
+        PostedServiceShipmentLines.Next();
         PostedServiceShipmentLines."Quantity Consumed".AssertEquals(-Quantity / 2);
     end;
 
@@ -2257,8 +2257,8 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Qty. to Ship");
             ServiceLine.TestField("Quantity Consumed", TempServiceLine."Qty. to Consume");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyPostedEntry(var TempServiceLine: Record "Service Line" temporary)
@@ -2276,8 +2276,8 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceShipmentLine.TestField("No.", TempServiceLine."No.");
             ServiceShipmentLine.TestField(Quantity, TempServiceLine."Qty. to Consume");
             ServiceShipmentLine.TestField("Quantity Consumed", TempServiceLine."Qty. to Consume");
-            ServiceShipmentLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceShipmentLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyItemEntries(var TempServiceLine: Record "Service Line" temporary)
@@ -2298,7 +2298,7 @@ codeunit 136109 "Service Posting - Consumption"
             ItemLedgerEntry.TestField(Quantity, -TempServiceLine."Qty. to Consume (Base)");
             ItemLedgerEntry.TestField("Invoiced Quantity", -TempServiceLine."Qty. to Consume (Base)");
             VerifyValueEntry(TempServiceLine, ItemLedgerEntry."Entry No.");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyResourceLedgerEntry(var TempServiceLine: Record "Service Line" temporary)
@@ -2319,7 +2319,7 @@ codeunit 136109 "Service Posting - Consumption"
             ResourceLedgerEntry.TestField("Order Type", ResourceLedgerEntry."Order Type"::Service);
             ResourceLedgerEntry.TestField("Order No.", TempServiceLine."Document No.");
             ResourceLedgerEntry.TestField("Order Line No.", TempServiceLine."Line No.");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyValueEntry(var TempServiceLine: Record "Service Line" temporary; ItemLedgerEntryNo: Integer)
@@ -2349,7 +2349,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyLedgerEntryAfterPosting(DocumentNo: Code[20]; No: Code[20]; Quantity: Decimal)
@@ -2369,7 +2369,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        Assert.AreEqual(ExpectedValue, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption, ExpectedValue));
+        Assert.AreEqual(ExpectedValue, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption(), ExpectedValue));
     end;
 
     local procedure VerifyNoOfValueEntry(DocumentNo: Code[20]; ExpectedValue: Integer)
@@ -2378,7 +2378,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
-        Assert.AreEqual(ExpectedValue, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption, ExpectedValue));
+        Assert.AreEqual(ExpectedValue, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption(), ExpectedValue));
     end;
 
     local procedure VerifyUpdatedValueConsumedQty(var TempServiceLine: Record "Service Line" temporary; var TempServiceLine2: Record "Service Line" temporary; ServiceItemLine: Record "Service Item Line")
@@ -2398,9 +2398,9 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Qty. to Ship" + TempServiceLine2."Qty. to Ship");
             ServiceLine.TestField("Quantity Invoiced", TempServiceLine."Qty. to Invoice" + TempServiceLine2."Qty. to Invoice");
             ServiceLine.TestField("Quantity Consumed", TempServiceLine."Qty. to Consume" + TempServiceLine2."Qty. to Consume");
-            TempServiceLine.Next;
-            TempServiceLine2.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+            TempServiceLine2.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyUndoConsumptionEntries(var TempServiceLine: Record "Service Line" temporary)
@@ -2420,10 +2420,10 @@ codeunit 136109 "Service Posting - Consumption"
             repeat
                 TotalQuantity += ServiceShipmentLine.Quantity;
                 TotalConsumedQuantity += ServiceShipmentLine."Quantity Consumed";
-            until ServiceShipmentLine.Next = 0;
+            until ServiceShipmentLine.Next() = 0;
             Assert.AreEqual(TotalQuantity, 0, StrSubstNo(ServiceShipmentLineError, TotalQuantity));
             Assert.AreEqual(TotalConsumedQuantity, 0, StrSubstNo(ServiceShipmentLineError, TotalConsumedQuantity));
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyItemEntriesAfterUndo(ServiceOrderNo: Code[20])
@@ -2437,7 +2437,7 @@ codeunit 136109 "Service Posting - Consumption"
         repeat
             ItemLedgerEntry.Get(ServiceShipmentLine."Item Shpt. Entry No.");
             ItemLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
-        until ServiceShipmentLine.Next = 0;
+        until ServiceShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyResourceEntriesAfterUndo(ServiceOrderNo: Code[20])
@@ -2453,7 +2453,7 @@ codeunit 136109 "Service Posting - Consumption"
         ResLedgerEntry.FindSet();
         repeat
             ResLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
-        until ResLedgerEntry.Next = 0;
+        until ResLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceLineAfterUndo(var TempServiceLine: Record "Service Line" temporary)
@@ -2471,8 +2471,8 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", 0);
             ServiceLine.TestField("Quantity Consumed", 0);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyGLEntry(OrderNo: Code[20])
@@ -2545,7 +2545,7 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceLedgerEntry.TestField(Quantity, SignFactor * TempServiceLineBeforePosting."Qty. to Consume");
             UnitPriceLCY := TempServiceLineBeforePosting."Unit Price" / CurrencyFactor;
             Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption));
+              StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption()));
             ServiceLedgerEntry.TestField(Amount, 0);
             ServiceLedgerEntry.TestField("Charged Qty.", 0);
 
@@ -2556,10 +2556,10 @@ codeunit 136109 "Service Posting - Consumption"
                 ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField(Quantity, SignFactor * -TempServiceLineBeforePosting."Qty. to Consume");
             Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", -UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption));
+              StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption()));
             ServiceLedgerEntry.TestField(Amount, 0);
 
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyServiceShipmentLineAfterConsumption(var TempServiceLine: Record "Service Line" temporary; ServiceShipmentHeaderNo: Code[20]; IsUndo: Boolean)
@@ -2582,7 +2582,7 @@ codeunit 136109 "Service Posting - Consumption"
                 TestField("Quantity Consumed", SignFactor * TempServiceLine."Qty. to Consume");
                 TestField(Quantity, SignFactor * TempServiceLine."Qty. to Consume");
             end;
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceRegister(ServiceShipmentNo: Code[20]; LastServiceLedgEntryNo: Integer; LastWarrantyLedgEntryNo: Integer)
@@ -2697,7 +2697,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         PostedServiceShipmentLines.UndoConsumption.Invoke;
         // Verifying the Service Shipment Line Quantity which was Undone.
-        PostedServiceShipmentLines.Next;
+        PostedServiceShipmentLines.Next();
         PostedServiceShipmentLines."Quantity Consumed".AssertEquals(-Quantity / 2);  // Using partial value for Quantity Consumed.
     end;
 

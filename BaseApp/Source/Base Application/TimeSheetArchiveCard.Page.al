@@ -11,22 +11,22 @@ page 975 "Time Sheet Archive Card"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the starting date for a time sheet.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the ending date for a time sheet.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource for the time sheet.';
@@ -68,13 +68,21 @@ page 975 "Time Sheet Archive Card"
                 ApplicationArea = Comments;
                 Caption = 'Comments';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 RunObject = Page "Time Sheet Comment Sheet";
                 RunPageLink = "No." = FIELD("No."),
                                   "Time Sheet Line No." = CONST(0);
                 ToolTip = 'View comments about the time sheet.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(TimeSheetComments_Promoted; TimeSheetComments)
+                {
+                }
             }
         }
     }

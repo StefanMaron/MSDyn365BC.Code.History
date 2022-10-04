@@ -13,7 +13,7 @@ page 8630 "Config. Tables"
         {
             repeater(Group)
             {
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the table that you want to use for the line type. After you select a table ID from the list of objects in the lookup table, the name of the table is automatically filled in the Name field.';
@@ -30,7 +30,7 @@ page 8630 "Config. Tables"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the table in the configuration worksheet. You can use the status information, which you provide, to help you in planning and tracking your work.';
                 }
-                field("Responsible ID"; "Responsible ID")
+                field("Responsible ID"; Rec."Responsible ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the Business Central user who is responsible for the configuration worksheet.';
@@ -42,7 +42,7 @@ page 8630 "Config. Tables"
                         UserMgt.DisplayUserInformation("Responsible ID");
                     end;
                 }
-                field(NoOfRecords; GetNoOfRecords)
+                field(NoOfRecords; GetNoOfRecords())
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -54,7 +54,7 @@ page 8630 "Config. Tables"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a url address. Use this field to provide a url address to a location that Specifies information about the table. For example, you could provide the address of a page that Specifies information about setup considerations that the solution implementer should consider.';
                 }
-                field("Package Code"; "Package Code")
+                field("Package Code"; Rec."Package Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the package associated with the configuration. The code is filled in when you use the Assign Package function to select the package for the line type.';
@@ -79,7 +79,7 @@ page 8630 "Config. Tables"
 
                     trigger OnAction()
                     begin
-                        ShowTableData;
+                        ShowTableData();
                     end;
                 }
                 action("Copy Data")
@@ -100,7 +100,7 @@ page 8630 "Config. Tables"
 
     trigger OnAfterGetRecord()
     begin
-        NameOnFormat;
+        NameOnFormat();
     end;
 
     trigger OnOpenPage()

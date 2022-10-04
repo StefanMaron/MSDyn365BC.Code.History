@@ -618,7 +618,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
     begin
         XBRLCommentLines.First;
         XBRLCommentLines.Comment.AssertEquals(LibraryVariableStorage.DequeueText);
-        XBRLCommentLines.Next;
+        XBRLCommentLines.Next();
         XBRLCommentLines.Comment.AssertEquals('');
         Assert.AreEqual(LibraryVariableStorage.DequeueDate, XBRLCommentLines.Date.AsDate, '');
         Assert.IsFalse(XBRLCommentLines.Next, SingleLineExpectedErr);
@@ -630,7 +630,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
     begin
         XBRLRollupLines.First;
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, XBRLRollupLines.Weight.AsDEcimal, 'Weight');
-        XBRLRollupLines.Next;
+        XBRLRollupLines.Next();
         Assert.IsFalse(XBRLRollupLines.Next, SingleLineExpectedErr);
     end;
 
@@ -640,7 +640,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
     begin
         XBRLGLMapLines.First;
         XBRLGLMapLines."G/L Account Filter".AssertEquals(LibraryVariableStorage.DequeueText);
-        XBRLGLMapLines.Next;
+        XBRLGLMapLines.Next();
         Assert.IsFalse(XBRLGLMapLines.Next, SingleLineExpectedErr);
     end;
 
@@ -650,7 +650,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
     begin
         XBRLLineConstants.First;
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, XBRLLineConstants."Constant Amount".AsDEcimal, '');
-        XBRLLineConstants.Next;
+        XBRLLineConstants.Next();
         Assert.AreEqual(0, XBRLLineConstants."Constant Amount".AsDEcimal, '');
         Assert.AreEqual(LibraryVariableStorage.DequeueDate, XBRLLineConstants."Starting Date".AsDate, '');
         Assert.IsFalse(XBRLLineConstants.Next, SingleLineExpectedErr);

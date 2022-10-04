@@ -12,13 +12,13 @@ page 8612 "Config. Question Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     MinValue = 1;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the field from the table that the question area manages.';
@@ -28,7 +28,7 @@ page 8612 "Config. Question Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a question that is to be answered on the setup questionnaire. On the Actions tab, in the Question group, choose Update Questions to auto populate the question list based on the fields in the table on which the question area is based. You can modify the text to be more meaningful to the person responsible for filling out the questionnaire. For example, you could rewrite the Name? question as What is the name of your company?';
                 }
-                field("Answer Option"; "Answer Option")
+                field("Answer Option"; Rec."Answer Option")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
@@ -39,7 +39,7 @@ page 8612 "Config. Question Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the answer to the question. The answer to the question should match the format of the answer option and must be a value that the database supports. If it does not, then there will be an error when you apply the answer.';
                 }
-                field("Field Value"; LookupValue)
+                field("Field Value"; LookupValue())
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -48,19 +48,19 @@ page 8612 "Config. Question Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a url address. Use this field to provide a url address to a location that Specifies information about the question. For example, you could provide the address of a page that Specifies information about setup considerations that the person answering the questionnaire should consider.';
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the field that is supporting the setup questionnaire area. The name comes from the Name property of the field.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the caption of the field that is supporting the setup questionnaire area. The caption comes from the Caption property of the field.';
                 }
-                field("Question Origin"; "Question Origin")
+                field("Question Origin"; Rec."Question Origin")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin of the question.';

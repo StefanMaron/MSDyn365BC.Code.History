@@ -73,12 +73,12 @@ table 1299 "Payment Matching Details"
     begin
         Clear(Rec);
 
-        Init;
+        Init();
         "Statement Type" := BankAccReconciliationLine."Statement Type";
         "Bank Account No." := BankAccReconciliationLine."Bank Account No.";
         "Statement No." := BankAccReconciliationLine."Statement No.";
         "Statement Line No." := BankAccReconciliationLine."Statement Line No.";
-        "Line No." := GetNextAvailableLineNo;
+        "Line No." := GetNextAvailableLineNo();
         Message := DetailMessage;
         Insert(true);
     end;

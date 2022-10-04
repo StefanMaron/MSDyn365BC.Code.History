@@ -7,7 +7,7 @@ codeunit 5455 "Graph Data Setup"
 
     trigger OnRun()
     begin
-        OnCreateIntegrationMappings;
+        OnCreateIntegrationMappings();
     end;
 
     procedure AddIntgrationFieldMapping(MappingName: Text[20]; NavFieldNo: Integer; IntegrationFieldNo: Integer; ValidateField: Boolean)
@@ -15,7 +15,7 @@ codeunit 5455 "Graph Data Setup"
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         with IntegrationFieldMapping do begin
-            Init;
+            Init();
             "Integration Table Mapping Name" := MappingName;
             "Field No." := NavFieldNo;
             "Integration Table Field No." := IntegrationFieldNo;
@@ -30,7 +30,7 @@ codeunit 5455 "Graph Data Setup"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         with IntegrationTableMapping do begin
-            Init;
+            Init();
             Name := MappingName;
             "Table ID" := TableID;
             "Integration Table ID" := IntTableID;

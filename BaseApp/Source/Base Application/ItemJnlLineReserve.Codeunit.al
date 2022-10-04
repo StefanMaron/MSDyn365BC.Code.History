@@ -7,18 +7,19 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
     var
-        Text000: Label 'Reserved quantity cannot be greater than %1';
-        Text002: Label 'must be filled in when a quantity is reserved';
-        Text003: Label 'must not be filled in when a quantity is reserved';
-        Text004: Label 'must not be changed when a quantity is reserved';
-        Text005: Label 'Codeunit is not initialized correctly.';
         FromTrackingSpecification: Record "Tracking Specification";
         ReservMgt: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         Blocked: Boolean;
-        Text006: Label 'You cannot define item tracking on %1 %2';
         DeleteItemTracking: Boolean;
+
+        Text000: Label 'Reserved quantity cannot be greater than %1';
+        Text002: Label 'must be filled in when a quantity is reserved';
+        Text003: Label 'must not be filled in when a quantity is reserved';
+        Text004: Label 'must not be changed when a quantity is reserved';
+        Text005: Label 'Codeunit is not initialized correctly.';
+        Text006: Label 'You cannot define item tracking on %1 %2';
 
     procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
@@ -72,19 +73,19 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     procedure Caption(ItemJnlLine: Record "Item Journal Line") CaptionText: Text
     begin
-        CaptionText := ItemJnlLine.GetSourceCaption;
+        CaptionText := ItemJnlLine.GetSourceCaption();
     end;
 
     procedure FindReservEntry(ItemJnlLine: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         ReservEntry.InitSortingAndFilters(false);
         ItemJnlLine.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     procedure ReservEntryExist(ItemJnlLine: Record "Item Journal Line"): Boolean
     begin
-        exit(ItemJnlLine.ReservEntryExist);
+        exit(ItemJnlLine.ReservEntryExist());
     end;
 
     procedure VerifyChange(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
@@ -141,13 +142,12 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                     NewItemJnlLine.FieldError("New Location Code", Text004)
                 else
                     HasError := true;
-            if NewItemJnlLine."New Bin Code" <> OldItemJnlLine."Bin Code" then begin
+            if NewItemJnlLine."New Bin Code" <> OldItemJnlLine."Bin Code" then
                 if ItemTrackingMgt.GetWhseItemTrkgSetup(NewItemJnlLine."Item No.") then
                     if ShowError then
                         NewItemJnlLine.FieldError("New Bin Code", Text004)
                     else
                         HasError := true;
-            end
         end else begin
             if NewItemJnlLine."Location Code" <> OldItemJnlLine."Location Code" then
                 if ShowError then
@@ -179,7 +179,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
         if HasError then begin
             FindReservEntry(NewItemJnlLine, TempReservEntry);
-            TempReservEntry.ClearTrackingFilter;
+            TempReservEntry.ClearTrackingFilter();
 
             PointerChanged := (NewItemJnlLine."Item No." <> OldItemJnlLine."Item No.") or
               (NewItemJnlLine."Entry Type" <> OldItemJnlLine."Entry Type");
@@ -220,7 +220,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                     exit;
             ReservMgt.SetReservSource(NewItemJnlLine);
             if "Qty. per Unit of Measure" <> OldItemJnlLine."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             if "Quantity (Base)" * OldItemJnlLine."Quantity (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
@@ -239,13 +239,13 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         if not FindReservEntry(ItemJnlLine, OldReservEntry) then
             exit(false);
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         ItemLedgEntry.TestField("Item No.", ItemJnlLine."Item No.");
         ItemLedgEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
-        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then begin
-            ItemLedgEntry.TestField("Location Code", ItemJnlLine."New Location Code");
-        end else
+        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
+            ItemLedgEntry.TestField("Location Code", ItemJnlLine."New Location Code")
+        else
             ItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
 
         for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
@@ -323,11 +323,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure DeleteLineConfirm(var ItemJnlLine: Record "Item Journal Line"): Boolean
     begin
         with ItemJnlLine do begin
-            if not ReservEntryExist then
+            if not ReservEntryExist() then
                 exit(true);
 
             ReservMgt.SetReservSource(ItemJnlLine);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -378,10 +378,10 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             exit;
 
         ItemJnlLine.TestField("Item No.");
-        if not ItemJnlLine.ItemPosting then begin
+        if not ItemJnlLine.ItemPosting() then begin
             ReservEntry.InitSortingAndFilters(false);
             ItemJnlLine.SetReservationFilters(ReservEntry);
-            ReservEntry.ClearTrackingFilter;
+            ReservEntry.ClearTrackingFilter();
             if ReservEntry.IsEmpty() then
                 Error(Text006, ItemJnlLine.FieldCaption("Operation No."), ItemJnlLine."Operation No.");
         end;
@@ -389,7 +389,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         if IsReclass then
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJnlLine."Posting Date");
-        ItemTrackingLines.SetInbound(ItemJnlLine.IsInbound);
+        ItemTrackingLines.SetInbound(ItemJnlLine.IsInbound());
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ItemJnlLine, ItemTrackingLines);
         ItemTrackingLines.RunModal();
     end;
@@ -419,7 +419,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
         ItemJnlLine.SetReservationEntry(ReservEntry);
 
-        CaptionText := ItemJnlLine.GetSourceCaption;
+        CaptionText := ItemJnlLine.GetSourceCaption();
     end;
 
     local procedure EntryStartNo(): Integer

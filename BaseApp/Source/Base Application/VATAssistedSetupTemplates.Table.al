@@ -80,7 +80,7 @@ table 1878 "VAT Assisted Setup Templates"
                             "Default VAT Prod. Posting Grp" :=
                               CopyStr(ConfigTemplateLine."Default Value", 1, MaxStrLen("Default VAT Prod. Posting Grp"));
 
-                Insert;
+                Insert();
             until ConfigTemplateHeader.Next() = 0;
     end;
 

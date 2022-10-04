@@ -67,7 +67,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if NoInserted = 0 then begin
                     Message(Text010, NoSkipped);
@@ -189,15 +189,16 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
         CostAccSetup: Record "Cost Accounting Setup";
         CostAccMgt: Codeunit "Cost Account Mgt";
         DimMgt: Codeunit DimensionManagement;
+        DateFormula: DateFormula;
         Window: Dialog;
         DateChange: Code[10];
-        DateFormula: DateFormula;
         LastEntryNo: Integer;
         NoOfCopies: Integer;
         Factor: Decimal;
         i: Integer;
         NoSkipped: Integer;
         NoInserted: Integer;
+        
         Text000: Label 'The multiplication factor must not be 0 or less than 0.';
         Text001: Label 'Number of copies must be at least 1.';
         Text002: Label 'If more than one copy is created, a formula for date change must be defined.';

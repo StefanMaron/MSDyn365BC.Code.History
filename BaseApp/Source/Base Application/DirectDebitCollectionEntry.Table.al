@@ -133,7 +133,7 @@ table 1208 "Direct Debit Collection Entry"
                 if "Mandate ID" = '' then
                     exit;
                 SEPADirectDebitMandate.Get("Mandate ID");
-                "Sequence Type" := SEPADirectDebitMandate.GetSequenceType;
+                "Sequence Type" := SEPADirectDebitMandate.GetSequenceType();
             end;
         }
         field(12; "Mandate Type of Payment"; Option)
@@ -245,7 +245,7 @@ table 1208 "Direct Debit Collection Entry"
 
     trigger OnDelete()
     begin
-        DeletePaymentFileErrors;
+        DeletePaymentFileErrors();
     end;
 
     trigger OnInsert()
@@ -282,11 +282,11 @@ table 1208 "Direct Debit Collection Entry"
         LockTable();
         if FindLast() then;
         "Entry No." += 1;
-        Init;
+        Init();
         Validate("Customer No.", CustLedgerEntry."Customer No.");
         Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
         OnCreateNewOnBeforeInsert(CustLedgerEntry, Rec);
-        Insert;
+        Insert();
         OnCreateNewOnAfterInsert(CustLedgerEntry, Rec);
 
         IsHandled := false;
@@ -300,7 +300,7 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         TransferPKToGenJnlLine(GenJnlLine);
-        GenJnlLine.DeletePaymentFileErrors;
+        GenJnlLine.DeletePaymentFileErrors();
     end;
 
     procedure HasPaymentFileErrors(): Boolean
@@ -308,7 +308,7 @@ table 1208 "Direct Debit Collection Entry"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         TransferPKToGenJnlLine(GenJnlLine);
-        exit(GenJnlLine.HasPaymentFileErrors);
+        exit(GenJnlLine.HasPaymentFileErrors());
     end;
 
     procedure ExportSEPA()
@@ -345,11 +345,11 @@ table 1208 "Direct Debit Collection Entry"
         if not Confirm(RejectQst) then
             exit;
         Status := Status::Rejected;
-        Modify;
+        Modify();
         if "Mandate ID" = '' then
             exit;
         SEPADirectDebitMandate.Get("Mandate ID");
-        SEPADirectDebitMandate.RollBackSequenceType;
+        SEPADirectDebitMandate.RollBackSequenceType();
     end;
 
     local procedure CheckCustLedgerEntryAmountPositive(var CustLedgEntry: Record "Cust. Ledger Entry")

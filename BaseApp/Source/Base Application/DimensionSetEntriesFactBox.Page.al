@@ -12,23 +12,23 @@ page 699 "Dimension Set Entries FactBox"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension.';
                 }
-                field("Dimension Name"; "Dimension Name")
+                field("Dimension Name"; Rec."Dimension Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Code field.';
                     Visible = false;
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';
                 }
-                field("Dimension Value Name"; "Dimension Value Name")
+                field("Dimension Value Name"; Rec."Dimension Value Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Value Code field.';

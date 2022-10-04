@@ -143,7 +143,7 @@ codeunit 137038 "SCM Transfers"
 
         // EXECUTE: Change Transfer Quantity on Transfer Order Through UI.
         DummyTransferOrderPage.TransferLines.Quantity.Value(Format(TransferQuantity));
-        DummyTransferOrderPage.Close;
+        DummyTransferOrderPage.Close();
     end;
 
     local procedure OpenTransferOrderPageByNo(TransferOrderNoToFind: Code[20]; TransferOrderToReturn: TestPage "Transfer Order")
@@ -215,7 +215,7 @@ codeunit 137038 "SCM Transfers"
 
         // Create Transfer Order.
         CreateTransferOrder(
-          TransferLine, LocationCode[1], LocationCode[4], ItemNo[4], CalcDate('<3D>', WorkDate), LibraryRandom.RandInt(5));
+          TransferLine, LocationCode[1], LocationCode[4], ItemNo[4], CalcDate('<3D>', WorkDate()), LibraryRandom.RandInt(5));
 
         // Create and Update Purchase Order for ItemNo2 with LocationCode4.
         CreatePurchaseOrder(PurchaseHeader, ItemNo[2], TransferLine.Quantity);
@@ -325,7 +325,7 @@ codeunit 137038 "SCM Transfers"
 
         // [GIVEN] Create Transfer Order for Item "I" from Location "A" to Location "B". Apply to ILE "N".
         CreateTransferOrder(
-          TransferLine, LocationCode[4], LocationCode[2], Item."No.", WorkDate, LibraryRandom.RandInt(5));
+          TransferLine, LocationCode[4], LocationCode[2], Item."No.", WorkDate(), LibraryRandom.RandInt(5));
         TransferLine.Validate("Appl.-to Item Entry", FindLastILENo(Item."No."));
         TransferLine.Modify();
 
@@ -370,7 +370,7 @@ codeunit 137038 "SCM Transfers"
 
         // [GIVEN] Create Transfer Order for Item "I" from Location "A" to Location "B". Apply to ILE "N".
         CreateTransferOrder(
-          TransferLine, LocationCode[4], LocationCode[2], Item."No.", WorkDate, LibraryRandom.RandInt(5));
+          TransferLine, LocationCode[4], LocationCode[2], Item."No.", WorkDate(), LibraryRandom.RandInt(5));
         TransferLine.Validate("Appl.-to Item Entry", FindLastILENo(Item."No."));
         TransferLine.Modify();
 
@@ -427,7 +427,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder.OK.Invoke;
 
         // [THEN] New value is accepted
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Qty. to Ship", Qty);
     end;
 
@@ -467,7 +467,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder.OK.Invoke;
 
         // [THEN] New value is accepted
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Qty. to Receive", Qty);
     end;
 
@@ -501,7 +501,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder.TransferLines.GotoRecord(TransferLine[2]);
 
         // [THEN] No error is occurred and first transfer line's "Item No." = "C"
-        TransferLine[1].Find;
+        TransferLine[1].Find();
         Assert.AreEqual(NewItemNo, TransferLine[1]."Item No.", TransferLine[1].FieldCaption("Item No."));
     end;
 
@@ -535,7 +535,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder.TransferLines.GotoRecord(TransferLine[2]);
 
         // [THEN] No error is occurred and first transfer line's "Item No." = "C"
-        TransferLine[1].Find;
+        TransferLine[1].Find();
         Assert.AreEqual(NewItem1No, TransferLine[1]."Item No.", TransferLine[1].FieldCaption("Item No."));
     end;
 
@@ -685,7 +685,7 @@ codeunit 137038 "SCM Transfers"
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         VerifyDimensionOnDimSet(TransferLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -717,7 +717,7 @@ codeunit 137038 "SCM Transfers"
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -752,7 +752,7 @@ codeunit 137038 "SCM Transfers"
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         VerifyDimensionOnDimSet(TransferLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -789,7 +789,7 @@ codeunit 137038 "SCM Transfers"
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -812,7 +812,7 @@ codeunit 137038 "SCM Transfers"
 
         // [GIVEN] Transfer Header Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
 
         // [WHEN] Answer Yes on shipped line update confirmation
@@ -841,7 +841,7 @@ codeunit 137038 "SCM Transfers"
         CreateGlobal1DimensionValue(DimensionValue);
 
         // [GIVEN] Transfer Header Shortcut Dimension 1 Code is being changed to "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         asserterror TransferLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
 
         // [WHEN] Answer Yes on shipped line update confirmation
@@ -878,7 +878,7 @@ codeunit 137038 "SCM Transfers"
         // [WHEN] Answer Yes on shipped line update confirmation
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         VerifyDimensionOnDimSet(TransferLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -912,7 +912,7 @@ codeunit 137038 "SCM Transfers"
         // [WHEN] Answer Yes on shipped line update confirmation
 
         // [THEN] Transfer Line dimension set contains "NewDimValue"
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -1419,7 +1419,7 @@ codeunit 137038 "SCM Transfers"
         // [GIVEN] Post another partial shipment of the transfer. Shipped quantity = 3 "BOX".
         // [GIVEN] Now we have 8 "BOX" shipped and 2 "BOX" received, that is 6 "BOX" still in transit.
         // [GIVEN] 3 "BOX" out of 6 are to be posted by "R1".
-        TransferLine.Find;
+        TransferLine.Find();
         UpdatePartialQuantityToShip(TransferLine, 3);
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
 
@@ -1591,7 +1591,7 @@ codeunit 137038 "SCM Transfers"
         TransferOrder.OpenEdit;
         TransferOrder.GotoKey(TransferHeader."No.");
         TransferOrder.TransferLines."Item No.".SetValue(Item[2]."No.");
-        TransferOrder.Close;
+        TransferOrder.Close();
 
         // [THEN] No confirmation message is shown (the enqueued text is not handled).
         Assert.AreEqual(AnotherItemWithSameDescTxt, LibraryVariableStorage.DequeueText, 'The program must not suggest another item no.');
@@ -3127,13 +3127,13 @@ codeunit 137038 "SCM Transfers"
         LibraryWarehouse.CreateInTransitLocation(Location);
 
         with TransferRoute do begin
-            Init;
+            Init();
             Validate("Transfer-from Code", LocationCode[1]);
             Validate("Transfer-to Code", LocationCode[2]);
             Validate("In-Transit Code", Location.Code);
-            Insert;
+            Insert();
             Validate("Transfer-to Code", LocationCode[3]);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3274,14 +3274,14 @@ codeunit 137038 "SCM Transfers"
             Type := Type::Item;
             "No." := Item."No.";
             "Ref. Order Type" := "Ref. Order Type"::Transfer;
-            "Transfer Shipment Date" := WorkDate;
-            "Due Date" := WorkDate;
+            "Transfer Shipment Date" := WorkDate();
+            "Due Date" := WorkDate();
             Quantity := LibraryRandom.RandDec(100, 2);
 
             for i := 1 to 4 do begin
                 "Line No." += 10000;
                 "Location Code" := LocationCode[3 - i mod 2]; // 2,3,2,3
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -3291,7 +3291,7 @@ codeunit 137038 "SCM Transfers"
         TransferLine: Record "Transfer Line";
     begin
         with TransferHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Transfer Header");
             "Transfer-from Code" := LibraryUtility.GenerateGUID();
             "Transfer-to Code" := LibraryUtility.GenerateGUID();
@@ -3301,12 +3301,12 @@ codeunit 137038 "SCM Transfers"
             "Shipping Agent Code" := LibraryUtility.GenerateGUID();
             "Shipping Advice" := "Shipping Advice"::Complete;
             "Shipment Date" := LibraryRandom.RandDate(10);
-            "Receipt Date" := LibraryRandom.RandDateFromInRange(WorkDate, 11, 20);
-            Insert;
+            "Receipt Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20);
+            Insert();
         end;
 
         with TransferLine do begin
-            Init;
+            Init();
             "Document No." := TransferHeader."No.";
             "Transfer-from Code" := TransferHeader."Transfer-from Code";
             "Transfer-to Code" := TransferHeader."Transfer-to Code";
@@ -3315,7 +3315,7 @@ codeunit 137038 "SCM Transfers"
             "Quantity Received" := LibraryRandom.RandInt(10);
             "Completely Shipped" := ("Quantity Shipped" = Quantity);
             "Completely Received" := ("Quantity Received" = Quantity);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3325,15 +3325,15 @@ codeunit 137038 "SCM Transfers"
         WarehouseRequest: Record "Warehouse Request";
     begin
         with WarehouseRequest do begin
-            Init;
+            Init();
             Type := RequestType;
             "Location Code" := LocCode;
             "Source Type" := DATABASE::"Transfer Line";
             "Source Subtype" := Abs(RequestType.AsInteger() - 1);
             "Source No." := SourceNo;
-            "Shipment Date" := WorkDate;
-            "Expected Receipt Date" := WorkDate;
-            Insert;
+            "Shipment Date" := WorkDate();
+            "Expected Receipt Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -3353,13 +3353,13 @@ codeunit 137038 "SCM Transfers"
     local procedure MockTransferReceiptLine(var TransferReceiptLine: Record "Transfer Receipt Line"; DocumentNo: Code[20]; ItemNo: Code[20]; Desc: Text[100]; Qty: Decimal)
     begin
         with TransferReceiptLine do begin
-            Init;
+            Init();
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(TransferReceiptLine, FieldNo("Line No."));
             "Item No." := ItemNo;
             Description := Desc;
             Quantity := Qty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3473,7 +3473,7 @@ codeunit 137038 "SCM Transfers"
         repeat
             SalesLine.Validate("Location Code", LocationCode);
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure UpdatePurchaseLine(PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10])
@@ -3487,7 +3487,7 @@ codeunit 137038 "SCM Transfers"
             PurchaseLine.Validate("Location Code", LocationCode);
             PurchaseLine.Validate("Expected Receipt Date", CalcDate('<CM>', PurchaseHeader."Order Date"));
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdatePlanningWorkSheet(var RequisitionLine: Record "Requisition Line"; ItemNo: array[4] of Code[20])
@@ -3498,7 +3498,7 @@ codeunit 137038 "SCM Transfers"
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQuantityToShip(var TransferLine: Record "Transfer Line"; QtyToShip: Decimal)
@@ -3526,7 +3526,7 @@ codeunit 137038 "SCM Transfers"
         repeat
             RequisitionLine.Validate("Vendor No.", Vendor."No.");
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
     end;
 

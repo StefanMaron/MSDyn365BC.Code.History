@@ -11,7 +11,7 @@ report 312 "Purchase Statistics"
         dataitem(Vendor; Vendor)
         {
             RequestFilterFields = "No.", "Search Name", "Vendor Posting Group", "Currency Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Vendor_TABLECAPTION__________VendFilter; TableCaption + ': ' + VendFilter)
@@ -271,7 +271,7 @@ report 312 "Purchase Statistics"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[2] = 0D then
-                PeriodStartDate[2] := WorkDate;
+                PeriodStartDate[2] := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;

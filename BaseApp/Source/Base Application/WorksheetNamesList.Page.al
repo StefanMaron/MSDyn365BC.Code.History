@@ -17,7 +17,7 @@ page 7346 "Worksheet Names List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the name you enter for the worksheet.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code of the warehouse the worksheet should be used for.';
@@ -53,9 +53,6 @@ page 7346 "Worksheet Names List"
                 ApplicationArea = Warehouse;
                 Caption = 'Edit Worksheet';
                 Image = OpenWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the related worksheet.';
 
@@ -63,6 +60,17 @@ page 7346 "Worksheet Names List"
                 begin
                     WhseWkshLine.TemplateSelectionFromBatch(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Worksheet_Promoted"; "Edit Worksheet")
+                {
+                }
             }
         }
     }
@@ -111,7 +119,7 @@ page 7346 "Worksheet Names List"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := PickWkshName;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 

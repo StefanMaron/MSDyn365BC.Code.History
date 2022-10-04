@@ -221,7 +221,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [WHEN] GetFCYtoFCYExchangeRate() is called
         // [THEN] The rate is 12
         Assert.AreEqual(
-          12, CRMSynchHelper.GetFCYtoFCYExchangeRate(Currency.Code, LibraryERM.GetLCYCode), 'Incorrect FCY to LCY exchange rate');
+          12, CRMSynchHelper.GetFCYtoFCYExchangeRate(Currency.Code, LibraryERM.GetLCYCode()), 'Incorrect FCY to LCY exchange rate');
     end;
 
     [Test]
@@ -757,7 +757,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, ExchangeRate, ExchangeRate);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), ExchangeRate, ExchangeRate);
         exit(Currency.Code);
     end;
 

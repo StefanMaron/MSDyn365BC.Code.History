@@ -19,10 +19,10 @@ report 1406 "Bank Account - Check Details"
             column(STRSUBSTNO_Text000_BankAccDateFilter_; StrSubstNo(Text000, BankAccDateFilter))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(STRSUBSTNO___1___2___Bank_Account__TABLECAPTION_BankAccFilter_; StrSubstNo('%1: %2', TableCaption, BankAccFilter))
+            column(STRSUBSTNO___1___2___Bank_Account__TABLECAPTION_BankAccFilter_; StrSubstNo('%1: %2', TableCaption(), BankAccFilter))
             {
             }
             column(BankFilter; BankAccFilter)
@@ -97,7 +97,7 @@ report 1406 "Bank Account - Check Details"
                 DataItemTableView = SORTING("Bank Account No.", "Check Date");
                 column(AmountPrinted; AmountPrinted)
                 {
-                    AutoFormatExpression = GetCurrencyCodeFromBank;
+                    AutoFormatExpression = GetCurrencyCodeFromBank();
                     AutoFormatType = 1;
                 }
                 column(Check_Ledger_Entry_Amount; Amount)
@@ -105,7 +105,7 @@ report 1406 "Bank Account - Check Details"
                 }
                 column(AmountVoided; AmountVoided)
                 {
-                    AutoFormatExpression = GetCurrencyCodeFromBank;
+                    AutoFormatExpression = GetCurrencyCodeFromBank();
                     AutoFormatType = 1;
                 }
                 column(RecordCounter; RecordCounter)
@@ -143,19 +143,19 @@ report 1406 "Bank Account - Check Details"
                 }
                 column(AmountPrinted_Control67; AmountPrinted)
                 {
-                    AutoFormatExpression = GetCurrencyCodeFromBank;
+                    AutoFormatExpression = GetCurrencyCodeFromBank();
                     AutoFormatType = 1;
                 }
                 column(AmountVoided_Control69; AmountVoided)
                 {
-                    AutoFormatExpression = GetCurrencyCodeFromBank;
+                    AutoFormatExpression = GetCurrencyCodeFromBank();
                     AutoFormatType = 1;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     CheckLedgEntryExists := true;
-                    ClearAmounts;
+                    ClearAmounts();
                     if "Entry Status" = "Entry Status"::Printed then
                         AmountPrinted := Amount;
                     if "Entry Status" = "Entry Status"::Voided then
@@ -167,7 +167,7 @@ report 1406 "Bank Account - Check Details"
                     RecordCounter := RecordCounter + 1;
 
                     CheckLedgEntryExists := false;
-                    ClearAmounts;
+                    ClearAmounts();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -189,7 +189,7 @@ report 1406 "Bank Account - Check Details"
             trigger OnPreDataItem()
             begin
                 RecordCounter := 0;
-                ClearAmounts;
+                ClearAmounts();
             end;
         }
     }
@@ -226,7 +226,7 @@ report 1406 "Bank Account - Check Details"
 
     trigger OnPreReport()
     begin
-        BankAccFilter := "Bank Account".GetFilters;
+        BankAccFilter := "Bank Account".GetFilters();
         BankAccDateFilter := "Bank Account".GetFilter("Date Filter");
     end;
 

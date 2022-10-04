@@ -12,7 +12,7 @@ report 5053 "Contact - Person Summary"
         {
             DataItemTableView = SORTING("No.") WHERE(Type = CONST(Person));
             RequestFilterFields = "No.", "Salesperson Code", "Post Code", "Country/Region Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -228,7 +228,7 @@ report 5053 "Contact - Person Summary"
 
     trigger OnPreReport()
     begin
-        ContactFilter := Contact.GetFilters;
+        ContactFilter := Contact.GetFilters();
         NoOfRecord := 0;
     end;
 

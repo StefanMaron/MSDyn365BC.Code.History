@@ -135,7 +135,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [WHEN] Line type is blank
         SalesShipmentLine.Type := SalesShipmentLine.Type::" ";
         // [THEN] Subtype is comment
-        VerifySubtypeOnSalesShipmentLine(SalesShipmentLine, SalesLine.FormatType);
+        VerifySubtypeOnSalesShipmentLine(SalesShipmentLine, SalesLine.FormatType());
 
         // [WHEN] Line type is Item (and no item is specified)
         SalesShipmentLine.Type := SalesShipmentLine.Type::Item;
@@ -179,7 +179,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [WHEN] Line type is blank
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::" ";
         // [THEN] Subtype is comment
-        VerifySubtypeOnSalesCrMemoLine(SalesCrMemoLine, SalesLine.FormatType);
+        VerifySubtypeOnSalesCrMemoLine(SalesCrMemoLine, SalesLine.FormatType());
 
         // [WHEN] Line type is Item (and no item is specified)
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::Item;
@@ -223,7 +223,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [WHEN] Line type is blank
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::" ";
         // [THEN] Subtype is comment
-        VerifySubtypeOnSalesInvoiceLine(SalesInvoiceLine, SalesLine.FormatType);
+        VerifySubtypeOnSalesInvoiceLine(SalesInvoiceLine, SalesLine.FormatType());
 
         // [WHEN] Line type is Item (and no item is specified)
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::Item;
@@ -267,7 +267,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [WHEN] Line type is blank
         PurchRcptLine.Type := PurchRcptLine.Type::" ";
         // [THEN] Subtype is comment
-        VerifySubtypeOnPurchRcptLine(PurchRcptLine, PurchaseLine.FormatType);
+        VerifySubtypeOnPurchRcptLine(PurchRcptLine, PurchaseLine.FormatType());
 
         // [WHEN] Line type is Item (and no item is specified)
         PurchRcptLine.Type := PurchRcptLine.Type::Item;
@@ -311,7 +311,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [WHEN] Line type is blank
         PurchInvLine.Type := PurchInvLine.Type::" ";
         // [THEN] Subtype is comment
-        VerifySubtypeOnPurchInvLine(PurchInvLine, PurchaseLine.FormatType);
+        VerifySubtypeOnPurchInvLine(PurchInvLine, PurchaseLine.FormatType());
 
         // [WHEN] Line type is Item (and no item is specified)
         PurchInvLine.Type := PurchInvLine.Type::Item;
@@ -355,7 +355,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [WHEN] Line type is blank
         PurchCrMemoLine.Type := PurchCrMemoLine.Type::" ";
         // [THEN] Subtype is comment
-        VerifySubtypeOnPurchCrMemoLine(PurchCrMemoLine, PurchaseLine.FormatType);
+        VerifySubtypeOnPurchCrMemoLine(PurchCrMemoLine, PurchaseLine.FormatType());
 
         // [WHEN] Line type is Item (and no item is specified)
         PurchCrMemoLine.Type := PurchCrMemoLine.Type::Item;
@@ -417,7 +417,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedSalesShptSubform.OpenView;
         PostedSalesShptSubform.GotoRecord(SalesShipmentLine);
         PostedSalesShptSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
-        PostedSalesShptSubform.Close;
+        PostedSalesShptSubform.Close();
     end;
 
     local procedure VerifySubtypeOnSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; ExpectedSubtype: Text)
@@ -428,7 +428,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedSalesInvoiceSubform.OpenView;
         PostedSalesInvoiceSubform.GotoRecord(SalesInvoiceLine);
         PostedSalesInvoiceSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
-        PostedSalesInvoiceSubform.Close;
+        PostedSalesInvoiceSubform.Close();
     end;
 
     local procedure VerifySubtypeOnSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; ExpectedSubtype: Text)
@@ -439,7 +439,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedSalesCrMemoSubform.OpenView;
         PostedSalesCrMemoSubform.GotoRecord(SalesCrMemoLine);
         PostedSalesCrMemoSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
-        PostedSalesCrMemoSubform.Close;
+        PostedSalesCrMemoSubform.Close();
     end;
 
     local procedure VerifySubtypeOnPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; ExpectedSubtype: Text)
@@ -450,7 +450,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchaseRcptSubform.OpenView;
         PostedPurchaseRcptSubform.GotoRecord(PurchRcptLine);
         PostedPurchaseRcptSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
-        PostedPurchaseRcptSubform.Close;
+        PostedPurchaseRcptSubform.Close();
     end;
 
     local procedure VerifySubtypeOnPurchInvLine(var PurchInvLine: Record "Purch. Inv. Line"; ExpectedSubtype: Text)
@@ -461,7 +461,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchInvoiceSubform.OpenView;
         PostedPurchInvoiceSubform.GotoRecord(PurchInvLine);
         PostedPurchInvoiceSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
-        PostedPurchInvoiceSubform.Close;
+        PostedPurchInvoiceSubform.Close();
     end;
 
     local procedure VerifySubtypeOnPurchCrMemoLine(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; ExpectedSubtype: Text)
@@ -472,7 +472,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchCrMemoSubform.OpenView;
         PostedPurchCrMemoSubform.GotoRecord(PurchCrMemoLine);
         PostedPurchCrMemoSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
-        PostedPurchCrMemoSubform.Close;
+        PostedPurchCrMemoSubform.Close();
     end;
 }
 

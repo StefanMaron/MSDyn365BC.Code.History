@@ -12,7 +12,7 @@ report 5938 "Service Profit (Service Items)"
         {
             DataItemTableView = SORTING("Item No.", "Serial No.");
             RequestFilterFields = "Item No.", "Variant Code", "No.", "Date Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ToadayFormatted; Format(Today, 0, 4))
@@ -166,11 +166,10 @@ report 5938 "Service Profit (Service Items)"
 
     trigger OnPreReport()
     begin
-        ServItemFilter := "Service Item".GetFilters;
+        ServItemFilter := "Service Item".GetFilters();
     end;
 
     var
-        Text000: Label 'Total for ';
         ServLedgerEntry: Record "Service Ledger Entry";
         SalesAmount: Decimal;
         DiscountAmount: Decimal;
@@ -180,6 +179,8 @@ report 5938 "Service Profit (Service Items)"
         ProfitPct: Decimal;
         ServItemFilter: Text;
         ShowDetail: Boolean;
+
+        Text000: Label 'Total for ';
         TotalLbl: Label 'Total:';
         ServiceProfitServItemsCaptionLbl: Label 'Service Profit (Service Items)';
         CurrReportPageNoCaptionLbl: Label 'Page';

@@ -13,57 +13,57 @@ page 915 "Asm.-to-Order Whse. Shpt. Line"
             repeater(Group)
             {
                 Caption = 'Lines';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the warehouse shipment line.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the table that is the source of the receipt line.';
                     Visible = false;
                 }
-                field("Source Subtype"; "Source Subtype")
+                field("Source Subtype"; Rec."Source Subtype")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the source subtype of the document to which the line relates.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field("Source Line No."; "Source Line No.")
+                field("Source Line No."; Rec."Source Line No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the line number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location from which the items on the line are being shipped.';
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code of the zone where the bin on this shipment line is located.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin in which the items will be placed before shipment.';
@@ -73,52 +73,52 @@ page 915 "Asm.-to-Order Whse. Shpt. Line"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the quantity that should be shipped.';
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                     Visible = false;
                 }
-                field("Qty. to Ship"; "Qty. to Ship")
+                field("Qty. to Ship"; Rec."Qty. to Ship")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
                 }
-                field("Qty. to Ship (Base)"; "Qty. to Ship (Base)")
+                field("Qty. to Ship (Base)"; Rec."Qty. to Ship (Base)")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the quantity, in base units of measure, that will be shipped when the warehouse shipment is posted.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the related warehouse activity, such as a pick, must be completed to ensure items can be shipped by the shipment date.';
                     Visible = false;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Destination Type"; "Destination Type")
+                field("Destination Type"; Rec."Destination Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the type of destination associated with the warehouse shipment line.';
                     Visible = false;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the customer, vendor, or location to which the items should be shipped.';
                     Visible = false;
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the warehouse shipment line is for items that are assembled to a sales order before it is shipped.';

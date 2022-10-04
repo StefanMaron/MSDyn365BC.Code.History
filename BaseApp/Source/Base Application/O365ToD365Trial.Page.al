@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2355 "O365 To D365 Trial"
 {
     Caption = 'Try Dynamics 365 Business Central';
     Editable = false;
     PageType = NavigatePage;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -22,7 +26,7 @@ page 2355 "O365 To D365 Trial"
                 {
                     action(GetToKnowBC)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Get to know Business Central';
                         Image = TileVideo;
                         RunPageMode = View;
@@ -40,7 +44,7 @@ page 2355 "O365 To D365 Trial"
             }
             field(EnablePopups; EnablePopupsLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
             }
@@ -53,7 +57,7 @@ page 2355 "O365 To D365 Trial"
         {
             action(TryBusinessCentral)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Try Dynamics 365 Business Central for free today!';
                 InFooterBar = true;
                 //The property 'PromotedOnly' can only be set if the property 'Promoted' is set to 'true'
@@ -61,8 +65,8 @@ page 2355 "O365 To D365 Trial"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
-                    O365SetupMgmt.GotoBusinessCentralWithEvaluationCompany;
+                    CurrPage.Close();
+                    O365SetupMgmt.GotoBusinessCentralWithEvaluationCompany();
                 end;
             }
         }
@@ -74,4 +78,4 @@ page 2355 "O365 To D365 Trial"
         IntroTelemetryTxt: Label 'Business Central introduction video was played from Invoicing.', Locked = true;
         InvToBusinessCentralCategoryLbl: Label 'AL Invoicing To Business Central', Locked = true;
 }
-
+#endif

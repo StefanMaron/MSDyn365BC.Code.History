@@ -38,7 +38,7 @@ table 471 "Job Queue Category"
 
         Code := CodeToInsert;
         Description := DescriptionToInsert;
-        Insert;
+        Insert();
     end;
 }
 

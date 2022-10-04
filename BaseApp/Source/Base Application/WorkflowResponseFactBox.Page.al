@@ -14,7 +14,7 @@ page 1525 "Workflow Response FactBox"
         {
             repeater(Group)
             {
-                field("Response Description"; "Response Description")
+                field("Response Description"; Rec."Response Description")
                 {
                     ApplicationArea = Suite;
                     ShowCaption = false;
@@ -39,7 +39,7 @@ page 1525 "Workflow Response FactBox"
         if (ParentEventStepID <> GetRangeMax("Parent Event Step ID")) or (WorkflowCode <> GetRangeMax("Workflow Code")) then begin
             ParentEventStepID := GetRangeMax("Parent Event Step ID");
             WorkflowCode := GetRangeMax("Workflow Code");
-            ClearBuffer;
+            ClearBuffer();
         end;
         FilterGroup(CurrFilterGroup);
 
@@ -58,7 +58,7 @@ page 1525 "Workflow Response FactBox"
         if (ParentEventStepID = 0) or (WorkflowCode = '') then
             exit;
 
-        ClearBuffer;
+        ClearBuffer();
         PopulateTableFromEvent(WorkflowCode, ParentEventStepID);
         CurrPage.Update(false);
     end;

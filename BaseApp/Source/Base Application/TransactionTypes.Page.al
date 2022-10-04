@@ -1,6 +1,6 @@
 page 308 "Transaction Types"
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = BasicEU, BasicNO;
     Caption = 'Transaction Types';
     PageType = List;
     SourceTable = "Transaction Type";
@@ -15,12 +15,12 @@ page 308 "Transaction Types"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a code for the transaction.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a description of the transaction type.';
                 }
             }
@@ -44,4 +44,3 @@ page 308 "Transaction Types"
     {
     }
 }
-

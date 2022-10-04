@@ -18,7 +18,7 @@ page 1100 "Chart of Cost Types"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = CostAccounting;
                     Style = Strong;
@@ -42,37 +42,37 @@ page 1100 "Chart of Cost Types"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
                 }
-                field("Cost Classification"; "Cost Classification")
+                field("Cost Classification"; Rec."Cost Classification")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost type by variability.';
                 }
-                field("G/L Account Range"; "G/L Account Range")
+                field("G/L Account Range"; Rec."G/L Account Range")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a general ledger account range to establish which general ledger account a cost type belongs to.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                 }
-                field("Cost Center Code"; "Cost Center Code")
+                field("Cost Center Code"; Rec."Cost Center Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost center code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Cost Object Code"; "Cost Object Code")
+                field("Cost Object Code"; Rec."Cost Object Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the cost object code. The code serves as a default value for cost posting that is captured later in the cost journal.';
                 }
-                field("Combine Entries"; "Combine Entries")
+                field("Combine Entries"; Rec."Combine Entries")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the option to allow for general ledger entries to be posted individually or as a combined posting per day or month.';
                 }
-                field("Budget Amount"; "Budget Amount")
+                field("Budget Amount"; Rec."Budget Amount")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies either the cost type''s total budget or, if you have specified a filter in the Budget Filter field, a filtered budget. The contents of the field are calculated by using the entries in the Amount field in the Cost Budget Entry table.';
@@ -91,22 +91,22 @@ page 1100 "Chart of Cost Types"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies if you want a new page to start immediately after this cost center when you print the chart of cash flow accounts.';
                 }
-                field("Blank Line"; "Blank Line")
+                field("Blank Line"; Rec."Blank Line")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies whether you want a blank line to appear immediately after this cost center when you print the chart of cost centers. The New Page, Blank Line, and Indentation fields define the layout of the chart of cost centers.';
                 }
-                field("Balance to Allocate"; "Balance to Allocate")
+                field("Balance to Allocate"; Rec."Balance to Allocate")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the net amount that can still be allocated. The entry in the Allocated field in the Cost Entry table determines whether a cost entry is a part of this field.';
                 }
-                field("Balance at Date"; "Balance at Date")
+                field("Balance at Date"; Rec."Balance at Date")
                 {
                     ApplicationArea = CostAccounting;
                     BlankZero = true;
@@ -179,13 +179,11 @@ page 1100 "Chart of Cost Types"
                     ApplicationArea = CostAccounting;
                     Caption = 'I&ndent Cost Types';
                     Image = IndentChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Indent the selected lines.';
 
                     trigger OnAction()
                     begin
-                        CostAccMgt.ConfirmIndentCostTypes;
+                        CostAccMgt.ConfirmIndentCostTypes();
                     end;
                 }
                 action(GetCostTypesFromChartOfAccounts)
@@ -193,13 +191,11 @@ page 1100 "Chart of Cost Types"
                     ApplicationArea = CostAccounting;
                     Caption = 'Get Cost Types from &Chart of Accounts';
                     Image = CopyFromChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Transfer all income statement accounts from the chart of accounts to the chart of cost types.';
 
                     trigger OnAction()
                     begin
-                        CostAccMgt.GetCostTypesFromChartOfAccount;
+                        CostAccMgt.GetCostTypesFromChartOfAccount();
                     end;
                 }
                 action(RegCostTypeInChartOfCostType)
@@ -211,7 +207,7 @@ page 1100 "Chart of Cost Types"
 
                     trigger OnAction()
                     begin
-                        CostAccMgt.LinkCostTypesToGLAccountsYN;
+                        CostAccMgt.LinkCostTypesToGLAccountsYN();
                     end;
                 }
             }
@@ -220,7 +216,6 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Registers';
                 Image = GLRegisters;
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = Process;
                 RunObject = Page "Cost Registers";
@@ -231,8 +226,6 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'G/L Account';
                 Image = ChartOfAccounts;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Chart of Accounts";
                 ToolTip = 'View the G/L account for the selected line.';
             }
@@ -244,8 +237,6 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Acctg. P/L Statement';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Cost Acctg. Statement";
                 ToolTip = 'View the cost accounting P/L statement.';
             }
@@ -254,8 +245,6 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Acctg. P/L Statement per Period';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Cost Acctg. Stmt. per Period";
                 ToolTip = 'View profit and loss for cost types over two periods with the comparison as a percentage.';
             }
@@ -264,7 +253,6 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Acctg. P/L Statement with Budget';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Cost Acctg. Statement/Budget";
@@ -275,8 +263,6 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Acctg. Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Cost Acctg. Analysis";
                 ToolTip = 'View balances per cost type with columns for seven fields for cost centers and cost objects. It is used as the cost distribution sheet in Cost accounting. The structure of the lines is based on the chart of cost types. You define up to seven cost centers and cost objects that appear as columns in the report.';
             }
@@ -285,19 +271,49 @@ page 1100 "Chart of Cost Types"
                 ApplicationArea = CostAccounting;
                 Caption = 'Account Details';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Cost Types Details";
                 ToolTip = 'View cost entries for each cost type. You can review the transactions for each cost type.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(IndentCostType_Promoted; IndentCostType)
+                {
+                }
+                actionref(GetCostTypesFromChartOfAccounts_Promoted; GetCostTypesFromChartOfAccounts)
+                {
+                }
+                actionref("G/L Account_Promoted"; "G/L Account")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Cost Acctg. P/L Statement_Promoted"; "Cost Acctg. P/L Statement")
+                {
+                }
+                actionref("Cost Acctg. P/L Statement per Period_Promoted"; "Cost Acctg. P/L Statement per Period")
+                {
+                }
+                actionref("Cost Acctg. Analysis_Promoted"; "Cost Acctg. Analysis")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SetEmphasis;
-        SetIndent;
+        SetEmphasis();
+        SetIndent();
     end;
 
     var

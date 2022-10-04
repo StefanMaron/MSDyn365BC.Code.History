@@ -37,7 +37,7 @@ page 130401 "CAL Test Tool"
                 begin
                     CALTestSuite.Get(CurrentSuiteName);
                     CALTestSuite.CalcFields("Tests to Execute");
-                    CurrentSuiteNameOnAfterValidat;
+                    CurrentSuiteNameOnAfterValidat();
                 end;
             }
             repeater(Control1)
@@ -71,7 +71,7 @@ page 130401 "CAL Test Tool"
                     StyleExpr = NameEmphasize;
                     ToolTip = 'Specifies the name of the test tool.';
                 }
-                field("Hit Objects"; "Hit Objects")
+                field("Hit Objects"; Rec."Hit Objects")
                 {
                     ApplicationArea = All;
                     BlankZero = true;
@@ -103,7 +103,7 @@ page 130401 "CAL Test Tool"
                     Style = Favorable;
                     StyleExpr = ResultEmphasize;
                 }
-                field("First Error"; "First Error")
+                field("First Error"; Rec."First Error")
                 {
                     ApplicationArea = All;
                     DrillDown = true;
@@ -113,7 +113,7 @@ page 130401 "CAL Test Tool"
 
                     trigger OnDrillDown()
                     begin
-                        ShowTestResults
+                        ShowTestResults();
                     end;
                 }
                 field(Duration; "Finish Time" - "Start Time")
@@ -169,9 +169,6 @@ page 130401 "CAL Test Tool"
                     ApplicationArea = All;
                     Caption = 'Delete Lines';
                     Image = Delete;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Delete the selected line.';
 
                     trigger OnAction()
@@ -189,9 +186,6 @@ page 130401 "CAL Test Tool"
                     ApplicationArea = All;
                     Caption = 'Get Test Codeunits';
                     Image = SelectEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
 
                     trigger OnAction()
                     var
@@ -207,9 +201,6 @@ page 130401 "CAL Test Tool"
                     ApplicationArea = All;
                     Caption = '&Run';
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+Ctrl+L';
 
                     trigger OnAction()
@@ -217,7 +208,7 @@ page 130401 "CAL Test Tool"
                         CALTestLine: Record "CAL Test Line";
                         CALTestMgt: Codeunit "CAL Test Management";
                     begin
-                        WarnNonEnglishLanguage;
+                        WarnNonEnglishLanguage();
 
                         CALTestLine := Rec;
                         CALTestMgt.RunSuiteYesNo(Rec);
@@ -230,16 +221,13 @@ page 130401 "CAL Test Tool"
                     ApplicationArea = All;
                     Caption = 'Run &Selected';
                     Image = TestFile;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
 
                     trigger OnAction()
                     var
                         SelectedCALTestLine: Record "CAL Test Line";
                         CALTestMgt: Codeunit "CAL Test Management";
                     begin
-                        WarnNonEnglishLanguage;
+                        WarnNonEnglishLanguage();
 
                         CurrPage.SetSelectionFilter(SelectedCALTestLine);
                         SelectedCALTestLine.SetRange("Test Suite", "Test Suite");
@@ -293,7 +281,7 @@ page 130401 "CAL Test Tool"
                     var
                         CALTestCoverageMap: Record "CAL Test Coverage Map";
                     begin
-                        CALTestCoverageMap.Show;
+                        CALTestCoverageMap.Show();
                     end;
                 }
             }
@@ -324,7 +312,7 @@ page 130401 "CAL Test Tool"
                     var
                         CALTestProjectMgt: Codeunit "CAL Test Project Mgt.";
                     begin
-                        CALTestProjectMgt.Import;
+                        CALTestProjectMgt.Import();
                     end;
                 }
             }
@@ -333,8 +321,6 @@ page 130401 "CAL Test Tool"
                 ApplicationArea = All;
                 Caption = 'Next Error';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Go to the next error.';
 
                 trigger OnAction()
@@ -347,14 +333,38 @@ page 130401 "CAL Test Tool"
                 ApplicationArea = All;
                 Caption = 'Previous Error';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Go to the previous error.';
 
                 trigger OnAction()
                 begin
                     FindError('<=');
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(DeleteLines_Promoted; DeleteLines)
+                {
+                }
+                actionref(GetTestCodeunits_Promoted; GetTestCodeunits)
+                {
+                }
+                actionref(Run_Promoted; Run)
+                {
+                }
+                actionref(RunSelected_Promoted; RunSelected)
+                {
+                }
+                actionref(NextError_Promoted; NextError)
+                {
+                }
+                actionref(PreviousError_Promoted; PreviousError)
+                {
+                }
             }
         }
     }
@@ -446,7 +456,7 @@ page 130401 "CAL Test Tool"
 
     local procedure CurrentSuiteNameOnAfterValidat()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         FilterGroup(2);
         SetRange("Test Suite", CurrentSuiteName);
@@ -462,7 +472,7 @@ page 130401 "CAL Test Tool"
 
         if GlobalLanguage <> 1033 then begin
             LanguageWarningNotification.Message := LanguageWarningMsg;
-            LanguageWarningNotification.Send;
+            LanguageWarningNotification.Send();
         end;
 
         LanguageWarningShown := true;

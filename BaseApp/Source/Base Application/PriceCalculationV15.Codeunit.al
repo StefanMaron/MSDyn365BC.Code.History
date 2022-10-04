@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 {
     ObsoleteState = Pending;
@@ -236,12 +236,12 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 
     procedure ShowPrices(var TempPriceListLine: Record "Price List Line")
     var
-        SalesPrice: Record "Sales Price" temporary;
+        TempSalesPrice: Record "Sales Price" temporary;
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
     begin
-        CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
-        if SalesPrice.FindSet() then
-            PAGE.RunModal(PAGE::"Get Sales Price", SalesPrice);
+        CopyFromToPriceListLine.CopyTo(TempSalesPrice, TempPriceListLine);
+        if TempSalesPrice.FindSet() then
+            PAGE.RunModal(PAGE::"Get Sales Price", TempSalesPrice);
     end;
 
     local procedure IsDisabled() Result: Boolean;

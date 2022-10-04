@@ -6,10 +6,11 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     var
-        CountingRecordsMsg: Label 'Counting records...';
-        TableNotSupportedErr: Label 'Table %1 is not supported.';
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         RetrieveAsmItemTracking: Boolean;
+
+        CountingRecordsMsg: Label 'Counting records...';
+        TableNotSupportedErr: Label 'Table %1 is not supported.';
         CreateTrackingSpecQst: Label 'This function create tracking specification from reservation entries. Continue?';
 
     local procedure AddTempRecordToSet(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SignFactor: Integer)
@@ -51,7 +52,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry.DeleteAll();
 
         with TempReservEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Source ID", "Source Ref. No.");
             SetRange("Source ID", DocNo);
             SetRange("Source Ref. No.", LineNo);
@@ -364,7 +365,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         PurchRcptLine.SetRange("Document No.", SourceID);
         OnRetrieveTrackingPurchaseReceiptOnAfterSetFilters(PurchRcptLine, SourceID);
-        if PurchRcptLine.FindSet() then begin
+        if PurchRcptLine.FindSet() then
             repeat
                 if (PurchRcptLine.Type = PurchRcptLine.Type::Item) and
                    (PurchRcptLine."No." <> '') and
@@ -377,7 +378,6 @@ codeunit 6503 "Item Tracking Doc. Management"
                       DATABASE::"Purch. Rcpt. Line", 0, PurchRcptLine."Document No.", '', 0, PurchRcptLine."Line No.", Descr);
                 end;
             until PurchRcptLine.Next() = 0;
-        end;
     end;
 
     local procedure RetrieveTrackingSales(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; SourceSubType: Option)
@@ -715,7 +715,40 @@ codeunit 6503 "Item Tracking Doc. Management"
                     TempItemLedgEntry.Insert();
                 end
             until ItemLedgEntry.Next() = 0;
-        Window.Close;
+        Window.Close();
+        if TempItemLedgEntry.IsEmpty() then
+            exit(false);
+
+        PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
+        exit(true);
+    end;
+
+    internal procedure ShowItemTrackingForJobPlanningLine(Type: Integer; ID: Code[20]; RefNo: Integer): Boolean
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        Window: Dialog;
+    begin
+        Window.Open(CountingRecordsMsg);
+        ItemLedgEntry.SetLoadFields("Serial No.", "Lot No.");
+        ItemLedgEntry.SetCurrentKey("Order Type", "Job No.", "Order Line No.", "Entry Type");
+        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::" ");
+        ItemLedgEntry.SetRange("Job No.", ID);
+        ItemLedgEntry.SetRange("Order Line No.", RefNo);
+
+        if Type = Database::"Job Planning Line" then
+            ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Negative Adjmt.")
+        else
+            exit(false);
+
+        if ItemLedgEntry.FindSet() then
+            repeat
+                if ItemLedgEntry.TrackingExists() then begin
+                    TempItemLedgEntry := ItemLedgEntry;
+                    TempItemLedgEntry.Insert();
+                end
+            until ItemLedgEntry.Next() = 0;
+        Window.Close();
         if TempItemLedgEntry.IsEmpty() then
             exit(false);
 

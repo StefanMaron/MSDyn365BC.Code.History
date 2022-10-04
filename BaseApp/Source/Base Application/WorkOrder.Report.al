@@ -20,7 +20,7 @@ report 752 "Work Order"
                 column(ShipmentDate_SalesHeader; Format("Sales Header"."Shipment Date"))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(CustAddr1; CustAddr[1])

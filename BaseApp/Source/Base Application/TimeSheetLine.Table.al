@@ -25,7 +25,7 @@ table 951 "Time Sheet Line"
 
             trigger OnValidate()
             begin
-                TestStatus;
+                TestStatus();
                 if Type = Type::"Assembly Order" then
                     FieldError(Type);
                 if Type <> xRec.Type then begin
@@ -43,7 +43,7 @@ table 951 "Time Sheet Line"
                     "Assembly Order No." := '';
                     "Assembly Order Line No." := 0;
 
-                    UpdateApproverID;
+                    UpdateApproverID();
                 end;
             end;
         }
@@ -63,8 +63,8 @@ table 951 "Time Sheet Line"
                         Job.TestStatusCompleted();
                 end;
                 Validate("Job Task No.", '');
-                UpdateApproverID;
-                UpdateJobId;
+                UpdateApproverID();
+                UpdateJobId();
             end;
         }
         field(7; "Job Task No."; Code[20])
@@ -114,7 +114,7 @@ table 951 "Time Sheet Line"
 
             trigger OnValidate()
             begin
-                TestStatus;
+                TestStatus();
             end;
         }
         field(11; "Work Type Code"; Code[10])
@@ -125,7 +125,7 @@ table 951 "Time Sheet Line"
             trigger OnValidate()
             begin
                 if ("Work Type Code" <> xRec."Work Type Code") and ("Work Type Code" <> '') then
-                    CheckWorkType;
+                    CheckWorkType();
             end;
         }
         field(12; "Approver ID"; Code[50])
@@ -259,7 +259,7 @@ table 951 "Time Sheet Line"
         TimeSheetCommentLine: Record "Time Sheet Comment Line";
         Resource: Record Resource;
     begin
-        TestStatus;
+        TestStatus();
 
         GetTimeSheetResource(Resource);
         CheckResourcePrivacyBlocked(Resource);
@@ -282,7 +282,7 @@ table 951 "Time Sheet Line"
         CheckResourcePrivacyBlocked(Resource);
         Resource.TestField(Blocked, false);
 
-        UpdateApproverID;
+        UpdateApproverID();
         "Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
     end;
 
@@ -294,7 +294,7 @@ table 951 "Time Sheet Line"
         CheckResourcePrivacyBlocked(Resource);
         Resource.TestField(Blocked, false);
 
-        UpdateDetails;
+        UpdateDetails();
     end;
 
     var
@@ -421,37 +421,37 @@ table 951 "Time Sheet Line"
             Type::Resource:
                 begin
                     TimeSheetLineResDetail.SetParameters(Rec, ManagerRole);
-                    if TimeSheetLineResDetail.RunModal = ACTION::OK then
+                    if TimeSheetLineResDetail.RunModal() = ACTION::OK then
                         TimeSheetLineResDetail.GetRecord(Rec);
                 end;
             Type::Job:
                 begin
                     TimeSheetLineJobDetail.SetParameters(Rec, ManagerRole);
-                    if TimeSheetLineJobDetail.RunModal = ACTION::OK then
+                    if TimeSheetLineJobDetail.RunModal() = ACTION::OK then
                         TimeSheetLineJobDetail.GetRecord(Rec);
                 end;
             Type::Absence:
                 begin
                     TimeSheetLineAbsenceDetail.SetParameters(Rec, ManagerRole);
-                    if TimeSheetLineAbsenceDetail.RunModal = ACTION::OK then
+                    if TimeSheetLineAbsenceDetail.RunModal() = ACTION::OK then
                         TimeSheetLineAbsenceDetail.GetRecord(Rec);
                 end;
             Type::Service:
                 begin
                     TimeSheetLineServiceDetail.SetParameters(Rec, ManagerRole);
-                    if TimeSheetLineServiceDetail.RunModal = ACTION::OK then
+                    if TimeSheetLineServiceDetail.RunModal() = ACTION::OK then
                         TimeSheetLineServiceDetail.GetRecord(Rec);
                 end;
             Type::"Assembly Order":
                 begin
                     TimeSheetLineAssembDetail.SetParameters(Rec);
-                    if TimeSheetLineAssembDetail.RunModal = ACTION::OK then
+                    if TimeSheetLineAssembDetail.RunModal() = ACTION::OK then
                         TimeSheetLineAssembDetail.GetRecord(Rec);
                 end;
             else
                 Error(Text005);
         end;
-        Modify;
+        Modify();
     end;
 
     procedure GetAllowEdit(FldNo: Integer; ManagerRole: Boolean) AllowEdit: Boolean

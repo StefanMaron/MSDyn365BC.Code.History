@@ -23,13 +23,13 @@ page 9263 "Contract Gain/Loss Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Name';
@@ -449,16 +449,16 @@ page 9263 "Contract Gain/Loss Matrix"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetDateFilter;
-        CalculateTotals;
+        SetDateFilter();
+        CalculateTotals();
     end;
 
     trigger OnAfterGetRecord()
     var
         MATRIX_CurrentColumnOrdinal: Integer;
     begin
-        SetDateFilter;
-        CalculateTotals;
+        SetDateFilter();
+        CalculateTotals();
         MATRIX_CurrentColumnOrdinal := 0;
         while MATRIX_CurrentColumnOrdinal < MATRIX_CurrentNoOfMatrixColumn do begin
             MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
@@ -610,7 +610,7 @@ page 9263 "Contract Gain/Loss Matrix"
     local procedure CalculateMovement("Code": Code[10]): Decimal
     begin
         if ReasonCode.Get(Code) then begin
-            SetDateFilter;
+            SetDateFilter();
             ReasonCode.CalcFields("Contract Gain/Loss Amount");
             exit(ReasonCode."Contract Gain/Loss Amount");
         end;
@@ -675,7 +675,7 @@ page 9263 "Contract Gain/Loss Matrix"
             MATRIX_CellData[Ordinal] := ''
         else
             MATRIX_CellData[Ordinal] := Format(Amount, 0, Text000);
-        SetVisible;
+        SetVisible();
     end;
 
     procedure SetVisible()

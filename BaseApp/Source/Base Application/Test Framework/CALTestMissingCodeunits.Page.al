@@ -36,15 +36,23 @@ page 130404 "CAL Test Missing Codeunits"
                 ApplicationArea = All;
                 Caption = 'Retry';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 begin
                     if FindFirst() then
                         CALTestMgt.AddMissingTestCodeunits(Rec, CurrentTestSuite);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Retry_Promoted; Retry)
+                {
+                }
             }
         }
     }

@@ -105,12 +105,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 1767462481 - NamedType 3726603109" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>It is not possible to have the Uri %1 in a field with a length of %2.</source>
-          <target state="translated">Non è possibile specificare l'URI %1 in un campo di lunghezza %2.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - NamedType ExceedingLenghtErr</note>
-        </trans-unit>
         <trans-unit id="Table 1767462481 - NamedType 3788244515" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <target state="translated">È necessario specificare una chiave API e un URI API nella pagina Setup previsione vendite e magazzino.</target>
@@ -249,6 +243,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 3120113686" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Let Business Central analyze historical data to predict future demand, so you can base procurement decisions on accurate and reliable forecasts, and help your company avoid lost revenue, optimize shipping costs, discover trends, and boost your brand reputation by always delivering on orders. Set it up now.</source>
+          <target state="translated">Consentire a Business Central di analizzare i dati storici per prevedere la domanda futura, in modo da poter basare le decisioni di approvvigionamento su previsioni accurate e affidabili e aiutare la società a evitare perdite di ricavi, ottimizzare i costi di spedizione, scoprire le tendenze e migliorare la reputazione del marchio consegnando sempre gli ordini. È possibile impostare ora.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 473299602" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales &amp; Inventory Forecast</source>
+          <target state="translated">Vendite e previsione magazzino</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 805279096" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Sales &amp; Inventory Forecast</source>
+          <target state="translated">Imposta vendite e previsione magazzino</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 3788244515" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <target state="translated">È necessario specificare una chiave API e un URI API nella pagina Setup previsione vendite e magazzino.</target>
@@ -380,6 +392,12 @@
           <target state="translated">Previsione magazzino</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType InventoryForecastTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 212368089" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Updated %1</source>
+          <target state="translated">Ultimo aggiornamento: %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Last updated date</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType LastUpdatedTxt</note>
         </trans-unit>
         <trans-unit id="Page 3449274493 - NamedType 16175266" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales forecast not available.</source>
@@ -778,6 +796,13 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1434786627</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2565734565 - Action 1676605102 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies to update the sales forecast.</source>
+          <target state="translated">Specifica di aggiornare la previsione vendite.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1434786627</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2565734565 - Action 1676605102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update Sales Forecast</source>
           <target state="translated">Aggiorna previsione vendite</target>
@@ -788,6 +813,13 @@
         <trans-unit id="PageExtension 2261635039 - Action 3452445781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Forecast</source>
           <target state="translated">Previsione</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4178721393</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2261635039 - Action 1676605102 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies to update the sales forecast.</source>
+          <target state="translated">Specifica di aggiornare la previsione vendite.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4178721393</note>

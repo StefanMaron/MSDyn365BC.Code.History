@@ -15,7 +15,7 @@ report 5202 "Employee - Misc. Article Info."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Misc__Article_Information__TABLECAPTION__________MiscArticleFilter; TableCaption + ': ' + MiscArticleFilter)
@@ -27,7 +27,7 @@ report 5202 "Employee - Misc. Article Info."
             column(Misc__Article_Information__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Employee.FullName)
+            column(Employee_FullName; Employee.FullName())
             {
             }
             column(Misc__Article_Information__Misc__Article_Code_; "Misc. Article Code")
@@ -81,7 +81,7 @@ report 5202 "Employee - Misc. Article Info."
 
     trigger OnPreReport()
     begin
-        MiscArticleFilter := "Misc. Article Information".GetFilters;
+        MiscArticleFilter := "Misc. Article Information".GetFilters();
     end;
 
     var

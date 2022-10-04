@@ -22,12 +22,13 @@ codeunit 6112 "Customer Data Migration Facade"
     end;
 
     var
-        InternalCustomerNotSetErr: Label 'Internal Customer is not set. Create it first.';
         GlobalCustomer: Record Customer;
         GlobalGenJournalLine: Record "Gen. Journal Line";
         DataMigrationFacadeHelper: Codeunit "Data Migration Facade Helper";
         CustomerIsSet: Boolean;
         GenJournalLineIsSet: Boolean;
+
+        InternalCustomerNotSetErr: Label 'Internal Customer is not set. Create it first.';
         InternalGenJournalLineNotSetErr: Label 'Internal Gen. Journal Line is not set. Create it first.';
         InternalCustomerPostingSetupNotSetErr: Label 'Internal Customer Posting Setup is not set. Create it first.';
 

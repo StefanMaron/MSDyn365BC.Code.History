@@ -1,7 +1,7 @@
 page 5430 "Planning Error Log"
 {
     Caption = 'Planning Error Log';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = "Planning Error Log";
@@ -13,12 +13,12 @@ page 5430 "Planning Error Log"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item number associated with this entry.';
                 }
-                field("Error Description"; "Error Description")
+                field("Error Description"; Rec."Error Description")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the description to the error in this entry.';
@@ -49,14 +49,23 @@ page 5430 "Planning Error Log"
                 ApplicationArea = Planning;
                 Caption = '&Show';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the log details.';
 
                 trigger OnAction()
                 begin
-                    ShowError;
+                    ShowError();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show_Promoted"; "&Show")
+                {
+                }
             }
         }
     }

@@ -2,7 +2,6 @@ page 379 "Bank Acc. Reconciliation"
 {
     Caption = 'Bank Acc. Reconciliation';
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Bank,Matching,Posting';
     SaveValues = false;
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = WHERE("Statement Type" = CONST("Bank Reconciliation"));
@@ -104,8 +103,6 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Bank Account Card";
                     RunPageLink = "No." = FIELD("Bank Account No.");
                     ShortCutKey = 'Shift+F7';
@@ -125,9 +122,6 @@ page 379 "Bank Acc. Reconciliation"
                     Caption = 'Suggest Lines';
                     Ellipsis = true;
                     Image = SuggestLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create bank account ledger entries suggestions and enter them automatically.';
 
                     trigger OnAction()
@@ -144,9 +138,6 @@ page 379 "Bank Acc. Reconciliation"
                     Caption = 'Show Reversed Entries';
                     Ellipsis = true;
                     Image = ReverseLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Include reversed bank account ledger entries in the list of suggestions.';
 
                     trigger OnAction()
@@ -160,10 +151,7 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Hide Reversed Entries';
                     Ellipsis = true;
-                    Promoted = true;
                     Image = FilterLines;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Hide unmatched reversed bank account ledger entries up to the statement date.';
 
                     trigger OnAction()
@@ -178,9 +166,6 @@ page 379 "Bank Acc. Reconciliation"
                     Caption = 'Transfer to General Journal';
                     Ellipsis = true;
                     Image = TransferToGeneralJournal;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Transfer the lines from the current window to the general journal.';
 
                     trigger OnAction()
@@ -191,7 +176,7 @@ page 379 "Bank Acc. Reconciliation"
                         TempBankAccReconciliationLine.Setrange(Difference, 0);
                         TempBankAccReconciliationLine.DeleteAll();
                         TempBankAccReconciliationLine.Setrange(Difference);
-                        if TempBankAccReconciliationLine.IsEmpty then
+                        if TempBankAccReconciliationLine.IsEmpty() then
                             error(NoBankAccReconcilliationLineWithDiffSellectedErr);
                         TransferToGLJnl.SetBankAccReconLine(TempBankAccReconciliationLine);
                         TransferToGLJnl.SetBankAccRecon(Rec);
@@ -229,15 +214,12 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import Bank Statement';
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Import electronic bank statements from your bank to populate with data about actual bank transactions.';
 
                     trigger OnAction()
                     begin
                         CurrPage.Update();
-                        ImportBankStatement;
+                        ImportBankStatement();
                         CheckStatementDate();
                         UpdateBankAccountLedgerEntrySubpage("Statement Date");
                         RecallEmptyListNotification();
@@ -252,9 +234,6 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Match Automatically';
                     Image = MapAccounts;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Automatically search for and match bank statement lines.';
 
                     trigger OnAction()
@@ -270,9 +249,6 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Match Manually';
                     Image = CheckRulesSyntax;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Manually match selected lines in both panes to link each bank statement line to one or more related bank account ledger entries.';
 
                     trigger OnAction()
@@ -291,9 +267,6 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Match';
                     Image = RemoveContacts;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove selection of matched bank statement lines.';
 
                     trigger OnAction()
@@ -312,9 +285,6 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Match Details';
                     Image = ViewDetails;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Show matching details about the selected bank statement line.';
 
                     trigger OnAction()
@@ -366,7 +336,10 @@ page 379 "Bank Acc. Reconciliation"
                     ToolTip = 'Preview the resulting bank account reconciliations to see the consequences before you perform the actual posting.';
 
                     trigger OnAction()
+                    var
+                        BankAccRecTestRepVisible: Codeunit "Bank Acc.Rec.Test Rep. Visible";
                     begin
+                        BindSubscription(BankAccRecTestRepVisible);
                         ReportPrint.PrintBankAccRecon(Rec);
                     end;
                 }
@@ -375,9 +348,6 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Bank Acc. Recon. Post (Yes/No)";
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
@@ -387,13 +357,88 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Bank Acc. Recon. Post+Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Transfer to General Journal_Promoted"; "Transfer to General Journal")
+                {
+                }
+                actionref(SuggestLines_Promoted; SuggestLines)
+                {
+                }
+                group(Category_Category6)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(PostAndPrint_Promoted; PostAndPrint)
+                    {
+                    }
+                    actionref("&Test Report_Promoted"; "&Test Report")
+                    {
+                    }
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ImportBankStatement_Promoted; ImportBankStatement)
+                {
+                }
+                actionref("&Card_Promoted"; "&Card")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Matching', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(MatchManually_Promoted; MatchManually)
+                {
+                }
+                actionref(MatchAutomatically_Promoted; MatchAutomatically)
+                {
+                }
+                actionref(RemoveMatch_Promoted; RemoveMatch)
+                {
+                }
+                actionref(MatchDetails_Promoted; MatchDetails)
+                {
+                }
+            }
+            group(Category_Show)
+            {
+                Caption = 'Show';
+
+                actionref(All_Promoted; All)
+                {
+                }
+                actionref(ShowReversedEntries_Promoted; ShowReversedEntries)
+                {
+                }
+                actionref(HideReversedEntries_Promoted; HideReversedEntries)
+                {
+                }
+                actionref(NotMatched_Promoted; NotMatched)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -428,7 +473,7 @@ page 379 "Bank Acc. Reconciliation"
         ImportBankStatementNotification: Notification;
     begin
         ImportBankStatementNotification.Id := GetImportBankStatementNotificatoinId();
-        if ImportBankStatementNotification.Recall then;
+        if ImportBankStatementNotification.Recall() then;
         if not BankAccReconciliationLine.BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
             exit;
 
@@ -442,7 +487,7 @@ page 379 "Bank Acc. Reconciliation"
         ImportBankStatementNotification: Notification;
     begin
         ImportBankStatementNotification.Id := GetImportBankStatementNotificatoinId();
-        if ImportBankStatementNotification.Recall then;
+        if ImportBankStatementNotification.Recall() then;
     end;
 
     local procedure CheckStatementDate()

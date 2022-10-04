@@ -604,7 +604,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         asserterror RunCancelFALedgerEntry('', '', false);
 
         // 3. Verify: Verify error occurs on Running Cancel FA Ledger Entry Report without Depreciation Book Code.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookError, DepreciationBook.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DepreciationBookError, DepreciationBook.TableCaption()));
     end;
 
     [Test]
@@ -814,9 +814,9 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         // 3. Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            DimensionValueError, GenJournalLine.TableCaption, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+            DimensionValueError, GenJournalLine.TableCaption(), GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
             GenJournalLine."Line No.", DefaultDimension.FieldCaption("Dimension Value Code"),
-            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", GLAccount.TableCaption,
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", GLAccount.TableCaption(),
             GenJournalLine."Bal. Account No."));
     end;
 
@@ -1172,7 +1172,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGLAccountWithDimension(DefaultDimension);
         CreateFixedAssetDepreciation(FADepreciationBook);
-        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Depreciation);
+        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Depreciation.AsInteger());
         UpdateAccountNoInFAAllocation(FAAllocation, DefaultDimension."No.");
         CreateGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
@@ -1215,7 +1215,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGLAccountWithDimension(DefaultDimension);
         CreateFixedAssetDepreciation(FADepreciationBook);
-        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Depreciation);
+        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Depreciation.AsInteger());
         UpdateAccountNoInFAAllocation(FAAllocation, DefaultDimension."No.");
         CreateGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
@@ -1306,9 +1306,9 @@ codeunit 134478 "ERM Dimension Fixed Assets"
             LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
             FAAllocation.Validate(
               "Dimension Set ID", LibraryDimension.CreateDimSet(FAAllocation."Dimension Set ID", Dimension.Code, DimensionValue.Code));
-            Dimension.Next;
+            Dimension.Next();
             FAAllocation.Modify(true);
-        until FAAllocation.Next = 0;
+        until FAAllocation.Next() = 0;
     end;
 
     local procedure AttachDimensionOnFixedAsset(var DimensionValue: Record "Dimension Value"; FixedAssetNo: Code[20])
@@ -1421,8 +1421,8 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
         FAJournalLine.Validate("Document No.", FADepreciationBook."FA No.");
-        FAJournalLine.Validate("Posting Date", WorkDate);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
         FAJournalLine.Validate("FA No.", FADepreciationBook."FA No.");
         FAJournalLine.Validate(Amount, Amount);
@@ -1673,7 +1673,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
     local procedure CalculateDepreciationDateAfterOneYear(): Date
     begin
-        exit(CalcDate('<1Y>', WorkDate));
+        exit(CalcDate('<1Y>', WorkDate()));
     end;
 
     local procedure DeleteDefaultDimensionPriorities(SourceCode: Code[10])
@@ -1736,7 +1736,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FAJournalLine: Record "FA Journal Line";
     begin
         FAJournalLine.SetRange("FA No.", FANo);
-        exit(FAJournalLine.FindFirst);
+        exit(FAJournalLine.FindFirst())
     end;
 
     local procedure FindGeneralJournalLine(AccountNo: Code[20]): Boolean
@@ -1744,7 +1744,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Account No.", AccountNo);
-        exit(GenJournalLine.FindFirst);
+        exit(GenJournalLine.FindFirst())
     end;
 
     local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20])
@@ -1895,7 +1895,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         Clear(CancelFALedgerEntries);
         FixedAsset.SetRange("No.", No);
         CancelFALedgerEntries.SetTableView(FixedAsset);
-        CancelFALedgerEntries.InitializeRequest(DepreciationBookCode, WorkDate, WorkDate, false, 0D, No, FixedAsset.Description, BalAccount);
+        CancelFALedgerEntries.InitializeRequest(DepreciationBookCode, WorkDate(), WorkDate, false, 0D, No, FixedAsset.Description, BalAccount);
         CancelFALedgerEntries.SetCancelAcquisitionCost(true);
         CancelFALedgerEntries.SetCancelDepreciation(true);
         CancelFALedgerEntries.UseRequestPage(false);
@@ -1936,7 +1936,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FixedAsset.SetRange("No.", No);
         CopyDepreciationBook.SetTableView(FixedAsset);
         CopyDepreciationBook.InitializeRequest(
-          DepreciationBookCode, DepreciationBookCode2, WorkDate, CalculateDepreciationDateAfterOneYear, No, FixedAsset.Description, false);
+          DepreciationBookCode, DepreciationBookCode2, WorkDate(), CalculateDepreciationDateAfterOneYear, No, FixedAsset.Description, false);
         CopyDepreciationBook.SetCopyAcquisitionCost(true);
         CopyDepreciationBook.UseRequestPage(false);
         CopyDepreciationBook.Run();
@@ -1950,7 +1950,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         Clear(IndexFixedAssets);
         FixedAsset.SetRange("No.", No);
         IndexFixedAssets.SetTableView(FixedAsset);
-        IndexFixedAssets.InitializeRequest(DepreciationBookCode, LibraryRandom.RandInt(100), WorkDate, 0D, No, No, BalAccount);  // Using Random Value for Index.
+        IndexFixedAssets.InitializeRequest(DepreciationBookCode, LibraryRandom.RandInt(100), WorkDate(), 0D, No, No, BalAccount);  // Using Random Value for Index.
         IndexFixedAssets.SetIndexAcquisitionCost(true);
         IndexFixedAssets.SetIndexDepreciation(true);
         IndexFixedAssets.UseRequestPage(false);
@@ -1965,7 +1965,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         Clear(IndexInsurance);
         FixedAsset.SetRange("No.", No);
         IndexInsurance.SetTableView(FixedAsset);
-        IndexInsurance.InitializeRequest(No, No, WorkDate, LibraryRandom.RandInt(100));  // Using Random Value for Index Figure.
+        IndexInsurance.InitializeRequest(No, No, WorkDate(), LibraryRandom.RandInt(100));  // Using Random Value for Index Figure.
         IndexInsurance.UseRequestPage(false);
         IndexInsurance.Run();
     end;
@@ -1996,14 +1996,14 @@ codeunit 134478 "ERM Dimension Fixed Assets"
             FAAllocation.Validate("Account No.", GLAccount."No.");
             FAAllocation.Validate("Allocation %", LibraryRandom.RandInt(20));
             FAAllocation.Modify(true);
-            GLAccount.Next;
-        until FAAllocation.Next = 0;
+            GLAccount.Next();
+        until FAAllocation.Next() = 0;
     end;
 
     local procedure UpdateDateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationBookCode: Code[10])
     begin
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         FADepreciationBook.Validate("Depreciation Ending Date", CalculateDepreciationDateAfterOneYear);
         FADepreciationBook.Modify(true);
@@ -2023,7 +2023,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
 
     local procedure UpdateFAReclassJournal(var FAReclassJournalLine: Record "FA Reclass. Journal Line"; FANo: Code[20]; NewFANo: Code[20])
     begin
-        FAReclassJournalLine.Validate("FA Posting Date", WorkDate);
+        FAReclassJournalLine.Validate("FA Posting Date", WorkDate());
         FAReclassJournalLine.Validate("Document No.", FANo);
         FAReclassJournalLine.Validate("FA No.", FANo);
         FAReclassJournalLine.Validate("New FA No.", NewFANo);
@@ -2068,7 +2068,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         CreateFixedAssetDepreciation(FADepreciationBook);
 
-        InsuranceJournalLine.Validate("Posting Date", WorkDate);
+        InsuranceJournalLine.Validate("Posting Date", WorkDate());
         InsuranceJournalLine.Validate("Document No.", FADepreciationBook."FA No.");
         InsuranceJournalLine.Validate("FA No.", FADepreciationBook."FA No.");
         InsuranceJournalLine.Validate("Insurance No.", InsuranceNo);
@@ -2143,7 +2143,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
             FAJournalLine.FindFirst();
             FAJournalLine.TestField("FA No.", FALedgerEntry."FA No.");
             FAJournalLine.TestField(Amount, -FALedgerEntry.Amount);
-        until FALedgerEntry.Next = 0;
+        until FALedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyCancelGenJournalLines(FANo: Code[20])
@@ -2158,7 +2158,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
             GenJournalLine.FindFirst();
             GenJournalLine.TestField("Account No.", FALedgerEntry."FA No.");
             GenJournalLine.TestField(Amount, -FALedgerEntry.Amount);
-        until FALedgerEntry.Next = 0;
+        until FALedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionCodeAndValue(FAAllocation: Record "FA Allocation"; GenJournalLine: Record "Gen. Journal Line")
@@ -2188,7 +2188,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         GenJournalLine.FindFirst();
         repeat
             VerifyDimensionCodeAndValue(FAAllocation, GenJournalLine);
-        until FAAllocation.Next = 0;
+        until FAAllocation.Next() = 0;
     end;
 
     local procedure VerifyDimensionOnGLJournal(DocumentNo: Code[20]; "Code": Code[20]; AllocationType: Option)
@@ -2204,7 +2204,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
             GenJournalLine.SetRange("Account No.", FAAllocation."Account No.");
             GenJournalLine.FindFirst();
             GenJournalLine.TestField("Dimension Set ID", FAAllocation."Dimension Set ID");
-        until FAAllocation.Next = 0;
+        until FAAllocation.Next() = 0;
     end;
 
     local procedure VerifyDimensionValueOnGLJournal(DocumentNo: Code[20]; AccountNo: Code[20]; DimensionValue: Record "Dimension Value")

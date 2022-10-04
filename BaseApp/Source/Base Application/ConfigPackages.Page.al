@@ -6,7 +6,6 @@ page 8615 "Config. Packages"
     CardPageID = "Config. Package Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage,Package';
     SourceTable = "Config. Package";
     UsageCategory = Lists;
 
@@ -22,42 +21,42 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the configuration package.';
                 }
-                field("Package Name"; "Package Name")
+                field("Package Name"; Rec."Package Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the package.';
                 }
-                field("Language ID"; "Language ID")
+                field("Language ID"; Rec."Language ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the Windows language to use for the configuration package. Choose the field and select a language ID from the list.';
                 }
-                field("Product Version"; "Product Version")
+                field("Product Version"; Rec."Product Version")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the version of the product that you are configuring. You can use this field to help differentiate among various versions of a solution.';
                 }
-                field("Processing Order"; "Processing Order")
+                field("Processing Order"; Rec."Processing Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the order in which the package is to be processed.';
                 }
-                field("Exclude Config. Tables"; "Exclude Config. Tables")
+                field("Exclude Config. Tables"; Rec."Exclude Config. Tables")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to exclude configuration tables from the package. Select the check box to exclude these types of tables.';
                 }
-                field("No. of Tables"; "No. of Tables")
+                field("No. of Tables"; Rec."No. of Tables")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of tables that the package contains.';
                 }
-                field("No. of Records"; "No. of Records")
+                field("No. of Records"; Rec."No. of Records")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of records in the package.';
                 }
-                field("No. of Errors"; "No. of Errors")
+                field("No. of Errors"; Rec."No. of Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of errors that the package contains.';
@@ -80,16 +79,13 @@ page 8615 "Config. Packages"
                     Caption = 'Get Tables';
                     Ellipsis = true;
                     Image = GetLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Select tables that you want to add to the configuration package.';
 
                     trigger OnAction()
                     var
                         GetPackageTables: Report "Get Package Tables";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         GetPackageTables.Set(Code);
                         GetPackageTables.RunModal();
                         Clear(GetPackageTables);
@@ -102,9 +98,6 @@ page 8615 "Config. Packages"
                     Caption = 'Export Package';
                     Ellipsis = true;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a .rapidstart file that which delivers the package contents in a compressed format. Configuration questionnaires, configuration templates, and the configuration worksheet are added to the package automatically unless you specifically decide to exclude them.';
 
                     trigger OnAction()
@@ -119,14 +112,11 @@ page 8615 "Config. Packages"
                     Caption = 'Import Package';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import a .rapidstart package file.';
 
                     trigger OnAction()
                     begin
-                        ConfigXMLExchange.ImportPackageXMLFromClient;
+                        ConfigXMLExchange.ImportPackageXMLFromClient();
                     end;
                 }
                 action(ImportPredefinedPackage)
@@ -135,9 +125,6 @@ page 8615 "Config. Packages"
                     Caption = 'Import Predefined Package';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import one of the preloaded files with packages, such as Evaluation or Standard.';
                     Visible = ImportPredefinedPackageVisible;
 
@@ -150,7 +137,7 @@ page 8615 "Config. Packages"
                         InStream: InStream;
                     begin
                         ConfigurationPackageFiles.LookupMode(true);
-                        if ConfigurationPackageFiles.RunModal <> ACTION::LookupOK then
+                        if ConfigurationPackageFiles.RunModal() <> ACTION::LookupOK then
                             exit;
 
                         ConfigurationPackageFiles.GetRecord(ConfigurationPackageFile);
@@ -165,8 +152,6 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Export the data in the package to Excel.';
 
                     trigger OnAction()
@@ -187,15 +172,13 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import from Excel';
                     Image = ImportExcel;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Begin the migration of legacy data.';
 
                     trigger OnAction()
                     var
                         ConfigExcelExchange: Codeunit "Config. Excel Exchange";
                     begin
-                        ConfigExcelExchange.ImportExcelFromPackage;
+                        ConfigExcelExchange.ImportExcelFromPackage();
                     end;
                 }
             }
@@ -208,9 +191,6 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Package';
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import the configuration package and apply the package database data at the same time.';
 
                     trigger OnAction()
@@ -248,9 +228,6 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Validate Package';
                     Image = CheckRulesSyntax;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Determine if you have introduced errors, such as not including tables that the configuration relies on.';
 
                     trigger OnAction()
@@ -273,25 +250,25 @@ page 8615 "Config. Packages"
                             ConfigPackageTable.SetCurrentKey("Package Processing Order", "Processing Order");
 
                             Sleep(1000);
-                            while not Canceled and ActiveSession.Get(ServiceInstanceId, BackgroundSessionId) and ConfigPackageTable.FindFirst do begin
+                            while not Canceled and ActiveSession.Get(ServiceInstanceId(), BackgroundSessionId) and ConfigPackageTable.FindFirst() do begin
                                 ConfigPackageTable.CalcFields("Table Name");
                                 Canceled := not ConfigProgressBar.UpdateCount(ConfigPackageTable."Table Name", ConfigPackageTable.Count);
                                 Sleep(1000);
                             end;
 
-                            if ActiveSession.Get(ServiceInstanceId, BackgroundSessionId) then
+                            if ActiveSession.Get(ServiceInstanceId(), BackgroundSessionId) then
                                 StopSession(BackgroundSessionId, ValidationCanceledMsg);
 
                             if not Canceled and ConfigPackageTable.FindFirst() then begin
                                 SessionEvent.SetAscending("Event Datetime", true);
                                 SessionEvent.SetRange("User ID", UserId);
-                                SessionEvent.SetRange("Server Instance ID", ServiceInstanceId);
+                                SessionEvent.SetRange("Server Instance ID", ServiceInstanceId());
                                 SessionEvent.SetRange("Session ID", BackgroundSessionId);
                                 SessionEvent.FindLast();
                                 Message(SessionEvent.Comment);
                             end;
 
-                            ConfigProgressBar.Close;
+                            ConfigProgressBar.Close();
                         end;
                     end;
                 }
@@ -317,6 +294,66 @@ page 8615 "Config. Packages"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Import)
+                {
+                    Caption = 'Import';
+                    ShowAs = SplitButton;
+
+                    actionref(ImportPackage_Promoted; ImportPackage)
+                    {
+                    }
+                    actionref(ImportFromExcel_Promoted; ImportFromExcel)
+                    {
+                    }
+                    actionref(ImportPredefinedPackage_Promoted; ImportPredefinedPackage)
+                    {
+                    }
+                }
+                group(Category_Category5)
+                {
+                    Caption = 'Package', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                    actionref(ApplyPackage_Promoted; ApplyPackage)
+                    {
+                    }
+                    actionref(ValidatePackage_Promoted; ValidatePackage)
+                    {
+                    }
+                    actionref(CopyPackage_Promoted; CopyPackage)
+                    {
+                    }
+                }
+                group(Category_Export)
+                {
+                    Caption = 'Export';
+                    ShowAs = SplitButton;
+
+                    actionref(ExportPackage_Promoted; ExportPackage)
+                    {
+                    }
+                    actionref(ExportToExcel_Promoted; ExportToExcel)
+                    {
+                    }
+                }
+                actionref(GetTables_Promoted; GetTables)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -326,7 +363,7 @@ page 8615 "Config. Packages"
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         FeatureTelemetry.LogUptake('0000E3A', 'Configuration packages', Enum::"Feature Uptake Status"::Discovered);
-        ImportPredefinedPackageVisible := not ConfigurationPackageFile.IsEmpty;
+        ImportPredefinedPackageVisible := not ConfigurationPackageFile.IsEmpty();
         ConfigPackageMgt.ShowRapidStartNotification();
     end;
 

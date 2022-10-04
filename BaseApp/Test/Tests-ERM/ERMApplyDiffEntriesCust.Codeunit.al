@@ -83,12 +83,12 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         Assert.AreNearlyEqual(
           RemainingAmount, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(ErrorMessage, CustLedgerEntry.FieldCaption("Remaining Amount"), RemainingAmount,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
 
         Assert.AreNearlyEqual(
           PaymentDiscountAmount, CustLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(ErrorMessage, CustLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), PaymentDiscountAmount,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
 
         VerifyDtldCustomerLedgerEntry(
           GenJournalLine."Document No.", DetailedCustLedgEntry."Entry Type"::Application, -AmountFCY,
@@ -140,7 +140,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         Assert.AreNearlyEqual(
           -RemainingAmount, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(ErrorMessage, CustLedgerEntry.FieldCaption("Remaining Amount"), RemainingAmount,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
 
         VerifyDtldCustomerLedgerEntry(
           GenJournalLine."Document No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount", -RemainingAmount,
@@ -217,7 +217,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
             CustLedgerEntry.CalcFields("Remaining Amount");
             CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
             CustLedgerEntry.Modify(true);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
         SetAppliesToIDAndPostEntry(CustLedgerEntry, ApplyingCustLedgerEntry);
     end;
 
@@ -234,7 +234,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
         SetAppliesToIDAndPostEntry(CustLedgerEntry2, CustLedgerEntry);
     end;
 
@@ -345,7 +345,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         Assert.AreNearlyEqual(
           AmountLCY, DetailedCustLedgEntry."Amount (LCY)", InvRoundingPrecisionLCY,
           StrSubstNo(ErrorMessage, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), AmountLCY,
-            DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+            DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyUnapplyGLEntry(DocumentNo: Code[20])
@@ -359,7 +359,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         GLEntry.FindSet();
         repeat
             GLEntry.TestField("Document Type", GLEntry."Document Type"::Payment);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     [ModalPageHandler]

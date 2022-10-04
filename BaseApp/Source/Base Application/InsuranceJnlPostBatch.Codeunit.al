@@ -6,15 +6,11 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
     trigger OnRun()
     begin
         InsuranceJnlLine.Copy(Rec);
-        Code;
+        Code();
         Rec := InsuranceJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-        Text004: Label 'A maximum of %1 posting number series can be used in each journal.';
         InsuranceJnlLine: Record "Insurance Journal Line";
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlBatch: Record "Insurance Journal Batch";
@@ -22,7 +18,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         InsuranceJnlLine2: Record "Insurance Journal Line";
         InsuranceJnlLine3: Record "Insurance Journal Line";
-        NoSeries: Record "No. Series" temporary;
+        TempNoSeries: Record "No. Series" temporary;
         FAJnlSetup: Record "FA Journal Setup";
         InsuranceJnlPostLine: Codeunit "Insurance Jnl.-Post Line";
         InsuranceJnlCheckLine: Codeunit "Insurance Jnl.-Check Line";
@@ -38,6 +34,11 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
         LastPostedDocNo: Code[20];
         NoOfPostingNoSeries: Integer;
         PostingNoSeriesNo: Integer;
+
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text004: Label 'A maximum of %1 posting number series can be used in each journal.';
 
     local procedure "Code"()
     var
@@ -107,18 +108,18 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                         if "Document No." = LastDocNo then
                             "Document No." := LastPostedDocNo
                         else begin
-                            if not NoSeries.Get("Posting No. Series") then begin
+                            if not TempNoSeries.Get("Posting No. Series") then begin
                                 NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
                                 if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
                                     Error(
                                       Text004,
                                       ArrayLen(NoSeriesMgt2));
-                                NoSeries.Code := "Posting No. Series";
-                                NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert();
+                                TempNoSeries.Code := "Posting No. Series";
+                                TempNoSeries.Description := Format(NoOfPostingNoSeries);
+                                TempNoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
-                            Evaluate(PostingNoSeriesNo, NoSeries.Description);
+                            Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
                             "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "Posting Date", false);
                             LastPostedDocNo := "Document No.";
                         end;
@@ -130,7 +131,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
             if InsuranceReg."No." <> InsuranceRegNo then
                 InsuranceRegNo := 0;
 
-            Init;
+            Init();
             "Line No." := InsuranceRegNo;
 
             // Update/delete lines
@@ -167,12 +168,12 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 end;
             end;
             if InsuranceJnlBatch."No. Series" <> '' then
-                NoSeriesMgt.SaveNoSeries;
-            if NoSeries.Find('-') then
+                NoSeriesMgt.SaveNoSeries();
+            if TempNoSeries.Find('-') then
                 repeat
-                    Evaluate(PostingNoSeriesNo, NoSeries.Description);
-                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next() = 0;
+                    Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries();
+                until TempNoSeries.Next() = 0;
 
             Commit();
             Clear(InsuranceJnlCheckLine);

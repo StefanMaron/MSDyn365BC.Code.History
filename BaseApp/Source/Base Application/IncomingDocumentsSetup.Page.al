@@ -12,17 +12,17 @@ page 191 "Incoming Documents Setup"
     {
         area(content)
         {
-            field("General Journal Template Name"; "General Journal Template Name")
+            field("General Journal Template Name"; Rec."General Journal Template Name")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the type of the general journal that new journal lines are created in when you choose the Journal Line button in the Incoming Documents window.';
             }
-            field("General Journal Batch Name"; "General Journal Batch Name")
+            field("General Journal Batch Name"; Rec."General Journal Batch Name")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the subtype of the general journal that new journal lines are created in when you choose the Journal Line button in the Incoming Documents window.';
             }
-            field("Require Approval To Create"; "Require Approval To Create")
+            field("Require Approval To Create"; Rec."Require Approval To Create")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies whether the incoming document line must be approved before a document or journal line can be created from the Incoming Documents window.';
@@ -39,21 +39,30 @@ page 191 "Incoming Documents Setup"
                 ApplicationArea = Suite;
                 Caption = 'Approvers';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Incoming Document Approvers";
                 ToolTip = 'View or add incoming document approvers.';
                 Visible = false;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Approvers_Promoted; Approvers)
+                {
+                }
             }
         }
     }
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

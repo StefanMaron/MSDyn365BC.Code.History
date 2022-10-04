@@ -88,7 +88,7 @@ page 5830 "Demand Overview"
                                     SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
                                     SalesList.SetTableView(SalesHeader);
                                     SalesList.LookupMode := true;
-                                    if SalesList.RunModal = ACTION::LookupOK then begin
+                                    if SalesList.RunModal() = ACTION::LookupOK then begin
                                         SalesList.GetRecord(SalesHeader);
                                         Text := SalesHeader."No.";
                                         exit(true);
@@ -100,7 +100,7 @@ page 5830 "Demand Overview"
                                     ProdOrder.SetRange(Status, ProdOrder.Status::Planned, ProdOrder.Status::Released);
                                     ProdOrderList.SetTableView(ProdOrder);
                                     ProdOrderList.LookupMode := true;
-                                    if ProdOrderList.RunModal = ACTION::LookupOK then begin
+                                    if ProdOrderList.RunModal() = ACTION::LookupOK then begin
                                         ProdOrderList.GetRecord(ProdOrder);
                                         Text := ProdOrder."No.";
                                         exit(true);
@@ -112,7 +112,7 @@ page 5830 "Demand Overview"
                                     ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
                                     ServiceOrders.SetTableView(ServHeader);
                                     ServiceOrders.LookupMode := true;
-                                    if ServiceOrders.RunModal = ACTION::LookupOK then begin
+                                    if ServiceOrders.RunModal() = ACTION::LookupOK then begin
                                         ServiceOrders.GetRecord(ServHeader);
                                         Text := ServHeader."No.";
                                         exit(true);
@@ -124,7 +124,7 @@ page 5830 "Demand Overview"
                                     Job.SetRange(Status, Job.Status::Open);
                                     JobList.SetTableView(Job);
                                     JobList.LookupMode := true;
-                                    if JobList.RunModal = ACTION::LookupOK then begin
+                                    if JobList.RunModal() = ACTION::LookupOK then begin
                                         JobList.GetRecord(Job);
                                         Text := Job."No.";
                                         exit(true);
@@ -136,7 +136,7 @@ page 5830 "Demand Overview"
                                     AsmHeader.SetRange("Document Type", AsmHeader."Document Type"::Order);
                                     AsmOrders.SetTableView(AsmHeader);
                                     AsmOrders.LookupMode := true;
-                                    if AsmOrders.RunModal = ACTION::LookupOK then begin
+                                    if AsmOrders.RunModal() = ACTION::LookupOK then begin
                                         AsmOrders.GetRecord(AsmHeader);
                                         Text := AsmHeader."No.";
                                         exit(true);
@@ -165,7 +165,7 @@ page 5830 "Demand Overview"
                 IndentationControls = Type;
                 ShowAsTree = true;
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -174,7 +174,7 @@ page 5830 "Demand Overview"
                     StyleExpr = ItemNoEmphasize;
                     ToolTip = 'Specifies the identifier number for the item.';
                 }
-                field("Matches Criteria"; "Matches Criteria")
+                field("Matches Criteria"; Rec."Matches Criteria")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -204,7 +204,7 @@ page 5830 "Demand Overview"
                     Editable = false;
                     HideValue = SourceTypeHideValue;
                 }
-                field("Source Order Status"; "Source Order Status")
+                field("Source Order Status"; Rec."Source Order Status")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -212,7 +212,7 @@ page 5830 "Demand Overview"
                     ToolTip = 'Specifies the order status of the item for which availability is being calculated.';
                     Visible = false;
                 }
-                field("Source ID"; "Source ID")
+                field("Source ID"; Rec."Source ID")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -227,13 +227,13 @@ page 5830 "Demand Overview"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies the description of the item for which availability is being calculated.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the location code of the item for which availability is being calculated.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -255,7 +255,7 @@ page 5830 "Demand Overview"
                     Editable = false;
                     ToolTip = 'Specifies how many units of the demanded item are reserved.';
                 }
-                field("Running Total"; "Running Total")
+                field("Running Total"; Rec."Running Total")
                 {
                     ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Running Total");
@@ -265,7 +265,7 @@ page 5830 "Demand Overview"
                     StyleExpr = RunningTotalEmphasize;
                     ToolTip = 'Specifies the total count of items from inventory, supply, and demand.';
                 }
-                field("Inventory Running Total"; "Inventory Running Total")
+                field("Inventory Running Total"; Rec."Inventory Running Total")
                 {
                     ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Inventory Running Total");
@@ -276,7 +276,7 @@ page 5830 "Demand Overview"
                     ToolTip = 'Specifies the count of items in inventory.';
                     Visible = false;
                 }
-                field("Supply Running Total"; "Supply Running Total")
+                field("Supply Running Total"; Rec."Supply Running Total")
                 {
                     ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Supply Running Total");
@@ -287,7 +287,7 @@ page 5830 "Demand Overview"
                     ToolTip = 'Specifies the count of items in supply.';
                     Visible = false;
                 }
-                field("Demand Running Total"; "Demand Running Total")
+                field("Demand Running Total"; Rec."Demand Running Total")
                 {
                     ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Demand Running Total");
@@ -316,7 +316,7 @@ page 5830 "Demand Overview"
                         Item.SetRange(Type, Item.Type::Inventory);
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -342,7 +342,7 @@ page 5830 "Demand Overview"
                     begin
                         LocationList.SetTableView(Location);
                         LocationList.LookupMode := true;
-                        if LocationList.RunModal = ACTION::LookupOK then begin
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
                             LocationList.GetRecord(Location);
                             Text := Location.Code;
                             exit(true);
@@ -357,7 +357,7 @@ page 5830 "Demand Overview"
                 }
                 field(VariantFilter; VariantFilter)
                 {
-                    ApplicationArea = Planning, Service;
+                    ApplicationArea = Service, Planning;
                     Caption = 'Variant Filter';
                     ToolTip = 'Specifies the variant code or a filter on the variant code that you want to trace.';
 
@@ -369,7 +369,7 @@ page 5830 "Demand Overview"
                         ItemVariant.SetFilter("Item No.", ItemFilter);
                         ItemVariants.SetTableView(ItemVariant);
                         ItemVariants.LookupMode := true;
-                        if ItemVariants.RunModal = ACTION::LookupOK then begin
+                        if ItemVariants.RunModal() = ACTION::LookupOK then begin
                             ItemVariants.GetRecord(ItemVariant);
                             Text := ItemVariant.Code;
                             exit(true);
@@ -395,20 +395,29 @@ page 5830 "Demand Overview"
                 ApplicationArea = Planning;
                 Caption = 'Calculate';
                 Image = Calculate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Update the window with any demand. ';
 
                 trigger OnAction()
                 begin
                     CalculationOfDemand := true;
-                    InitTempTable;
+                    InitTempTable();
                     IsCalculated := true;
                     SetRange("Matches Criteria");
                     if MatchCriteria then
                         SetRange("Matches Criteria", true);
                     CurrPage.Update(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Calculate_Promoted; Calculate)
+                {
+                }
             }
         }
     }
@@ -456,7 +465,7 @@ page 5830 "Demand Overview"
 
     trigger OnOpenPage()
     begin
-        InitTempTable;
+        InitTempTable();
 
         SetRange("Matches Criteria");
         if MatchCriteria then
@@ -563,13 +572,13 @@ page 5830 "Demand Overview"
         CalcAvailOverview.SetParam(DemandType, DemandNo);
         CalcAvailOverview.Run(TempAvailCalcOverview);
         TempAvailCalcOverview.Reset();
-        Reset;
+        Reset();
         DeleteAll();
         if TempAvailCalcOverview.Find('-') then
             repeat
                 if TempAvailCalcOverview.Level = 0 then begin
                     Rec := TempAvailCalcOverview;
-                    Insert;
+                    Insert();
                 end;
             until TempAvailCalcOverview.Next() = 0;
         CopyFilters(AvailCalcOverviewFilters);
@@ -596,7 +605,7 @@ page 5830 "Demand Overview"
 
         // Fetching Items
         Window.Update(1, Text023);
-        Reset;
+        Reset();
         if Find('+') then
             repeat
                 if Type = Type::Item then begin
@@ -624,17 +633,17 @@ page 5830 "Demand Overview"
         if AvailCalcOverview.Find('-') then
             repeat
                 Rec := AvailCalcOverview;
-                Insert;
+                Insert();
             until AvailCalcOverview.Next() = 0;
 
-        Window.Close;
+        Window.Close();
         Copy(AvailCalcOverviewFilters);
         if Find('-') then;
     end;
 
     procedure SetRecFilters()
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Date, "Attached to Entry No.", Type);
         CurrPage.Update(false);
     end;

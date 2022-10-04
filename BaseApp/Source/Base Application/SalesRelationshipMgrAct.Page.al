@@ -8,74 +8,22 @@ page 9076 "Sales & Relationship Mgr. Act."
     {
         area(content)
         {
-#if not CLEAN18
-            cuegroup("Intelligent Cloud")
-            {
-                Caption = 'Intelligent Cloud';
-                Visible = false;
-                ObsoleteTag = '18.0';
-                ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                ObsoleteState = Pending;
-
-                actions
-                {
-                    action("Learn More")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Learn More';
-                        Image = TileInfo;
-                        RunPageMode = View;
-                        ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
-                        end;
-                    }
-                    action("Intelligent Cloud Insights")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Intelligent Cloud Insights';
-                        Image = TileCloud;
-                        RunPageMode = View;
-                        ToolTip = 'View your Intelligent Cloud insights.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
-                        end;
-                    }
-                }
-            }
-#endif
             cuegroup(Contacts)
             {
                 Caption = 'Contacts';
-                field("Contacts - Companies"; "Contacts - Companies")
+                field("Contacts - Companies"; Rec."Contacts - Companies")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Contact List";
                     ToolTip = 'Specifies contacts assigned to a company.';
                 }
-                field("Contacts - Persons"; "Contacts - Persons")
+                field("Contacts - Persons"; Rec."Contacts - Persons")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Contact List";
                     ToolTip = 'Specifies contact persons.';
                 }
-                field("Contacts - Duplicates"; "Contacts - Duplicates")
+                field("Contacts - Duplicates"; Rec."Contacts - Duplicates")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Contact Duplicates";
@@ -85,13 +33,13 @@ page 9076 "Sales & Relationship Mgr. Act."
             cuegroup(Opportunities)
             {
                 Caption = 'Opportunities';
-                field("Open Opportunities"; "Open Opportunities")
+                field("Open Opportunities"; Rec."Open Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Opportunity List";
                     ToolTip = 'Specifies open opportunities.';
                 }
-                field("Opportunities Due in 7 Days"; "Opportunities Due in 7 Days")
+                field("Opportunities Due in 7 Days"; Rec."Opportunities Due in 7 Days")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Opportunity Entries";
@@ -99,7 +47,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     StyleExpr = TRUE;
                     ToolTip = 'Specifies opportunities with a due date in seven days or more.';
                 }
-                field("Overdue Opportunities"; "Overdue Opportunities")
+                field("Overdue Opportunities"; Rec."Overdue Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Opportunity Entries";
@@ -107,7 +55,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     StyleExpr = TRUE;
                     ToolTip = 'Specifies opportunities that have exceeded the due date.';
                 }
-                field("Closed Opportunities"; "Closed Opportunities")
+                field("Closed Opportunities"; Rec."Closed Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Opportunity List";
@@ -117,19 +65,19 @@ page 9076 "Sales & Relationship Mgr. Act."
             cuegroup(Sales)
             {
                 Caption = 'Sales';
-                field("Open Sales Quotes"; "Open Sales Quotes")
+                field("Open Sales Quotes"; Rec."Open Sales Quotes")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Sales Quotes";
                     ToolTip = 'Specifies the number of sales quotes that are not yet converted to invoices or orders.';
                 }
-                field("Open Sales Orders"; "Open Sales Orders")
+                field("Open Sales Orders"; Rec."Open Sales Orders")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales orders that are not fully posted.';
                 }
-                field("Active Campaigns"; "Active Campaigns")
+                field("Active Campaigns"; Rec."Active Campaigns")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Campaign List";
@@ -140,7 +88,7 @@ page 9076 "Sales & Relationship Mgr. Act."
             {
                 Caption = 'Data Integration';
                 Visible = ShowDataIntegrationCues;
-                field("CDS Integration Errors"; "CDS Integration Errors")
+                field("CDS Integration Errors"; Rec."CDS Integration Errors")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Integration Errors';
@@ -148,7 +96,7 @@ page 9076 "Sales & Relationship Mgr. Act."
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowIntegrationErrorsCue;
                 }
-                field("Coupled Data Synch Errors"; "Coupled Data Synch Errors")
+                field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Coupled Data Synchronization Errors';
@@ -189,15 +137,15 @@ page 9076 "Sales & Relationship Mgr. Act."
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
 
-        SetFilter("Due Date Filter", '<>%1&%2..%3', 0D, WorkDate, WorkDate + 7);
-        SetFilter("Overdue Date Filter", '<>%1&..%2', 0D, WorkDate - 1);
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        SetFilter("Due Date Filter", '<>%1&%2..%3', 0D, WorkDate(), WorkDate() + 7);
+        SetFilter("Overdue Date Filter", '<>%1&..%2', 0D, WorkDate() - 1);
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);

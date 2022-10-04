@@ -7,7 +7,6 @@ page 9300 "Sales Quotes"
     DataCaptionFields = "Sell-to Customer No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Quote,Request Approval,Print/Send,Navigate';
     QueryCategory = 'Sales Quotes';
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
@@ -24,115 +23,115 @@ page 9300 "Sales Quotes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the customer.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Sell-to Post Code"; "Sell-to Post Code")
+                field("Sell-to Post Code"; Rec."Sell-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the customer''s main address.';
                     Visible = false;
                 }
-                field("Sell-to Country/Region Code"; "Sell-to Country/Region Code")
+                field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the customer''s main address.';
                     Visible = false;
                 }
-                field("Sell-to Contact"; "Sell-to Contact")
+                field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Post Code"; "Bill-to Post Code")
+                field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Contact"; "Bill-to Contact")
+                field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Post Code"; "Ship-to Post Code")
+                field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Contact"; "Ship-to Contact")
+                field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the posting of the sales document will be recorded.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the sales invoice must be paid.';
                 }
-                field("Requested Delivery Date"; "Requested Delivery Date")
+                field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
@@ -142,67 +141,67 @@ page 9300 "Sales Quotes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the sales person who is assigned to the customer.';
                     Visible = false;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the sales document.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign that the document is linked to.';
                     Visible = false;
                 }
-                field("Opportunity No."; "Opportunity No.")
+                field("Opportunity No."; Rec."Opportunity No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the opportunity that the sales quote is assigned to.';
@@ -215,7 +214,7 @@ page 9300 "Sales Quotes"
                     Visible = false;
                     StyleExpr = StatusStyleTxt;
                 }
-                field("Quote Valid Until Date"; "Quote Valid Until Date")
+                field("Quote Valid Until Date"; Rec."Quote Valid Until Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -277,8 +276,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Approvals';
                     Enabled = QuoteActionsEnabled;
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -295,15 +292,12 @@ page 9300 "Sales Quotes"
                     Caption = 'Dimensions';
                     Enabled = QuoteActionsEnabled;
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
             }
@@ -316,8 +310,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Customer';
                     Enabled = CustomerSelected;
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Customer Card";
                     RunPageLink = "No." = FIELD("Sell-to Customer No."),
                                   "Date Filter" = FIELD("Date Filter");
@@ -330,8 +322,6 @@ page 9300 "Sales Quotes"
                     Caption = 'C&ontact';
                     Enabled = ContactSelected;
                     Image = Card;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Contact Card";
                     RunPageLink = "No." = FIELD("Sell-to Contact No.");
                     ToolTip = 'View or edit detailed information about the contact person at the customer.';
@@ -350,9 +340,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Statistics';
                     Enabled = QuoteActionsEnabled;
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -374,8 +361,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Co&mments';
                     Enabled = QuoteActionsEnabled;
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Sales Comment Sheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "No." = FIELD("No."),
@@ -389,14 +374,12 @@ page 9300 "Sales Quotes"
                     Ellipsis = true;
                     Enabled = QuoteActionsEnabled;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
                     begin
-                        CheckSalesCheckAllLinesHaveQuantityAssigned;
+                        CheckSalesCheckAllLinesHaveQuantityAssigned();
                         DocPrint.PrintSalesHeader(Rec);
                     end;
                 }
@@ -406,15 +389,11 @@ page 9300 "Sales Quotes"
                     Caption = 'Send by Email';
                     Enabled = QuoteActionsEnabled;
                     Image = Email;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the customer''s email address so you can add or edit information.';
 
                     trigger OnAction()
                     begin
-                        CheckSalesCheckAllLinesHaveQuantityAssigned;
+                        CheckSalesCheckAllLinesHaveQuantityAssigned();
                         DocPrint.EmailSalesHeader(Rec);
                     end;
                 }
@@ -424,10 +403,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Attach as PDF';
                     Enabled = QuoteActionsEnabled;
                     Image = PrintAttachment;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Create a PDF file and attach it to the document.';
 
                     trigger OnAction()
@@ -458,9 +433,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Make &Order';
                     Enabled = QuoteActionsEnabled;
                     Image = MakeOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Convert the sales quote to a sales order. The sales order will contain the sales quote number.';
 
                     trigger OnAction()
@@ -477,9 +449,6 @@ page 9300 "Sales Quotes"
                     Caption = 'Make Invoice';
                     Enabled = QuoteActionsEnabled;
                     Image = MakeOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Convert the selected sales quote to a sales invoice.';
 
@@ -488,7 +457,7 @@ page 9300 "Sales Quotes"
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
                         if ApprovalsMgmt.PrePostApprovalCheckSales(Rec) then begin
-                            CheckSalesCheckAllLinesHaveQuantityAssigned;
+                            CheckSalesCheckAllLinesHaveQuantityAssigned();
                             CODEUNIT.Run(CODEUNIT::"Sales-Quote to Invoice Yes/No", Rec);
                         end;
                     end;
@@ -514,13 +483,11 @@ page 9300 "Sales Quotes"
                     Caption = 'Create &Task';
                     Enabled = ContactSelected;
                     Image = NewToDo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a new marketing task for the contact.';
 
                     trigger OnAction()
                     begin
-                        CreateTask;
+                        CreateTask();
                     end;
                 }
             }
@@ -601,17 +568,99 @@ page 9300 "Sales Quotes"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(MakeOrder_Promoted; MakeOrder)
+                {
+                }
+                actionref(MakeInvoice_Promoted; MakeInvoice)
+                {
+                }
+                actionref(CreateTask_Promoted; CreateTask)
+                {
+                }
+            }
+            group(Category_Release)
+            {
+                Caption = 'Release';
+                ShowAs = SplitButton;
+
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Email_Promoted; Email)
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Quote', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                separator(Navigate_Separator)
+                {
+                }
+                actionref(Customer_Promoted; Customer)
+                {
+                }
+                actionref("C&ontact_Promoted"; "C&ontact")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetControlAppearance;
+        SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
         StatusStyleTxt := GetStatusStyleText();
     end;
 
@@ -619,10 +668,10 @@ page 9300 "Sales Quotes"
     var
         OfficeMgt: Codeunit "Office Management";
     begin
-        SetSecurityFilterOnRespCenter;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        SetSecurityFilterOnRespCenter();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
 
-        CopySellToCustomerFilter;
+        CopySellToCustomerFilter();
     end;
 
     var
@@ -665,7 +714,7 @@ page 9300 "Sales Quotes"
 
     procedure SetStyle(): Text
     begin
-        if ("Quote Valid Until Date" <> 0D) and (WorkDate > "Quote Valid Until Date") then
+        if ("Quote Valid Until Date" <> 0D) and (WorkDate() > "Quote Valid Until Date") then
             exit('Unfavorable');
 
         exit('');

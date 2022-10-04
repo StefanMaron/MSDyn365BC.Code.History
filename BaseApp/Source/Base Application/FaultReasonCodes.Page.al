@@ -23,12 +23,12 @@ page 5929 "Fault Reason Codes"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the fault reason code.';
                 }
-                field("Exclude Warranty Discount"; "Exclude Warranty Discount")
+                field("Exclude Warranty Discount"; Rec."Exclude Warranty Discount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that you want to exclude a warranty discount for the service item assigned this fault reason code.';
                 }
-                field("Exclude Contract Discount"; "Exclude Contract Discount")
+                field("Exclude Contract Discount"; Rec."Exclude Contract Discount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that you want to exclude a contract/service discount for the service item assigned this fault reason code.';

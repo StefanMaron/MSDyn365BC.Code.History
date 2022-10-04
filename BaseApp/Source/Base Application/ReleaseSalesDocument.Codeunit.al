@@ -7,7 +7,7 @@
     trigger OnRun()
     begin
         SalesHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := SalesHeader;
     end;
 
@@ -43,7 +43,7 @@
             if IsHandled then
                 exit;
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
-                CheckSalesReleaseRestrictions;
+                CheckSalesReleaseRestrictions();
 
             IsHandled := false;
             OnBeforeCheckCustomerCreated(SalesHeader, IsHandled);
@@ -143,6 +143,7 @@
 
     local procedure CheckMandatoryFields(var SalesLine: Record "Sales Line")
     var
+        Item: Record "Item";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -161,6 +162,9 @@
                         if not IsHandled then
                             SalesLine.TestField("Location Code");
                     end;
+                if Item.Get(SalesLine."No.") then
+                    if Item.IsVariantMandatory() then
+                        SalesLine.TestField("Variant Code");
                 OnCodeOnAfterSalesLineCheck(SalesLine);
             until SalesLine.Next() = 0;
         SalesLine.SetFilter(Type, '>0');
@@ -246,10 +250,10 @@
 
         with SalesHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
-                if TestStatusIsNotPendingPrepayment then begin
+                if TestStatusIsNotPendingPrepayment() then begin
                     Status := Status::"Pending Prepayment";
                     OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(SalesHeader, PreviewMode);
-                    Modify;
+                    Modify();
                     Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
@@ -336,7 +340,7 @@
     begin
         PreviewMode := Preview;
         SalesHeader.Copy(SalesHdr);
-        LinesWereModified := Code;
+        LinesWereModified := Code();
         SalesHdr := SalesHeader;
     end;
 

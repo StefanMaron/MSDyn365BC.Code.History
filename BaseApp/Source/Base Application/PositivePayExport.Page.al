@@ -23,7 +23,7 @@ page 1233 "Positive Pay Export"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(LastUploadTime; LastUploadTime)
@@ -41,10 +41,10 @@ page 1233 "Positive Pay Export"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
-                field(BankPaymentType; BankPaymentType) 
+                field(BankPaymentType; BankPaymentType)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Bank Payment Type';
@@ -54,7 +54,7 @@ page 1233 "Positive Pay Export"
                     begin
                         UpdateSubForm();
                     end;
-                }       
+                }
             }
             part(PosPayExportDetail; "Positive Pay Export Detail")
             {
@@ -74,9 +74,6 @@ page 1233 "Positive Pay Export"
                 ApplicationArea = Suite;
                 Caption = 'Export';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Export Positive Pay data to a file that you can send to the bank when processing payments to make sure that the bank only clears validated checks and amounts.';
 
                 trigger OnAction()
@@ -93,11 +90,22 @@ page 1233 "Positive Pay Export"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Export_Promoted; Export)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnOpenPage()
@@ -107,8 +115,8 @@ page 1233 "Positive Pay Export"
             LastUploadDateEntered := DT2Date(PositivePayEntry."Upload Date-Time");
             LastUploadTime := DT2Time(PositivePayEntry."Upload Date-Time");
         end;
-        CutoffUploadDate := WorkDate;
-        UpdateSubForm;
+        CutoffUploadDate := WorkDate();
+        UpdateSubForm();
     end;
 
     var

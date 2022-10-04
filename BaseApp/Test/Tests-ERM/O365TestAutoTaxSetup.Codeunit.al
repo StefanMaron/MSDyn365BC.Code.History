@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138051 "O365 Test Auto Tax Setup"
 {
     Subtype = Test;
@@ -39,14 +40,14 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         TaxAreaLine.FindSet();
         repeat
             TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
-        until TaxAreaLine.Next = 0;
+        until TaxAreaLine.Next() = 0;
 
         // [THEN] Customer's "Tax Area Code" updated
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Tax Area Code", SalesHeader."Tax Area Code");
     end;
 
-    [Test]
+   [Test]
     [Scope('OnPrem')]
     procedure TestGetSalesTaxRate()
     var
@@ -81,20 +82,20 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         TempTaxRate := O365SalesInvoiceLineCard.TaxRate.Value;
         TempTaxRate := CopyStr(TempTaxRate, 1, (StrLen(TempTaxRate) - 1));
         Assert.AreEqual('0', TempTaxRate, 'Initial Tax Rate not zero');
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
     end;
 
     local procedure Initialize()
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
 
         if IsInitialized then
             exit;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -129,12 +130,12 @@ codeunit 138051 "O365 Test Auto Tax Setup"
 
     local procedure GetRandomCode10(): Code[10]
     begin
-        exit(CopyStr(DelChr(Format(CreateGuid), '=', '{}- '), 1, 10));
+        exit(CopyStr(DelChr(Format(CreateGuid()), '=', '{}- '), 1, 10));
     end;
 
     local procedure GetRandomCode20(): Code[20]
     begin
-        exit(CopyStr(DelChr(Format(CreateGuid), '=', '{}- '), 1, 20));
+        exit(CopyStr(DelChr(Format(CreateGuid()), '=', '{}- '), 1, 20));
     end;
 }
-
+#endif

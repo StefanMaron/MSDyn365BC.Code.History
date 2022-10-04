@@ -535,7 +535,7 @@ codeunit 137409 "Analysis Reports Chart"
 
         Item.Get(AnalysisLine.Range);
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
+          SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate(), '', '', '', 0, LibraryRandom.RandDec(100, 2));
 
         LibraryVariableStorage.Enqueue(SalesPrice."Unit Price");
         CalcAnalysisReportCellValue(AnalysisLine, AnalysisColumn, true);
@@ -564,7 +564,7 @@ codeunit 137409 "Analysis Reports Chart"
         Item.Get(AnalysisLine.Range);
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
-        PriceListLine."Starting Date" := WorkDate;
+        PriceListLine."Starting Date" := WorkDate();
         PriceListLine."Unit Price" := LibraryRandom.RandDec(100, 2);
         PriceListLine.Status := "Price Status"::Active;
         PriceListLine.Modify();
@@ -943,7 +943,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportMgt: Codeunit "Analysis Report Management";
     begin
-        AnalysisLine.SetRange("Date Filter", WorkDate);
+        AnalysisLine.SetRange("Date Filter", WorkDate());
         exit(AnalysisReportMgt.CalcCell(AnalysisLine, AnalysisColumn, DrillDown));
     end;
 
@@ -1168,8 +1168,8 @@ codeunit 137409 "Analysis Reports Chart"
                                 MeasureName := StrSubstNo(MeasureTXT, AnalysisLine.Description, AnalysisColumn."Column Header");
                                 VerifyChartMeasure(
                                   BusinessChartBuffer, AnalysisLine, AnalysisColumn, MeasureName, Format(PeriodEnd), RowIndex, PeriodStart, PeriodEnd);
-                            until AnalysisColumn.Next = 0;
-                        until AnalysisLine.Next = 0;
+                            until AnalysisColumn.Next() = 0;
+                        until AnalysisLine.Next() = 0;
                         PeriodStart := PeriodEnd + 1;
                         PeriodEnd :=
                           CalculatePeriodEndDate(
@@ -1191,9 +1191,9 @@ codeunit 137409 "Analysis Reports Chart"
                             MeasureName := AnalysisColumn."Column Header";
                             VerifyChartMeasure(
                               BusinessChartBuffer, AnalysisLine, AnalysisColumn, MeasureName, AnalysisLine.Description, RowIndex, StartDate, EndDate);
-                        until AnalysisColumn.Next = 0;
+                        until AnalysisColumn.Next() = 0;
                         RowIndex += 1;
-                    until AnalysisLine.Next = 0;
+                    until AnalysisLine.Next() = 0;
                 end;
             AnalysisReportChartSetup."Base X-Axis on"::Column:
                 begin
@@ -1210,9 +1210,9 @@ codeunit 137409 "Analysis Reports Chart"
                             VerifyChartMeasure(
                               BusinessChartBuffer, AnalysisLine, AnalysisColumn, MeasureName, AnalysisColumn."Column Header", RowIndex, StartDate,
                               EndDate);
-                        until AnalysisLine.Next = 0;
+                        until AnalysisLine.Next() = 0;
                         RowIndex += 1;
-                    until AnalysisColumn.Next = 0;
+                    until AnalysisColumn.Next() = 0;
                 end;
         end;
     end;
@@ -1256,7 +1256,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisLine.FindSet();
         ItemNo := CopyStr(AnalysisLine.Range, 1, 20);
         SetupItemEntries(ItemLedgerEntry, ValueEntry, ItemNo, StartDate, EndDate, PeriodLength, ItemLedgerEntry."Entry Type"::Sale);
-        AnalysisLine.Next;
+        AnalysisLine.Next();
         ItemNo := CopyStr(AnalysisLine.Range, 1, 20);
         SetupItemEntries(ItemLedgerEntry, ValueEntry, ItemNo, StartDate, EndDate, PeriodLength, ItemLedgerEntry."Entry Type"::Sale);
     end;
@@ -1298,8 +1298,8 @@ codeunit 137409 "Analysis Reports Chart"
                     MeasureName := StrSubstNo(MeasureTXT, AnalysisLine.Description, AnalysisColumn."Column Header");
                     CreateOnePerfIndSetupLine(AnalysisReportChartSetup, AnalysisLine."Line No.", AnalysisColumn."Line No.", MeasureName,
                       Format(AnalysisLine."Line No.") + ' ' + Format(AnalysisColumn."Line No."), LibraryRandom.RandIntInRange(1, 3));
-                until AnalysisColumn.Next = 0;
-            until AnalysisLine.Next = 0;
+                until AnalysisColumn.Next() = 0;
+            until AnalysisLine.Next() = 0;
             AnalysisReportChartSetup."Base X-Axis on"::Line,
             AnalysisReportChartSetup."Base X-Axis on"::Column:
                 begin
@@ -1308,14 +1308,14 @@ codeunit 137409 "Analysis Reports Chart"
                         CreateOnePerfIndSetupLine(
                           AnalysisReportChartSetup, AnalysisLine."Line No.", 0, MeasureName, Format(AnalysisLine."Line No."),
                           LibraryRandom.RandIntInRange(1, 3));
-                    until AnalysisLine.Next = 0;
+                    until AnalysisLine.Next() = 0;
                     AnalysisColumn.FindSet();
                     repeat
                         MeasureName := AnalysisColumn."Column Header";
                         CreateOnePerfIndSetupLine(
                           AnalysisReportChartSetup, 0, AnalysisColumn."Line No.", AnalysisColumn."Column Header",
                           Format(AnalysisColumn."Line No."), LibraryRandom.RandIntInRange(1, 3));
-                    until AnalysisColumn.Next = 0;
+                    until AnalysisColumn.Next() = 0;
                 end;
         end;
     end;
@@ -1359,7 +1359,7 @@ codeunit 137409 "Analysis Reports Chart"
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, ValueType, Invoiced);
         Item.Get(AnalysisLine.Range);
         SetupItemEntries(
-          ItemLedgerEntry, ValueEntry, Item."No.", WorkDate, WorkDate, 0, ItemLedgerEntry."Entry Type"::Sale);
+          ItemLedgerEntry, ValueEntry, Item."No.", WorkDate(), WorkDate, 0, ItemLedgerEntry."Entry Type"::Sale);
     end;
 
     local procedure CreateAnalysisLineTempl2ItemAndTotal(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Enum "Analysis Area Type")
@@ -1491,12 +1491,12 @@ codeunit 137409 "Analysis Reports Chart"
 
     local procedure SetupStartAndEndDates(var StartDate: Date; var EndDate: Date; ShowPer: Option Period,"Acc. Sched. Line","Acc. Sched. Column"; PeriodLength: Option; NoOfPeriods: Integer)
     begin
-        StartDate := WorkDate;
+        StartDate := WorkDate();
 
         if ShowPer = ShowPer::Period then
             EndDate := CalculatePeriodEndDate(CalculateNextDate(StartDate, NoOfPeriods - 1, PeriodLength), PeriodLength)
         else
-            EndDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(100, 200)), WorkDate);
+            EndDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(100, 200)), WorkDate());
     end;
 
     local procedure SetupDrillDownData2ItemAndTotalLines2Cols(var AnalysisReportChartSetup: Record "Analysis Report Chart Setup"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var BusinessChartBuffer: Record "Business Chart Buffer"; TestDrillDownType: Option ColumnFormula,RowFormula,Data)
@@ -1682,12 +1682,12 @@ codeunit 137409 "Analysis Reports Chart"
         if DrillDownAnalysisColumn."Column Type" = DrillDownAnalysisColumn."Column Type"::Formula then
             Assert.AreEqual(
               StrSubstNo(ColFormulaMSG, DrillDownAnalysisColumn.Formula), Message,
-              StrSubstNo(FormulaDrillDownERR, DrillDownAnalysisColumn.TableCaption))
+              StrSubstNo(FormulaDrillDownERR, DrillDownAnalysisColumn.TableCaption()))
         else
             if DrillDownAnalysisLine.Type = DrillDownAnalysisLine.Type::Formula then
                 Assert.AreEqual(
                   StrSubstNo(RowFormulaMSG, DrillDownAnalysisLine.Range), Message,
-                  StrSubstNo(FormulaDrillDownERR, DrillDownAnalysisLine.TableCaption));
+                  StrSubstNo(FormulaDrillDownERR, DrillDownAnalysisLine.TableCaption()));
     end;
 
     [PageHandler]
@@ -1701,7 +1701,7 @@ codeunit 137409 "Analysis Reports Chart"
         if ValueEntriesPage.First then
             repeat
                 TotalSales += ValueEntriesPage."Sales Amount (Actual)".AsDEcimal;
-            until not ValueEntriesPage.Next;
+            until not ValueEntriesPage.Next();
         Assert.AreEqual(
           DrillDownValueEntry."Sales Amount (Actual)", TotalSales,
           CopyStr(

@@ -6,6 +6,8 @@ codeunit 9651 "Document Report Mgt."
     end;
 
     var
+        ClientTypeMgt: Codeunit "Client Type Management";
+
 #if not CLEAN20
         NotImplementedErr: Label 'This option is not available.';
         UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Locked = true;
@@ -28,7 +30,6 @@ codeunit 9651 "Document Report Mgt."
         UpgradeMessageMsg: Label 'The report upgrade process returned the following log messages:\%1.';
         NoReportLayoutUpgradeRequiredMsg: Label 'The layout upgrade process completed without detecting any required changes in the current application.';
         CompanyInformationPicErr: Label 'The document contains elements that cannot be converted to PDF. This may be caused by missing image data in the document.';
-        ClientTypeMgt: Codeunit "Client Type Management";
 
 #if not CLEAN20
     [Scope('OnPrem')]
@@ -60,23 +61,23 @@ codeunit 9651 "Document Report Mgt."
 
         OnBeforeMergeDocument(ReportID, ReportAction, InStrXmlData, PrinterName, OutStrWordDoc, IsHandled, FileName = '');
         if IsHandled then begin
-            if (FileName <> '') and TempBlobOut.HasValue then begin
+            if (FileName <> '') and TempBlobOut.HasValue() then begin
                 File.WriteMode(true);
                 if not File.Open(FileName) then begin
                     File.Create(FileName);
-                    ClearLastError;
+                    ClearLastError();
                 end;
                 File.CreateOutStream(OutStream);
                 TempBlobOut.CreateInStream(Instream);
                 CopyStream(OutStream, Instream);
-                File.Close;
+                File.Close();
             end;
             exit;
         end;
 
         // Temporarily selected layout for Design-time report execution?
-        if ReportLayoutSelection.GetTempLayoutSelected <> '' then
-            CustomLayoutCode := ReportLayoutSelection.GetTempLayoutSelected
+        if ReportLayoutSelection.GetTempLayoutSelected() <> '' then
+            CustomLayoutCode := ReportLayoutSelection.GetTempLayoutSelected()
         else  // Normal selection
             if ReportLayoutSelection.Get(ReportID, CompanyName) and
                (ReportLayoutSelection.Type = ReportLayoutSelection.Type::"Custom Layout")
@@ -98,7 +99,7 @@ codeunit 9651 "Document Report Mgt."
             ValidateWordLayoutCheckOnly(ReportID, InStrWordDoc);
         end;
 
-        OnBeforeMergeWordDocument;
+        OnBeforeMergeWordDocument();
 
         if not TryXmlMergeWordDocument(InStrWordDoc, InStrXmlData, OutStrWordDoc) then begin
             if Regex.IsMatch(GetLastErrorText(), UnexpectedHexCharacterRegexErr) then begin
@@ -151,12 +152,12 @@ codeunit 9651 "Document Report Mgt."
                 File.WriteMode(true);
                 if not File.Open(FileName) then begin
                     File.Create(FileName);
-                    ClearLastError;
+                    ClearLastError();
                 end;
                 File.CreateOutStream(OutStream);
                 TempBlobOut.CreateInStream(Instream);
                 CopyStream(OutStream, Instream);
-                File.Close;
+                File.Close();
             end;
     end;
 
@@ -259,7 +260,7 @@ codeunit 9651 "Document Report Mgt."
         if not TempBlob.HasValue() then
             Error(LayoutEmptyErr, CustomReportLayout.Code);
         TempBlob.CreateInStream(DocumentStream);
-        NAVWordXMLMerger := NAVWordXMLMerger.WordReportManager;
+        NAVWordXMLMerger := NAVWordXMLMerger.WordReportManager();
 
         ValidationErrors :=
           NAVWordXMLMerger.ValidateWordDocumentTemplate(DocumentStream, REPORT.WordXmlPart(CustomReportLayout."Report ID", true));
@@ -279,7 +280,7 @@ codeunit 9651 "Document Report Mgt."
     var
         NAVWordXMLMerger: DotNet WordReportManager;
     begin
-        NAVWordXMLMerger := NAVWordXMLMerger.WordReportManager;
+        NAVWordXMLMerger := NAVWordXMLMerger.WordReportManager();
         NAVWordXMLMerger.UpdateWordDocumentLayout(DocumentStream, UpdateStream, CachedCustomPart, CurrentCustomPart, true);
         exit(NAVWordXMLMerger.LastUpdateError);
     end;
@@ -359,13 +360,12 @@ codeunit 9651 "Document Report Mgt."
         // We cannot check the state of the pdfStream (not possible to detect that it's uninitialized from AL)
         // Get the printer table record and check if the Payload column is empty or not. Empty means a local Windows printer, not empty is an
         // extension based printer
-        if (PrinterTable.Get(PrinterName)) then begin
+        if (PrinterTable.Get(PrinterName)) then
             if (strlen(PrinterTable.Payload) = 0) then
                 LocalPrinter := True;
-        end;
 
         if EnableLegacyPrint or LocalPrinter then begin
-            if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
+            if ClientTypeMgt.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
                 ConvertWordToPdf(TempBlob, ReportID);
                 FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
             end else
@@ -373,10 +373,9 @@ codeunit 9651 "Document Report Mgt."
             // Don't clear the pdfStream as it might have an empty implementation (uninitialized) which can cause an runtime exception to be throw.
             // Reinsert the clear call when compiler is fixed and emit code like this.pdfStream.Value?.Clear();
             // clear(pdfStream); // Nothing is written to the stream when called using the legacy signature
-        end else begin
+        end else
             if not TryConvertWordBlobToPdfOnStream(TempBlob, pdfStream) then
                 Error(UnableToRenderPdfDocument);
-        end;
     end;
 #endif
 
@@ -437,8 +436,8 @@ codeunit 9651 "Document Report Mgt."
         end;
 
         if IsNull(ReportChangeLogCollection) then begin // Don't break upgrade process with user information
-            if (ClientTypeMgt.GetCurrentClientType <> CLIENTTYPE::Background) and
-               (ClientTypeMgt.GetCurrentClientType <> CLIENTTYPE::Management)
+            if (ClientTypeMgt.GetCurrentClientType() <> CLIENTTYPE::Background) and
+               (ClientTypeMgt.GetCurrentClientType() <> CLIENTTYPE::Management)
             then
                 Message(NoReportLayoutUpgradeRequiredMsg);
 
@@ -462,8 +461,8 @@ codeunit 9651 "Document Report Mgt."
             repeat
                 ReportUpgradeSet := ReportUpgradeCollection.AddReport(CustomReportLayout."Report ID"); // runtime will load the current XmlPart from metadata
                 if not IsNull(ReportUpgradeSet) then
-                    ReportUpgradeSet.CalculateAutoChangeSet(CustomReportLayout.GetCustomXmlPart);
-            until CustomReportLayout.Next <> 1;
+                    ReportUpgradeSet.CalculateAutoChangeSet(CustomReportLayout.GetCustomXmlPart());
+            until CustomReportLayout.Next() <> 1;
     end;
 #endif
 
@@ -474,8 +473,8 @@ codeunit 9651 "Document Report Mgt."
         if IsNull(ReportChangeLogCollection) then
             exit;
 
-        if (ClientTypeMgt.GetCurrentClientType <> CLIENTTYPE::Background) and
-           (ClientTypeMgt.GetCurrentClientType <> CLIENTTYPE::Management)
+        if (ClientTypeMgt.GetCurrentClientType() <> CLIENTTYPE::Background) and
+           (ClientTypeMgt.GetCurrentClientType() <> CLIENTTYPE::Management)
         then
             ReportLayoutUpdateLog.ViewLog(ReportChangeLogCollection)
         else
@@ -488,7 +487,7 @@ codeunit 9651 "Document Report Mgt."
     var
         ReportUpgradeCollection: DotNet ReportUpgradeCollection;
     begin
-        ReportUpgradeCollection := ReportUpgradeCollection.ReportUpgradeCollection;
+        ReportUpgradeCollection := ReportUpgradeCollection.ReportUpgradeCollection();
 
         CalculateUpgradeChangeSet(ReportUpgradeCollection);
         ApplyUpgradeToReports(ReportUpgradeCollection, testMode);

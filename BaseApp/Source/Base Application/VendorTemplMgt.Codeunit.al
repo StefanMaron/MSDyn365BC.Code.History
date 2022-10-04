@@ -289,7 +289,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         if VendorTempl.FindLast() and (IncStr(VendorTempl.Code) <> '') then
             VendorTemplCode := VendorTempl.Code
         else
-            VendorTemplCode := CopyStr(Vendor.TableCaption, 1, 4) + '000001';
+            VendorTemplCode := CopyStr(Vendor.TableCaption(), 1, 4) + '000001';
 
         while VendorTempl.Get(VendorTemplCode) do
             VendorTemplCode := IncStr(VendorTemplCode);

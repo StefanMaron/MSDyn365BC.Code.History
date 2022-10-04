@@ -16,7 +16,7 @@ report 706 Status
             column(AsofStatusDate; StrSubstNo(Text000, Format(StatusDate)))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaption; TableCaption + ': ' + ItemFilter)
@@ -125,12 +125,12 @@ report 706 Status
                     if Item."Costing Method" = Item."Costing Method"::Average then
                         RemainingQty := Quantity
                     else begin
-                        CalcRemainingQty;
+                        CalcRemainingQty();
                         if RemainingQty = 0 then
                             CurrReport.Skip();
                     end;
 
-                    CalcUnitCost;
+                    CalcUnitCost();
                     InvtValue := UnitCost * Abs(RemainingQty);
                 end;
 
@@ -191,7 +191,7 @@ report 706 Status
         trigger OnOpenPage()
         begin
             if StatusDate = 0D then
-                StatusDate := WorkDate;
+                StatusDate := WorkDate();
         end;
     }
 
@@ -201,7 +201,7 @@ report 706 Status
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
 
         with ValueEntry do begin
             SetCurrentKey("Item Ledger Entry No.");
@@ -214,8 +214,6 @@ report 706 Status
     end;
 
     var
-        Text000: Label 'As of %1';
-        Text001: Label 'Enter the Status Date';
         ValueEntry: Record "Value Entry";
         StatusDate: Date;
         ItemFilter: Text;
@@ -234,6 +232,9 @@ report 706 Status
         HereofNegativeCaptionLbl: Label 'Hereof Negative';
         IsAverageCostItem: Boolean;
 
+        Text000: Label 'As of %1';
+        Text001: Label 'Enter the Status Date';
+
     local procedure CalcRemainingQty()
     var
         ItemApplnEntry: Record "Item Application Entry";
@@ -242,7 +243,7 @@ report 706 Status
 
         with ItemApplnEntry do
             if "Item Ledger Entry".Positive then begin
-                Reset;
+                Reset();
                 SetCurrentKey(
                   "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
                 SetRange("Inbound Item Entry No.", "Item Ledger Entry"."Entry No.");
@@ -253,7 +254,7 @@ report 706 Status
                         SumQty(RemainingQty, "Outbound Item Entry No.", Quantity);
                     until Next() = 0;
             end else begin
-                Reset;
+                Reset();
                 SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
                 SetRange("Outbound Item Entry No.", "Item Ledger Entry"."Entry No.");
                 SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");

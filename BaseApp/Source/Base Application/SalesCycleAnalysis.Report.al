@@ -12,7 +12,7 @@ report 5062 "Sales Cycle - Analysis"
         {
             DataItemTableView = SORTING(Code);
             RequestFilterFields = "Code", Blocked;
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -132,7 +132,7 @@ report 5062 "Sales Cycle - Analysis"
 
     trigger OnPreReport()
     begin
-        SalesCycleFilter := "Sales Cycle".GetFilters;
+        SalesCycleFilter := "Sales Cycle".GetFilters();
     end;
 
     var

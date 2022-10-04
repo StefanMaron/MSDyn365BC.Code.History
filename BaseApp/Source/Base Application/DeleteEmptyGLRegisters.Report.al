@@ -42,7 +42,7 @@ report 99 "Delete Empty G/L Registers"
 
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");
-                Delete;
+                Delete();
                 NoOfDeleted := NoOfDeleted + 1;
                 Window.Update(3, NoOfDeleted);
                 if NoOfDeleted >= NoOfDeleted2 + 10 then begin
@@ -85,10 +85,6 @@ report 99 "Delete Empty G/L Registers"
     }
 
     var
-        Text001: Label 'Deleting empty G/L registers...\\';
-        Text002: Label 'No.                      #1######\';
-        Text003: Label 'Posted on                #2######\\';
-        Text004: Label 'No. of registers deleted #3######';
         GLEntry: Record "G/L Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -100,8 +96,13 @@ report 99 "Delete Empty G/L Registers"
         Window: Dialog;
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;
-        DeleteRegistersQst: Label 'Do you want to delete the registers?';
         SkipConfirm: Boolean;
+
+        Text001: Label 'Deleting empty G/L registers...\\';
+        Text002: Label 'No.                      #1######\';
+        Text003: Label 'Posted on                #2######\\';
+        Text004: Label 'No. of registers deleted #3######';
+        DeleteRegistersQst: Label 'Do you want to delete the registers?';
 
     procedure SetSkipConfirm()
     begin

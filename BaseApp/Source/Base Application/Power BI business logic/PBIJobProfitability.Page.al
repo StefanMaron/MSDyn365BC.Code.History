@@ -12,13 +12,13 @@ page 6311 "PBI Job Profitability"
         {
             repeater(Group)
             {
-                field("Measure No."; "Measure No.")
+                field("Measure No."; Rec."Measure No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Job No.';
                     ToolTip = 'Specifies the job.';
                 }
-                field("Measure Name"; "Measure Name")
+                field("Measure Name"; Rec."Measure Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Measure Name';

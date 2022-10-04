@@ -5,7 +5,6 @@ page 592 "Change Log Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Setup';
     SourceTable = "Change Log Setup";
     UsageCategory = Administration;
 
@@ -21,7 +20,7 @@ page 592 "Change Log Setup"
                     group(GeneralColumn)
                     {
                         ShowCaption = false;
-                        field("Change Log Activated"; "Change Log Activated")
+                        field("Change Log Activated"; Rec."Change Log Activated")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies that the change log is active.';
@@ -29,7 +28,7 @@ page 592 "Change Log Setup"
 
                             trigger OnValidate()
                             begin
-                                ConfirmActivationOfChangeLog;
+                                ConfirmActivationOfChangeLog();
                                 ChangeLogSettingsUpdated := true;
                             end;
                         }
@@ -91,16 +90,13 @@ page 592 "Change Log Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Tables';
                     Image = "Table";
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View what must be logged for each table.';
 
                     trigger OnAction()
                     var
                         ChangeLogSetupList: Page "Change Log Setup (Table) List";
                     begin
-                        ChangeLogSetupList.SetSource;
+                        ChangeLogSetupList.SetSource();
                         ChangeLogSetupList.RunModal();
                         ChangeLogSettingsUpdated := ChangeLogSetupList.IsChangeLogSettingsUpdated();
                     end;
@@ -119,14 +115,29 @@ page 592 "Change Log Setup"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Setup', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Tables_Promoted; Tables)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 
@@ -149,7 +160,7 @@ page 592 "Change Log Setup"
     begin
         if not "Change Log Activated" then
             exit;
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
         if not ConfirmManagement.GetResponseOrDefault(ActivateChangeLogQst, true) then
             Error('');

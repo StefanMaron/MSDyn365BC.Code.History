@@ -45,7 +45,7 @@ table 5081 Activity
             SetCurrentKey("Activity Code", Type);
             SetRange("Activity Code", ActivityCode);
             SetRange(Type, Type::Meeting);
-            exit(FindFirst);
+            exit(FindFirst());
         end;
     end;
 }

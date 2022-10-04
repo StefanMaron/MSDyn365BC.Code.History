@@ -52,7 +52,7 @@ table 1263 "No. Series Tenant"
     begin
         NextAvailableCode := IncStr(Code + "Last Used number");
         Validate("Last Used number", IncStr("Last Used number"));
-        Modify;
+        Modify();
     end;
 }
 

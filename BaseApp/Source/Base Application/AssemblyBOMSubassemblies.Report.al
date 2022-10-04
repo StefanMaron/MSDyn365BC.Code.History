@@ -13,7 +13,7 @@ report 811 "Assembly BOM - Subassemblies"
         {
             DataItemTableView = WHERE("Assembly BOM" = CONST(true));
             RequestFilterFields = "No.", "Base Unit of Measure", "Shelf No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(temFilter_Item; TableCaption + ': ' + ItemFilter)
@@ -83,7 +83,7 @@ report 811 "Assembly BOM - Subassemblies"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

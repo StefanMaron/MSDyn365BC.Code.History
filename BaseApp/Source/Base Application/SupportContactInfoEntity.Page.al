@@ -30,7 +30,7 @@ page 9166 "Support Contact Info. Entity"
                         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
                     begin
                         if xRec.ID <> ID then
-                            GraphMgtGeneralTools.ErrorIdImmutable;
+                            GraphMgtGeneralTools.ErrorIdImmutable();
                     end;
                 }
                 field(name; Name)

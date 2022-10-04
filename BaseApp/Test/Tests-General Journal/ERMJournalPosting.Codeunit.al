@@ -121,7 +121,7 @@ codeunit 134420 "ERM Journal Posting"
         // [GIVEN] Linked "Payment Jnl. Export Error Text" record
         MockPmtExportErr(GenJournalLine);
         // [GIVEN] Ensure "General Journal Line"."Has Payment Export Error" = TRUE after FIND
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Has Payment Export Error", true);
 
         // [WHEN] Perform COD 13 "Gen. Jnl.-Post Batch".RUN()
@@ -151,7 +151,7 @@ codeunit 134420 "ERM Journal Posting"
         // [GIVEN] Linked "Payment Jnl. Export Error Text" record
         MockPmtExportErr(GenJournalLine);
         // [GIVEN] Ensure "General Journal Line"."Has Payment Export Error" = TRUE after FIND
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Has Payment Export Error", true);
 
         // [WHEN] Perform COD 13 "Gen. Jnl.-Post Batch".Preview()
@@ -289,11 +289,11 @@ codeunit 134420 "ERM Journal Posting"
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
         with PaymentJnlExportErrorText do begin
-            Init;
+            Init();
             "Journal Template Name" := GenJournalLine."Journal Template Name";
             "Journal Batch Name" := GenJournalLine."Journal Batch Name";
             "Journal Line No." := GenJournalLine."Line No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -310,7 +310,7 @@ codeunit 134420 "ERM Journal Posting"
     begin
         // Verify auto calc field is reset
         GenJournalLine.TestField("Has Payment Export Error", true);
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Has Payment Export Error", false);
     end;
 }

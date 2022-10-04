@@ -66,7 +66,7 @@ codeunit 5331 "CRM Coupling Management"
     begin
         AssertTableIsMapped(RecordID.TableNo);
         CRMCouplingRecord.SetSourceRecordID(RecordID);
-        if CRMCouplingRecord.RunModal = ACTION::OK then begin
+        if CRMCouplingRecord.RunModal() = ACTION::OK then begin
             CRMCouplingRecord.GetRecord(CouplingRecordBuffer);
             if CouplingRecordBuffer."Create New" then
                 CreateNew := true
@@ -74,9 +74,9 @@ codeunit 5331 "CRM Coupling Management"
                 if not IsNullGuid(CouplingRecordBuffer."CRM ID") then begin
                     CRMID := CouplingRecordBuffer."CRM ID";
                     CRMIntegrationRecord.CoupleRecordIdToCRMID(RecordID, CouplingRecordBuffer."CRM ID");
-                    if CouplingRecordBuffer.GetPerformInitialSynchronization then begin
+                    if CouplingRecordBuffer.GetPerformInitialSynchronization() then begin
                         Synchronize := true;
-                        Direction := CouplingRecordBuffer.GetInitialSynchronizationDirection;
+                        Direction := CouplingRecordBuffer.GetInitialSynchronizationDirection();
                     end;
                 end else
                     exit(false);

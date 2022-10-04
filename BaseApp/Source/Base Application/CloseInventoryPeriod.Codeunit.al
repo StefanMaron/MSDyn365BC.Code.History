@@ -15,7 +15,7 @@ codeunit 5820 "Close Inventory Period"
                 then
                     exit
             end else
-                if not Confirm(Text006, false, TableCaption, "Ending Date") then
+                if not Confirm(Text006, false, TableCaption(), "Ending Date") then
                     exit;
 
         TestField(Closed, ReOpen);
@@ -28,16 +28,16 @@ codeunit 5820 "Close Inventory Period"
             CheckOpenOutboundEntryExist("Ending Date");
         end else
             if not HideDialog and AccPeriodIsClosed("Ending Date") then
-                if not Confirm(Text008, false, TableCaption, "Ending Date") then
+                if not Confirm(Text008, false, TableCaption(), "Ending Date") then
                     exit;
 
         UpdateInvtPeriod(Rec);
         CreateInvtPeriodEntry(Rec);
 
         if not HideDialog then
-            if not ReOpen then begin
-                Message(Text005, TableCaption, "Ending Date")
-            end else
+            if not ReOpen then
+                Message(Text005, TableCaption(), "Ending Date")
+            else
                 Message(Text007, "Ending Date");
     end;
 
@@ -121,7 +121,7 @@ codeunit 5820 "Close Inventory Period"
                 until InvtPeriod2.Next() = 0;
 
             Closed := not ReOpen;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -142,7 +142,7 @@ codeunit 5820 "Close Inventory Period"
             InvtPeriodEntry."Entry No." := EntryNo;
             InvtPeriodEntry."Ending Date" := "Ending Date";
             InvtPeriodEntry."User ID" := UserId;
-            InvtPeriodEntry."Creation Date" := WorkDate;
+            InvtPeriodEntry."Creation Date" := WorkDate();
             InvtPeriodEntry."Creation Time" := Time;
             if Closed then begin
                 InvtPeriodEntry."Entry Type" := InvtPeriodEntry."Entry Type"::Close;

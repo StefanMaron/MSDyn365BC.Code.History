@@ -67,12 +67,12 @@ report 299 "Delete Invoiced Sales Orders"
                                             if SalesOrderLine.Type = SalesOrderLine.Type::Item then
                                                 ATOLink.DeleteAsmFromSalesLine(SalesOrderLine);
                                             if SalesOrderLine.HasLinks then
-                                                SalesOrderLine.DeleteLinks;
+                                                SalesOrderLine.DeleteLinks();
                                             SalesOrderLine.Delete();
                                             OnAfterDeleteSalesLine(SalesOrderLine);
                                         end else
                                             AllLinesDeleted := false;
-                                        UpdateAssociatedPurchOrder;
+                                        UpdateAssociatedPurchOrder();
                                     until SalesOrderLine.Next() = 0;
                                 OnAfterDeleteSalesLinesLoop("Sales Header", AllLinesDeleted);
 
@@ -96,10 +96,10 @@ report 299 "Delete Invoiced Sales Orders"
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                                     if HasLinks then
-                                        DeleteLinks;
+                                        DeleteLinks();
 
                                     OnBeforeDeleteSalesHeader("Sales Header");
-                                    Delete;
+                                    Delete();
                                 end;
                                 Commit();
                             end;
@@ -133,7 +133,6 @@ report 299 "Delete Invoiced Sales Orders"
     }
 
     var
-        Text000Txt: Label 'Processing sales orders #1##########';
         SalesOrderLine: Record "Sales Line";
         SalesShptHeader: Record "Sales Shipment Header";
         SalesInvHeader: Record "Sales Invoice Header";
@@ -147,6 +146,8 @@ report 299 "Delete Invoiced Sales Orders"
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;
+
+        Text000Txt: Label 'Processing sales orders #1##########';
 
     local procedure UpdateAssociatedPurchOrder()
     var
@@ -165,7 +166,7 @@ report 299 "Delete Invoiced Sales Orders"
                 then begin
                     "Special Order Sales No." := '';
                     "Special Order Sales Line No." := 0;
-                    Modify;
+                    Modify();
                 end;
 
             if SalesOrderLine."Drop Shipment" then
@@ -174,7 +175,7 @@ report 299 "Delete Invoiced Sales Orders"
                 then begin
                     "Sales Order No." := '';
                     "Sales Order Line No." := 0;
-                    Modify;
+                    Modify();
                 end;
         end;
     end;

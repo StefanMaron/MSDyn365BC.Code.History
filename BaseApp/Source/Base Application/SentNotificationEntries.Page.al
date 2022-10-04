@@ -23,7 +23,7 @@ page 1514 "Sent Notification Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the sent notification was made, such as by email.';
                 }
-                field("Recipient User ID"; "Recipient User ID")
+                field("Recipient User ID"; Rec."Recipient User ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user who received the sent notification.';
@@ -34,27 +34,27 @@ page 1514 "Sent Notification Entries"
                     Caption = 'Triggered By Record';
                     ToolTip = 'Specifies the record that triggered the sent notification.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time that the sent notification was created.';
                 }
-                field("Created By"; "Created By")
+                field("Created By"; Rec."Created By")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user who created the notification.';
                 }
-                field("Sent Date-Time"; "Sent Date-Time")
+                field("Sent Date-Time"; Rec."Sent Date-Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time when the notification was sent.';
                 }
-                field("Notification Method"; "Notification Method")
+                field("Notification Method"; Rec."Notification Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the notification was sent by email or as a note.';
                 }
-                field("Aggregated with Entry"; "Aggregated with Entry")
+                field("Aggregated with Entry"; Rec."Aggregated with Entry")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -73,15 +73,23 @@ page 1514 "Sent Notification Entries"
                 ApplicationArea = Suite;
                 Caption = 'Export Notification Content';
                 Image = ExportFile;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Download the notification content to your machine in .htm or .doc format.';
 
                 trigger OnAction()
                 begin
                     ExportContent(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ExportContent_Promoted; ExportContent)
+                {
+                }
             }
         }
     }

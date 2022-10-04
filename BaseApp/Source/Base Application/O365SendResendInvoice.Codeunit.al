@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2104 "O365 Send + Resend Invoice"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -56,7 +60,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
     procedure ResendSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
         with SalesInvoiceHeader do begin
-            SetRecFilter;
+            SetRecFilter();
             CODEUNIT.Run(CODEUNIT::"O365 Setup Email");
 
             if not O365SalesEmailManagement.ShowEmailDialog("No.") then
@@ -77,17 +81,17 @@ codeunit 2104 "O365 Send + Resend Invoice"
         PostingProgressWindow: Dialog;
     begin
         with SalesHeader do begin
-            SetRecFilter;
+            SetRecFilter();
             if not CheckDocumentCanBeSent(SalesHeader, OpenInvoiceIfNoItems, O365SalesDocument) then
                 exit(false);
 
             if not O365SalesEmailManagement.ShowEmailDialog("No.") then
                 exit(false);
 
-            Find;
+            Find();
 
             if EmailParameter.Get("No.", "Document Type", EmailParameter."Parameter Type"::Address) then
-                O365SalesInvoiceMgmt.ValidateCustomerEmail(SalesHeader, CopyStr(EmailParameter.GetParameterValue, 1, 80));
+                O365SalesInvoiceMgmt.ValidateCustomerEmail(SalesHeader, CopyStr(EmailParameter.GetParameterValue(), 1, 80));
 
             case "Document Type" of
                 "Document Type"::Quote:
@@ -165,7 +169,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
                 exit(false);
 
         SalesHeaderQuote.LockTable();
-        SalesHeaderQuote.Find;
+        SalesHeaderQuote.Find();
         SalesQuoteToInvoice.Run(SalesHeaderQuote);
         SalesQuoteToInvoice.GetSalesInvoiceHeader(SalesHeaderInvoice);
         exit(true);
@@ -223,9 +227,9 @@ codeunit 2104 "O365 Send + Resend Invoice"
     procedure CheckDocumentIfNoItemsExists(SalesHeader: Record "Sales Header"; OpenInvoiceIfNoItems: Boolean; O365SalesDocument: Record "O365 Sales Document")
     begin
         with SalesHeader do
-            if not SalesLinesExist then begin
+            if not SalesLinesExist() then begin
                 if OpenInvoiceIfNoItems and (O365SalesDocument."No." <> '') then
-                    O365SalesDocument.OpenDocument;
+                    O365SalesDocument.OpenDocument();
                 case "Document Type" of
                     "Document Type"::Invoice:
                         Error(ThereIsNothingToSellInvoiceErr);
@@ -241,7 +245,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
         O365SalesDocument: Record "O365 Sales Document";
     begin
         with SalesHeader do begin
-            SetRecFilter;
+            SetRecFilter();
 
             if "Document Type" <> "Document Type"::Invoice then
                 exit(false);
@@ -289,4 +293,5 @@ codeunit 2104 "O365 Send + Resend Invoice"
     begin
     end;
 }
+#endif
 

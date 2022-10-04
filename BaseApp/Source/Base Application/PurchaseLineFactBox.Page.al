@@ -8,7 +8,7 @@ page 9100 "Purchase Line FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item No.';
@@ -66,7 +66,7 @@ page 9100 "Purchase Line FactBox"
             group(Attachments)
             {
                 Caption = 'Attachments';
-                field("Attached Doc Count"; "Attached Doc Count")
+                field("Attached Doc Count"; Rec."Attached Doc Count")
                 {
                     ApplicationArea = All;
                     Caption = 'Documents';

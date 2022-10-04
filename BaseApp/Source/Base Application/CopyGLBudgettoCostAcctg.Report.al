@@ -70,7 +70,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
             trigger OnPostDataItem()
             begin
                 LastGLBudgetEntryNo := "Entry No.";
-                Window.Close;
+                Window.Close();
 
                 if NoInserted = 0 then begin
                     Message(Text006, NoSkipped);
@@ -215,9 +215,9 @@ report 1135 "Copy G/L Budget to Cost Acctg."
         GLAccount: Record "G/L Account";
         CostBudgetRegister: Record "Cost Budget Register";
         CostAccMgt: Codeunit "Cost Account Mgt";
+        DateFormula: DateFormula;
         Window: Dialog;
         DateFormulaChange: Code[10];
-        DateFormula: DateFormula;
         NextEntryNo: Integer;
         NoInserted: Integer;
         NoSkipped: Integer;
@@ -227,6 +227,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
         LastCostBudgetEntryNo: Integer;
         TotalAmount: Decimal;
         LastRegisterNo: Integer;
+
         Text000: Label 'Do you want to copy the general ledger budget "%1" to cost budget "%2"?';
         Text002: Label 'Copying budget entries\No of entries #1#####\Copied        #2#####';
         Text003: Label '%1 entries generated in budget %2.\\%3 entries were skipped because there were either no corresponding G/L accounts defined or cost center and cost object were missing.\\Copy budget?', Comment = '%2=budget name;%3=integer value';

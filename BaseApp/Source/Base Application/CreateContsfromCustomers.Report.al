@@ -26,7 +26,7 @@ report 5195 "Create Conts. from Customers"
                 Cont.TransferFields(Customer);
                 Cont."No." := '';
                 OnBeforeSetSkipDefaults(Customer, Cont);
-                Cont.SetSkipDefault;
+                Cont.SetSkipDefault();
                 OnBeforeContactInsert(Customer, Cont);
                 Cont.Insert(true);
                 DuplMgt.MakeContIndex(Cont);
@@ -35,12 +35,12 @@ report 5195 "Create Conts. from Customers"
                     DuplicateContactExist := DuplMgt.DuplicateExist(Cont);
 
                 with ContBusRel do begin
-                    Init;
+                    Init();
                     "Contact No." := Cont."No.";
                     "Business Relation Code" := RMSetup."Bus. Rel. Code for Customers";
                     "Link to Table" := "Link to Table"::Customer;
                     "No." := Customer."No.";
-                    Insert;
+                    Insert();
                 end;
 
                 InsertNewContactIfNeeded(Customer);
@@ -49,7 +49,7 @@ report 5195 "Create Conts. from Customers"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if DuplicateContactExist then
                     DuplMgt.Notify();
@@ -92,15 +92,16 @@ report 5195 "Create Conts. from Customers"
     end;
 
     var
-        Text000: Label 'Processing customers...\\';
-        Text001: Label 'Customer No.    #1##########';
-        TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 customers. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
         RMSetup: Record "Marketing Setup";
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         DuplMgt: Codeunit DuplicateManagement;
         Window: Dialog;
         DuplicateContactExist: Boolean;
+
+        Text000: Label 'Processing customers...\\';
+        Text001: Label 'Customer No.    #1##########';
+        TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 customers. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
 
     local procedure InsertNewContactIfNeeded(var Customer: Record Customer)
     var

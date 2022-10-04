@@ -10,15 +10,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     end;
 
     var
+        CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        CRMProductName: Codeunit "CRM Product Name";
+        LastSalesLineNo: Integer;
+
         CannotCreateSalesOrderInNAVTxt: Label 'The sales order cannot be created.';
         NoCRMAccountForOrderErr: Label 'Sales order %1 is created for %2 %3, which doesn''t correspond to an account in %4.', Comment = '%1=Dataverse Sales Order Name, %2 - customer id type, %3 customer id, %4 - Dataverse service name';
         ItemDoesNotExistErr: Label '%1 The item %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name';
         ItemUnitOfMeasureDoesNotExistErr: Label '%1 The item unit of measure %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=item unit of measure name';
         ResourceUnitOfMeasureDoesNotExistErr: Label '%1 The resource unit of measure %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=resource unit of measure name';
         NoCustomerErr: Label '%1 There is no potential customer defined on the %3 sales order %2.', Comment = '%1= the text: "The sales order cannot be created.", %2=sales order title, %3 - Dataverse service name';
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
-        CRMProductName: Codeunit "CRM Product Name";
-        LastSalesLineNo: Integer;
         NotCoupledCustomerErr: Label '%1 There is no customer coupled to %3 account %2.', Comment = '%1= the text: "The sales order cannot be created.", %2=account name, %3 - Dataverse service name';
         NotCoupledCRMProductErr: Label '%1 The %3 product %2 is not coupled to an item.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name, %3 - Dataverse service name';
         NotCoupledCRMResourceErr: Label '%1 The %3 resource %2 is not coupled to a resource.', Comment = '%1= the text: "The sales order cannot be created.", %2=resource name, %3 - Dataverse service name';
@@ -80,7 +81,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         // But the user will be able to manually update the discounts after the order is created in NAV
         if GuiAllowed() then
             if not HideSalesOrderDiscountsDialog() then
-                if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName()), true) then
+                if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short(), CRMProductName.CDSServiceName()), true) then
                     Error('');
 
         Session.LogMessage('0000DEW', StrSubstNo(SuccessfullyAppliedSalesOrderDiscountsTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
@@ -101,21 +102,21 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
-              CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
+              CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
              DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Payment Terms Code",
-              CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
+              CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
              DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Shipment Method Code",
-              CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipment Method Code")));
+              CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesHeader."Shipment Method Code")));
     end;
 
     local procedure CopyBillToInformationIfNotEmpty(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
@@ -412,7 +413,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.Validate(Status, SalesHeader.Status::Open);
-        SalesHeader.InitInsert;
+        SalesHeader.InitInsert();
         GetCoupledCustomer(CRMSalesorder, Customer);
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
         SalesHeader.Validate("Sell-to Contact No.");
@@ -504,7 +505,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             repeat
                 InitializeSalesOrderLine(CRMSalesorderdetail, SalesHeader, SalesLine);
                 OnCreateSalesOrderLinesOnBeforeSalesLineInsert(SalesLine, CRMSalesorderdetail);
-                SalesLine.Insert();
+                SalesLine.Insert(true);
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
             until CRMSalesorderdetail.Next() = 0;
@@ -553,7 +554,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        exit(CRMIntegrationManagement.IsCRMIntegrationEnabled and
+        exit(CRMIntegrationManagement.IsCRMIntegrationEnabled() and
           CRMCouplingManagement.IsRecordCoupledToNAV(CRMSalesorder.SalesOrderId, NAVTableID) and
           CoupledSalesHeaderExists(CRMSalesorder, SalesHeader));
     end;
@@ -561,7 +562,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     procedure GetCRMSalesOrder(var CRMSalesorder: Record "CRM Salesorder"; YourReference: Text[35]): Boolean
     begin
         CRMSalesorder.SetRange(OrderNumber, YourReference);
-        exit(CRMSalesorder.FindFirst)
+        exit(CRMSalesorder.FindFirst());
     end;
 
     procedure GetCoupledCRMSalesorder(SalesHeader: Record "Sales Header"; var CRMSalesorder: Record "CRM Salesorder")
@@ -581,7 +582,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
         // If we reached this point, a zombie coupling exists but the sales order most probably was deleted manually by the user.
         CRMIntegrationManagement.RemoveCoupling(Database::"Sales Header", Database::"CRM Salesorder", CoupledCRMId, false);
-        Error(ZombieCouplingErr, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
+        Error(ZombieCouplingErr, PRODUCTNAME.Short(), CRMProductName.CDSServiceName());
     end;
 
     procedure GetCoupledCustomer(CRMSalesorder: Record "CRM Salesorder"; var Customer: Record Customer) Result: Boolean
@@ -629,7 +630,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
         // If we reached this point, a zombie coupling exists but the sales order most probably was deleted manually by the user.
         CRMIntegrationManagement.RemoveCoupling(Database::"Sales Header", Database::"CRM Salesorder", CRMSalesorder.SalesOrderId, false);
-        Error(ZombieCouplingErr, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
+        Error(ZombieCouplingErr, PRODUCTNAME.Short(), CRMProductName.CDSServiceName());
     end;
 
     procedure GetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account") Result: Boolean

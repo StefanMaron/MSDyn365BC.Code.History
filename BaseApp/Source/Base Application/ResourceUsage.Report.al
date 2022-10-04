@@ -15,7 +15,7 @@ report 1106 "Resource Usage"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ResTableCaptionResFilter; TableCaption + ': ' + ResFilter)
@@ -82,7 +82,7 @@ report 1106 "Resource Usage"
 
     trigger OnPreReport()
     begin
-        ResFilter := Resource.GetFilters;
+        ResFilter := Resource.GetFilters();
     end;
 
     var

@@ -12,55 +12,55 @@ page 432 "Reminder Levels"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Reminder Terms Code"; "Reminder Terms Code")
+                field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminder terms code for the reminder.';
                     Visible = ReminderTermsCodeVisible;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Grace Period"; "Grace Period")
+                field("Grace Period"; Rec."Grace Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the length of the grace period for this reminder level.';
                 }
-                field("Due Date Calculation"; "Due Date Calculation")
+                field("Due Date Calculation"; Rec."Due Date Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that determines how to calculate the due date on the reminder.';
                 }
-                field("Calculate Interest"; "Calculate Interest")
+                field("Calculate Interest"; Rec."Calculate Interest")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether interest should be calculated on the reminder lines.';
                 }
-                field("Additional Fee (LCY)"; "Additional Fee (LCY)")
+                field("Additional Fee (LCY)"; Rec."Additional Fee (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AddFeeFieldsEnabled;
                     ToolTip = 'Specifies the amount of the additional fee in LCY that will be added on the reminder.';
                 }
-                field("Add. Fee per Line Amount (LCY)"; "Add. Fee per Line Amount (LCY)")
+                field("Add. Fee per Line Amount (LCY)"; Rec."Add. Fee per Line Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AddFeeFieldsEnabled;
                     ToolTip = 'Specifies the line amount of the additional fee.';
                 }
-                field("Add. Fee Calculation Type"; "Add. Fee Calculation Type")
+                field("Add. Fee Calculation Type"; Rec."Add. Fee Calculation Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the additional fee is calculated. Fixed: The Additional Fee values on the line on the Reminder Levels page are used. Dynamics Single: The per-line values on the Additional Fee Setup page are used. Accumulated Dynamic: The values on the Additional Fee Setup page are used.';
 
                     trigger OnValidate()
                     begin
-                        CheckAddFeeCalcType;
+                        CheckAddFeeCalcType();
                     end;
                 }
-                field("Add. Fee per Line Description"; "Add. Fee per Line Description")
+                field("Add. Fee per Line Description"; Rec."Add. Fee per Line Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the additional fee.';
@@ -136,8 +136,6 @@ page 432 "Reminder Levels"
                     Caption = 'Additional Fee';
                     Enabled = AddFeeSetupEnabled;
                     Image = SetupColumns;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Additional Fee Setup";
                     RunPageLink = "Charge Per Line" = CONST(false),
                                   "Reminder Terms Code" = FIELD("Reminder Terms Code"),
@@ -150,8 +148,6 @@ page 432 "Reminder Levels"
                     Caption = 'Additional Fee per Line';
                     Enabled = AddFeeSetupEnabled;
                     Image = SetupLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Additional Fee Setup";
                     RunPageLink = "Charge Per Line" = CONST(true),
                                   "Reminder Terms Code" = FIELD("Reminder Terms Code"),
@@ -170,8 +166,8 @@ page 432 "Reminder Levels"
                     var
                         AddFeeChart: Page "Additional Fee Chart";
                     begin
-                        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows then
-                            Error(ChartNotAvailableInWebErr, PRODUCTNAME.Short);
+                        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Windows then
+                            Error(ChartNotAvailableInWebErr, PRODUCTNAME.Short());
 
                         AddFeeChart.SetViewMode(Rec, false, true);
                         AddFeeChart.RunModal();
@@ -179,16 +175,30 @@ page 432 "Reminder Levels"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Additional Fee_Promoted"; "Additional Fee")
+                {
+                }
+                actionref("Additional Fee per Line_Promoted"; "Additional Fee per Line")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        CheckAddFeeCalcType;
+        CheckAddFeeCalcType();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -198,7 +208,7 @@ page 432 "Reminder Levels"
         ReminderTerms.SetFilter(Code, GetFilter("Reminder Terms Code"));
         ShowColumn := true;
         if ReminderTerms.FindFirst() then begin
-            ReminderTerms.SetRecFilter;
+            ReminderTerms.SetRecFilter();
             if ReminderTerms.GetFilter(Code) = GetFilter("Reminder Terms Code") then
                 ShowColumn := false;
         end;

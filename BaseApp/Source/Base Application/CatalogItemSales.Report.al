@@ -13,7 +13,7 @@ report 5700 "Catalog Item Sales"
         {
             DataItemTableView = SORTING("Item No.", "Entry Type");
             RequestFilterFields = "Item No.", "Location Code", "Posting Date";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -143,7 +143,7 @@ report 5700 "Catalog Item Sales"
 
     trigger OnPreReport()
     begin
-        ItemLedgerFilter := "Item Ledger Entry".GetFilters;
+        ItemLedgerFilter := "Item Ledger Entry".GetFilters();
     end;
 
     var

@@ -27,7 +27,7 @@ report 5882 "Copy Phys. Invt. Order"
                         trigger OnValidate()
                         begin
                             DocNo := '';
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(DocumentNo; DocNo)
@@ -39,12 +39,12 @@ report 5882 "Copy Phys. Invt. Order"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(CalcQtyExpected; CalcQtyExpected)
@@ -73,7 +73,7 @@ report 5882 "Copy Phys. Invt. Order"
             if DocNo = '' then
                 Error(EnterDocumentNoErr);
 
-            Find;
+            Find();
             LockTable();
             PhysInvtOrderLine.LockTable();
             PhysInvtOrderLine.Reset();
@@ -94,7 +94,7 @@ report 5882 "Copy Phys. Invt. Order"
 
                         FromPhysInvtOrderLine.Reset();
                         FromPhysInvtOrderLine.SetRange("Document No.", FromPhysInvtOrderHeader."No.");
-                        FromPhysInvtOrderLine.ClearMarks;
+                        FromPhysInvtOrderLine.ClearMarks();
                         if FromPhysInvtOrderLine.Find('-') then
                             repeat
                                 if FromPhysInvtOrderLine."Item No." <> '' then begin
@@ -120,7 +120,7 @@ report 5882 "Copy Phys. Invt. Order"
                         FromPstdPhysInvtOrderHdr.Get(DocNo);
                         FromPstdPhysInvtOrderLine.Reset();
                         FromPstdPhysInvtOrderLine.SetRange("Document No.", FromPstdPhysInvtOrderHdr."No.");
-                        FromPstdPhysInvtOrderLine.ClearMarks;
+                        FromPstdPhysInvtOrderLine.ClearMarks();
                         if FromPstdPhysInvtOrderLine.Find('-') then
                             repeat
                                 if FromPstdPhysInvtOrderLine."Item No." <> '' then begin
@@ -157,10 +157,6 @@ report 5882 "Copy Phys. Invt. Order"
     end;
 
     var
-        EnterDocumentNoErr: Label 'Please enter a Document No.';
-        CannotCopyToItSelfErr: Label 'Order %1 cannot be copied onto itself.', Comment = '%1 = Order No.';
-        LinesInsertedMsg: Label '%1 lines inserted and %2 lines not inserted into the order %3.', Comment = '%1,%2 = counters, %3 = Order No.';
-        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
         PhysInvtOrderLine2: Record "Phys. Invt. Order Line";
         FromPhysInvtOrderHeader: Record "Phys. Invt. Order Header";
@@ -176,6 +172,13 @@ report 5882 "Copy Phys. Invt. Order"
         DocType: Option "Phys. Invt. Order","Posted Phys. Invt. Order";
         CalcQtyExpected: Boolean;
 
+        EnterDocumentNoErr: Label 'Please enter a Document No.';
+        CannotCopyToItSelfErr: Label 'Order %1 cannot be copied onto itself.', Comment = '%1 = Order No.';
+        LinesInsertedMsg: Label '%1 lines inserted and %2 lines not inserted into the order %3.', Comment = '%1,%2 = counters, %3 = Order No.';
+
+    protected var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+
     procedure SetPhysInvtOrderHeader(var NewPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader := NewPhysInvtOrderHeader;
@@ -184,7 +187,7 @@ report 5882 "Copy Phys. Invt. Order"
     local procedure ValidateDocNo()
     begin
         if DocNo = '' then
-            FromPhysInvtOrderHeader.Init
+            FromPhysInvtOrderHeader.Init()
         else
             if FromPhysInvtOrderHeader."No." = '' then begin
                 FromPhysInvtOrderHeader.Init();
@@ -220,7 +223,7 @@ report 5882 "Copy Phys. Invt. Order"
                         DocNo := FromPstdPhysInvtOrderHdr."No.";
                 end;
         end;
-        ValidateDocNo;
+        ValidateDocNo();
     end;
 
     procedure InsertNewLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
@@ -235,7 +238,7 @@ report 5882 "Copy Phys. Invt. Order"
         PhysInvtOrderLine.Insert(true);
         PhysInvtOrderLine.CreateDimFromDefaultDim();
         if CalcQtyExpected then
-            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
         PhysInvtOrderLine.Modify();
         NextLineNo := NextLineNo + 10000;
     end;

@@ -21,31 +21,31 @@ page 9521 "Database Missing Indexes"
             }
             repeater(Group)
             {
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Table Name';
                     ToolTip = 'Name of the table on the database.';
                 }
-                field("Extension Id"; "Extension Id")
+                field("Extension Id"; Rec."Extension Id")
                 {
                     ApplicationArea = All;
                     Caption = 'Extension Id';
                     ToolTip = 'Id of the extension that table belongs to.';
                 }
-                field("Index Equality Columns"; "Index Equality Columns")
+                field("Index Equality Columns"; Rec."Index Equality Columns")
                 {
                     ApplicationArea = All;
                     Caption = 'Index Equality Columns';
                     ToolTip = 'A list of columns that are used in WHERE equality predicates in the SQL query needing the index.';
                 }
-                field("Index Inequality Columns"; "Index Inequality Columns")
+                field("Index Inequality Columns"; Rec."Index Inequality Columns")
                 {
                     ApplicationArea = All;
                     Caption = 'Index Inequality Columns';
                     ToolTip = 'A list of columns that are used in WHERE inequality predicates (such as < or >) or ORDER BY in the SQL query needing the index.';
                 }
-                field("Index Include Columns"; "Index Include Columns")
+                field("Index Include Columns"; Rec."Index Include Columns")
                 {
                     ApplicationArea = All;
                     Caption = 'Index Include Columns';

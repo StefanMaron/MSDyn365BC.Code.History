@@ -13,7 +13,7 @@ page 5221 "Confidential Information"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Confidential Code"; "Confidential Code")
+                field("Confidential Code"; Rec."Confidential Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a code to define the type of confidential information.';

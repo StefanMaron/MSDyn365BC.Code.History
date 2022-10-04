@@ -11,12 +11,12 @@ page 1209 "Credit Trans Re-export History"
         {
             repeater(Group)
             {
-                field("Re-export Date"; "Re-export Date")
+                field("Re-export Date"; Rec."Re-export Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment file was re-exported.';
                 }
-                field("Re-exported By"; "Re-exported By")
+                field("Re-exported By"; Rec."Re-exported By")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user who re-exported the payment file.';

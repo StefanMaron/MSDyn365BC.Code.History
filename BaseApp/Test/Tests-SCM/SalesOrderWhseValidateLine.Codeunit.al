@@ -25,7 +25,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         ErrStatusMustBeOpen: Label 'Status must be equal to ''Open''  in %1';
         ErrCannotBeDeleted: Label 'The %1 cannot be deleted when a related %2 exists';
         UnexpectedMessage: Label 'Unexpected message: "%1". Expected: "%2"';
-        MissingPermissionsMessage: Label 'You do not have the following permissions on TableData %1';
+        MissingPermissionsMessage: Label 'Sorry, the current permissions prevented the action. (TableData';
 
     local procedure Initialize()
     var
@@ -69,13 +69,13 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         Initialize();
         TestSalesOrderSetup(SalesHeader, SalesLine, Item, Location);
 
-        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption);
+        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption());
 
         SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         asserterror SalesLine2.Validate(Type, SalesLine2.Type::Resource);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -184,7 +184,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         SalesHeader: Record "Sales Header";
         ExpectedErrorMessage: Text[1024];
     begin
-        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption);
+        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption());
 
         SalesOrderDelLines(false, ExpectedErrorMessage);
     end;
@@ -198,7 +198,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         ExpectedErrorMessage: Text[1024];
     begin
         ExpectedErrorMessage := StrSubstNo(ErrCannotBeDeleted,
-            SalesLine.TableCaption, WhseShptLine.TableCaption);
+            SalesLine.TableCaption(), WhseShptLine.TableCaption());
 
         SalesOrderDelLines(true, ExpectedErrorMessage);
     end;
@@ -231,8 +231,8 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         // [WHEN] Sales Order is deleted
         // [THEN] Error message about missing permissions to Warehouse Shipment Line appears 
         AssertError SalesHeader.Delete(true);
-        assert.ExpectedError(StrSubstNo(MissingPermissionsMessage, WhseShptLine.TableCaption));
-        ClearLastError;
+        assert.ExpectedError(StrSubstNo(MissingPermissionsMessage, WhseShptLine.TableCaption()));
+        ClearLastError();
     end;
 
     local procedure LocationSetup(var Location: Record Location)
@@ -279,7 +279,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
     begin
         // One of the test cases will try to update quantity to "original - 1" so it is important to have quantity at least 2
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10) + 2, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10) + 2, Location.Code, WorkDate());
     end;
 
     local procedure TestSalesOrderSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Item: Record Item; var Location: Record Location)
@@ -306,14 +306,14 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         if Reopen then begin
             LibrarySales.ReopenSalesDocument(SalesHeader);
             ExpectedErrorMessage := StrSubstNo(ErrFieldMustNotBeChanged,
-                FieldRef.Name, WhseShptLine.TableCaption, SalesLine.TableCaption);
+                FieldRef.Name, WhseShptLine.TableCaption(), SalesLine.TableCaption());
         end else
-            ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption);
+            ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption());
 
         asserterror LibraryInventory.UpdateSalesLine(SalesLine, FieldNo, Value);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure SalesOrderDelLines(Reopen: Boolean; ExpectedErrorMessage: Text[1024])
@@ -335,7 +335,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         asserterror SalesLine.DeleteAll(true);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]

@@ -76,7 +76,7 @@ page 130011 "Tainted Tables"
     [Scope('OnPrem')]
     procedure RefreshPage()
     begin
-        Reset;
+        Reset();
         DeleteAll();
         SnapshotMgt.ListTables(Rec);
     end;

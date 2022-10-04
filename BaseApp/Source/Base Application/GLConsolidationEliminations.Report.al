@@ -15,7 +15,7 @@ report 16 "G/L Consolidation Eliminations"
             column(PeriodTextCaption; StrSubstNo(Text003, PeriodText))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLAccountGLFilter; TableCaption + ': ' + GLFilter)
@@ -314,7 +314,7 @@ report 16 "G/L Consolidation Eliminations"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         if ConsolidStartDate = 0D then
             Error(Text000);
         if ConsolidEndDate = 0D then
@@ -324,7 +324,7 @@ report 16 "G/L Consolidation Eliminations"
 
         "Gen. Journal Line".SetRange("Journal Template Name", "Gen. Journal Line"."Journal Template Name");
         "Gen. Journal Line".SetRange("Journal Batch Name", "Gen. Journal Line"."Journal Batch Name");
-        GenJnlLineFilter := "Gen. Journal Line".GetFilters;
+        GenJnlLineFilter := "Gen. Journal Line".GetFilters();
 
         if BusUnit.Code <> '' then begin
             BusUnitCode := BusUnit.Code;
@@ -336,10 +336,6 @@ report 16 "G/L Consolidation Eliminations"
     end;
 
     var
-        Text000: Label 'Enter the starting date for the consolidation period.';
-        Text001: Label 'Enter the ending date for the consolidation period.';
-        Text002: Label 'Posted Eliminations';
-        Text003: Label 'Period: %1';
         BusUnit: Record "Business Unit";
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -356,6 +352,11 @@ report 16 "G/L Consolidation Eliminations"
         TotalAmountLCY: Decimal;
         FirstLine: Boolean;
         EliminationAmount: Decimal;
+
+        Text000: Label 'Enter the starting date for the consolidation period.';
+        Text001: Label 'Enter the ending date for the consolidation period.';
+        Text002: Label 'Posted Eliminations';
+        Text003: Label 'Period: %1';
         GLConsolidationEliminationsCaptionLbl: Label 'G/L Consolidation Eliminations';
         PageCaptionLbl: Label 'Page';
         GLAcc2NoCaptionLbl: Label 'No.';

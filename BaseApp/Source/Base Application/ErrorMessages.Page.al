@@ -25,7 +25,7 @@ page 700 "Error Messages"
                 }
                 field(Description; Rec.Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     DrillDown = true;
                     Enabled = EnableOpenRelatedEntity;
                     StyleExpr = StyleText;
@@ -74,7 +74,7 @@ page 700 "Error Messages"
                 field("Support Url"; Rec."Support Url")
                 {
                     Caption = 'Support URL';
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the URL of an external web site that offers additional support.';
                 }
@@ -109,9 +109,6 @@ page 700 "Error Messages"
                 Caption = 'Open Related Record';
                 Enabled = EnableOpenRelatedEntity;
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Open the record that is associated with this error message.';
 
                 trigger OnAction()
@@ -124,16 +121,27 @@ page 700 "Error Messages"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenRelatedRecord_Promoted; OpenRelatedRecord)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        EnableActions;
+        EnableActions();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
         CallStack := Rec.GetErrorCallStack();
     end;
 

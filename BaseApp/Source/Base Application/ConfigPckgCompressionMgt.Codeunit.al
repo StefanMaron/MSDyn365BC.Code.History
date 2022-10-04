@@ -27,7 +27,7 @@ codeunit 8619 "Config. Pckg. Compression Mgt."
         SourceFile.Open(SourceFilePath);
         SourceFile.CreateInStream(SourceFileInStream);
         IsGZip := DataCompression.IsGZip(SourceFileInStream);
-        SourceFile.Close;
+        SourceFile.Close();
         if not IsGZip then
             exit(false);
         ProcessGZip(SourceFilePath, DestinationFilePath, false);
@@ -71,7 +71,7 @@ codeunit 8619 "Config. Pckg. Compression Mgt."
             CopyStream(OutStream, CompressedStream);
         end;
 
-        CompressedStream.Close;
+        CompressedStream.Close();
     end;
 
     local procedure OpenFileAndInStream(var InStream: InStream; var File: File; FilePath: Text)

@@ -25,7 +25,7 @@ page 6307 "PBI Aged Acc. Payable"
                     Caption = 'Value';
                     ToolTip = 'Specifies the value.';
                 }
-                field("Period Type"; "Period Type")
+                field("Period Type"; Rec."Period Type")
                 {
                     ApplicationArea = All;
                     Caption = 'Period Type';
@@ -37,13 +37,13 @@ page 6307 "PBI Aged Acc. Payable"
                     Caption = 'Date';
                     ToolTip = 'Specifies the date.';
                 }
-                field("Date Sorting"; "Date Sorting")
+                field("Date Sorting"; Rec."Date Sorting")
                 {
                     ApplicationArea = All;
                     Caption = 'Date Sorting';
                     ToolTip = 'Specifies the sorting.';
                 }
-                field("Period Type Sorting"; "Period Type Sorting")
+                field("Period Type Sorting"; Rec."Period Type Sorting")
                 {
                     ApplicationArea = All;
                     Caption = 'Period Type Sorting';
@@ -62,7 +62,7 @@ page 6307 "PBI Aged Acc. Payable"
         PBIAgedAccCalc: Codeunit "PBI Aged Acc. Calc";
         ChartManagement: Codeunit "Chart Management";
     begin
-        PBIAgedAccCalc.GetValues(Rec, CODEUNIT::"Aged Acc. Payable", ChartManagement.AgedAccPayableName);
+        PBIAgedAccCalc.GetValues(Rec, CODEUNIT::"Aged Acc. Payable", ChartManagement.AgedAccPayableName());
     end;
 }
 

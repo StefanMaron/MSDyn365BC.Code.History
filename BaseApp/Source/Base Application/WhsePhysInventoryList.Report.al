@@ -12,7 +12,7 @@ report 7307 "Whse. Phys. Inventory List"
         dataitem(PageLoop; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CaptionWhseJnlBatFilter; "Warehouse Journal Batch".TableCaption + ': ' + WhseJnlBatchFilter)
@@ -155,8 +155,8 @@ report 7307 "Whse. Phys. Inventory List"
 
     trigger OnPreReport()
     begin
-        WhseJnlLineFilter := "Warehouse Journal Line".GetFilters;
-        WhseJnlBatchFilter := "Warehouse Journal Batch".GetFilters;
+        WhseJnlLineFilter := "Warehouse Journal Line".GetFilters();
+        WhseJnlBatchFilter := "Warehouse Journal Batch".GetFilters();
     end;
 
     var

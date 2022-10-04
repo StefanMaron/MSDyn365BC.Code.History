@@ -4,7 +4,6 @@ page 99000815 "Production Order List"
     DataCaptionFields = Status;
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Entries,Prod. Order';
     SourceTable = "Production Order";
     UsageCategory = Lists;
 
@@ -15,7 +14,7 @@ page 99000815 "Production Order List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;
@@ -26,12 +25,12 @@ page 99000815 "Production Order List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing number used for this production order.';
@@ -41,19 +40,19 @@ page 99000815 "Production Order List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item or the family to produce (production quantity).';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
@@ -101,27 +100,27 @@ page 99000815 "Production Order List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and starting time of the production order.';
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and ending time of the production order.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the due date of the production order.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Finished Date"; "Finished Date")
+                field("Finished Date"; Rec."Finished Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the actual finishing date of a finished production order.';
@@ -132,7 +131,7 @@ page 99000815 "Production Order List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production order.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the search description.';
@@ -195,8 +194,6 @@ page 99000815 "Production Order List"
                         ApplicationArea = Manufacturing;
                         Caption = 'Item Ledger E&ntries';
                         Image = ItemLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Item Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("No.");
@@ -209,8 +206,6 @@ page 99000815 "Production Order List"
                         ApplicationArea = Manufacturing;
                         Caption = 'Capacity Ledger Entries';
                         Image = CapacityLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Capacity Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("No.");
@@ -222,8 +217,6 @@ page 99000815 "Production Order List"
                         ApplicationArea = Manufacturing;
                         Caption = 'Value Entries';
                         Image = ValueLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Value Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("No.");
@@ -235,8 +228,6 @@ page 99000815 "Production Order List"
                         ApplicationArea = Warehouse;
                         Caption = '&Warehouse Entries';
                         Image = BinLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Warehouse Entries";
                         RunPageLink = "Source Type" = FILTER(83 | 5407),
                                       "Source Subtype" = FILTER("3" | "4" | "5"),
@@ -250,8 +241,6 @@ page 99000815 "Production Order List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Prod. Order Comment Sheet";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("No.");
@@ -263,16 +252,13 @@ page 99000815 "Production Order List"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(Statistics)
@@ -280,15 +266,50 @@ page 99000815 "Production Order List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Production Order Statistics";
                     RunPageLink = Status = FIELD(Status),
                                   "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entries', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Item Ledger E&ntries_Promoted"; "Item Ledger E&ntries")
+                {
+                }
+                actionref("Capacity Ledger Entries_Promoted"; "Capacity Ledger Entries")
+                {
+                }
+                actionref("Value Entries_Promoted"; "Value Entries")
+                {
+                }
+                actionref("&Warehouse Entries_Promoted"; "&Warehouse Entries")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Prod. Order', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
                 }
             }
         }

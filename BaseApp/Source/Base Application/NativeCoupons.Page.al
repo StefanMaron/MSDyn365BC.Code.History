@@ -105,7 +105,7 @@ page 2815 "Native - Coupons"
 
     trigger OnAfterGetRecord()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     var
@@ -118,16 +118,16 @@ page 2815 "Native - Coupons"
     begin
         O365CouponClaimDocLink.SetRange("Claim ID", "Claim ID");
         O365CouponClaimDocLink.SetRange("Graph Contact ID", "Graph Contact ID");
-        isAppliedVar := not O365CouponClaimDocLink.IsEmpty;
+        isAppliedVar := not O365CouponClaimDocLink.IsEmpty();
         if not isAppliedVar then begin
             O365PostedCouponClaim.SetRange("Claim ID", "Claim ID");
             O365PostedCouponClaim.SetRange("Graph Contact ID", "Graph Contact ID");
-            isAppliedVar := not O365PostedCouponClaim.IsEmpty;
+            isAppliedVar := not O365PostedCouponClaim.IsEmpty();
         end;
         if isAppliedVar then
-            "Status Text" := AppliedStatusText
+            "Status Text" := AppliedStatusText()
         else
-            UpdateStatusText;
+            UpdateStatusText();
     end;
 }
 #endif

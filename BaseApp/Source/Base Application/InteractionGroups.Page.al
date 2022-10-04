@@ -64,8 +64,6 @@ page 5074 "Interaction Groups"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Interaction Group Statistics";
                     RunPageLink = Code = FIELD(Code);
                     ShortCutKey = 'F7';
@@ -80,6 +78,17 @@ page 5074 "Interaction Groups"
                     RunPageLink = "Interaction Group Code" = FIELD(Code);
                     RunPageView = SORTING("Interaction Group Code");
                     ToolTip = 'View the different templates that you can use when creating interactions.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

@@ -4,7 +4,6 @@ page 8610 "Config. Questionnaire"
     ApplicationArea = Suite;
     Caption = 'Configuration Questionnaire';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Excel';
     SourceTable = "Config. Questionnaire";
     UsageCategory = Lists;
 
@@ -56,8 +55,6 @@ page 8610 "Config. Questionnaire"
                     Caption = 'E&xport to Excel';
                     Ellipsis = true;
                     Image = ExportToExcel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Export data in the questionnaire to Excel.';
 
                     trigger OnAction()
@@ -76,8 +73,6 @@ page 8610 "Config. Questionnaire"
                     Caption = '&Export to XML';
                     Ellipsis = true;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Export information in the questionnaire to Excel.';
 
                     trigger OnAction()
@@ -94,13 +89,11 @@ page 8610 "Config. Questionnaire"
                     Caption = '&Import from XML';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Import information from XML into the questionnaire. Save the filled Excel file as "XML Data" to produce the XML file to import.';
 
                     trigger OnAction()
                     begin
-                        if QuestionnaireMgt.ImportQuestionnaireAsXMLFromClient then
+                        if QuestionnaireMgt.ImportQuestionnaireAsXMLFromClient() then
                             Message(Text001);
                     end;
                 }
@@ -127,8 +120,6 @@ page 8610 "Config. Questionnaire"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Apply Answers';
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Implement answers in the questionnaire in the related setup fields.';
 
                     trigger OnAction()
@@ -149,21 +140,52 @@ page 8610 "Config. Questionnaire"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Question Areas';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Config. Question Areas";
                     RunPageLink = "Questionnaire Code" = FIELD(Code);
                     ToolTip = 'View the areas that questions are grouped by.';
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Apply Answers_Promoted"; "&Apply Answers")
+                {
+                }
+                actionref("&Question Areas_Promoted"; "&Question Areas")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Excel', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ExportToExcel_Promoted; ExportToExcel)
+                {
+                }
+                actionref(ExportToXML_Promoted; ExportToXML)
+                {
+                }
+                actionref(ImportFromXML_Promoted; ImportFromXML)
+                {
+                }
+            }
+        }
     }
 
     var
+        QuestionnaireMgt: Codeunit "Questionnaire Management";
+
         Text000: Label 'The questionnaire has been successfully exported.';
         Text001: Label 'The questionnaire has been successfully imported.';
         Text003: Label 'The export of the questionnaire has been canceled.';
-        QuestionnaireMgt: Codeunit "Questionnaire Management";
         Text004: Label 'The questionnaire has been updated.';
         Text005: Label 'Answers have been applied.';
 }

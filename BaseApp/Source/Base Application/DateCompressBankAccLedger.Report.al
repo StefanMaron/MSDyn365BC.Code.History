@@ -49,7 +49,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
                       0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewBankAccLedgEntry, BankAccLedgEntry2);
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         DimBufMgt.CollectDimEntryNo(
                           TempSelectedDim, "Dimension Set ID", "Entry No.",
                           ComprDimEntryNo, true, DimEntryNo);
@@ -59,7 +59,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
 
                     InsertNewEntry(NewBankAccLedgEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -109,7 +109,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Bank Acc. Ledger"));
@@ -222,7 +222,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
 
         trigger OnOpenPage()
         begin
-            InitializeParameter;
+            InitializeParameter();
         end;
 
         trigger OnInit()
@@ -253,11 +253,6 @@ report 1498 "Date Compress Bank Acc. Ledger"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing bank account ledger entries...\\Bank Account No.       #1##########\Date                   #2######\\No. of new entries     #3######\No. of entries deleted #4######';
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -286,6 +281,12 @@ report 1498 "Date Compress Bank Acc. Ledger"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing bank account ledger entries...\\Bank Account No.       #1##########\Date                   #2######\\No. of new entries     #3######\No. of entries deleted #4######';
+        Text009: Label 'Date Compressed';
+        Text010: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -367,7 +368,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         then begin
             LastEntryNo := FoundLastEntryNo;
             NextTransactionNo := LastTransactionNo + 1;
-            InitRegisters;
+            InitRegisters();
         end;
     end;
 
@@ -383,7 +384,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
               NewBankAccLedgEntry."Debit Amount (LCY)" + "Debit Amount (LCY)";
             NewBankAccLedgEntry."Credit Amount (LCY)" :=
               NewBankAccLedgEntry."Credit Amount (LCY)" + "Credit Amount (LCY)";
-            Delete;
+            Delete();
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
@@ -414,7 +415,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewBankAccLedgEntry: Record "Bank Account Ledger Entry")

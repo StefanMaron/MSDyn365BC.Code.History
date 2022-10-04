@@ -14,13 +14,13 @@ page 354 "Item Turnover Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the start date of the period defined on the line, related to year-to-date inventory turnover.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';

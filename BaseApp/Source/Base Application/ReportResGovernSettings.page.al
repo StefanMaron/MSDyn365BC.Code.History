@@ -97,10 +97,6 @@ page 9882 "Report Res. Govern. Settings"
             {
                 ApplicationArea = All;
                 Image = Process;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Caption = 'Run Report';
                 ToolTip = 'Run the Report to test the settings.';
 
@@ -113,6 +109,17 @@ page 9882 "Report Res. Govern. Settings"
                             message(NotSupportedTypeMsg, "Object Type");
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(RunObject_Promoted; RunObject)
+                {
+                }
             }
         }
     }

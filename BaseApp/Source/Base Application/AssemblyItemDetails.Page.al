@@ -8,18 +8,18 @@ page 910 "Assembly Item - Details"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Assembly;
                 Caption = 'Item No.';
                 ToolTip = 'Specifies the number of the item.';
             }
-            field("Standard Cost"; "Standard Cost")
+            field("Standard Cost"; Rec."Standard Cost")
             {
                 ApplicationArea = Assembly;
                 ToolTip = 'Specifies the unit cost that is used as an estimation to be adjusted with variances later. It is typically used in assembly and production where costs can vary.';
             }
-            field("Unit Price"; "Unit Price")
+            field("Unit Price"; Rec."Unit Price")
             {
                 ApplicationArea = Assembly;
                 ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';

@@ -4,7 +4,6 @@ page 7015 "Sales Price Lists"
     CardPageID = "Sales Price List";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report';
     QueryCategory = 'Sales Price Lists';
     RefreshOnActivate = true;
     SourceTable = "Price List Header";
@@ -197,9 +196,16 @@ page 7015 "Sales Price Lists"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

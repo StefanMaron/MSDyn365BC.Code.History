@@ -62,7 +62,7 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnValidate()
                     begin
-                        BinCodeOnAfterValidate;
+                        BinCodeOnAfterValidate();
                     end;
                 }
                 field("Cross-Dock Zone Code"; Rec."Cross-Dock Zone Code")
@@ -240,7 +240,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent);
+                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -252,7 +252,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -264,7 +264,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant);
+                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -277,7 +277,7 @@ page 5769 "Whse. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation);
+                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -410,7 +410,7 @@ page 5769 "Whse. Receipt Subform"
 
     protected procedure QtytoReceiveOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
     end;
 
     local procedure SetOverReceiptControlsVisibility()

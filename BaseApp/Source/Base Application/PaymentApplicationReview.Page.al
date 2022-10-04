@@ -19,13 +19,13 @@ page 1287 "Payment Application Review"
                 {
                     Caption = 'Transaction Details';
 
-                    field("Transaction Date"; "Transaction Date")
+                    field("Transaction Date"; Rec."Transaction Date")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the date when the payment represented by the journal line was recorded in the bank account.';
                     }
 
-                    field("Transaction Text"; "Transaction Text")
+                    field("Transaction Text"; Rec."Transaction Text")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the text that the customer or vendor entered on that payment transaction that is represented by the journal line.';
@@ -33,7 +33,7 @@ page 1287 "Payment Application Review"
                         MultiLine = true;
                     }
 
-                    field("Statement Amount"; "Statement Amount")
+                    field("Statement Amount"; Rec."Statement Amount")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Transaction Amount';
@@ -112,13 +112,13 @@ page 1287 "Payment Application Review"
                         }
                     }
 
-                    field("Account Type"; "Account Type")
+                    field("Account Type"; Rec."Account Type")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the payment reconciliation journal.';
                     }
 
-                    field("Account No."; "Account No.")
+                    field("Account No."; Rec."Account No.")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the account number that the payment application will be posted to when you post the payment reconciliation journal.';
@@ -337,10 +337,6 @@ page 1287 "Payment Application Review"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Accept Application';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Enabled = Not LineNotAppliedVisible;
                     ToolTip = 'Accept an automatic payment application after reviewing it or manually applying it. This closes the payment application and sets the Match Confidence field to Accepted.';
 
@@ -359,10 +355,6 @@ page 1287 "Payment Application Review"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Application';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Enabled = Not LineNotAppliedVisible;
                     ToolTip = 'Remove a payment application from a ledger entry. This unapplies the payment.';
 
@@ -381,10 +373,6 @@ page 1287 "Payment Application Review"
                     Caption = '&Apply Manually';
                     Ellipsis = true;
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Review and apply payments that were applied automatically to wrong open ledger entries or not applied at all.';
 
                     trigger OnAction()
@@ -400,10 +388,6 @@ page 1287 "Payment Application Review"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transfer Difference to Account';
                     Image = TransferToGeneralJournal;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Specify the balancing account that you want a non-applicable payment amount on a payment reconciliation journal line to be posted to when you post the journal.';
 
                     trigger OnAction()
@@ -420,10 +404,6 @@ page 1287 "Payment Application Review"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Map Text to Account';
                     Image = Add;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Associate text on payments with debit, credit, or balancing accounts so that payments are posted to the accounts when you post payments. The payments are not applied to invoices or credit memos, and are suited for recurring cash receipts or expenses.';
 
                     trigger OnAction()
@@ -437,6 +417,29 @@ page 1287 "Payment Application Review"
                         if Confirm(WouldYouLikeToRunMapTexttoAccountAgainQst) then
                             MatchBankPayments.RerunTextMapper(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Accept_Promoted; Accept)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(ApplyEntries_Promoted; ApplyEntries)
+                {
+                }
+                actionref(TransferDiffToAccount_Promoted; TransferDiffToAccount)
+                {
+                }
+                actionref(AddMappingRule_Promoted; AddMappingRule)
+                {
                 }
             }
         }

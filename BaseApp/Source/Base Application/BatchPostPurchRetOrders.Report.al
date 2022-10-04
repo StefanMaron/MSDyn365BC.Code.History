@@ -135,9 +135,6 @@ report 6665 "Batch Post Purch. Ret. Orders"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
 
     protected var
         PostingDateReq: Date;
@@ -146,6 +143,9 @@ report 6665 "Batch Post Purch. Ret. Orders"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)

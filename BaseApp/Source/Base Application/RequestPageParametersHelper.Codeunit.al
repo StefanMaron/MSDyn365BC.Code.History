@@ -26,7 +26,7 @@ codeunit 1530 "Request Page Parameters Helper"
                 exit(false);
 
         FilterPageBuilder.PageCaption := PageCaption;
-        if not FilterPageBuilder.RunModal then
+        if not FilterPageBuilder.RunModal() then
             exit(false);
 
         NewFilters :=
@@ -58,7 +58,7 @@ codeunit 1530 "Request Page Parameters Helper"
     var
         ParametersInStream: InStream;
     begin
-        if TempBlob.HasValue then begin
+        if TempBlob.HasValue() then begin
             TempBlob.CreateInStream(ParametersInStream, Encoding);
             ParametersInStream.ReadText(Parameters);
         end;
@@ -179,7 +179,7 @@ codeunit 1530 "Request Page Parameters Helper"
         if not TableMetadata.Get(TableID) then
             exit(false);
 
-        TableList := TableList.ArrayList;
+        TableList := TableList.ArrayList();
         TableList.Add(TableID);
 
         DynamicRequestPageEntity.SetRange(Name, EntityName);
@@ -221,7 +221,7 @@ codeunit 1530 "Request Page Parameters Helper"
             RecRef.Open(Table);
             GetFiltersForTable(RecRef, FoundXmlNodeList);
             FilterPageBuilder.SetView(GetTableCaption(Table), RecRef.GetView(false));
-            RecRef.Close;
+            RecRef.Close();
             Clear(RecRef);
         end;
 
@@ -239,10 +239,9 @@ codeunit 1530 "Request Page Parameters Helper"
 
         TableFilterDictionary := TableFilterDictionary.Dictionary(TableList.Count);
 
-        foreach Table in TableList do begin
+        foreach Table in TableList do
             if not TableFilterDictionary.ContainsKey(Table) then
                 TableFilterDictionary.Add(Table, FilterPageBuilder.GetView(GetTableCaption(Table), false));
-        end;
 
         exit(ConvertFiltersToParameters(TableFilterDictionary));
     end;
@@ -256,7 +255,7 @@ codeunit 1530 "Request Page Parameters Helper"
         ReportParametersXmlNode: DotNet XmlNode;
         TableFilter: DotNet GenericKeyValuePair2;
     begin
-        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc := XmlDoc.XmlDocument();
 
         XMLDOMMgt.AddRootElement(XmlDoc, 'ReportParameters', ReportParametersXmlNode);
         XMLDOMMgt.AddDeclaration(XmlDoc, '1.0', 'utf-8', 'yes');

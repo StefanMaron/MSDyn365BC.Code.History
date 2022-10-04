@@ -30,7 +30,7 @@ page 5133 "Close Opportunity Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the reason for closing the opportunity.';
                 }
-                field("No. of Opportunities"; "No. of Opportunities")
+                field("No. of Opportunities"; Rec."No. of Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of opportunities closed using this close opportunity code. This field is not editable.';

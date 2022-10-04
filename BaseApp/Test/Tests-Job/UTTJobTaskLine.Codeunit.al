@@ -224,7 +224,7 @@ codeunit 136352 "UT T Job Task Line"
         Value[2] := LibraryUtility.GenerateGUID();
 
         // Verify that the Job Task can be renamed
-        JobTask.Find;
+        JobTask.Find();
         JobTask.Rename(Job."No.", Value[1]);
 
         // WIP Entry created for Job and Job Task
@@ -364,7 +364,7 @@ codeunit 136352 "UT T Job Task Line"
         if JobPlanningLineSet.FindSet() then
             repeat
                 RemainingTotalCost += JobPlanningLineSet."Remaining Total Cost (LCY)";
-            until JobPlanningLineSet.Next = 0;
+            until JobPlanningLineSet.Next() = 0;
 
         JobTask.CalcFields("Remaining (Total Cost)");
         Assert.AreEqual(RemainingTotalCost, JobTask."Remaining (Total Cost)", 'Remaining (Total Cost) does not have the correct value.');
@@ -387,7 +387,7 @@ codeunit 136352 "UT T Job Task Line"
         if JobPlanningLineSet.FindSet() then
             repeat
                 RemainingTotalPrice += JobPlanningLineSet."Remaining Line Amount (LCY)";
-            until JobPlanningLineSet.Next = 0;
+            until JobPlanningLineSet.Next() = 0;
 
         JobTask.CalcFields("Remaining (Total Price)");
         Assert.AreEqual(
@@ -411,14 +411,14 @@ codeunit 136352 "UT T Job Task Line"
         with JobTask do begin
             "Recognized Sales Amount" := 1;
             "Recognized Costs Amount" := 1;
-            Modify;
+            Modify();
         end;
 
         with JobWIPTotal do begin
-            Init;
+            Init();
             "Job No." := Job."No.";
             "Job Task No." := JobTask."Job Task No.";
-            "WIP Posting Date" := WorkDate;
+            "WIP Posting Date" := WorkDate();
             "WIP Method" := JobWIPMethod.Code;
             "Schedule (Total Cost)" := 1;
             "Schedule (Total Price)" := 1;
@@ -434,7 +434,7 @@ codeunit 136352 "UT T Job Task Line"
             "Calc. Recog. Sales Amount" := 1;
             "Cost Completion %" := 1;
             "Invoiced %" := 1;
-            Insert;
+            Insert();
         end;
 
         JobWIPTotal.SetRange("Job No.", Job."No.");
@@ -442,7 +442,7 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPTotal.SetRange("Posted to G/L", false);
         Assert.IsTrue(JobWIPTotal.FindFirst, 'Job WIP Total does not exist for the Job Task Line');
 
-        JobTask.InitWIPFields;
+        JobTask.InitWIPFields();
 
         with JobTask do begin
             Assert.AreEqual(0, "Recognized Sales Amount", 'Field initalized wrongly.');
@@ -553,8 +553,8 @@ codeunit 136352 "UT T Job Task Line"
         with JobWIPEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(JobWIPEntry, FieldNo("Entry No."));
             "Job No." := JobNo;
-            Insert;
-            Modify;
+            Insert();
+            Modify();
         end;
     end;
 }

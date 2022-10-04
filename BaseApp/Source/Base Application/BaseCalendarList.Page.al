@@ -26,7 +26,7 @@ page 7601 "Base Calendar List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the base calendar in the entry.';
                 }
-                field("Customized Changes Exist"; "Customized Changes Exist")
+                field("Customized Changes Exist"; Rec."Customized Changes Exist")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Customized Changes Exist';

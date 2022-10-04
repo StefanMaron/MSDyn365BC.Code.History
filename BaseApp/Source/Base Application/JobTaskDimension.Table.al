@@ -25,7 +25,7 @@ table 1002 "Job Task Dimension"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDim("Dimension Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
                 "Dimension Value Code" := '';
             end;
         }
@@ -37,7 +37,7 @@ table 1002 "Job Task Dimension"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDimValue("Dimension Code", "Dimension Value Code") then
-                    Error(DimMgt.GetDimErr);
+                    Error(DimMgt.GetDimErr());
             end;
         }
         field(5; "Multiple Selection Action"; Option)

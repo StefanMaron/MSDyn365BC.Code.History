@@ -12,18 +12,18 @@ page 5065 "Mailing Group Contacts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the contact to which you assign a mailing group.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the contact company. If the contact you assign the mailing group is a person, this field contains the name of the company for which the contact works.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

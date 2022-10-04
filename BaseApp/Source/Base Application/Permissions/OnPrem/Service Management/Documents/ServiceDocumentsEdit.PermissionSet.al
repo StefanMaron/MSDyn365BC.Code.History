@@ -88,7 +88,7 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Reservation Entry" = Rimd,
                   tabledata "Resolution Code" = R,
                   tabledata Resource = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif
@@ -98,7 +98,7 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Return Receipt Header" = R,
                   tabledata "Sales Discount Access" = R,
                   tabledata "Sales Line" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = R,
                   tabledata "Sales Price" = R,
 #endif

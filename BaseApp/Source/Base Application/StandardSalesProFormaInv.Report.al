@@ -117,7 +117,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(DocumentNo; "No.")
             {
             }
-            column(CompanyLegalOffice; CompanyInformation.GetLegalOffice)
+            column(CompanyLegalOffice; CompanyInformation.GetLegalOffice())
             {
             }
             column(SalesPersonName; SalespersonPurchaserName)
@@ -147,7 +147,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(ExternalDocumentNoLbl; FieldCaption("External Document No."))
             {
             }
-            column(CompanyLegalOfficeLbl; CompanyInformation.GetLegalOfficeLbl)
+            column(CompanyLegalOfficeLbl; CompanyInformation.GetLegalOfficeLbl())
             {
             }
             column(SalesPersonLbl; SalesPersonLblText)
@@ -162,13 +162,13 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(CompanyPhoneNoLbl; CompanyInformation.FieldCaption("Phone No."))
             {
             }
-            column(ShipmentMethodDescriptionLbl; DummyShipmentMethod.TableCaption)
+            column(ShipmentMethodDescriptionLbl; DummyShipmentMethod.TableCaption())
             {
             }
-            column(CurrencyLbl; DummyCurrency.TableCaption)
+            column(CurrencyLbl; DummyCurrency.TableCaption())
             {
             }
-            column(ItemLbl; Item.TableCaption)
+            column(ItemLbl; Item.TableCaption())
             {
             }
             column(TariffLbl; Item.FieldCaption("Tariff No."))
@@ -186,7 +186,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(VATPctLbl; Line.FieldCaption("VAT %"))
             {
             }
-            column(VATAmountLbl; DummyVATAmountLine.VATAmountText)
+            column(VATAmountLbl; DummyVATAmountLine.VATAmountText())
             {
             }
             column(TotalWeightLbl; TotalWeightLbl)
@@ -360,8 +360,6 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
     var
         CompanyInformation: Record "Company Information";
-        DocumentTitleLbl: Label 'Pro Forma Invoice';
-        PageLbl: Label 'Page';
         Item: Record Item;
         DummyVATAmountLine: Record "VAT Amount Line";
         DummyShipmentMethod: Record "Shipment Method";
@@ -389,6 +387,14 @@ report 1302 "Standard Sales - Pro Forma Inv"
         CurrencyCode: Code[10];
         TotalWeight: Decimal;
         TotalAmount: Decimal;
+        TotalVATAmount: Decimal;
+        TotalAmountInclVAT: Decimal;
+        LinePrice: Decimal;
+        LineAmount: Decimal;
+        VATAmount: Decimal;
+
+        DocumentTitleLbl: Label 'Pro Forma Invoice';
+        PageLbl: Label 'Page';
         DeclartionLbl: Label 'For customs purposes only.';
         SignatureLbl: Label 'For and on behalf of the above named company:';
         SignatureNameLbl: Label 'Name (in print) Signature';
@@ -399,11 +405,6 @@ report 1302 "Standard Sales - Pro Forma Inv"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-        TotalVATAmount: Decimal;
-        TotalAmountInclVAT: Decimal;
-        LinePrice: Decimal;
-        LineAmount: Decimal;
-        VATAmount: Decimal;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     var
@@ -431,7 +432,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
                 GeneralLedgerSetup.Get();
                 GeneralLedgerSetup.TestField("LCY Code");
                 CurrencyCode := GeneralLedgerSetup."LCY Code";
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
             end else begin
                 CurrencyCode := "Currency Code";
                 Currency.Get("Currency Code");

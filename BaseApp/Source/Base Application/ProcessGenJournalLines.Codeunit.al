@@ -73,7 +73,7 @@ codeunit 1247 "Process Gen. Journal  Lines"
 
         UpdateGenJournalLines(GenJnlLineTemplate);
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
 
         OnAfterImportBankStatement(GenJnlLine, GenJnlLineTemplate);
     end;

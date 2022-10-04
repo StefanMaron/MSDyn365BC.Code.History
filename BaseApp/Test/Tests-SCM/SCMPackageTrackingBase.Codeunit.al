@@ -46,7 +46,7 @@ codeunit 137263 "SCM Tracking Package Base"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 20);
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, Location.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[1], 6);
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[2], 4);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -134,7 +134,7 @@ codeunit 137263 "SCM Tracking Package Base"
         Initialize();
         InitScenarioOneItemTwoPackages(Location, Item, PackageNo);
         InitQty(TotalQty, Qty);
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", TotalQty, Location.Code);
         for i := 1 to ArrayLen(Qty) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[i], Qty[i]);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -178,7 +178,7 @@ codeunit 137263 "SCM Tracking Package Base"
         InitScenarioOneItemTwoPackages(Location, Item, PackageNo);
         InitQty(TotalQty, Qty);
         LibraryInventory.CreateItemJnlLine(
-          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
+          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", TotalQty, Location.Code);
         for i := 1 to ArrayLen(Qty) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[i], Qty[i]);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -220,7 +220,7 @@ codeunit 137263 "SCM Tracking Package Base"
         InitScenarioOneItemTwoPackages(Location, Item, PackageNo);
         InitQty(TotalQty, Qty);
         LibraryInventory.CreateItemJnlLine(
-          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, Location.Code);
+          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", TotalQty, Location.Code);
 
         for i := 1 to ArrayLen(Qty) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[i], Qty[i]);
@@ -282,7 +282,7 @@ codeunit 137263 "SCM Tracking Package Base"
         end;
 
         LibraryInventory.CreateItemJnlLine(
-          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", TotalQty, LocationFrom.Code);
+          ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", TotalQty, LocationFrom.Code);
         for i := 1 to ArrayLen(Qty) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', '', PackageNo[i], Qty[i]);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
@@ -356,7 +356,7 @@ codeunit 137263 "SCM Tracking Package Base"
         InvtReceiptLine.SetRange("Document No.", InvtReceiptHeader."No.");
         InvtReceiptLine.FindFirst();
 
-        Assert.IsTrue(ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(InvtReceiptLine.RowID1), PostedItemDocumentShowTrackingErr);
+        Assert.IsTrue(ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(InvtReceiptLine.RowID1()), PostedItemDocumentShowTrackingErr);
 
         // [THEN] ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine is true on shipment line
         InvtShipmentHeader.SetRange("Shipment No.", ShipmentNo);
@@ -364,7 +364,7 @@ codeunit 137263 "SCM Tracking Package Base"
         InvtShipmentLine.SetRange("Document No.", InvtShipmentHeader."No.");
         InvtShipmentLine.FindFirst();
 
-        Assert.IsTrue(ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(InvtShipmentLine.RowID1), PostedItemDocumentShowTrackingErr);
+        Assert.IsTrue(ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(InvtShipmentLine.RowID1()), PostedItemDocumentShowTrackingErr);
     end;
 
     [Test]
@@ -416,7 +416,7 @@ codeunit 137263 "SCM Tracking Package Base"
 
         // [THEN] Post positive adjustment quantity with lot tracking
         LibraryInventory.CreateItemJnlLine(
-          ItemJournalLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", 10, Location.Code);
+          ItemJournalLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
         ItemTrackingSetup."Lot No." := 'LOT1';
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, ItemTrackingSetup, 10);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
@@ -612,7 +612,7 @@ codeunit 137263 "SCM Tracking Package Base"
         ReleaseSalesDoc: Codeunit "Release Sales Document";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
@@ -650,7 +650,7 @@ codeunit 137263 "SCM Tracking Package Base"
         Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Modify(true);
 
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1, LibraryRandom.RandDec(100, 2));
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1, LibraryRandom.RandDec(100, 2));
         exit(Currency.Code);
     end;
 
@@ -712,7 +712,7 @@ codeunit 137263 "SCM Tracking Package Base"
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindFirst();
-        CurrencyExchangeRate.Validate("Starting Date", CalcDate('<1M>', WorkDate));
+        CurrencyExchangeRate.Validate("Starting Date", CalcDate('<1M>', WorkDate()));
         CurrencyExchangeRate.Validate(
             "Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" + LibraryRandom.RandInt(100));
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");

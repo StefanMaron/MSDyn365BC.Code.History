@@ -78,12 +78,12 @@ table 701 "Error Message Register"
 
     procedure New(NewDescription: Text[250]): Guid
     begin
-        Init;
-        ID := CreateGuid;
+        Init();
+        ID := CreateGuid();
         "Created On" := CurrentDateTime;
         "User ID" := UserId;
         Description := NewDescription;
-        Insert;
+        Insert();
         exit(ID);
     end;
 }

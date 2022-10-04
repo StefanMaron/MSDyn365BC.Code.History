@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 132221 "EventSubscriber Invoicing App"
 {
     EventSubscriberInstance = Manual;
@@ -199,4 +200,4 @@ codeunit 132221 "EventSubscriber Invoicing App"
         TestClientTypeSubscriber.SetClientType(NewClientType);
     end;
 }
-
+#endif

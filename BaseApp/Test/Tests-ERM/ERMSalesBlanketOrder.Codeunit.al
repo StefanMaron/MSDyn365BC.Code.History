@@ -78,12 +78,12 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesLine.FindSet();
         repeat
             BaseAmount += SalesLine."Line Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         Assert.AreNearlyEqual(
           BaseAmount * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
-            AmountErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), BaseAmount * SalesLine."VAT %" / 100, VATAmountLine.TableCaption));
+            AmountErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), BaseAmount * SalesLine."VAT %" / 100, VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -242,7 +242,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         FindOrderLineFromBlanket(SalesLine, SalesHeader);
         Assert.AreNearlyEqual(
           InvDiscountAmount, SalesLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErrorMessage, SalesLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, SalesLine.TableCaption));
+          StrSubstNo(AmountErrorMessage, SalesLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, SalesLine.TableCaption()));
     end;
 
     [Test]
@@ -1281,18 +1281,18 @@ codeunit 134377 "ERM Sales Blanket Order"
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := DocumentType;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
             "Sell-to Customer No." := CustomerNo;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type")
     begin
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
@@ -1302,7 +1302,7 @@ codeunit 134377 "ERM Sales Blanket Order"
             "Quantity Invoiced" := LibraryRandom.RandInt(10);
             "Unit Price" := LibraryRandom.RandDec(10, 2);
             "Line Amount" := Quantity * "Unit Price";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1381,7 +1381,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange(Type, SalesLine.Type::" ");  // Blank value for Type.
         SalesLine.SetRange(Description, Description);
-        exit(SalesLine.FindFirst);
+        exit(SalesLine.FindFirst())
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -1476,7 +1476,7 @@ codeunit 134377 "ERM Sales Blanket Order"
 
         with SalesHeader do begin
             PaymentTerms.Get("Prepmt. Payment Terms Code");
-            TestField("Document Date", WorkDate);
+            TestField("Document Date", WorkDate());
             TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
             TestField("Prepmt. Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
             TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));

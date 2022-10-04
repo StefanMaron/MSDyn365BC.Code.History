@@ -47,13 +47,13 @@ page 800 "Online Map Setup"
             group(Settings)
             {
                 Caption = 'Settings';
-                field("Map Parameter Setup Code"; "Map Parameter Setup Code")
+                field("Map Parameter Setup Code"; Rec."Map Parameter Setup Code")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "Online Map Parameter Setup";
                     ToolTip = 'Specifies the map parameter code that is set up in the Online Map Parameter Setup window.';
                 }
-                field("Distance In"; "Distance In")
+                field("Distance In"; Rec."Distance In")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Distance in';
@@ -91,11 +91,19 @@ page 800 "Online Map Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Parameter Setup';
                 Image = EditList;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Online Map Parameter Setup";
                 ToolTip = 'Define which online map will be displayed when you call a map from a card, and what language will be used in maps and route directions.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Parameter Setup_Promoted"; "&Parameter Setup")
+                {
+                }
             }
         }
     }
@@ -104,10 +112,10 @@ page 800 "Online Map Setup"
     var
         OnlineMapMgt: Codeunit "Online Map Management";
     begin
-        Reset;
-        if not Get then begin
-            OnlineMapMgt.SetupDefault;
-            Get;
+        Reset();
+        if not Get() then begin
+            OnlineMapMgt.SetupDefault();
+            Get();
         end;
     end;
 

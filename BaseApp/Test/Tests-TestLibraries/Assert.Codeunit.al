@@ -117,7 +117,7 @@ codeunit 130000 Assert
     begin
         RecRef.Open(TableNo);
         RecRefIsEmpty(RecRef);
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure TableIsNotEmpty(TableNo: Integer)
@@ -126,7 +126,7 @@ codeunit 130000 Assert
     begin
         RecRef.Open(TableNo);
         RecRefIsNotEmpty(RecRef);
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure RecRefIsEmpty(var RecRef: RecordRef)
@@ -148,7 +148,7 @@ codeunit 130000 Assert
         RecRef.GetTable(RecVariant);
         if ExpectedCount <> RecRef.Count then
             Error(RecordCountErr, RecRef.Caption, ExpectedCount, RecRef.Count, RecRef.GetFilters);
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure KnownFailure(Expected: Text; WorkItemNo: Integer)
@@ -329,7 +329,7 @@ codeunit 130000 Assert
         errorCode := GetLastErrorCode;
 
         IsTrue(errorCode = expectedErrorCode, failureText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     procedure AssertRecordNotFound()

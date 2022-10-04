@@ -1,4 +1,4 @@
-﻿page 1173 "Document Attachment Details"
+page 1173 "Document Attachment Details"
 {
     Caption = 'Attached Documents';
     DelayedInsert = true;
@@ -23,7 +23,7 @@
                     var
                         Selection: Integer;
                     begin
-                        if "Document Reference ID".HasValue then
+                        if "Document Reference ID".HasValue() then
                             Export(true)
                         else
                             if not IsOfficeAddin or not EmailHasAttachments then
@@ -40,13 +40,13 @@
                             end;
                     end;
                 }
-                field("File Extension"; "File Extension")
+                field("File Extension"; Rec."File Extension")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the file extension of the attachment.';
                 }
-                field("File Type"; "File Type")
+                field("File Type"; Rec."File Type")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -58,12 +58,12 @@
                     Editable = false;
                     ToolTip = 'Specifies the user who attached the document.';
                 }
-                field("Attached Date"; "Attached Date")
+                field("Attached Date"; Rec."Attached Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date when the document was attached.';
                 }
-                field("Document Flow Purchase"; "Document Flow Purchase")
+                field("Document Flow Purchase"; Rec."Document Flow Purchase")
                 {
                     ApplicationArea = All;
                     CaptionClass = GetCaptionClass(9);
@@ -71,7 +71,7 @@
                     ToolTip = 'Specifies if the attachment must flow to transactions.';
                     Visible = PurchaseDocumentFlow;
                 }
-                field("Document Flow Sales"; "Document Flow Sales")
+                field("Document Flow Sales"; Rec."Document Flow Sales")
                 {
                     ApplicationArea = All;
                     CaptionClass = GetCaptionClass(11);
@@ -93,13 +93,8 @@
                 Caption = 'Open in OneDrive';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
-                Enabled = ShareOptionsEnabled;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
+                Visible = ShareOptionsEnabled;
                 Scope = Repeater;
-                Visible = ShareOptionsVisible;
                 trigger OnAction()
                 var
                     FileManagement: Codeunit "File Management";
@@ -119,13 +114,8 @@
                 Caption = 'Share';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
-                Enabled = ShareOptionsEnabled;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
+                Visible = ShareOptionsEnabled;
                 Scope = Repeater;
-                Visible = ShareOptionsVisible;
                 trigger OnAction()
                 var
                     FileManagement: Codeunit "File Management";
@@ -145,10 +135,6 @@
                 Caption = 'Download';
                 Image = Download;
                 Enabled = DowbloadEnabled;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Download the file to your device. Depending on the file, you will need an app to view or edit the file.';
 
@@ -164,10 +150,6 @@
                 Caption = 'Attach from email';
                 Image = Email;
                 Enabled = EmailHasAttachments;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Page;
                 ToolTip = 'Attach files directly from email.';
                 Visible = IsOfficeAddin;
@@ -183,10 +165,6 @@
                 Caption = 'Upload file';
                 Image = Document;
                 Enabled = true;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Page;
                 ToolTip = 'Upload file';
                 Visible = IsOfficeAddin;
@@ -197,27 +175,51 @@
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref(OpenInOneDrive_Promoted; OpenInOneDrive)
+                {
+                }
+                actionref(ShareWithOneDrive_Promoted; ShareWithOneDrive)
+                {
+                }
+                actionref(AttachFromEmail_Promoted; AttachFromEmail)
+                {
+                }
+                actionref(UploadFile_Promoted; UploadFile)
+                {
+                }
+            }
+        }
     }
 
     trigger OnInit()
     begin
         FlowFieldsEditable := true;
         IsOfficeAddin := OfficeMgmt.IsAvailable();
-        ShareOptionsVisible := false;
 
         if IsOfficeAddin then
             EmailHasAttachments := OfficeHostMgmt.EmailHasAttachments()
-        else begin
+        else
             EmailHasAttachments := false;
-            ShareOptionsVisible := NOT OfficeMgmt.IsPopOut();
-        end;
     end;
 
     trigger OnAfterGetCurrRecord()
     var
         DocumentSharing: Codeunit "Document Sharing";
     begin
-        ShareOptionsEnabled := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
+        if OfficeMgmt.IsAvailable() or OfficeMgmt.IsPopOut() then
+            ShareOptionsEnabled := false
+        else
+            ShareOptionsEnabled := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
+
         DowbloadEnabled := Rec."Document Reference ID".HasValue();
     end;
 
@@ -245,7 +247,6 @@
         IsOfficeAddin: Boolean;
         MenuOptionsTxt: Label 'Attach from email,Upload file', Comment = 'Comma seperated phrases must be translated seperately.';
         SelectInstructionTxt: Label 'Choose the files to attach.';
-        ShareOptionsVisible: Boolean;
 
     protected var
         FromRecRef: RecordRef;
@@ -287,7 +288,7 @@
         LineNo: Integer;
         VATRepConfigType: Enum "VAT Report Configuration";
     begin
-        Reset;
+        Reset();
 
         FromRecRef := RecRef;
 

@@ -58,7 +58,7 @@ report 794 "Adjust Item Costs/Prices"
                     Selection::"Standard Cost":
                         Validate("Standard Cost", NewFieldValue);
                 end;
-                Modify;
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -110,7 +110,7 @@ report 794 "Adjust Item Costs/Prices"
                     Selection::"Standard Cost":
                         Validate("Standard Cost", NewFieldValue);
                 end;
-                Modify;
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -150,7 +150,7 @@ report 794 "Adjust Item Costs/Prices"
 
                         trigger OnValidate()
                         begin
-                            UpdateEnabled;
+                            UpdateEnabled();
                         end;
                     }
                     field(AdjustField; Selection)
@@ -163,11 +163,11 @@ report 794 "Adjust Item Costs/Prices"
                         trigger OnValidate()
                         begin
                             if Selection = Selection::"Indirect Cost %" then
-                                IndirectCost37SelectionOnValid;
+                                IndirectCost37SelectionOnValid();
                             if Selection = Selection::"Profit %" then
-                                Profit37SelectionOnValidate;
+                                Profit37SelectionOnValidate();
                             if Selection = Selection::"Unit Price" then
-                                UnitPriceSelectionOnValidate;
+                                UnitPriceSelectionOnValidate();
                         end;
                     }
                     field(AdjustmentFactor; AdjFactor)
@@ -204,7 +204,7 @@ report 794 "Adjust Item Costs/Prices"
         begin
             if AdjFactor = 0 then
                 AdjFactor := 1;
-            UpdateEnabled;
+            UpdateEnabled();
         end;
     }
 
@@ -221,10 +221,6 @@ report 794 "Adjust Item Costs/Prices"
     end;
 
     var
-        Text000: Label 'Processing items  #1##########';
-        Text002: Label 'Processing items     #1##########\';
-        Text003: Label 'Processing locations #2##########\';
-        Text004: Label 'Processing variants  #3##########';
         RoundingMethod: Record "Rounding Method";
         GLSetup: Record "General Ledger Setup";
         FilteredItem: Record Item;
@@ -245,9 +241,14 @@ report 794 "Adjust Item Costs/Prices"
         SelectionErr: Label '%1 is not a valid selection.';
         SelectionTxt: Label 'Unit Price,Profit %,Indirect Cost %,Last Direct Cost,Standard Cost';
 
+        Text000: Label 'Processing items  #1##########';
+        Text002: Label 'Processing items     #1##########\';
+        Text003: Label 'Processing locations #2##########\';
+        Text004: Label 'Processing variants  #3##########';
+
     local procedure UpdateEnabled()
     begin
-        PageUpdateEnabled;
+        PageUpdateEnabled();
     end;
 
     local procedure GetGLSetup()

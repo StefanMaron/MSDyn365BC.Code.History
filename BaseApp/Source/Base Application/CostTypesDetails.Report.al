@@ -17,7 +17,7 @@ report 1125 "Cost Types Details"
             column(DtFltrCostTypeDateFilter; Text000 + ' ' + CostTypeDateFilter)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAllWithBalance; PrintAllWithBalance)
@@ -296,7 +296,7 @@ report 1125 "Cost Types Details"
 
     trigger OnPreReport()
     begin
-        CostTypeFilter := "Cost Type".GetFilters;
+        CostTypeFilter := "Cost Type".GetFilters();
         CostTypeDateFilter := "Cost Type".GetFilter("Date Filter");
 
         PageGroupNo := 1;
@@ -304,8 +304,6 @@ report 1125 "Cost Types Details"
     end;
 
     var
-        Text000: Label 'Date filter:';
-        Text002: Label 'Total';
         GLSetup: Record "General Ledger Setup";
         CostTypeDateFilter: Text;
         CostTypeFilter: Text;
@@ -325,6 +323,9 @@ report 1125 "Cost Types Details"
         CumulatedAddCurrCredit: Decimal;
         [InDataSet]
         ShowAddCurr: Boolean;
+
+        Text000: Label 'Date filter:';
+        Text002: Label 'Total';
         AllAmountAreInLbl: Label 'All amounts are in';
         CostAccountDetailsCaptionLbl: Label 'Cost Types Details';
         PageNoCaptionLbl: Label 'Page';

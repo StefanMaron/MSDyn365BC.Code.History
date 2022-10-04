@@ -27,7 +27,7 @@ report 7112 "Analysis Report"
                 column(PeriodText; PeriodText)
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -298,7 +298,7 @@ report 7112 "Analysis Report"
                             ColumnValuesDisplayed[i] := 0;
                             ColumnValuesAsText[i] := '';
                         end;
-                        CalcColumns;
+                        CalcColumns();
                     end;
 
                     trigger OnPreDataItem()
@@ -402,7 +402,7 @@ report 7112 "Analysis Report"
                                         AnalysisColumnTemplName := AnalysisReportNameRec."Analysis Column Template Name";
                                 end;
 
-                                ValidateAnalysisLineTemplate;
+                                ValidateAnalysisLineTemplate();
                             end;
                         }
                         field(AnalysisLineName; AnalysisLineTemplateName)
@@ -429,7 +429,7 @@ report 7112 "Analysis Report"
                                 "Analysis Line".SetRange("Analysis Area", AnalysisArea);
                                 AnalysisReportManagement.CheckAnalysisLineTemplName(AnalysisLineTemplateName, "Analysis Line");
 
-                                ValidateAnalysisLineTemplate;
+                                ValidateAnalysisLineTemplate();
                             end;
                         }
                         field(AnalysisColumnName; AnalysisColumnTemplName)
@@ -634,15 +634,11 @@ report 7112 "Analysis Report"
 
     trigger OnPreReport()
     begin
-        InitAnalysisLine;
+        InitAnalysisLine();
     end;
 
     var
-        Text000: Label '(Thousands)';
-        Text001: Label '(Millions)';
-        Text002: Label '* ERROR *';
-        Text003: Label 'All amounts are in %1.';
-        AnalysisColumnTmp: Record "Analysis Column" temporary;
+        TempAnalysisColumn: Record "Analysis Column" temporary;
         AnalysisReportNameRec: Record "Analysis Report Name";
         ItemAnalysisView: Record "Item Analysis View";
         GLSetup: Record "General Ledger Setup";
@@ -689,8 +685,6 @@ report 7112 "Analysis Report"
         NoOfCols: Integer;
         ShowAnalysisReportSetup: Boolean;
         HeaderText: Text[100];
-        Text004: Label 'Not Available';
-        Text005: Label '1,6,,Dimension %1 Filter';
         NoOfRecords: Integer;
         [InDataSet]
         Dim1FilterEnable: Boolean;
@@ -698,6 +692,13 @@ report 7112 "Analysis Report"
         Dim2FilterEnable: Boolean;
         [InDataSet]
         Dim3FilterEnable: Boolean;
+
+        Text000: Label '(Thousands)';
+        Text001: Label '(Millions)';
+        Text002: Label '* ERROR *';
+        Text003: Label 'All amounts are in %1.';
+        Text004: Label 'Not Available';
+        Text005: Label '1,6,,Dimension %1 Filter';
         AnalysisColumnTemplNameCaptionLbl: Label 'Analysis Column';
         AnalysisLineTemplateNameCaptionLbl: Label 'Analysis Line';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';
@@ -729,12 +730,12 @@ report 7112 "Analysis Report"
         FiscalStartDate := AccountingPeriodMgt.FindFiscalYear(EndDate);
 
         MaxColumnsDisplayed := ArrayLen(ColumnValuesDisplayed);
-        AnalysisLineFilter := "Analysis Line".GetFilters;
+        AnalysisLineFilter := "Analysis Line".GetFilters();
         PeriodText := "Analysis Line".GetFilter("Date Filter");
         HasRounding := false;
         NoOfCols := 0;
-        AnalysisReportManagement.CopyColumnsToTemp("Analysis Line", AnalysisColumnTemplName, AnalysisColumnTmp);
-        with AnalysisColumnTmp do begin
+        AnalysisReportManagement.CopyColumnsToTemp("Analysis Line", AnalysisColumnTemplName, TempAnalysisColumn);
+        with TempAnalysisColumn do begin
             i := 0;
             if Find('-') then begin
                 repeat
@@ -760,14 +761,6 @@ report 7112 "Analysis Report"
             end;
         end;
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by SetParameters().', '18.0')]
-    procedure SetParams(NewAnalysisArea: Option Sales,Purchase,Inventory; NewReportName: Code[10]; NewLineTemplateName: Code[10]; NewColumnTemplateName: Code[10])
-    begin
-        SetParameters("Analysis Area Type".FromInteger(NewAnalysisArea), NewReportName, NewLineTemplateName, NewColumnTemplateName);
-    end;
-#endif
 
     procedure SetParameters(NewAnalysisArea: Enum "Analysis Area Type"; NewReportName: Code[10]; NewLineTemplateName: Code[10]; NewColumnTemplateName: Code[10])
     begin
@@ -795,7 +788,7 @@ report 7112 "Analysis Report"
         NonZero: Boolean;
     begin
         NonZero := false;
-        with AnalysisColumnTmp do begin
+        with TempAnalysisColumn do begin
             SetRange("Analysis Column Template", AnalysisColumnTemplName);
             i := 0;
             if Find('-') then
@@ -803,14 +796,14 @@ report 7112 "Analysis Report"
                     if Show <> Show::Never then begin
                         i := i + 1;
                         ColumnValuesDisplayed[i] :=
-                          AnalysisReportManagement.CalcCell("Analysis Line", AnalysisColumnTmp, false);
-                        if AnalysisReportManagement.GetDivisionError then
+                          AnalysisReportManagement.CalcCell("Analysis Line", TempAnalysisColumn, false);
+                        if AnalysisReportManagement.GetDivisionError() then
                             if ShowError in [ShowError::"Division by Zero", ShowError::Both] then
                                 ColumnValuesAsText[i] := Text002
                             else
                                 ColumnValuesAsText[i] := ''
                         else
-                            if AnalysisReportManagement.GetPeriodError then
+                            if AnalysisReportManagement.GetPeriodError() then
                                 if ShowError in [ShowError::"Period Error", ShowError::Both] then
                                     ColumnValuesAsText[i] := Text004
                                 else
@@ -836,7 +829,7 @@ report 7112 "Analysis Report"
             exit(false);
         if "Analysis Line".Italic <> Italic then
             exit(false);
-        NonZero := CalcColumns;
+        NonZero := CalcColumns();
         if "Analysis Line".Show = "Analysis Line".Show::"If Any Column Not Zero" then
             exit(NonZero);
         exit(true);
@@ -867,9 +860,9 @@ report 7112 "Analysis Report"
         DimValList.LookupMode(true);
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
         exit(false);

@@ -67,17 +67,17 @@ page 1661 "Payroll Import Transactions"
                 repeater(Control7)
                 {
                     ShowCaption = false;
-                    field("Entry No."; "Entry No.")
+                    field("Entry No."; Rec."Entry No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Visible = false;
                     }
-                    field("External Account"; "External Account")
+                    field("External Account"; Rec."External Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                     }
-                    field("G/L Account"; "G/L Account")
+                    field("G/L Account"; Rec."G/L Account")
                     {
                         ApplicationArea = Basic, Suite;
 
@@ -108,14 +108,14 @@ page 1661 "Payroll Import Transactions"
                             ModifyAll("G/L Account", "G/L Account");
                             SetRange("External Account");
                             Rec := TempImportGLTransaction;
-                            Find;
+                            Find();
                         end;
                     }
-                    field("G/L Account Name"; "G/L Account Name")
+                    field("G/L Account Name"; Rec."G/L Account Name")
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field("Transaction Date"; "Transaction Date")
+                    field("Transaction Date"; Rec."Transaction Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -197,7 +197,7 @@ page 1661 "Payroll Import Transactions"
                                 if TempImportGLTransaction.FindSet() then
                                     repeat
                                         Rec := TempImportGLTransaction;
-                                        Insert;
+                                        Insert();
                                     until TempImportGLTransaction.Next() = 0;
                                 if FindFirst() then begin
                                     SetCurrentKey("Entry No.");
@@ -232,7 +232,7 @@ page 1661 "Payroll Import Transactions"
 
                 trigger OnAction()
                 begin
-                    ResetLinks
+                    ResetLinks();
                 end;
             }
             action(ActionFinish)
@@ -245,7 +245,7 @@ page 1661 "Payroll Import Transactions"
 
                 trigger OnAction()
                 begin
-                    FinishAction;
+                    FinishAction();
                 end;
             }
         }
@@ -257,13 +257,13 @@ page 1661 "Payroll Import Transactions"
     begin
         CompanyInformation.Get();
         IsDemoCompany := CompanyInformation."Demo Company";
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     begin
         Step := Step::Start;
-        EnableControls;
+        EnableControls();
         SetCurrentKey("Entry No.");
     end;
 
@@ -305,15 +305,15 @@ page 1661 "Payroll Import Transactions"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::LinkAccounts:
-                ShowProviderStep;
+                ShowProviderStep();
             Step::Finish:
-                ShowFinishStep;
+                ShowFinishStep();
         end;
     end;
 
@@ -352,7 +352,7 @@ page 1661 "Payroll Import Transactions"
             Message(PayrollImportedMsg);
         end;
 
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure NextStep(Backwards: Boolean)
@@ -362,7 +362,7 @@ page 1661 "Payroll Import Transactions"
         else
             Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowStartStep()
@@ -400,8 +400,8 @@ page 1661 "Payroll Import Transactions"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -438,7 +438,7 @@ page 1661 "Payroll Import Transactions"
                 if FindSet() then
                     repeat
                         "G/L Account" := '';
-                        Modify;
+                        Modify();
                     until Next() = 0;
                 Rec := TempImportGLTransaction;
                 CurrPage.Update();

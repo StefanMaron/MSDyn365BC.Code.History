@@ -17,13 +17,13 @@ page 99000888 "Work Center Load Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date for the evaluation of the load on a work center.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Name';

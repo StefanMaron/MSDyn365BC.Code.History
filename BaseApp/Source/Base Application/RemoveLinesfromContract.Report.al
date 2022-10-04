@@ -23,7 +23,7 @@ report 6034 "Remove Lines from Contract"
                     FiledServContract.FileContract(ServContract);
                     if ServContract."Automatic Credit Memos" and
                        ("Credit Memo Date" > 0D) and
-                       CreditMemoBaseExists
+                       CreditMemoBaseExists()
                     then
                         CreditMemoCreated := CreditMemoCreated + 1;
                 end;
@@ -129,7 +129,7 @@ report 6034 "Remove Lines from Contract"
 
     trigger OnInitReport()
     begin
-        DelToDate := WorkDate;
+        DelToDate := WorkDate();
         ServMgtSetup.Get();
     end;
 
@@ -146,12 +146,12 @@ report 6034 "Remove Lines from Contract"
 
         if CreditMemoCreated > 1 then
             Message(Text007);
-        CreateCreditfromContractLines.InitVariables;
+        CreateCreditfromContractLines.InitVariables();
     end;
 
     trigger OnPreReport()
     begin
-        CreateCreditfromContractLines.InitVariables;
+        CreateCreditfromContractLines.InitVariables();
     end;
 
     var

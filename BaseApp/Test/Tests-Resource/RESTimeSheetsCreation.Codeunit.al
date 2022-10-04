@@ -506,7 +506,7 @@ codeunit 136503 "RES Time Sheets Creation"
         SetupTSResourceUserID(Resource, UserSetup);
         // 3. Find next leap year
         ResourcesSetup.Init();
-        TempDate := WorkDate;
+        TempDate := WorkDate();
         repeat
             TempDate := CalcDate('<+1Y>', TempDate);
             YearMod := Date2DMY(TempDate, 3) mod 4;
@@ -1664,7 +1664,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLineArchive.TestField(Type, TimeSheetLineArchive.Type::Resource);
         ValidateArchiveTimeAllocation(DayTimeAllocation1, TimeSheetHeaderArchive, TimeSheetLineArchive);
 
-        TimeSheetLineArchive.Next;
+        TimeSheetLineArchive.Next();
         TimeSheetLineArchive.TestField(Type, TimeSheetLineArchive.Type::Job);
         TimeSheetLineArchive.TestField("Job No.", Job."No.");
         TimeSheetLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
@@ -1703,7 +1703,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 4. Submit Time Sheet
         TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value;
         TimeSheet.Submit.Invoke;
-        TimeSheet.Close;
+        TimeSheet.Close();
         // 5. Approve Time Sheet
         ApproveTimeSheet(TimeSheetNo, 1);
         // 6. Suggest Resource Journal Lines
@@ -1760,7 +1760,7 @@ codeunit 136503 "RES Time Sheets Creation"
         ResJnlLine.Reset();
         ResJnlLine.SetRange("Resource No.", Resource."No.");
         for Counter := 1 to 5 do begin
-            ResJnlLine.Next;
+            ResJnlLine.Next();
             DimensionSetID := ResJnlLine."Dimension Set ID";
             VerifyDimInJournalDimSet(Dimension.Code, DimensionValue.Code, DimensionSetID);
         end;
@@ -1843,7 +1843,7 @@ codeunit 136503 "RES Time Sheets Creation"
         CreateJobPlanning(Resource, Job, JobTask, Date);
         // 3. Add Time Sheet line with Type = Resource
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-        TimeSheetLine.Description := Format(CreateGuid);
+        TimeSheetLine.Description := Format(CreateGuid());
         TimeSheetLine.Modify();
         GenerateTimeAllocation2(DayTimeAllocation1, TimeSheetHeader, TimeSheetLine);
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
@@ -1868,7 +1868,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLine.FindSet();
         repeat
             TimeSheetLine.TestField(Posted, true);
-        until TimeSheetLine.Next = 0;
+        until TimeSheetLine.Next() = 0;
 
         TearDown;
     end;
@@ -2002,7 +2002,7 @@ codeunit 136503 "RES Time Sheets Creation"
             LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
             GenerateTimeAllocation2(DayTimeAllocation, TimeSheetHeader, TimeSheetLine);
             TimeSheetApprovalMgt.Submit(TimeSheetLine);
-            TimeSheetHeader.Next;
+            TimeSheetHeader.Next();
         end;
         // 3. Open Manager Time Sheet from Manager Time Sheet List
         ManagerTimeSheetList.OpenView;
@@ -2036,11 +2036,11 @@ codeunit 136503 "RES Time Sheets Creation"
         // 3. Modify Time Sheet Allocation for Random day
         DayTimeAllocation[3] := GetRandomDecimal;
         TimeSheet.Field3.Value := Format(DayTimeAllocation[3]);
-        TimeSheet.Close;
+        TimeSheet.Close();
         // 4. Reopen Time Sheet, validate changed values
         TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
         ValidateTimeAllocation(DayTimeAllocation, TimeSheet);
-        TimeSheet.Close;
+        TimeSheet.Close();
 
         TearDown;
     end;
@@ -2106,7 +2106,7 @@ codeunit 136503 "RES Time Sheets Creation"
             ResJnlLine.Reset();
             SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader, TimeSheetHeader."Ending Date");
             PostResourceJournal(ResJnlLine, TimeSheetHeader);
-            TimeSheetHeader.Next;
+            TimeSheetHeader.Next();
         end;
         TimeSheet2No := TimeSheetHeader."No.";
         // 2. Move Time Sheets to Archive
@@ -2487,7 +2487,7 @@ codeunit 136503 "RES Time Sheets Creation"
     var
         FieldRef: FieldRef;
     begin
-        RecRef.Close;
+        RecRef.Close();
         RecRef.Open(DATABASE::"Time Sheet Line");
         FieldRef := RecRef.Field(5);
         OptionText := OptionValueToText(TimeSheetLineOption, FieldRef.OptionCaption);
@@ -2497,7 +2497,7 @@ codeunit 136503 "RES Time Sheets Creation"
     var
         FieldRef: FieldRef;
     begin
-        RecRef.Close;
+        RecRef.Close();
         RecRef.Open(DATABASE::"Time Sheet Line");
         FieldRef := RecRef.Field(20);
         OptionText := OptionValueToText(TimeSheetLineOption, FieldRef.OptionCaption);
@@ -2623,7 +2623,7 @@ codeunit 136503 "RES Time Sheets Creation"
             Assert.AreEqual(TimeSheetHeader."Resource No.", ResJournalLine."Resource No.", IncorrectUserIDErr);
             ValidateCostPrice(Resource, DayTimeAllocation[Counter], ResJournalLine);
 
-            ResJournalLine.Next;
+            ResJournalLine.Next();
         end;
     end;
 
@@ -2640,7 +2640,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Clear(ResJnlPostLine);
         repeat
             ResJnlPostLine.Run(ResJnlLine);
-        until ResJnlLine.Next = 0;
+        until ResJnlLine.Next() = 0;
     end;
 
     local procedure CreateJobPlanning(Resource: Record Resource; var Job: Record Job; var JobTask: Record "Job Task"; Date: Record Date)
@@ -2720,7 +2720,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Clear(JobJnlPostLine);
         repeat
             JobJnlPostLine.Run(JobJnlLine);
-        until JobJnlLine.Next = 0;
+        until JobJnlLine.Next() = 0;
     end;
 
     local procedure AddTimeSheetLine(LineType: Integer; var TimeSheet: TestPage "Time Sheet"; GenerateTimeAlloc: Boolean)
@@ -2878,7 +2878,7 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Verify No of Time Sheet Detail Lines
         TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeaderNo);
-        Assert.AreEqual(NoOfLines, TimeSheetDetail.Count, StrSubstNo(LineCountErr, TimeSheetDetail.TableCaption));
+        Assert.AreEqual(NoOfLines, TimeSheetDetail.Count, StrSubstNo(LineCountErr, TimeSheetDetail.TableCaption()));
     end;
 
     [ModalPageHandler]
@@ -2947,7 +2947,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // Validate Navigate can be opened from the page
         Navigate.Trap;
         TSPostingEntriesPage."&Navigate".Invoke;
-        Navigate.Close;
+        Navigate.Close();
     end;
 
     [ModalPageHandler]

@@ -143,8 +143,6 @@ page 5338 "Integration Synch. Job List"
                 Caption = 'Delete Entries Older Than 7 Days';
                 Enabled = HasRecords;
                 Image = ClearLog;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Delete log information for job queue entries that are older than seven days.';
 
                 trigger OnAction()
@@ -158,14 +156,26 @@ page 5338 "Integration Synch. Job List"
                 Caption = 'Delete All Entries';
                 Enabled = HasRecords;
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Delete all error log information for job queue entries.';
 
                 trigger OnAction()
                 begin
                     DeleteEntries(0);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Delete7days_Promoted; Delete7days)
+                {
+                }
+                actionref(Delete0days_Promoted; Delete0days)
+                {
+                }
             }
         }
     }

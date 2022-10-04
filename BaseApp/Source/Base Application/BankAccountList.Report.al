@@ -14,7 +14,7 @@ report 1402 "Bank Account - List"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -178,7 +178,7 @@ report 1402 "Bank Account - List"
 
     trigger OnPreReport()
     begin
-        BankAccFilter := "Bank Account".GetFilters;
+        BankAccFilter := "Bank Account".GetFilters();
     end;
 
     var

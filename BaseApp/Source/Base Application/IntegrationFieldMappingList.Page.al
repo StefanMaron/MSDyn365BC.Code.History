@@ -18,7 +18,7 @@ page 5361 "Integration Field Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if field synchronization is enabled or disabled.';
                 }
-                field("Field No."; "Field No.")
+                field("Field No."; Rec."Field No.")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -32,7 +32,7 @@ page 5361 "Integration Field Mapping List"
                     Editable = false;
                     ToolTip = 'Specifies the name of the field in Business Central.';
                 }
-                field("Integration Table Field No."; "Integration Table Field No.")
+                field("Integration Table Field No."; Rec."Integration Table Field No.")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -51,38 +51,38 @@ page 5361 "Integration Field Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the direction of the synchronization.';
                 }
-                field("Constant Value"; "Constant Value")
+                field("Constant Value"; Rec."Constant Value")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the constant value that the mapped field will be set to.';
                 }
-                field("Transformation Rule"; "Transformation Rule")
+                field("Transformation Rule"; Rec."Transformation Rule")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a rule for transforming imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365.';
                 }
-                field("Transformation Direction"; "Transformation Direction")
+                field("Transformation Direction"; Rec."Transformation Direction")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the direction of the transformation.';
                     Editable = "Direction" = "Direction"::Bidirectional;
                 }
-                field("Validate Field"; "Validate Field")
+                field("Validate Field"; Rec."Validate Field")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the field should be validated during assignment in Business Central. ';
                 }
-                field("Validate Integration Table Fld"; "Validate Integration Table Fld")
+                field("Validate Integration Table Fld"; Rec."Validate Integration Table Fld")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the integration field should be validated during assignment in Dynamics 365 Sales.';
                 }
-                field("Clear Value on Failed Sync"; "Clear Value on Failed Sync")
+                field("Clear Value on Failed Sync"; Rec."Clear Value on Failed Sync")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the field value should be cleared in case of integration error during assignment in Dynamics 365 Sales.';
                 }
-                field("Not Null"; "Not Null")
+                field("Not Null"; Rec."Not Null")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the data transfer should be skipped for destination fields whose new value is going to be null. This is only applicable for GUID fields, such as OwnerId, that must not be changed to null during synchronization.';
@@ -115,7 +115,7 @@ page 5361 "Integration Field Mapping List"
 
     trigger OnAfterGetRecord()
     begin
-        GetFieldCaptions;
+        GetFieldCaptions();
     end;
 
     var

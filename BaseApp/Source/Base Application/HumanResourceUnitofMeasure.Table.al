@@ -46,7 +46,8 @@ table 5220 "Human Resource Unit of Measure"
     }
 
     var
-        Text000: Label 'must be greater than 0';
         HumanResSetup: Record "Human Resources Setup";
+
+        Text000: Label 'must be greater than 0';
 }
 

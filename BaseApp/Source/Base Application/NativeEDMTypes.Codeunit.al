@@ -7,7 +7,7 @@ codeunit 2801 "Native - EDM Types"
 
     trigger OnRun()
     begin
-        UpdateEDMTypes;
+        UpdateEDMTypes();
     end;
 
     var
@@ -23,9 +23,9 @@ codeunit 2801 "Native - EDM Types"
         GraphMgtGeneralTools.InsertOrUpdateODataType(
           'NATIVE-SALESQUOTE-LINE', 'Native Sales Quote Lines', GetSalesLineEDM("Sales Document Type"::Quote.AsInteger()));
         GraphMgtGeneralTools.InsertOrUpdateODataType(
-          'NATIVE-SALESDOCUMENT-COUPON', 'Native Sales Document Coupons', GetSalesCouponEDM);
+          'NATIVE-SALESDOCUMENT-COUPON', 'Native Sales Document Coupons', GetSalesCouponEDM());
         GraphMgtGeneralTools.InsertOrUpdateODataType(
-          'NATIVE-ATTACHMENT', 'Native Attachments', GetAttachmentEDM);
+          'NATIVE-ATTACHMENT', 'Native Attachments', GetAttachmentEDM());
     end;
 
     procedure GetSalesLineEDM(DocumentType: Option): Text
@@ -35,9 +35,9 @@ codeunit 2801 "Native - EDM Types"
     begin
         case DocumentType of
             DummySalesLine."Document Type"::Invoice.AsInteger():
-                EDM := '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix + 'SalesInvoiceLines">';
+                EDM := '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix() + 'SalesInvoiceLines">';
             DummySalesLine."Document Type"::Quote.AsInteger():
-                EDM := '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix + 'SalesQuoteLines">';
+                EDM := '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix() + 'SalesQuoteLines">';
         end;
 
         EDM += '<Property Name="sequence" Type="Edm.Int32" Nullable="false" />' +
@@ -72,7 +72,7 @@ codeunit 2801 "Native - EDM Types"
         TempSalesInvoiceLineAggregate.Reset();
         TempSalesInvoiceLineAggregate.DeleteAll();
         JSONManagement.InitializeCollection(SalesLinesCollectionJSON);
-        NumberOfLines := JSONManagement.GetCollectionCount;
+        NumberOfLines := JSONManagement.GetCollectionCount();
 
         for I := 1 to NumberOfLines do begin
             JSONManagement.GetJObjectFromCollectionByIndex(LineJsonObject, I - 1);
@@ -157,7 +157,7 @@ codeunit 2801 "Native - EDM Types"
         GetFieldFromJSON(JsonObject, 'taxPercent', TempSalesInvoiceLineAggregate.FieldNo("VAT %"), SalesLineRecordRef);
 
         SalesLineRecordRef.SetTable(TempSalesInvoiceLineAggregate);
-        TempSalesInvoiceLineAggregate.UpdateLineDiscounts;
+        TempSalesInvoiceLineAggregate.UpdateLineDiscounts();
     end;
 
     procedure SalesLineToJSON(var TempSalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate" temporary): Text
@@ -166,7 +166,7 @@ codeunit 2801 "Native - EDM Types"
         SalesLineRecordRef: RecordRef;
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         SalesLineRecordRef.GetTable(TempSalesInvoiceLineAggregate);
         WriteFieldToJSON(JsonObject, 'sequence', TempSalesInvoiceLineAggregate.FieldNo("Line No."), SalesLineRecordRef);
@@ -190,7 +190,7 @@ codeunit 2801 "Native - EDM Types"
         WriteFieldToJSON(
           JsonObject, 'invoiceDiscountAmount', TempSalesInvoiceLineAggregate.FieldNo("Inv. Discount Amount"), SalesLineRecordRef);
         WriteFieldToJSON(JsonObject, 'totalTaxAmount', TempSalesInvoiceLineAggregate.FieldNo("Tax Amount"), SalesLineRecordRef);
-        exit(JsonObject.ToString);
+        exit(JsonObject.ToString());
     end;
 
     procedure GetSalesCouponEDM(): Text
@@ -199,7 +199,7 @@ codeunit 2801 "Native - EDM Types"
         NativeSetupAPIs: Codeunit "Native - Setup APIs";
     begin
         exit(
-          '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix + 'SalesDocumentCoupons">' +
+          '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix() + 'SalesDocumentCoupons">' +
           '<Property Name="claimId" Type="Edm.String" Nullable="false" />' +
           '<Property Name="usage" Type="Edm.String" Nullable="true" />' +
           '<Property Name="offer" Type="Edm.String" MaxLength="' +
@@ -229,7 +229,7 @@ codeunit 2801 "Native - EDM Types"
         O365CouponClaimDocLink.SetRange("Document No.", DocumentNo);
         O365CouponClaimDocLink.DeleteAll();
         JSONManagement.InitializeCollection(CouponsJSON);
-        NumberOfLines := JSONManagement.GetCollectionCount;
+        NumberOfLines := JSONManagement.GetCollectionCount();
 
         if NumberOfLines = 0 then
             exit;
@@ -268,7 +268,7 @@ codeunit 2801 "Native - EDM Types"
         JsonArray: DotNet JArray;
         O365CouponClaimDocLinkRecordRef: RecordRef;
     begin
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(JsonArray);
 
         O365CouponClaimDocLink.SetRange("Document Type", DocumentType);
@@ -281,7 +281,7 @@ codeunit 2801 "Native - EDM Types"
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
             until O365CouponClaimDocLink.Next() = 0;
 
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure WritePostedCouponsJSON(PostedInvoiceNo: Code[20]): Text
@@ -292,7 +292,7 @@ codeunit 2801 "Native - EDM Types"
         JsonArray: DotNet JArray;
         O365PostedCouponClaimRecordRef: RecordRef;
     begin
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(JsonArray);
 
         O365PostedCouponClaim.SetRange("Sales Invoice No.", PostedInvoiceNo);
@@ -303,7 +303,7 @@ codeunit 2801 "Native - EDM Types"
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
             until O365PostedCouponClaim.Next() = 0;
 
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     [Scope('OnPrem')]
@@ -312,7 +312,7 @@ codeunit 2801 "Native - EDM Types"
         DummyO365CouponClaim: Record "O365 Coupon Claim";
         JSONManagement: Codeunit "JSON Management";
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         WriteFieldToJSON(JsonObject, 'claimId', DummyO365CouponClaim.FieldNo("Claim ID"), CouponRecordRef);
         WriteFieldToJSON(JsonObject, 'graphContactId', DummyO365CouponClaim.FieldNo("Graph Contact ID"), CouponRecordRef);
@@ -332,7 +332,7 @@ codeunit 2801 "Native - EDM Types"
         NativeSetupAPIs: Codeunit "Native - Setup APIs";
     begin
         exit(
-          '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix + 'DocumentAttachments">' +
+          '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix() + 'DocumentAttachments">' +
           '<Property Name="id" Type="Edm.Guid" Nullable="false" />' +
           '<Property Name="fileName" Type="Edm.String" MaxLength="' +
           Format(MaxStrLen(DummyAttachmentEntityBuffer."File Name")) + '" Nullable="true" />' +
@@ -351,14 +351,14 @@ codeunit 2801 "Native - EDM Types"
         TempAttachmentEntityBuffer.Reset();
         TempAttachmentEntityBuffer.DeleteAll();
         JSONManagement.InitializeCollection(AttachmentsCollectionJSON);
-        NumberOfLines := JSONManagement.GetCollectionCount;
+        NumberOfLines := JSONManagement.GetCollectionCount();
 
         for JsonLineIndex := 1 to NumberOfLines do begin
             JSONManagement.GetJObjectFromCollectionByIndex(LineJsonObject, JsonLineIndex - 1);
             ParseAttachmentJSON(LineJsonObject, TempAttachmentEntityBuffer);
             TempAttachmentEntityBuffer."Document Id" := DocumentId;
             if IsNullGuid(TempAttachmentEntityBuffer.Id) then
-                TempAttachmentEntityBuffer.Id := CreateGuid;
+                TempAttachmentEntityBuffer.Id := CreateGuid();
             TempAttachmentEntityBuffer.Insert(true);
         end;
     end;
@@ -369,7 +369,7 @@ codeunit 2801 "Native - EDM Types"
         JsonObject: DotNet JObject;
         JsonArray: DotNet JArray;
     begin
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(JsonArray);
 
         if TempAttachmentEntityBuffer.FindSet() then
@@ -378,7 +378,7 @@ codeunit 2801 "Native - EDM Types"
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
             until TempAttachmentEntityBuffer.Next() = 0;
 
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     [Scope('OnPrem')]
@@ -407,7 +407,7 @@ codeunit 2801 "Native - EDM Types"
         JSONManagement: Codeunit "JSON Management";
         AttachmentRecordRef: RecordRef;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         AttachmentRecordRef.GetTable(TempAttachmentEntityBuffer);
         WriteFieldToJSON(JsonObject, 'id', TempAttachmentEntityBuffer.FieldNo(Id), AttachmentRecordRef);
@@ -456,7 +456,7 @@ codeunit 2801 "Native - EDM Types"
         RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo(Description), TempFieldBuffer);
         RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Tax Id"), TempFieldBuffer);
 
-        if GeneralLedgerSetup.UseVat then
+        if GeneralLedgerSetup.UseVat() then
             RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("VAT Prod. Posting Group"), TempFieldBuffer)
         else
             RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Tax Group Code"), TempFieldBuffer);
@@ -532,7 +532,7 @@ codeunit 2801 "Native - EDM Types"
         JSONManagement: Codeunit "JSON Management";
         Taxable: Boolean;
     begin
-        if GeneralLedgerSetup.UseVat then
+        if GeneralLedgerSetup.UseVat() then
             exit(false);
 
         if not JSONManagement.GetBoolPropertyValueFromJObjectByName(JsonObject, 'taxable', Taxable) then
@@ -560,15 +560,14 @@ codeunit 2801 "Native - EDM Types"
     var
         TaxSetup: Record "Tax Setup";
     begin
-        if TaxSetup.Get then
-            if TaxSetup."Non-Taxable Tax Group Code" <> '' then begin
+        if TaxSetup.Get() then
+            if TaxSetup."Non-Taxable Tax Group Code" <> '' then
                 if Taxable then
                     TaxGroup.SetFilter(Code, '<>%1', TaxSetup."Non-Taxable Tax Group Code")
                 else
                     TaxGroup.SetFilter(Code, '%1', TaxSetup."Non-Taxable Tax Group Code");
-            end;
 
-        exit(TaxGroup.FindFirst);
+        exit(TaxGroup.FindFirst());
     end;
 
     local procedure GetTaxableFromTaxGroup(TaxGroupID: Guid): Boolean
@@ -577,7 +576,7 @@ codeunit 2801 "Native - EDM Types"
         TaxableTaxGroup: Record "Tax Group";
         NonTaxableTaxGroup: Record "Tax Group";
     begin
-        if GeneralLedgerSetup.UseVat then
+        if GeneralLedgerSetup.UseVat() then
             exit(false);
 
         if IsNullGuid(TaxGroupID) then

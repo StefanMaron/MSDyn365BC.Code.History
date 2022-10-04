@@ -12,17 +12,17 @@ page 5899 "Phys. Invt. Tracking Lines"
             repeater(Control40)
             {
                 ShowCaption = false;
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number.';
                 }
-                field("Lot No"; "Lot No")
+                field("Lot No"; Rec."Lot No")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the lot number.';
                 }
-                field("Qty. Expected (Base)"; "Qty. Expected (Base)")
+                field("Qty. Expected (Base)"; Rec."Qty. Expected (Base)")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the expected base quantity.';
@@ -42,7 +42,7 @@ page 5899 "Phys. Invt. Tracking Lines"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        TempPhysInvtTracking.SetView(GetView);
+        TempPhysInvtTracking.SetView(GetView());
         TempPhysInvtTracking := Rec;
         if not TempPhysInvtTracking.Find(Which) then
             exit(false);

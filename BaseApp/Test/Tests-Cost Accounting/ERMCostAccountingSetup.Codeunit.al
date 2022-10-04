@@ -66,7 +66,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
         error := GetLastErrorText;
         Assert.IsTrue(StrPos(error, SameCCAndCODimError) > 0, UnexpectedErrorMessage);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
         error := GetLastErrorText;
         Assert.IsTrue(StrPos(error, EmptyCCDimError) > 0, UnexpectedErrorMessage);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
         error := GetLastErrorText;
         Assert.IsTrue(StrPos(error, EmptyCODimError) > 0, UnexpectedErrorMessage);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -312,7 +312,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostType.SetFilter("Balance at Date", '%1', 0);
         CostType.SetFilter("Balance to Allocate", '%1', 0);
         if not CostType.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption, CostType.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption(), CostType.GetFilters));
         CostType.Delete(true);
 
         // Exercise:
@@ -344,7 +344,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         LibraryDimension.CreateDimensionValue(DimensionValue, CostAccountingSetup."Cost Center Dimension");
 
         // Exercise:
-        CostAccountMgt.CreateCostCenters;
+        CostAccountMgt.CreateCostCenters();
 
         // Verify:
         Assert.IsTrue(CostCenter.Get(DimensionValue.Code), StrSubstNo(CostCenterNotFoundError, DimensionValue.Code));
@@ -773,7 +773,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
 
         CostType.SetFilter("G/L Account Range", '%1', GLAccount."No.");
         if not CostType.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption, CostType.GetFilters));
+            Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption(), CostType.GetFilters));
         CostTypeNo := CostType."No.";
 
         CostType.Delete(true);
@@ -975,7 +975,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Dimension.SetFilter(Code, '<>%1&<>%2', CostAccountingSetup."Cost Center Dimension", CostAccountingSetup."Cost Object Dimension");
         Dimension.Next(LibraryRandom.RandInt(Dimension.Count - 1));
         CostCenterDim := Dimension.Code;
-        Dimension.Next;
+        Dimension.Next();
         CostObjectDim := Dimension.Code;
     end;
 
@@ -1089,7 +1089,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         LibraryCostAccounting.FindGLAccountsByCostType(GLAccount, CostType."G/L Account Range");
         repeat
             GLAccount.TestField("Cost Type No.", CostType."No.");
-        until GLAccount.Next = 0;
+        until GLAccount.Next() = 0;
     end;
 
     local procedure ValidateGLAccountIsIncomeStmt(var CostType: Record "Cost Type")
@@ -1100,8 +1100,8 @@ codeunit 134810 "ERM Cost Accounting Setup"
             LibraryCostAccounting.FindGLAccountsByCostType(GLAccount, CostType."G/L Account Range");
             repeat
                 GLAccount.TestField("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
-            until GLAccount.Next = 0;
-        until CostType.Next = 0;
+            until GLAccount.Next() = 0;
+        until CostType.Next() = 0;
     end;
 
     [Normal]

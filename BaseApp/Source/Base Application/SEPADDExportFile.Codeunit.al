@@ -1,4 +1,4 @@
-﻿codeunit 1230 "SEPA DD-Export File"
+codeunit 1230 "SEPA DD-Export File"
 {
     TableNo = "Direct Debit Collection Entry";
 
@@ -22,9 +22,9 @@
                     Error(ExportWithoutIBANErr, BankAccount.TableCaption(), BankAccount."No.");
 
         DirectDebitCollection.LockTable();
-        DirectDebitCollection.DeletePaymentFileErrors;
+        DirectDebitCollection.DeletePaymentFileErrors();
         Commit();
-        if not Export(Rec, BankAccount.GetDDExportXMLPortID, DirectDebitCollection.Identifier) then
+        if not Export(Rec, BankAccount.GetDDExportXMLPortID(), DirectDebitCollection.Identifier) then
             Error('');
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");

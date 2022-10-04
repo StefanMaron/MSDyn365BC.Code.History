@@ -96,11 +96,11 @@ table 5151 "Integration Record"
         if FindRecordId.TableNo = 0 then
             exit(false);
 
-        Reset;
+        Reset();
         SetCurrentKey("Table ID", "Record ID");
         SetRange("Table ID", FindRecordId.TableNo);
         SetRange("Record ID", FindRecordId);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     internal procedure FindBySystemId(FindRecordId: RecordID; ParentSystemId: Guid): Boolean

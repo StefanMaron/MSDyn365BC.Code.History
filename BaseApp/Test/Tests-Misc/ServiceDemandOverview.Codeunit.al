@@ -102,7 +102,7 @@ codeunit 136131 "Service Demand Overview"
             if DemandOverview.QuantityText.Value <> '' then
                 QuantitySum := QuantitySum + DemandOverview.QuantityText.AsInteger;
             ActualRowCount := ActualRowCount + 1;
-        until not DemandOverview.Next;
+        until not DemandOverview.Next();
 
         Assert.AreEqual(FirstPurchaseQuantity + SecondPurchaseQuantity - FirstSaleQuantity - SecondSaleQuantity, QuantitySum,
           'Sum of quantities of all lines');
@@ -342,7 +342,7 @@ codeunit 136131 "Service Demand Overview"
         CreateServiceDemand(Item."No.", Quantity);
 
         // [WHEN] Calculate Regenerative Plan. Using Random Date for Order Date.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Verify: Verify Planning Worksheet Lines.
         VerifyRequisitionLine(Item."No.", Quantity);
@@ -366,7 +366,7 @@ codeunit 136131 "Service Demand Overview"
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         CreateJobDemand(Item."No.", OriginalQuantity);
         CreateServiceDemand(Item."No.", OriginalQuantity);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [WHEN] Filter Planning Worksheet Lines for Item and run Reserve.
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -393,7 +393,7 @@ codeunit 136131 "Service Demand Overview"
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         CreateJobDemand(Item."No.", OriginalQuantity);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [WHEN] Filter Planning Worksheet Lines for Item and run Reserve.
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -423,7 +423,7 @@ codeunit 136131 "Service Demand Overview"
         CreateJobDemand(Item."No.", OriginalQuantity);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
 
         // [WHEN] Open "Available - Job Planning Lines" page and run "Reserve" action
         PurchaseLine.ShowReservation();
@@ -448,7 +448,7 @@ codeunit 136131 "Service Demand Overview"
         ItemNo := Item."No."; // Assigning global variables as required in Page Handler.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         CreateServiceDemand(Item."No.", OriginalQuantity);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [WHEN] Filter Planning Worksheet Lines for Item and run Reserve.
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -478,7 +478,7 @@ codeunit 136131 "Service Demand Overview"
 
         // [GIVEN] Create purchase supply for item "I" and autoreserve it.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
         // [WHEN] Open "Available - Job Planning Lines" page and cancel reservation
@@ -508,7 +508,7 @@ codeunit 136131 "Service Demand Overview"
 
         // [GIVEN] Create purchase order for item "I" and autoreserve it.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
         // [WHEN] Open "Available - Service Lines" page and cancel reservation
@@ -536,7 +536,7 @@ codeunit 136131 "Service Demand Overview"
         CreateServiceDemand(Item."No.", OriginalQuantity);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
 
         PurchaseLine.ShowReservation();
     end;
@@ -560,7 +560,7 @@ codeunit 136131 "Service Demand Overview"
         CreateServiceDemand(Item."No.", OriginalQuantity);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate());
 
         SalesLine.ShowReservation();
     end;
@@ -585,7 +585,7 @@ codeunit 136131 "Service Demand Overview"
 
         FindServiceLine(ServiceLine, ServiceLine."Document Type"::Order, CreateServiceDemand(Item."No.", OriginalQuantity));
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate());
 
         ServiceLine.ShowReservation();
     end;
@@ -609,7 +609,7 @@ codeunit 136131 "Service Demand Overview"
         CreateJobDemand(Item."No.", OriginalQuantity);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate());
 
         SalesLine.ShowReservation();
     end;
@@ -635,7 +635,7 @@ codeunit 136131 "Service Demand Overview"
         JobPlanningLine.FindFirst();
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate());
         JobPlanningLine.ShowReservation();
     end;
 
@@ -659,7 +659,7 @@ codeunit 136131 "Service Demand Overview"
         FindServiceLine(ServiceLine, ServiceLine."Document Type"::Order, CreateServiceDemand(Item."No.", OriginalQuantity));
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
         ServiceLine.ShowReservation();
     end;
 
@@ -684,7 +684,7 @@ codeunit 136131 "Service Demand Overview"
         JobPlanningLine.FindFirst();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
         JobPlanningLine.ShowReservation();
     end;
 
@@ -798,7 +798,7 @@ codeunit 136131 "Service Demand Overview"
 
         LibraryWarehouse.CreateLocation(FromLocation);
         LibraryWarehouse.CreateLocation(ToLocation);
-        CreateServiceDemandBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate);
+        CreateServiceDemandBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate());
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
         TransferLine.ShowReservation();
@@ -825,7 +825,7 @@ codeunit 136131 "Service Demand Overview"
         LibraryWarehouse.CreateLocation(FromLocation);
         LibraryWarehouse.CreateLocation(ToLocation);
 
-        CreateJobDemandAtBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate);
+        CreateJobDemandAtBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate());
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
         TransferLine.ShowReservation();
@@ -854,7 +854,7 @@ codeunit 136131 "Service Demand Overview"
 
         FindServiceLine(
           ServiceLine, ServiceLine."Document Type"::Order,
-          CreateServiceDemandBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate));
+          CreateServiceDemandBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate()));
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
         ServiceLine.ShowReservation();
@@ -882,7 +882,7 @@ codeunit 136131 "Service Demand Overview"
         LibraryWarehouse.CreateLocation(FromLocation);
         LibraryWarehouse.CreateLocation(ToLocation);
 
-        JobPlanningLine.SetRange("Job No.", CreateJobDemandAtBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate));
+        JobPlanningLine.SetRange("Job No.", CreateJobDemandAtBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate()));
         JobPlanningLine.FindFirst();
 
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
@@ -906,7 +906,7 @@ codeunit 136131 "Service Demand Overview"
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         CreateServiceDemand(Item."No.", OriginalQuantity);
 
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', OriginalQuantity, '');
         AssemblyHeader.ShowReservation();
     end;
 
@@ -926,7 +926,7 @@ codeunit 136131 "Service Demand Overview"
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         CreateJobDemand(Item."No.", OriginalQuantity);
 
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', OriginalQuantity, '');
         AssemblyHeader.ShowReservation();
     end;
 
@@ -949,7 +949,7 @@ codeunit 136131 "Service Demand Overview"
         FindServiceLine(
           ServiceLine, ServiceLine."Document Type"::Order, CreateServiceDemand(Item."No.", OriginalQuantity));
 
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', OriginalQuantity, '');
         ServiceLine.ShowReservation();
     end;
 
@@ -972,7 +972,7 @@ codeunit 136131 "Service Demand Overview"
         JobPlanningLine.SetRange("Job No.", CreateJobDemand(Item."No.", OriginalQuantity));
         JobPlanningLine.FindFirst();
 
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', OriginalQuantity, '');
         JobPlanningLine.ShowReservation();
     end;
 
@@ -995,7 +995,7 @@ codeunit 136131 "Service Demand Overview"
         OriginalQuantity := LibraryRandom.RandDec(10, 2);
         CreateJobDemand(Item."No.", OriginalQuantity);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
 
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
@@ -1025,7 +1025,7 @@ codeunit 136131 "Service Demand Overview"
         CreateServiceDemand(Item."No.", OriginalQuantity);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate());
 
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
@@ -1040,7 +1040,7 @@ codeunit 136131 "Service Demand Overview"
         TheDate: Date;
         BiasString: DateFormula;
     begin
-        TheDate := WorkDate;
+        TheDate := WorkDate();
         if DateBias <> 0 then begin
             Evaluate(BiasString, '<' + Format(DateBias) + 'D>');
             TheDate := CalcDate(BiasString, TheDate);
@@ -1054,7 +1054,7 @@ codeunit 136131 "Service Demand Overview"
         FullAutoReservation: Boolean;
     begin
         ReservMgt.SetReservSource(PurchaseLine);
-        ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate, Quantity, Quantity);
+        ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate(), Quantity, Quantity);
     end;
 
     local procedure ClearGlobals()
@@ -1085,7 +1085,7 @@ codeunit 136131 "Service Demand Overview"
             if not DemandOverview.IsExpanded then
                 DemandOverview.Expand(true);
             RowsCount := RowsCount + 1;
-        until not DemandOverview.Next;
+        until not DemandOverview.Next();
 
         DemandOverview.First;
         exit(RowsCount);
@@ -1134,19 +1134,19 @@ codeunit 136131 "Service Demand Overview"
     local procedure CreatePurchaseSupply(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
     begin
         // Creates a Purchase order for the given item at the specified location.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyForVariant(ItemNo: Code[20]; ItemQuantity: Integer; VariantNo: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', GetVariant(ItemNo, VariantNo), WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', GetVariant(ItemNo, VariantNo), WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAfter(ItemNo: Code[20]; Quantity: Integer; ReceiptDate: Date): Code[20]
@@ -1185,17 +1185,17 @@ codeunit 136131 "Service Demand Overview"
 
     local procedure CreateServiceDemand(ItemNo: Code[20]; Quantity: Decimal): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', '', WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', '', WorkDate()));
     end;
 
     local procedure CreateServiceDemandForVariant(ItemNo: Code[20]; Quantity: Integer; VariantNo: Integer): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', GetVariant(ItemNo, VariantNo), WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', GetVariant(ItemNo, VariantNo), WorkDate()));
     end;
 
     local procedure CreateServiceDemandAtLocation(ItemNo: Code[20]; Quantity: Integer; LocationCode: Code[10]): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, LocationCode, '', WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreateJobDemandAtBasis(ItemNo: Code[20]; ItemQuantity: Decimal; LocationCode: Code[10]; VariantCode: Code[10]; PlanDate: Date): Code[20]
@@ -1234,17 +1234,17 @@ codeunit 136131 "Service Demand Overview"
 
     local procedure CreateJobDemand(ItemNo: Code[20]; ItemQuantity: Decimal): Code[20]
     begin
-        exit(CreateJobDemandAtBasis(ItemNo, ItemQuantity, '', '', WorkDate));
+        exit(CreateJobDemandAtBasis(ItemNo, ItemQuantity, '', '', WorkDate()));
     end;
 
     local procedure CreateJobDemandAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
     begin
-        exit(CreateJobDemandAtBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate));
+        exit(CreateJobDemandAtBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreateJobDemandForVariant(ItemNo: Code[20]; ItemQuantity: Integer; VariantNo: Integer): Code[20]
     begin
-        exit(CreateJobDemandAtBasis(ItemNo, ItemQuantity, '', GetVariant(ItemNo, VariantNo), WorkDate));
+        exit(CreateJobDemandAtBasis(ItemNo, ItemQuantity, '', GetVariant(ItemNo, VariantNo), WorkDate()));
     end;
 
     local procedure CreateItemWithVariants(var Item: Record Item)
@@ -1280,7 +1280,7 @@ codeunit 136131 "Service Demand Overview"
     local procedure CreateSalesDemand(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a sales order for the given item.
-        exit(CreateSalesDemandBasis(ItemNo, ItemQuantity, '', '', WorkDate));
+        exit(CreateSalesDemandBasis(ItemNo, ItemQuantity, '', '', WorkDate()));
     end;
 
     local procedure CreateSalesDemandAfter(ItemNo: Code[20]; Quantity: Integer; ShipDate: Date): Code[20]
@@ -1292,13 +1292,13 @@ codeunit 136131 "Service Demand Overview"
     local procedure CreateSalesDemandAtLocation(ItemNo: Code[20]; Quantity: Integer; LocationCode: Code[10]): Code[20]
     begin
         // Creates sales order for a specific item at a specified date.
-        exit(CreateSalesDemandBasis(ItemNo, Quantity, LocationCode, '', WorkDate));
+        exit(CreateSalesDemandBasis(ItemNo, Quantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreateSalesDemandForVariant(ItemNo: Code[20]; Quantity: Integer; VariantNo: Integer): Code[20]
     begin
         // Creates sales order for a specific item at a specified date.
-        exit(CreateSalesDemandBasis(ItemNo, Quantity, '', GetVariant(ItemNo, VariantNo), WorkDate));
+        exit(CreateSalesDemandBasis(ItemNo, Quantity, '', GetVariant(ItemNo, VariantNo), WorkDate()));
     end;
 
     local procedure CreateTransferOrder(var TransferLine: Record "Transfer Line"; FromLocationCode: Code[10]; ToLocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -1337,7 +1337,7 @@ codeunit 136131 "Service Demand Overview"
                 Item.Get(ServiceItem."Item No.");
                 if (Customer.Blocked = Customer.Blocked::" ") and not Item.Blocked then
                     exit;
-            until ServiceItem.Next = 0;
+            until ServiceItem.Next() = 0;
         Error(NoDataForExecutionError);
     end;
 
@@ -1464,7 +1464,7 @@ codeunit 136131 "Service Demand Overview"
                     if EndDateBias <> NoDateBias then
                         Assert.IsTrue(EndDate >= RowDate, 'End Date Should be Greater than or equal to row date');
                 end;
-            until not DemandOverview.Next;
+            until not DemandOverview.Next();
 
         Assert.AreEqual(ExpectedRowsCount, ActualRowCount, 'No. of expected rows match');
     end;
@@ -1483,7 +1483,7 @@ codeunit 136131 "Service Demand Overview"
                 if DemandOverview.QuantityText.Value <> '' then
                     QuantitySum := QuantitySum + DemandOverview.QuantityText.AsInteger;
             end;
-        until not DemandOverview.Next;
+        until not DemandOverview.Next();
 
         Assert.AreEqual(ExpectedRowsCount, ActualRowsCount, 'No. of rows match');
         Assert.AreEqual(ExpectedQuantitySum, QuantitySum, 'Sum of line Quantities matches');
@@ -1494,13 +1494,13 @@ codeunit 136131 "Service Demand Overview"
         RequisitionLine: Record "Requisition Line";
     begin
         FilterRequisitionLine(RequisitionLine, No);
-        Assert.AreEqual(2, RequisitionLine.Count, StrSubstNo(LineCountError, RequisitionLine.TableCaption, 2));
+        Assert.AreEqual(2, RequisitionLine.Count, StrSubstNo(LineCountError, RequisitionLine.TableCaption(), 2));
         repeat
             RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::New);
-            RequisitionLine.TestField("Due Date", WorkDate);
+            RequisitionLine.TestField("Due Date", WorkDate());
             RequisitionLine.TestField(Quantity, Quantity);
             RequisitionLine.TestField("Location Code", '');
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure VerifyReservationLine(Reservation: TestPage Reservation; SummaryType: Text[80])
@@ -1521,10 +1521,10 @@ codeunit 136131 "Service Demand Overview"
         // Verify Item No., Service Line, Job Planning Line and Current Reserved Quantity on Reservation Page.
         Reservation.ItemNo.AssertEquals(ItemNo);
         Reservation.First;
-        SummaryType := CopyStr(StrSubstNo('%1', ServiceLine.TableCaption), 1, MaxStrLen(SummaryType));
+        SummaryType := CopyStr(StrSubstNo('%1', ServiceLine.TableCaption()), 1, MaxStrLen(SummaryType));
         VerifyReservationLine(Reservation, SummaryType);
-        Reservation.Next;
-        SummaryType := CopyStr(StrSubstNo('%1, %2', JobPlanningLine.TableCaption, JobPlanningLine.Status), 1, MaxStrLen(SummaryType));
+        Reservation.Next();
+        SummaryType := CopyStr(StrSubstNo('%1, %2', JobPlanningLine.TableCaption(), JobPlanningLine.Status), 1, MaxStrLen(SummaryType));
         VerifyReservationLine(Reservation, SummaryType);
         Reservation.FILTER.SetFilter("Current Reserved Quantity", Format(-OriginalQuantity));
         Reservation.First;

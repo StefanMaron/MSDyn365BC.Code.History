@@ -13,7 +13,7 @@ page 437 "Reminder Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -26,7 +26,7 @@ page 437 "Reminder Statistics"
                     DrillDown = false;
                     ToolTip = 'Specifies the amount of interest due on the amount remaining.';
                 }
-                field("Additional Fee"; "Additional Fee")
+                field("Additional Fee"; Rec."Additional Fee")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -39,7 +39,7 @@ page 437 "Reminder Statistics"
                     DrillDown = false;
                     ToolTip = 'Specifies the VAT amount that has been calculated, on the reminder amount.';
                 }
-                field("Add. Fee per Line"; "Add. Fee per Line")
+                field("Add. Fee per Line"; Rec."Add. Fee per Line")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -120,7 +120,7 @@ page 437 "Reminder Statistics"
                   (ReminderTotal -
                    "Remaining Amount" - ("Additional Fee" + "Add. Fee per Line") * (VATPostingSetup."VAT %" / 100 + 1)) /
                   (VATInterest / 100 + 1);
-                VatAmount := Interest * VATInterest / 100 + "Additional Fee" * VATPostingSetup."VAT %" / 100 + CalculateLineFeeVATAmount;
+                VatAmount := Interest * VATInterest / 100 + "Additional Fee" * VATPostingSetup."VAT %" / 100 + CalculateLineFeeVATAmount();
             end else
                 Interest := "Interest Amount";
 

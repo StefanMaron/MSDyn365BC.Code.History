@@ -61,7 +61,7 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
-        Guid := CreateGuid;
+        Guid := CreateGuid();
 
         EventWorkflowStepInstance.Init();
         EventWorkflowStepInstance.ID := Guid;
@@ -181,7 +181,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowInstance.Open;
 
         // Exercise/Verify
-        Assert.IsFalse(WorkflowInstance.Read, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption));
+        Assert.IsFalse(WorkflowInstance.Read, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption()));
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 134300 "Workflow Engine UT"
 
         // Validate
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
-        Assert.IsTrue(WorkflowStepInstance.IsEmpty, StrSubstNo(RecordIsFoundErr, WorkflowStepInstance.TableCaption));
+        Assert.IsTrue(WorkflowStepInstance.IsEmpty, StrSubstNo(RecordIsFoundErr, WorkflowStepInstance.TableCaption()));
     end;
 
     [Test]
@@ -507,7 +507,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowCard.Enabled.SetValue(true);
 
         // Verify
-        EventWorkflowStep.Find;
+        EventWorkflowStep.Find();
         EventWorkflowStep.TestField("Entry Point", true);
     end;
 
@@ -542,7 +542,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowCard.Enabled.SetValue(false);
 
         // Verify
-        EventWorkflowStep.Find;
+        EventWorkflowStep.Find();
         EventWorkflowStep.TestField("Entry Point", false);
     end;
 
@@ -863,7 +863,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
         // Setup
-        Filters := StrSubstNo(ParametersHeaderLineTxt, WorkDate, LibraryRandom.RandInt(1000));
+        Filters := StrSubstNo(ParametersHeaderLineTxt, WorkDate(), LibraryRandom.RandInt(1000));
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, Filters);
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep2, Filters);
 
@@ -915,8 +915,8 @@ codeunit 134300 "Workflow Engine UT"
 
         // Setup
         Amount := LibraryRandom.RandInt(1000);
-        LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StrSubstNo(ParametersHeaderLineTxt, WorkDate, Amount));
-        LibraryWorkflow.InsertEventArgument(EntryPointEventStep2, StrSubstNo(ParametersLineHeaderTxt, WorkDate, Amount));
+        LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StrSubstNo(ParametersHeaderLineTxt, WorkDate(), Amount));
+        LibraryWorkflow.InsertEventArgument(EntryPointEventStep2, StrSubstNo(ParametersLineHeaderTxt, WorkDate(), Amount));
 
         // Exercise
         Workflow.Validate(Enabled, true);
@@ -966,7 +966,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
         // Setup
-        LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StrSubstNo(ParametersHeaderLineTxt, WorkDate - 1,
+        LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StrSubstNo(ParametersHeaderLineTxt, WorkDate() - 1,
             LibraryRandom.RandInt(1000)));
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep2, StrSubstNo(ParametersHeaderLineTxt, WorkDate + 1,
             LibraryRandom.RandInt(1000)));
@@ -1073,7 +1073,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
           EntryPointEventStepId);
 
@@ -1105,7 +1105,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
             EntryPointEventStepId);
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode, ResponseStepId);
@@ -1134,7 +1134,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode,
           EntryPointEventStepId);
 
@@ -1175,7 +1175,7 @@ codeunit 134300 "Workflow Engine UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(StepIdsCannotBeTheSameErr,
-            WorkflowStep.FieldCaption("Previous Workflow Step ID"), WorkflowStep.FieldCaption(ID), WorkflowStep.TableCaption,
+            WorkflowStep.FieldCaption("Previous Workflow Step ID"), WorkflowStep.FieldCaption(ID), WorkflowStep.TableCaption(),
             WorkflowStep.FieldCaption("Workflow Code"), WorkflowStep."Workflow Code", WorkflowStep.ID));
     end;
 
@@ -1209,7 +1209,7 @@ codeunit 134300 "Workflow Engine UT"
         // Verify
         Assert.ExpectedError(
           StrSubstNo(StepIdsCannotBeTheSameErr,
-            WorkflowStep.FieldCaption("Next Workflow Step ID"), WorkflowStep.FieldCaption(ID), WorkflowStep.TableCaption,
+            WorkflowStep.FieldCaption("Next Workflow Step ID"), WorkflowStep.FieldCaption(ID), WorkflowStep.TableCaption(),
             WorkflowStep.FieldCaption("Workflow Code"), WorkflowStep."Workflow Code", WorkflowStep.ID));
     end;
 
@@ -1251,7 +1251,7 @@ codeunit 134300 "Workflow Engine UT"
         ParentResponseWorkflowStep.InsertAfterStep(NewResponseWorkflowStep);
 
         // Verify
-        NewResponseWorkflowStep.Find;
+        NewResponseWorkflowStep.Find();
         ResponseWorkflowStep1.Get(Workflow.Code, ResponseStepID1);
         ResponseWorkflowStep2.Get(Workflow.Code, ResponseStepID2);
         ResponseWorkflowStep3.Get(Workflow.Code, ResponseStepID3);
@@ -1290,7 +1290,7 @@ codeunit 134300 "Workflow Engine UT"
           false, NewResponseWorkflowStep.Type::Response);
 
         // Verify
-        ResponseWorkflowStep.Find;
+        ResponseWorkflowStep.Find();
         NewResponseWorkflowStep.Get(Workflow.Code, ResponseWorkflowStep."Previous Workflow Step ID");
         NewResponseWorkflowStep.TestField("Previous Workflow Step ID", EventWorkflowStep.ID);
         NewResponseWorkflowStep.TestField(Type, NewResponseWorkflowStep.Type::Response);

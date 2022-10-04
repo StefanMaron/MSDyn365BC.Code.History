@@ -35,7 +35,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Text");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
@@ -76,7 +76,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         VerifyBeginningEndingText(FinanceChargeMemoHeader."No.", EndingText, FinanceChargeMemoLine."Line Type"::"Ending Text");
 
         // Tear Down: Delete the earlier created Finance Charge Memo and Finance Charge Terms.
-        FinanceChargeMemoHeader.Find;
+        FinanceChargeMemoHeader.Find();
         FinanceChargeMemoHeader.Delete(true);
         FinanceChargeTerms.Delete(true);
     end;
@@ -103,9 +103,9 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         // 2. Exercise: Create Finance Charge Memo Header and Suggest Lines.
         CreateSuggestFinanceChargeMemo(
           FinanceChargeMemoHeader, Customer."No.",
-          CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'Y>', CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate)));
+          CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'Y>', CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate())));
         CalculatedAmount :=
-          Round(Amount * (FinanceChargeMemoHeader."Document Date" - WorkDate) /
+          Round(Amount * (FinanceChargeMemoHeader."Document Date" - WorkDate()) /
             FinanceChargeTerms."Interest Period (Days)" * FinanceChargeTerms."Interest Rate" / 100);
 
         // 3. Verify: Verify Finance Charge Memo Lines.
@@ -137,9 +137,9 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         Amount := CreateAndPostGeneralJournal(Customer."No.");
         CreateSuggestFinanceChargeMemo(
           FinanceChargeMemoHeader, Customer."No.",
-          CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'Y>', CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate)));
+          CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'Y>', CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate())));
         CalculatedAmount :=
-          Round(Amount * (FinanceChargeMemoHeader."Document Date" - WorkDate) /
+          Round(Amount * (FinanceChargeMemoHeader."Document Date" - WorkDate()) /
             FinanceChargeTerms."Interest Period (Days)" * FinanceChargeTerms."Interest Rate" / 100);
 
         // 2. Exercise: Issue Finance Charge Memo.

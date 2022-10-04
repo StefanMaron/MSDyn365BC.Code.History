@@ -644,11 +644,11 @@
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
     begin
-        TotalPurchLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
+        TotalPurchLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1[IndexNo] := TotalPurchLine[IndexNo]."Line Amount" - TotalPurchLine[IndexNo]."Inv. Discount Amount";
         VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount();
         if Rec."Prices Including VAT" then begin
-            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT;
+            TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] - VATAmount[IndexNo];
             TotalPurchLine[IndexNo]."Line Amount" := TotalAmount1[IndexNo] + TotalPurchLine[IndexNo]."Inv. Discount Amount";
         end else
@@ -662,7 +662,7 @@
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount1[IndexNo];
         if Rec."Currency Code" <> '' then begin
             if Rec."Posting Date" = 0D then
-                UseDate := WorkDate
+                UseDate := WorkDate()
             else
                 UseDate := Rec."Posting Date";
 
@@ -678,13 +678,13 @@
             QtyType::General:
                 begin
                     VATLinesForm.GetTempVATAmountLine(TempVATAmountLine1);
-                    if TempVATAmountLine1.GetAnyLineModified then
+                    if TempVATAmountLine1.GetAnyLineModified() then
                         UpdateHeaderInfo(1, TempVATAmountLine1);
                 end;
             QtyType::Invoicing:
                 begin
                     VATLinesForm.GetTempVATAmountLine(TempVATAmountLine2);
-                    if TempVATAmountLine2.GetAnyLineModified then
+                    if TempVATAmountLine2.GetAnyLineModified() then
                         UpdateHeaderInfo(2, TempVATAmountLine2);
                 end;
             QtyType::Shipping:
@@ -716,11 +716,11 @@
         i: Integer;
         InvDiscBaseAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         if not (ModifiedIndexNo in [1, 2]) then
             exit;
 
-        if InvoicedLineExists then
+        if InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 Error('');
 
@@ -756,10 +756,10 @@
         for i := 1 to MaxIndexNo do
             with TotalPurchLine[IndexNo[i]] do begin
                 if (i = 1) or not PartialInvoicing then
-                    if IndexNo[i] = 1 then begin
+                    if IndexNo[i] = 1 then
                         TempVATAmountLine1.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                    end else
+                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %")
+                    else
                         TempVATAmountLine2.SetInvoiceDiscountAmount(
                           "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 
@@ -771,7 +771,7 @@
                               0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
                         else
                             TempVATAmountLine1.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine2.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine2.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
                     end else begin
                         InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, "Currency Code");
@@ -780,7 +780,7 @@
                               0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
                         else
                             TempVATAmountLine2.SetInvoiceDiscountPercent(
-                              100 * TempVATAmountLine1.GetTotalInvDiscAmount / InvDiscBaseAmount,
+                              100 * TempVATAmountLine1.GetTotalInvDiscAmount() / InvDiscBaseAmount,
                               "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
                     end;
             end;
@@ -830,9 +830,9 @@
         PurchLine: Record "Purchase Line";
     begin
         GetVATSpecification(ActiveTab);
-        if TempVATAmountLine1.GetAnyLineModified then
+        if TempVATAmountLine1.GetAnyLineModified() then
             PurchLine.UpdateVATOnLines(0, Rec, PurchLine, TempVATAmountLine1);
-        if TempVATAmountLine2.GetAnyLineModified then
+        if TempVATAmountLine2.GetAnyLineModified() then
             PurchLine.UpdateVATOnLines(1, Rec, PurchLine, TempVATAmountLine2);
         PrevNo := '';
     end;
@@ -842,7 +842,7 @@
         VendInvDisc: Record "Vendor Invoice Disc.";
     begin
         VendInvDisc.SetRange(Code, InvDiscCode);
-        exit(VendInvDisc.FindFirst);
+        exit(VendInvDisc.FindFirst());
     end;
 
     local procedure CheckAllowInvDisc()
@@ -852,7 +852,7 @@
         if not AllowInvDisc then
             Error(
               Text005,
-              VendInvDisc.TableCaption, FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
+              VendInvDisc.TableCaption(), FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
     end;
 
     local procedure Pct(Numerator: Decimal; Denominator: Decimal): Decimal

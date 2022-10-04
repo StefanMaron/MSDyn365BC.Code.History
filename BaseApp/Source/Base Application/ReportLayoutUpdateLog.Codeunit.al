@@ -29,7 +29,7 @@ codeunit 9656 "Report Layout Update Log"
         foreach IReportChangeLog in LogCollection do begin
             startValue += 1;
             with TempReportLayoutUpdateLog do begin
-                Init;
+                Init();
                 "No." := startValue;
                 intValue := IReportChangeLog.Status;
                 Status := intValue;
@@ -41,7 +41,7 @@ codeunit 9656 "Report Layout Update Log"
                 if intValue = 0 then
                     intValue := 1;
                 "Layout Type" := intValue - 1;
-                Insert;
+                Insert();
             end;
         end;
 

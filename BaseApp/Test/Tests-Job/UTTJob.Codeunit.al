@@ -341,7 +341,7 @@ codeunit 136350 "UT T Job"
 
         CurrencyExchangeRate.Init();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate."Exchange Rate Amount" := 1;
         CurrencyExchangeRate."Relational Exch. Rate Amount" := 1;
         CurrencyExchangeRate.Insert();
@@ -386,10 +386,10 @@ codeunit 136350 "UT T Job"
         // [WHEN] Job is renamed from "X" to "Y"
         Job.Rename(NewJobNo);
         // [THEN] Source ID of Reservation Entry with Source Type = "Job Planning Line" is "Y"
-        JobPlanningReservEntry.Find;
+        JobPlanningReservEntry.Find();
         Assert.AreEqual(NewJobNo, JobPlanningReservEntry."Source ID", IncorrectSourceIDErr);
         // [THEN] Source ID of Reservation Entry with Source Type = "Job Journal Line" is "Y"
-        JobJnlLineReservEntry.Find;
+        JobJnlLineReservEntry.Find();
         Assert.AreEqual(NewJobNo, JobJnlLineReservEntry."Source ID", IncorrectSourceIDErr);
     end;
 
@@ -605,7 +605,7 @@ codeunit 136350 "UT T Job"
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
 
         // [WHEN] Delete the Job.
-        Job.SetRecFilter;
+        Job.SetRecFilter();
         Job.Delete(true);
 
         // [THEN] The Job is deleted.
@@ -634,7 +634,7 @@ codeunit 136350 "UT T Job"
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Rejected);
 
         // [WHEN] Delete the Job.
-        Job.SetRecFilter;
+        Job.SetRecFilter();
         Job.Delete(true);
 
         // [THEN] The Job is deleted.
@@ -689,7 +689,7 @@ codeunit 136350 "UT T Job"
         ValidateJobProjectManagerWithPage(Job, UserA);
 
         // [WHEN] Delete Job "X"
-        Job.Find;
+        Job.Find();
         Job.Delete(true);
 
         // [THEN] There is no MyJob record with "Job No." = "X"
@@ -801,7 +801,7 @@ codeunit 136350 "UT T Job"
         JobTask.FindSet();
         repeat
             VerifyJobTaskDimensionsFromCustDefaultDimensions(CustomerNo[2], JobTask);
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     [Test]
@@ -848,7 +848,7 @@ codeunit 136350 "UT T Job"
         repeat
             JobTask.TestField("Global Dimension 1 Code", '');
             JobTask.TestField("Global Dimension 2 Code", Customer[2]."Global Dimension 2 Code");
-        until JobTask.Next = 0;
+        until JobTask.Next() = 0;
     end;
 
     [Test]
@@ -1238,6 +1238,29 @@ codeunit 136350 "UT T Job"
     end;
 
     [Test]
+    procedure JobCardLinesEditable()
+    var
+        Job: Record Job;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 429325] The job task lines subpage is editable when "Bill-to Customer No." is specified
+        // Subpage.editable does not work for test page now, so this is UT for function CalcJobTaskLinesEditable
+        Initialize();
+
+        // [WHEN] New job "J01" with empty customer number
+        CreateJob(Job);
+        Job.TestField("Bill-to Customer No.", '');
+
+        // [THEN] CalcJobTaskLinesEditable returns false
+        Assert.IsFalse(Job.CalcJobTaskLinesEditable(), 'JobTaskLines must be not editable');
+
+        // [WHEN] "Bill-to Customer No." is specified
+        Job.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        // [THEN] CalcJobTaskLinesEditable returns true
+        Assert.IsTrue(Job.CalcJobTaskLinesEditable(), 'JobTaskLines must be editable');
+    end;
+
+    [Test]
     procedure CheckBlockedCustomerOnJob()
     var
         Job: Record Job;
@@ -1366,7 +1389,7 @@ codeunit 136350 "UT T Job"
         JobPlanningLineInvoice."Document No." := 'TEST';
         JobPlanningLineInvoice."Line No." := 10000;
         JobPlanningLineInvoice."Quantity Transferred" := Qty;
-        JobPlanningLineInvoice."Transferred Date" := WorkDate;
+        JobPlanningLineInvoice."Transferred Date" := WorkDate();
         JobPlanningLineInvoice.Insert();
     end;
 
@@ -1375,14 +1398,14 @@ codeunit 136350 "UT T Job"
         RecRef: RecordRef;
     begin
         with ReservEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(ReservEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Source Type" := TableID;
             "Source Subtype" := LibraryRandom.RandInt(5);
             "Source ID" := SourceID;
             "Source Ref. No." := LibraryRandom.RandInt(100);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1398,22 +1421,22 @@ codeunit 136350 "UT T Job"
         TimeSheetHeader: Record "Time Sheet Header";
     begin
         with TimeSheetHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Owner User ID" := UserId;
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
             "Ending Date" := WorkDate + 7;
-            Insert;
+            Insert();
         end;
 
         with TimeSheetLine do begin
-            Init;
+            Init();
             "Time Sheet No." := TimeSheetHeader."No.";
             "Line No." := 10000;
             Type := Type::Job;
             "Job No." := Job."No.";
             Status := Status::Open;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1422,7 +1445,7 @@ codeunit 136350 "UT T Job"
         UserSetup: Record "User Setup";
     begin
         with UserSetup do begin
-            Init;
+            Init();
             Validate("User ID", LibraryUtility.GenerateGUID());
             Insert(true);
             exit("User ID");
@@ -1436,7 +1459,7 @@ codeunit 136350 "UT T Job"
         JobCard.OpenEdit;
         JobCard.GotoRecord(Job);
         JobCard."Project Manager".SetValue(ProjectManager);
-        JobCard.Close;
+        JobCard.Close();
     end;
 
     local procedure UpdateTimeSheetLineStatus(var TimeSheetLine: Record "Time Sheet Line"; NewStatus: Enum "Time Sheet Status")
@@ -1462,12 +1485,12 @@ codeunit 136350 "UT T Job"
         JobLedgEntry: Record "Job Ledger Entry";
     begin
         with JobLedgEntry do begin
-            Init;
+            Init();
             "Entry No." :=
               LibraryUtility.GetNewRecNo(JobLedgEntry, FieldNo("Entry No."));
             Validate("Job No.", JobNo);
             "Total Cost (LCY)" := UsageCost;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1505,7 +1528,7 @@ codeunit 136350 "UT T Job"
 
     local procedure VerifyJobTaskGlobalDimensions(var JobTask: Record "Job Task"; DimValue1Code: Code[20]; DimValue2Code: Code[20])
     begin
-        JobTask.Find;
+        JobTask.Find();
         Assert.AreEqual(
           DimValue1Code, JobTask."Global Dimension 1 Code", JobTask.FieldCaption("Global Dimension 1 Code"));
         Assert.AreEqual(
@@ -1523,7 +1546,7 @@ codeunit 136350 "UT T Job"
         repeat
             JobDefaultDimension.Get(DATABASE::Job, JobNo, CustDefaultDimension."Dimension Code");
             JobDefaultDimension.TestField("Dimension Value Code", CustDefaultDimension."Dimension Value Code");
-        until CustDefaultDimension.Next = 0;
+        until CustDefaultDimension.Next() = 0;
     end;
 
     local procedure VerifyJobTaskDimensionsFromCustDefaultDimensions(CustomerNo: Code[20]; JobTask: Record "Job Task")
@@ -1535,7 +1558,7 @@ codeunit 136350 "UT T Job"
         DefaultDimension.FindSet();
         repeat
             VerifyJobTaskDimension(JobTask, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
-        until DefaultDimension.Next = 0;
+        until DefaultDimension.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job", 'OnAfterModifyEvent', '', false, false)]

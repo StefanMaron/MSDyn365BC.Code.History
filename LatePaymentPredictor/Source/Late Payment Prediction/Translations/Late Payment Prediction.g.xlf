@@ -348,6 +348,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType SetupNotificationNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 1378938356" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Late Payment Prediction extension can help you reduce outstanding receivables by predicting whether sales invoices will be paid on time. Set it up now.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 530150016" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Late Payment Prediction</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 2882172826" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Late Payment Prediction</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2361022759 - NamedType 2502994393" size-unit="char" translate="yes" xml:space="preserve">
           <source>LatePaymentML</source>
           <note from="Developer" annotates="general" priority="2"></note>

@@ -159,14 +159,14 @@ table 1234 "CSV Buffer"
     var
         NumberOfColumns: Integer;
     begin
-        NumberOfColumns := GetNumberOfColumns;
+        NumberOfColumns := GetNumberOfColumns();
         if FindSet() then
             repeat
                 StreamWriter.Write(Value);
                 if "Field No." < NumberOfColumns then
                     StreamWriter.Write(CSVFieldSeparator)
                 else
-                    StreamWriter.WriteLine;
+                    StreamWriter.WriteLine();
             until Next() = 0;
     end;
 
@@ -277,7 +277,7 @@ table 1234 "CSV Buffer"
             exit(false);
 
         repeat
-            String := StreamReader.ReadLine;
+            String := StreamReader.ReadLine();
             CurrentLineNo += 1;
             CurrentIndex := 0;
             repeat
@@ -412,7 +412,7 @@ table 1234 "CSV Buffer"
         TempCSVBuffer: Record "CSV Buffer" temporary;
     begin
         TempCSVBuffer.Copy(Rec, true);
-        TempCSVBuffer.ResetFilters;
+        TempCSVBuffer.ResetFilters();
         TempCSVBuffer.SetRange("Line No.", "Line No.");
         if TempCSVBuffer.FindLast() then
             exit(TempCSVBuffer."Field No.");

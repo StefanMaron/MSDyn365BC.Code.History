@@ -11,7 +11,7 @@ report 31 "VAT Exceptions"
         dataitem("VAT Entry"; "VAT Entry")
         {
             RequestFilterFields = "Posting Date";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Filter1_VatEntry; TableCaption + ': ' + VATEntryFilter)
@@ -19,7 +19,7 @@ report 31 "VAT Exceptions"
             }
             column(MinVatDifference; MinVATDifference)
             {
-                AutoFormatExpression = GetCurrency;
+                AutoFormatExpression = GetCurrency();
                 AutoFormatType = 1;
             }
             column(MinVatDiffText; MinVATDiffText)
@@ -50,13 +50,13 @@ report 31 "VAT Exceptions"
             }
             column(Base_VatEntry; Base)
             {
-                AutoFormatExpression = GetCurrency;
+                AutoFormatExpression = GetCurrency();
                 AutoFormatType = 1;
                 IncludeCaption = true;
             }
             column(Amount_VatEntry; Amount)
             {
-                AutoFormatExpression = GetCurrency;
+                AutoFormatExpression = GetCurrency();
                 AutoFormatType = 1;
                 IncludeCaption = true;
             }
@@ -158,7 +158,7 @@ report 31 "VAT Exceptions"
                     field(MinVATDifference; MinVATDifference)
                     {
                         ApplicationArea = Basic, Suite;
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                         Caption = 'Min. VAT Difference';
                         ToolTip = 'Specifies the minimum VAT difference that you want to include in the report.';
@@ -184,15 +184,13 @@ report 31 "VAT Exceptions"
     trigger OnPreReport()
     begin
         GLSetup.Get();
-        VATEntryFilter := "VAT Entry".GetFilters;
+        VATEntryFilter := "VAT Entry".GetFilters();
         if UseAmtsInAddCurr then
             AddCurrAmtTxt := StrSubstNo(Text000, GLSetup."Additional Reporting Currency");
         MinVATDiffText := StrSubstNo(Text001, "VAT Entry".FieldCaption("VAT Difference"));
     end;
 
     var
-        Text000: Label 'Amounts are shown in %1.';
-        Text001: Label 'Show %1 equal to or greater than';
         GLSetup: Record "General Ledger Setup";
         VATEntryFilter: Text;
         UseAmtsInAddCurr: Boolean;
@@ -200,6 +198,9 @@ report 31 "VAT Exceptions"
         MinVATDifference: Decimal;
         MinVATDiffText: Text[250];
         PrintReversedEntries: Boolean;
+
+        Text000: Label 'Amounts are shown in %1.';
+        Text001: Label 'Show %1 equal to or greater than';
         VATExceptionsCaptionLbl: Label 'VAT Exceptions';
         CurrReportPageNoOCaptionLbl: Label 'Page';
         FORMATEU3PartyTradeCapLbl: Label 'EU 3-Party Trade';

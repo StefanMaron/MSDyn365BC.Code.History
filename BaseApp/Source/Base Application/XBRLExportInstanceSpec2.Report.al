@@ -25,7 +25,7 @@ report 505 "XBRL Export Instance - Spec. 2"
             column(Description_XBRLTaxonomy; XBRLTaxonomy.Description)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(XBRLTaxonomyName; XBRLTaxonomy.Name)
@@ -109,7 +109,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                     if Number = 1 then
                         TempAmountBuf.Find('-')
                     else
-                        TempAmountBuf.Next;
+                        TempAmountBuf.Next();
 
                     if Number = 1 then
                         PeriodStartDate := StartDate
@@ -253,7 +253,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                     TupleLevel := TupleLevel - 1;
                 end;
 
-                if NoOfLineNodes > 0 then begin
+                if NoOfLineNodes > 0 then
                     if "Source Type" = "Source Type"::Tuple then begin
                         TupleLevel := TupleLevel + 1;
                         TupleParentLine[TupleLevel] := "Line No.";
@@ -261,7 +261,6 @@ report 505 "XBRL Export Instance - Spec. 2"
                     end else
                         for i := 1 to NoOfLineNodes do
                             TupleNode[TupleLevel].AppendChild(LineNode[i]);
-                end;
 
                 NextXBRLLine.Copy("XBRL Taxonomy Line");
                 if NextXBRLLine.Next() = 0 then
@@ -307,7 +306,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                 XBRLManagement.InitializeOptions(NoOfPeriods, 0);
                 NoOfRecords := 0;
                 Progress := 0;
-                XBRLInstanceDocument := XBRLInstanceDocument.XmlDocument;
+                XBRLInstanceDocument := XBRLInstanceDocument.XmlDocument();
                 ProcessingInstruction := XBRLInstanceDocument.CreateProcessingInstruction('xml', 'version="1.0" encoding="UTF-8"');
                 XBRLInstanceDocument.AppendChild(ProcessingInstruction);
                 case XBRLVersion of
@@ -541,7 +540,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                               "XBRL Taxonomy Line No.", XBRLTaxonomyLabel."XBRL Taxonomy Line No.");
                             XBRLTaxonomyLabels.SetTableView(XBRLTaxonomyLabel);
                             XBRLTaxonomyLabels.LookupMode := true;
-                            if XBRLTaxonomyLabels.RunModal = ACTION::LookupOK then begin
+                            if XBRLTaxonomyLabels.RunModal() = ACTION::LookupOK then begin
                                 XBRLTaxonomyLabels.GetRecord(XBRLTaxonomyLabel);
                                 Text := XBRLTaxonomyLabel."XML Language Identifier";
                                 exit(true);
@@ -667,7 +666,7 @@ report 505 "XBRL Export Instance - Spec. 2"
 
         XBRLTaxonomy.Get(XBRLTaxonomyName);
 
-        FilterString := "XBRL Taxonomy Line".GetFilters;
+        FilterString := "XBRL Taxonomy Line".GetFilters();
 
         "XBRL Taxonomy Line".SetRange("XBRL Taxonomy Name", XBRLTaxonomyName);
         "XBRL Taxonomy Line".SetFilter(
@@ -699,6 +698,7 @@ report 505 "XBRL Export Instance - Spec. 2"
         XBRLSchema: Record "XBRL Schema";
         TempAmountBuf: Record "Entry No. Amount Buffer" temporary;
         XBRLManagement: Codeunit "XBRL Management";
+        PeriodLength: DateFormula;
         XBRLInstanceDocument: DotNet XmlDocument;
         RootNode: DotNet XmlNode;
         InstantContextNode: DotNet XmlNode;
@@ -715,7 +715,6 @@ report 505 "XBRL Export Instance - Spec. 2"
         ShowZeroLines: Boolean;
         StartDate: Date;
         EndDate: Date;
-        PeriodLength: DateFormula;
         ClosingEntryFilter: Option Include,Exclude;
         cwa: Boolean;
         SchemeName: Text[250];
@@ -795,7 +794,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                         BufTxt[i] := Comment
                     else
                         BufTxt[i] := BufTxt[i] + ' ' + Comment;
-                    More := Next <> 0;
+                    More := Next() <> 0;
                 end;
                 NoteNode := XBRLInstanceDocument.CreateElement(NamespaceName, NodeName, XBRLSchema.targetNamespace);
                 NoteNode.InnerText := BufTxt[1] + BufTxt[2];

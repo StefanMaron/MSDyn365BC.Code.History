@@ -310,7 +310,7 @@ codeunit 131337 "Library - XPath XML Reader"
     begin
         // If multiple nodes with the same name exist in the subtree, the index of the first one will be returned.
         GetNodeByElementName(RootNodeName, Node);
-        Enumerator := Node.GetEnumerator;
+        Enumerator := Node.GetEnumerator();
 
         while Enumerator.MoveNext() do begin
             OtherNode := Enumerator.Current;

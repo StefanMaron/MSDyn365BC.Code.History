@@ -19,7 +19,7 @@ page 9092 "Approval FactBox"
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the approval status for the entry:';
             }
-            field("Approver ID"; "Approver ID")
+            field("Approver ID"; Rec."Approver ID")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the ID of the user who must approve the document (the Approver).';
@@ -31,7 +31,7 @@ page 9092 "Approval FactBox"
                     UserMgt.DisplayUserInformation("Approver ID");
                 end;
             }
-            field("Date-Time Sent for Approval"; "Date-Time Sent for Approval")
+            field("Date-Time Sent for Approval"; Rec."Date-Time Sent for Approval")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the date and the time that the document was sent for approval.';
@@ -56,7 +56,7 @@ page 9092 "Approval FactBox"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         DocumentHeading := '';
-        exit(FindLast);
+        exit(FindLast());
     end;
 
     var

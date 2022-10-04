@@ -7,7 +7,6 @@ page 1870 "Credit Limit Notification"
     InsertAllowed = false;
     LinksAllowed = false;
     ModifyAllowed = false;
-    PromotedActionCategories = 'New,Process,Report,Manage,Create';
     SourceTable = Customer;
 
     layout
@@ -42,9 +41,6 @@ page 1870 "Credit Limit Notification"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Customer Card";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -63,9 +59,6 @@ page 1870 "Credit Limit Notification"
                     ApplicationArea = Suite;
                     Caption = 'Finance Charge Memo';
                     Image = FinChargeMemo;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    PromotedOnly = true;
                     RunObject = Page "Finance Charge Memo";
                     RunPageLink = "Customer No." = FIELD("No.");
                     RunPageMode = Create;
@@ -80,9 +73,6 @@ page 1870 "Credit Limit Notification"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer - Balance to Date';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedOnly = true;
                     ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
 
                     trigger OnAction()
@@ -92,6 +82,37 @@ page 1870 "Credit Limit Notification"
                         CustomerCard.RunReport(REPORT::"Customer - Balance to Date", "No.");
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref(NewFinanceChargeMemo_Promoted; NewFinanceChargeMemo)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Report Customer - Balance to Date_Promoted"; "Report Customer - Balance to Date")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Customer_Promoted; Customer)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Create', Comment = 'Generated from the PromotedActionCategories property index 4.';
             }
         }
     }
@@ -112,7 +133,7 @@ page 1870 "Credit Limit Notification"
         SetRange("No.", "No.");
 
         if GetFilter("Date Filter") = '' then
-            SetFilter("Date Filter", '..%1', WorkDate);
+            SetFilter("Date Filter", '..%1', WorkDate());
 
         CurrPage.CreditLimitDetails.PAGE.InitializeFromNotificationVar(CreditLimitNotification);
     end;

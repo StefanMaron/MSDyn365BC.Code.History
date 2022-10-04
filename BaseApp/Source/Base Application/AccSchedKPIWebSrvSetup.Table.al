@@ -56,7 +56,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         }
         field(7; Published; Boolean)
         {
-            CalcFormula = Exist ("Web Service" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Exist("Web Service" WHERE("Object Type" = CONST(Page),
                                                      "Object ID" = CONST(197),
                                                      Published = CONST(true)));
             Caption = 'Published';
@@ -128,12 +128,12 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
     begin
         case Period of
             Period::"Fiscal Year - Last Locked Period":
-                GetFiscalYear(GetLastClosedAccDate, StartDate, EndDate);
+                GetFiscalYear(GetLastClosedAccDate(), StartDate, EndDate);
             Period::"Current Fiscal Year":
-                GetFiscalYear(WorkDate, StartDate, EndDate);
+                GetFiscalYear(WorkDate(), StartDate, EndDate);
             Period::"Current Period":
                 begin
-                    AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate);
+                    AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate());
                     if AccountingPeriod.FindLast() then
                         StartDate := AccountingPeriod."Starting Date";
                     AccountingPeriod.SetRange("Starting Date");
@@ -144,7 +144,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
                 end;
             Period::"Last Locked Period":
                 begin
-                    AccountingPeriod.SetFilter("Starting Date", '<=%1', GetLastClosedAccDate);
+                    AccountingPeriod.SetFilter("Starting Date", '<=%1', GetLastClosedAccDate());
                     if AccountingPeriod.FindLast() then
                         StartDate := AccountingPeriod."Starting Date";
                     AccountingPeriod.SetRange("Starting Date");
@@ -155,27 +155,27 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
                 end;
             Period::"Current Calendar Year":
                 begin
-                    StartDate := CalcDate('<-CY>', WorkDate);
+                    StartDate := CalcDate('<-CY>', WorkDate());
                     EndDate := CalcDate('<CY>', StartDate);
                 end;
             Period::"Current Calendar Quarter":
                 begin
-                    StartDate := CalcDate('<-CQ>', WorkDate);
+                    StartDate := CalcDate('<-CQ>', WorkDate());
                     EndDate := CalcDate('<CQ>', StartDate);
                 end;
             Period::"Current Month":
                 begin
-                    StartDate := CalcDate('<-CM>', WorkDate);
+                    StartDate := CalcDate('<-CM>', WorkDate());
                     EndDate := CalcDate('<CM>', StartDate);
                 end;
             Period::Today:
                 begin
-                    StartDate := WorkDate;
-                    EndDate := WorkDate;
+                    StartDate := WorkDate();
+                    EndDate := WorkDate();
                 end;
             Period::"Current Fiscal Year + 3 Previous Years":
                 begin
-                    GetFiscalYear(WorkDate, StartDate, EndDate);
+                    GetFiscalYear(WorkDate(), StartDate, EndDate);
                     StartDate := CalcDate('<-3Y>', StartDate);
                     AccountingPeriod.SetRange("New Fiscal Year", true);
                     if AccountingPeriod.FindFirst() then // Get oldest accounting year
@@ -269,7 +269,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         GLSetup.Get();
         if GLSetup."Allow Posting From" <> 0D then
             exit(GLSetup."Allow Posting From" - 1);
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     procedure GetLastBudgetChangedDate(): Date
@@ -292,9 +292,9 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         TestField("Web Service Name");
-        DeleteWebService;
+        DeleteWebService();
 
-        if EnvironmentInfo.IsSaaS then begin
+        if EnvironmentInfo.IsSaaS() then begin
             WebServiceManagement.CreateTenantWebService(WebService."Object Type"::Page,
               PAGE::"Acc. Sched. KPI Web Service", "Web Service Name", true);
             WebServiceManagement.CreateTenantWebService(WebService."Object Type"::Query,
@@ -314,7 +314,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         TenantWebService: Record "Tenant Web Service";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then begin
+        if EnvironmentInfo.IsSaaS() then begin
             TenantWebService.SetRange("Object Type", WebService."Object Type"::Page);
             TenantWebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
             TenantWebService.SetRange("Service Name", "Web Service Name");

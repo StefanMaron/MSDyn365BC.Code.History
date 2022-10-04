@@ -27,6 +27,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Cue - Field Primary Key - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1487806969 - Field 4123810931 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Errors</source>
+          <target state="translated">Synchronization Errors</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Cue - Field Synchronization Errors - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1487806969 - Field 38261347 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unmapped Customers</source>
           <target state="translated">Unmapped Customers</target>
@@ -44,6 +50,12 @@
           <target state="translated">Unprocessed Orders</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Cue - Field Unprocessed Orders - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1487806969 - Field 1452317374 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unprocessed Shipments</source>
+          <target state="translated">Unprocessed Shipments</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Cue - Field Unprocessed Shipments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1780538260 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Customer</source>
@@ -2403,6 +2415,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Registered Store - Field Store - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4027259353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Registered Store</source>
+          <target state="translated">Shopify Registered Store</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Registered Store New - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4027259353 - Field 2905099416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Actual Scope</source>
+          <target state="translated">Actual Scope</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Registered Store New - Field Actual Scope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4027259353 - Field 1655214718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requested Scope</source>
+          <target state="translated">Requested Scope</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Registered Store New - Field Requested Scope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4027259353 - Field 1074243913 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Store</source>
+          <target state="translated">Store</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Registered Store New - Field Store - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4048628513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Shipment Method</source>
           <target state="translated">Shopify Shipment Method</target>
@@ -2734,8 +2770,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop - Field Sync Item Images - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2860632388 - Field 1477330826 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> ,To Shopify,From Shopify</source>
-          <target state="translated"> ,To Shopify,From Shopify</target>
+          <source>Disabled,To Shopify,From Shopify</source>
+          <target state="translated">Disabled,To Shopify,From Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop - Field Sync Item Images - Property OptionCaption</note>
         </trans-unit>
@@ -3255,6 +3291,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Variant - Field Weight - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3329328528 - NamedType 3369057591" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No callback was received from Shopify. Make sure that you haven't closed the page that says "Waiting for a response - do not close this page", and then try again.</source>
+          <target state="translated">No callback was received from Shopify. Make sure that you haven't closed the page that says "Waiting for a response - do not close this page", and then try again.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Authentication Mgt. - NamedType NoCallbackErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3329328528 - Method 790627987 - NamedType 2476648613" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No Access token for the store "%1".\Please request an access token for this store.</source>
           <target state="translated">No Access token for the store "%1".\Please request an access token for this store.</target>
@@ -3310,20 +3352,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType ShowLogMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2832481531 - NamedType 2820409318" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shopify Job Queue notification</source>
-          <target state="translated">Shopify Job Queue notification</target>
+          <source>Shopify Background Sync Notification</source>
+          <target state="translated">Shopify Background Sync Notification</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType NotificationNameTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2832481531 - NamedType 576114730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shopify Job Queue information</source>
-          <target state="translated">Shopify Job Queue information</target>
+          <source>Show notification when user starts synchronization jobs in background</source>
+          <target state="translated">Show notification when user starts synchronization jobs in background</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType DescriptionTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 2832481531 - NamedType 942182862" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Don't show me again</source>
-          <target state="translated">Don't show me again</target>
+          <source>Don't show again</source>
+          <target state="translated">Don't show again</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method EnqueueJobEntry - NamedType DontShowAgainTok</note>
         </trans-unit>
@@ -3332,12 +3374,6 @@
           <target state="translated">Inventory</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method InventorySync - NamedType SyncTypeTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4014190514 - Method 2221125097 - NamedType 2739902161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Orders</source>
-          <target state="translated">Orders</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Background Syncs - Method OrderBackgroundSync - NamedType SyncTypeTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4014190514 - Method 1398042539 - NamedType 3417653324" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify order sync of orders: %1</source>
@@ -3603,6 +3639,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Activities - Control ShopInfo - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 234408897 - Control 4139476843 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of synchronization errors.</source>
+          <target state="translated">Specifies the number of synchronization errors.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Activities - Control SynchronizationErrors - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 234408897 - Control 38261347 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of imported customers that aren't mapped.</source>
           <target state="translated">Specifies the number of imported customers that aren't mapped.</target>
@@ -3620,6 +3662,12 @@
           <target state="translated">Specifies the number of imported orders that aren't processed.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Activities - Control UnprocessedOrders - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 234408897 - Control 806713555 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of shipments that aren't processed.</source>
+          <target state="translated">Specifies the number of shipments that aren't processed.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Activities - Control UnprocessedShipment - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 881753888 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Waiting for a response - do not close this page</source>
@@ -4513,8 +4561,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Customers - Action ShopifyOrders - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 202493269 - Action 3538230033 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Synchronize the customers from Shopify. The way customers are imported depends on the settings in the Shopify Shop Card.</source>
-          <target state="translated">Synchronize the customers from Shopify. The way customers are imported depends on the settings in the Shopify Shop Card.</target>
+          <source>Synchronize the customers with Shopify. The way customers are imported depends on the settings in the Shopify Shop Card.</source>
+          <target state="translated">Synchronize the customers with Shopify. The way customers are imported depends on the settings in the Shopify Shop Card.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Customers - Action Sync - Property ToolTip</note>
         </trans-unit>
@@ -4764,12 +4812,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Inventory FactBox - Control Stock - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 3706164926 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Log Entries</source>
-          <target state="translated">New,Process,Report,Log Entries</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Log Entries - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 3706164926 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Log Entries</source>
           <target state="translated">Shopify Log Entries</target>
@@ -4961,12 +5003,6 @@
           <target state="translated">Download Response</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Log Entry Card - Action DownloadResponseAction - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 437915150 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Order,Inspect</source>
-          <target state="translated">New,Process,Report,Order,Inspect</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 437915150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Order</source>
@@ -5622,12 +5658,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order Attributes - Control Value - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2596605181 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Fulfillment,Inspect</source>
-          <target state="translated">New,Process,Report,Fulfillment,Inspect</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order Fulfillments - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 2596605181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Order Fulfillments</source>
           <target state="translated">Shopify Order Fulfillments</target>
@@ -5717,12 +5747,6 @@
           <target state="translated">Specifies the message that's displayed to the merchant to indicate the results of the fraud check.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order Risks - Control Message - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3869916459 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Inspect</source>
-          <target state="translated">New,Process,Report,Inspect</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order Shipping Charges - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3869916459 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Order Shipping Charges</source>
@@ -5850,12 +5874,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order Subform - Control VariantDescription - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 3239388295 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Inspect</source>
-          <target state="translated">New,Process,Report,Inspect</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order Transactions - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 3239388295 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Order Transactions</source>
           <target state="translated">Shopify Order Transactions</target>
@@ -5945,12 +5963,6 @@
           <target state="translated">About Shopify Orders</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Property AboutTitle</note>
-        </trans-unit>
-        <trans-unit id="Page 2760837339 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Order,Manage</source>
-          <target state="translated">New,Process,Report,Order,Manage</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 2760837339 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>These orders from all your connected shops are ready to become sales orders or invoices in Business Central. They're here because you aren't automatically creating sales documents in Business Central.</source>
@@ -6233,6 +6245,18 @@
           <target state="translated">Sync Orders From Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Action SyncOrdersFromShopify - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2760837339 - Action 383844080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize shipments to Shopify.</source>
+          <target state="translated">Synchronize shipments to Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Action SyncShipments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2760837339 - Action 383844080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sync Shipments To Shopify</source>
+          <target state="translated">Sync Shipments To Shopify</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Action SyncShipments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2016272457 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Orders to Import</source>
@@ -6528,12 +6552,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Payment Transactions - Action RetrievedShopifyData - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 746415523 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Inspect</source>
-          <target state="translated">New,Process,Report,Inspect</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Payouts - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 746415523 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Payouts</source>
           <target state="translated">Shopify Payouts</target>
@@ -6641,12 +6659,6 @@
           <target state="translated">About Shopify products</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Property AboutTitle</note>
-        </trans-unit>
-        <trans-unit id="Page 2806160088 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New, Process, Report, Synchronization</source>
-          <target state="translated">New, Process, Report, Synchronization</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 2806160088 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>**Products** in Shopify is called **items** in Business Central. This is a list of items you sell in your shop. Map each product you want to sell to an item so that you can synchronize their information.</source>
@@ -6894,12 +6906,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Property AboutTitle</note>
         </trans-unit>
-        <trans-unit id="Page 1970429680 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Related,Synchronization</source>
-          <target state="translated">New,Process,Report,Related,Synchronization</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 1970429680 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up your Shopify shop and integrate it with Business Central. Specify which data to synchronize back and forth, such as items, inventory status, customers and orders.</source>
           <target state="translated">Set up your Shopify shop and integrate it with Business Central. Specify which data to synchronize back and forth, such as items, inventory status, customers and orders.</target>
@@ -7122,18 +7128,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control InventorySync - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 1970429680 - Control 1001320691 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if you want to prevent negative inventory. With "continue" the inventory can go negative, with "Deny" you want to prevent negative inventory.</source>
-          <target state="translated">Specifies if you want to prevent negative inventory. With "continue" the inventory can go negative, with "Deny" you want to prevent negative inventory.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control DefaultInventoryPolicy - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1970429680 - Control 3484658984 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if you want to manage your inventory in Shopify based on D365BC.</source>
-          <target state="translated">Specifies if you want to manage your inventory in Shopify based on D365BC.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control InventoryTracket - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 1970429680 - Control 3517953870 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up synchronization for items</source>
           <target state="translated">Set up synchronization for items</target>
@@ -7147,8 +7141,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control ItemSync - Property AboutText</note>
         </trans-unit>
         <trans-unit id="Page 1970429680 - Control 3517953870 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Item Synchronization</source>
-          <target state="translated">Item Synchronization</target>
+          <source>Item/Product Synchronization</source>
+          <target state="translated">Item/Product Synchronization</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control ItemSync - Property Caption</note>
         </trans-unit>
@@ -7181,6 +7175,18 @@
           <target state="translated">Specifies which price should be used for an item in Shopify. The sales price of this customer price group is taken. If no group is entered, the group of the "Customer Template Code" is used.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control CustomerPriceGroup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Control 1001320691 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to prevent negative inventory. With "continue" the inventory can go negative, with "Deny" you want to prevent negative inventory.</source>
+          <target state="translated">Specifies if you want to prevent negative inventory. With "continue" the inventory can go negative, with "Deny" you want to prevent negative inventory.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control DefaultInventoryPolicy - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Control 3484658984 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to manage your inventory in Shopify based on D365BC.</source>
+          <target state="translated">Specifies if you want to manage your inventory in Shopify based on D365BC.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control InventoryTracket - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1970429680 - Control 3257256204 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies which item template to use when creating unknown items.</source>
@@ -7404,6 +7410,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action RequestAccess - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1970429680 - Action 1510998771 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Request Access to your Shopify store.</source>
+          <target state="translated">Request Access to your Shopify store.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action RequestAccessNew - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Action 1510998771 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Request Access</source>
+          <target state="translated">Request Access</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action RequestAccessNew - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1970429680 - Action 3538230033 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sync</source>
           <target state="translated">Sync</target>
@@ -7458,6 +7476,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action SyncInventory - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1970429680 - Action 2746460238 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize orders from Shopify.</source>
+          <target state="translated">Synchronize orders from Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action SyncOrders - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Action 2746460238 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sync Orders</source>
+          <target state="translated">Sync Orders</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action SyncOrders - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1970429680 - Action 3984813086 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Synchronize all movements of money between a Shopify Payment account balance and a connected bank account.</source>
           <target state="translated">Synchronize all movements of money between a Shopify Payment account balance and a connected bank account.</target>
@@ -7481,6 +7511,18 @@
           <target state="translated">Sync Products</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action SyncProducts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Action 383844080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize shipments to Shopify.</source>
+          <target state="translated">Synchronize shipments to Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action SyncShipments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1970429680 - Action 383844080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sync Shipments</source>
+          <target state="translated">Sync Shipments</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Action SyncShipments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1970429680 - Action 2417694062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset Sync</source>
@@ -7529,6 +7571,12 @@
           <target state="translated">Shopify Shop Locations</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3081489686 - Method 4128543304 - NamedType 1995065214" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One ore more lines have %1 specified, but stock synchronization is disabled. Do you want to close the page?</source>
+          <target state="translated">One ore more lines have %1 specified, but stock synchronization is disabled. Do you want to close the page?</target>
+          <note from="Developer" annotates="general" priority="2">%1 the name for location filter</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Method OnClosePage - NamedType DisableQst</note>
         </trans-unit>
         <trans-unit id="Page 3081489686 - Control 1456564405 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the location to be used in orders.</source>
@@ -7650,6 +7698,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Tax Areas - Control County - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2941921431 - Control 53839102 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Tax Liable field.</source>
+          <target state="translated">Specifies the value of the Tax Liable field.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Tax Areas - Control Tax Liable - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 2941921431 - Control 3928295633 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the tax area applicable to the state.</source>
           <target state="translated">Specifies the tax area applicable to the state.</target>
@@ -7673,12 +7727,6 @@
           <target state="translated">Specifies the name of the gateway the transaction was issued through.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Transaction Gateways - Control Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3397571517 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Inspect</source>
-          <target state="translated">New,Process,Report,Inspect</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Transactions - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3397571517 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Transactions</source>
@@ -7993,10 +8041,34 @@
           <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - ReportDataItem Item - Method OnPreDataItem - NamedType NoShopSellectedErr</note>
         </trans-unit>
         <trans-unit id="Report 653247747 - Control 1442457208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shop Filter</source>
-          <target state="translated">Shop Filter</target>
+          <source>Options</source>
+          <target state="translated">Options</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Control ShopFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 653247747 - Control 126083828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if item images are synced.</source>
+          <target state="translated">Specifies if item images are synced.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Control ImageSync - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Report 653247747 - Control 126083828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sync Images</source>
+          <target state="translated">Sync Images</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Control ImageSync - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 653247747 - Control 2380375 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if inventory is synced.</source>
+          <target state="translated">Specifies if inventory is synced.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Control InventorySync - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Report 653247747 - Control 2380375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sync Inventory</source>
+          <target state="translated">Sync Inventory</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Shpfy Add Item to Shopify - Control InventorySync - Property Caption</note>
         </trans-unit>
         <trans-unit id="Report 653247747 - Control 1473197648 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Shopify Shop.</source>
@@ -9668,8 +9740,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Shipment Status - EnumValue Ready for Pickup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3287503174 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Shopify SKU Mappging</source>
-          <target state="translated">Shopify SKU Mappging</target>
+          <source>Shopify SKU Mapping</source>
+          <target state="translated">Shopify SKU Mapping</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy SKU Mappging - Property Caption</note>
         </trans-unit>

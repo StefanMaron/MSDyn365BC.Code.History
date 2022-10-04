@@ -68,7 +68,7 @@ codeunit 138027 "O365 Aged Accounts"
                         Assert.AreEqual(
                           0, TempEntryNoAmountBuffer.Amount, StrSubstNo(WrongAmmountColumnTxt, TempEntryNoAmountBuffer."Entry No."));
                 end;
-            until TempEntryNoAmountBuffer.Next = 0;
+            until TempEntryNoAmountBuffer.Next() = 0;
 
         Assert.AreEqual(21000, AmountSum, 'Wrong total amount');
     end;
@@ -122,7 +122,7 @@ codeunit 138027 "O365 Aged Accounts"
                         Assert.AreEqual(
                           12500, TempEntryNoAmountBuffer.Amount, StrSubstNo(WrongAmmountColumnTxt, TempEntryNoAmountBuffer."Entry No."));
                 end;
-            until TempEntryNoAmountBuffer.Next = 0;
+            until TempEntryNoAmountBuffer.Next() = 0;
 
         Assert.AreEqual(31000, AmountSum, 'Wrong total amount');
     end;
@@ -176,7 +176,7 @@ codeunit 138027 "O365 Aged Accounts"
                         Assert.AreEqual(
                           7500, TempEntryNoAmountBuffer.Amount, StrSubstNo(WrongAmmountColumnTxt, TempEntryNoAmountBuffer."Entry No."));
                 end;
-            until TempEntryNoAmountBuffer.Next = 0;
+            until TempEntryNoAmountBuffer.Next() = 0;
 
         Assert.AreEqual(31500, AmountSum, 'Wrong total amount');
     end;
@@ -292,7 +292,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Setup
         Initialize();
 
-        StartDate := WorkDate;
+        StartDate := WorkDate();
 
         // Create entries to exclude from verification
         CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup, StartDate, 100);
@@ -318,7 +318,7 @@ codeunit 138027 "O365 Aged Accounts"
                   NoOfEntriesPerPeriod * StartAmount * (TempEntryNoAmountBuffer."Entry No." + 1),
                   TempEntryNoAmountBuffer.Amount,
                   StrSubstNo(WrongAmmountColumnTxt, TempEntryNoAmountBuffer."Entry No."));
-            until TempEntryNoAmountBuffer.Next = 0;
+            until TempEntryNoAmountBuffer.Next() = 0;
     end;
 
     [Test]
@@ -415,7 +415,7 @@ codeunit 138027 "O365 Aged Accounts"
                 AgedAccReceivable.DrillDownCustLedgEntries(
                   '', TempEntryNoAmountBuffer."Business Unit Code",
                   TempEntryNoAmountBuffer."Start Date", TempEntryNoAmountBuffer."End Date");
-            until TempEntryNoAmountBuffer.Next = 0;
+            until TempEntryNoAmountBuffer.Next() = 0;
     end;
 
     [Test]
@@ -487,9 +487,9 @@ codeunit 138027 "O365 Aged Accounts"
         CustomerNo := CreateCustomer;
 
         // Invoice 1
-        DueDate := CalcDate('<1M>', WorkDate);
+        DueDate := CalcDate('<1M>', WorkDate());
         CreateCustomerLedgEntry(
-          CustLedgerEntry, CustomerNo, WorkDate, DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
+          CustLedgerEntry, CustomerNo, WorkDate(), DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
         Days := 7; // Payment 7 days after due date
         PaymentDate := CalcDateDays(Days, DueDate);
         CreateDetailedCustLedgEntry(
@@ -499,9 +499,9 @@ codeunit 138027 "O365 Aged Accounts"
         DaysTotal += Days;
 
         // Invoice 2
-        DueDate := CalcDate('<2M>', WorkDate);
+        DueDate := CalcDate('<2M>', WorkDate());
         CreateCustomerLedgEntry(
-          CustLedgerEntry, CustomerNo, WorkDate, DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
+          CustLedgerEntry, CustomerNo, WorkDate(), DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
         Days := 4; // Payment 4 days after due date
         PaymentDate := CalcDateDays(Days, DueDate);
         CreateDetailedCustLedgEntry(
@@ -540,9 +540,9 @@ codeunit 138027 "O365 Aged Accounts"
         CustomerNo := CreateCustomer;
 
         // Invoice 1
-        DueDate := CalcDate('<1M>', WorkDate);
+        DueDate := CalcDate('<1M>', WorkDate());
         CreateCustomerLedgEntry(
-          CustLedgerEntry, CustomerNo, WorkDate, DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
+          CustLedgerEntry, CustomerNo, WorkDate(), DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
         Days := -12; // Payment 12 days before due date
         PaymentDate := CalcDateDays(Days, DueDate);
         CreateDetailedCustLedgEntry(
@@ -552,9 +552,9 @@ codeunit 138027 "O365 Aged Accounts"
         DaysTotal += Days;
 
         // Invoice 2
-        DueDate := CalcDate('<2M>', WorkDate);
+        DueDate := CalcDate('<2M>', WorkDate());
         CreateCustomerLedgEntry(
-          CustLedgerEntry, CustomerNo, WorkDate, DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
+          CustLedgerEntry, CustomerNo, WorkDate(), DueDate, 0, false, CustLedgerEntry."Document Type"::Invoice, '');
         // First payment 3 days before due date - this entry should be ignored by calculation since there is a later payment
         Days := -3;
         PaymentDate := CalcDateDays(Days, DueDate);
@@ -590,7 +590,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Setup
         Initialize();
 
-        StartDate := WorkDate;
+        StartDate := WorkDate();
         BusinessChartBuffer."Period Filter Start Date" := StartDate;
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
 
@@ -616,7 +616,7 @@ codeunit 138027 "O365 Aged Accounts"
                   NoOfEntriesPerPeriod * StartAmount * (TempEntryNoAmountBuffer."Entry No." + 1),
                   TempEntryNoAmountBuffer.Amount - TempEntryNoAmountBuf2.Amount,
                   StrSubstNo(WrongAmmountColumnTxt, TempEntryNoAmountBuffer."Entry No."));
-            until TempEntryNoAmountBuffer.Next = 0;
+            until TempEntryNoAmountBuffer.Next() = 0;
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -913,21 +913,21 @@ codeunit 138027 "O365 Aged Accounts"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CreateCustomerLedgEntry(
-          CustLedgerEntry, CustomerNo, WorkDate, DueDate, AmountLCY,
+          CustLedgerEntry, CustomerNo, WorkDate(), DueDate, AmountLCY,
           true, CustLedgerEntry."Document Type"::Invoice, CustPostingGroup);
     end;
 
     local procedure CreateCustomerLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DueDate: Date; AmountLCY: Decimal; DocOpen: Boolean; DocType: Enum "Gen. Journal Document Type"; CustPostingGroup: Code[20])
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := GetCustLedgEntryNo;
             "Due Date" := DueDate;
             "Customer No." := CustomerNo;
             Open := DocOpen;
             "Document Type" := DocType;
             "Customer Posting Group" := CustPostingGroup;
-            Insert;
+            Insert();
 
             CreateDetailedCustLedgEntry("Entry No.", AmountLCY, PostingDate, DocType);
         end;
@@ -938,13 +938,13 @@ codeunit 138027 "O365 Aged Accounts"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := GetDetailedCustLedgEntryNo;
             "Cust. Ledger Entry No." := CustLedgNo;
             "Posting Date" := PostingDate;
             "Amount (LCY)" := AmountLCY;
             "Document Type" := DocType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -971,13 +971,13 @@ codeunit 138027 "O365 Aged Accounts"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         with VendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := GetVendLedgEntryNo;
             "Due Date" := DueDate;
             "Vendor No." := VendorNo;
             Open := true;
             "Document Type" := "Document Type"::Invoice;
-            Insert;
+            Insert();
 
             CreateDetailedVendLedgEntry("Entry No.", AmountLCY, DueDate);
         end;
@@ -988,13 +988,13 @@ codeunit 138027 "O365 Aged Accounts"
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := GetDetailedVendLedgEntryNo;
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             "Posting Date" := PostingDate;
             "Amount (LCY)" := AmountLCY;
             "Document Type" := "Document Type"::Invoice;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1034,7 +1034,7 @@ codeunit 138027 "O365 Aged Accounts"
     begin
         CustomerLedgerEntries.First;
         i := 1;
-        while CustomerLedgerEntries.Next do
+        while CustomerLedgerEntries.Next() do
             i += 1;
         Assert.AreEqual(ExpectedRowCount, i, 'Wrong number of entries');
     end;

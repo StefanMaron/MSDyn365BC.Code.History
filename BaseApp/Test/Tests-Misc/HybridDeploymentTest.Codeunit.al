@@ -23,7 +23,7 @@ codeunit 139065 "Hybrid Deployment Test"
     var
         HybridDeploymentSetup: Record "Hybrid Deployment Setup";
     begin
-        if not HybridDeploymentSetup.Get then begin
+        if not HybridDeploymentSetup.Get() then begin
             HybridDeploymentSetup.Init();
             HybridDeploymentSetup.Insert();
         end;

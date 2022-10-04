@@ -310,14 +310,14 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CostAccountingSetup: TestPage "Cost Accounting Setup";
         StartingDateForGLTransfer: Date;
     begin
-        StartingDateForGLTransfer := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        StartingDateForGLTransfer := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         CostAccountingSetup.OpenEdit;
         CostAccountingSetup."Starting Date for G/L Transfer".SetValue(StartingDateForGLTransfer);
         CostAccountingSetup."Auto Transfer from G/L".SetValue(true);
         Commit();
         // Invoking CostAccountingSetup.UpdateCostAcctgDimensions"
         REPORT.RunModal(REPORT::"Update Cost Acctg. Dimensions");
-        CostAccountingSetup.Close;
+        CostAccountingSetup.Close();
     end;
 
     local procedure CreateCostType(CostTypeNo: Integer; CostTypeName: Text[50]; GLAccountRange: Text[20]; CostType: Option)

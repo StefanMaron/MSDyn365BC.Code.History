@@ -11,6 +11,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
@@ -36,7 +37,6 @@ codeunit 134486 "Check Dimensions On Posting"
         DummyBlankRecID: RecordID;
         IsInitialized: Boolean;
         SelectDimValueErr: Label 'The %1 dimension is the default dimension, and it must have a value. You can set the value on the Default Dimensions page.', Comment = '%1 = the value of Dimension Code; %2 = page caption of Default Dimensions';
-        NothingToPostErr: Label 'There is nothing to post.';
         OnAfterCheckDocErr: Label 'OnAfterCheckDoc';
         PostingDimensionErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
 
@@ -253,7 +253,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Sales Order '1002'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -308,7 +308,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Sales Order '1002'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -364,7 +364,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Sales Order '1002'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -429,7 +429,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'X'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
         // [GIVEN] Change dimensions on the header: 'Project' is 'B', 'Department' is <blank>
         DimMgt.GetDimensionSet(TempDimSetEntry, SalesHeader."Dimension Set ID");
         ChangeDimValueInSet(TempDimSetEntry, DefaultDimension[1]."Dimension Code", '');
@@ -512,7 +512,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'X'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Sales Order '1002'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -691,7 +691,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Preview posting of Sales Order '1002'
         asserterror PreviewSalesDocument(SalesHeader);
@@ -730,7 +730,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dimension 'Department' is blocked
         ExpectedErrorMessage[1] := SetDimensionBlocked(DimensionValue."Dimension Code", Dimension);
         ExpectedErrorMessage[4] := ExpectedErrorMessage[1];
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
         SourceDimRecID[1] := Dimension.RecordId;
         SourceFieldNo[1] := Dimension.FieldNo(Blocked);
         SourceDimRecID[4] := SourceDimRecID[1];
@@ -738,7 +738,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dimension value 'Project','TOYOTA' is blocked
         ExpectedErrorMessage[2] := CreateCustBlockedDimensionValue(DimensionValue, CustomerNo);
         ExpectedErrorMessage[5] := ExpectedErrorMessage[2];
-        ExpectedErrorMessage[6] := NothingToPostErr;
+        ExpectedErrorMessage[6] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
         SourceDimRecID[2] := DimensionValue.RecordId;
         SourceFieldNo[2] := DimensionValue.FieldNo(Blocked);
         SourceDimRecID[5] := SourceDimRecID[2];
@@ -857,7 +857,7 @@ codeunit 134486 "Check Dimensions On Posting"
             Assert.AreEqual(RecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
             Assert.AreEqual(SourceFieldNo[i], TempErrorMessage."Field Number", 'Field Number' + Format(i));
-        until TempErrorMessage.Next = 0;
+        until TempErrorMessage.Next() = 0;
         */
     end;
 
@@ -1174,7 +1174,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Purchase Order '1002'
         PostPurchDocument(PurchHeader, CODEUNIT::"Purch.-Post");
@@ -1230,7 +1230,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Purchase Order '1002'
         PostPurchDocument(PurchHeader, CODEUNIT::"Purch.-Post");
@@ -1285,7 +1285,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Purchase Order '1002'
         PostPurchDocument(PurchHeader, CODEUNIT::"Purch.-Post");
@@ -1350,7 +1350,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'X'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
         // [GIVEN] Change dimensions on the header: 'Project' is 'B', 'Department' is <blank>
         DimMgt.GetDimensionSet(TempDimSetEntry, PurchHeader."Dimension Set ID");
         ChangeDimValueInSet(TempDimSetEntry, DefaultDimension[1]."Dimension Code", '');
@@ -1431,7 +1431,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'X'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Post Purchase Order '1002'
         PostPurchDocument(PurchHeader, CODEUNIT::"Purch.-Post");
@@ -1610,7 +1610,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
 
         // [WHEN] Preview Posting of Purchase Order '1002'
         asserterror PreviewPurchDocument(PurchHeader);
@@ -1649,7 +1649,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dimension 'Department' is blocked
         ExpectedErrorMessage[1] := SetDimensionBlocked(DimensionValue."Dimension Code", Dimension);
         ExpectedErrorMessage[4] := ExpectedErrorMessage[1];
-        ExpectedErrorMessage[3] := NothingToPostErr;
+        ExpectedErrorMessage[3] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
         SourceDimRecID[1] := Dimension.RecordId;
         SourceFieldNo[1] := Dimension.FieldNo(Blocked);
         SourceDimRecID[4] := SourceDimRecID[1];
@@ -1657,7 +1657,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dimension value 'Project','TOYOTA' is blocked
         ExpectedErrorMessage[2] := CreateVendBlockedDimensionValue(DimensionValue, VendorNo);
         ExpectedErrorMessage[5] := ExpectedErrorMessage[2];
-        ExpectedErrorMessage[6] := NothingToPostErr;
+        ExpectedErrorMessage[6] := DocumentErrorsMgt.GetNothingToPostErrorMsg();
         SourceDimRecID[2] := DimensionValue.RecordId;
         SourceFieldNo[2] := DimensionValue.FieldNo(Blocked);
         SourceDimRecID[5] := SourceDimRecID[2];
@@ -2022,7 +2022,7 @@ codeunit 134486 "Check Dimensions On Posting"
         Dimension.FindSet();
         repeat
             LibraryDimension.CreateDimensionCombination(DimensionCombination, DimensionValue[1]."Dimension Code", Dimension.Code);
-        until Dimension.Next = 0;
+        until Dimension.Next() = 0;
         // [GIVEN] 'Dimension Combination: Department, Project' is blocked.
         DimensionCombination.Get(DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
@@ -2219,7 +2219,7 @@ codeunit 134486 "Check Dimensions On Posting"
         Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocLineDimsModalPageHandler
         LibraryVariableStorage.AssertEmpty;
         // [THEN] Dimension Set is updated on the line
-        SalesLine.Find;
+        SalesLine.Find();
         Assert.AreNotEqual(DimSetID, SalesLine."Dimension Set ID", 'Dim Set ID must be changed');
     end;
 
@@ -2342,7 +2342,7 @@ codeunit 134486 "Check Dimensions On Posting"
         Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
         LibraryVariableStorage.AssertEmpty;
         // [THEN] Dimension Set is updated on the line
-        PurchLine.Find;
+        PurchLine.Find();
         Assert.AreNotEqual(DimSetID, PurchLine."Dimension Set ID", 'Dim Set ID must be changed');
     end;
 
@@ -2392,7 +2392,7 @@ codeunit 134486 "Check Dimensions On Posting"
         ExpectedErrorMessage := GetDimValueMentionedErrText(DimensionValue."Dimension Code", GLAccount.TableName, GLAccNo[2]);
         ExpectedErrorMessage :=
           StrSubstNo(
-            PostingDimensionErr, GenJnlLine.TableCaption, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Line No.", ExpectedErrorMessage);
+            PostingDimensionErr, GenJnlLine.TableCaption(), GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Line No.", ExpectedErrorMessage);
         Assert.ExpectedError(ExpectedErrorMessage);
     end;
 
@@ -2775,7 +2775,7 @@ codeunit 134486 "Check Dimensions On Posting"
         NamedForwardLink: Record "Named Forward Link";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Check Dimensions On Posting");
-        LibraryErrorMessage.Clear;
+        LibraryErrorMessage.Clear();
         NamedForwardLink.DeleteAll();
         if IsInitialized then
             exit;
@@ -2826,7 +2826,7 @@ codeunit 134486 "Check Dimensions On Posting"
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryDimension.BlockDimensionValue(DimensionValue);
         ExpectedErrorMessage :=
-          StrSubstNo(DimValueBlockedErr, DimensionValue.TableCaption, DimensionValue."Dimension Code", DimensionValue.Code);
+          StrSubstNo(DimValueBlockedErr, DimensionValue.TableCaption(), DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     local procedure CreateCustDefaultDimensionValue(var DimensionValue: Record "Dimension Value") CustomerNo: Code[20]
@@ -2872,7 +2872,7 @@ codeunit 134486 "Check Dimensions On Posting"
           DefaultDimension, VendorNo, DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryDimension.BlockDimensionValue(DimensionValue);
         ExpectedErrorMessage :=
-          StrSubstNo(DimValueBlockedErr, DimensionValue.TableCaption, DimensionValue."Dimension Code", DimensionValue.Code);
+          StrSubstNo(DimValueBlockedErr, DimensionValue.TableCaption(), DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     local procedure CreateVendDefaultDimensionValue(var DimensionValue: Record "Dimension Value") VendorNo: Code[20]
@@ -3029,7 +3029,7 @@ codeunit 134486 "Check Dimensions On Posting"
         repeat
             i += 1;
             Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
-        until TempErrorMessage.Next = 0;
+        until TempErrorMessage.Next() = 0;
     end;
 
     local procedure VerifyHeaderDimError(ContextRecID: RecordID; SourceRecID: RecordID; SourceFieldNo: Integer; ExpectedErrorMessage: array[10] of Text; ExpectedSupportURL: Text)
@@ -3047,7 +3047,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.TestField("Support Url", ExpectedSupportURL);
         // the last error is "There is nothing to post."
         TempErrorMessage.FindLast();
-        TempErrorMessage.TestField(Description, NothingToPostErr);
+        TempErrorMessage.TestField(Description, DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure VerifyHeaderDimErrors(RecID: array[10] of RecordID; ErrorCount: Integer; ExpectedErrorMessage: array[10] of Text; SourceDimRecID: array[10] of RecordID; SourceFieldNo: array[10] of Integer)
@@ -3065,7 +3065,7 @@ codeunit 134486 "Check Dimensions On Posting"
             Assert.AreEqual(RecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
             Assert.AreEqual(SourceFieldNo[i], TempErrorMessage."Field Number", 'Field Number' + Format(i));
-        until TempErrorMessage.Next = 0;
+        until TempErrorMessage.Next() = 0;
     end;
 
     local procedure VerifyLineDimErrors(LineRecID: array[10] of RecordID; ErrorCount: Integer; ExpectedErrorMessage: array[10] of Text; SourceDimRecID: array[10] of RecordID; ExpectedCallStack: array[10] of Text)
@@ -3083,7 +3083,7 @@ codeunit 134486 "Check Dimensions On Posting"
             Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
             Assert.AreEqual(LineRecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
-        until (TempErrorMessage.Next = 0) or (i = ErrorCount);
+        until (TempErrorMessage.Next() = 0) or (i = ErrorCount);
     end;
 
     [ModalPageHandler]

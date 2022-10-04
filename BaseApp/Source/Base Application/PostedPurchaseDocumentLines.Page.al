@@ -56,7 +56,7 @@ page 5855 "Posted Purchase Document Lines"
                     field(PostedReceiptsBtn; CurrentMenuTypeOpt)
                     {
                         ApplicationArea = Suite;
-                        CaptionClass = OptionCaptionServiceTier;
+                        CaptionClass = OptionCaptionServiceTier();
                         OptionCaption = 'Posted Receipts,Posted Invoices,Posted Return Shipments,Posted Cr. Memos';
 
                         trigger OnValidate()
@@ -78,7 +78,7 @@ page 5855 "Posted Purchase Document Lines"
                         Editable = false;
                         ToolTip = 'Specifies the lines that represent posted receipts.';
                     }
-                    field(NoOfPostedInvoices; StrSubstNo('(%1)', "No. of Pstd. Invoices" - NoOfPostedPrepmtInvoices))
+                    field(NoOfPostedInvoices; StrSubstNo('(%1)', "No. of Pstd. Invoices" - NoOfPostedPrepmtInvoices()))
                     {
                         ApplicationArea = Suite;
                         Caption = 'Posted I&nvoices';
@@ -92,7 +92,7 @@ page 5855 "Posted Purchase Document Lines"
                         Editable = false;
                         ToolTip = 'Specifies the lines that represent posted return shipments.';
                     }
-                    field(NoOfPostedCrMemos; StrSubstNo('(%1)', "No. of Pstd. Credit Memos" - NoOfPostedPrepmtCrMemos))
+                    field(NoOfPostedCrMemos; StrSubstNo('(%1)', "No. of Pstd. Credit Memos" - NoOfPostedPrepmtCrMemos()))
                     {
                         ApplicationArea = Suite;
                         Caption = 'Posted Cr. &Memos';

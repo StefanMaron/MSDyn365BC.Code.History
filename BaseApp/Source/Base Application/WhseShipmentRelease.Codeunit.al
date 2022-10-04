@@ -49,7 +49,7 @@ codeunit 7310 "Whse.-Shipment Release"
                         AsmLine.SetRange(Type, AsmLine.Type::Item);
                         if AsmLine.FindSet() then
                             repeat
-                                if AsmLine.CalcQtyToPickBase > 0 then
+                                if AsmLine.CalcQtyToPickBase() > 0 then
                                     if AsmLine.IsInventoriableItem() then
                                         AsmLine.TestField("Bin Code");
                             until AsmLine.Next() = 0;
@@ -60,7 +60,7 @@ codeunit 7310 "Whse.-Shipment Release"
             OnAfterTestWhseShptLine(WhseShptHeader, WhseShptLine);
 
             Status := Status::Released;
-            Modify;
+            Modify();
 
             OnAfterReleaseWarehouseShipment(WhseShptHeader);
 
@@ -114,7 +114,7 @@ codeunit 7310 "Whse.-Shipment Release"
                 WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
 
             Status := Status::Open;
-            Modify;
+            Modify();
         end;
 
         OnAfterReopen(WhseShptHeader);

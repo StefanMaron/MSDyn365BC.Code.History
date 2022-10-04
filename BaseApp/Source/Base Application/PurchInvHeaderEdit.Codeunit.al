@@ -9,7 +9,7 @@ codeunit 1405 "Purch. Inv. Header - Edit"
     begin
         PurchInvHeader := Rec;
         PurchInvHeader.LockTable();
-        PurchInvHeader.Find;
+        PurchInvHeader.Find();
         PurchInvHeader."Payment Reference" := "Payment Reference";
         PurchInvHeader."Payment Method Code" := "Payment Method Code";
         PurchInvHeader."Creditor No." := "Creditor No.";

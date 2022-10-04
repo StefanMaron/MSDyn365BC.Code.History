@@ -79,7 +79,7 @@ codeunit 130011 "Backup Management"
             repeat
                 DeleteTableFromBackupNo(2, TempTableMetadata.ID);
                 BackupTable(SharedFixtureName, TempTableMetadata.ID)
-            until TempTableMetadata.Next = 0
+            until TempTableMetadata.Next() = 0
         end
     end;
 
@@ -96,7 +96,7 @@ codeunit 130011 "Backup Management"
         if TempTableMetadata.FindSet() then
             repeat
                 BackupStorage.RestoreTableFromBackupNo(2, CompanyName, TempTableMetadata.ID)
-            until TempTableMetadata.Next = 0
+            until TempTableMetadata.Next() = 0
     end;
 
     [Scope('OnPrem')]
@@ -115,7 +115,7 @@ codeunit 130011 "Backup Management"
         if TempTableMetadata.FindSet() then
             repeat
                 BackupStorage.BackupTableInBackupNo(BackupNo, CompanyName, TempTableMetadata.ID);
-            until TempTableMetadata.Next = 0;
+            until TempTableMetadata.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -150,8 +150,8 @@ codeunit 130011 "Backup Management"
                 end;
                 Progress += Increment;
                 BackupStorage.RestoreTableFromBackupNo(BackupNo, CompanyName, TempTableMetadata.ID)
-            until TempTableMetadata.Next = 0;
-        ProgressDialog.Close;
+            until TempTableMetadata.Next() = 0;
+        ProgressDialog.Close();
 
         BackupStorage.SetWorkDate
     end;
@@ -316,7 +316,7 @@ codeunit 130011 "Backup Management"
         repeat
             TempTableMetadata.Copy(TableMetadata);
             TempTableMetadata.Insert
-        until TableMetadata.Next = 0;
+        until TableMetadata.Next() = 0;
 
         InitBackup(DefaultFixtureName);
 
@@ -378,7 +378,7 @@ codeunit 130011 "Backup Management"
                 RecRef.Open(TableMetadata.ID);
                 RecRef.DeleteAll();
                 RecRef.Close
-            until TableMetadata.Next = 0
+            until TableMetadata.Next() = 0
     end;
 
     [Scope('OnPrem')]

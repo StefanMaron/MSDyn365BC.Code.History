@@ -14,7 +14,7 @@ page 5403 "Resource Unit Group List"
         {
             repeater(GroupName)
             {
-                field("Code"; Rec.Code)
+                field("Code"; CodeLbl)
                 {
                     ApplicationArea = All;
                     Caption = 'Code';
@@ -26,7 +26,7 @@ page 5403 "Resource Unit Group List"
                     Caption = 'Resource No.';
                     ToolTip = 'Specifies the resource number that associated with the record.';
                 }
-                field("Resource Name"; Rec."Source Name")
+                field("Resource Name"; SourceNameLbl)
                 {
                     ApplicationArea = All;
                     Caption = 'Resource Name';
@@ -143,6 +143,12 @@ page 5403 "Resource Unit Group List"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        CodeLbl := Rec.GetCode();
+        SourceNameLbl := Rec.GetSourceName();
+    end;
+
     trigger OnAfterGetCurrRecord()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
@@ -162,4 +168,6 @@ page 5403 "Resource Unit Group List"
     var
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        CodeLbl: Code[50];
+        SourceNameLbl: Text[100];
 }

@@ -10,7 +10,7 @@ codeunit 3038 DotNet_XslCompiledTransform
 
     procedure XslCompiledTransform()
     begin
-        DotNetXslCompiledTransform := DotNetXslCompiledTransform.XslCompiledTransform;
+        DotNetXslCompiledTransform := DotNetXslCompiledTransform.XslCompiledTransform();
     end;
 
     procedure Load(var DotNet_XmlDocument: Codeunit DotNet_XmlDocument)

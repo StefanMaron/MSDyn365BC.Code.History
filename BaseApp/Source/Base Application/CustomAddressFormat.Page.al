@@ -13,17 +13,17 @@ page 725 "Custom Address Format"
         {
             repeater(Group)
             {
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies reference field ID.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupField;
+                        LookupField();
                     end;
                 }
-                field("Line Format"; "Line Format")
+                field("Line Format"; Rec."Line Format")
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = true;
@@ -32,7 +32,7 @@ page 725 "Custom Address Format"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowCustomAddressFormatLines;
+                        ShowCustomAddressFormatLines();
                     end;
                 }
             }
@@ -48,9 +48,6 @@ page 725 "Custom Address Format"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Move Up';
                 Image = MoveUp;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Move current line up.';
 
                 trigger OnAction()
@@ -63,15 +60,26 @@ page 725 "Custom Address Format"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Move Down';
                 Image = MoveDown;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Move current line down.';
 
                 trigger OnAction()
                 begin
                     MoveLine(1);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Move Up_Promoted"; "Move Up")
+                {
+                }
+                actionref("Move Down_Promoted"; "Move Down")
+                {
+                }
             }
         }
     }

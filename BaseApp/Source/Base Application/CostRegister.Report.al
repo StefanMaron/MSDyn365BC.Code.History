@@ -11,7 +11,7 @@ report 1144 "Cost Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CostRegisterTableFilter; TableCaption + ': ' + CostRegFilter)
@@ -104,7 +104,7 @@ report 1144 "Cost Register"
 
     trigger OnPreReport()
     begin
-        CostRegFilter := "Cost Register".GetFilters;
+        CostRegFilter := "Cost Register".GetFilters();
     end;
 
     var

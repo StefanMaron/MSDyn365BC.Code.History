@@ -68,7 +68,7 @@ page 1804 "Approval Workflow Setup Wizard"
                 group("Para2.1")
                 {
                     Caption = 'Which approval workflow do you want to set up?';
-                    field("Purchase Invoice Approval"; "Purch Invoice App. Workflow")
+                    field("Purchase Invoice Approval"; Rec."Purch Invoice App. Workflow")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Purchase Invoice Approval';
@@ -78,7 +78,7 @@ page 1804 "Approval Workflow Setup Wizard"
                             NextEnabled := "Purch Invoice App. Workflow" or "Sales Invoice App. Workflow"
                         end;
                     }
-                    field("Sales Invoice Approval"; "Sales Invoice App. Workflow")
+                    field("Sales Invoice Approval"; Rec."Sales Invoice App. Workflow")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Sales Invoice Approval';
@@ -97,7 +97,7 @@ page 1804 "Approval Workflow Setup Wizard"
                 group("Para3.1")
                 {
                     Caption = 'An approval user setup already exists.';
-                    field("Use Exist. Approval User Setup"; "Use Exist. Approval User Setup")
+                    field("Use Exist. Approval User Setup"; Rec."Use Exist. Approval User Setup")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Use the existing setup';
@@ -123,7 +123,7 @@ page 1804 "Approval Workflow Setup Wizard"
                 {
                     Caption = 'To set up the approval users, answer the following questions.';
                     Visible = PurchInvoiceApprovalDetailsVisible OR SalesInvoiceApprovalDetailsVisible;
-                    field("Who is the approver?"; "Approver ID")
+                    field("Who is the approver?"; Rec."Approver ID")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Who is the approver?';
@@ -136,7 +136,7 @@ page 1804 "Approval Workflow Setup Wizard"
                     Caption = '';
                     InstructionalText = 'Which amount can the user enter on purchase invoices before the invoice requires approval?';
                     Visible = PurchInvoiceApprovalDetailsVisible;
-                    field("Purch Amount Approval Limit"; "Purch Amount Approval Limit")
+                    field("Purch Amount Approval Limit"; Rec."Purch Amount Approval Limit")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Amount Limit';
@@ -147,7 +147,7 @@ page 1804 "Approval Workflow Setup Wizard"
                     Caption = '';
                     InstructionalText = 'Which amount can the user enter on sales invoices before the invoice requires approval?';
                     Visible = SalesInvoiceApprovalDetailsVisible;
-                    field("Sales Amount Approval Limit"; "Sales Amount Approval Limit")
+                    field("Sales Amount Approval Limit"; Rec."Sales Amount Approval Limit")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Amount Limit';
@@ -215,7 +215,7 @@ page 1804 "Approval Workflow Setup Wizard"
                     ApprovalWorkflowSetupMgt.ApplyInitialWizardUserInput(Rec);
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Approval Workflow Setup Wizard");
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -223,20 +223,20 @@ page 1804 "Approval Workflow Setup Wizard"
 
     trigger OnInit()
     begin
-        if not Get then begin
-            Init;
+        if not Get() then begin
+            Init();
             "Use Exist. Approval User Setup" := true;
-            SetDefaultValues;
-            Insert;
+            SetDefaultValues();
+            Insert();
         end;
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     var
         ApprovalUserSetup: Page "Approval User Setup";
     begin
-        ShowIntroStep;
+        ShowIntroStep();
         ApprovalUserSetupLabel := StrSubstNo(OpenPageTxt, ApprovalUserSetup.Caption);
     end;
 
@@ -282,43 +282,43 @@ page 1804 "Approval Workflow Setup Wizard"
 
         case Step of
             Step::Intro:
-                ShowIntroStep;
+                ShowIntroStep();
             Step::"Approval Document Types":
-                ShowApprovalDocumentTypesStep;
+                ShowApprovalDocumentTypesStep();
             Step::"Use Existing Approval User Setup":
                 begin
-                    ShowUseExistingApprovalSetupQstStep;
+                    ShowUseExistingApprovalSetupQstStep();
                     if not UseExistingApprovalSetupVisible then
                         NextStep(Backwards)
                 end;
             Step::"Approval User Setup":
                 if not "Use Exist. Approval User Setup" then
-                    ShowApprovalUserSetupDetailsStep
+                    ShowApprovalUserSetupDetailsStep()
                 else
                     NextStep(Backwards);
             Step::Done:
-                ShowDoneStep;
+                ShowDoneStep();
         end;
         CurrPage.Update(true);
     end;
 
     local procedure ShowIntroStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         IntroVisible := true;
         BackEnabled := false;
     end;
 
     local procedure ShowApprovalDocumentTypesStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         ApprovalDocumentTypesVisible := true;
         NextEnabled := "Purch Invoice App. Workflow" or "Sales Invoice App. Workflow";
     end;
 
     local procedure ShowApprovalUserSetupDetailsStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         ApprovalUserSetupVisible := not "Use Exist. Approval User Setup";
         SalesInvoiceApprovalDetailsVisible := not "Use Exist. Approval User Setup" and "Sales Invoice App. Workflow";
         PurchInvoiceApprovalDetailsVisible := not "Use Exist. Approval User Setup" and "Purch Invoice App. Workflow";
@@ -328,15 +328,15 @@ page 1804 "Approval Workflow Setup Wizard"
     var
         ApprovalUserSetup: Record "User Setup";
     begin
-        ResetWizardControls;
-        UseExistingApprovalSetupVisible := not ApprovalUserSetup.IsEmpty;
+        ResetWizardControls();
+        UseExistingApprovalSetupVisible := not ApprovalUserSetup.IsEmpty();
         if not UseExistingApprovalSetupVisible then
             "Use Exist. Approval User Setup" := false;
     end;
 
     local procedure ShowDoneStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         DoneVisible := true;
         NextEnabled := false;
         FinishEnabled := true;
@@ -373,12 +373,12 @@ page 1804 "Approval Workflow Setup Wizard"
         WorkflowCode: Code[20];
     begin
         // Specific Purchase Invoice Approval Workflow: WZ-PIAPW
-        WorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        WorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         if Workflow.Get(WorkflowCode) then
             "Purch Invoice App. Workflow" := true;
 
         // Specific Sales Invoice Approval Workflow: WZ-SIAPW
-        WorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        WorkflowCode := WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
         if Workflow.Get(WorkflowCode) then
             "Sales Invoice App. Workflow" := true;
 
@@ -387,14 +387,14 @@ page 1804 "Approval Workflow Setup Wizard"
         if ApprovalUserSetup.FindFirst() then
             "Approver ID" := ApprovalUserSetup."User ID";
 
-        "Purch Amount Approval Limit" := ApprovalUserSetup.GetDefaultPurchaseAmountApprovalLimit;
-        "Sales Amount Approval Limit" := ApprovalUserSetup.GetDefaultSalesAmountApprovalLimit;
+        "Purch Amount Approval Limit" := ApprovalUserSetup.GetDefaultPurchaseAmountApprovalLimit();
+        "Sales Amount Approval Limit" := ApprovalUserSetup.GetDefaultSalesAmountApprovalLimit();
     end;
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

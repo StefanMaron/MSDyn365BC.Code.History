@@ -78,7 +78,7 @@ page 9192 "Company Creation Wizard"
                             begin
                                 NewCompanyName := DelChr(NewCompanyName, '<>');
                                 Company.SetFilter(Name, '%1', '@' + NewCompanyName);
-                                if Company.FindFirst() then
+                                if not Company.IsEmpty() then
                                     Error(CompanyAlreadyExistsErr);
 
                                 OnAfterValidateCompanyName(NewCompanyName);
@@ -171,7 +171,7 @@ page 9192 "Company Creation Wizard"
                             begin
                                 Clear(Rec);
                                 UserSelection.Open(Rec);
-                                ContainUsers := not IsEmpty;
+                                ContainUsers := not IsEmpty();
                                 CurrPage.Update(false);
                             end;
                         }
@@ -184,13 +184,13 @@ page 9192 "Company Creation Wizard"
                             repeater(Control38)
                             {
                                 ShowCaption = false;
-                                field("User Name"; "User Name")
+                                field("User Name"; Rec."User Name")
                                 {
                                     ApplicationArea = Basic, Suite;
                                     TableRelation = User;
                                     ToolTip = 'Specifies the name that the user must present when signing in. ';
                                 }
-                                field("Full Name"; "Full Name")
+                                field("Full Name"; Rec."Full Name")
                                 {
                                     ApplicationArea = Basic, Suite;
                                     Editable = false;
@@ -288,12 +288,12 @@ page 9192 "Company Creation Wizard"
         EnvironmentInfo: Codeunit "Environment Information";
         UserPermissions: Codeunit "User Permissions";
     begin
-        if not UserPermissions.IsSuper(UserSecurityId) then
+        if not UserPermissions.IsSuper(UserSecurityId()) then
             Error(OnlySuperCanCreateNewCompanyErr);
 
         LoadTopBanners();
         IsSandbox := EnvironmentInfo.IsSandbox();
-        CanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
 
     trigger OnOpenPage()
@@ -405,7 +405,7 @@ page 9192 "Company Creation Wizard"
             if NewCompanyName = '' then
                 Error(SpecifyCompanyNameErr);
         if (Step = Step::Creation) and not Backwards then
-            ValidateCompanyType;
+            ValidateCompanyType();
 
         if Backwards then
             Step := Step - 1
@@ -457,8 +457,8 @@ page 9192 "Company Creation Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -487,7 +487,7 @@ page 9192 "Company Creation Wizard"
         if not ConfigurationPackageExists then
             Message(NoConfigurationPackageFileDefinedMsg)
         else begin
-            UserPersonalization.Get(UserSecurityId);
+            UserPersonalization.Get(UserSecurityId());
             if ConfigurationPackageFile."Language ID" <> UserPersonalization."Language ID" then
                 Message(LangDifferentFromConfigurationPackageFileMsg,
                   Language.GetWindowsLanguageName(ConfigurationPackageFile."Language ID"));

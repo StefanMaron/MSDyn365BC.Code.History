@@ -1047,7 +1047,7 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(StrSubstNo('<%1D>', PmtDiscGracePeriod));
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Adjust for Payment Disc.", true);
             Validate("Pmt. Disc. Tolerance Warning", false);
             Validate("Pmt. Disc. Tolerance Posting", "Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
@@ -1095,9 +1095,9 @@ codeunit 134914 "ERM Payment Disc Application"
         DetailedVendorLedgEntry.FindSet();
         repeat
             Assert.IsTrue(
-              DetailedVendorLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedVendorLedgEntry.TableCaption,
+              DetailedVendorLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedVendorLedgEntry.TableCaption(),
                 DetailedVendorLedgEntry.Unapplied));
-        until DetailedVendorLedgEntry.Next = 0;
+        until DetailedVendorLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyVATEntriesCountByTransactionNo(TransactionNo: Integer; ExpectedCount: Integer)

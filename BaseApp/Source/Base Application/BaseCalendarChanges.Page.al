@@ -12,13 +12,13 @@ page 7602 "Base Calendar Changes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the base calendar in the entry.';
                     Visible = false;
                 }
-                field("Recurring System"; "Recurring System")
+                field("Recurring System"; Rec."Recurring System")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Recurring System';

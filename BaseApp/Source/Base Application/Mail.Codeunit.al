@@ -46,7 +46,7 @@ codeunit 397 Mail
         AttachFile(AttachFilename);
         OnCreateAndSendMessageOnAfterAttachFile();
 
-        exit(Send);
+        exit(Send());
     end;
 
     procedure CreateMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; ShowNewMailDialogOnSend: Boolean; RunModal: Boolean)
@@ -62,7 +62,7 @@ codeunit 397 Mail
         OutlookMessageHelper.BodyFormat := 2;
         OutlookMessageHelper.ShowNewMailDialogOnSend := ShowNewMailDialogOnSend;
         OutlookMessageHelper.NewMailDialogIsModal := RunModal;
-        OutlookMessageHelper.AttachmentFileNames.Clear;
+        OutlookMessageHelper.AttachmentFileNames.Clear();
         AddBodyline(Body);
     end;
 
@@ -89,7 +89,7 @@ codeunit 397 Mail
     procedure Send(): Boolean
     begin
         Initialize();
-        exit(OutlookMessageHelper.Send);
+        exit(OutlookMessageHelper.Send());
     end;
 
     [Scope('OnPrem')]
@@ -120,7 +120,7 @@ codeunit 397 Mail
                 if PAGE.RunModal(PAGE::"Contact Through", ContactThrough) = ACTION::LookupOK then
                     exit(ContactThrough."E-Mail");
             end else
-                Error(Text001, Contact.TableCaption);
+                Error(Text001, Contact.TableCaption());
     end;
 
     local procedure TrimCode("Code": Code[20]) TrimString: Text[20]
@@ -133,7 +133,7 @@ codeunit 397 Mail
         ContactThrough.Reset();
         if ContactThrough.FindFirst() then begin
             ContactThrough.SetRange("E-Mail", CopyStr(EMailToValidate, 1, MaxStrLen(ContactThrough."E-Mail")));
-            EMailExists := not ContactThrough.IsEmpty;
+            EMailExists := not ContactThrough.IsEmpty();
         end;
     end;
 
@@ -159,7 +159,7 @@ codeunit 397 Mail
                 Description := CopyStr(Contact.FieldCaption("E-Mail"), 1, MaxStrLen(Description));
                 "E-Mail" := Contact."E-Mail";
                 Type := Contact.Type;
-                Insert;
+                Insert();
                 KeyNo := KeyNo + 1;
             end;
 
@@ -177,7 +177,7 @@ codeunit 397 Mail
                               CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("E-Mail"), 1, MaxStrLen(Description));
                             "E-Mail" := ContAltAddr."E-Mail";
                             Type := Contact.Type;
-                            Insert;
+                            Insert();
                             KeyNo := KeyNo + 1;
                         end;
                 until ContAltAddrDateRange.Next() = 0;
@@ -203,12 +203,11 @@ codeunit 397 Mail
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        AddAddressToCollection('GraphSetup', GetEmailFromGraphSetupTable, TempNameValueBuffer);
-        AddAddressToCollection('UserSetup', GetEmailFromUserSetupTable, TempNameValueBuffer);
-        AddAddressToCollection('ContactEmail', GetContactEmailFromUserTable, TempNameValueBuffer);
-        AddAddressToCollection('AuthEmail', GetAuthenticationEmailFromUserTable, TempNameValueBuffer);
-        if not EnvironmentInfo.IsSaaS then
-            AddAddressToCollection('AD', GetActiveDirectoryMailFromUser, TempNameValueBuffer);
+        AddAddressToCollection('UserSetup', GetEmailFromUserSetupTable(), TempNameValueBuffer);
+        AddAddressToCollection('ContactEmail', GetContactEmailFromUserTable(), TempNameValueBuffer);
+        AddAddressToCollection('AuthEmail', GetAuthenticationEmailFromUserTable(), TempNameValueBuffer);
+        if not EnvironmentInfo.IsSaaS() then
+            AddAddressToCollection('AD', GetActiveDirectoryMailFromUser(), TempNameValueBuffer);
 
         AddAddressToCollection('DefaultEmailAccount', GetDefaultScenarioEmailAddress(), TempNameValueBuffer);
     end;
@@ -221,7 +220,7 @@ codeunit 397 Mail
             exit;
 
         with TempNameValueBuffer do begin
-            Reset;
+            Reset();
             if FindSet() then
                 repeat
                     if UpperCase(Value) = UpperCase(EmailAddress) then
@@ -232,12 +231,12 @@ codeunit 397 Mail
             else
                 NextID := 1;
 
-            Init;
+            Init();
 
             ID := NextID;
             Name := CopyStr(EmailKey, 1, MaxStrLen(Name));
             Value := CopyStr(EmailAddress, 1, MaxStrLen(Value));
-            Insert;
+            Insert();
         end;
 
         exit(true);
@@ -260,7 +259,7 @@ codeunit 397 Mail
         OnGetEmailAddressFromActiveDirectory(Email, Handled);
         if Handled then
             exit(Email);
-        exit(GetEmailAddressFromActiveDirectory);
+        exit(GetEmailAddressFromActiveDirectory());
     end;
 
     local procedure GetEmailAddressFromActiveDirectory(): Text
@@ -268,7 +267,7 @@ codeunit 397 Mail
         ClientTypeManagement: Codeunit "Client Type Management";
         ActiveDirectoryEmailAddress: Text;
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows then
             if TryGetEmailAddressFromActiveDirectory(ActiveDirectoryEmailAddress) then;
         exit(ActiveDirectoryEmailAddress);
     end;
@@ -300,15 +299,6 @@ codeunit 397 Mail
             exit(UserSetup."E-Mail");
     end;
 
-    local procedure GetEmailFromGraphSetupTable(): Text
-    var
-        GraphMailSetup: Record "Graph Mail Setup";
-    begin
-        if GraphMailSetup.Get then
-            if GraphMailSetup.IsEnabled then
-                exit(GraphMailSetup."Sender Email");
-    end;
-
     [TryFunction]
     local procedure TryGetEmailAddressFromActiveDirectory(var ActiveDirectoryEmailAddress: Text)
     var
@@ -316,7 +306,7 @@ codeunit 397 Mail
         MailHelpers: DotNet MailHelpers;
     begin
         if CanLoadType(MailHelpers) then
-            ActiveDirectoryEmailAddress := MailHelpers.TryGetEmailAddressFromActiveDirectory;
+            ActiveDirectoryEmailAddress := MailHelpers.TryGetEmailAddressFromActiveDirectory();
     end;
 
     procedure FormatTextForHtml(Text: Text): Text

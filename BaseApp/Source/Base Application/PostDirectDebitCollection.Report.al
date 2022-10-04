@@ -15,7 +15,7 @@ report 1201 "Post Direct Debit Collection"
                 Window.Update(1, CurrCount * 10000 div TotalCount);
                 if CreateJnlLine("Direct Debit Collection Entry") then begin
                     Status := Status::Posted;
-                    Modify;
+                    Modify();
                 end else
                     SkippedCount += 1;
             end;
@@ -51,13 +51,13 @@ report 1201 "Post Direct Debit Collection"
                     begin
                         DirectDebitCollection.SetRange(Status, DirectDebitCollection.Status::"File Created");
                         if DirectDebitCollectionNo = 0 then
-                            DirectDebitCollection.FindLast
+                            DirectDebitCollection.FindLast()
                         else
                             if DirectDebitCollection.Get(DirectDebitCollectionNo) then;
                         DirectDebitCollections.LookupMode := true;
                         DirectDebitCollections.SetRecord(DirectDebitCollection);
                         DirectDebitCollections.SetTableView(DirectDebitCollection);
-                        if DirectDebitCollections.RunModal = ACTION::LookupOK then begin
+                        if DirectDebitCollections.RunModal() = ACTION::LookupOK then begin
                             DirectDebitCollections.GetRecord(DirectDebitCollection);
                             DirectDebitCollectionNo := DirectDebitCollection."No.";
                         end;
@@ -132,7 +132,7 @@ report 1201 "Post Direct Debit Collection"
                     begin
                         GenJournalBatch.SetRange("Journal Template Name", GeneralJournalTemplateName);
                         GeneralJournalBatches.SetTableView(GenJournalBatch);
-                        if GeneralJournalBatches.RunModal = ACTION::OK then begin
+                        if GeneralJournalBatches.RunModal() = ACTION::OK then begin
                             GeneralJournalBatches.GetRecord(GenJournalBatch);
                             GeneralJournalBatchName := GenJournalBatch.Name;
                         end;
@@ -173,7 +173,7 @@ report 1201 "Post Direct Debit Collection"
 
     trigger OnPostReport()
     begin
-        Window.Close;
+        Window.Close();
         if CreateJnlOnly then
             Message(JnlCreatedMsg, TotalCount - SkippedCount, SkippedCount)
         else

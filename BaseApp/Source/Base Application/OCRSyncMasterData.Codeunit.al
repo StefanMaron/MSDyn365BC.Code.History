@@ -4,7 +4,7 @@ codeunit 882 "OCR - Sync Master Data"
 
     trigger OnRun()
     begin
-        SyncMasterData;
+        SyncMasterData();
     end;
 
     var
@@ -22,7 +22,7 @@ codeunit 882 "OCR - Sync Master Data"
     var
         ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
     begin
-        ReadSoftOCRMasterDataSync.ResetLastSyncTime;
+        ReadSoftOCRMasterDataSync.ResetLastSyncTime();
     end;
 
     procedure ScheduleJob()
@@ -30,7 +30,7 @@ codeunit 882 "OCR - Sync Master Data"
         JobQueueEntry: Record "Job Queue Entry";
         ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
     begin
-        if not ReadSoftOCRMasterDataSync.IsSyncEnabled then
+        if not ReadSoftOCRMasterDataSync.IsSyncEnabled() then
             exit;
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
@@ -47,7 +47,7 @@ codeunit 882 "OCR - Sync Master Data"
             exit;
         end;
 
-        CreateNewJob;
+        CreateNewJob();
     end;
 
     procedure CancelJob()
@@ -57,27 +57,27 @@ codeunit 882 "OCR - Sync Master Data"
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"OCR - Sync Master Data");
         while JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, CODEUNIT::"OCR - Sync Master Data") do
-            JobQueueEntry.Cancel;
+            JobQueueEntry.Cancel();
     end;
 
     local procedure RestartJob(var JobQueueEntry: Record "Job Queue Entry")
     begin
         if ModifiedByUser(JobQueueEntry) then begin
-            CancelJob;
-            CreateNewJob;
+            CancelJob();
+            CreateNewJob();
         end else
             if JobQueueEntry.Status <> JobQueueEntry.Status::Ready then
-                JobQueueEntry.Restart;
+                JobQueueEntry.Restart();
     end;
 
     local procedure ModifiedByUser(var JobQueueEntry: Record "Job Queue Entry"): Boolean
     begin
         case true of
-            JobQueueEntry."Maximum No. of Attempts to Run" <> MaxNoOfAttempts:
+            JobQueueEntry."Maximum No. of Attempts to Run" <> MaxNoOfAttempts():
                 exit(true);
-            JobQueueEntry."Rerun Delay (sec.)" <> JobDelayMinutes * 60:
+            JobQueueEntry."Rerun Delay (sec.)" <> JobDelayMinutes() * 60:
                 exit(true);
-            JobQueueEntry."Earliest Start Date/Time" > CurrentDateTime + JobDelayMinutes * 60000:
+            JobQueueEntry."Earliest Start Date/Time" > CurrentDateTime + JobDelayMinutes() * 60000:
                 exit(true);
         end;
         exit(false);
@@ -90,9 +90,9 @@ codeunit 882 "OCR - Sync Master Data"
         JobQueueEntry.LockTable();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"OCR - Sync Master Data";
-        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + JobDelayMinutes * 60000;
-        JobQueueEntry."Maximum No. of Attempts to Run" := MaxNoOfAttempts;
-        JobQueueEntry."Rerun Delay (sec.)" := JobDelayMinutes * 60;
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + JobDelayMinutes() * 60000;
+        JobQueueEntry."Maximum No. of Attempts to Run" := MaxNoOfAttempts();
+        JobQueueEntry."Rerun Delay (sec.)" := JobDelayMinutes() * 60;
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
@@ -116,8 +116,8 @@ codeunit 882 "OCR - Sync Master Data"
     local procedure OnAfterDeleteVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then begin
-            ResetLastSyncTime;
-            ScheduleJob;
+            ResetLastSyncTime();
+            ScheduleJob();
         end;
     end;
 
@@ -125,22 +125,22 @@ codeunit 882 "OCR - Sync Master Data"
     local procedure OnAfterInsertVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
-            ScheduleJob;
+            ScheduleJob();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyVendor(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
-            ScheduleJob;
+            ScheduleJob();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameVendor(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then begin
-            ResetLastSyncTime;
-            ScheduleJob;
+            ResetLastSyncTime();
+            ScheduleJob();
         end;
     end;
 
@@ -148,28 +148,28 @@ codeunit 882 "OCR - Sync Master Data"
     local procedure OnAfterDeleteVendorBankAccount(var Rec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
-            ScheduleJob;
+            ScheduleJob();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertVendorBankAccount(var Rec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
-            ScheduleJob;
+            ScheduleJob();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyVendorBankAccount(var Rec: Record "Vendor Bank Account"; var xRec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
-            ScheduleJob;
+            ScheduleJob();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameVendorBankAccount(var Rec: Record "Vendor Bank Account"; var xRec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
-            ScheduleJob;
+            ScheduleJob();
     end;
 }
 

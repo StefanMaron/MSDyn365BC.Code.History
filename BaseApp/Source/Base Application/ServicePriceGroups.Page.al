@@ -49,11 +49,20 @@ page 6080 "Service Price Groups"
                 ApplicationArea = Service;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Serv. Price Group Setup";
                 RunPageLink = "Service Price Group Code" = FIELD(Code);
                 ToolTip = 'View or edit how you group service prices.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
             }
         }
     }

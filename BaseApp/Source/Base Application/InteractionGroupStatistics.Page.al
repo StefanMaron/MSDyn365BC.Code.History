@@ -14,17 +14,17 @@ page 5078 "Interaction Group Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("No. of Interactions"; "No. of Interactions")
+                field("No. of Interactions"; Rec."No. of Interactions")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of interactions that have been created using this interaction group. This field is not editable.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total cost of the interactions created using this interaction group. This field is not editable.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total duration of the interactions created using this interaction group. The field is not editable.';

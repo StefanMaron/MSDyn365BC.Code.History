@@ -8,7 +8,6 @@ page 1560 "Report Settings"
     Caption = 'Report Settings';
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     ShowFilter = false;
     SourceTable = "Object Options";
     UsageCategory = Administration;
@@ -25,7 +24,7 @@ page 1560 "Report Settings"
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the settings entry.';
                 }
-                field("Report ID"; "Object ID")
+                field("Report ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
@@ -35,7 +34,7 @@ page 1560 "Report Settings"
 
                     trigger OnValidate()
                     begin
-                        ValidateObjectID;
+                        ValidateObjectID();
                         LookupObjectName("Object ID", "Object Type");
                     end;
                 }
@@ -46,7 +45,7 @@ page 1560 "Report Settings"
                     Editable = false;
                     ToolTip = 'Specifies the name of the report that uses the settings.';
                 }
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Assigned to';
@@ -62,7 +61,7 @@ page 1560 "Report Settings"
                             "Public Visible" := true;
                     end;
                 }
-                field("Created By"; "Created By")
+                field("Created By"; Rec."Created By")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Created by';
@@ -70,7 +69,7 @@ page 1560 "Report Settings"
                     TableRelation = User."User Name";
                     ToolTip = 'Specifies the name of the user who created the settings.';
                 }
-                field("Public Visible"; "Public Visible")
+                field("Public Visible"; Rec."Public Visible")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shared with all users';
@@ -85,7 +84,7 @@ page 1560 "Report Settings"
                             "User Name" := "Created By";
                     end;
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company to which the settings belong.';
@@ -103,9 +102,6 @@ page 1560 "Report Settings"
                 ApplicationArea = Basic, Suite;
                 Caption = 'New';
                 Image = New;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Create a new report settings entry that sets filters and options for a specific report. ';
 
                 trigger OnAction()
@@ -116,7 +112,7 @@ page 1560 "Report Settings"
                     OptionDataTxt: Text;
                 begin
                     PickReport.SetReportObjectId("Object ID");
-                    if PickReport.RunModal <> ACTION::OK then
+                    if PickReport.RunModal() <> ACTION::OK then
                         exit;
 
                     PickReport.GetObjectOptions(ObjectOptions);
@@ -134,16 +130,13 @@ page 1560 "Report Settings"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Make a copy the selected report settings.';
 
                 trigger OnAction()
                 var
                     ObjectOptions: Record "Object Options";
                 begin
-                    if "Option Data".HasValue then
+                    if "Option Data".HasValue() then
                         CalcFields("Option Data");
 
                     ObjectOptions.TransferFields(Rec);
@@ -157,21 +150,39 @@ page 1560 "Report Settings"
                 Caption = 'Edit';
                 Enabled = NOT LastUsed;
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Change the options and filters that are defined for the selected report settings.';
 
                 trigger OnAction()
                 var
                     OptionDataTxt: Text;
                 begin
-                    OptionDataTxt := REPORT.RunRequestPage("Object ID", GetOptionData);
+                    OptionDataTxt := REPORT.RunRequestPage("Object ID", GetOptionData());
                     if OptionDataTxt <> '' then begin
                         UpdateOptionData(Rec, OptionDataTxt);
                         Modify(true);
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(NewSettings_Promoted; NewSettings)
+                {
+                }
+                actionref(CopySettings_Promoted; CopySettings)
+                {
+                }
+                actionref(EditSettings_Promoted; EditSettings)
+                {
+                }
             }
         }
     }
@@ -228,7 +239,7 @@ page 1560 "Report Settings"
     var
         InStream: InStream;
     begin
-        if "Option Data".HasValue then begin
+        if "Option Data".HasValue() then begin
             CalcFields("Option Data");
             "Option Data".CreateInStream(InStream, TEXTENCODING::UTF8);
             InStream.ReadText(Result);

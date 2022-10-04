@@ -89,7 +89,7 @@ table 5339 "Integration Synch. Job Errors"
         StackTraceOutStream: OutStream;
     begin
         with IntegrationSynchJobErrors do begin
-            Init;
+            Init();
             "Integration Synch. Job ID" := IntegrationSynchJobId;
             "Source Record ID" := SourceRecordId;
             "Destination Record ID" := DestinationRecordId;
@@ -143,6 +143,8 @@ table 5339 "Integration Synch. Job Errors"
     begin
         if not IntegrationSynchJobErrors.FindSet() then
             exit(false);
+
+        RecordCount := 0;
         repeat
             if GetLocalRecordId(IntegrationSynchJobErrors, LocalRecordId) then
                 if not RecordIdDictionary.ContainsKey(LocalRecordId) then begin

@@ -28,74 +28,74 @@ page 206 "Resource Journal Templates"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if this journal will contain recurring entries.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Posting No. Series"; "Posting No. Series")
+                field("Posting No. Series"; Rec."Posting No. Series")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number series code used to assign document numbers to ledger entries that are posted from journals using this template.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("Increment Batch Name"; "Increment Batch Name")
+                field("Increment Batch Name"; Rec."Increment Batch Name")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if batch names using this template are automatically incremented. Example: The posting following BATCH001 is automatically named BATCH002.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Jobs;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies the displayed name of the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Test Report ID"; "Test Report ID")
+                field("Test Report ID"; Rec."Test Report ID")
                 {
                     ApplicationArea = Jobs;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the test report that is printed when, on the Actions tab in the Posting group, you choose Test Report.';
                     Visible = false;
                 }
-                field("Test Report Caption"; "Test Report Caption")
+                field("Test Report Caption"; Rec."Test Report Caption")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the test report that you selected in the Test Report ID field.';
                     Visible = false;
                 }
-                field("Posting Report ID"; "Posting Report ID")
+                field("Posting Report ID"; Rec."Posting Report ID")
                 {
                     ApplicationArea = Jobs;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the posting report that you want associated with this journal.';
                     Visible = false;
                 }
-                field("Posting Report Caption"; "Posting Report Caption")
+                field("Posting Report Caption"; Rec."Posting Report Caption")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the posting report you selected in the Posting Report ID field.';
                     Visible = false;
                 }
-                field("Force Posting Report"; "Force Posting Report")
+                field("Force Posting Report"; Rec."Force Posting Report")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether a report is printed automatically when you post.';

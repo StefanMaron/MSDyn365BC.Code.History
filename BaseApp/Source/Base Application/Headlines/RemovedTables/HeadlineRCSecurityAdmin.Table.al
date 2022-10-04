@@ -4,6 +4,7 @@ table 1449 "Headline RC Security Admin"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {

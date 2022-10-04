@@ -125,7 +125,7 @@ codeunit 3676 "BOM Tree Node Dictionary Impl."
         RequiredBucketId := Round((FromIndex - 1) / BucketSize, 1, '<');
     end;
 
-    internal procedure GetBucket(RequestedBucketId: Integer; var Bucket: Codeunit "BOM Tree Nodes Bucket"; CreateBuckets: Boolean)
+    local procedure GetBucket(RequestedBucketId: Integer; var Bucket: Codeunit "BOM Tree Nodes Bucket"; CreateBuckets: Boolean)
     var
         CurrentBucket: Codeunit "BOM Tree Nodes Bucket";
     begin
@@ -167,7 +167,7 @@ codeunit 3676 "BOM Tree Node Dictionary Impl."
         Bucket.SetValue(LocalIndex, Instance);
     end;
 
-    internal procedure IndexOf(UniqueKey: Text): Integer
+    local procedure IndexOf(UniqueKey: Text): Integer
     begin
         if LastIndex = 0 then
             exit(0);

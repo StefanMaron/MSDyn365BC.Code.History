@@ -12,7 +12,7 @@ report 5956 "Service Load Level"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Resource Group No.", "Date Filter", "Unit of Measure Filter", "Chargeable Filter", "Service Zone Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(SelctnFrmtSTRQtyCostPrice; Text001 + ' ' + Format(SelectStr(Selection + 1, Text002)))
@@ -178,7 +178,7 @@ report 5956 "Service Load Level"
 
     trigger OnPreReport()
     begin
-        ResourceFilter := Resource.GetFilters;
+        ResourceFilter := Resource.GetFilters();
     end;
 
     var

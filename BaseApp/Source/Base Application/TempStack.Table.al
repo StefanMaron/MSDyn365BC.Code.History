@@ -34,7 +34,7 @@ table 9160 TempStack
     begin
         Validate(StackOrder, LastIndex);
         Validate(Value, NewValue);
-        Insert;
+        Insert();
         LastIndex := LastIndex + 1;
     end;
 
@@ -42,7 +42,7 @@ table 9160 TempStack
     begin
         if FindLast() then begin
             TopValue := Value;
-            Delete;
+            Delete();
             LastIndex := LastIndex - 1;
             exit(true);
         end;

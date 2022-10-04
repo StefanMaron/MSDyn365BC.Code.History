@@ -5,7 +5,6 @@ page 7352 "Put-away Worksheet"
     DataCaptionFields = Name;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Prepare,Line,Item';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Whse. Worksheet Line";
@@ -25,7 +24,7 @@ page 7352 "Put-away Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     LookupWhseWkshName(Rec, CurrentWkshName, CurrentLocationCode);
                     CurrPage.Update(false);
                 end;
@@ -33,7 +32,7 @@ page 7352 "Put-away Worksheet"
                 trigger OnValidate()
                 begin
                     CheckWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
-                    CurrentWkshNameOnAfterValidate;
+                    CurrentWkshNameOnAfterValidate();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -74,18 +73,18 @@ page 7352 "Put-away Worksheet"
                         Rec.Validate("Whse. Document Type", WhseDocumentType);
                     end;
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the warehouse document.';
                 }
-                field("Whse. Document Line No."; "Whse. Document Line No.")
+                field("Whse. Document Line No."; Rec."Whse. Document Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the line in the warehouse document that is the basis for the worksheet line.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -96,7 +95,7 @@ page 7352 "Put-away Worksheet"
                         GetItem("Item No.", ItemDescription);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -109,21 +108,21 @@ page 7352 "Put-away Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies the description of the item on the line.';
                 }
-                field("From Zone Code"; "From Zone Code")
+                field("From Zone Code"; Rec."From Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the zone from which the items should be taken.';
                     Visible = false;
                 }
-                field("From Bin Code"; "From Bin Code")
+                field("From Bin Code"; Rec."From Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the code of the bin from which the items should be taken.';
                     Visible = false;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for information use.';
@@ -135,56 +134,56 @@ page 7352 "Put-away Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies how many units of the item you want to move.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be handled in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, expressed in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Handle"; "Qty. to Handle")
+                field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units of the item you want to move.';
 
                     trigger OnValidate()
                     begin
-                        QtytoHandleOnAfterValidate;
+                        QtytoHandleOnAfterValidate();
                     end;
                 }
-                field("Qty. to Handle (Base)"; "Qty. to Handle (Base)")
+                field("Qty. to Handle (Base)"; Rec."Qty. to Handle (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity you want to handle, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Handled"; "Qty. Handled")
+                field("Qty. Handled"; Rec."Qty. Handled")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that has been handled and registered.';
                 }
-                field("Qty. Handled (Base)"; "Qty. Handled (Base)")
+                field("Qty. Handled (Base)"; Rec."Qty. Handled (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that has been handled and registered, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the due date of the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -246,9 +245,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Source &Document Line';
                     Image = SourceDocLine;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'View the line on a released source document that the warehouse activity is for. ';
 
@@ -263,8 +259,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Whse. Document Line';
                     Image = Line;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Scope = Repeater;
                     ToolTip = 'View the line on another warehouse document that the warehouse activity is for.';
 
@@ -279,10 +273,8 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Scope = Repeater;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -300,8 +292,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     Scope = Repeater;
@@ -313,8 +303,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Warehouse Entries';
                     Image = BinLedger;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Warehouse Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -329,8 +317,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -344,8 +330,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -368,8 +352,6 @@ page 7352 "Put-away Worksheet"
                     Caption = 'Get Warehouse Documents';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Select a warehouse document to pick for, such as a warehouse shipment.';
 
@@ -391,8 +373,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Autofill Qty. to Handle';
                     Image = AutofillQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
 
@@ -409,8 +389,6 @@ page 7352 "Put-away Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Delete Qty. to Handle';
                     Image = DeleteQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Have the system clear the value in the Qty. To Handle field. ';
 
@@ -428,9 +406,6 @@ page 7352 "Put-away Worksheet"
                     Caption = 'Create Put-away';
                     Ellipsis = true;
                     Image = CreatePutAway;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Create warehouse put-away documents for the specified put-aways. ';
 
@@ -444,6 +419,72 @@ page 7352 "Put-away Worksheet"
                         else
                             Error(Text001);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreatePutAway_Promoted; CreatePutAway)
+                {
+                }
+                actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                {
+                }
+                actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prepare', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(GetWarehouseDocuments_Promoted; GetWarehouseDocuments)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Source &Document Line_Promoted"; "Source &Document Line")
+                {
+                }
+                actionref("Whse. Document Line_Promoted"; "Whse. Document Line")
+                {
+                }
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Card_Promoted; Card)
+                {
+                }
+                actionref("Warehouse Entries_Promoted"; "Warehouse Entries")
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
                 }
             }
         }
@@ -497,7 +538,7 @@ page 7352 "Put-away Worksheet"
 
     protected procedure CurrentWkshNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

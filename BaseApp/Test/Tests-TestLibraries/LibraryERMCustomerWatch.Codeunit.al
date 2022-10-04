@@ -30,7 +30,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     local procedure WatchCustomerEntry(CustomerNo: Code[20]; WatchLETotal: Boolean; WatchDtldLETotal: Boolean; LECompareMethod: Option; DtldLECompareMethod: Option)
     begin
         with WatchCustomer do begin
-            Init;
+            Init();
             "Line No." := NextLineNo;
             "Customer No." := CustomerNo;
 
@@ -73,7 +73,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     procedure WatchLedgerEntries(CustomerNo: Code[20]; EntryType: Option; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
         with WatchCustLedgerEntry do begin
-            Init;
+            Init();
             "Line No." := NextLELineNo;
             "Customer No." := CustomerNo;
             "Line Level" := "Line Level"::"Ledger Entry";
@@ -118,7 +118,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     procedure WatchDtldLedgerEntries(CustomerNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
         with WatchCustLedgerEntry do begin
-            Init;
+            Init();
             "Line No." := NextLELineNo;
             "Customer No." := CustomerNo;
             "Line Level" := "Line Level"::"Detailed Ledger Entry";
@@ -219,7 +219,7 @@ codeunit 131310 "Library - ERM Customer Watch"
         TotalDtldLEDelta := 0;
 
         with WatchCustLedgerEntry do begin
-            Reset;
+            Reset();
 
             if FindSet() then
                 repeat
@@ -234,7 +234,7 @@ codeunit 131310 "Library - ERM Customer Watch"
         end;
 
         with WatchCustomer do begin
-            Reset;
+            Reset();
             if FindFirst() then begin
                 // Check that all ledger entries are accounted for
                 if "Watch LE" then
@@ -319,7 +319,7 @@ codeunit 131310 "Library - ERM Customer Watch"
             repeat
                 CustLedgerEntry.CalcFields(Amount);
                 Sum += CustLedgerEntry.Amount;
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
 
         exit(Sum);
     end;
@@ -346,7 +346,7 @@ codeunit 131310 "Library - ERM Customer Watch"
         if DtldCustLedgEntry.FindSet() then
             repeat
                 Sum += DtldCustLedgEntry.Amount;
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
 
         exit(Sum);
     end;

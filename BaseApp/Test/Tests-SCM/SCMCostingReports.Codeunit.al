@@ -69,13 +69,13 @@ codeunit 137306 "SCM Costing Reports"
         UnitCost[2] := LibraryRandom.RandDecInRange(100, 500, 2);
         PostItemJournalLine(
           ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-          Item."No.", 1, UnitCost[1], WorkDate);
+          Item."No.", 1, UnitCost[1], WorkDate());
         PostItemJournalLine(
           ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-          Item."No.", 1, UnitCost[2], CalcDate('<1M>', WorkDate));
+          Item."No.", 1, UnitCost[2], CalcDate('<1M>', WorkDate()));
 
         // [WHEN] Run report "Item Age Composition - Value" with ending date = workdate and period length = "1M"
-        RunItemAgeCompositionReport(WorkDate, '1M', Item."No.");
+        RunItemAgeCompositionReport(WorkDate(), '1M', Item."No.");
 
         // [THEN] Inventory value on workdate is "C1", inventory value in the period after workdate is "C2"
         LibraryReportDataset.LoadDataSetFile;
@@ -110,19 +110,19 @@ codeunit 137306 "SCM Costing Reports"
             UnitCost[I] := LibraryRandom.RandDecInRange(100, 500, 2);
             PostItemJournalLine(
               ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-              Item."No.", 1, UnitCost[I], WorkDate);
+              Item."No.", 1, UnitCost[I], WorkDate());
         end;
 
         // [GIVEN] Post negative adjustment, quantity = 1. Remaining quantity on inventory is 1.
         PostItemJournalLine(
-          ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", 1, 0, WorkDate);
+          ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", 1, 0, WorkDate());
 
         // [GIVEN] Run "Adjust Cost - Item Entries"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [WHEN] Run report "Item Age Composition - Value" with ending date = workdate and period length = "1M"
         Commit();
-        RunItemAgeCompositionReport(WorkDate, '1M', Item."No.");
+        RunItemAgeCompositionReport(WorkDate(), '1M', Item."No.");
 
         // [THEN] Inventory value on workdate is ("C1" + "C2") / 2
         LibraryReportDataset.LoadDataSetFile;
@@ -161,11 +161,11 @@ codeunit 137306 "SCM Costing Reports"
                 UnitCost[i] [j] := LibraryRandom.RandDecInRange(100, 500, 2);
                 PostItemJournalLine(
                   ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-                  Item[i]."No.", 1, UnitCost[i] [j], WorkDate);
+                  Item[i]."No.", 1, UnitCost[i] [j], WorkDate());
             end;
             PostItemJournalLine(
               ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.",
-              Item[i]."No.", 1, 0, WorkDate);
+              Item[i]."No.", 1, 0, WorkDate());
         end;
 
         // [GIVEN] Run "Adjust Cost - Item Entries".
@@ -175,7 +175,7 @@ codeunit 137306 "SCM Costing Reports"
 
         // [WHEN] Run report "Item Age Composition - Value" for both items.
         Commit();
-        RunItemAgeCompositionReport(WorkDate, '1M', StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."));
+        RunItemAgeCompositionReport(WorkDate(), '1M', StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."));
 
         // [THEN] The report shows that the invt. value of "A" = "ResA", invt. value of "F" = "ResF".
         LibraryReportDataset.LoadDataSetFile;
@@ -278,7 +278,7 @@ codeunit 137306 "SCM Costing Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.SaveSalesSetup();
@@ -323,10 +323,10 @@ codeunit 137306 "SCM Costing Reports"
         QuantityToReceive := LibraryRandom.RandIntInRange(10, 20);
         Quantity := QuantityToReceive + LibraryRandom.RandInt(10);
         ItemChargeUnitCost := LibraryRandom.RandDec(10, 2);
-        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate);  // Random date required for later postings.
+        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate());  // Random date required for later postings.
 
         CreateItem(Item, Item."Costing Method"::Average);
-        PostedPurchInvoiceNo := CreatePurchaseOrderAndPost(PurchaseHeader, Item."No.", WorkDate, Quantity, QuantityToReceive, DirectUnitCost);
+        PostedPurchInvoiceNo := CreatePurchaseOrderAndPost(PurchaseHeader, Item."No.", WorkDate(), Quantity, QuantityToReceive, DirectUnitCost);
         PostedPurchInvoiceNo2 :=
           CreatePurchaseOrderAndPost(PurchaseHeader2, Item."No.", NewPostingDate, Quantity, QuantityToReceive, DirectUnitCost);  // Random date required.
 
@@ -356,7 +356,7 @@ codeunit 137306 "SCM Costing Reports"
         VerifyUnitCost(Item."No.", UnitCost);
 
         // Exercise : Run Post Inventory Cost to G/L for the different dates.
-        PostInventoryCostGL(Item."No.", WorkDate);
+        PostInventoryCostGL(Item."No.", WorkDate());
         PostInventoryCostGL(Item."No.", NewPostingDate);
 
         // Verify : Check G/L Entry Created After Run Post Inventory To G/L Report.
@@ -412,7 +412,7 @@ codeunit 137306 "SCM Costing Reports"
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem."No.", ItemNo, Quantity);
 
         ServiceMgtSetup.Get();
-        ServiceInvoiceNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Posted Service Invoice Nos.", WorkDate, false);
+        ServiceInvoiceNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Posted Service Invoice Nos.", WorkDate(), false);
         LibraryService.PostServiceOrder(ServiceHeader, Ship, false, Invoice);
     end;
 
@@ -547,7 +547,7 @@ codeunit 137306 "SCM Costing Reports"
         GLEntry.FindSet();
         repeat
             ActualAmount := ActualAmount + GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         GeneralLedgerSetup.Get();
 

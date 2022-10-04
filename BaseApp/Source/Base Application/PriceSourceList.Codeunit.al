@@ -17,20 +17,20 @@ codeunit 7011 "Price Source List"
 
     procedure GetMinMaxLevel(var Level: array[2] of Integer)
     var
-        LocalTempPriceSource: Record "Price Source" temporary;
+        TempPriceSourceLocal: Record "Price Source" temporary;
     begin
-        LocalTempPriceSource.Copy(TempPriceSource, true);
-        LocalTempPriceSource.Reset();
-        if LocalTempPriceSource.IsEmpty() then begin
+        TempPriceSourceLocal.Copy(TempPriceSource, true);
+        TempPriceSourceLocal.Reset();
+        if TempPriceSourceLocal.IsEmpty() then begin
             Level[2] := Level[1] - 1;
             exit;
         end;
 
-        LocalTempPriceSource.SetCurrentKey(Level);
-        LocalTempPriceSource.FindFirst();
-        Level[1] := LocalTempPriceSource.Level;
-        LocalTempPriceSource.FindLast();
-        Level[2] := LocalTempPriceSource.Level;
+        TempPriceSourceLocal.SetCurrentKey(Level);
+        TempPriceSourceLocal.FindFirst();
+        Level[1] := TempPriceSourceLocal.Level;
+        TempPriceSourceLocal.FindLast();
+        Level[2] := TempPriceSourceLocal.Level;
     end;
 
     procedure GetPriceType(): Enum "Price Type";
@@ -138,15 +138,15 @@ codeunit 7011 "Price Source List"
 
     procedure GetValue(SourceType: Enum "Price Source Type") Result: Code[20];
     var
-        LocalTempPriceSource: Record "Price Source" temporary;
+        TempPriceSourceLocal: Record "Price Source" temporary;
         PriceSourceInterface: Interface "Price Source";
     begin
-        LocalTempPriceSource.Copy(TempPriceSource, true);
-        LocalTempPriceSource.Reset();
-        LocalTempPriceSource.SetRange("Source Type", SourceType);
-        If LocalTempPriceSource.FindFirst() then begin
-            PriceSourceInterface := LocalTempPriceSource."Source Type";
-            Result := LocalTempPriceSource."Source No.";
+        TempPriceSourceLocal.Copy(TempPriceSource, true);
+        TempPriceSourceLocal.Reset();
+        TempPriceSourceLocal.SetRange("Source Type", SourceType);
+        If TempPriceSourceLocal.FindFirst() then begin
+            PriceSourceInterface := TempPriceSourceLocal."Source Type";
+            Result := TempPriceSourceLocal."Source No.";
         end;
         OnAfterGetValue(SourceType, Result);
     end;
@@ -215,23 +215,23 @@ codeunit 7011 "Price Source List"
 
     local procedure GetSourceGroup(var FoundPriceSource: Record "Price Source"): Boolean;
     var
-        LocalTempPriceSource: Record "Price Source" temporary;
+        TempPriceSourceLocal: Record "Price Source" temporary;
     begin
-        LocalTempPriceSource.Copy(TempPriceSource, true);
-        LocalTempPriceSource.Reset();
-        LocalTempPriceSource.SetCurrentKey(Level);
-        LocalTempPriceSource.SetAscending(Level, false);
-        LocalTempPriceSource.SetFilter("Source Group", '<>%1', LocalTempPriceSource."Source Group"::All);
-        if LocalTempPriceSource.IsEmpty() then
+        TempPriceSourceLocal.Copy(TempPriceSource, true);
+        TempPriceSourceLocal.Reset();
+        TempPriceSourceLocal.SetCurrentKey(Level);
+        TempPriceSourceLocal.SetAscending(Level, false);
+        TempPriceSourceLocal.SetFilter("Source Group", '<>%1', TempPriceSourceLocal."Source Group"::All);
+        if TempPriceSourceLocal.IsEmpty() then
             exit(false);
-        LocalTempPriceSource.SetFilter("Source No.", '<>%1', '');
-        if LocalTempPriceSource.FindFirst() then begin
-            FoundPriceSource := LocalTempPriceSource;
+        TempPriceSourceLocal.SetFilter("Source No.", '<>%1', '');
+        if TempPriceSourceLocal.FindFirst() then begin
+            FoundPriceSource := TempPriceSourceLocal;
             exit(true);
         end;
-        LocalTempPriceSource.SetRange("Source No.");
-        if LocalTempPriceSource.FindFirst() then begin
-            FoundPriceSource := LocalTempPriceSource;
+        TempPriceSourceLocal.SetRange("Source No.");
+        if TempPriceSourceLocal.FindFirst() then begin
+            FoundPriceSource := TempPriceSourceLocal;
             exit(true);
         end;
     end;
@@ -255,12 +255,12 @@ codeunit 7011 "Price Source List"
 
     local procedure Remove(var PriceSource: Record "Price Source"): Boolean
     var
-        LocalTempPriceSource: Record "Price Source" temporary;
+        TempPriceSourceLocal: Record "Price Source" temporary;
     begin
-        LocalTempPriceSource.Copy(TempPriceSource, true);
-        LocalTempPriceSource.CopyFilters(PriceSource);
-        if not LocalTempPriceSource.IsEmpty() then begin
-            LocalTempPriceSource.DeleteAll();
+        TempPriceSourceLocal.Copy(TempPriceSource, true);
+        TempPriceSourceLocal.CopyFilters(PriceSource);
+        if not TempPriceSourceLocal.IsEmpty() then begin
+            TempPriceSourceLocal.DeleteAll();
             exit(true);
         end;
     end;

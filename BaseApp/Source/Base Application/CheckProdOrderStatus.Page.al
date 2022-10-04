@@ -17,7 +17,7 @@ page 99000833 "Check Prod. Order Status"
             group(Details)
             {
                 Caption = 'Details';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;

@@ -18,7 +18,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
-        MissingPermissionsErr: Label 'You do not have the following permissions';
+        MissingPermissionsErr: Label 'Sorry, the current permissions prevented the action.';
 
     [Scope('OnPrem')]
     procedure Initialize()
@@ -461,7 +461,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedSalesInvoice."No.".Value);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -469,7 +469,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     procedure PostedPurchaseInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedPurchaseInvoice."No.".Value);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 }
 

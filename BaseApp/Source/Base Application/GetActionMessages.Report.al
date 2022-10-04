@@ -56,15 +56,14 @@ report 99001023 "Get Action Messages"
                                 TempActionMsgEntry."Entry No." := NextEntryNo;
                                 TempActionMsgEntry.Insert();
                             until TempNewActionMsgEntry.Next() = 0;
-                        end else begin
+                        end else
                             if ActionMessageEntry.Find('+') then
                                 UpdateActionMsgList(ActionMessageEntry."Source Type", ActionMessageEntry."Source Subtype",
                                   ActionMessageEntry."Source ID", ActionMessageEntry."Source Batch Name",
                                   ActionMessageEntry."Source Prod. Order Line", ActionMessageEntry."Source Ref. No.",
                                   ActionMessageEntry."Location Code", ActionMessageEntry."Bin Code",
                                   ActionMessageEntry."Variant Code", ActionMessageEntry."Item No.", 0D);
-                        end;
-                        ActionMessageEntry.ClearSourceFilter;
+                        ActionMessageEntry.ClearSourceFilter();
                         ActionMessageEntry.SetRange("Location Code");
                         ActionMessageEntry.SetRange("Bin Code");
                         ActionMessageEntry.SetRange("Variant Code");
@@ -74,7 +73,7 @@ report 99001023 "Get Action Messages"
             trigger OnPostDataItem()
             begin
                 if TempItemInOtherWksh.FindFirst() then begin
-                    Window.Close;
+                    Window.Close();
                     if Confirm(Text002) then
                         PAGE.RunModal(0, TempItemInOtherWksh);
                     if not Confirm(Text005) then
@@ -163,14 +162,6 @@ report 99001023 "Get Action Messages"
     end;
 
     var
-        Text000: Label 'Item No.  #2##################';
-        Text001: Label 'Building action message list...';
-        Text002: Label 'Some items within the filter already exist on the planning lines.\Action messages that are related to these items will not be processed.\\Do you want to see a list of the unprocessed items?';
-        Text005: Label 'Do you want to continue?';
-        Text006: Label 'The process has been canceled.';
-        Text007: Label 'Processing action messages...';
-        Text008: Label 'No action messages exist.';
-        Text009: Label 'GetActionMessages: Illegal Action Message relation.';
         ReqLineExtern: Record "Requisition Line";
         TrkgReservEntry: Record "Reservation Entry";
         TempItemInOtherWksh: Record Item temporary;
@@ -191,6 +182,15 @@ report 99001023 "Get Action Messages"
         CurrTemplateName: Code[10];
         CurrWorksheetName: Code[10];
         PlanningLinesInserted: Boolean;
+
+        Text000: Label 'Item No.  #2##################';
+        Text001: Label 'Building action message list...';
+        Text002: Label 'Some items within the filter already exist on the planning lines.\Action messages that are related to these items will not be processed.\\Do you want to see a list of the unprocessed items?';
+        Text005: Label 'Do you want to continue?';
+        Text006: Label 'The process has been canceled.';
+        Text007: Label 'Processing action messages...';
+        Text008: Label 'No action messages exist.';
+        Text009: Label 'GetActionMessages: Illegal Action Message relation.';
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10])
     begin
@@ -219,7 +219,7 @@ report 99001023 "Get Action Messages"
             "New Date" := OrderDate;
             NextEntryNo := NextEntryNo + 1;
             "Entry No." := NextEntryNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -228,9 +228,9 @@ report 99001023 "Get Action Messages"
         ReqLine: Record "Requisition Line";
         InsertNew: Boolean;
     begin
-        if ActionMsgEntry."Source ID" = '' then begin // Not related to existing order.
-            ActionMessageEntry := ActionMsgEntry;
-        end else begin
+        if ActionMsgEntry."Source ID" = '' then // Not related to existing order.
+            ActionMessageEntry := ActionMsgEntry
+        else begin
             ActionMessageEntry.SetSourceFilterFromActionEntry(ActionMsgEntry);
             ActionMessageEntry.SetRange("Location Code", ActionMsgEntry."Location Code");
             ActionMessageEntry.SetRange("Bin Code", ActionMsgEntry."Bin Code");
@@ -246,7 +246,7 @@ report 99001023 "Get Action Messages"
             ReqLine."Worksheet Template Name" := CurrTemplateName;
             ReqLine."Journal Batch Name" := CurrWorksheetName;
             ReqLine."Line No." += 10000;
-            while not ReqLine.Insert do
+            while not ReqLine.Insert() do
                 ReqLine."Line No." += 10000;
 
             InsertNew := InitReqFromSource(ActionMsgEntry, ReqLine);
@@ -271,10 +271,10 @@ report 99001023 "Get Action Messages"
 
             ReqLine."Original Quantity" := ReqLine.Quantity;
             ReqLine."Quantity (Base)" += Quantity;
-            ReqLine.Quantity := Round(ReqLine."Quantity (Base)" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            ReqLine.Quantity := Round(ReqLine."Quantity (Base)" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             ReqLine."Remaining Quantity" := ReqLine.Quantity - ReqLine."Finished Quantity";
             ReqLine."Remaining Qty. (Base)" :=
-              Round(ReqLine."Remaining Quantity" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+              Round(ReqLine."Remaining Quantity" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             if InsertNew then
                 Type := Type::New;
             if "New Date" <> 0D then begin
@@ -282,15 +282,15 @@ report 99001023 "Get Action Messages"
                     ReqLine."Original Due Date" := ReqLine."Due Date";
                 ReqLine."Due Date" := "New Date";
                 ReqLine."Starting Date" := 0D;
-                if BoundToComponent then begin
-                    ReqLine."Ending Date" := ComponentDueDate;
-                    ReqLine."Ending Time" := ComponentDueTime;
+                if BoundToComponent() then begin
+                    ReqLine."Ending Date" := ComponentDueDate();
+                    ReqLine."Ending Time" := ComponentDueTime();
                 end else
                     ReqLine."Ending Date" := 0D;
             end;
-            if ReqLine.Quantity = 0 then begin
-                ReqLine."Action Message" := ReqLine."Action Message"::Cancel;
-            end else
+            if ReqLine.Quantity = 0 then
+                ReqLine."Action Message" := ReqLine."Action Message"::Cancel
+            else
                 ReqLine."Action Message" := Type;
             ReqLine."Planning Line Origin" := ReqLine."Planning Line Origin"::"Action Message";
             ReqLine."Accept Action Message" := true;
@@ -306,10 +306,9 @@ report 99001023 "Get Action Messages"
                                                      ReqLine."Action Message"::"Resched. & Chg. Qty."])
                 then
                     ReqLine."Original Due Date" := 0D;
-            if ReqLine."Original Quantity" = ReqLine.Quantity then begin
+            if ReqLine."Original Quantity" = ReqLine.Quantity then
                 if ReqLine."Action Message" = ReqLine."Action Message"::"Resched. & Chg. Qty." then
                     ReqLine."Action Message" := ReqLine."Action Message"::Reschedule;
-            end;
             ReqLine.Validate(Quantity);
             if ReqLine."Action Message" = ReqLine."Action Message"::Reschedule then
                 ReqLine."Original Quantity" := 0;

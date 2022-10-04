@@ -77,15 +77,15 @@ codeunit 134910 "ERM Suggest Reminder"
 
         // [GIVEN] Credit Memo posted with amount 'A1', where calculated Interest = 'I'.
         CreatePostGeneralJnlLine(
-          CustomerNo, GenJournalLine."Document Type"::"Credit Memo", WorkDate, -Amt);
+          CustomerNo, GenJournalLine."Document Type"::"Credit Memo", WorkDate(), -Amt);
 
         // [GIVEN] Invoice posted on the 1 year after work date with amount 'A2', where ('A1'+ 'I') > 'A2' > 'A1'.
         CreatePostGeneralJnlLine(
-          CustomerNo, GenJournalLine."Document Type"::Invoice, CalcDate('<1Y>', WorkDate),
+          CustomerNo, GenJournalLine."Document Type"::Invoice, CalcDate('<1Y>', WorkDate()),
           Amt + LibraryRandom.RandIntInRange(5, 10));
 
         // [WHEN] Create Reminder Header and Suggest Reminder Line.
-        ReminderNo := CreateAndSuggestingReminder(CustomerNo, CalcDate('<1Y+1M>', WorkDate));
+        ReminderNo := CreateAndSuggestingReminder(CustomerNo, CalcDate('<1Y+1M>', WorkDate()));
 
         // [THEN] Check that no Reminder exists when Total Balance is negative.
         ReminderHeader.SetRange("No.", ReminderNo);

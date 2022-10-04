@@ -10,6 +10,7 @@ codeunit 138030 "O365 Notifications"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
@@ -20,7 +21,6 @@ codeunit 138030 "O365 Notifications"
         isInitialized: Boolean;
         DontShowAgain: Integer;
         LinesMissingQuantityErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
-        NothingToPostErr: Label 'There is nothing to post.';
 
     local procedure Initialize()
     var
@@ -34,8 +34,8 @@ codeunit 138030 "O365 Notifications"
         LibraryApplicationArea.EnableFoundationSetup();
         UserPreference.DeleteAll();
 
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
 
         // Lazy Setup.
         if isInitialized then
@@ -82,12 +82,12 @@ codeunit 138030 "O365 Notifications"
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
         asserterror SalesInvoice.Post.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
         asserterror SalesInvoice.PostAndSend.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // Test posting on List
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
@@ -95,8 +95,8 @@ codeunit 138030 "O365 Notifications"
         SalesInvoiceList.GotoRecord(SalesHeader);
         asserterror SalesInvoiceList.PostAndSend.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesInvoiceList.Close;
-        SalesInvoice.Close;
+        SalesInvoiceList.Close();
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -113,17 +113,17 @@ codeunit 138030 "O365 Notifications"
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
         asserterror SalesQuote.MakeInvoice.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
         asserterror SalesQuote.Print.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
         asserterror SalesQuote.Email.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // Test posting on List
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
@@ -134,24 +134,24 @@ codeunit 138030 "O365 Notifications"
         SalesQuotes.GotoRecord(SalesHeader);
         asserterror SalesQuotes.MakeInvoice.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesQuotes.Close;
-        SalesQuote.Close;
+        SalesQuotes.Close();
+        SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
         SalesQuotes.OpenView;
         SalesQuotes.GotoRecord(SalesHeader);
         asserterror SalesQuotes.Print.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesQuotes.Close;
-        SalesQuote.Close;
+        SalesQuotes.Close();
+        SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
         SalesQuotes.OpenView;
         SalesQuotes.GotoRecord(SalesHeader);
         asserterror SalesQuotes.Email.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesQuotes.Close;
-        SalesQuote.Close;
+        SalesQuotes.Close();
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemos.OpenView;
         ErrorMessagesPage.Trap;
         SalesCreditMemos.Post.Invoke;
-        ErrorMessagesPage.Description.AssertEquals(NothingToPostErr);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemos.OpenView;
         ErrorMessagesPage.Trap;
         SalesCreditMemos.PostAndSend.Invoke;
-        ErrorMessagesPage.Description.AssertEquals(NothingToPostErr);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -204,12 +204,12 @@ codeunit 138030 "O365 Notifications"
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
         asserterror SalesCreditMemo.Post.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
         asserterror SalesCreditMemo.PostAndSend.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // Test posting on List
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
@@ -217,16 +217,16 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemos.GotoRecord(SalesHeader);
         asserterror SalesCreditMemos.Post.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesCreditMemos.Close;
-        SalesCreditMemo.Close;
+        SalesCreditMemos.Close();
+        SalesCreditMemo.Close();
 
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
         SalesCreditMemos.OpenView;
         SalesCreditMemos.GotoRecord(SalesHeader);
         asserterror SalesCreditMemos.PostAndSend.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        SalesCreditMemos.Close;
-        SalesCreditMemo.Close;
+        SalesCreditMemos.Close();
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -243,7 +243,7 @@ codeunit 138030 "O365 Notifications"
         CreatePurchaseInvoiceForPosting(PurchaseInvoice, PurchaseHeader);
         asserterror PurchaseInvoice.Post.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // Test posting on List
         CreatePurchaseInvoiceForPosting(PurchaseInvoice, PurchaseHeader);
@@ -251,7 +251,7 @@ codeunit 138030 "O365 Notifications"
         PurchaseInvoices.GotoRecord(PurchaseHeader);
         asserterror PurchaseInvoices.PostSelected.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        PurchaseInvoices.Close;
+        PurchaseInvoices.Close();
     end;
 
     [Test]
@@ -268,12 +268,12 @@ codeunit 138030 "O365 Notifications"
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
         asserterror PurchaseCreditMemo.Post.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
         asserterror PurchaseCreditMemo.PostAndPrint.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // Test posting on List
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
@@ -281,16 +281,16 @@ codeunit 138030 "O365 Notifications"
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
         asserterror PurchaseCreditMemos.Post.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        PurchaseCreditMemos.Close;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemos.Close();
+        PurchaseCreditMemo.Close();
 
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
         PurchaseCreditMemos.OpenView;
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
         asserterror PurchaseCreditMemos.PostAndPrint.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
-        PurchaseCreditMemos.Close;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemos.Close();
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure CreateSalesInvoiceForPosting(var SalesInvoice: TestPage "Sales Invoice"; var SalesHeader: Record "Sales Header")

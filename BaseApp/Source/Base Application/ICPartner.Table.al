@@ -32,7 +32,7 @@ table 413 "IC Partner"
             begin
                 if "Inbox Type" <> xRec."Inbox Type" then
                     "Inbox Details" := '';
-                if "Inbox Type" = "Inbox Type"::Email then begin
+                if "Inbox Type" = "Inbox Type"::Email then
                     if "Customer No." <> '' then begin
                         if Cust.Get("Customer No.") then
                             "Inbox Details" := Cust."E-Mail";
@@ -40,7 +40,6 @@ table 413 "IC Partner"
                         if "Vendor No." <> '' then
                             if Vend.Get("Vendor No.") then
                                 "Inbox Details" := Vend."E-Mail";
-                end;
             end;
         }
         field(5; "Inbox Details"; Text[250])
@@ -60,7 +59,7 @@ table 413 "IC Partner"
                             Company.SetFilter(Name, '<>%1', CompanyName);
                             Companies.SetTableView(Company);
                             Companies.LookupMode := true;
-                            if Companies.RunModal = ACTION::LookupOK then begin
+                            if Companies.RunModal() = ACTION::LookupOK then begin
                                 Companies.GetRecord(Company);
                                 "Inbox Details" := Company.Name;
                             end;
@@ -105,17 +104,13 @@ table 413 "IC Partner"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
         }
-        field(14; "Outbound Sales Item No. Type"; Option)
+        field(14; "Outbound Sales Item No. Type"; Enum "IC Outb. Sales Item No. Type")
         {
             Caption = 'Outbound Sales Item No. Type';
-            OptionCaption = 'Internal No.,Common Item No.,Cross Reference';
-            OptionMembers = "Internal No.","Common Item No.","Cross Reference";
         }
-        field(15; "Outbound Purch. Item No. Type"; Option)
+        field(15; "Outbound Purch. Item No. Type"; Enum "IC Outb. Purch. Item No. Type")
         {
             Caption = 'Outbound Purch. Item No. Type';
-            OptionCaption = 'Internal No.,Common Item No.,Cross Reference,Vendor Item No.';
-            OptionMembers = "Internal No.","Common Item No.","Cross Reference","Vendor Item No.";
         }
         field(16; "Cost Distribution in LCY"; Boolean)
         {
@@ -165,19 +160,19 @@ table 413 "IC Partner"
 
         if "Customer No." <> '' then
             if Cust.Get("Customer No.") then
-                Error(Text002, Code, Cust.TableCaption, Cust."No.");
+                Error(Text002, Code, Cust.TableCaption(), Cust."No.");
 
         if "Vendor No." <> '' then
             if Vend.Get("Vendor No.") then
-                Error(Text002, Code, Vend.TableCaption, Vend."No.");
+                Error(Text002, Code, Vend.TableCaption(), Vend."No.");
 
         ICInbox.SetRange("IC Partner Code", Code);
         if not ICInbox.IsEmpty() then
-            Error(Text003, Code, ICInbox.TableCaption);
+            Error(Text003, Code, ICInbox.TableCaption());
 
         ICOutbox.SetRange("IC Partner Code", Code);
         if not ICOutbox.IsEmpty() then
-            Error(Text003, Code, ICOutbox.TableCaption);
+            Error(Text003, Code, ICOutbox.TableCaption());
 
         GLEntry.Reset();
         GLEntry.SetCurrentKey("IC Partner Code");
@@ -199,12 +194,13 @@ table 413 "IC Partner"
 
     var
         CommentLine: Record "Comment Line";
+        DimMgt: Codeunit DimensionManagement;
+
         Text000: Label 'You cannot delete IC Partner %1 because it has ledger entries in a fiscal year that has not been closed yet.';
         Text001: Label 'You cannot delete IC Partner %1 because it has ledger entries after %2.';
         Text002: Label 'You cannot delete IC Partner %1 because it is used for %2 %3';
         Text003: Label 'You cannot delete IC Partner %1 because it is used in %2';
         Text004: Label '%1 %2 is linked to a blocked IC Partner.';
-        DimMgt: Codeunit DimensionManagement;
 
     procedure CheckICPartner()
     begin

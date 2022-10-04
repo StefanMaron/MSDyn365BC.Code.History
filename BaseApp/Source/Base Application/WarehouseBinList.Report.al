@@ -15,7 +15,7 @@ report 7319 "Warehouse Bin List"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(BinCaption; TableCaption + ': ' + BinFilter)
@@ -176,7 +176,7 @@ report 7319 "Warehouse Bin List"
 
     trigger OnPreReport()
     begin
-        BinFilter := Bin.GetFilters;
+        BinFilter := Bin.GetFilters();
     end;
 
     var

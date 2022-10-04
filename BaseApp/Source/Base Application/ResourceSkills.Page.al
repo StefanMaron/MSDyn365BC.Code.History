@@ -18,19 +18,19 @@ page 6019 "Resource Skills"
                     ToolTip = 'Specifies the skill type associated with the entry.';
                     Visible = TypeVisible;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = NoVisible;
                 }
-                field("Skill Code"; "Skill Code")
+                field("Skill Code"; Rec."Skill Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code of the skill you want to assign.';
                     Visible = SkillCodeVisible;
                 }
-                field("Assigned From"; "Assigned From")
+                field("Assigned From"; Rec."Assigned From")
                 {
                     ApplicationArea = Jobs;
                     BlankZero = true;
@@ -67,7 +67,7 @@ page 6019 "Resource Skills"
         ResSkillMgt.RemoveResSkill(Rec);
 
         if ResSkill.Count = 1 then
-            ResSkillMgt.DropGlobals;
+            ResSkillMgt.DropGlobals();
     end;
 
     trigger OnInit()

@@ -59,7 +59,7 @@ page 5363 "Match Based Coupling Criteria"
 
             repeater(Group)
             {
-                field("Field No."; "Field No.")
+                field("Field No."; Rec."Field No.")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -74,7 +74,7 @@ page 5363 "Match Based Coupling Criteria"
                     Editable = false;
                     ToolTip = 'Specifies the name of the field in Business Central.';
                 }
-                field("Integration Table Field No."; "Integration Table Field No.")
+                field("Integration Table Field No."; Rec."Integration Table Field No.")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -89,19 +89,19 @@ page 5363 "Match Based Coupling Criteria"
                     Editable = false;
                     ToolTip = 'Specifies the name of the field in Dynamics 365 Sales.';
                 }
-                field("Use For Match-Based Coupling"; "Use For Match-Based Coupling")
+                field("Use For Match-Based Coupling"; Rec."Use For Match-Based Coupling")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Match on this Field';
                     ToolTip = 'Specifies whether to match on this field when looking for the entity to couple to.';
                 }
-                field("Case-Sensitive Matching"; "Case-Sensitive Matching")
+                field("Case-Sensitive Matching"; Rec."Case-Sensitive Matching")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Case-sensitive Matching';
                     ToolTip = 'Specifies whether the matching on this field should be case-sensitive.';
                 }
-                field("Match Priority"; "Match Priority")
+                field("Match Priority"; Rec."Match Priority")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Match Priority';

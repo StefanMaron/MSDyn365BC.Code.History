@@ -16,17 +16,17 @@ page 6073 "Filed Service Contract List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("File Date"; "File Date")
+                field("File Date"; Rec."File Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when service contract or contract quote is filed.';
                 }
-                field("File Time"; "File Time")
+                field("File Time"; Rec."File Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when the service contract or contract quote is filed.';
                 }
-                field("Filed By"; "Filed By")
+                field("Filed By"; Rec."Filed By")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the user who filed the service contract.';
@@ -38,12 +38,12 @@ page 6073 "Filed Service Contract List"
                         UserMgt.DisplayUserInformation("Filed By");
                     end;
                 }
-                field("Contract Type"; "Contract Type")
+                field("Contract Type"; Rec."Contract Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the filed contract or contract quote.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the filed service contract or service contract quote.';
@@ -53,7 +53,7 @@ page 6073 "Filed Service Contract List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the filed service contract or contract quote.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items in the filed service contract or contract quote.';

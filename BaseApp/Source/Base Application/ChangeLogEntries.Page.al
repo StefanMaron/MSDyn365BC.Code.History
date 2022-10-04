@@ -16,18 +16,18 @@ page 595 "Change Log Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
-                field("Date and Time"; "Date and Time")
+                field("Date and Time"; Rec."Date and Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time when this change log entry was created.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -39,14 +39,14 @@ page 595 "Change Log Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Table No."; "Table No.")
+                field("Table No."; Rec."Table No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies the number of the table containing the changed field.';
                     Visible = false;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the table containing the changed field.';
@@ -59,104 +59,104 @@ page 595 "Change Log Entries"
                             MonitorSensitiveFieldData.OpenChangedRecordPage("Table No.", "Field No.", "Changed Record SystemId");
                     end;
                 }
-                field("Primary Key"; "Primary Key")
+                field("Primary Key"; Rec."Primary Key")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the primary key or keys of the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 1 No."; "Primary Key Field 1 No.")
+                field("Primary Key Field 1 No."; Rec."Primary Key Field 1 No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies the field number of the first primary key for the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 1 Caption"; "Primary Key Field 1 Caption")
+                field("Primary Key Field 1 Caption"; Rec."Primary Key Field 1 Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the field name of the first primary key for the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 1 Value"; "Primary Key Field 1 Value")
+                field("Primary Key Field 1 Value"; Rec."Primary Key Field 1 Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the first primary key for the changed field.';
                 }
-                field("Primary Key Field 2 No."; "Primary Key Field 2 No.")
+                field("Primary Key Field 2 No."; Rec."Primary Key Field 2 No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies the field number of the second primary key for the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 2 Caption"; "Primary Key Field 2 Caption")
+                field("Primary Key Field 2 Caption"; Rec."Primary Key Field 2 Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the field name of the second primary key for the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 2 Value"; "Primary Key Field 2 Value")
+                field("Primary Key Field 2 Value"; Rec."Primary Key Field 2 Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the second primary key for the changed field.';
                 }
-                field("Primary Key Field 3 No."; "Primary Key Field 3 No.")
+                field("Primary Key Field 3 No."; Rec."Primary Key Field 3 No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies the field number of the third primary key for the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 3 Caption"; "Primary Key Field 3 Caption")
+                field("Primary Key Field 3 Caption"; Rec."Primary Key Field 3 Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the field name of the third primary key for the changed field.';
                     Visible = false;
                 }
-                field("Primary Key Field 3 Value"; "Primary Key Field 3 Value")
+                field("Primary Key Field 3 Value"; Rec."Primary Key Field 3 Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the third primary key for the changed field.';
                 }
-                field("Field No."; "Field No.")
+                field("Field No."; Rec."Field No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies the field number of the changed field.';
                     Visible = false;
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the field caption of the changed field.';
                 }
-                field("Type of Change"; "Type of Change")
+                field("Type of Change"; Rec."Type of Change")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of change made to the field.';
                 }
-                field("Old Value"; "Old Value")
+                field("Old Value"; Rec."Old Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value that the field had before a user made changes to the field.';
                 }
-                field("Old Value Local"; GetLocalOldValue)
+                field("Old Value Local"; GetLocalOldValue())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Old Value (Local)';
                     ToolTip = 'Specifies the value that the field had before a user made changes to the field.';
                 }
-                field("New Value"; "New Value")
+                field("New Value"; Rec."New Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value that the field had after a user made changes to the field.';
                 }
-                field("New Value Local"; GetLocalNewValue)
+                field("New Value Local"; GetLocalNewValue())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'New Value (Local)';
@@ -188,8 +188,6 @@ page 595 "Change Log Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -202,9 +200,6 @@ page 595 "Change Log Entries"
                 ApplicationArea = All;
                 Caption = 'Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Change Log Setup";
                 ToolTip = 'Enable, disable or setup change logging.';
             }
@@ -219,6 +214,20 @@ page 595 "Change Log Entries"
                 AccessByPermission = tabledata "Retention Policy Setup" = R;
                 RunPageMode = View;
                 Ellipsis = true;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
             }
         }
     }

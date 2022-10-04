@@ -1,4 +1,4 @@
-﻿codeunit 134387 "ERM Sales Documents III"
+codeunit 134387 "ERM Sales Documents III"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -543,7 +543,7 @@
         UpdateGeneralLedgerVATSetup(VATRoundingType);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure StartingDateAsWorkDateOnSalesPrice()
@@ -551,7 +551,7 @@
         // Verify that correct date gets updated on Sales Price window in "Starting Date Filter" field when user enters W.
 
         Initialize();
-        StartingDateOnSalesPrice('W', WorkDate);
+        StartingDateOnSalesPrice('W', WorkDate());
     end;
 
     [Test]
@@ -683,7 +683,7 @@
         CreateSalesDocumentWithGL(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Get next no. from no. series "Return Receipt No. Series"
-        asserterror LibraryUtility.GetNextNoFromNoSeries(SalesHeader."Return Receipt No. Series", WorkDate);
+        asserterror LibraryUtility.GetNextNoFromNoSeries(SalesHeader."Return Receipt No. Series", WorkDate());
 
         // [THEN] The error "The No. Series does not exist." is thrown
         Assert.ExpectedError(GetRetRcptErr);
@@ -1629,7 +1629,7 @@
     begin
         // [FEATURE] [UT] [Shipment]
         // [SCENARIO] TAB111 "Sales Shipment Line".InitFromSalesLine() correctly inits SalesShipmentLine from SalesLine
-        SalesShipmentHeader.Init;
+        SalesShipmentHeader.Init();
         SalesShipmentHeader."Posting Date" := LibraryRandom.RandDate(100);
         SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
 
@@ -1664,7 +1664,7 @@
     begin
         // [FEATURE] [UT] [Invoice]
         // [SCENARIO] TAB113 "Sales Invoice Line".InitFromSalesLine() correctly inits SalesInvoiceLine from SalesLine
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader."Posting Date" := LibraryRandom.RandDate(100);
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
 
@@ -1692,7 +1692,7 @@
     begin
         // [FEATURE] [UT] [Credit Memo]
         // [SCENARIO] TAB115 "Sales Cr.Memo Line".InitFromSalesLine() correctly inits SalesCrMemoLine from SalesLine
-        SalesCrMemoHeader.Init;
+        SalesCrMemoHeader.Init();
         SalesCrMemoHeader."Posting Date" := LibraryRandom.RandDate(100);
         SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID();
 
@@ -1720,7 +1720,7 @@
     begin
         // [FEATURE] [UT] [Return Receipt]
         // [SCENARIO] TAB6661 "Return Receipt Line".InitFromSalesLine() correctly inits ReturnReceiptLine from SalesLine
-        ReturnReceiptHeader.Init;
+        ReturnReceiptHeader.Init();
         ReturnReceiptHeader."Posting Date" := LibraryRandom.RandDate(100);
         ReturnReceiptHeader."No." := LibraryUtility.GenerateGUID();
 
@@ -1773,7 +1773,7 @@
         // [THEN] Line2: Type = "", "No." = "", Description = "ET2"
         VerifySalesLineCount(SalesHeader, 2);
         VerifySalesLineDescription(SalesLine, SalesLine.Type::" ", StandardText.Code, StandardText.Description);
-        SalesLine.Next;
+        SalesLine.Next();
         VerifySalesLineDescription(SalesLine, SalesLine.Type::" ", '', ExtendedText);
     end;
 
@@ -1862,7 +1862,7 @@
         VATPostingSetup.Delete(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('GetSalesPricePageHandler')]
     [Scope('OnPrem')]
@@ -1906,7 +1906,7 @@
         SalesOrder.Control1906127307.SalesPrices.DrillDown;
 
         // [THEN] Price in the sales order line is successfully updated
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Unit Price", SalesPrice."Unit Price");
     end;
 
@@ -1954,7 +1954,7 @@
         SalesOrder.Control1906127307.SalesPrices.DrillDown;
 
         // [THEN] Price in the sales order line is successfully updated
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Unit Price", SalesPrice."Unit Price");
     end;
 
@@ -2101,7 +2101,7 @@
 
         // [GIVEN] Next number from no. series "Return Receipt No. Series" is "X"
         ExpectedReturnReceiptNo :=
-          LibraryUtility.GetNextNoFromNoSeries(SalesHeader."Return Receipt No. Series", WorkDate);
+          LibraryUtility.GetNextNoFromNoSeries(SalesHeader."Return Receipt No. Series", WorkDate());
 
         // [WHEN] Post Sales Return Order as "Receive"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -2425,7 +2425,7 @@
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Shipment Date".SetValue := WorkDate + 1;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -2456,7 +2456,7 @@
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Shipping Agent Code".SetValue := ShippingAgent.Code;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -2475,7 +2475,7 @@
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
         Assert.IsTrue(SalesQuote."Ship-to Contact".Editable, ShipToContactMustBeEditableErr);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -2495,7 +2495,7 @@
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         Assert.IsTrue(SalesOrder."Ship-to Contact".Editable, ShipToContactMustBeEditableErr);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -2515,7 +2515,7 @@
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
         Assert.IsTrue(SalesInvoice."Ship-to Contact".Editable, ShipToContactMustBeEditableErr);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -2535,7 +2535,7 @@
         BlanketSalesOrder.OpenEdit;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         Assert.IsTrue(BlanketSalesOrder."Ship-to Contact".Editable, ShipToContactMustBeEditableErr);
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     [Test]
@@ -2587,11 +2587,11 @@
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
           SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
 
-        SalesHeader."Shipment Date" := LibraryRandom.RandDateFrom(WorkDate, 100);
+        SalesHeader."Shipment Date" := LibraryRandom.RandDateFrom(WorkDate(), 100);
         SalesHeader.Modify(true);
         SalesHeader.UpdateSalesLinesByFieldNo(SalesHeader.FieldNo("Shipment Date"), false);
 
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Shipment Date", SalesHeader."Shipment Date");
     end;
 
@@ -2610,11 +2610,11 @@
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
           SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
 
-        SalesHeader."Shipment Date" := LibraryRandom.RandDateFrom(WorkDate, 100);
+        SalesHeader."Shipment Date" := LibraryRandom.RandDateFrom(WorkDate(), 100);
         SalesHeader.Modify(true);
         SalesHeader.UpdateSalesLines(SalesHeader.FieldCaption("Shipment Date"), false);
 
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Shipment Date", SalesHeader."Shipment Date");
     end;
 
@@ -2646,7 +2646,7 @@
         SalesOrder.GotoRecord(SalesHeader);
 
         // [THEN] The "SO"."Invoice Discount Value" = 0 (remains unchanged)
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(SalesHeaderOld."Invoice Discount Value", SalesHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -2678,7 +2678,7 @@
         SalesInvoice.GotoRecord(SalesHeader);
 
         // [THEN] The "SI"."Invoice Discount Value" = 0 (remains unchanged)
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(SalesHeaderOld."Invoice Discount Value", SalesHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -2710,7 +2710,7 @@
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] The "SQ"."Invoice Discount Value" = 0 (remains unchanged)
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(SalesHeaderOld."Invoice Discount Value", SalesHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -2742,7 +2742,7 @@
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [THEN] The "CrM"."Invoice Discount Value" = 0 (remains unchanged)
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(SalesHeaderOld."Invoice Discount Value", SalesHeader."Invoice Discount Value", InvoiceDiscountChangedErr);
     end;
 
@@ -2935,7 +2935,7 @@
         VerifyTransactionTypeWhenInsertSalesDocument(SalesHeader."Document Type"::Order);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -3047,7 +3047,7 @@
         Assert.IsTrue(SalesInvoice."Quote No.".Visible, QuoteNoMustBeVisibleErr);
 
         // [WHEN] Press Next to go to "SI2"
-        SalesInvoice.Next;
+        SalesInvoice.Next();
 
         // [THEN] "Quote No." is not visible
         Assert.IsFalse(SalesInvoice."Quote No.".Visible, QuoteNoMustNotBeVisibleErr);
@@ -3105,7 +3105,7 @@
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.Post.Invoke;
 
-        asserterror SalesHeader.Find;
+        asserterror SalesHeader.Find();
     end;
 
     [Test]
@@ -3127,7 +3127,7 @@
         SalesInvoiceList.GotoRecord(SalesHeader);
         SalesInvoiceList.Post.Invoke;
 
-        asserterror SalesHeader.Find;
+        asserterror SalesHeader.Find();
     end;
 
     [Test]
@@ -3158,7 +3158,7 @@
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.Print.Invoke;
 
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         Assert.AreEqual(REPORT::"Standard Sales - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
         LibraryVariableStorage.AssertEmpty;
@@ -3192,7 +3192,7 @@
         SalesQuotes.GotoRecord(SalesHeader);
         SalesQuotes.Print.Invoke;
 
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         Assert.AreEqual(REPORT::"Standard Sales - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
         LibraryVariableStorage.AssertEmpty;
@@ -3221,7 +3221,7 @@
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.Post.Invoke;
 
-        SalesHeader.Find;
+        SalesHeader.Find();
     end;
 
     [Test]
@@ -3246,7 +3246,7 @@
         SalesOrderList.GotoRecord(SalesHeader);
         SalesOrderList.Post.Invoke;
 
-        SalesHeader.Find;
+        SalesHeader.Find();
     end;
 
     [Test]
@@ -3268,7 +3268,7 @@
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.Post.Invoke;
 
-        asserterror SalesHeader.Find;
+        asserterror SalesHeader.Find();
     end;
 
     [Test]
@@ -3290,7 +3290,7 @@
         SalesCreditMemos.GotoRecord(SalesHeader);
         SalesCreditMemos.Post.Invoke;
 
-        asserterror SalesHeader.Find;
+        asserterror SalesHeader.Find();
     end;
 
     [Test]
@@ -3485,7 +3485,7 @@
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -3558,7 +3558,7 @@
 
         // [GIVEN] Create zero sales price for the item - customer combination
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.", WorkDate, '', '', '', 0, 0);
+          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.", WorkDate(), '', '', '', 0, 0);
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // [GIVEN] Create sales order for the customer
@@ -3697,7 +3697,7 @@
         LibraryVariableStorage.Enqueue(3); // Select Ship and Invocie in menu
         LibraryVariableStorage.Enqueue(ConfirmSendPostedShipmentQst);
         LibraryVariableStorage.Enqueue(false); // do not download report
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.PostAndSend.Invoke;
@@ -3735,7 +3735,7 @@
         CreateSalesDocumentWithGL(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [WHEN] Push "Post and Send" on sales invoice card page
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.PostAndSend.Invoke;
@@ -3773,7 +3773,7 @@
         SalesHeader.Modify();
 
         // [WHEN] Push "Post and Send" on sales invoice card page
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.PostAndSend.Invoke;
@@ -3865,7 +3865,7 @@
         SalesHeader.Modify();
 
         // [WHEN] Push "Post and Send" on sales invoice card page
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
 
@@ -4068,7 +4068,7 @@
         Initialize();
 
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesHeader.Validate("Currency Code", Currency.Code);
@@ -4330,11 +4330,11 @@
         SalesHeader.Modify(true);
 
         // [THEN] Customer's "Tax Area Code" is not modified
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Tax Area Code", '');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -5494,7 +5494,7 @@
         VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -5518,7 +5518,7 @@
 
         // [GIVEN] Sales Price for Item "I1" = 100 for WorkDate
         LibrarySales.CreateSalesPrice(
-          SalesPrice, SalesLine."No.", "Sales Price Type"::"All Customers", '', WorkDate, '', '', '', 0, InitialUnitPrice + 5);
+          SalesPrice, SalesLine."No.", "Sales Price Type"::"All Customers", '', WorkDate(), '', '', '', 0, InitialUnitPrice + 5);
         SalesLine.Reset();
 
         // [GIVEN] Create Credit Memo
@@ -5686,7 +5686,7 @@
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        if not IntrastatSetup.Get then begin
+        if not IntrastatSetup.Get() then begin
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
         end;
@@ -5874,7 +5874,7 @@
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; ItemNo: Code[20]; CustomerNo: Code[20]; MinQty: Decimal; DiscountPct: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -5931,7 +5931,7 @@
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
             SalesLine.Modify(true);
         end;
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
     end;
 
     local procedure CreatePostSalesDocWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Invoice: Boolean): Code[20]
@@ -5957,7 +5957,7 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, PostInvoice);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesPriceForItemAndAllCustomers(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -5965,7 +5965,7 @@
     begin
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
+          SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '', WorkDate(), '', '', '', 0, LibraryRandom.RandDec(100, 2));
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
 #endif
@@ -6112,7 +6112,7 @@
         CreateSalesLineAndItem(SalesLine, SalesHeader);
         SalesLine.Validate(Quantity, 0);
         SalesLine.Modify(true);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
     end;
 
     local procedure CreateSalesOrderWithItemAndChargeItem(var SalesHeaderOrder: Record "Sales Header"; var SalesLineItem: Record "Sales Line"; var SalesLineChargeItem: Record "Sales Line"; QtyToAssign: Decimal)
@@ -6190,17 +6190,17 @@
             "Document Type" := "Document Type"::Invoice;
             "Document No." := DocumentNo;
             "Line No." := 10000; // Value is important for test
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockSalesOrder(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -6210,14 +6210,14 @@
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure InitSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := DocumentType;
             "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryRandom.RandIntInRange(1000, 2000);
@@ -6316,16 +6316,16 @@
             SetRange("Document No.", SalesHeader."No.");
             FindLast();
             Validate(Quantity, -Quantity);
-            Modify;
+            Modify();
             "Line No." += 10000;
             Validate(Quantity, -Quantity * 2);
             if ZeroQtyToShip then begin
-                Insert;
+                Insert();
                 "Line No." += 10000;
                 Validate("Qty. to Ship", 0);
             end else
                 Validate("Qty. to Ship", Quantity / 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -6347,7 +6347,7 @@
             Validate(Quantity, NewQuantity);
             Validate("Unit Price", NewUnitPrice);
             Validate("Line Discount Amount", NewLineDiscountAmt);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -6477,7 +6477,7 @@
         exit(CustomerNo);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure OpenSalesPricesPage(SalesPrices: TestPage "Sales Prices"; CustomerNo: Code[20]; StartingDateFilter: Text[30])
     var
         CustomerList: TestPage "Customer List";
@@ -6582,7 +6582,7 @@
         FindGLEntry(GLEntry, GLAccountNo, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForPostedInvoice(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
@@ -6598,10 +6598,10 @@
         GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           Amount, TotalGLAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyReturnReceipt(DocumentNo: Code[20]; ReturnOrderNo: Code[20]; ReturnOrderNoSeries: Code[20]; ReturnReasonCode: Code[10])
@@ -6723,8 +6723,8 @@
             SalesLineInvoice.TestField("No.", SalesLineOrder."No.");
             SalesLineInvoice.TestField("Inv. Discount Amount", SalesLineOrder."Inv. Discount Amount");
             SalesLineInvoice.TestField(Amount, SalesLineOrder.Amount);
-            SalesLineInvoice.Next;
-            SalesLineOrder.Next;
+            SalesLineInvoice.Next();
+            SalesLineOrder.Next();
         end;
     end;
 
@@ -7051,7 +7051,7 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15

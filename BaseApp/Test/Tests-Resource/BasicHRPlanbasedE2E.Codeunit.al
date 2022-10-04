@@ -13,7 +13,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
-        MissingPermissionsErr: Label 'You do not have the following permissions on TableData';
+        MissingPermissionsErr: Label 'Sorry, the current permissions prevented the action. (TableData';
 
     local procedure Initialize()
     var

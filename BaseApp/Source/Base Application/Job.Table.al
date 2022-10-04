@@ -1,4 +1,4 @@
-﻿table 167 Job
+table 167 Job
 {
     Caption = 'Job';
     DataCaptionFields = "No.", Description;
@@ -65,7 +65,7 @@
 
             trigger OnValidate()
             begin
-                CheckDate;
+                CheckDate();
             end;
         }
         field(14; "Ending Date"; Date)
@@ -74,7 +74,7 @@
 
             trigger OnValidate()
             begin
-                CheckDate;
+                CheckDate();
             end;
         }
         field(19; Status; Enum "Job Status")
@@ -105,7 +105,7 @@
                         end
                         else
                             Status := xRec.Status;
-                    Modify;
+                    Modify();
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
                     if JobPlanningLine.FindSet() then begin
@@ -278,10 +278,15 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code",
-                  (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
+                IsHandled := false;
+                OnBeforeValidateBillToCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code",
+                        (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
             end;
         }
         field(63; "Bill-to County"; Text[30])
@@ -307,10 +312,15 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code",
-                  (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
+                IsHandled := false;
+                OnBeforeValidateBillToPostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code",
+                        (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
             end;
         }
         field(66; "No. Series"; Code[20])
@@ -368,7 +378,7 @@
                 JobTask.SetRange("Job No.", "No.");
                 JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
                 if JobTask.FindFirst() then
-                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption, JobTask."WIP-Total") then begin
+                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption(), JobTask."WIP-Total") then begin
                         JobTask.ModifyAll("WIP Method", "WIP Method", true);
                         // An additional FIND call requires since JobTask.MODIFYALL changes the Job's information
                         NewWIPMethod := "WIP Method";
@@ -385,9 +395,9 @@
             trigger OnValidate()
             begin
                 if "Currency Code" <> xRec."Currency Code" then
-                    if not JobLedgEntryExist then begin
-                        CurrencyUpdatePlanningLines;
-                        CurrencyUpdatePurchLines;
+                    if not JobLedgEntryExist() then begin
+                        CurrencyUpdatePlanningLines();
+                        CurrencyUpdatePurchLines();
                     end else
                         Error(AssociatedEntriesExistErr, FieldCaption("Currency Code"), TableCaption);
                 if "Currency Code" <> '' then
@@ -417,7 +427,7 @@
                    (xRec."Bill-to Contact No." <> '')
                 then
                     if ("Bill-to Contact No." = '') and ("Bill-to Customer No." = '') then begin
-                        Init;
+                        Init();
                         "No. Series" := xRec."No. Series";
                         Validate(Description, xRec.Description);
                     end;
@@ -514,7 +524,7 @@
             trigger OnValidate()
             begin
                 if Complete <> xRec.Complete then
-                    ChangeJobCompletionStatus;
+                    ChangeJobCompletionStatus();
             end;
         }
         field(1017; "Recog. Sales Amount"; Decimal)
@@ -618,7 +628,7 @@
                         repeat
                             JobPlanningLine.Validate("Usage Link", true);
                             if JobPlanningLine."Planning Date" = 0D then
-                                JobPlanningLine.Validate("Planning Date", WorkDate);
+                                JobPlanningLine.Validate("Planning Date", WorkDate());
                             JobPlanningLine.Modify(true);
                         until JobPlanningLine.Next() = 0;
                 end;
@@ -785,10 +795,15 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code",
-                  (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
+                IsHandled := false;
+                OnBeforeValidateSellToCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code",
+                        (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
             end;
         }
         field(2006; "Sell-to Contact"; Text[100])
@@ -889,10 +904,15 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code",
-                  (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
+                IsHandled := false;
+                OnBeforeValidateShipToCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code",
+                        (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
             end;
         }
         field(3006; "Ship-to Contact"; Text[100])
@@ -1071,14 +1091,13 @@
 
     trigger OnRename()
     begin
-        UpdateJobNoInReservationEntries;
+        UpdateJobNoInReservationEntries();
         DimMgt.RenameDefaultDim(DATABASE::Job, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Job, xRec."No.", "No.");
         "Last Date Modified" := Today;
     end;
 
     var
-        AssociatedEntriesExistErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = Name of field used in the error; %2 = The name of the Job table';
         JobsSetup: Record "Jobs Setup";
         PostCode: Record "Post Code";
         Job: Record Job;
@@ -1088,14 +1107,16 @@
         CommentLine: Record "Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
+        MoveEntries: Codeunit MoveEntries;
         HideValidationDialog: Boolean;
+
+        AssociatedEntriesExistErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = Name of field used in the error; %2 = The name of the Job table';
         StatusChangeQst: Label 'This will delete any unposted WIP entries for this job and allow you to reverse the completion postings for this job.\\Do you wish to continue?';
         ContactBusRelDiffCompErr: Label 'Contact %1 %2 is related to a different company than customer %3.', Comment = '%1 = The contact number; %2 = The contact''s name; %3 = The Bill-To Customer Number associated with this job';
         ContactBusRelErr: Label 'Contact %1 %2 is not related to customer %3.', Comment = '%1 = The contact number; %2 = The contact''s name; %3 = The Bill-To Customer Number associated with this job';
         ContactBusRelMissingErr: Label 'Contact %1 %2 is not related to a customer.', Comment = '%1 = The contact number; %2 = The contact''s name';
         TestBlockedErr: Label '%1 %2 must not be blocked with type %3.', Comment = '%1 = The Job table name; %2 = The Job number; %3 = The value of the Blocked field';
         ReverseCompletionEntriesMsg: Label 'You must run the %1 function to reverse the completion entries that have already been posted for this job.', Comment = '%1 = The name of the Job Post WIP to G/L report';
-        MoveEntries: Codeunit MoveEntries;
         OnlineMapMsg: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         CheckDateErr: Label '%1 must be equal to or earlier than %2.', Comment = '%1 = The job''s starting date; %2 = The job''s ending date';
 #if not CLEAN20
@@ -1117,7 +1138,7 @@
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         SellToCustomerTxt: Label 'Sell-to Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
-        StatusCompletedErr: Label 'You cannot select the Job %1, its status set to %2.', Comment = '%1= The Job no. field; %2 = Status of that job.';
+        StatusCompletedErr: Label 'You cannot select Job No.: %1 as it is already completed.', Comment = '%1= The Job No.';
 
     procedure AssistEdit(OldJob: Record Job) Result: Boolean
     var
@@ -1254,7 +1275,7 @@
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Job, "No.", FieldNumber, ShortcutDimCode);
             UpdateJobTaskDimension(FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -1267,7 +1288,7 @@
         OnAfterUpdateBillToContact(Rec, xRec);
     end;
 
-    local procedure UpdateSellToContact(CustomerNo: Code[20])
+    protected procedure UpdateSellToContact(CustomerNo: Code[20])
     begin
         GetCustomerContact(CustomerNo, Rec."Sell-to Contact No.", Rec."Sell-to Contact");
     end;
@@ -1392,7 +1413,7 @@
                   BlockedCustErr,
                   FieldCaption("Bill-to Customer No."),
                   "Bill-to Customer No.",
-                  Cust.TableCaption,
+                  Cust.TableCaption(),
                   FieldCaption(Blocked),
                   Cust.Blocked);
             "Bill-to Name" := Cust.Name;
@@ -1467,7 +1488,7 @@
 
         if Blocked = Blocked::" " then
             exit;
-        Error(TestBlockedErr, TableCaption, "No.", Blocked);
+        Error(TestBlockedErr, TableCaption(), "No.", Blocked);
     end;
 
     procedure CurrencyUpdatePlanningLines()
@@ -1498,14 +1519,14 @@
 
         if not (Status = Status::Completed) then
             exit;
-        Error(StatusCompletedErr, "No.", Status);
+        Error(StatusCompletedErr, "No.");
     end;
 
     local procedure CurrencyUpdatePurchLines()
     var
         PurchLine: Record "Purchase Line";
     begin
-        Modify;
+        Modify();
         PurchLine.SetRange("Job No.", "No.");
         if PurchLine.FindSet() then
             repeat
@@ -1527,7 +1548,7 @@
             exit;
 
         if Complete then begin
-            Validate("Ending Date", CalcEndingDate);
+            Validate("Ending Date", CalcEndingDate());
             Message(EndingDateChangedMsg, FieldCaption("Ending Date"), "Ending Date");
 
             WhseRequest.DeleteRequest(Database::Job, 0, "No.");
@@ -1566,7 +1587,7 @@
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Job, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Job, GetPosition())
         else
             Message(OnlineMapMsg);
     end;
@@ -1623,7 +1644,7 @@
     procedure CalcRecognizedProfitPercentage(): Decimal
     begin
         if "Calc. Recog. Sales Amount" <> 0 then
-            exit((CalcRecognizedProfitAmount / "Calc. Recog. Sales Amount") * 100);
+            exit((CalcRecognizedProfitAmount() / "Calc. Recog. Sales Amount") * 100);
         exit(0);
     end;
 
@@ -1635,7 +1656,7 @@
     procedure CalcRecognProfitGLPercentage(): Decimal
     begin
         if "Calc. Recog. Sales G/L Amount" <> 0 then
-            exit((CalcRecognizedProfitGLAmount / "Calc. Recog. Sales G/L Amount") * 100);
+            exit((CalcRecognizedProfitGLAmount() / "Calc. Recog. Sales G/L Amount") * 100);
         exit(0);
     end;
 
@@ -1685,7 +1706,7 @@
             exit(Result);
 
         JobCalcStatistics.JobCalculateCommonFilters(Rec);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         if CL[4] <> 0 then
             exit((CL[8] / CL[4]) * 100);
@@ -1704,7 +1725,7 @@
             exit(Result);
 
         JobCalcStatistics.JobCalculateCommonFilters(Rec);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         if PL[12] <> 0 then
             exit((PL[16] / PL[12]) * 100);
@@ -1727,7 +1748,7 @@
         QtyTotal := JobPlanningLine.Count();
         if QtyTotal = 0 then
             exit(0);
-        JobPlanningLine.SetFilter("Planning Date", '<%1', WorkDate);
+        JobPlanningLine.SetFilter("Planning Date", '<%1', WorkDate());
         JobPlanningLine.SetFilter("Remaining Qty.", '>%1', 0);
         QtyOverdue := JobPlanningLine.Count();
         exit((QtyOverdue / QtyTotal) * 100);
@@ -1851,7 +1872,7 @@
         NewOverBudget := UsageCost > ScheduleCost;
         if NewOverBudget <> "Over Budget" then begin
             "Over Budget" := NewOverBudget;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2005,7 +2026,7 @@
         if Job."WIP Method" = '' then
             exit;
 
-        Job.SetRecFilter;
+        Job.SetRecFilter();
         WIPQst := StrSubstNo(RunWIPFunctionsQst, GetReportCaption(REPORT::"Job Calculate WIP"));
         Confirmed := Confirm(WIPQst);
         Commit();
@@ -2025,7 +2046,7 @@
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         if "Ending Date" = 0D then
-            EndingDate := WorkDate
+            EndingDate := WorkDate()
         else
             EndingDate := "Ending Date";
 
@@ -2048,7 +2069,7 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
         TimeSheetLine.SetCurrentKey(Type, "Job No.");
@@ -2100,6 +2121,13 @@
         if Page.RunModal(0, Cont) = Action::LookupOK then
             exit(Cont."No.");
         exit('');
+    end;
+
+    procedure CalcJobTaskLinesEditable() IsEditable: Boolean;
+    begin
+        IsEditable := "Bill-to Customer No." <> '';
+
+        OnAfterCalcJobTaskLinesEditable(Rec, IsEditable);
     end;
 
     procedure ShipToAddressEqualsSellToAddress(): Boolean
@@ -2163,7 +2191,7 @@
         exit(HideValidationDialog);
     end;
 
-    local procedure SellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
+    procedure SellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
     var
         SellToCustomer: Record Customer;
         IsHandled: Boolean;
@@ -2185,9 +2213,7 @@
                 SellToCustomer.CheckBlockedCustOnDocs(SellToCustomer, "Sales Document Type"::Order, false, false);
         end;
 
-        if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
-            if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
-                ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Sell-to Customer No."), Job.FieldCaption("Sell-to Customer No."));
+        CheckSellToCustomerAssosEntriesExist(Job, xJob);
 
         if (xJob."Sell-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
             if not Confirm(ConfirmChangeQst, false, SellToCustomerTxt) then begin
@@ -2241,6 +2267,18 @@
         OnAfterSellToCustomerNoUpdated(Job, xJob, SellToCustomer);
     end;
 
+    local procedure CheckSellToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSellToCustomerAssosEntriesExist(Job, xJob, IsHandled);
+        if not IsHandled then
+            if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
+                if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
+                    ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Sell-to Customer No."), Job.FieldCaption("Sell-to Customer No."));
+    end;
+
     local procedure BillToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
     var
         BillToCustomer: Record Customer;
@@ -2251,9 +2289,7 @@
         If IsHandled then
             exit;
 
-        if (Job."Bill-to Customer No." = '') or (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
-            if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
-                ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Bill-to Customer No."), Job.FieldCaption("Bill-to Customer No."));
+        CheckBillToCustomerAssosEntriesExist(Job, xJob);
 
         if (xJob."Bill-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
             if not Confirm(ConfirmChangeQst, false, BillToCustomerTxt) then begin
@@ -2317,6 +2353,18 @@
         OnAfterBillToCustomerNoUpdated(Job, xJob, BillToCustomer);
     end;
 
+    local procedure CheckBillToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBillToCustomerAssosEntriesExist(Job, xJob, IsHandled);
+        if not IsHandled then
+            if (Job."Bill-to Customer No." = '') or (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
+                if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
+                    ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Bill-to Customer No."), Job.FieldCaption("Bill-to Customer No."));
+    end;
+
     local procedure ThrowAssociatedEntriesExistError(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; FieldCaption: Text)
     var
         IsHanled: Boolean;
@@ -2370,6 +2418,7 @@
     procedure CreateWarehousePick()
     var
         JobPlanningLine: Record "Job Planning Line";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TestField(Status, Status::Open);
         CalcFields("Completely Picked");
@@ -2380,9 +2429,15 @@
         JobPlanningLine.SetFilter("Line Type", '<>%1', JobPlanningLine."Line Type"::Billable);
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
         JobPlanningLine.SetFilter("Quantity", '>0');
+        JobPlanningLine.SetLoadFields(JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.");
 
-        if not JobPlanningLine.IsEmpty() then
+        if JobPlanningLine.FindSet() then begin
+            repeat
+                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine("Warehouse Worksheet Document Type"::Job, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", DATABASE::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.");
+            until JobPlanningLine.Next() = 0;
+            Commit();
             RunCreatePickFromWhseSource()
+        end
         else
             Error(WhseNoItemsToPickErr);
     end;
@@ -2410,7 +2465,12 @@
     local procedure OnAfterCalcRecognizedProfitAmount(var Result: Decimal)
     begin
     end;
-    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcJobTaskLinesEditable(var Job: Record Job; var IsEditable: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBillToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
@@ -2598,12 +2658,43 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Job: Record Job; var Cust: Record Customer; var IsHandled: Boolean)
+    local procedure OnBeforeValidateBillToCity(var Job: Record Job; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToPostCode(var Job: Record Job; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSellToCity(var Job: Record Job; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCity(var Job: Record Job; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSellToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBillToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusCompleted(var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Job: Record Job; var Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
 }
+

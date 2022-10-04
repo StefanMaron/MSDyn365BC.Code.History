@@ -6,14 +6,9 @@ table 6308 "Power BI Ongoing Deployments"
     Caption = 'Power BI Ongoing Deployments';
     DataPerCompany = false;
     ReplicateData = false;
-
-#if not CLEAN18
-    ObsoleteState = Pending;
-#else
-    ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Functionality has been moved to table 6325 "Power BI User Status" (notice: the new table is per company)';
-    ObsoleteTag = '18.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
 
     fields
     {

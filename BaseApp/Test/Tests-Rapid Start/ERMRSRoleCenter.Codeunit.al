@@ -285,7 +285,7 @@ codeunit 136605 "ERM RS Role Center"
 
     local procedure GetRapidStartCue(var RapidStartServicesCue: Record "RapidStart Services Cue")
     begin
-        if not RapidStartServicesCue.Get then begin
+        if not RapidStartServicesCue.Get() then begin
             RapidStartServicesCue.Init();
             RapidStartServicesCue.Insert();
         end;

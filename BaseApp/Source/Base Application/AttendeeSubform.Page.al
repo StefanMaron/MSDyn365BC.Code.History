@@ -16,48 +16,48 @@ page 5197 "Attendee Subform"
                 IndentationColumn = AttendanceTypeIndent;
                 IndentationControls = "Attendance Type";
                 ShowCaption = false;
-                field("Attendance Type"; "Attendance Type")
+                field("Attendance Type"; Rec."Attendance Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the type of attendance for the meeting. You can select from: Required, Optional and Task Organizer.';
                 }
-                field("Attendee Type"; "Attendee Type")
+                field("Attendee Type"; Rec."Attendee Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the type of the attendee. You can choose from Contact or Salesperson.';
                 }
-                field("Attendee No."; "Attendee No.")
+                field("Attendee No."; Rec."Attendee No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the number of the attendee participating in the task.';
                 }
-                field("Attendee Name"; "Attendee Name")
+                field("Attendee Name"; Rec."Attendee Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the name of the attendee participating in the task.';
                 }
-                field("Send Invitation"; "Send Invitation")
+                field("Send Invitation"; Rec."Send Invitation")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = SendInvitationEditable;
                     ToolTip = 'Specifies that you want to send an invitation to the attendee by e-mail. The Send Invitation option is only available for contacts and salespeople with an e-mail address. The Send Invitation option is not available for the meeting organizer.';
                 }
-                field("Invitation Response Type"; "Invitation Response Type")
+                field("Invitation Response Type"; Rec."Invitation Response Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the type of the attendee''s response to a meeting invitation.';
                 }
-                field("Invitation Sent"; "Invitation Sent")
+                field("Invitation Sent"; Rec."Invitation Sent")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the meeting invitation has been sent to the attendee. The Send Invitation option is not available for the meeting organizer.';
@@ -83,7 +83,7 @@ page 5197 "Attendee Subform"
 
                     trigger OnAction()
                     begin
-                        MakePhoneCall;
+                        MakePhoneCall();
                     end;
                 }
             }
@@ -101,7 +101,7 @@ page 5197 "Attendee Subform"
 
                     trigger OnAction()
                     begin
-                        ShowCard;
+                        ShowCard();
                     end;
                 }
             }
@@ -163,7 +163,7 @@ page 5197 "Attendee Subform"
             TempSegmentLine."Contact No." := Cont."No.";
             TempSegmentLine."Contact Company No." := Cont."Company No.";
             TempSegmentLine."Campaign No." := Task."Campaign No.";
-            TempSegmentLine.CreatePhoneCall;
+            TempSegmentLine.CreatePhoneCall();
         end;
     end;
 

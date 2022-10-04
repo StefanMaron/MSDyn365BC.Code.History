@@ -17,19 +17,19 @@ page 1807 "Data Migration Settings"
             group(General)
             {
                 Caption = 'Select default templates for data migration';
-                field("Default Customer Template"; "Default Customer Template")
+                field("Default Customer Template"; Rec."Default Customer Template")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "Config Templates";
                     ToolTip = 'Specifies the template to use by default when migrating data for customers. The template defines the data structure and ensures customers are created accurately.';
                 }
-                field("Default Vendor Template"; "Default Vendor Template")
+                field("Default Vendor Template"; Rec."Default Vendor Template")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "Config Templates";
                     ToolTip = 'Specifies the template to use by default when migrating data for vendors. The template defines the data structure and ensures vendors are created accurately.';
                 }
-                field("Default Item Template"; "Default Item Template")
+                field("Default Item Template"; Rec."Default Item Template")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "Config Templates";
@@ -45,10 +45,10 @@ page 1807 "Data Migration Settings"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

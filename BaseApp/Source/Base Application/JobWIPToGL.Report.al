@@ -16,7 +16,7 @@ report 1010 "Job WIP To G/L"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Job_TABLECAPTION__________JobFilter; TableCaption + ': ' + JobFilter)
@@ -55,7 +55,7 @@ report 1010 "Job WIP To G/L"
 
             trigger OnAfterGetRecord()
             begin
-                JobBuffer2.InsertWorkInProgress(Job);
+                TempJobBuffer2.InsertWorkInProgress(Job);
             end;
         }
         dataitem("Integer"; "Integer")
@@ -64,10 +64,10 @@ report 1010 "Job WIP To G/L"
             column(GLAcc__No__; GLAcc."No.")
             {
             }
-            column(JobBuffer__Amount_1_; JobBuffer."Amount 1")
+            column(JobBuffer__Amount_1_; TempJobBuffer."Amount 1")
             {
             }
-            column(JobBuffer__Account_No__2_; JobBuffer."Account No. 2")
+            column(JobBuffer__Account_No__2_; TempJobBuffer."Account No. 2")
             {
             }
             column(GLAcc_Name; GLAcc.Name)
@@ -79,19 +79,19 @@ report 1010 "Job WIP To G/L"
             column(WIPText1; WIPText1)
             {
             }
-            column(JobBuffer__Amount_2_; JobBuffer."Amount 2")
+            column(JobBuffer__Amount_2_; TempJobBuffer."Amount 2")
             {
             }
             column(WIPText2; WIPText2)
             {
             }
-            column(JobBuffer__Amount_4_; JobBuffer."Amount 4")
+            column(JobBuffer__Amount_4_; TempJobBuffer."Amount 4")
             {
             }
             column(WIPText3; WIPText3)
             {
             }
-            column(JobBuffer__Amount_5_; JobBuffer."Amount 5")
+            column(JobBuffer__Amount_5_; TempJobBuffer."Amount 5")
             {
             }
             column(WIPText4; WIPText4)
@@ -100,13 +100,13 @@ report 1010 "Job WIP To G/L"
             column(GLAccJobTotal; GLAccJobTotal)
             {
             }
-            column(JobBuffer__Amount_3_; JobBuffer."Amount 3")
+            column(JobBuffer__Amount_3_; TempJobBuffer."Amount 3")
             {
             }
-            column(GLAccJobTotal___JobBuffer__Amount_3_; GLAccJobTotal - JobBuffer."Amount 3")
+            column(GLAccJobTotal___JobBuffer__Amount_3_; GLAccJobTotal - TempJobBuffer."Amount 3")
             {
             }
-            column(NewTotal; JobBuffer."New Total")
+            column(NewTotal; TempJobBuffer."New Total")
             {
             }
             column(GLJobTotal; GLJobTotal)
@@ -125,37 +125,37 @@ report 1010 "Job WIP To G/L"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not JobBuffer.Find('-') then
+                    if not TempJobBuffer.Find('-') then
                         CurrReport.Break();
                 end else
-                    if JobBuffer.Next() = 0 then
+                    if TempJobBuffer.Next() = 0 then
                         CurrReport.Break();
                 GLAcc.Name := '';
                 GLAcc."No." := '';
 
-                if OldAccNo <> JobBuffer."Account No. 1" then begin
-                    if GLAcc.Get(JobBuffer."Account No. 1") then;
+                if OldAccNo <> TempJobBuffer."Account No. 1" then begin
+                    if GLAcc.Get(TempJobBuffer."Account No. 1") then;
                     GLAccJobTotal := 0;
                 end;
-                OldAccNo := JobBuffer."Account No. 1";
-                GLAccJobTotal := GLAccJobTotal + JobBuffer."Amount 1" + JobBuffer."Amount 2" + JobBuffer."Amount 4" + JobBuffer."Amount 5";
-                GLJobTotal := GLJobTotal + JobBuffer."Amount 1" + JobBuffer."Amount 2" + JobBuffer."Amount 4" + JobBuffer."Amount 5";
-                if JobBuffer."New Total" then
-                    GLTotal := GLTotal + JobBuffer."Amount 3";
+                OldAccNo := TempJobBuffer."Account No. 1";
+                GLAccJobTotal := GLAccJobTotal + TempJobBuffer."Amount 1" + TempJobBuffer."Amount 2" + TempJobBuffer."Amount 4" + TempJobBuffer."Amount 5";
+                GLJobTotal := GLJobTotal + TempJobBuffer."Amount 1" + TempJobBuffer."Amount 2" + TempJobBuffer."Amount 4" + TempJobBuffer."Amount 5";
+                if TempJobBuffer."New Total" then
+                    GLTotal := GLTotal + TempJobBuffer."Amount 3";
 
-                if JobBuffer."Amount 1" <> 0 then
+                if TempJobBuffer."Amount 1" <> 0 then
                     WIPText1 := SelectStr(1, TEXT000);
-                if JobBuffer."Amount 2" <> 0 then
+                if TempJobBuffer."Amount 2" <> 0 then
                     WIPText2 := SelectStr(2, TEXT000);
-                if JobBuffer."Amount 4" <> 0 then
+                if TempJobBuffer."Amount 4" <> 0 then
                     WIPText3 := SelectStr(4, TEXT000);
-                if JobBuffer."Amount 5" <> 0 then
+                if TempJobBuffer."Amount 5" <> 0 then
                     WIPText4 := SelectStr(3, TEXT000);
             end;
 
             trigger OnPreDataItem()
             begin
-                JobBuffer2.GetJobBuffer(Job, JobBuffer);
+                TempJobBuffer2.GetJobBuffer(Job, TempJobBuffer);
                 OldAccNo := '';
             end;
         }
@@ -179,13 +179,13 @@ report 1010 "Job WIP To G/L"
 
     trigger OnPreReport()
     begin
-        JobBuffer2.InitJobBuffer;
-        JobFilter := Job.GetFilters;
+        TempJobBuffer2.InitJobBuffer();
+        JobFilter := Job.GetFilters();
     end;
 
     var
-        JobBuffer: Record "Job Buffer" temporary;
-        JobBuffer2: Record "Job Buffer" temporary;
+        TempJobBuffer: Record "Job Buffer" temporary;
+        TempJobBuffer2: Record "Job Buffer" temporary;
         GLAcc: Record "G/L Account";
         JobFilter: Text;
         WIPText: Text[50];

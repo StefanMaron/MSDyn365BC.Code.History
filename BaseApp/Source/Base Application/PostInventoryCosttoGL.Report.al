@@ -21,7 +21,7 @@
             column(PostedCaption; StrSubstNo(PostedPostingTypeTxt, SelectStr(PostMethod + 1, PostingTypeTxt)))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Post; Post)
@@ -236,7 +236,7 @@
                             CurrReport.Skip();
                         end;
 
-                        UpdateAmounts;
+                        UpdateAmounts();
                         Mark(true);
                         if Post and (PostMethod = PostMethod::"per Entry") then
                             PostEntryToGL(ItemValueEntry);
@@ -253,7 +253,7 @@
                             MarkedOnly(true);
                             DeleteAll();
                         end;
-                        Window.Close;
+                        Window.Close();
                     end;
 
                     trigger OnPreDataItem()
@@ -343,7 +343,7 @@
                             CurrReport.Skip();
                         end;
 
-                        UpdateAmounts;
+                        UpdateAmounts();
                         PostValueEntryToGL.Get(CapValueEntry."Entry No.");
                         PostValueEntryToGL.Mark(true);
                         if Post and (PostMethod = PostMethod::"per Entry") then
@@ -376,7 +376,7 @@
 
                 trigger OnPreDataItem()
                 begin
-                    GLSetup.Get();
+                    GLSetup.GetRecordOnce();
                     if not GLSetup."Journal Templ. Name Mandatory" then
                         case PostMethod of
                             PostMethod::"per Posting Group":
@@ -395,7 +395,7 @@
             dataitem(InvtPostingBufferLoop; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                column(InvtPostBufAccTypeFormatted; Format(InvtPostBuf."Account Type"))
+                column(InvtPostBufAccTypeFormatted; Format(TempInvtPostBuf."Account Type"))
                 {
                 }
                 column(DimText; DimText)
@@ -404,10 +404,10 @@
                 column(GenPostingSetupTxt; GenPostingSetupTxt)
                 {
                 }
-                column(InvtPostBufAmount; InvtPostBuf.Amount)
+                column(InvtPostBufAmount; TempInvtPostBuf.Amount)
                 {
                 }
-                column(InvtPostBufPostingDate; Format(InvtPostBuf."Posting Date"))
+                column(InvtPostBufPostingDate; Format(TempInvtPostBuf."Posting Date"))
                 {
                 }
                 column(EntryTypeCaption; EntryTypeCaptionLbl)
@@ -431,21 +431,21 @@
                     DimSetEntry: Record "Dimension Set Entry";
                 begin
                     if Number = 1 then begin
-                        if not InvtPostBuf.FindSet() then
+                        if not TempInvtPostBuf.FindSet() then
                             CurrReport.Break();
                     end else
-                        if InvtPostBuf.Next() = 0 then
+                        if TempInvtPostBuf.Next() = 0 then
                             CurrReport.Break();
 
-                    DimSetEntry.SetRange("Dimension Set ID", InvtPostBuf."Dimension Set ID");
+                    DimSetEntry.SetRange("Dimension Set ID", TempInvtPostBuf."Dimension Set ID");
                     GetDimText(DimSetEntry);
 
-                    if InvtPostBuf.UseInvtPostSetup then
+                    if TempInvtPostBuf.UseInvtPostSetup() then
                         GenPostingSetupTxt :=
-                          StrSubstNo('%1,%2', InvtPostBuf."Location Code", InvtPostBuf."Inventory Posting Group")
+                          StrSubstNo('%1,%2', TempInvtPostBuf."Location Code", TempInvtPostBuf."Inventory Posting Group")
                     else
                         GenPostingSetupTxt :=
-                          StrSubstNo('%1,%2', InvtPostBuf."Gen. Bus. Posting Group", InvtPostBuf."Gen. Prod. Posting Group");
+                          StrSubstNo('%1,%2', TempInvtPostBuf."Gen. Bus. Posting Group", TempInvtPostBuf."Gen. Prod. Posting Group");
                 end;
 
                 trigger OnPostDataItem()
@@ -461,8 +461,8 @@
                 trigger OnPreDataItem()
                 begin
                     if PostMethod = PostMethod::"per Posting Group" then
-                        InvtPostToGL.GetInvtPostBuf(InvtPostBuf);
-                    InvtPostBuf.Reset();
+                        InvtPostToGL.GetInvtPostBuf(TempInvtPostBuf);
+                    TempInvtPostBuf.Reset();
                 end;
             }
             dataitem(SkippedValueEntry; "Value Entry")
@@ -646,7 +646,7 @@
         trigger OnOpenPage()
         begin
             OnBeforeOnOpenPage(DocNo);
-            GLSetup.Get();
+            GLSetup.GetRecordOnce();
             if GLSetup."Journal Templ. Name Mandatory" then begin
                 IsJournalTemplNameMandatory := true;
                 GenJnlLineReq."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
@@ -677,6 +677,7 @@
     begin
         OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL);
 
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
                 Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
@@ -690,7 +691,7 @@
             DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
         end;
 
-        ValueEntryFilter := PostValueEntryToGL.GetFilters;
+        ValueEntryFilter := PostValueEntryToGL.GetFilters();
         InvtSetup.Get();
     end;
 
@@ -704,7 +705,7 @@
         Item: Record Item;
         GLSetup: Record "General Ledger Setup";
         InvtSetup: Record "Inventory Setup";
-        InvtPostBuf: Record "Invt. Posting Buffer" temporary;
+        TempInvtPostBuf: Record "Invt. Posting Buffer" temporary;
         TempCapValueEntry: Record "Value Entry" temporary;
         TempValueEntry: Record "Value Entry" temporary;
         ItemValueEntry: Record "Value Entry";
@@ -822,6 +823,7 @@
     local procedure PostEntryToGL(ValueEntry: Record "Value Entry")
     begin
         InvtPostToGL.Initialize(PostMethod = PostMethod::"per Posting Group");
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then
             InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
         InvtPostToGL.Run(ValueEntry);

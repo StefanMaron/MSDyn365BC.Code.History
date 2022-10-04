@@ -75,12 +75,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Time Series Period Type - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 1767462481 - NamedType 3726603109" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>It is not possible to have the Uri %1 in a field with a length of %2.</source>
-          <target state="translated">It is not possible to have the Uri %1 in a field with a length of %2.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - NamedType ExceedingLenghtErr</note>
-        </trans-unit>
         <trans-unit id="Table 1767462481 - NamedType 3788244515" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <target state="translated">You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</target>

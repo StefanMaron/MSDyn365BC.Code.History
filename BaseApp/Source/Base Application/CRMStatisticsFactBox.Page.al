@@ -8,7 +8,7 @@ page 5360 "CRM Statistics FactBox"
     {
         area(content)
         {
-            field(Opportunities; GetNoOfCRMOpportunities)
+            field(Opportunities; GetNoOfCRMOpportunities())
             {
                 ApplicationArea = Suite;
                 Caption = 'Opportunities';
@@ -21,7 +21,7 @@ page 5360 "CRM Statistics FactBox"
                     CRMIntegrationManagement.ShowCustomerCRMOpportunities(Rec);
                 end;
             }
-            field(Quotes; GetNoOfCRMQuotes)
+            field(Quotes; GetNoOfCRMQuotes())
             {
                 ApplicationArea = Suite;
                 Caption = 'Quotes';
@@ -34,7 +34,7 @@ page 5360 "CRM Statistics FactBox"
                     CRMIntegrationManagement.ShowCustomerCRMQuotes(Rec);
                 end;
             }
-            field(Cases; GetNoOfCRMCases)
+            field(Cases; GetNoOfCRMCases())
             {
                 ApplicationArea = Suite;
                 Caption = 'Cases';

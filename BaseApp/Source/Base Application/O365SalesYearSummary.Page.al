@@ -1,7 +1,8 @@
+#if not CLEAN21
 page 2100 "O365 Sales Year Summary"
 {
     Caption = 'Sales per month';
-    DataCaptionExpression = Format(Date2DMY(WorkDate, 3));
+    DataCaptionExpression = Format(Date2DMY(WorkDate(), 3));
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -10,6 +11,9 @@ page 2100 "O365 Sales Year Summary"
     RefreshOnActivate = true;
     SourceTable = "Name/Value Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -21,7 +25,7 @@ page 2100 "O365 Sales Year Summary"
             }
             usercontrol(Chart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
 
                 trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
                 begin
@@ -39,7 +43,7 @@ page 2100 "O365 Sales Year Summary"
                 begin
                     GLSetup.Get();
                     O365SalesStatistics.GenerateMonthlyOverview(Rec);
-                    O365SalesStatistics.GenerateChart(CurrPage.Chart, Rec, MonthTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
+                    O365SalesStatistics.GenerateChart(CurrPage.Chart, Rec, MonthTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol()));
                 end;
 
                 trigger Refresh()
@@ -50,7 +54,7 @@ page 2100 "O365 Sales Year Summary"
                     GLSetup.Get();
                     DeleteAll();
                     O365SalesStatistics.GenerateMonthlyOverview(Rec);
-                    O365SalesStatistics.GenerateChart(CurrPage.Chart, Rec, MonthTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
+                    O365SalesStatistics.GenerateChart(CurrPage.Chart, Rec, MonthTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol()));
                 end;
             }
             repeater(Control4)
@@ -59,14 +63,14 @@ page 2100 "O365 Sales Year Summary"
                 Visible = MonthlyDataVisible;
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Month';
                     Editable = false;
                     ToolTip = 'Specifies the month';
                 }
                 field(Value; Value)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Amount';
                     Editable = false;
                     ToolTip = 'Specifies the summarized amount';
@@ -105,4 +109,4 @@ page 2100 "O365 Sales Year Summary"
         MonthlyDataVisible := true;
     end;
 }
-
+#endif

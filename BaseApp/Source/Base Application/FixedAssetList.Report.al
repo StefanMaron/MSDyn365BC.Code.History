@@ -13,7 +13,7 @@ report 5601 "Fixed Asset - List"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DeprBookText; DeprBookText)
@@ -273,8 +273,8 @@ report 5601 "Fixed Asset - List"
         Dimension: Record Dimension;
     begin
         DeprBook.Get(DeprBookCode);
-        FAFilter := "Fixed Asset".GetFilters;
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        FAFilter := "Fixed Asset".GetFilters();
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         GlobalDim1CodeCaption := '';
         GlobalDim2CodeCaption := '';
         GeneralLedgerSetup.Get();

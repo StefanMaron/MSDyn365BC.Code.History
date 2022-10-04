@@ -6,7 +6,6 @@ codeunit 99000886 "Capable to Promise"
     end;
 
     var
-        Text000: Label 'Calculation with date #1######';
         OrderPromisingSetup: Record "Order Promising Setup";
         CompanyInfo: Record "Company Information";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -20,6 +19,8 @@ codeunit 99000886 "Capable to Promise"
         OrderPromisingLineNo: Integer;
         OrderPromisingLineToSave: Integer;
         SourceLineNo: Integer;
+
+        Text000: Label 'Calculation with date #1######';
 
     local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Enum "Analysis Period Type"; var DueDateOfReqLine: Date): Boolean
     var
@@ -111,14 +112,14 @@ codeunit 99000886 "Capable to Promise"
                   RequisitionLine, ItemNo, VariantCode, LocationCode, CapableToPromiseDate,
                   NeededQty, UnitOfMeasure, PeriodType, DueDateOfReqLine);
             end;
-            CalculationDialog.Close;
+            CalculationDialog.Close();
         end else
             CapableToPromiseDate := CalculationStartDate;
 
         if CapableToPromiseDate <> DueDateOfReqLine then
             CapableToPromiseDate := DueDateOfReqLine;
 
-        LastValidLine := GetNextOrderPromisingLineNo;
+        LastValidLine := GetNextOrderPromisingLineNo();
         if CapableToPromiseDate = 0D then
             RemoveReqLines(LocOrderPromisingID, LocSourceLineNo, OrderPromisingLineNo, false);
         exit(CapableToPromiseDate);
@@ -170,7 +171,7 @@ codeunit 99000886 "Capable to Promise"
         ReqLine.Validate(Quantity, Quantity);
         ReqLine.Validate("Unit of Measure Code", Unit);
         if ReqLine."Starting Date" = 0D then
-            ReqLine."Starting Date" := WorkDate;
+            ReqLine."Starting Date" := WorkDate();
         OnBeforeReqLineInsert(ReqLine);
         ReqLine.Insert(true);
         PlngLnMgt.Calculate(ReqLine, Direction, true, true, 0);
@@ -274,13 +275,13 @@ codeunit 99000886 "Capable to Promise"
         OrderPromisingSetup.TestField("Order Promising Template");
         OrderPromisingSetup.TestField("Order Promising Worksheet");
         if LocOrderPromisingID = '' then begin
-            LocOrderPromisingID := NoSeriesMgt.GetNextNo(OrderPromisingSetup."Order Promising Nos.", WorkDate, true);
+            LocOrderPromisingID := NoSeriesMgt.GetNextNo(OrderPromisingSetup."Order Promising Nos.", WorkDate(), true);
             OrderPromisingLineNo := 1;
         end else
-            OrderPromisingLineNo := GetNextOrderPromisingLineNo;
+            OrderPromisingLineNo := GetNextOrderPromisingLineNo();
         OrderPromisingID := LocOrderPromisingID;
         SourceLineNo := LocSourceLineNo;
-        OrderPromisingStart := CalcDate(OrderPromisingSetup."Offset (Time)", WorkDate);
+        OrderPromisingStart := CalcDate(OrderPromisingSetup."Offset (Time)", WorkDate());
         OrderPromisingEnd := CalcDate(PeriodLengthFormula, OrderPromisingStart);
     end;
 
@@ -299,7 +300,7 @@ codeunit 99000886 "Capable to Promise"
                 SetRange("Accept Action Message", false);
             if Find('-') then
                 repeat
-                    DeleteMultiLevel;
+                    DeleteMultiLevel();
                     Delete(true);
                 until Next() = 0;
         end;
@@ -326,7 +327,7 @@ codeunit 99000886 "Capable to Promise"
             exit(CumulativeATP);
 
         ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode);
-        exit(Round(CumulativeATP / ItemUnitOfMeasure."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(CumulativeATP / ItemUnitOfMeasure."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure GetNextOrderPromisingLineNo(): Integer

@@ -22,21 +22,21 @@ codeunit 5310 "Outlook Synch. Resolve Confl."
         if not (StrLen(XMLMessage) > 0) then
             Error(Text001);
 
-        ErrorLogXMLWriter := ErrorLogXMLWriter.XmlTextWriter;
-        ErrorLogXMLWriter.WriteStartDocument;
+        ErrorLogXMLWriter := ErrorLogXMLWriter.XmlTextWriter();
+        ErrorLogXMLWriter.WriteStartDocument();
         ErrorLogXMLWriter.WriteStartElement('SynchronizationMessage');
 
         OsynchOutlookMgt.ProcessOutlookChanges(UserID, XMLMessage, ErrorLogXMLWriter, true);
 
         if not IsNull(ErrorLogXMLWriter) then begin
-            ErrorLogXMLWriter.WriteEndElement;
-            ErrorLogXMLWriter.WriteEndDocument;
+            ErrorLogXMLWriter.WriteEndElement();
+            ErrorLogXMLWriter.WriteEndDocument();
 
-            XMLMessage := ErrorLogXMLWriter.ToString;
+            XMLMessage := ErrorLogXMLWriter.ToString();
             Clear(ErrorLogXMLWriter);
 
             if StrLen(XMLMessage) = 0 then
-                Error(Text002, PRODUCTNAME.Full);
+                Error(Text002, PRODUCTNAME.Full());
         end;
     end;
 }

@@ -20,7 +20,7 @@ page 7120 "Sales Analysis Lines"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     AnalysisReportMgt.LookupAnalysisLineTemplName(CurrentAnalysisLineTempl, Rec);
                     CurrPage.Update(false);
                 end;
@@ -28,7 +28,7 @@ page 7120 "Sales Analysis Lines"
                 trigger OnValidate()
                 begin
                     AnalysisReportMgt.CheckAnalysisLineTemplName(CurrentAnalysisLineTempl, Rec);
-                    CurrentAnalysisLineTemplOnAfte;
+                    CurrentAnalysisLineTemplOnAfte();
                 end;
             }
             repeater(Control1)
@@ -36,7 +36,7 @@ page 7120 "Sales Analysis Lines"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Row Ref. No."; "Row Ref. No.")
+                field("Row Ref. No."; Rec."Row Ref. No.")
                 {
                     ApplicationArea = SalesAnalysis;
                     StyleExpr = 'Strong';
@@ -74,7 +74,7 @@ page 7120 "Sales Analysis Lines"
                         exit(LookupTotalingRange(Text));
                     end;
                 }
-                field("Dimension 1 Totaling"; "Dimension 1 Totaling")
+                field("Dimension 1 Totaling"; Rec."Dimension 1 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line.';
@@ -84,7 +84,7 @@ page 7120 "Sales Analysis Lines"
                         exit(LookupDimTotalingRange(Text, ItemAnalysisView."Dimension 1 Code"));
                     end;
                 }
-                field("Dimension 2 Totaling"; "Dimension 2 Totaling")
+                field("Dimension 2 Totaling"; Rec."Dimension 2 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line. If the type on the line is Formula, this field must be blank. Also, if you do not want the amounts on the line to be filtered by dimensions, this field must be blank.';
@@ -94,7 +94,7 @@ page 7120 "Sales Analysis Lines"
                         exit(LookupDimTotalingRange(Text, ItemAnalysisView."Dimension 2 Code"));
                     end;
                 }
-                field("Dimension 3 Totaling"; "Dimension 3 Totaling")
+                field("Dimension 3 Totaling"; Rec."Dimension 3 Totaling")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value amounts will be totaled on this line. If the type on the line is Formula, this field must be blank. Also, if you do not want the amounts on the line to be filtered by dimensions, this field must be blank.';
@@ -104,7 +104,7 @@ page 7120 "Sales Analysis Lines"
                         exit(LookupDimTotalingRange(Text, ItemAnalysisView."Dimension 3 Code"));
                     end;
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = SalesAnalysis;
                     ToolTip = 'Specifies if you want a page break after the current line when you print the analysis report.';
@@ -135,7 +135,7 @@ page 7120 "Sales Analysis Lines"
                     ApplicationArea = SalesAnalysis;
                     ToolTip = 'Specifies if you want the amounts in this line to be underlined when printed.';
                 }
-                field("Show Opposite Sign"; "Show Opposite Sign")
+                field("Show Opposite Sign"; Rec."Show Opposite Sign")
                 {
                     ApplicationArea = SalesAnalysis;
                     ToolTip = 'Specifies if you want sales and negative adjustments to be shown as positive amounts and purchases and positive adjustments to be shown as negative amounts.';
@@ -258,7 +258,7 @@ page 7120 "Sales Analysis Lines"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        DescriptionOnFormat;
+        DescriptionOnFormat();
     end;
 
     trigger OnOpenPage()
@@ -342,7 +342,7 @@ page 7120 "Sales Analysis Lines"
     var
         ItemSchedName: Record "Analysis Line Template";
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         AnalysisReportMgt.SetAnalysisLineTemplName(CurrentAnalysisLineTempl, Rec);
         if ItemSchedName.Get(GetRangeMax("Analysis Area"), CurrentAnalysisLineTempl) then
             CurrPage.Update(false);

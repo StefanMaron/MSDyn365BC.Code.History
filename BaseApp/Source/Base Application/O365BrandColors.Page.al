@@ -14,12 +14,12 @@ page 2158 "O365 Brand Colors"
             {
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name.';
                 }
-                field("Sample Picture"; "Sample Picture")
+                field("Sample Picture"; Rec."Sample Picture")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
         }
@@ -31,7 +31,7 @@ page 2158 "O365 Brand Colors"
 
     trigger OnOpenPage()
     begin
-        CheckCreateDefaultBrandColors;
+        CheckCreateDefaultBrandColors();
     end;
 
     local procedure CheckCreateDefaultBrandColors()
@@ -39,7 +39,7 @@ page 2158 "O365 Brand Colors"
         O365BrandColor: Record "O365 Brand Color";
     begin
         if O365BrandColor.IsEmpty() then
-            O365BrandColor.CreateDefaultBrandColors;
+            O365BrandColor.CreateDefaultBrandColors();
     end;
 }
 

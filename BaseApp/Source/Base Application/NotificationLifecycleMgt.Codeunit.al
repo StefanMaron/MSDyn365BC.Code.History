@@ -15,9 +15,9 @@ codeunit 1511 "Notification Lifecycle Mgt."
     procedure SendNotification(NotificationToSend: Notification; RecId: RecordID)
     begin
         if IsNullGuid(NotificationToSend.Id) then
-            NotificationToSend.Id := CreateGuid;
+            NotificationToSend.Id := CreateGuid();
 
-        NotificationToSend.Send;
+        NotificationToSend.Send();
         OnAfterNotificationSent(NotificationToSend, RecId.TableNo);
         CreateNotificationContext(NotificationToSend.Id, RecId);
     end;
@@ -25,10 +25,10 @@ codeunit 1511 "Notification Lifecycle Mgt."
     procedure SendNotificationWithAdditionalContext(NotificationToSend: Notification; RecId: RecordID; AdditionalContextId: Guid)
     begin
         if IsNullGuid(NotificationToSend.Id) then
-            NotificationToSend.Id := CreateGuid;
+            NotificationToSend.Id := CreateGuid();
 
         OnBeforeSendNotification(NotificationToSend, RecId, AdditionalContextId);
-        NotificationToSend.Send;
+        NotificationToSend.Send();
         OnAfterNotificationSent(NotificationToSend, RecId.TableNo);
         CreateNotificationContextWithAdditionalContext(NotificationToSend.Id, RecId, AdditionalContextId);
     end;
@@ -110,7 +110,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
         GetUsableRecordId(RecId, HandleDelayedInsert);
         TempNotificationContext.SetRange("Record ID", RecId);
         TempNotificationContextOut.Copy(TempNotificationContext, true);
-        exit(TempNotificationContextOut.FindSet);
+        exit(TempNotificationContextOut.FindSet());
     end;
 
     procedure GetNotificationsForRecordWithAdditionalContext(RecId: RecordID; AdditionalContextId: Guid; var TempNotificationContextOut: Record "Notification Context" temporary; HandleDelayedInsert: Boolean): Boolean
@@ -120,7 +120,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
         TempNotificationContext.SetRange("Record ID", RecId);
         TempNotificationContext.SetRange("Additional Context ID", AdditionalContextId);
         TempNotificationContextOut.Copy(TempNotificationContext, true);
-        exit(TempNotificationContextOut.FindSet);
+        exit(TempNotificationContextOut.FindSet());
     end;
 
     local procedure CreateNotificationContext(NotificationId: Guid; RecId: RecordID)
@@ -165,7 +165,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
         repeat
             NotificationToRecall.Id := TempNotificationContextToRecall."Notification ID";
             // Notification.Recall does not fail if the notification was never sent, is no longer there, is dismissed or already recalled
-            NotificationToRecall.Recall;
+            NotificationToRecall.Recall();
 
             TempNotificationContextToRecall.Delete(true);
             OnAfterDeleteNotificationContext(TempNotificationContextToRecall);

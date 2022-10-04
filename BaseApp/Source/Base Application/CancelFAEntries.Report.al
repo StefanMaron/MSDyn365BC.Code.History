@@ -58,13 +58,14 @@ report 5686 "Cancel FA Entries"
     end;
 
     var
-        Text000: Label 'You must specify New Posting Date.';
-        Text001: Label 'You must not specify New Posting Date.';
-        Text002: Label 'You must not specify a closing date.';
         FALedgEntry: Record "FA Ledger Entry";
         CancelFALedgEntries: Codeunit "Cancel FA Ledger Entries";
         UseNewPosting: Boolean;
         NewPostingDate: Date;
+
+        Text000: Label 'You must specify New Posting Date.';
+        Text001: Label 'You must not specify New Posting Date.';
+        Text002: Label 'You must not specify a closing date.';
 
     procedure GetFALedgEntry(var FALedgEntry2: Record "FA Ledger Entry")
     begin

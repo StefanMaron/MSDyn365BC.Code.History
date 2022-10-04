@@ -80,11 +80,11 @@ codeunit 138022 "O365 Charts Tests"
             if ColumnIndex = 4 then
                 StartDate := 0D
             else
-                StartDate := CalcDate('<-' + Format((ColumnIndex + 1) * 7) + 'D>', WorkDate);
+                StartDate := CalcDate('<-' + Format((ColumnIndex + 1) * 7) + 'D>', WorkDate());
             if ColumnIndex = 0 then
                 EndDate := WorkDate
             else
-                EndDate := CalcDate('<-' + Format(ColumnIndex * 7) + 'D>', WorkDate);
+                EndDate := CalcDate('<-' + Format(ColumnIndex * 7) + 'D>', WorkDate());
             LibraryVariableStorage.Enqueue(StartDate);
             LibraryVariableStorage.Enqueue(EndDate);
             BusinessChartBuffer."Drill-Down X Index" := ColumnIndex;
@@ -230,7 +230,7 @@ codeunit 138022 "O365 Charts Tests"
         NewDate: Date;
     begin
         Initialize();
-        RefDate := WorkDate;
+        RefDate := WorkDate();
 
         CreateTwoCustPostingGroups(NewCustPostGroup1, NewCustPostGroup2);
         CreateCustWithPostingGroup(Cust, NewCustPostGroup1);
@@ -238,7 +238,7 @@ codeunit 138022 "O365 Charts Tests"
         LibrarySmallBusiness.CreateItem(Item);
 
         WorkDate := CalcDate('<CY - 10D>', RefDate);
-        for NewDate := WorkDate to CalcDate('<20D>', WorkDate) do begin
+        for NewDate := WorkDate to CalcDate('<20D>', WorkDate()) do begin
             WorkDate := NewDate;
             InvoiceCust(Cust, Item);
             ChangePrice(Item);
@@ -251,7 +251,7 @@ codeunit 138022 "O365 Charts Tests"
             for "Period Length" := "Period Length"::Day to "Period Length"::Year do begin
                 SetPeriodLength("Period Length");
                 "Start Date" := CalcDate('<CY - 10D>', RefDate);
-                Modify;
+                Modify();
 
                 // Exercise on period length with previous
                 SetPeriod(1);
@@ -317,7 +317,7 @@ codeunit 138022 "O365 Charts Tests"
         NewDate: Date;
     begin
         Initialize();
-        RefDate := WorkDate;
+        RefDate := WorkDate();
 
         CreateTwoCustPostingGroups(NewCustPostGroup1, NewCustPostGroup2);
         CreateCustWithPostingGroup(Cust, NewCustPostGroup1);
@@ -325,7 +325,7 @@ codeunit 138022 "O365 Charts Tests"
         LibrarySmallBusiness.CreateItem(Item);
 
         WorkDate := CalcDate('<CY - 10D>', RefDate);
-        for NewDate := WorkDate to CalcDate('<20D>', WorkDate) do begin
+        for NewDate := WorkDate to CalcDate('<20D>', WorkDate()) do begin
             WorkDate := NewDate;
             InvoiceCust(Cust, Item);
             ChangePrice(Item);
@@ -471,14 +471,14 @@ codeunit 138022 "O365 Charts Tests"
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
         LibrarySmallBusiness.CreateVendor(TestVendor);
-        OriginalWorkDate := WorkDate;
+        OriginalWorkDate := WorkDate();
 
         // post test purchase invoices with backdated posting date in order to increase inventory value
-        WorkDate(CalcDate('<-10D>', WorkDate));
+        WorkDate(CalcDate('<-10D>', WorkDate()));
         for I := 1 to 5 do begin
             PostPurchaseInvoice(TestPurchaseHeader, TestPurchaseLine, TestVendor, TestItem, I, Format(I));
             ExpectedInventoryValueIncrease[I] := TestPurchaseLine.Quantity * TestPurchaseLine."Direct Unit Cost";
-            WorkDate(CalcDate('<-1M>', WorkDate));
+            WorkDate(CalcDate('<-1M>', WorkDate()));
         end;
         WorkDate(OriginalWorkDate);
     end;
@@ -494,19 +494,19 @@ codeunit 138022 "O365 Charts Tests"
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
         LibrarySmallBusiness.CreateVendor(TestVendor);
-        OriginalWorkDate := WorkDate;
+        OriginalWorkDate := WorkDate();
 
         // post test purchase invoices with backdated posting date in order to create some item ledger entries to drill down to
         for I := 1 to 20 do begin
             PostPurchaseInvoice(TestPurchaseHeader, TestPurchaseLine, TestVendor, TestItem, I, Format(I));
-            WorkDate(CalcDate('<-2D>', WorkDate));
+            WorkDate(CalcDate('<-2D>', WorkDate()));
         end;
         WorkDate(OriginalWorkDate);
     end;
 
     local procedure ChangePrice(var Item: Record Item)
     begin
-        Item.Find;
+        Item.Find();
         Item.Validate("Unit Price", Item."Unit Price" + 1);
         Item.Modify(true);
     end;
@@ -560,7 +560,7 @@ codeunit 138022 "O365 Charts Tests"
                 GetXValue("Drill-Down X Index", PeriodDFVariant);
                 PeriodDF := PeriodDFVariant;
 
-                ToDate := CalcToDate(CalcDate('<-' + PeriodDF + '>', WorkDate));
+                ToDate := CalcToDate(CalcDate('<-' + PeriodDF + '>', WorkDate()));
                 FromDate := CalcFromDate(ToDate);
 
                 GetValue(Cust1."Customer Posting Group", "Drill-Down X Index", Result);
@@ -595,7 +595,7 @@ codeunit 138022 "O365 Charts Tests"
     begin
         LibraryVariableStorage.Dequeue(CustomerName);
         CustomerNameOnCard := CustomerCard.Name.Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
         Assert.AreEqual(Format(CustomerName), CustomerNameOnCard, 'Unexpected customer card opened.');
     end;
 
@@ -610,10 +610,10 @@ codeunit 138022 "O365 Charts Tests"
         LibraryVariableStorage.Dequeue(Customer2Name);
         CustomerList.First;
         Assert.AreEqual(Format(Customer1Name), CustomerList.Name.Value, 'Unexpected customer in customer list that opened.');
-        CustomerList.Next;
+        CustomerList.Next();
         Assert.AreEqual(Format(Customer2Name), CustomerList.Name.Value, 'Unexpected customer in customer list that opened.');
         Assert.IsFalse(CustomerList.Next, 'Unexpected number of customers in customer list that opened.');
-        CustomerList.Close;
+        CustomerList.Close();
     end;
 
     [PageHandler]
@@ -643,7 +643,7 @@ codeunit 138022 "O365 Charts Tests"
             PostingDate := ItemLedgerEntries."Posting Date".AsDate;
             RemainingQuantity := ItemLedgerEntries."Remaining Quantity".AsDEcimal;
             Assert.IsTrue((PostingDate <= EndDate) and (PostingDate > StartDate) and (RemainingQuantity <> 0), 'Wrong item ledger entry');
-        until not ItemLedgerEntries.Next;
+        until not ItemLedgerEntries.Next();
     end;
 }
 

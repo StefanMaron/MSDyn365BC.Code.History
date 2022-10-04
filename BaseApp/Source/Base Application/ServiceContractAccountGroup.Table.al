@@ -24,7 +24,7 @@ table 5973 "Service Contract Account Group"
             begin
                 if "Non-Prepaid Contract Acc." <> '' then begin
                     GLAcc.Get("Non-Prepaid Contract Acc.");
-                    if not ApplicationAreaMgmt.IsSalesTaxEnabled then begin
+                    if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
                         GLAcc.TestField("Gen. Prod. Posting Group");
                         GLAcc.TestField("VAT Prod. Posting Group");
                     end else
@@ -41,7 +41,7 @@ table 5973 "Service Contract Account Group"
             begin
                 if "Prepaid Contract Acc." <> '' then begin
                     GLAcc.Get("Prepaid Contract Acc.");
-                    if not ApplicationAreaMgmt.IsSalesTaxEnabled then begin
+                    if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
                         GLAcc.TestField("Gen. Prod. Posting Group");
                         GLAcc.TestField("VAT Prod. Posting Group");
                     end else

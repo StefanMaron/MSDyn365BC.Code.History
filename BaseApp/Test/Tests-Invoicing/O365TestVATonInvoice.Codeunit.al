@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138919 "O365 Test VAT on Invoice"
 {
     EventSubscriberInstance = Manual;
@@ -81,7 +82,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         // [THEN] The total including VAT should match the sales line value including VAT
         O365SalesInvoice."Amount Including VAT".AssertEquals(O365SalesInvoiceLineCard.LineAmountInclVAT.Value);
 
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
 
         // [THEN] The draft report shows VAT Clause header for no VAT
         SaveDraftInvoiceToXML(SalesHeader."No.");
@@ -130,7 +131,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         // [THEN] The total including VAT should match the sales line value including VAT
         O365SalesInvoice."Amount Including VAT".AssertEquals(O365SalesInvoiceLineCard.LineAmountInclVAT.Value);
 
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
     end;
 
     [Test]
@@ -160,7 +161,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         O365VATPostingSetupCard.GotoRecord(VATProductPostingGroup);
         Assert.AreEqual('', O365VATPostingSetupCard."VAT Regulation Reference".Value,
           'Description is not empty for Invoicing Default VAT Posting Group');
-        O365VATPostingSetupCard.Close;
+        O365VATPostingSetupCard.Close();
 
         // [THEN] Draft invoice report should have no VAT Clause header
         DraftInvoiceNo := LibraryInvoicingApp.CreateInvoice;
@@ -191,7 +192,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         O365VATPostingSetupCard.GotoRecord(VATProductPostingGroup);
         Assert.AreEqual('', O365VATPostingSetupCard."VAT Regulation Reference".Value,
           'Description is not empty for Invoicing Default VAT Posting Group');
-        O365VATPostingSetupCard.Close;
+        O365VATPostingSetupCard.Close();
 
         // [THEN] Invoice report should have no VAT Clause header
         SaveInvoiceToXML(PostedInvoiceNo);
@@ -213,7 +214,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         O365SalesCustomerCard.OpenEdit;
         O365SalesCustomerCard.GotoRecord(Customer);
         O365SalesCustomerCard."Contact Type".SetValue(Type);
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
     end;
 
     local procedure CreateCustomerAndItem(var Item: Record Item; var Customer: Record Customer; Type: Option)
@@ -248,7 +249,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, DraftInvoiceNo);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
         REPORT.RunModal(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
     end;
@@ -258,7 +259,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Get(InvoiceNo);
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         Commit();
         REPORT.RunModal(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
     end;
@@ -317,13 +318,13 @@ codeunit 138919 "O365 Test VAT on Invoice"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
 
         if IsInitialized then
             exit;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -336,4 +337,4 @@ codeunit 138919 "O365 Test VAT on Invoice"
         IsInitialized := true;
     end;
 }
-
+#endif

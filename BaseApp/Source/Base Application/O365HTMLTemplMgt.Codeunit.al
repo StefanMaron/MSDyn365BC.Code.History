@@ -18,7 +18,6 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         CompanyInformation: Record "Company Information";
         CompanyInfoRead: Boolean;
         EmailSentToTxt: Label 'This email was sent to';
-        FollowOnSocialTxt: Label 'Follow %1 on Social', Comment = '%1 - company name';
         ThankYouForYourBusinessTxt: Label 'Thank you for your business.';
         InvoiceFromTitleTxt: Label 'Invoice from %1', Comment = 'This is a mail title. %1 - company name';
         EstimateFromTitleTxt: Label 'Estimate from %1', Comment = 'This is a mail title. %1 - company name';
@@ -92,7 +91,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         FillParameterValueEncoded(HTMLText, 'DocumentNo', SalesInvoiceHeader."No.");
         FillParameterValueEncoded(HTMLText, 'DateLbl', SalesInvoiceHeader.FieldCaption("Due Date"));
         FillParameterValueEncoded(HTMLText, 'Date', Format(SalesInvoiceHeader."Due Date"));
-        FillParameterValueEncoded(HTMLText, 'TotalAmountLbl', StrSubstNo(TotalTxt, SalesInvoiceHeader.GetCurrencySymbol));
+        FillParameterValueEncoded(HTMLText, 'TotalAmountLbl', StrSubstNo(TotalTxt, SalesInvoiceHeader.GetCurrencySymbol()));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         FillParameterValueEncoded(HTMLText, 'TotalAmount', Format(SalesInvoiceHeader."Amount Including VAT"));
 
@@ -145,7 +144,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         HorizontalFactor: Decimal;
         VerticalFactor: Decimal;
     begin
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
         TempBlob.CreateInStream(InStream);
         Image := Image.FromStream(InStream);
@@ -184,17 +183,11 @@ codeunit 2114 "O365 HTML Templ. Mgt."
 
     local procedure GetPaymentServiceLogoAsText(PaymentReportingArgument: Record "Payment Reporting Argument"): Text
     var
-        O365PaymentServiceLogo: Record "O365 Payment Service Logo";
-        MediaResources: Record "Media Resources";
         ImageHelpers: Codeunit "Image Helpers";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
-        if O365PaymentServiceLogo.FindO365Logo(PaymentReportingArgument) then begin
-            MediaResources.Get(O365PaymentServiceLogo."Media Resources Ref");
-            TempBlob.FromRecord(MediaResources, MediaResources.FieldNo(Blob));
-        end else
-            TempBlob.FromRecord(PaymentReportingArgument, PaymentReportingArgument.FieldNo(Logo));
+        TempBlob.FromRecord(PaymentReportingArgument, PaymentReportingArgument.FieldNo(Logo));
 
         ResizePaymentServiceLogoIfNeeded(TempBlob);
 
@@ -206,7 +199,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
     var
         O365BrandColor: Record "O365 Brand Color";
     begin
-        GetCompanyInfo;
+        GetCompanyInfo();
 
         if CompanyInformation."Brand Color Value" = '' then
             if O365BrandColor.FindFirst() then
@@ -215,63 +208,12 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         exit(CompanyInformation."Brand Color Value");
     end;
 
-    local procedure GetSocialNetworksHTMLPart(SocialNetworksSectionHTMLText: Text; SocialNetworkRowSectionHTMLText: Text) SocialNetworksHTMLPart: Text
-    var
-        O365SocialNetwork: Record "O365 Social Network";
-    begin
-        O365SocialNetwork.SetFilter(URL, '<>%1', '');
-        O365SocialNetwork.SetFilter("Media Resources Ref", '<>%1', '');
-        if O365SocialNetwork.FindFirst() then begin
-            SocialNetworksHTMLPart := SocialNetworksSectionHTMLText;
-            GetCompanyInfo;
-            FillParameterValueEncoded(
-              SocialNetworksHTMLPart,
-              'FollowOnSocial',
-              StrSubstNo(FollowOnSocialTxt, CompanyInformation.Name));
-            FillParameterValue(
-              SocialNetworksHTMLPart,
-              'CoverLetterSocialRow',
-              GetSocialsRowsHTMLPart(O365SocialNetwork, SocialNetworkRowSectionHTMLText));
-        end;
-    end;
-
-    local procedure GetSocialsRowsHTMLPart(var O365SocialNetwork: Record "O365 Social Network"; SocialNetworkRowSectionHTMLText: Text) HTMLText: Text
-    var
-        MediaResources: Record "Media Resources";
-    begin
-        repeat
-            if MediaResources.Get(O365SocialNetwork."Media Resources Ref") then
-                HTMLText += GetSocialsRowHTMLPart(O365SocialNetwork, SocialNetworkRowSectionHTMLText);
-        until O365SocialNetwork.Next() = 0;
-    end;
-
-    local procedure GetSocialsRowHTMLPart(O365SocialNetwork: Record "O365 Social Network"; SocialNetworkRowSectionHTMLText: Text) RowHTMLText: Text
-    begin
-        RowHTMLText := SocialNetworkRowSectionHTMLText;
-        FillParameterValueEncoded(RowHTMLText, 'SocialURL', O365SocialNetwork.URL);
-        FillParameterValueEncoded(RowHTMLText, 'SocialAlt', O365SocialNetwork.Name);
-        FillParameterValue(RowHTMLText, 'SocialLogo', GetSocialNetworkLogoAsTxt(O365SocialNetwork));
-    end;
-
-    local procedure GetSocialNetworkLogoAsTxt(O365SocialNetwork: Record "O365 Social Network"): Text
-    var
-        MediaResources: Record "Media Resources";
-        ImageHelpers: Codeunit "Image Helpers";
-        InStream: InStream;
-    begin
-        if not MediaResources.Get(O365SocialNetwork."Media Resources Ref") then
-            exit('');
-
-        MediaResources.Blob.CreateInStream(InStream);
-        exit(ImageHelpers.GetHTMLImgSrc(InStream));
-    end;
-
     local procedure FillCompanyInfoSection(var HTMLText: Text)
     var
         FormatAddr: Codeunit "Format Address";
         CompanyAddr: array[8] of Text[100];
     begin
-        GetCompanyInfo;
+        GetCompanyInfo();
         FormatAddr.Company(CompanyAddr, CompanyInformation);
         FillParameterValueEncoded(HTMLText, 'CompanyName', CompanyInformation.Name);
         FillParameterValueEncoded(HTMLText, 'CompanyAddress', MakeFullCompanyAddress(CompanyAddr));
@@ -292,7 +234,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         MaxWidth := 246;
         MaxHeight := 80;
 
-        GetCompanyInfo;
+        GetCompanyInfo();
         TempBlob.FromRecord(CompanyInformation, CompanyInformation.FieldNo(Picture));
         if ImageHandlerManagement.ScaleDownFromBlob(TempBlob, MaxWidth, MaxHeight) then;
 
@@ -308,16 +250,12 @@ codeunit 2114 "O365 HTML Templ. Mgt."
     procedure FillCommonParameters(var HTMLText: Text; SocialNetworksSectionHTMLText: Text; SocialNetworkRowSectionHTMLText: Text; MailTo: Text; MailText: Text)
     begin
         FillCompanyLogo(HTMLText);
-
         FillParameterValueEncoded(HTMLText, 'ThankYouForYourBusiness', ThankYouForYourBusinessTxt);
-        FillParameterValue(HTMLText, 'SocialNetworks',
-          GetSocialNetworksHTMLPart(SocialNetworksSectionHTMLText, SocialNetworkRowSectionHTMLText));
-
         FillCompanyInfoSection(HTMLText);
 
         FillParameterValueEncoded(HTMLText, 'EmailSentToLbl', EmailSentToTxt);
         FillParameterValueEncoded(HTMLText, 'MailTo', MailTo);
-        FillParameterValueEncoded(HTMLText, 'PrimaryColor', GetPrimaryColorValue);
+        FillParameterValueEncoded(HTMLText, 'PrimaryColor', GetPrimaryColorValue());
 
         FillParameterValue(HTMLText, 'MailText', EncodeMessage(MailText, false));
     end;
@@ -377,12 +315,12 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         PaymentServiceUrl: Text;
     begin
         PaymentServiceHTMLText := PaymentServiceRowHTMLText;
-        PaymentServiceUrl := TempPaymentReportingArgument.GetTargetURL;
+        PaymentServiceUrl := TempPaymentReportingArgument.GetTargetURL();
         FillParameterValueEncoded(PaymentServiceHTMLText, 'PaymentServiceUrl', PaymentServiceUrl);
         FillParameterValueEncoded(PaymentServiceHTMLText, 'PaymentServiceAlt', TempPaymentReportingArgument."URL Caption");
         FillParameterValue(PaymentServiceHTMLText, 'PaymentServiceLogo',
           GetPaymentServiceLogoAsText(TempPaymentReportingArgument));
-        FillParameterValueEncoded(PaymentServiceHTMLText, 'PrimaryColor', GetPrimaryColorValue);
+        FillParameterValueEncoded(PaymentServiceHTMLText, 'PrimaryColor', GetPrimaryColorValue());
     end;
 
     local procedure MakeFullCompanyAddress(CompanyAddr: array[8] of Text[100]) FullCompanyAddress: Text
@@ -390,10 +328,9 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         i: Integer;
     begin
         FullCompanyAddress := CompanyAddr[2];
-        for i := 3 to 8 do begin
+        for i := 3 to 8 do
             if CompanyAddr[i] <> '' then
                 FullCompanyAddress += ', ' + CompanyAddr[i];
-        end;
     end;
 
     local procedure MakeParameterNameString(ParameterName: Text): Text
@@ -424,7 +361,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
             InStream.Read(Buffer);
             HTMLText += Buffer;
         end;
-        BodyFile.Close;
+        BodyFile.Close();
 
         ReplaceHTMLText(HTMLText, OldSendTo, NewSendTo);
         SaveHTML(BodyFileName, HTMLText);
@@ -439,7 +376,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         OutputFile.Create(OutputFileName, TEXTENCODING::UTF8);
         OutputFile.CreateOutStream(OutStream);
         OutStream.Write(HTMLText, StrLen(HTMLText));
-        OutputFile.Close;
+        OutputFile.Close();
     end;
 
     local procedure SliceSalesCoverLetterTemplate(var HTMLText: Text; var PaymentServicesSectionHTMLText: Text; var PaymentServiceRowHTMLText: Text; var SocialNetworksSectionHTMLText: Text; var SocialNetworkRowSectionHTMLText: Text)

@@ -13,11 +13,11 @@ page 704 "Merge Duplicate Conflicts"
         {
             repeater(Group)
             {
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -46,17 +46,24 @@ page 704 "Merge Duplicate Conflicts"
                 ApplicationArea = Basic, Suite;
                 Caption = 'View Details';
                 Image = ViewDetails;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View the details of conflicting records, rename or remove the duplicate record.';
 
                 trigger OnAction()
                 begin
-                    if Merge then
-                        Delete;
+                    if Merge() then
+                        Delete();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ViewConflictRecords_Promoted; ViewConflictRecords)
+                {
+                }
             }
         }
     }

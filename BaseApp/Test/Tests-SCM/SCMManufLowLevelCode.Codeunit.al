@@ -274,7 +274,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         Item.FindSet();
         repeat
             Item.TestField("Low-Level Code", LowLevelCode);
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 }
 

@@ -88,11 +88,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 1767462481 - NamedType 3726603109" size-unit="char" translate="yes" xml:space="preserve">
-          <source>It is not possible to have the Uri %1 in a field with a length of %2.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - NamedType ExceedingLenghtErr</note>
-        </trans-unit>
         <trans-unit id="Table 1767462481 - NamedType 3788244515" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -208,6 +203,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 3120113686" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Let Business Central analyze historical data to predict future demand, so you can base procurement decisions on accurate and reliable forecasts, and help your company avoid lost revenue, optimize shipping costs, discover trends, and boost your brand reputation by always delivering on orders. Set it up now.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 473299602" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales &amp; Inventory Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 805279096" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Sales &amp; Inventory Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 3788244515" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -317,6 +327,11 @@
           <source>Inventory Forecast</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType InventoryForecastTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 212368089" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Updated %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Last updated date</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType LastUpdatedTxt</note>
         </trans-unit>
         <trans-unit id="Page 3449274493 - NamedType 16175266" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales forecast not available.</source>
@@ -648,6 +663,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension ItemCardForecastExtension - Action Forecast - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2565734565 - Action 1676605102 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1434786627">
+          <source>Specifies to update the sales forecast.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension ItemCardForecastExtension - Action Update Sales Forecast - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2565734565 - Action 1676605102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1434786627">
           <source>Update Sales Forecast</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -657,6 +677,11 @@
           <source>Forecast</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension ItemListForecastExtension - Action Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2261635039 - Action 1676605102 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4178721393">
+          <source>Specifies to update the sales forecast.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension ItemListForecastExtension - Action Update Sales Forecast - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="PageExtension 2261635039 - Action 1676605102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4178721393">
           <source>Update Sales Forecast</source>

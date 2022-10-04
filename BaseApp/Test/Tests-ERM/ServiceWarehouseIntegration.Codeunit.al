@@ -255,7 +255,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] Posted whse shipment is created; Service Shipment is created; Service Invoice is created.
         Initialize();
         CreateServiceOrder(ServiceHeader, 9, WhiteLocationCode, 0, 0, 0, 0, false);
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -645,7 +645,7 @@ codeunit 136142 "Service Warehouse Integration"
         Evaluate(ServiceHeaderShippingTime[1], '<2D>');
         Evaluate(InvSetupOutboundWhseHandlingTime[2], '<-7D>');
         ServiceLine.SuspendStatusCheck(true);
-        ServiceLine."Needed by Date" := WorkDate;
+        ServiceLine."Needed by Date" := WorkDate();
         ServiceLine."Shipping Time" := ServiceHeaderShippingTime[1];
         Assert.AreEqual(
           CalcDate(InvSetupOutboundWhseHandlingTime[2], ServiceLine.GetDueDate), ServiceLine.GetShipmentDate,
@@ -679,7 +679,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         Initialize();
         CreateServiceOrder(ServiceHeader, 0, WhiteLocationCode, 10, 10, 10, 0, true);
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
         WhseShipmentNo := GetWhseShipmentNo(ServiceHeader."No.");
@@ -870,8 +870,8 @@ codeunit 136142 "Service Warehouse Integration"
         if ErrorExpected then
             asserterror MyFieldRef.Validate
         else
-            MyFieldRef.Validate;
-        MyRecRef.Close;
+            MyFieldRef.Validate();
+        MyRecRef.Close();
     end;
 
     local procedure GetFieldNo(EnumVal: Integer): Integer
@@ -1016,7 +1016,7 @@ codeunit 136142 "Service Warehouse Integration"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure CollectWarehouseShipmentLines(ServiceOrderNo: Code[20]; var TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary)
@@ -1033,7 +1033,7 @@ codeunit 136142 "Service Warehouse Integration"
         repeat
             TempWarehouseShipmentLine := WarehouseShipmentLine;
             TempWarehouseShipmentLine.Insert();
-        until WarehouseShipmentLine.Next = 0;
+        until WarehouseShipmentLine.Next() = 0;
     end;
 
     local procedure GetWhseShipmentNo(ServiceOrderNo: Code[20]): Code[20]
@@ -1060,7 +1060,7 @@ codeunit 136142 "Service Warehouse Integration"
             repeat
                 TempPostedWhseShipmentLine := PostedWhseShipmentLine;
                 TempPostedWhseShipmentLine.Insert();
-            until PostedWhseShipmentLine.Next = 0;
+            until PostedWhseShipmentLine.Next() = 0;
     end;
 
     local procedure CompareLineSets(var TempServiceLine: Record "Service Line" temporary; var TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary)
@@ -1073,7 +1073,7 @@ codeunit 136142 "Service Warehouse Integration"
         TempWarehouseShipmentLine.FindSet();
         repeat
             CompareLineFields(TempServiceLine, TempWarehouseShipmentLine);
-        until (TempServiceLine.Next = 0) and (TempWarehouseShipmentLine.Next = 0);
+        until (TempServiceLine.Next() = 0) and (TempWarehouseShipmentLine.Next() = 0);
     end;
 
     local procedure CompareLineFields(TempServiceLine: Record "Service Line" temporary; TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary)
@@ -1131,7 +1131,7 @@ codeunit 136142 "Service Warehouse Integration"
             repeat
                 VATPostingSetup.Get(TempVATPostingSetup."VAT Bus. Posting Group", '');
                 VATPostingSetup.Delete(true);
-            until TempVATPostingSetup.Next = 0;
+            until TempVATPostingSetup.Next() = 0;
         TempVATPostingSetup.DeleteAll();
 
         WhseSetup.Get();
@@ -1221,7 +1221,7 @@ codeunit 136142 "Service Warehouse Integration"
                 ModifyAll(Default, false);
                 Get(UserId, DefaultLocationCodeForUser);
                 Default := true;
-                Modify;
+                Modify();
             end;
 
         TempVATPostingSetup.DeleteAll();
@@ -1241,7 +1241,7 @@ codeunit 136142 "Service Warehouse Integration"
                         TempVATPostingSetup := VATPostingSetup;
                         TempVATPostingSetup.Insert();
                     end;
-                until VATBusinessPostingGroup.Next = 0;
+                until VATBusinessPostingGroup.Next() = 0;
         end;
         WhseSetup.Get();
         OldWhsePostingSetting := WhseSetup."Shipment Posting Policy";
@@ -1401,7 +1401,7 @@ codeunit 136142 "Service Warehouse Integration"
         CalculateWhseAdjustment.SetItemJnlLine(ItemJnlLine);
         CalculateWhseAdjustment.UseRequestPage(false);
         CalculateWhseAdjustment.SetHideValidationDialog(true);
-        CalculateWhseAdjustment.InitializeRequest(WorkDate, 'COD136142');
+        CalculateWhseAdjustment.InitializeRequest(WorkDate(), 'COD136142');
         CalculateWhseAdjustment.Run();
         if ItemJnlLine.FindSet() then
             repeat
@@ -1414,7 +1414,7 @@ codeunit 136142 "Service Warehouse Integration"
                 until KeepItemJnlLine or (i = ArrayLen(ItemNo));
                 if not KeepItemJnlLine then
                     ItemJnlLine.Delete(true);
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
         LibraryInventory.PostItemJournalLine(ItemJournalTemplateName, ItemJournalBatchName);
     end;
 
@@ -1452,7 +1452,7 @@ codeunit 136142 "Service Warehouse Integration"
             GetBinCode;
             CreateTestItems;
             ProvideTestItemSupply;
-            GetResource;
+            GetResource();
             GetGLAcc;
             BasicDataInitialized := true;
         end;
@@ -1597,7 +1597,7 @@ codeunit 136142 "Service Warehouse Integration"
           TempWarehouseActivityLine.FindSet, 'No warehouse activity lines in CompareLineSets2 ActionType ' + Format(TakePlace));
         repeat
             CompareLineFields2(TempWarehouseShipmentLine, TempWarehouseActivityLine);
-        until (TempWarehouseActivityLine.Next = 0) and (TempWarehouseShipmentLine.Next = 0);
+        until (TempWarehouseActivityLine.Next() = 0) and (TempWarehouseShipmentLine.Next() = 0);
     end;
 
     local procedure CompareLineFields2(var TempWhseShipmentLine: Record "Warehouse Shipment Line" temporary; var TempWhseActivityLine: Record "Warehouse Activity Line" temporary)
@@ -1652,7 +1652,7 @@ codeunit 136142 "Service Warehouse Integration"
           'No registered warehouse activity lines in CompareLineSets3 ActionType ' + Format(TakePlace));
         repeat
             CompareLineFields3(TempWarehouseShipmentLine, TempRegisteredWhseActivityLine);
-        until (TempRegisteredWhseActivityLine.Next = 0) and (TempWarehouseShipmentLine.Next = 0);
+        until (TempRegisteredWhseActivityLine.Next() = 0) and (TempWarehouseShipmentLine.Next() = 0);
     end;
 
     local procedure CompareLineFields3(var TempWhseShipmentLine: Record "Warehouse Shipment Line" temporary; var TempRegisteredWhseActivityLine: Record "Registered Whse. Activity Line" temporary)
@@ -1679,7 +1679,7 @@ codeunit 136142 "Service Warehouse Integration"
         TempReservationEntry.FindSet();
         repeat
             CompareLineFields4(TempReservationEntry, TempWhseActivityLine);
-        until (TempReservationEntry.Next = 0) or (TempWhseActivityLine.Next = 0);
+        until (TempReservationEntry.Next() = 0) or (TempWhseActivityLine.Next() = 0);
     end;
 
     local procedure CompareLineFields4(var TempReservationEntry: Record "Reservation Entry" temporary; var TempWhseActivityLine: Record "Warehouse Activity Line" temporary)
@@ -1723,7 +1723,7 @@ codeunit 136142 "Service Warehouse Integration"
         repeat
             Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Quantity Shipped", 'Wrong shipped quantity on service line');
             Assert.AreEqual(0, ServiceLine."Qty. to Ship", 'Wrong Qty. to ship on service line');
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLinesAreInvoiced(ServiceOrderNo: Code[20]; Delta: Decimal)
@@ -1738,7 +1738,7 @@ codeunit 136142 "Service Warehouse Integration"
             Assert.AreEqual(ServiceLine.Quantity - Delta, ServiceLine."Quantity Invoiced", 'Wrong invoiced quantity on service line');
             Assert.AreEqual(0, ServiceLine."Qty. to Ship", 'Wrong Qty. to ship on service line');
             Assert.AreEqual(0, ServiceLine."Qty. to Invoice", 'Wrong qty. to invoice on service line');
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceInvoice(ServiceOrderNo: Code[20]; var TempServiceLine: Record "Service Line" temporary; Delta: Decimal)
@@ -1756,13 +1756,13 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceInvoiceLine.FindSet();
         repeat
             Assert.AreEqual(TempServiceLine."No.", ServiceInvoiceLine."No.",
-              StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption, ServiceInvoiceLine.FieldCaption("No.")));
+              StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption(), ServiceInvoiceLine.FieldCaption("No.")));
             Assert.AreEqual(TempServiceLine.Quantity - Delta, ServiceInvoiceLine.Quantity,
-              StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption, ServiceInvoiceLine.FieldCaption(Quantity)));
+              StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption(), ServiceInvoiceLine.FieldCaption(Quantity)));
             if Delta = 0 then
                 Assert.AreEqual(TempServiceLine.Amount, ServiceInvoiceLine.Amount,
-                  StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption, ServiceInvoiceLine.FieldCaption(Amount)));
-        until (TempServiceLine.Next = 0) or (ServiceInvoiceLine.Next = 0);
+                  StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption(), ServiceInvoiceLine.FieldCaption(Amount)));
+        until (TempServiceLine.Next() = 0) or (ServiceInvoiceLine.Next() = 0);
     end;
 
     local procedure VerifyWhseShptLineExistence(ServiceOrderNo: Code[20])
@@ -1790,7 +1790,7 @@ codeunit 136142 "Service Warehouse Integration"
               CalcDate(LocationOutboundWhseHandlingTime[2], TempServiceLine.GetDueDate), TempServiceLine.GetShipmentDate,
               'Shipment date on service line');
             Assert.AreEqual(TempServiceLine.GetShipmentDate, TempWhseShipmentLine."Shipment Date", 'Shipment date on whse shipment line');
-        until (TempServiceLine.Next = 0) and (TempWhseShipmentLine.Next = 0);
+        until (TempServiceLine.Next() = 0) and (TempWhseShipmentLine.Next() = 0);
     end;
 
     local procedure ReduceWhseShipmentLineQtyToShip(var TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary; Delta: Decimal)
@@ -1805,7 +1805,7 @@ codeunit 136142 "Service Warehouse Integration"
             WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
             WarehouseShipmentLine.Validate("Qty. to Ship", WarehouseShipmentLine."Qty. to Ship" - Delta);
             WarehouseShipmentLine.Modify();
-        until TempWarehouseShipmentLine.Next = 0;
+        until TempWarehouseShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyPostedWhseShipmentLines(ServiceOrderNo: Code[20])
@@ -1821,7 +1821,7 @@ codeunit 136142 "Service Warehouse Integration"
         repeat
             Assert.AreEqual(
               TempWarehouseShipmentLine."Qty. Shipped", TempPostedWhseShipmentLine.Quantity, 'Quantity on posted whse shipment line');
-        until (TempWarehouseShipmentLine.Next = 0) or (TempPostedWhseShipmentLine.Next = 0);
+        until (TempWarehouseShipmentLine.Next() = 0) or (TempPostedWhseShipmentLine.Next() = 0);
     end;
 
     local procedure PullScenarioVerifyWhseRqst(ServiceOrderNo: Code[20]; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
@@ -1858,7 +1858,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseSourceFilter: Record "Warehouse Source Filter";
     begin
         with WarehouseSourceFilter do begin
-            Init;
+            Init();
             Validate(Type, Type::Outbound);
             Code := Name;
             "Service Orders" := ServiceIncluded;
@@ -1874,7 +1874,7 @@ codeunit 136142 "Service Warehouse Integration"
                         "Shipping Agent Service Filter" := FilterText;
                 end;
             if not Insert then
-                Modify;
+                Modify();
         end;
     end;
 
@@ -2011,7 +2011,7 @@ codeunit 136142 "Service Warehouse Integration"
         with WhseItemTrackingLine do begin
             if FindLast() then
                 NextEntryNo := "Entry No." + 1;
-            Init;
+            Init();
             "Entry No." := NextEntryNo;
             "Item No." := WarehouseJournalLine."Item No.";
             "Location Code" := WarehouseJournalLine."Location Code";
@@ -2022,7 +2022,7 @@ codeunit 136142 "Service Warehouse Integration"
             "Source Ref. No." := WarehouseJournalLine."Line No.";
             "Serial No." := SerialNo;
             "Lot No." := LotNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2086,7 +2086,7 @@ codeunit 136142 "Service Warehouse Integration"
               TempReservationEntry."Qty. to Handle (Base)", -TempWhseItemTrackingLine."Qty. to Handle (Base)",
               'Item Tracking Qty to handle (base)');
         // Assert.AreEqual(TempReservationEntry."Qty. to Invoice (Base)",-TempWhseItemTrackingLine."Qty. to Invoice (Base)",'Item Tracking Qty to Invoice (base)');  Are not equal - by design
-        until (TempReservationEntry.Next = 0) or (TempWhseItemTrackingLine.Next = 0);
+        until (TempReservationEntry.Next() = 0) or (TempWhseItemTrackingLine.Next() = 0);
     end;
 
     local procedure CollectItemTrackingReservationEntries(ServiceOrderNo: Code[20]; var TempReservationEntry: Record "Reservation Entry" temporary)
@@ -2125,7 +2125,7 @@ codeunit 136142 "Service Warehouse Integration"
                 WarehouseActivityLine.Get(TempWhseActivityLine."Activity Type", TempWhseActivityLine."No.", TempWhseActivityLine."Line No.");
                 WarehouseActivityLine.Validate("Serial No.", SN);
                 WarehouseActivityLine.Modify();
-                TempWhseActivityLine.Next;
+                TempWhseActivityLine.Next();
             end;
         end;
         // LotNo
@@ -2134,7 +2134,7 @@ codeunit 136142 "Service Warehouse Integration"
             WarehouseActivityLine.Get(TempWhseActivityLine."Activity Type", TempWhseActivityLine."No.", TempWhseActivityLine."Line No.");
             WarehouseActivityLine.Validate("Lot No.", Lot);
             WarehouseActivityLine.Modify();
-            TempWhseActivityLine.Next;
+            TempWhseActivityLine.Next();
         end;
         // Both
         SN := 'S0010';
@@ -2146,7 +2146,7 @@ codeunit 136142 "Service Warehouse Integration"
                 WarehouseActivityLine.Validate("Serial No.", SN);
                 WarehouseActivityLine.Validate("Lot No.", Lot);
                 WarehouseActivityLine.Modify();
-                if TempWhseActivityLine.Next = 0 then;
+                if TempWhseActivityLine.Next() = 0 then;
             end;
         end;
     end;
@@ -2168,9 +2168,9 @@ codeunit 136142 "Service Warehouse Integration"
         TempWhseItemTrackingLine.FindSet();
         repeat
             VerifyT6550T5773Fields(RegisteredWhseActivityLine, TempWhseItemTrackingLine);
-            RegisteredWhseActivityLine.Next;
+            RegisteredWhseActivityLine.Next();
             VerifyT6550T5773Fields(RegisteredWhseActivityLine, TempWhseItemTrackingLine);
-        until (TempWhseItemTrackingLine.Next = 0) or (RegisteredWhseActivityLine.Next = 0);
+        until (TempWhseItemTrackingLine.Next() = 0) or (RegisteredWhseActivityLine.Next() = 0);
     end;
 
     local procedure VerifyT6550T5773Fields(RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -2202,7 +2202,7 @@ codeunit 136142 "Service Warehouse Integration"
                 Assert.AreEqual(TempWhseItemTrackingLine."Serial No.", "Serial No.", 'Service Line Item Tracking Serial No.');
                 Assert.AreEqual(TempWhseItemTrackingLine."Lot No.", "Lot No.", 'Service Line Item Tracking Lot No.');
                 Assert.AreEqual(TempWhseItemTrackingLine."Location Code", "Location Code", 'Service Line Item Tracking Location Code');
-            until (Next = 0) or (TempWhseItemTrackingLine.Next = 0);
+            until (Next = 0) or (TempWhseItemTrackingLine.Next() = 0);
         end;
     end;
 
@@ -2225,7 +2225,7 @@ codeunit 136142 "Service Warehouse Integration"
                 Assert.AreEqual(TempWhseItemTrackingLine."Serial No.", "Serial No.", 'Service Line Item Tracking Serial No.');
                 Assert.AreEqual(TempWhseItemTrackingLine."Lot No.", "Lot No.", 'Service Line Item Tracking Lot No.');
                 Assert.AreEqual(TempWhseItemTrackingLine."Location Code", "Location Code", 'Service Line Item Tracking Location Code');
-            until (Next = 0) or (TempWhseItemTrackingLine.Next = 0);
+            until (Next = 0) or (TempWhseItemTrackingLine.Next() = 0);
         end;
     end;
 
@@ -2247,7 +2247,7 @@ codeunit 136142 "Service Warehouse Integration"
                 Assert.AreEqual(TempReservationEntry."Serial No.", "Serial No.", 'Whse item tracking serial no.');
                 Assert.AreEqual(TempReservationEntry."Lot No.", "Lot No.", 'Whse item tracking Lot No.');
                 Assert.AreEqual(TempReservationEntry."Item No.", "Item No.", 'Whse item tracking Item No');
-            until (Next = 0) and (TempReservationEntry.Next = 0);
+            until (Next = 0) and (TempReservationEntry.Next() = 0);
         end;
     end;
 
@@ -2268,7 +2268,7 @@ codeunit 136142 "Service Warehouse Integration"
                 Assert.AreEqual(TempReservationEntry."Quantity (Base)", Quantity, 'item Ledger Entry Quantity (Base)');
                 Assert.AreEqual(TempReservationEntry."Serial No.", "Serial No.", 'Item ledger entry serial no.');
                 Assert.AreEqual(TempReservationEntry."Lot No.", "Lot No.", 'Item LEdger Entry Lot No.');
-            until (Next = 0) or (TempReservationEntry.Next = 0);
+            until (Next = 0) or (TempReservationEntry.Next() = 0);
         end;
     end;
 
@@ -2334,7 +2334,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         ServiceLines.First;
         for i := 1 to ServiceLineNo - 1 do
-            ServiceLines.Next;
+            ServiceLines.Next();
         ServiceLines.ItemTrackingLines.Invoke;
     end;
 
@@ -2347,7 +2347,7 @@ codeunit 136142 "Service Warehouse Integration"
         if ItemTrackingOption = 1 then begin
             ServiceLines.First;
             for i := 1 to ServiceLineNo - 1 do
-                ServiceLines.Next;
+                ServiceLines.Next();
             ServiceLines.ItemTrackingLines.Invoke;
         end;
         if ItemTrackingOption = 2 then

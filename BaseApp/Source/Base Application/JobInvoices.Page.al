@@ -16,50 +16,50 @@ page 1029 "Job Invoices"
         {
             repeater(Group)
             {
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the information about the type of document. There are four options:';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number associated with the document. For example, if you have created an invoice, the field Specifies the invoice number.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the line number that is linked to the document. Numbers are created sequentially.';
                     Visible = ShowDetails;
                 }
-                field("Quantity Transferred"; "Quantity Transferred")
+                field("Quantity Transferred"; Rec."Quantity Transferred")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the quantity transferred from the job planning line to the invoice or credit memo.';
                 }
-                field("Transferred Date"; "Transferred Date")
+                field("Transferred Date"; Rec."Transferred Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date on which the invoice or credit document was created. The date is set to the posting date you specified when you created the invoice or credit memo.';
                     Visible = ShowDetails;
                 }
-                field("Invoiced Date"; "Invoiced Date")
+                field("Invoiced Date"; Rec."Invoiced Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date on which the invoice or credit memo was posted.';
                     Visible = ShowDetails;
                 }
-                field("Invoiced Amount (LCY)"; "Invoiced Amount (LCY)")
+                field("Invoiced Amount (LCY)"; Rec."Invoiced Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the amount (LCY) that was posted from the invoice or credit memo. The amount is calculated based on Quantity, Line Discount %, and Unit Price.';
                 }
-                field("Invoiced Cost Amount (LCY)"; "Invoiced Cost Amount (LCY)")
+                field("Invoiced Cost Amount (LCY)"; Rec."Invoiced Cost Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the amount of the unit costs that has been posted from the invoice or credit memo. The amount is calculated based on Quantity, Unit Cost, and Line Discount %.';
                 }
-                field("Job Ledger Entry No."; "Job Ledger Entry No.")
+                field("Job Ledger Entry No."; Rec."Job Ledger Entry No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a link to the job ledger entry that was created when the document was posted.';
@@ -83,9 +83,6 @@ page 1029 "Job Invoices"
                     Caption = 'Open Sales Invoice/Credit Memo';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Open the sales invoice or sales credit memo for the selected line.';
 
                     trigger OnAction()
@@ -96,6 +93,17 @@ page 1029 "Job Invoices"
                         JobCreateInvoice.FindInvoices(Rec, JobNo, JobTaskNo, JobPlanningLineNo, DetailLevel);
                         if Get("Job No.", "Job Task No.", "Job Planning Line No.", "Document Type", "Document No.", "Line No.") then;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenSalesInvoiceCreditMemo_Promoted; OpenSalesInvoiceCreditMemo)
+                {
                 }
             }
         }

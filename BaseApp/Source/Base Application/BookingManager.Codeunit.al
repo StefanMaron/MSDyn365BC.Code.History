@@ -22,10 +22,10 @@ codeunit 6721 "Booking Manager"
         DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         Now: DateTime;
     begin
-        if not BookingSync.IsSetup then
+        if not BookingSync.IsSetup() then
             exit;
 
-        RegisterAppointmentConnection;
+        RegisterAppointmentConnection();
 
         BookingItem.SetRange("Invoice Status", BookingItem."Invoice Status"::draft);
         BookingItem.SetFilter("Invoice No.", '=''''');
@@ -37,7 +37,7 @@ codeunit 6721 "Booking Manager"
                 TempBookingItem.TransferFields(BookingItem);
                 with BookingItem do
                     if ("Invoice No." = '') and ("Invoice Status" = "Invoice Status"::draft) then
-                        if GetStartDate < Now then
+                        if GetStartDate() < Now then
                             TempBookingItem.Insert();
             until BookingItem.Next() = 0;
     end;
@@ -62,7 +62,7 @@ codeunit 6721 "Booking Manager"
 
     procedure RegisterAppointmentConnection()
     begin
-        OnRegisterAppointmentConnection;
+        OnRegisterAppointmentConnection();
     end;
 
     procedure SetBookingItemInvoiced(InvoicedBookingItem: Record "Invoiced Booking Item")
@@ -109,10 +109,10 @@ codeunit 6721 "Booking Manager"
         BookingManager: Codeunit "Booking Manager";
     begin
         if not Customer.FindByEmail(Customer, BookingItem."Customer Email") then begin
-            if Confirm(ConfirmSyncQst, true, BookingItem."Customer Name", PRODUCTNAME.Short) then
+            if Confirm(ConfirmSyncQst, true, BookingItem."Customer Name", PRODUCTNAME.Short()) then
                 BookingManager.Synchronize(BookingItem);
             if not Customer.FindByEmail(Customer, BookingItem."Customer Email") then
-                Error(NoCustomerFoundErr, PRODUCTNAME.Short);
+                Error(NoCustomerFoundErr, PRODUCTNAME.Short());
         end;
 
         SalesHeader.Init();
@@ -130,7 +130,7 @@ codeunit 6721 "Booking Manager"
         LineNo: Integer;
     begin
         if not BookingServiceMapping.Get(BookingItem."Service ID") then begin
-            if Confirm(ConfirmSyncQst, true, BookingItem."Service Name", PRODUCTNAME.Short) then
+            if Confirm(ConfirmSyncQst, true, BookingItem."Service Name", PRODUCTNAME.Short()) then
                 BookingManager.Synchronize(BookingItem);
             BookingServiceMapping.Get(BookingItem."Service ID");
         end;
@@ -155,9 +155,9 @@ codeunit 6721 "Booking Manager"
         SalesLine.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
         SalesLine.Validate("No.", BookingServiceMapping."Item No.");
-        SalesLine.Validate(Quantity, (BookingItem.GetEndDate - BookingItem.GetStartDate) / 3600000);
+        SalesLine.Validate(Quantity, (BookingItem.GetEndDate() - BookingItem.GetStartDate()) / 3600000);
         SalesLine.Validate("Unit Price", BookingItem.Price);
-        SalesLine.Validate(Description, StrSubstNo('%1 - %2', BookingItem."Service Name", DT2Date(BookingItem.GetStartDate)));
+        SalesLine.Validate(Description, StrSubstNo('%1 - %2', BookingItem."Service Name", DT2Date(BookingItem.GetStartDate())));
         if not SalesLine.Insert(true) then begin
             InvoicedBookingItem.Delete();
             Error(GetLastErrorText);
@@ -166,24 +166,24 @@ codeunit 6721 "Booking Manager"
 
     procedure InvoiceItemsForCustomer(var BookingItemSource: Record "Booking Item"; var TempBookingItem: Record "Booking Item" temporary; var SalesHeader: Record "Sales Header") InvoiceCreated: Boolean
     var
-        NewTempBookingItem: Record "Booking Item" temporary;
+        TempNewTempBookingItem: Record "Booking Item" temporary;
         InvoicedBookingItem: Record "Invoiced Booking Item";
         O365SyncManagement: Codeunit "O365 Sync. Management";
     begin
-        NewTempBookingItem.Copy(TempBookingItem, true);
+        TempNewTempBookingItem.Copy(TempBookingItem, true);
         if not InvoicedBookingItem.Get(TempBookingItem.SystemId) then begin
-            NewTempBookingItem.SetRange("Customer Email", TempBookingItem."Customer Email");
-            NewTempBookingItem.SetRange("Invoice Status", NewTempBookingItem."Invoice Status"::draft);
-            NewTempBookingItem.SetFilter("Invoice No.", '=''''');
-            if NewTempBookingItem.FindSet() then begin
+            TempNewTempBookingItem.SetRange("Customer Email", TempBookingItem."Customer Email");
+            TempNewTempBookingItem.SetRange("Invoice Status", TempNewTempBookingItem."Invoice Status"::draft);
+            TempNewTempBookingItem.SetFilter("Invoice No.", '=''''');
+            if TempNewTempBookingItem.FindSet() then begin
                 Clear(SalesHeader);
-                CreateSalesHeader(SalesHeader, NewTempBookingItem);
+                CreateSalesHeader(SalesHeader, TempNewTempBookingItem);
                 repeat
-                    if not InvoicedBookingItem.Get(NewTempBookingItem.SystemId) then
-                        CreateSalesLine(SalesHeader, NewTempBookingItem);
-                    BookingItemSource.Get(NewTempBookingItem.SystemId);
+                    if not InvoicedBookingItem.Get(TempNewTempBookingItem.SystemId) then
+                        CreateSalesLine(SalesHeader, TempNewTempBookingItem);
+                    BookingItemSource.Get(TempNewTempBookingItem.SystemId);
                     BookingItemSource.Delete();
-                until NewTempBookingItem.Next() = 0;
+                until TempNewTempBookingItem.Next() = 0;
                 InvoiceCreated := true;
                 Session.LogMessage('0000ACI', InvoicingBookingsTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
             end;

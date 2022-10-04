@@ -8,7 +8,7 @@ page 9093 "Vendor Details FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Vendor No.';
@@ -16,7 +16,7 @@ page 9093 "Vendor Details FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             field(Name; Name)
@@ -24,18 +24,18 @@ page 9093 "Vendor Details FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the vendor''s name.';
             }
-            field("Phone No."; "Phone No.")
+            field("Phone No."; Rec."Phone No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the vendor''s telephone number.';
             }
-            field("E-Mail"; "E-Mail")
+            field("E-Mail"; Rec."E-Mail")
             {
                 ApplicationArea = Basic, Suite;
                 ExtendedDatatype = EMail;
                 ToolTip = 'Specifies the vendor''s email address.';
             }
-            field("Fax No."; "Fax No.")
+            field("Fax No."; Rec."Fax No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the vendor''s fax number.';

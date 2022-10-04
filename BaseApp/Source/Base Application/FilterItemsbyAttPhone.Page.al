@@ -27,7 +27,7 @@ page 7509 "Filter Items by Att. Phone"
 
                     trigger OnAssistEdit()
                     begin
-                        ValueAssistEdit;
+                        ValueAssistEdit();
                     end;
                 }
             }

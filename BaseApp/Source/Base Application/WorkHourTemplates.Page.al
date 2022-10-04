@@ -58,7 +58,7 @@ page 6017 "Work-Hour Templates"
                     ApplicationArea = Jobs, Service;
                     ToolTip = 'Specifies the number of work-hours on Sunday.';
                 }
-                field("Total per Week"; "Total per Week")
+                field("Total per Week"; Rec."Total per Week")
                 {
                     ApplicationArea = Jobs, Service;
                     ToolTip = 'Specifies the total number of work-hours per week for the work-hour template.';

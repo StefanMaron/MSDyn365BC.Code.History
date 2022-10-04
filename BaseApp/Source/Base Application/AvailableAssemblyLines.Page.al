@@ -104,7 +104,7 @@ page 926 "Available - Assembly Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -186,9 +186,6 @@ page 926 "Available - Assembly Lines"
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text002: Label 'Available Quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -200,6 +197,10 @@ page 926 "Available - Assembly Lines"
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Do you want to cancel the reservation?';
+        Text002: Label 'Available Quantity is %1.';
 
     protected var
         QtyToReserve: Decimal;
@@ -283,7 +284,7 @@ page 926 "Available - Assembly Lines"
         Rec.SetRange("Variant Code", ReservEntry."Variant Code");
         Rec.SetRange("Location Code", ReservEntry."Location Code");
         Rec.SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-        if ReservMgt.IsPositive then
+        if ReservMgt.IsPositive() then
             Rec.SetFilter("Remaining Quantity (Base)", '<0')
         else
             Rec.SetFilter("Remaining Quantity (Base)", '>0');

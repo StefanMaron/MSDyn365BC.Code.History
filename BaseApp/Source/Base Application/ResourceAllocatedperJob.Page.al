@@ -43,7 +43,7 @@ page 221 "Resource Allocated per Job"
 
                     trigger OnValidate()
                     begin
-                        DateControl;
+                        DateControl();
                         SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
@@ -55,7 +55,7 @@ page 221 "Resource Allocated per Job"
 
                     trigger OnValidate()
                     begin
-                        DateControl;
+                        DateControl();
                         SetMatrixColumns("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                     end;
@@ -80,9 +80,6 @@ page 221 "Resource Allocated per Job"
                 ApplicationArea = Jobs;
                 Caption = 'Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Open the matrix window to see data according to the specified values.';
 
                 trigger OnAction()
@@ -109,10 +106,6 @@ page 221 "Resource Allocated per Job"
                 ApplicationArea = Jobs;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -125,15 +118,29 @@ page 221 "Resource Allocated per Job"
                 ApplicationArea = Jobs;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }

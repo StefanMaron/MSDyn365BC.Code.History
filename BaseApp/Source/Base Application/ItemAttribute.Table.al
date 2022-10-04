@@ -23,7 +23,7 @@ table 7500 "Item Attribute"
                     exit;
 
                 TestField(Name);
-                if HasBeenUsed then
+                if HasBeenUsed() then
                     if not Confirm(RenameUsedAttributeQst) then
                         Error('');
                 CheckNameUniqueness(Rec, Name);
@@ -59,7 +59,7 @@ table 7500 "Item Attribute"
             trigger OnValidate()
             begin
                 if (xRec."Unit of Measure" <> '') and (xRec."Unit of Measure" <> "Unit of Measure") then
-                    if HasBeenUsed then
+                    if HasBeenUsed() then
                         if not Confirm(ChangeUsedAttributeUoMQst) then
                             Error('');
             end;
@@ -89,10 +89,10 @@ table 7500 "Item Attribute"
 
     trigger OnDelete()
     begin
-        if HasBeenUsed then
+        if HasBeenUsed() then
             if not Confirm(DeleteUsedAttributeQst) then
                 Error('');
-        DeleteValuesAndTranslations;
+        DeleteValuesAndTranslations();
     end;
 
     trigger OnRename()
@@ -179,7 +179,7 @@ table 7500 "Item Attribute"
         ItemAttributeValue.SetRange("Attribute ID", ID);
         if ItemAttributeValue.FindSet() then
             repeat
-                if not ItemAttributeValue.HasBeenUsed then
+                if not ItemAttributeValue.HasBeenUsed() then
                     ItemAttributeValue.Delete();
             until ItemAttributeValue.Next() = 0;
     end;
@@ -192,7 +192,7 @@ table 7500 "Item Attribute"
         if (Type <> Type::Option) and ItemAttributeValue.IsEmpty() then
             if Confirm(ChangeToOptionQst) then begin
                 Validate(Type, Type::Option);
-                Modify;
+                Modify();
             end;
 
         if Type = Type::Option then
@@ -218,10 +218,10 @@ table 7500 "Item Attribute"
         if (ItemAttribute.Name <> '') and (ItemAttribute.Name <> NameToCheck) then begin
             ItemAttributeValue.SetRange("Attribute ID", ID);
             ItemAttributeTranslation.SetRange("Attribute ID", ID);
-            ValuesOrTranslationsExist := not (ItemAttributeValue.IsEmpty and ItemAttributeTranslation.IsEmpty);
+            ValuesOrTranslationsExist := not (ItemAttributeValue.IsEmpty() and ItemAttributeTranslation.IsEmpty);
             if ValuesOrTranslationsExist then
                 if not Confirm(StrSubstNo(ReuseValueTranslationsQst, ItemAttribute.Name, NameToCheck)) then
-                    DeleteValuesAndTranslations;
+                    DeleteValuesAndTranslations();
         end;
     end;
 

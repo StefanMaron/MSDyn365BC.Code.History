@@ -1,4 +1,4 @@
-﻿table 5875 "Phys. Invt. Order Header"
+table 5875 "Phys. Invt. Order Header"
 {
     Caption = 'Phys. Invt. Order Header';
     DataCaptionFields = "No.", Description;
@@ -15,7 +15,7 @@
             begin
                 if "No." <> xRec."No." then begin
                     InvtSetup.Get();
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -61,11 +61,11 @@
                         if PhysInvtOrderLine.Find('-') then
                             repeat
                                 if PhysInvtOrderLine."Item No." <> '' then begin
-                                    PhysInvtOrderLine.ResetQtyExpected;
+                                    PhysInvtOrderLine.ResetQtyExpected();
                                     PhysInvtOrderLine.Modify();
                                 end;
                             until PhysInvtOrderLine.Next() = 0;
-                        Modify;
+                        Modify();
                     end;
                 end;
             end;
@@ -207,7 +207,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -327,7 +327,7 @@
                 NoSeriesMgt.SetDefaultSeries("Posting No. Series", InvtSetup."Posted Phys. Invt. Order Nos.");
 
             if "Posting Date" = 0D then
-                Validate("Posting Date", WorkDate);
+                Validate("Posting Date", WorkDate());
         end;
 
         OnAfterInitRecord(Rec);
@@ -339,7 +339,7 @@
             PhysInvtOrderHeader := Rec;
             InvtSetup.Get();
             TestNoSeries();
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldPhysInvtOrderHeader."No. Series", "No. Series") then begin
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldPhysInvtOrderHeader."No. Series", "No. Series") then begin
                 InvtSetup.Get();
                 TestNoSeries();
                 NoSeriesMgt.SetSeries("No.");
@@ -393,11 +393,11 @@
         OldDimSetID := "Dimension Set ID";
         DimManagement.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
         if "No." <> '' then
-            Modify;
+            Modify();
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if PhysInvtOrderLinesExist then
+            Modify();
+            if PhysInvtOrderLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -461,11 +461,11 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimManagement.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if PhysInvtOrderLinesExist then
+            Modify();
+            if PhysInvtOrderLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -474,10 +474,10 @@
     begin
         PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
-        exit(PhysInvtOrderLine.FindFirst);
+        exit(PhysInvtOrderLine.FindFirst());
     end;
 
-    local procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
         NewDimSetID: Integer;
     begin

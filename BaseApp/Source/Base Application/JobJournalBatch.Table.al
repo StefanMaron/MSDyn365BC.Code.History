@@ -32,7 +32,7 @@ table 237 "Job Journal Batch"
                     JobJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                     JobJnlLine.SetRange("Journal Batch Name", Name);
                     JobJnlLine.ModifyAll("Reason Code", "Reason Code");
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -66,7 +66,7 @@ table 237 "Job Journal Batch"
                 JobJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 JobJnlLine.SetRange("Journal Batch Name", Name);
                 JobJnlLine.ModifyAll("Posting No. Series", "Posting No. Series");
-                Modify;
+                Modify();
             end;
         }
         field(22; Recurring; Boolean)
@@ -107,15 +107,16 @@ table 237 "Job Journal Batch"
     begin
         JobJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         JobJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while JobJnlLine.FindFirst do
+        while JobJnlLine.FindFirst() do
             JobJnlLine.Rename("Journal Template Name", Name, JobJnlLine."Line No.");
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlLine: Record "Job Journal Line";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 
     procedure SetupNewBatch()
     begin

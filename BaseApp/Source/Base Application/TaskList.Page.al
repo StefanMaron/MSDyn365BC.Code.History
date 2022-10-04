@@ -2,7 +2,7 @@ page 5096 "Task List"
 {
     Caption = 'Task List';
     CardPageID = "Task Card";
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = "To-do";
@@ -45,12 +45,12 @@ page 5096 "Task List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the status of the task. There are five options: Not Started, In Progress, Completed, Waiting and Postponed.';
                 }
-                field("Organizer To-do No."; "Organizer To-do No.")
+                field("Organizer To-do No."; Rec."Organizer To-do No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the organizer''s task. The field is not editable.';
                 }
-                field("Date Closed"; "Date Closed")
+                field("Date Closed"; Rec."Date Closed")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date the task was closed.';
@@ -65,7 +65,7 @@ page 5096 "Task List"
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that a comment has been assigned to the task.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact linked to the task.';
@@ -84,33 +84,33 @@ page 5096 "Task List"
                         end;
                     end;
                 }
-                field("Contact Company No."; "Contact Company No.")
+                field("Contact Company No."; Rec."Contact Company No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the contact number of the company for which the contact involved in the task works.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the salesperson assigned to the task.';
                 }
-                field("Team Code"; "Team Code")
+                field("Team Code"; Rec."Team Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the team to which the task is assigned.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign to which the task is linked.';
                 }
-                field("Opportunity No."; "Opportunity No.")
+                field("Opportunity No."; Rec."Opportunity No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the opportunity to which the task is linked.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -119,14 +119,14 @@ page 5096 "Task List"
             group(Control55)
             {
                 ShowCaption = false;
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the contact to which this task has been assigned.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
@@ -257,7 +257,7 @@ page 5096 "Task List"
                         TempSegmentLine."Contact Company No." := ContCompanyNo;
                         TempSegmentLine."Campaign No." := "Campaign No.";
                         TempSegmentLine."Salesperson Code" := "Salesperson Code";
-                        TempSegmentLine.CreatePhoneCall;
+                        TempSegmentLine.CreatePhoneCall();
                     end;
                 }
                 action("Delete Canceled Tasks")
@@ -274,8 +274,6 @@ page 5096 "Task List"
                 ApplicationArea = RelationshipMgmt;
                 Caption = '&Create Task';
                 Image = NewToDo;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create a new task.';
 
                 trigger OnAction()
@@ -290,10 +288,20 @@ page 5096 "Task List"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Edit Organizer Task';
                 Image = Edit;
-                Promoted = false;
                 RunObject = Page "Task Card";
                 RunPageLink = "No." = FIELD("Organizer To-do No.");
                 ToolTip = 'View general information about the task such as type, description, priority and status of the task, as well as the salesperson or team the task is assigned to.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Create Task_Promoted"; "&Create Task")
+                {
+                }
             }
         }
     }

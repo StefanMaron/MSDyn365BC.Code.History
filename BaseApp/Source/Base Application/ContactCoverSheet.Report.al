@@ -228,7 +228,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks1OnAfterValidate;
+                                Marks1OnAfterValidate();
                             end;
                         }
                         field("Marks[2]"; Marks[2])
@@ -239,7 +239,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks2OnAfterValidate;
+                                Marks2OnAfterValidate();
                             end;
                         }
                         field("Marks[3]"; Marks[3])
@@ -250,7 +250,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks3OnAfterValidate;
+                                Marks3OnAfterValidate();
                             end;
                         }
                         field("Marks[4]"; Marks[4])
@@ -261,7 +261,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks4OnAfterValidate;
+                                Marks4OnAfterValidate();
                             end;
                         }
                         field("Marks[5]"; Marks[5])
@@ -272,7 +272,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks5OnAfterValidate;
+                                Marks5OnAfterValidate();
                             end;
                         }
                         field("Marks[6]"; Marks[6])
@@ -283,7 +283,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks6OnAfterValidate;
+                                Marks6OnAfterValidate();
                             end;
                         }
                         field("Marks[7]"; Marks[7])
@@ -295,7 +295,7 @@ report 5055 "Contact - Cover Sheet"
 
                             trigger OnValidate()
                             begin
-                                Marks7OnAfterValidate;
+                                Marks7OnAfterValidate();
                             end;
                         }
                         field("Text[6]"; Text[6])
@@ -340,7 +340,7 @@ report 5055 "Contact - Cover Sheet"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if Contact.FindSet() then
                 repeat
                     SegManagement.LogDocument(17, '', 0, 0, DATABASE::Contact, Contact."No.", '', '', '', '');
@@ -348,7 +348,6 @@ report 5055 "Contact - Cover Sheet"
     end;
 
     var
-        MarkTxt: Label 'x', Locked = true;
         CompanyInfo: Record "Company Information";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
@@ -360,6 +359,8 @@ report 5055 "Contact - Cover Sheet"
         LogInteraction: Boolean;
         [InDataSet]
         LogInteractionEnable: Boolean;
+
+        MarkTxt: Label 'x', Locked = true;
         Cover_SheetCaptionLbl: Label 'Cover Sheet';
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
@@ -435,7 +436,7 @@ report 5055 "Contact - Cover Sheet"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure InitializeText(Text1From: Text[100]; Text2From: Text[100]; Text3From: Text[100]; Text4From: Text[100]; Text5From: Text[100])
@@ -455,19 +456,19 @@ report 5055 "Contact - Cover Sheet"
         Marks[4] := ForYourApproval;
         Marks[5] := PleaseCall;
         Marks[6] := ReturnedAfterUse;
-        Marks1OnAfterValidate;
-        Marks2OnAfterValidate;
-        Marks3OnAfterValidate;
-        Marks4OnAfterValidate;
-        Marks5OnAfterValidate;
-        Marks6OnAfterValidate;
+        Marks1OnAfterValidate();
+        Marks2OnAfterValidate();
+        Marks3OnAfterValidate();
+        Marks4OnAfterValidate();
+        Marks5OnAfterValidate();
+        Marks6OnAfterValidate();
     end;
 
     procedure InitializeCustomRemarks(CustomRemark: Boolean; CustomRemarkText: Text[100])
     begin
         Marks[7] := CustomRemark;
         Text[6] := CustomRemarkText;
-        Marks7OnAfterValidate;
+        Marks7OnAfterValidate();
     end;
 }
 

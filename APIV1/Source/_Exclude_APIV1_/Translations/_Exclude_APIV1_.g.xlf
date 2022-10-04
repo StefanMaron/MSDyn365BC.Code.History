@@ -23,6 +23,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType ThereIsNothingToSellErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2349943443 - NamedType 3637975764" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please add at least one line item to the invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType ThereIsNothingToSellInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2349943443 - NamedType 1331280005" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please add at least one line item to the estimate.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType ThereIsNothingToSellQuoteErr</note>
+        </trans-unit>
         <trans-unit id="Page 607156668 - Control 4247538596 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the account.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -113,6 +123,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Group Member - NamedType UserIDNotSpecifiedForLinesErr</note>
         </trans-unit>
+        <trans-unit id="Page 1616287486 - Control 707985127 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the user group code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Group Member - Control code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1616287486 - Control 1408747468 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Group Member - Control companyName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1616287486 - Control 460507951 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the user group name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Group Member - Control displayName - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3355667034 - NamedType 3146882720" size-unit="char" translate="yes" xml:space="preserve">
           <source>The permission set %1 is defined multiple times in this context.</source>
           <note from="Developer" annotates="general" priority="2">%1 will be replaced with a Role ID code value from the Permission Set table</note>
@@ -123,15 +148,40 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - NamedType UserIDNotSpecifiedForLinesErr</note>
         </trans-unit>
+        <trans-unit id="Page 3355667034 - Control 2663178392 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the app id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control appId - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3355667034 - Control 2663178392 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>appId</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control appId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3355667034 - Control 3341719881 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company name.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control company - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3355667034 - Control 460507951 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the security role that has been given to this Windows login in the current database.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control displayName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3355667034 - Control 3139397762 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the app name.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control extensionName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3355667034 - Control 2686962215 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the role id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control id - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3355667034 - Control 1729288206 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the scope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control scope - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3355667034 - Control 1729288206 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>scope</source>
@@ -173,30 +223,60 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Customers - Control taxAreaDisplayName - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 423687670 - Control 3904902575 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension code.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionCode - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 423687670 - Control 3904902575 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>dimensionCode</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 423687670 - Control 1742984367 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionId - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 423687670 - Control 1742984367 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>dimensionId</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 423687670 - Control 1355182586 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionValueCode - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 423687670 - Control 1355182586 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>dimensionValueCode</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionValueCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 423687670 - Control 3463544090 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionValueId - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 423687670 - Control 3463544090 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>dimensionValueId</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control dimensionValueId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 423687670 - Control 2178989011 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the parent id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control parentId - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 423687670 - Control 2178989011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>parentId</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control parentId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 423687670 - Control 3044391461 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting validation.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Default Dimensions - Control postingValidation - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 423687670 - Control 3044391461 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>postingValidation</source>
@@ -298,15 +378,45 @@
           <note from="Developer" annotates="general" priority="2">%1 - a GUID, %2 - a GUID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - PDF Document - NamedType ConflictingIdsErr</note>
         </trans-unit>
+        <trans-unit id="Page 2699795489 - Control 2374100451 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the content.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - PDF Document - Control content - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3317153159 - Control 2374100451 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the content.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control content - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3317153159 - Control 2374100451 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>content</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control content - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3317153159 - Control 734925675 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the content type.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control contentType - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3317153159 - Control 734925675 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>contentType</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control contentType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3317153159 - Control 4107668617 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the height.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control height - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3317153159 - Control 2686962215 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control id - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3317153159 - Control 1940502594 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the width.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control width - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1048301999 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV1 - Purchase Invoice Lines</source>

@@ -17,7 +17,7 @@ page 5224 "Employee Posting Groups"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies an identifier for the employee posting group.';
                 }
-                field("Payables Account"; "Payables Account")
+                field("Payables Account"; Rec."Payables Account")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the general ledger account to use when you post payables to employees in this posting group.';

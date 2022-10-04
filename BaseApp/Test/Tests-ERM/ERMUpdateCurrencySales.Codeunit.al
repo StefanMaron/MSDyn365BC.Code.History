@@ -44,7 +44,7 @@
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateLocalPostingSetup();
-        LibraryERM.SetJournalTemplNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -1015,7 +1015,7 @@
         SalesQuotePage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesQuotePage."Currency Code".Value(Currency.Code);
         DocumentNo := SalesQuotePage."No.".Value;
-        SalesQuotePage.Close;
+        SalesQuotePage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::Quote, DocumentNo, Resource."No.", Currency.Code);
     end;
@@ -1043,7 +1043,7 @@
         SalesOrderPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesOrderPage."Currency Code".Value(Currency.Code);
         DocumentNo := SalesOrderPage."No.".Value;
-        SalesOrderPage.Close;
+        SalesOrderPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::Order, DocumentNo, Resource."No.", Currency.Code);
     end;
@@ -1071,7 +1071,7 @@
         SalesInvoicePage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesInvoicePage."Currency Code".Value(Currency.Code);
         DocumentNo := SalesInvoicePage."No.".Value;
-        SalesInvoicePage.Close;
+        SalesInvoicePage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::Invoice, DocumentNo, Resource."No.", Currency.Code);
     end;
@@ -1099,7 +1099,7 @@
         SalesCrMemoPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesCrMemoPage."Currency Code".Value(Currency.Code);
         DocumentNo := SalesCrMemoPage."No.".Value;
-        SalesCrMemoPage.Close;
+        SalesCrMemoPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::"Credit Memo", DocumentNo, Resource."No.", Currency.Code);
     end;
@@ -1127,7 +1127,7 @@
         BlanketSalesOrderPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         BlanketSalesOrderPage."Currency Code".Value(Currency.Code);
         DocumentNo := BlanketSalesOrderPage."No.".Value;
-        BlanketSalesOrderPage.Close;
+        BlanketSalesOrderPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::"Blanket Order", DocumentNo, Resource."No.", Currency.Code);
     end;
@@ -1155,7 +1155,7 @@
         SalesReturnOrderPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesReturnOrderPage."Currency Code".Value(Currency.Code);
         DocumentNo := SalesReturnOrderPage."No.".Value;
-        SalesReturnOrderPage.Close;
+        SalesReturnOrderPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::"Return Order", DocumentNo, Resource."No.", Currency.Code);
     end;
@@ -1188,14 +1188,14 @@
 
         // [GIVEN] Create Gen. Journal Line for the Customer with zero Amount and empty "Account No.".
         CreateGeneralJournalLine(
-          GenJournalLine, WorkDate, '', '', 0, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer);
+          GenJournalLine, WorkDate(), '', '', 0, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer);
 
         // [WHEN] Fill "Applies-to Doc. No." with the Posted Sales Invoice No.
         ExpectedMsg :=
           StrSubstNo(
             ChangeCurrencyMsg,
             GenJournalLine.FieldCaption("Currency Code"),
-            GenJournalLine.TableCaption,
+            GenJournalLine.TableCaption(),
             GenJournalLine.GetShowCurrencyCode(Customer."Currency Code"),
             GenJournalLine.GetShowCurrencyCode(SalesHeader."Currency Code"));
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
@@ -1219,7 +1219,7 @@
         repeat
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
         Commit();
         GenJnlApply.Run(GenJournalLine);
     end;
@@ -1286,7 +1286,7 @@
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        CreateExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        CreateExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate());
     end;
 
     local procedure CreateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
@@ -1356,7 +1356,7 @@
         SalesInvoiceLine.FindSet();
         repeat
             SalesInvoiceAmount += SalesInvoiceLine."Amount Including VAT";
-        until SalesInvoiceLine.Next = 0;
+        until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure FindSalesLines(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -1432,7 +1432,7 @@
             SalesLine."No." := '';
             SalesLine.Validate("No.", ItemNo);
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Normal]
@@ -1464,7 +1464,7 @@
     local procedure GetCurrency(var Currency: Record Currency; CurrencyCode: Code[10])
     begin
         Currency.Get(CurrencyCode);
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
     end;
 
     local procedure GetGLEntryForExchangeRate(DocumentNo: Code[20]) GLAmount: Decimal
@@ -1477,7 +1477,7 @@
         GLEntry.FindSet();
         repeat
             GLAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure CalcCurrencyFactor(CurrencyExchangeRate: Record "Currency Exchange Rate"): Decimal
@@ -1493,8 +1493,8 @@
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Sell-to Customer Name".SetValue(CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate));
-        SalesOrder.Close;
-        SalesHeader.Find;
+        SalesOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure VerifySalesDocumentValues(SalesHeader: Record "Sales Header"; CurrencyFactor: Decimal)
@@ -1518,9 +1518,9 @@
               SalesLine."Unit Price", Item."Unit Price" * SalesHeader."Currency Factor", Currency."Unit-Amount Rounding Precision",
               StrSubstNo(
                 UnitPriceError, SalesLine.FieldCaption("Unit Price"),
-                Item."Unit Price" * SalesHeader."Currency Factor", SalesLine.TableCaption));
+                Item."Unit Price" * SalesHeader."Currency Factor", SalesLine.TableCaption()));
             SalesLine.TestField("Line Amount", Round(SalesLine.Quantity * SalesLine."Unit Price", Currency."Amount Rounding Precision"));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyGenJournalAmount(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate"; Amount: Decimal; StartingDate: Date)
@@ -1558,7 +1558,7 @@
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(
             AmountError, GLEntry.FieldCaption(Amount), Amount,
-            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyGLEntryAmount(CurrencyExchangeRate: Record "Currency Exchange Rate"; SalesInvoiceHeaderNo: Code[20]; DocumentNo: Code[20]; OldRelationalExchangeRate: Decimal)
@@ -1577,7 +1577,7 @@
         Assert.AreNearlyEqual(
           ExpectedAmount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."),
+            AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
     end;
 
@@ -1617,7 +1617,7 @@
         Assert.AreNearlyEqual(
           ExpectedGLAmount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."),
+            AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
     end;
 
@@ -1638,7 +1638,7 @@
           ExpectedDetailCustEntryAmount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
           StrSubstNo(
             AmountError, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), DetailedCustLedgEntry."Amount (LCY)",
-            DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+            DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; CurrencyCode: Code[10])
@@ -1668,7 +1668,7 @@
         Assert.AreNearlyEqual(
           ExpectedGLAmount, GLAmount, Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, GLEntry.FieldCaption(Amount), GLAmount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."),
+            AmountError, GLEntry.FieldCaption(Amount), GLAmount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
     end;
 
@@ -1682,7 +1682,7 @@
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount");
             CustLedgerEntry.TestField("Remaining Amount", 0);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyCurrencyInSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]; CurrencyCode: Code[10])

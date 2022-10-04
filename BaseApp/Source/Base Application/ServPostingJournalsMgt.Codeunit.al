@@ -109,7 +109,7 @@
         end;
 
         with ItemJnlLine do begin
-            Init;
+            Init();
             CopyFromServHeader(ServiceHeader);
             CopyFromServLine(ServiceLine);
 
@@ -331,7 +331,7 @@
     begin
         with GenJnlLine do begin
             InitNewLine(
-              ServiceLinePostingDate, ServiceHeader."Document Date", InvoicePostBuffer."Entry Description",
+              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostBuffer."Entry Description",
               InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
               InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
 
@@ -356,7 +356,7 @@
     begin
         with GenJnlLine do begin
             InitNewLine(
-              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."Posting Description",
+              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
               ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
               ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
@@ -399,7 +399,7 @@
         CustLedgEntry.FindLast();
         with GenJnlLine do begin
             InitNewLine(
-              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."Posting Description",
+              ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
               ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
               ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
@@ -503,7 +503,7 @@
         ResJnlLine: Record "Res. Journal Line";
     begin
         with ResJnlLine do begin
-            Init;
+            Init();
             OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
             CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
             CopyFromServHeader(ServiceHeader);
@@ -624,7 +624,7 @@
             JobTask.Get("Job No.", "Job Task No.");
 
             JobJnlLine.Init();
-            JobJnlLine.DontCheckStdCost;
+            JobJnlLine.DontCheckStdCost();
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
             JobJnlLine.Validate("Line Type", "Job Line Type");

@@ -44,15 +44,15 @@ report 99001026 "Replan Production Order"
                             if Direction = Direction::Forward then begin
                                 "Starting Date" := "Prod. Order Line"."Starting Date";
                                 "Starting Time" := "Prod. Order Line"."Starting Time";
-                                Modify;
+                                Modify();
                             end else begin
                                 "Ending Date" := "Prod. Order Line"."Ending Date";
                                 "Ending Time" := "Prod. Order Line"."Ending Time";
-                                Modify;
+                                Modify();
                             end;
                             CalcProdOrderRtngLine.CalculateRoutingLine("Prod. Order Routing Line", Direction, true);
                         end;
-                        Modify;
+                        Modify();
                     end;
 
                     trigger OnPostDataItem()
@@ -76,7 +76,7 @@ report 99001026 "Replan Production Order"
 
                     trigger OnAfterGetRecord()
                     var
-                        SKU: Record "Stockkeeping Unit" temporary;
+                        TempSKU: Record "Stockkeeping Unit" temporary;
                         StockkeepingUnit: Record "Stockkeeping Unit";
                         CompItem: Record Item;
                         MainProdOrder: Record "Production Order";
@@ -93,7 +93,7 @@ report 99001026 "Replan Production Order"
                     begin
                         BlockDynamicTracking(true);
                         Validate("Routing Link Code");
-                        Modify;
+                        Modify();
 
                         CalcFields("Reserved Qty. (Base)");
                         if "Reserved Qty. (Base)" = "Remaining Qty. (Base)" then
@@ -126,8 +126,8 @@ report 99001026 "Replan Production Order"
                         if ReqQty > "Remaining Qty. (Base)" then
                             ReqQty := "Remaining Qty. (Base)";
 
-                        GetPlanningParameters.AtSKU(SKU, "Item No.", "Variant Code", "Location Code");
-                        ReqQty += InvtProfileOffsetting.AdjustReorderQty(ReqQty, SKU, 0, 0);
+                        GetPlanningParameters.AtSKU(TempSKU, "Item No.", "Variant Code", "Location Code");
+                        ReqQty += InvtProfileOffsetting.AdjustReorderQty(ReqQty, TempSKU, 0, 0);
 
                         if ReqQty = 0 then
                             CurrReport.Skip();
@@ -142,8 +142,8 @@ report 99001026 "Replan Production Order"
                             ProdOrder."Replan Ref. Status" := MainProdOrder."Replan Ref. Status";
                             ProdOrder.Insert(true);
 
-                            ProdOrder."Starting Date" := WorkDate;
-                            ProdOrder."Creation Date" := WorkDate;
+                            ProdOrder."Starting Date" := WorkDate();
+                            ProdOrder."Creation Date" := WorkDate();
                             ProdOrder."Starting Time" := MfgSetup."Normal Starting Time";
                             ProdOrder."Ending Time" := MfgSetup."Normal Ending Time";
                             ProdOrder."Due Date" := "Due Date";
@@ -164,7 +164,7 @@ report 99001026 "Replan Production Order"
                             ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
                             ProdOrderLine.Find('-');
 
-                            Modify;
+                            Modify();
                             ProdOrderLine.Modify();
 
                             ProdOrderLine.SetRange(Status, Status);
@@ -176,7 +176,7 @@ report 99001026 "Replan Production Order"
                                     CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                                 until ProdOrderLine.Next() = 0;
 
-                            Modify;
+                            Modify();
                         end;
                         ReservMgt.SetReservSource("Prod. Order Component");
                         ReservMgt.AutoTrack("Remaining Qty. (Base)");
@@ -197,7 +197,7 @@ report 99001026 "Replan Production Order"
                         CalcProdOrder.BlockDynamicTracking(true);
                         CalcProdOrder.Recalculate("Prod. Order Line", Direction, true);
 
-                        Modify;
+                        Modify();
                     end else
                         ProdOrderRouteMgt.Calculate("Prod. Order Line");
                 end;
@@ -214,10 +214,10 @@ report 99001026 "Replan Production Order"
                 if "Replan Ref. No." = '' then begin
                     "Replan Ref. No." := "No.";
                     "Replan Ref. Status" := Status;
-                    Modify;
+                    Modify();
                 end;
                 if First then begin
-                    Reset;
+                    Reset();
                     SetRange("Replan Ref. No.", "Replan Ref. No.");
                     SetRange("Replan Ref. Status", "Replan Ref. Status");
                     First := false;

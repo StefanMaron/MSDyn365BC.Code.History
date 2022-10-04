@@ -25,9 +25,9 @@ codeunit 6704 "Booking Customer Sync."
         FilterText: Text;
         CustomerTxt: Text;
     begin
-        FilterText := BookingSync.GetCustomerFilter;
+        FilterText := BookingSync.GetCustomerFilter();
 
-        CustomerTxt := LocalCustomer.TableCaption;
+        CustomerTxt := LocalCustomer.TableCaption();
         FilterPage.PageCaption := CustomerTxt;
         FilterPage.AddTable(CustomerTxt, DATABASE::Customer);
 
@@ -41,7 +41,7 @@ codeunit 6704 "Booking Customer Sync."
         FilterPage.ADdField(CustomerTxt, LocalCustomer."Salesperson Code");
         FilterPage.ADdField(CustomerTxt, LocalCustomer."Currency Code");
 
-        if FilterPage.RunModal then
+        if FilterPage.RunModal() then
             FilterText := FilterPage.GetView(CustomerTxt);
 
         if FilterText <> '' then begin
@@ -66,7 +66,7 @@ codeunit 6704 "Booking Customer Sync."
         O365SyncManagement.ShowProgress(ProcessExchangeContactsMsg);
         ProcessExchangeContacts(BookingSync);
 
-        O365SyncManagement.CloseProgress;
+        O365SyncManagement.CloseProgress();
         BookingSync."Last Customer Sync" := CreateDateTime(Today, Time);
         BookingSync.Modify(true);
     end;
@@ -87,7 +87,7 @@ codeunit 6704 "Booking Customer Sync."
     begin
         ExchangeSync.Get(UserId);
 
-        if LocalContact.FindSet() then begin
+        if LocalContact.FindSet() then
             repeat
                 Contact.Reset();
                 Clear(Contact);
@@ -103,14 +103,13 @@ codeunit 6704 "Booking Customer Sync."
                     Contact.Modify(true)
                 else begin
                     Contact.Validate(Type, Contact.Type::Person);
-                    Contact.TypeChange;
+                    Contact.TypeChange();
                     Contact.Modify(true);
                     Contact.SetHideValidationDialog(true);
                     Contact.CreateCustomerFromTemplate(BookingSync."Customer Templ. Code");
                 end;
 
             until (LocalContact.Next() = 0)
-        end;
     end;
 
     local procedure ProcessNavContacts(BookingSync: Record "Booking Sync")
@@ -141,7 +140,7 @@ codeunit 6704 "Booking Customer Sync."
         ContactFilter: Text;
         CustomerFilter: Text;
     begin
-        Customer.SetView(BookingSync.GetCustomerFilter);
+        Customer.SetView(BookingSync.GetCustomerFilter());
 
         if Customer.FindSet() then
             repeat

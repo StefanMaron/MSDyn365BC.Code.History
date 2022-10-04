@@ -1,7 +1,7 @@
 table 1013 "Job Item Price"
 {
     Caption = 'Job Item Price';
-#if not CLEAN19
+#if not CLEAN21
     DrillDownPageID = "Job Item Prices";
     LookupPageID = "Job Item Prices";
     ObsoleteState = Pending;
@@ -20,10 +20,10 @@ table 1013 "Job Item Price"
             NotBlank = true;
             TableRelation = Job;
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
-                GetJob;
+                GetJob();
                 "Currency Code" := Job."Currency Code";
             end;
 #endif
@@ -33,7 +33,7 @@ table 1013 "Job Item Price"
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
                 if "Job Task No." <> '' then begin
@@ -48,7 +48,7 @@ table 1013 "Job Item Price"
             Caption = 'Item No.';
             TableRelation = Item;
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
                 Item.Get("Item No.");
@@ -135,7 +135,7 @@ table 1013 "Job Item Price"
     {
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInsert()
     begin
         LockTable();

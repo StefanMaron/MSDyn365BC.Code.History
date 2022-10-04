@@ -20,7 +20,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                 column(USERID; UserId)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -297,7 +297,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                             if LineCount = 1 then
                                 TempPhysInvtCountBuffer.Find('-')
                             else
-                                TempPhysInvtCountBuffer.Next;
+                                TempPhysInvtCountBuffer.Next();
                         end;
 
                         trigger OnPreDataItem()
@@ -386,7 +386,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
 
                     trigger OnAfterGetRecord()
                     begin
-                        LineIsEmpty := EmptyLine;
+                        LineIsEmpty := EmptyLine();
 
                         QtyPos := 0;
                         QtyNeg := 0;
@@ -622,7 +622,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
             if NextLineNo = 1 then
                 TempPhysInvtCountBuffer.Find('-')
             else
-                TempPhysInvtCountBuffer.Next;
+                TempPhysInvtCountBuffer.Next();
 
         NextLineNo := NextLineNo + 1;
     end;
@@ -634,12 +634,12 @@ report 5876 "Posted Phys. Invt. Order Diff."
             SetRange("Track. Lot No.", '');
             if Find('-') then begin
                 UpdateBufferTracking(SerialNo, LotNo, PosQty, NegQty);
-                Modify;
+                Modify();
             end else begin
-                Init;
+                Init();
                 "Line No." := NextLineNo;
                 UpdateBufferTracking(SerialNo, LotNo, PosQty, NegQty);
-                Insert;
+                Insert();
                 NextLineNo := NextLineNo + 1;
                 NoOfBufferLines := NoOfBufferLines + 1;
             end;

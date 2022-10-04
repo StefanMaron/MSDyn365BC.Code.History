@@ -29,7 +29,7 @@ codeunit 139310 "Exchange Setup Tests"
         // [WHEN] The Outlook Individual Deployment wizard is exited right away
         OutlookIndividualDeployment.Trap;
         Page.Run(Page::"Outlook Individual Deployment");
-        OutlookIndividualDeployment.Close;
+        OutlookIndividualDeployment.Close();
 
         // [THEN] No assisted setup entry exists
         Assert.IsFalse(GuidedExperience.Exists("Guided Experience Type"::"Assisted Setup", ObjectType::Page, Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
@@ -165,12 +165,12 @@ codeunit 139310 "Exchange Setup Tests"
         AzureADMgtSetup.Modify();
 
         with AzureADAppSetup do
-            if not Get then begin
-                Init;
+            if not Get() then begin
+                Init();
                 "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
-                "App ID" := CreateGuid;
-                SetSecretKeyToIsolatedStorage(CreateGuid);
-                Insert;
+                "App ID" := CreateGuid();
+                SetSecretKeyToIsolatedStorage(CreateGuid());
+                Insert();
             end;
     end;
 }

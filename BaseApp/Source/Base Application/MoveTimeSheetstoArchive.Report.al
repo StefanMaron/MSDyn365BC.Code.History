@@ -22,7 +22,7 @@ report 953 "Move Time Sheets to Archive"
             trigger OnPostDataItem()
             begin
                 if GuiAllowed then begin
-                    Window.Close;
+                    Window.Close();
                     Message(Text002, Counter);
                 end;
             end;

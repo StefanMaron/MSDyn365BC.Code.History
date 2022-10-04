@@ -36,16 +36,16 @@ page 869 "Cash Flow Forecast Chart"
                 trigger AddInReady()
                 begin
                     CashFlowChartMgt.OnOpenPage(CashFlowChartSetup);
-                    UpdateStatus;
+                    UpdateStatus();
                     IsChartAddInReady := true;
                     if IsChartDataReady then
-                        UpdateChart;
+                        UpdateChart();
                 end;
 
                 trigger Refresh()
                 begin
                     NeedsUpdate := true;
-                    UpdateChart
+                    UpdateChart();
                 end;
             }
             field(NotSetupLbl; NotSetupLbl)
@@ -80,7 +80,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetShow(CashFlowChartSetup.Show::"Accumulated Cash");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(ChangeInCash)
@@ -92,7 +92,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetShow(CashFlowChartSetup.Show::"Change in Cash");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(Combined)
@@ -104,7 +104,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetShow(CashFlowChartSetup.Show::Combined);
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                 }
@@ -122,7 +122,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetStartDate(CashFlowChartSetup."Start Date"::"First Entry Date");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(WorkDate)
@@ -134,7 +134,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetStartDate(CashFlowChartSetup."Start Date"::"Working Date");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                 }
@@ -152,7 +152,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetPeriodLength(CashFlowChartSetup."Period Length"::Day);
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(Week)
@@ -164,7 +164,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetPeriodLength(CashFlowChartSetup."Period Length"::Week);
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(Month)
@@ -176,7 +176,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetPeriodLength(CashFlowChartSetup."Period Length"::Month);
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(Quarter)
@@ -188,7 +188,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetPeriodLength(CashFlowChartSetup."Period Length"::Quarter);
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(Year)
@@ -200,7 +200,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetPeriodLength(CashFlowChartSetup."Period Length"::Year);
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                 }
@@ -218,7 +218,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetGroupBy(CashFlowChartSetup."Group By"::"Positive/Negative");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(Account)
@@ -230,7 +230,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetGroupBy(CashFlowChartSetup."Group By"::"Account No.");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                     action(SourceType)
@@ -242,7 +242,7 @@ page 869 "Cash Flow Forecast Chart"
                         trigger OnAction()
                         begin
                             CashFlowChartSetup.SetGroupBy(CashFlowChartSetup."Group By"::"Source Type");
-                            UpdateStatus;
+                            UpdateStatus();
                         end;
                     }
                 }
@@ -289,7 +289,7 @@ page 869 "Cash Flow Forecast Chart"
                 trigger OnAction()
                 begin
                     PAGE.RunModal(PAGE::"Cash Flow Forecast Wizard");
-                    IsCashFlowSetUp := CashFlowForecastSetupExists;
+                    IsCashFlowSetUp := CashFlowForecastSetupExists();
                     CurrPage.Update();
                 end;
             }
@@ -303,7 +303,7 @@ page 869 "Cash Flow Forecast Chart"
 
                 trigger OnAction()
                 begin
-                    RecalculateAndUpdateChart;
+                    RecalculateAndUpdateChart();
                 end;
             }
             action(ChartInformation)
@@ -323,7 +323,7 @@ page 869 "Cash Flow Forecast Chart"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        UpdateChart;
+        UpdateChart();
         IsChartDataReady := true;
         if not IsCashFlowSetUp then
             exit(true);
@@ -331,7 +331,7 @@ page 869 "Cash Flow Forecast Chart"
 
     trigger OnInit()
     begin
-        IsCashFlowSetUp := CashFlowForecastSetupExists;
+        IsCashFlowSetUp := CashFlowForecastSetupExists();
     end;
 
     var
@@ -359,19 +359,19 @@ page 869 "Cash Flow Forecast Chart"
 
         if CashFlowChartMgt.UpdateData(Rec) then
             Update(CurrPage.BusinessChart);
-        UpdateStatus;
+        UpdateStatus();
 
         NeedsUpdate := false;
     end;
 
     local procedure UpdateStatus()
     begin
-        NeedsUpdate := NeedsUpdate or IsSetupChanged;
+        NeedsUpdate := NeedsUpdate or IsSetupChanged();
         if not NeedsUpdate then
             exit;
 
         OldCashFlowChartSetup := CashFlowChartSetup;
-        StatusText := CashFlowChartSetup.GetCurrentSelectionText;
+        StatusText := CashFlowChartSetup.GetCurrentSelectionText();
     end;
 
     local procedure IsSetupChanged(): Boolean
@@ -387,7 +387,7 @@ page 869 "Cash Flow Forecast Chart"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        if not CashFlowSetup.Get then
+        if not CashFlowSetup.Get() then
             exit(false);
         exit(CashFlowSetup."CF No. on Chart in Role Center" <> '');
     end;
@@ -404,7 +404,7 @@ page 869 "Cash Flow Forecast Chart"
         CurrPage.Update(false);
 
         NeedsUpdate := true;
-        UpdateStatus;
+        UpdateStatus();
     end;
 }
 

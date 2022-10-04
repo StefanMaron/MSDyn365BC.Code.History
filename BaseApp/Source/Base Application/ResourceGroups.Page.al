@@ -4,7 +4,6 @@ page 72 "Resource Groups"
     Caption = 'Resource Groups';
     PageType = List;
     SourceTable = "Resource Group";
-    PromotedActionCategories = 'New,Process,Report,Prices & Discounts';
     UsageCategory = Lists;
 
     layout
@@ -14,7 +13,7 @@ page 72 "Resource Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -54,8 +53,6 @@ page 72 "Resource Groups"
                     ApplicationArea = Jobs;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Res. Gr. Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -113,14 +110,12 @@ page 72 "Resource Groups"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN19
+#if not CLEAN21
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Costs';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST("Group(Resource)"),
                                   Code = FIELD("No.");
@@ -135,8 +130,6 @@ page 72 "Resource Groups"
                     ApplicationArea = Jobs;
                     Caption = 'Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST("Group(Resource)"),
                                   Code = FIELD("No.");
@@ -152,8 +145,6 @@ page 72 "Resource Groups"
                     ApplicationArea = Jobs;
                     Caption = 'Purchase Prices';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource group.';
 
@@ -170,8 +161,6 @@ page 72 "Resource Groups"
                     ApplicationArea = Jobs;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource group.';
 
@@ -235,12 +224,58 @@ page 72 "Resource Groups"
                 ApplicationArea = Jobs;
                 Caption = 'New Resource';
                 Image = NewResource;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "Resource Card";
                 RunPageLink = "Resource Group No." = FIELD("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new resource.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref("New Resource_Promoted"; "New Resource")
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+#if not CLEAN21
+                actionref(Costs_Promoted; Costs)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                actionref(Prices_Promoted; Prices)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
+                }
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ report 5187 "Generate Dupl. Search String"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -48,9 +48,10 @@ report 5187 "Generate Dupl. Search String"
     }
 
     var
-        Text000: Label 'Processing contacts...\\';
-        Text001: Label 'Contact No.     #1##########';
         DuplMgt: Codeunit DuplicateManagement;
         Window: Dialog;
+
+        Text000: Label 'Processing contacts...\\';
+        Text001: Label 'Contact No.     #1##########';
 }
 

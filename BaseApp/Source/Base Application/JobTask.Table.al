@@ -1,4 +1,4 @@
-﻿table 1001 "Job Task"
+table 1001 "Job Task"
 {
     Caption = 'Job Task';
     DrillDownPageID = "Job Task Lines";
@@ -50,7 +50,7 @@
                 if (xRec."Job Task Type" = "Job Task Type"::Posting) and
                    ("Job Task Type" <> "Job Task Type"::Posting)
                 then
-                    if JobLedgEntriesExist or JobPlanningLinesExist then
+                    if JobLedgEntriesExist() or JobPlanningLinesExist() then
                         Error(CannotChangeAssociatedEntriesErr, FieldCaption("Job Task Type"), TableCaption);
 
                 if "Job Task Type" <> "Job Task Type"::Posting then begin
@@ -400,7 +400,7 @@
         JobWIPTotal: Record "Job WIP Total";
         JobTaskDim: Record "Job Task Dimension";
     begin
-        if JobLedgEntriesExist then
+        if JobLedgEntriesExist() then
             Error(CannotDeleteAssociatedEntriesErr, TableCaption);
 
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
@@ -434,7 +434,7 @@
         LockTable();
         Job.Get("Job No.");
         if Job.Blocked = Job.Blocked::All then
-            Job.TestBlocked;
+            Job.TestBlocked();
         Job.TestField("Bill-to Customer No.");
         Cust.Get(Job."Bill-to Customer No.");
 
@@ -455,10 +455,11 @@
     end;
 
     var
-        CannotDeleteAssociatedEntriesErr: Label 'You cannot delete %1 because one or more entries are associated.', Comment = '%1=The job task table name.';
-        CannotChangeAssociatedEntriesErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = The field name you are trying to change; %2 = The job task table name.';
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
+
+        CannotDeleteAssociatedEntriesErr: Label 'You cannot delete %1 because one or more entries are associated.', Comment = '%1=The job task table name.';
+        CannotChangeAssociatedEntriesErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = The field name you are trying to change; %2 = The job task table name.';
 
     procedure CalcEACTotalCost(): Decimal
     begin
@@ -491,7 +492,7 @@
         JobLedgEntry.SetCurrentKey("Job No.", "Job Task No.");
         JobLedgEntry.SetRange("Job No.", "Job No.");
         JobLedgEntry.SetRange("Job Task No.", "Job Task No.");
-        exit(JobLedgEntry.FindFirst)
+        exit(JobLedgEntry.FindFirst());
     end;
 
     local procedure JobPlanningLinesExist(): Boolean
@@ -501,7 +502,7 @@
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
         JobPlanningLine.SetRange("Job No.", "Job No.");
         JobPlanningLine.SetRange("Job Task No.", "Job Task No.");
-        exit(JobPlanningLine.FindFirst)
+        exit(JobPlanningLine.FindFirst());
     end;
 
     procedure Caption(): Text
@@ -530,7 +531,7 @@
         "Recognized Costs Amount" := 0;
 
         OnInitWIPFieldsOnBeforeModify(Rec);
-        Modify;
+        Modify();
     end;
 
     procedure ToPriceSource(var PriceSource: Record "Price Source"; PriceType: Enum "Price Type")
@@ -551,7 +552,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if JobTask2.Get("Job No.", "Job Task No.") then begin
             DimMgt.SaveJobTaskDim("Job No.", "Job Task No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end else
             DimMgt.SaveJobTaskTempDim(FieldNumber, ShortcutDimCode);
 
@@ -560,7 +561,7 @@
 
     procedure ClearTempDim()
     begin
-        DimMgt.DeleteJobTaskTempDim;
+        DimMgt.DeleteJobTaskTempDim();
     end;
 
     procedure ApplyPurchaseLineFilters(var PurchLine: Record "Purchase Line"; JobNo: Code[20]; JobTaskNo: Code[20])

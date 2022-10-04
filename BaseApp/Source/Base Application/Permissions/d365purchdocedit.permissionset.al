@@ -46,6 +46,7 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "Purchase Line Archive" = RIMD,
                   tabledata "Purchases & Payables Setup" = R,
                   tabledata "Record Buffer" = Rimd,
+                  tabledata "Remit Address" = RIMD,
                   tabledata "Requisition Line" = RIMD,
                   tabledata "Restricted Record" = RIMD,
                   tabledata "Return Reason" = R,

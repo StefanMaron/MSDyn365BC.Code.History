@@ -15,7 +15,7 @@ page 9195 "Experience Tiers"
         {
             repeater(Group)
             {
-                field("Experience Tier"; "Experience Tier")
+                field("Experience Tier"; Rec."Experience Tier")
                 {
                     ApplicationArea = All;
                     Editable = false;

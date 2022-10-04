@@ -13,17 +13,17 @@ page 6021 "Resource Service Zones"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the title of the resource located in the service zone.';
                 }
-                field("Service Zone Code"; "Service Zone Code")
+                field("Service Zone Code"; Rec."Service Zone Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service zone where the resource will be located. A resource can be located in more than one zone at a time.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date when the resource is located in the service zone.';

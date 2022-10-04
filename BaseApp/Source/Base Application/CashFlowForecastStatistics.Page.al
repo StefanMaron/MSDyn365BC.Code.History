@@ -178,7 +178,7 @@ page 868 "Cash Flow Forecast Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then
+        if CurrentDate <> WorkDate() then
             CurrentDate := WorkDate();
         if "Manual Payments To" <> 0D then
             CurrentDate := "Manual Payments To";
@@ -187,8 +187,9 @@ page 868 "Cash Flow Forecast Statistics"
     end;
 
     var
-        Text1000: Label 'Liquid Funds at %1';
         CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
         CurrentDate: Date;
+
+        Text1000: Label 'Liquid Funds at %1';
 }
 

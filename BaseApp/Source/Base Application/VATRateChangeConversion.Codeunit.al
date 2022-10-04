@@ -1,4 +1,4 @@
-﻿codeunit 550 "VAT Rate Change Conversion"
+codeunit 550 "VAT Rate Change Conversion"
 {
     Permissions = TableData "VAT Rate Change Log Entry" = i;
 
@@ -11,12 +11,12 @@
         if IsHandled then
             exit;
 
-        if not VATRateChangeSetup.Get then begin
+        if not VATRateChangeSetup.Get() then begin
             VATRateChangeSetup.Init();
             VATRateChangeSetup.Insert();
         end;
 
-        Convert;
+        Convert();
     end;
 
     var
@@ -52,13 +52,13 @@
         VATRateChangeSetup.TestField("VAT Rate Change Tool Completed", false);
         if VATRateChangeConversion.IsEmpty() then
             Error(Text0015);
-        if not AreTablesSelected then
+        if not AreTablesSelected() then
             Error(Text0016);
         TestVATPostingSetup();
         ProgressWindow.Open(Text0001 + Text0002);
         OnConvertOnBeforeStartConvert(VATRateChangeSetup);
         with VATRateChangeSetup do begin
-            ProgressWindow.Update;
+            ProgressWindow.Update();
             UpdateTable(
               DATABASE::"Gen. Product Posting Group",
               ConvertVATProdPostGrp("Update Gen. Prod. Post. Groups"), ConvertGenProdPostGrp("Update Gen. Prod. Post. Groups"));
@@ -81,7 +81,7 @@
 
             OnBeforeFinishConvert(VATRateChangeSetup);
 
-            GenProductPostingGroup.DeleteAll;
+            GenProductPostingGroup.DeleteAll();
             if TempGenProductPostingGroup.Find('-') then
                 repeat
                     GenProductPostingGroup := TempGenProductPostingGroup;
@@ -90,7 +90,7 @@
                 until TempGenProductPostingGroup.Next() = 0;
         end;
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
 
         if VATRateChangeSetup."Perform Conversion" then begin
             VATRateChangeSetup."VAT Rate Change Tool Completed" := true;
@@ -98,7 +98,7 @@
             VATRateChangeConversion.Reset();
             if VATRateChangeConversion.FindSet(true) then
                 repeat
-                    VATRateChangeConversion."Converted Date" := WorkDate;
+                    VATRateChangeConversion."Converted Date" := WorkDate();
                     VATRateChangeConversion.Modify();
                 until VATRateChangeConversion.Next() = 0;
         end;
@@ -112,13 +112,6 @@
             UpdateTable(
                 Database::"Item Templ.",
                 ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
-#if not CLEAN18
-            UpdateTable(
-              DATABASE::"Item Template",
-              ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
-            UpdateConfigTemplateLine(
-              DATABASE::Item, ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
-#endif
             UpdateTable(
               DATABASE::"Item Charge",
               ConvertVATProdPostGrp("Update Item Charges"), ConvertGenProdPostGrp("Update Item Charges"));
@@ -179,7 +172,7 @@
                         if not VATPostingSetupNew.Get(VATPostingSetupOld."VAT Bus. Posting Group", VATRateChangeConversion."To Code") then
                             Error(
                               Text0008,
-                              VATPostingSetupNew.TableCaption,
+                              VATPostingSetupNew.TableCaption(),
                               VATPostingSetupOld."VAT Bus. Posting Group",
                               VATRateChangeConversion."To Code");
                         if VATPostingSetupOld."VAT Identifier" <> '' then
@@ -194,7 +187,7 @@
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
-        ProgressWindow.Update(1, Item.TableCaption);
+        ProgressWindow.Update(1, Item.TableCaption());
 
         IsHandled := false;
         OnBeforeUpdateItem(Item, VATRateChangeSetup, IsHandled);
@@ -220,7 +213,7 @@
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
-        ProgressWindow.Update(1, GLAccount.TableCaption);
+        ProgressWindow.Update(1, GLAccount.TableCaption());
 
         IsHandled := false;
         OnBeforeUpdateGLAccount(GLAccount, VATRateChangeSetup, IsHandled);
@@ -286,67 +279,6 @@
         exit(false);
     end;
 
-#if not CLEAN18
-    local procedure UpdateConfigTemplateLine(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        "Field": Record "Field";
-        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        DefaultValue: Code[20];
-        i: Integer;
-    begin
-        if not ConvertVATProdPostingGroup and not ConvertGenProdPostingGroup then
-            exit;
-
-        ConfigTemplateHeader.SetRange("Table ID", TableID);
-        if not ConfigTemplateHeader.FindSet() then
-            exit;
-
-        ProgressWindow.Update(1, Format(ConfigTemplateHeader.TableCaption()));
-        ProgressWindow.Update(3, ConfigTemplateHeader.Count());
-        repeat
-            i := i + 1;
-            ProgressWindow.Update(2, i);
-            ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-            ConfigTemplateLine.SetFilter("Default Value", '<>%1', '');
-            if ConfigTemplateLine.FindSet() then
-                repeat
-                    if Field.Get(ConfigTemplateHeader."Table ID", ConfigTemplateLine."Field ID") then begin
-                        DefaultValue := CopyStr(ConfigTemplateLine."Default Value", 1, MaxStrLen(DefaultValue));
-                        if DefaultValue = ConfigTemplateLine."Default Value" then
-                            case true of
-                                ConvertGenProdPostingGroup and (Field.RelationTableNo = DATABASE::"Gen. Product Posting Group"):
-                                    if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"Gen. Prod. Posting Group", DefaultValue) then begin
-                                        InitVATRateChangeLogEntryFromConfigTemplateLine(VATRateChangeLogEntry, ConfigTemplateLine);
-                                        VATRateChangeLogEntry."Old Gen. Prod. Posting Group" := DefaultValue;
-                                        ConfigTemplateLine.Validate("Default Value", VATRateChangeConversion."To Code");
-                                        VATRateChangeLogEntry."New Gen. Prod. Posting Group" := VATRateChangeConversion."To Code";
-                                    end;
-                                ConvertVATProdPostingGroup and (Field.RelationTableNo = DATABASE::"VAT Product Posting Group"):
-                                    if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"VAT Prod. Posting Group", DefaultValue) then begin
-                                        InitVATRateChangeLogEntryFromConfigTemplateLine(VATRateChangeLogEntry, ConfigTemplateLine);
-                                        VATRateChangeLogEntry."Old VAT Prod. Posting Group" := DefaultValue;
-                                        ConfigTemplateLine.Validate("Default Value", VATRateChangeConversion."To Code");
-                                        VATRateChangeLogEntry."New VAT Prod. Posting Group" := VATRateChangeConversion."To Code";
-                                    end;
-                            end;
-                    end;
-                    if (VATRateChangeLogEntry."New Gen. Prod. Posting Group" <> VATRateChangeLogEntry."Old Gen. Prod. Posting Group") or
-                       (VATRateChangeLogEntry."New VAT Prod. Posting Group" <> VATRateChangeLogEntry."Old VAT Prod. Posting Group")
-                    then begin
-                        if VATRateChangeSetup."Perform Conversion" then begin
-                            ConfigTemplateLine.Modify();
-                            VATRateChangeLogEntry.Converted := true;
-                        end;
-                        WriteLogEntry(VATRateChangeLogEntry);
-                        VATRateChangeLogEntry.Init();
-                    end;
-                until ConfigTemplateLine.Next() = 0;
-        until ConfigTemplateHeader.Next() = 0;
-    end;
-#endif
-
     procedure UpdateTable(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     var
         RecRef: RecordRef;
@@ -372,7 +304,7 @@
             until RecRef.Next() = 0;
     end;
 
-    local procedure UpdateRec(var RecRef: RecordRef; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
+    procedure UpdateRec(var RecRef: RecordRef; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     var
         "Field": Record "Field";
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
@@ -431,6 +363,7 @@
                 end;
             until Field.Next(-1) = 0;
 
+        VATRateChangeSetup.Get();
         if VATRateChangeSetup."Perform Conversion" then begin
             OnUpdateRecOnBeforeRecRefModify(RecRef, GenProdPostingGroupConverted, VATProdPostingGroupConverted);
             RecRef.Modify();
@@ -443,15 +376,15 @@
             WriteLogEntry(VATRateChangeLogEntry);
     end;
 
-    local procedure WriteLogEntry(VATRateChangeLogEntry: Record "VAT Rate Change Log Entry")
+    procedure WriteLogEntry(VATRateChangeLogEntry: Record "VAT Rate Change Log Entry")
     begin
         with VATRateChangeLogEntry do begin
             if Converted then
-                "Converted Date" := WorkDate
+                "Converted Date" := WorkDate()
             else
                 if Description = '' then
                     Description := StrSubstNo(Text0009, VATRateChangeSetup.FieldCaption("Perform Conversion"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -472,7 +405,7 @@
         IsHandled: Boolean;
         IsModified: Boolean;
     begin
-        ProgressWindow.Update(1, SalesHeader.TableCaption);
+        ProgressWindow.Update(1, SalesHeader.TableCaption());
         ConvertVATProdPostingGroup := ConvertVATProdPostGrp(VATRateChangeSetup."Update Sales Documents");
         ConvertGenProdPostingGroup := ConvertGenProdPostGrp(VATRateChangeSetup."Update Sales Documents");
         if not ConvertVATProdPostingGroup and not ConvertGenProdPostingGroup then
@@ -633,7 +566,7 @@
                 DescriptionTxt := Text0006;
     end;
 
-    local procedure AddNewSalesLine(SalesLine: Record "Sales Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    procedure AddNewSalesLine(SalesLine: Record "Sales Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     var
         NewSalesLine: Record "Sales Line";
         OldSalesLine: Record "Sales Line";
@@ -652,7 +585,7 @@
         if not GetNextSalesLineNo(SalesLine, NewLineNo) then
             exit;
         with NewSalesLine do begin
-            Init;
+            Init();
             NewSalesLine := SalesLine;
             "Line No." := NewLineNo;
             "Quantity Shipped" := 0;
@@ -754,7 +687,7 @@
                             NewItemChargeAssignmentSales."Line No." := GetNextItemChrgAssSaleLineNo(OldItemChargeAssignmentSales);
                             NewItemChargeAssignmentSales."Applies-to Doc. Line No." := NewLineNo;
                             NewItemChargeAssignmentSales."Qty. to Assign" :=
-                              Round(QtyRemainder / SalesLine.Quantity * SalesLine."Outstanding Quantity", UOMMgt.QtyRndPrecision);
+                              Round(QtyRemainder / SalesLine.Quantity * SalesLine."Outstanding Quantity", UOMMgt.QtyRndPrecision());
                             if SalesLine."Quantity Shipped" - SalesLine."Quantity Invoiced" = 0 then
                                 NewItemChargeAssignmentSales."Qty. to Assign" := QtyRemainder;
                             NewItemChargeAssignmentSales."Amount to Assign" :=
@@ -851,7 +784,7 @@
         end;
     end;
 
-    local procedure UpdatePurchase()
+    procedure UpdatePurchase()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseHeader2: Record "Purchase Header";
@@ -868,7 +801,7 @@
         IsHandled: Boolean;
         IsModified: Boolean;
     begin
-        ProgressWindow.Update(1, PurchaseHeader.TableCaption);
+        ProgressWindow.Update(1, PurchaseHeader.TableCaption());
 
         ConvertVATProdPostingGroup := ConvertVATProdPostGrp(VATRateChangeSetup."Update Purchase Documents");
         ConvertGenProdPostingGroup := ConvertGenProdPostGrp(VATRateChangeSetup."Update Purchase Documents");
@@ -1054,7 +987,7 @@
             exit;
 
         with NewPurchaseLine do begin
-            Init;
+            Init();
             NewPurchaseLine := PurchaseLine;
             "Line No." := NewLineNo;
             "Quantity Received" := 0;
@@ -1165,7 +1098,7 @@
                             NewItemChargeAssignmentPurch."Line No." := GetNextItemChrgAssPurchLineNo(OldItemChargeAssignmentPurch);
                             NewItemChargeAssignmentPurch."Applies-to Doc. Line No." := NewLineNo;
                             NewItemChargeAssignmentPurch."Qty. to Assign" :=
-                              Round(QtyRemainder / PurchaseLine.Quantity * PurchaseLine."Outstanding Quantity", UOMMgt.QtyRndPrecision);
+                              Round(QtyRemainder / PurchaseLine.Quantity * PurchaseLine."Outstanding Quantity", UOMMgt.QtyRndPrecision());
                             if PurchaseLine."Quantity Received" - PurchaseLine."Quantity Invoiced" = 0 then
                                 NewItemChargeAssignmentPurch."Qty. to Assign" := QtyRemainder;
                             NewItemChargeAssignmentPurch."Amount to Assign" :=
@@ -1254,7 +1187,7 @@
         end;
     end;
 
-    local procedure UpdateUnitPriceInclVAT(Type: Enum "Sales Line Type"): Boolean
+    procedure UpdateUnitPriceInclVAT(Type: Enum "Sales Line Type"): Boolean
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1266,7 +1199,7 @@
            (VATRateChangeSetup."Upd. Unit Price For FA" and (Type = SalesLine.Type::"Fixed Asset"))));
     end;
 
-    local procedure LineInScope(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean): Boolean
+    procedure LineInScope(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean): Boolean
     begin
         if ConvertGenProdPostingGroup then
             if VATRateChangeConversion.Get(VATRateChangeConversion.Type::"Gen. Prod. Posting Group", GenProdPostingGroup) then
@@ -1338,12 +1271,12 @@
             until VatRateChangeConversion.Next() = 0;
     end;
 
-    local procedure GetRoundingPrecision(CurrencyCode: Code[10]): Decimal
+    procedure GetRoundingPrecision(CurrencyCode: Code[10]): Decimal
     var
         Currency: Record Currency;
     begin
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(CurrencyCode);
         exit(Currency."Unit-Amount Rounding Precision");
@@ -1357,10 +1290,9 @@
         DescriptionTxt: Text[250];
     begin
         DescriptionTxt := '';
-        with ServiceLine do begin
+        with ServiceLine do
             if "Shipment No." <> '' then
                 DescriptionTxt := Text0010;
-        end;
         if DescriptionTxt = '' then
             exit(true);
 
@@ -1391,7 +1323,7 @@
         LastDocNo: Code[20];
         IsHandled: Boolean;
     begin
-        ProgressWindow.Update(1, ServiceLine.TableCaption);
+        ProgressWindow.Update(1, ServiceLine.TableCaption());
         ConvertVATProdPostingGroup := ConvertVATProdPostGrp(VATRateChangeSetup."Update Service Docs.");
         ConvertGenProdPostingGroup := ConvertGenProdPostGrp(VATRateChangeSetup."Update Service Docs.");
         if not ConvertVATProdPostingGroup and not ConvertGenProdPostingGroup then
@@ -1492,7 +1424,7 @@
             exit;
 
         with NewServiceLine do begin
-            Init;
+            Init();
             NewServiceLine := ServiceLine;
             "Line No." := NewLineNo;
             "Qty. to Invoice" := 0;
@@ -1532,7 +1464,7 @@
             else
                 Validate("Unit Price", ServiceLine."Unit Price");
             Validate("Line Discount %", ServiceLine."Line Discount %");
-            Insert;
+            Insert();
             RecRef.GetTable(ServiceLine);
             VATRateChangeLogEntry.Init();
             VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
@@ -1707,19 +1639,7 @@
         OnAfterAreTablesSelected(VATRateChangeSetup, Result);
     end;
 
-#if not CLEAN18
-    local procedure InitVATRateChangeLogEntryFromConfigTemplateLine(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; ConfigTemplateLine: Record "Config. Template Line")
-    var
-        RecRef: RecordRef;
-    begin
-        VATRateChangeLogEntry.Init();
-        RecRef.GetTable(ConfigTemplateLine);
-        VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
-        VATRateChangeLogEntry."Table ID" := RecRef.Number;
-    end;
-#endif
-
-    local procedure IncludeLine(Type: Option " ","G/L Account",Item,Resource; No: Code[20]): Boolean
+    procedure IncludeLine(Type: Option " ","G/L Account",Item,Resource; No: Code[20]): Boolean
     begin
         case Type of
             Type::"G/L Account":
@@ -1740,7 +1660,7 @@
             exit(true);
         GLAccount."No." := No;
         GLAccount.SetFilter("No.", VATRateChangeSetup."Account Filter");
-        exit(GLAccount.Find);
+        exit(GLAccount.Find());
     end;
 
     local procedure IncludeItem(No: Code[20]): Boolean
@@ -1751,7 +1671,7 @@
             exit(true);
         Item."No." := No;
         Item.SetFilter("No.", VATRateChangeSetup."Item Filter");
-        exit(Item.Find);
+        exit(Item.Find());
     end;
 
     local procedure IncludeRes(No: Code[20]): Boolean
@@ -1762,7 +1682,7 @@
             exit(true);
         Res."No." := No;
         Res.SetFilter("No.", VATRateChangeSetup."Resource Filter");
-        exit(Res.Find);
+        exit(Res.Find());
     end;
 
     local procedure IncludeServiceLine(Type: Enum "Service Line Type"; No: Code[20]): Boolean
@@ -1778,7 +1698,7 @@
         exit(true);
     end;
 
-    local procedure InitVATRateChangeLogEntry(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; RecRef: RecordRef; OutstandingQuantity: Decimal; LineNo: Integer)
+    procedure InitVATRateChangeLogEntry(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; RecRef: RecordRef; OutstandingQuantity: Decimal; LineNo: Integer)
     begin
         VATRateChangeLogEntry.Init();
         VATRateChangeLogEntry."Record ID" := RecRef.RecordId;

@@ -106,7 +106,7 @@ codeunit 5505 "Graph Mgt - Sales Quote"
         GraphMgtSalesQuoteBuffer: Codeunit "Graph Mgt - Sales Quote Buffer";
     begin
         UpdateIntegrationRecordIds(false);
-        GraphMgtSalesQuoteBuffer.UpdateBufferTableRecords;
+        GraphMgtSalesQuoteBuffer.UpdateBufferTableRecords();
     end;
 }
 

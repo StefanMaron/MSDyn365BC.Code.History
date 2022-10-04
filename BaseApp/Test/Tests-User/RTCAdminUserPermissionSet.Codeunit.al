@@ -43,11 +43,11 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         asserterror UserCard."Windows User Name".Value := 'Anonymous';
         ValidationError := UserCard.GetValidationError;
         if ValidationError <> ExpectedError then begin
-            UserCard.Close;
+            UserCard.Close();
             Error(ErrorStringCom001, ExpectedError, ValidationError);
         end;
 
-        UserCard.Close;
+        UserCard.Close();
     end;
 
     [Test]
@@ -63,11 +63,11 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         asserterror UserCard."Windows User Name".Value := 'Everyone';
         if UserCard.GetValidationError <> UserEveryoneIsNotAllowedTxt then begin
             ValidationError := UserCard.GetValidationError;
-            UserCard.Close;
+            UserCard.Close();
             Error(ErrorStringCom001, UserEveryoneIsNotAllowedTxt, ValidationError);
         end;
 
-        UserCard.Close;
+        UserCard.Close();
     end;
 
     [Test]
@@ -83,11 +83,11 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         asserterror UserCard."Windows User Name".Value := 'Administrators';
         if UserCard.GetValidationError <> UserAdministratorsIsNotAllowedTxt then begin
             ValidationError := UserCard.GetValidationError;
-            UserCard.Close;
+            UserCard.Close();
             Error(ErrorStringCom001, UserAdministratorsIsNotAllowedTxt, ValidationError);
         end;
 
-        UserCard.Close;
+        UserCard.Close();
     end;
 
     [Test]
@@ -104,10 +104,10 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         asserterror UserCard."Windows User Name".Value := UserInvalid001;
         if UserCard.GetValidationError <> UserIsNotValidWinAccountTxt then begin
             ValidationError := UserCard.GetValidationError;
-            UserCard.Close;
+            UserCard.Close();
             Error(ErrorStringCom001, UserIsNotValidWinAccountTxt, ValidationError);
         end;
-        UserCard.Close;
+        UserCard.Close();
     end;
 
     [Normal]
@@ -117,7 +117,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
     begin
         UserCard.OpenNew();
         UserCard."User Name".Value := UserName;
-        UserCard.Close;
+        UserCard.Close();
     end;
 
     [Normal]

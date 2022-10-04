@@ -6,16 +6,17 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
     var
-        Text000: Label 'must not be changed when a %1 for this %2 exists: ';
-        Text001: Label 'The %1 cannot be deleted when a related %2 exists.';
-        Text002: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.';
-        JobPostQtyPickRemainErr: Label 'You cannot post usage for job number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Job number, %2 = remaining quantity to pick';
         WhseActivLine: Record "Warehouse Activity Line";
 #if not CLEAN20
         FeatureManagement: Codeunit "Feature Management Facade";
         PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
 #endif
-        TableCaptionValue: Text[100];
+        TableCaptionValue: Text;
+
+        Text000: Label 'must not be changed when a %1 for this %2 exists: ';
+        Text001: Label 'The %1 cannot be deleted when a related %2 exists.';
+        Text002: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.';
+        JobPostQtyPickRemainErr: Label 'You cannot post usage for job number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Job number, %2 = remaining quantity to pick';
 
     procedure SalesLineVerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line")
     var
@@ -61,7 +62,7 @@ codeunit 5777 "Whse. Validate Source Line"
              DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.",
              SalesLine."Line No.", 0, SalesLine.Quantity)
         then
-            Error(Text001, SalesLine.TableCaption, TableCaptionValue);
+            Error(Text001, SalesLine.TableCaption(), TableCaptionValue);
 
         OnAfterSalesLineDelete(SalesLine);
     end;
@@ -103,7 +104,7 @@ codeunit 5777 "Whse. Validate Source Line"
              DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.",
              ServiceLine."Line No.", 0, ServiceLine.Quantity)
         then
-            Error(Text001, ServiceLine.TableCaption, TableCaptionValue);
+            Error(Text001, ServiceLine.TableCaption(), TableCaptionValue);
 
         OnAfterServiceLineDelete(ServiceLine);
     end;
@@ -139,9 +140,9 @@ codeunit 5777 "Whse. Validate Source Line"
 
     procedure PurchaseLineVerifyChange(var NewPurchLine: Record "Purchase Line"; var OldPurchLine: Record "Purchase Line")
     var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
         NewRecRef: RecordRef;
         OldRecRef: RecordRef;
-        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -183,7 +184,7 @@ codeunit 5777 "Whse. Validate Source Line"
         if WhseLinesExist(
              DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", 0, PurchLine.Quantity)
         then
-            Error(Text001, PurchLine.TableCaption, TableCaptionValue);
+            Error(Text001, PurchLine.TableCaption(), TableCaptionValue);
 
         OnAfterPurchaseLineDelete(PurchLine);
     end;
@@ -240,9 +241,9 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
         with TransLine do begin
             if WhseLinesExist(DATABASE::"Transfer Line", 0, "Document No.", "Line No.", 0, Quantity) then
-                Error(Text001, TableCaption, TableCaptionValue);
+                Error(Text001, TableCaption(), TableCaptionValue);
             if WhseLinesExist(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", 0, Quantity) then
-                Error(Text001, TableCaption, TableCaptionValue);
+                Error(Text001, TableCaption(), TableCaptionValue);
         end;
 
         OnAfterTransLineDelete(TransLine);
@@ -252,6 +253,7 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         WhseRcptLine: Record "Warehouse Receipt Line";
         WhseShptLine: Record "Warehouse Shipment Line";
+        WhseWorkSheetLine: Record "Whse. Worksheet Line";
         WhseManagement: Codeunit "Whse. Management";
         IsHandled: Boolean;
     begin
@@ -269,7 +271,7 @@ codeunit 5777 "Whse. Validate Source Line"
             WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, true);
             OnWhseLinesExistOnAfterWhseRcptLineSetFilters(WhseRcptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
             if not WhseRcptLine.IsEmpty() then begin
-                TableCaptionValue := WhseRcptLine.TableCaption;
+                TableCaptionValue := WhseRcptLine.TableCaption();
                 exit(true);
             end;
         end;
@@ -284,15 +286,23 @@ codeunit 5777 "Whse. Validate Source Line"
             WhseShptLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
             OnWhseLinesExistOnAfterWhseShptLineSetFilters(WhseShptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
             if not WhseShptLine.IsEmpty() then begin
-                TableCaptionValue := WhseShptLine.TableCaption;
+                TableCaptionValue := WhseShptLine.TableCaption();
                 exit(true);
             end;
         end;
 
         WhseActivLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, true);
         if not WhseActivLine.IsEmpty() then begin
-            TableCaptionValue := WhseActivLine.TableCaption;
+            TableCaptionValue := WhseActivLine.TableCaption();
             exit(true);
+        end;
+
+        if (SourceType = Database::Job) or (SourceType = Database::"Prod. Order Component") then begin
+            WhseWorkSheetLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+            if not WhseWorkSheetLine.IsEmpty() then begin
+                TableCaptionValue := WhseWorkSheetLine.TableCaption();
+                exit(true);
+            end;
         end;
 
         TableCaptionValue := '';
@@ -320,8 +330,8 @@ codeunit 5777 "Whse. Validate Source Line"
             exit;
 
         if not WhseLinesExist(
-             DATABASE::"Prod. Order Component", NewProdOrderComp.Status.AsInteger(), NewProdOrderComp."Prod. Order No.",
-             NewProdOrderComp."Prod. Order Line No.", NewProdOrderComp."Line No.", NewProdOrderComp.Quantity)
+             DATABASE::"Prod. Order Component", OldProdOrderComp.Status.AsInteger(), OldProdOrderComp."Prod. Order No.",
+             OldProdOrderComp."Prod. Order Line No.", OldProdOrderComp."Line No.", OldProdOrderComp.Quantity)
         then
             exit;
 
@@ -352,7 +362,7 @@ codeunit 5777 "Whse. Validate Source Line"
              ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.",
              ProdOrderComp."Line No.", ProdOrderComp.Quantity)
         then
-            Error(Text001, ProdOrderComp.TableCaption, TableCaptionValue);
+            Error(Text001, ProdOrderComp.TableCaption(), TableCaptionValue);
 
         OnAfterProdComponentDelete(ProdOrderComp);
     end;
@@ -400,7 +410,7 @@ codeunit 5777 "Whse. Validate Source Line"
                             if AssemblyLine.Get(AssemblyLine."Document Type"::Order, "Order No.", "Order Line No.") and
                                (Quantity >= 0)
                             then begin
-                                QtyRemainingToBePicked := Quantity - AssemblyLine.CalcQtyPickedNotConsumed;
+                                QtyRemainingToBePicked := Quantity - AssemblyLine.CalcQtyPickedNotConsumed();
                                 CheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, QtyRemainingToBePicked);
                                 QtyChecked := true;
                             end;
@@ -494,7 +504,6 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         Location: Record Location;
         Item: Record Item;
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
 #if not CLEAN20
         if not FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
@@ -504,7 +513,7 @@ codeunit 5777 "Whse. Validate Source Line"
             if Location.Get(JobJournalLine."Location Code") then
                 if Location."Require Pick" and Location."Require Shipment" then
                     if Item.Get(JobJournalLine."No.") then
-                        if Item.IsInventoriableType() and not ItemTrackingManagement.GetWhseItemTrkgSetup(Item."No.") then
+                        if Item.IsInventoriableType() then
                             exit(true);
     end;
 
@@ -569,8 +578,8 @@ codeunit 5777 "Whse. Validate Source Line"
         OldRecRef: RecordRef;
     begin
         if not WhseLinesExist(
-             DATABASE::"Prod. Order Line", NewProdOrderLine.Status.AsInteger(), NewProdOrderLine."Prod. Order No.",
-             NewProdOrderLine."Line No.", 0, NewProdOrderLine.Quantity)
+             DATABASE::"Prod. Order Line", OldProdOrderLine.Status.AsInteger(), OldProdOrderLine."Prod. Order No.",
+             OldProdOrderLine."Line No.", 0, OldProdOrderLine.Quantity)
         then
             exit;
 
@@ -597,7 +606,7 @@ codeunit 5777 "Whse. Validate Source Line"
             if WhseLinesExist(
                  DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", 0, Quantity)
             then
-                Error(Text001, TableCaption, TableCaptionValue);
+                Error(Text001, TableCaption(), TableCaptionValue);
 
         OnAfterProdOrderLineDelete(ProdOrderLine);
     end;
@@ -646,7 +655,7 @@ codeunit 5777 "Whse. Validate Source Line"
              DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", 0,
              AssemblyLine.Quantity)
         then
-            Error(Text001, AssemblyLine.TableCaption, TableCaptionValue);
+            Error(Text001, AssemblyLine.TableCaption(), TableCaptionValue);
 
         OnAfterAssemblyLineDelete(AssemblyLine);
     end;

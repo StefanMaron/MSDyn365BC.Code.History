@@ -16,81 +16,81 @@ page 323 "EC Sales List Reports"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("VAT Report Config. Code"; "VAT Report Config. Code")
+                field("VAT Report Config. Code"; Rec."VAT Report Config. Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the appropriate configuration code for EC Sales List Reports.';
                     Visible = false;
                 }
-                field("VAT Report Type"; "VAT Report Type")
+                field("VAT Report Type"; Rec."VAT Report Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if you want to create a new VAT report, or if you want to change a previously submitted report.';
                     Visible = false;
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the first date of the reporting period.';
                     Visible = false;
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the last date of the EC sales list report.';
                     Visible = false;
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                     Visible = false;
                 }
-                field("Original Report No."; "Original Report No.")
+                field("Original Report No."; Rec."Original Report No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of the original report.';
                     Visible = false;
                 }
-                field("Period Type"; "Period Type")
+                field("Period Type"; Rec."Period Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the length of the reporting period.';
                 }
-                field("Period No."; "Period No.")
+                field("Period No."; Rec."Period No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the EC sales list reporting period to use.';
                 }
-                field("Period Year"; "Period Year")
+                field("Period Year"; Rec."Period Year")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the year of the reporting period.';
                 }
-                field("Message Id"; "Message Id")
+                field("Message Id"; Rec."Message Id")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the message ID of the report listing sales to other EU countries/regions.';
                     Visible = false;
                 }
-                field("Statement Template Name"; "Statement Template Name")
+                field("Statement Template Name"; Rec."Statement Template Name")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the name of the statement template from the EC Sales List Report.';
                     Visible = false;
                 }
-                field("Statement Name"; "Statement Name")
+                field("Statement Name"; Rec."Statement Name")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the name of the statement from the EC Sales List Report.';
                     Visible = false;
                 }
-                field("VAT Report Version"; "VAT Report Version")
+                field("VAT Report Version"; Rec."VAT Report Version")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the version of the VAT report.';

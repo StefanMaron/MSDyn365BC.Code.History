@@ -122,7 +122,7 @@ page 2801 "Native - Customer Entity"
 
                     trigger OnValidate()
                     begin
-                        if IsUsingVAT then
+                        if IsUsingVAT() then
                             exit;
 
                         RegisterFieldSet(FieldNo("Tax Liable"));
@@ -136,7 +136,7 @@ page 2801 "Native - Customer Entity"
                     trigger OnValidate()
                     begin
                         RegisterFieldSet(FieldNo("Tax Area ID"));
-                        if IsUsingVAT then
+                        if IsUsingVAT() then
                             RegisterFieldSet(FieldNo("VAT Bus. Posting Group"))
                         else
                             RegisterFieldSet(FieldNo("Tax Area Code"));
@@ -263,7 +263,7 @@ page 2801 "Native - Customer Entity"
 
     trigger OnAfterGetRecord()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -282,16 +282,16 @@ page 2801 "Native - Customer Entity"
         if Name = '' then
             Error(NotProvidedCustomerNameErr);
 
-        ProcessPostalAddress;
+        ProcessPostalAddress();
         RecRef.GetTable(Rec);
         GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, CurrentDateTime);
         RecRef.SetTable(Rec);
 
-        UpdatePricesIncludingTax;
+        UpdatePricesIncludingTax();
 
         Modify(true);
 
-        SetCalculatedFields;
+        SetCalculatedFields();
         exit(false);
     end;
 
@@ -300,9 +300,9 @@ page 2801 "Native - Customer Entity"
         Customer: Record Customer;
     begin
         Customer.GetBySystemId(SystemId);
-        ProcessPostalAddress;
+        ProcessPostalAddress();
 
-        UpdatePricesIncludingTax;
+        UpdatePricesIncludingTax();
 
         if "No." = Customer."No." then
             Modify(true)
@@ -312,12 +312,12 @@ page 2801 "Native - Customer Entity"
             TransferFields(Customer);
         end;
 
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearCalculatedFields;
+        ClearCalculatedFields();
     end;
 
     trigger OnOpenPage()
@@ -328,14 +328,14 @@ page 2801 "Native - Customer Entity"
         EmptyGuid: Guid;
     begin
         if EmptyIDPaymentTerms.GetBySystemId(EmptyGuid) then
-            GraphMgtGeneralTools.ApiSetup
+            GraphMgtGeneralTools.ApiSetup()
         else
             if EmptyIDPaymentMethod.GetBySystemId(EmptyGuid) then
-                GraphMgtGeneralTools.ApiSetup;
+                GraphMgtGeneralTools.ApiSetup();
 
         BindSubscription(NativeAPILanguageHandler);
-        TranslateContactIdFilterToCustomerNoFilter;
-        SelectLatestVersion;
+        TranslateContactIdFilterToCustomerNoFilter();
+        SelectLatestVersion();
     end;
 
     var
@@ -366,10 +366,10 @@ page 2801 "Native - Customer Entity"
     begin
         PostalAddressJSON := GraphMgtCustomer.PostalAddressToJSON(Rec);
 
-        OverdueAmount := CalcOverdueBalance;
-        IsCustomerBlocked := IsBlocked;
+        OverdueAmount := CalcOverdueBalance();
+        IsCustomerBlocked := IsBlocked();
 
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
         CalcFields("Sales (LCY)", "Balance (LCY)");
         BalanceVar := "Balance (LCY)";
         SalesVar := "Sales (LCY)";
@@ -429,7 +429,7 @@ page 2801 "Native - Customer Entity"
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("Contact No.", NewContact."No.");
-        if MarketingSetup.Get then
+        if MarketingSetup.Get() then
             ContactBusinessRelation.SetRange("Business Relation Code", MarketingSetup."Bus. Rel. Code for Customers");
 
         if ContactBusinessRelation.FindFirst() then
@@ -442,7 +442,7 @@ page 2801 "Native - Customer Entity"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        exit(GeneralLedgerSetup.UseVat);
+        exit(GeneralLedgerSetup.UseVat());
     end;
 
     local procedure ProcessPostalAddress()
@@ -477,7 +477,7 @@ page 2801 "Native - Customer Entity"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if not GeneralLedgerSetup.UseVat then
+        if not GeneralLedgerSetup.UseVat() then
             exit;
 
         Validate("Prices Including VAT", "Contact Type" = "Contact Type"::Person);

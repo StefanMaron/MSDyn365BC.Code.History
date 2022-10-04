@@ -24,7 +24,7 @@ report 1138 "Cost Acctg. Balance/Budget"
             column(ActPeriodHeading; ActPeriodHeading)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ActPct; ActPct)
@@ -190,7 +190,7 @@ report 1138 "Cost Acctg. Balance/Budget"
                     Error(Text001);
 
                 if GetFilters <> '' then
-                    FilterTxt := Text002 + GetFilters;
+                    FilterTxt := Text002 + GetFilters();
 
                 if (GetFilter("Cost Center Filter") = '') and (GetFilter("Cost Object Filter") = '') then
                     if not Confirm(Text003) then
@@ -232,7 +232,7 @@ report 1138 "Cost Acctg. Balance/Budget"
 
                             trigger OnValidate()
                             begin
-                                CalcPeriod;
+                                CalcPeriod();
                             end;
                         }
                         field(EndDate; EndDate)
@@ -277,7 +277,7 @@ report 1138 "Cost Acctg. Balance/Budget"
             if StartDate = 0D then
                 StartDate := CalcDate('<-CM>', Today);
 
-            CalcPeriod;
+            CalcPeriod();
         end;
     }
 

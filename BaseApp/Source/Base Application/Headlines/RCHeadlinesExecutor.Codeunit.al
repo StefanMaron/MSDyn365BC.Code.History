@@ -39,7 +39,7 @@ codeunit 1441 "RC Headlines Executor"
             JQE."Parameter String" := Format(RoleCenterPageID);
         end;
 
-        if TaskScheduler.CanCreateTask and JQE.WritePermission then
+        if TaskScheduler.CanCreateTask() and JQE.WritePermission then
             Codeunit.Run(Codeunit::"Job Queue - Enqueue", JQE)
         else
             OnTaskSchedulerUnavailable(JQE);

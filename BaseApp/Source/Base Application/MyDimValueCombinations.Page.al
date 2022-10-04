@@ -22,7 +22,7 @@ page 9252 "MyDim Value Combinations"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnPush;
+                        ShowColumnNameOnPush();
                     end;
                 }
             }
@@ -42,9 +42,6 @@ page 9252 "MyDim Value Combinations"
                 ApplicationArea = Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -58,9 +55,6 @@ page 9252 "MyDim Value Combinations"
                 ApplicationArea = Suite;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -74,9 +68,6 @@ page 9252 "MyDim Value Combinations"
                 ApplicationArea = Suite;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -91,9 +82,6 @@ page 9252 "MyDim Value Combinations"
                 ApplicationArea = Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -102,6 +90,26 @@ page 9252 "MyDim Value Combinations"
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                     UpdateMatrixSubform();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousSet_Promoted; PreviousSet)
+                {
+                }
+                actionref(PreviousColumn_Promoted; PreviousColumn)
+                {
+                }
+                actionref(NextColumn_Promoted; NextColumn)
+                {
+                }
+                actionref(NextSet_Promoted; NextSet)
+                {
+                }
             }
         }
     }
@@ -162,7 +170,7 @@ page 9252 "MyDim Value Combinations"
         repeat
             CurrentMatrixRecordOrdinal += 1;
             MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MatrixRecord);
-        until (CurrentMatrixRecordOrdinal = ArrayLen(MatrixRecords)) or (MatrixRecord.Next <> 1);
+        until (CurrentMatrixRecordOrdinal = ArrayLen(MatrixRecords)) or (MatrixRecord.Next() <> 1);
     end;
 
     local procedure UpdateMatrixSubform()

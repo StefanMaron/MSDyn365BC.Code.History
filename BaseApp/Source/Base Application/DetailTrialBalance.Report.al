@@ -19,7 +19,7 @@ report 4 "Detail Trial Balance"
             column(PeriodGLDtFilter; StrSubstNo(Text000, GLDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ExcludeBalanceOnly; ExcludeBalanceOnly)
@@ -189,7 +189,7 @@ report 4 "Detail Trial Balance"
                 if PrintOnlyOnePerPage then begin
                     GLEntry.Reset();
                     GLEntry.SetRange("G/L Account No.", "No.");
-                    if CurrReport.PrintOnlyIfDetail and GLEntry.FindFirst() then
+                    if CurrReport.PrintOnlyIfDetail and (not GLEntry.IsEmpty()) then
                         PageGroupNo := PageGroupNo + 1;
                 end;
             end;
@@ -265,7 +265,7 @@ report 4 "Detail Trial Balance"
     trigger OnPreReport()
     begin
         StartDateTime := CurrentDateTime();
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         GLDateFilter := "G/L Account".GetFilter("Date Filter");
 
         OnAfterOnPreReport("G/L Account");
@@ -280,7 +280,6 @@ report 4 "Detail Trial Balance"
     var
         Text000: Label 'Period: %1';
         GLDateFilter: Text;
-        GLFilter: Text;
         GLBalance: Decimal;
         StartBalance: Decimal;
         PrintOnlyOnePerPage: Boolean;
@@ -303,6 +302,7 @@ report 4 "Detail Trial Balance"
         DetailedTrialBalanceReportGeneratedTxt: Label 'Detail Trial Balance report generated.', Locked = true;
 
     protected var
+        GLFilter: Text;
         NumberOfGLEntryLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;

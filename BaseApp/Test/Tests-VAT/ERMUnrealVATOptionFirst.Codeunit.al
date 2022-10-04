@@ -421,7 +421,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         Assert.AreNearlyEqual(
           0, CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, CustLedgerEntry.FieldCaption("Remaining Amount"), 0,
-            CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -720,7 +720,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
           0, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountError, VendorLedgerEntry.FieldCaption("Remaining Amount"),
-            0, VendorLedgerEntry.TableCaption, VendorLedgerEntry."Entry No."));
+            0, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
     end;
 
     local procedure PartialUnrealizedVATSales(var GenJournalLine: Record "Gen. Journal Line"; var SalesInvoiceHeader: Record "Sales Invoice Header"; VATPostingSetup: Record "VAT Posting Setup")
@@ -1193,19 +1193,19 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         GeneralLedgerSetup.Get();
         AdditionalCurrencyAmount :=
-          Round(LibraryERM.ConvertCurrency(Amount, '', GeneralLedgerSetup."Additional Reporting Currency", WorkDate));
+          Round(LibraryERM.ConvertCurrency(Amount, '', GeneralLedgerSetup."Additional Reporting Currency", WorkDate()));
         FindGLEntry(GLEntry, GenJournalLine."Document No.", GenJournalLine."Document Type"::Payment);
 
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption, GLEntry."Entry No."));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry."Entry No."));
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption, GLEntry."Entry No."));
+          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption(), GLEntry."Entry No."));
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount,
-            GLEntry.TableCaption, GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry."Entry No."));
 
         VerifyVATEntry(GenJournalLine, '', VATAmount);
     end;
@@ -1215,10 +1215,10 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GLEntry: Record "G/L Entry";
     begin
         FindGLEntry(GLEntry, GenJournalLine."Document No.", GenJournalLine."Document Type"::Payment);
-        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.Amount, Amount, GLEntry.TableCaption, GLEntry."Entry No."));
+          StrSubstNo(AmountError, GLEntry.Amount, Amount, GLEntry.TableCaption(), GLEntry."Entry No."));
     end;
 
     local procedure VerifyVATEntry(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; Amount: Decimal)
@@ -1230,12 +1230,12 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type");
         VATEntry.FindFirst();
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         if CurrencyCode <> '' then
-            Amount := Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));
+            Amount := Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()));
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATEntry.Amount, Amount, VATEntry.TableCaption, VATEntry."Entry No."));
+          StrSubstNo(AmountError, VATEntry.Amount, Amount, VATEntry.TableCaption(), VATEntry."Entry No."));
     end;
 
     local procedure VerifyNoVATEntry(GenJournalLine: Record "Gen. Journal Line")

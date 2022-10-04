@@ -182,7 +182,7 @@ codeunit 136612 "ERM RS Process Data"
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
 
         // [THEN] Sales Order is shipped
-        PurchHeader.Find;
+        PurchHeader.Find();
         Assert.AreEqual(PurchHeader.Status::Released, PurchHeader.Status, PurchHeader.FieldCaption(Status));
     end;
 
@@ -210,7 +210,7 @@ codeunit 136612 "ERM RS Process Data"
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
 
         // [THEN] Sales Order is shipped
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(SalesHeader.Status::Released, SalesHeader.Status, SalesHeader.FieldCaption(Status));
     end;
 
@@ -291,7 +291,7 @@ codeunit 136612 "ERM RS Process Data"
         // [GIVEN] Two Journal Lines in Config Data, where "Line No." = (10000, 20000)
         CreateGenJnlLines(GenJnlLine, 2);
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord[1], GenJnlLine);
-        GenJnlLine.Next;
+        GenJnlLine.Next();
         ConfigPackageRecord[2]."No." := ConfigPackageRecord[1]."No.";
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord[2], GenJnlLine);
         LineNo := GenJnlLine."Line No.";
@@ -332,19 +332,19 @@ codeunit 136612 "ERM RS Process Data"
         // [GIVEN] Three Journal Lines in Config Data, where "Line No." = (10000, 20000, 30000)
         CreateGenJnlLines(GenJnlLine, 3);
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord[1], GenJnlLine);
-        GenJnlLine.Next;
+        GenJnlLine.Next();
         ConfigPackageRecord[2]."No." := ConfigPackageRecord[1]."No.";
         // [GIVEN] The Journal Line, where "Line No." = 20000, has "Posting Date" = WORKDATE + 1
         GenJnlLine."Posting Date" += 1;
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord[2], GenJnlLine);
-        GenJnlLine.Next;
+        GenJnlLine.Next();
         ConfigPackageRecord[3]."No." := ConfigPackageRecord[2]."No.";
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord[3], GenJnlLine);
         LineNo := GenJnlLine."Line No.";
 
         // [GIVEN] A Processing Rule Filter: "Posting Date" = '>WORKDATE'
         LibraryRapidStart.CreatePackageTableRuleFilter(
-          ConfigPackageFilter, ConfigTableProcessingRule, GenJnlLine.FieldNo("Posting Date"), '>' + Format(WorkDate));
+          ConfigPackageFilter, ConfigTableProcessingRule, GenJnlLine.FieldNo("Posting Date"), '>' + Format(WorkDate()));
         // [GIVEN] A Processing Rule Filter: "Line No." = '<30000'
         LibraryRapidStart.CreatePackageTableRuleFilter(
           ConfigPackageFilter, ConfigTableProcessingRule, GenJnlLine.FieldNo("Line No."), '<' + Format(LineNo));
@@ -384,7 +384,7 @@ codeunit 136612 "ERM RS Process Data"
         // [GIVEN] Two Config Records for Journal lines in the Package Data: where "Line No." = (10000, 20000)
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord, GenJnlLine);
         ConfigRecordForProcessing.AddRecord(ConfigPackageRecord, ConfigTableProcessingRule."Rule No.");
-        GenJnlLine.Next;
+        GenJnlLine.Next();
         ExpectedGenJnlLine := GenJnlLine;
         PutGenJnlLineToConfigPackageData(ConfigTableProcessingRule."Package Code", ConfigPackageRecord, GenJnlLine);
         ConfigRecordForProcessing.AddRecord(ConfigPackageRecord, ConfigTableProcessingRule."Rule No.");
@@ -425,7 +425,7 @@ codeunit 136612 "ERM RS Process Data"
 
         // [GIVEN] A Company Information record exists (created when the page is opened)
         CompanyInformationPage.OpenView;
-        CompanyInformationPage.Close;
+        CompanyInformationPage.Close();
         ExpectedCompanyInformation.Get();
 
         // [GIVEN] A Config Record for the company information record in the Package Data
@@ -643,7 +643,7 @@ codeunit 136612 "ERM RS Process Data"
 
         // [THEN] 2 Filter lines inserted for a table
         ConfigPackageFilter.SetRange("Table ID", ConfigPackageFilter."Table ID");
-        Assert.AreEqual(2, ConfigPackageFilter.Count, ConfigPackageFilter.TableCaption);
+        Assert.AreEqual(2, ConfigPackageFilter.Count, ConfigPackageFilter.TableCaption());
     end;
 
     [Test]
@@ -670,7 +670,7 @@ codeunit 136612 "ERM RS Process Data"
         // [THEN] 2 Filter lines inserted for a table
         ConfigPackageFilter.SetRange("Table ID", ConfigPackageFilter."Table ID");
         ConfigPackageFilter.SetRange("Processing Rule No.", ConfigPackageFilter."Processing Rule No.");
-        Assert.AreEqual(2, ConfigPackageFilter.Count, ConfigPackageFilter.TableCaption);
+        Assert.AreEqual(2, ConfigPackageFilter.Count, ConfigPackageFilter.TableCaption());
     end;
 
     [Test]
@@ -723,7 +723,7 @@ codeunit 136612 "ERM RS Process Data"
         ConfigPackageFilter.SetRange("Processing Rule No.", ConfigTableProcessingRule."Rule No.");
         Assert.AreEqual(0, ConfigPackageFilter.Count, ConfigPackageFilter.GetFilters);
         // [THEN] Filters for Rule 'B' will NOT be deleted
-        ConfigTableProcessingRule.Next;
+        ConfigTableProcessingRule.Next();
         ConfigPackageFilter.SetRange("Processing Rule No.", ConfigTableProcessingRule."Rule No.");
         Assert.AreEqual(2, ConfigPackageFilter.Count, ConfigPackageFilter.GetFilters);
     end;
@@ -954,7 +954,7 @@ codeunit 136612 "ERM RS Process Data"
         CreatePackageTableWithTwoRules(ConfigPackageTable[2], ConfigPackage.Code, DATABASE::"Purchase Header", PurchActions);
 
         // [WHEN] Delete the Config. Package Table 36
-        ConfigPackageTable[1].Find;
+        ConfigPackageTable[1].Find();
         ConfigPackageTable[1].Delete(true);
 
         // [THEN] The rules for table 36 will be deleted
@@ -1090,7 +1090,7 @@ codeunit 136612 "ERM RS Process Data"
         ConfigTableProcessingRules.OpenNew();
         Assert.IsTrue(ConfigTableProcessingRules.Action.Visible, ConfigTableProcessingRules.Action.Caption);
         Assert.IsTrue(ConfigTableProcessingRules.Action.Editable, ConfigTableProcessingRules.Action.Caption);
-        ConfigTableProcessingRules.Close;
+        ConfigTableProcessingRules.Close();
     end;
 
     [Test]
@@ -1282,7 +1282,7 @@ codeunit 136612 "ERM RS Process Data"
 
         // [THEN] The last Journal Line will be posted
         Assert.IsFalse(GenJournalLine.Find, 'Posted line should be deleted');
-        Assert.AreEqual(NoOfLines - 1, GenJournalLine.Count, GenJournalLine.TableCaption);
+        Assert.AreEqual(NoOfLines - 1, GenJournalLine.Count, GenJournalLine.TableCaption());
         VerifyGLEntryCount(DocumentNo, LastGLEntryNo, 2);
         VerifyGLEntryCount('', LastGLEntryNo, 2);
     end;
@@ -1639,7 +1639,7 @@ codeunit 136612 "ERM RS Process Data"
                 LibraryRapidStart.CreatePackageTableRuleFilter(
                   ConfigPackageFilter, ConfigTableProcessingRule, FieldNo, Format(FilterValue[Counter]));
             end;
-        until ConfigTableProcessingRule.Next = 0;
+        until ConfigTableProcessingRule.Next() = 0;
     end;
 
     local procedure CreatePackageWithRuleForGenJnlLine(var ConfigTableProcessingRule: Record "Config. Table Processing Rule")
@@ -1929,7 +1929,7 @@ codeunit 136612 "ERM RS Process Data"
         CustLedgEntry.SetFilter("Entry No.", '>%1', LastCLEntryNo);
         Assert.AreEqual(
           ExpectedCount, CustLedgEntry.Count,
-          StrSubstNo('%1 %2:<%3>', CustLedgEntry.TableCaption, CustLedgEntry.FieldCaption("Document No."), DocumentNo));
+          StrSubstNo('%1 %2:<%3>', CustLedgEntry.TableCaption(), CustLedgEntry.FieldCaption("Document No."), DocumentNo));
     end;
 
     local procedure VerifyGLEntryCount(DocumentNo: Code[20]; LastGLEntryNo: Integer; ExpectedCount: Integer)
@@ -1941,7 +1941,7 @@ codeunit 136612 "ERM RS Process Data"
         GLEntry.SetFilter("Entry No.", '>%1', LastGLEntryNo);
         Assert.AreEqual(
           ExpectedCount, GLEntry.Count,
-          StrSubstNo('%1 %2:<%3>', GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), DocumentNo));
+          StrSubstNo('%1 %2:<%3>', GLEntry.TableCaption(), GLEntry.FieldCaption("Document No."), DocumentNo));
     end;
 
     local procedure VerifyVLEntryCount(DocumentNo: Code[20]; LastVLEntryNo: Integer; ExpectedCount: Integer)
@@ -1953,7 +1953,7 @@ codeunit 136612 "ERM RS Process Data"
         VendLedgEntry.SetFilter("Entry No.", '>%1', LastVLEntryNo);
         Assert.AreEqual(
           ExpectedCount, VendLedgEntry.Count,
-          StrSubstNo('%1 %2:<%3>', VendLedgEntry.TableCaption, VendLedgEntry.FieldCaption("Document No."), DocumentNo));
+          StrSubstNo('%1 %2:<%3>', VendLedgEntry.TableCaption(), VendLedgEntry.FieldCaption("Document No."), DocumentNo));
     end;
 
     local procedure VerifyPurchOrderIsInvoiced(PurchHeader: Record "Purchase Header"; LastVLEntryNo: Integer)
@@ -1961,10 +1961,10 @@ codeunit 136612 "ERM RS Process Data"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         VerifyVLEntryCount('', LastVLEntryNo, 1);
-        Assert.IsFalse(PurchHeader.Find, PurchHeader.TableCaption);
+        Assert.IsFalse(PurchHeader.Find, PurchHeader.TableCaption());
         PurchInvHeader.Reset();
         PurchInvHeader.SetRange("Order No.", PurchHeader."No.");
-        Assert.IsTrue(PurchInvHeader.FindFirst, PurchInvHeader.TableCaption);
+        Assert.IsTrue(PurchInvHeader.FindFirst, PurchInvHeader.TableCaption());
     end;
 
     local procedure VerifyPurchOrderIsReceived(PurchHeader: Record "Purchase Header"; LastVLEntryNo: Integer)
@@ -1972,10 +1972,10 @@ codeunit 136612 "ERM RS Process Data"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         VerifyVLEntryCount('', LastVLEntryNo, 0);
-        Assert.IsTrue(PurchHeader.Find, PurchHeader.TableCaption);
+        Assert.IsTrue(PurchHeader.Find, PurchHeader.TableCaption());
         PurchRcptHeader.Reset();
         PurchRcptHeader.SetRange("Order No.", PurchHeader."No.");
-        Assert.IsTrue(PurchRcptHeader.FindFirst, PurchRcptHeader.TableCaption);
+        Assert.IsTrue(PurchRcptHeader.FindFirst, PurchRcptHeader.TableCaption());
     end;
 
     local procedure VerifySalesOrderIsInvoiced(SalesHeader: Record "Sales Header"; LastCLEntryNo: Integer)
@@ -1983,10 +1983,10 @@ codeunit 136612 "ERM RS Process Data"
         SalesInvHeader: Record "Sales Invoice Header";
     begin
         VerifyCLEntryCount('', LastCLEntryNo, 1);
-        Assert.IsFalse(SalesHeader.Find, SalesHeader.TableCaption);
+        Assert.IsFalse(SalesHeader.Find, SalesHeader.TableCaption());
         SalesInvHeader.Reset();
         SalesInvHeader.SetRange("Order No.", SalesHeader."No.");
-        Assert.IsTrue(SalesInvHeader.FindFirst, SalesInvHeader.TableCaption);
+        Assert.IsTrue(SalesInvHeader.FindFirst, SalesInvHeader.TableCaption());
     end;
 
     local procedure VerifySalesOrderIsShipped(SalesHeader: Record "Sales Header"; LastCLEntryNo: Integer)
@@ -1994,10 +1994,10 @@ codeunit 136612 "ERM RS Process Data"
         SalesShptHeader: Record "Sales Shipment Header";
     begin
         VerifyCLEntryCount('', LastCLEntryNo, 0);
-        Assert.IsTrue(SalesHeader.Find, SalesHeader.TableCaption);
+        Assert.IsTrue(SalesHeader.Find, SalesHeader.TableCaption());
         SalesShptHeader.Reset();
         SalesShptHeader.SetRange("Order No.", SalesHeader."No.");
-        Assert.IsTrue(SalesShptHeader.FindFirst, SalesShptHeader.TableCaption);
+        Assert.IsTrue(SalesShptHeader.FindFirst, SalesShptHeader.TableCaption());
     end;
 
     [ModalPageHandler]
@@ -2014,7 +2014,7 @@ codeunit 136612 "ERM RS Process Data"
           ConfigTableProcessingRules."Custom Processing Codeunit ID".Caption);
         ConfigTableProcessingRules."Custom Processing Codeunit ID".SetValue(CODEUNIT::"Sales-Post");
 
-        ConfigTableProcessingRules.Next;
+        ConfigTableProcessingRules.Next();
         Assert.IsFalse(
           ConfigTableProcessingRules."Custom Processing Codeunit ID".Editable,
           ConfigTableProcessingRules.Action.Value);
@@ -2081,7 +2081,7 @@ codeunit 136612 "ERM RS Process Data"
     begin
         ConfigTableProcessingRules.First;
         ConfigTableProcessingRules.FilterInfo.AssertEquals(LibraryVariableStorage.DequeueText);
-        ConfigTableProcessingRules.Next;
+        ConfigTableProcessingRules.Next();
         ConfigTableProcessingRules.FilterInfo.AssertEquals(LibraryVariableStorage.DequeueText);
         Assert.IsFalse(ConfigTableProcessingRules.FilterInfo.Editable, 'Filter info should not be editable');
     end;

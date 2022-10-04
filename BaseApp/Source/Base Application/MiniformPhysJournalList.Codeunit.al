@@ -12,9 +12,9 @@ codeunit 7712 "Miniform Phys. Journal List"
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
         if Code <> CurrentCode then
-            PrepareData
+            PrepareData()
         else
-            ProcessSelection;
+            ProcessSelection();
 
         Clear(DOMxmlin);
     end;
@@ -107,7 +107,7 @@ codeunit 7712 "Miniform Phys. Journal List"
     local procedure PrepareData()
     begin
         with WhseJournalBatch do begin
-            Reset;
+            Reset();
             SetCurrentKey("Location Code", "Assigned User ID");
             if WhseEmpId <> '' then begin
                 SetRange("Assigned User ID", WhseEmpId);

@@ -58,7 +58,7 @@ table 5113 "Contact Dupl. Details Buffer"
 
         DuplicateSearchStringSetup.FindSet();
         repeat
-            Init;
+            Init();
             "Field No." := DuplicateSearchStringSetup."Field No.";
             "Field Name" := DuplicateSearchStringSetup."Field Name";
             FieldRef := ContactRecRef.Field("Field No.");

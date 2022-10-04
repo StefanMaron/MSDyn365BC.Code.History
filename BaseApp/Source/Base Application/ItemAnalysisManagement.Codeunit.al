@@ -6,6 +6,9 @@ codeunit 7153 "Item Analysis Management"
     end;
 
     var
+        PrevItemAnalysisView: Record "Item Analysis View";
+        MatrixMgt: Codeunit "Matrix Management";
+
         Text000: Label 'Period';
         Text001: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
         Text003: Label '%1 is not a valid line definition.';
@@ -15,8 +18,6 @@ codeunit 7153 "Item Analysis Management"
         Text007: Label '1,6,,Dimension 3 Filter';
         Text008: Label 'DEFAULT';
         Text009: Label 'Default analysis view';
-        PrevItemAnalysisView: Record "Item Analysis View";
-        MatrixMgt: Codeunit "Matrix Management";
 
     local procedure DimCodeNotAllowed(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View") Result: Boolean
     var
@@ -31,8 +32,8 @@ codeunit 7153 "Item Analysis Management"
 
         exit(
           not (UpperCase(DimCode) in
-               [UpperCase(Item.TableCaption),
-                UpperCase(Location.TableCaption),
+               [UpperCase(Item.TableCaption()),
+                UpperCase(Location.TableCaption()),
                 UpperCase(Text000),
                 ItemAnalysisView."Dimension 1 Code",
                 ItemAnalysisView."Dimension 2 Code",
@@ -72,7 +73,7 @@ codeunit 7153 "Item Analysis Management"
     local procedure CopyItemToBuf(var Item: Record Item; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
         with DimCodeBuf do begin
-            Init;
+            Init();
             Code := Item."No.";
             Name := Item.Description;
         end;
@@ -83,7 +84,7 @@ codeunit 7153 "Item Analysis Management"
         Period2: Record Date;
     begin
         with DimCodeBuf do begin
-            Init;
+            Init();
             Code := Format(Period."Period Start");
             "Period Start" := Period."Period Start";
             "Period End" := Period."Period End";
@@ -99,7 +100,7 @@ codeunit 7153 "Item Analysis Management"
     local procedure CopyLocationToBuf(var Location: Record Location; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
         with DimCodeBuf do begin
-            Init;
+            Init();
             Code := Location.Code;
             Name := Location.Name;
         end;
@@ -108,7 +109,7 @@ codeunit 7153 "Item Analysis Management"
     local procedure CopyDimValueToBuf(var DimVal: Record "Dimension Value"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
         with DimCodeBuf do begin
-            Init;
+            Init();
             Code := DimVal.Code;
             Name := DimVal.Name;
             Totaling := DimVal.Totaling;
@@ -363,9 +364,9 @@ codeunit 7153 "Item Analysis Management"
         DimValList.LookupMode(true);
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
     end;
@@ -441,7 +442,7 @@ codeunit 7153 "Item Analysis Management"
         Item: Record Item;
     begin
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
-            LineDimCode := Item.TableCaption;
+            LineDimCode := Item.TableCaption();
             ColumnDimCode := Text000;
         end;
         LineDimType := DimCodeToType(LineDimCode, ItemAnalysisView);
@@ -456,8 +457,8 @@ codeunit 7153 "Item Analysis Management"
         Location: Record Location;
         DimSelection: Page "Dimension Selection";
     begin
-        DimSelection.InsertDimSelBuf(false, Item.TableCaption, Item.TableCaption);
-        DimSelection.InsertDimSelBuf(false, Location.TableCaption, Location.TableCaption);
+        DimSelection.InsertDimSelBuf(false, Item.TableCaption(), Item.TableCaption());
+        DimSelection.InsertDimSelBuf(false, Location.TableCaption(), Location.TableCaption());
         DimSelection.InsertDimSelBuf(false, Text000, Text000);
         if ItemAnalysisView."Dimension 1 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, ItemAnalysisView."Dimension 1 Code", '');
@@ -468,8 +469,8 @@ codeunit 7153 "Item Analysis Management"
 
         OnGetDimSelectionOnBeforeDimSelectionRunModal(DimSelection, ItemAnalysisView);
         DimSelection.LookupMode := true;
-        if DimSelection.RunModal = ACTION::LookupOK then
-            exit(DimSelection.GetDimSelCode);
+        if DimSelection.RunModal() = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode());
         exit(OldDimSelCode);
     end;
 

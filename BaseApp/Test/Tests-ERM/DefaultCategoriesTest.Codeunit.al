@@ -112,7 +112,7 @@ codeunit 134441 "Default Categories Test"
         if GLAccountCategory.FindSet(false) then
             repeat
                 Assert.AreEqual(true, GLAccountCategory."System Generated", 'System Generated field is not marked as TRUE');
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
     end;
 
     [Test]
@@ -134,7 +134,7 @@ codeunit 134441 "Default Categories Test"
         if GLAccountCategory.FindSet(false) then
             repeat
                 Assert.AreEqual(false, GLAccountCategory."System Generated", 'System Generated field is marked as TRUE');
-            until GLAccountCategory.Next = 0;
+            until GLAccountCategory.Next() = 0;
     end;
 }
 

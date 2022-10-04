@@ -78,7 +78,7 @@ table 823 "Name/Value Buffer"
     var
         InStream: InStream;
     begin
-        if not "Value BLOB".HasValue then
+        if not "Value BLOB".HasValue() then
             exit(Value);
 
         CalcFields("Value BLOB");
@@ -89,7 +89,7 @@ table 823 "Name/Value Buffer"
     procedure SetValue(NewValue: Text)
     begin
         SetValueWithoutModifying(NewValue);
-        Modify;
+        Modify();
     end;
 
     procedure SetValueWithoutModifying(NewValue: Text)

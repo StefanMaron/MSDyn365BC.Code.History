@@ -26,20 +26,21 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     var
-        Text000: Label 'Do you really want to undo the selected Receipt lines?';
-        Text001: Label 'Undo quantity posting...';
         PurchRcptLine: Record "Purch. Rcpt. Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
         UndoPostingMgt: Codeunit "Undo Posting Management";
-        Text002: Label 'There is not enough space to insert correction lines.';
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         UOMMgt: Codeunit "Unit of Measure Management";
         HideDialog: Boolean;
         JobItem: Boolean;
-        Text003: Label 'Checking lines...';
         NextLineNo: Integer;
+
+        Text000: Label 'Do you really want to undo the selected Receipt lines?';
+        Text001: Label 'Undo quantity posting...';
+        Text002: Label 'There is not enough space to insert correction lines.';
+        Text003: Label 'Checking lines...';
         Text004: Label 'This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.';
         AllLinesCorrectedErr: Label 'All lines have been already corrected.';
         AlreadyReversedErr: Label 'This receipt has already been reversed.';
@@ -109,7 +110,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 Correction := true;
 
                 OnBeforePurchRcptLineModify(PurchRcptLine, TempWhseJnlLine);
-                Modify;
+                Modify();
                 OnAfterPurchRcptLineModify(PurchRcptLine, TempWhseJnlLine, DocLineNo, UndoPostingMgt);
 
                 if not JobItem then
@@ -269,13 +270,8 @@ codeunit 5813 "Undo Purchase Receipt Line"
             OnAfterCopyItemJnlLineFromPurchRcpt(ItemJnlLine, PurchRcptHeader, PurchRcptLine, WhseUndoQty);
 
             WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
-              DATABASE::"Purchase Line",
-              PurchLine."Document Type"::Order.AsInteger(),
-              "Order No.",
-              "Order Line No.",
-              TempWhseJnlLine."Reference Document"::"Posted Rcpt.",
-              TempWhseJnlLine,
-              NextLineNo);
+              DATABASE::"Purchase Line", PurchLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
+              TempWhseJnlLine."Reference Document"::"Posted Rcpt.".AsInteger(), TempWhseJnlLine, NextLineNo);
             OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(PurchRcptLine, ItemJnlLine, TempWhseJnlLine, NextLineNo);
 
             if "Item Rcpt. Entry No." <> 0 then begin
@@ -424,11 +420,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     BlanketOrderPurchaseLine."Quantity Received" :=
                       BlanketOrderPurchaseLine."Quantity Received" -
                       Round(
-                        "Qty. per Unit of Measure" / BlanketOrderPurchaseLine."Qty. per Unit of Measure" * Quantity, UOMMgt.QtyRndPrecision);
+                        "Qty. per Unit of Measure" / BlanketOrderPurchaseLine."Qty. per Unit of Measure" * Quantity, UOMMgt.QtyRndPrecision());
 
                 BlanketOrderPurchaseLine."Qty. Received (Base)" := BlanketOrderPurchaseLine."Qty. Received (Base)" - "Quantity (Base)";
                 OnBeforeBlanketOrderInitOutstanding(BlanketOrderPurchaseLine, PurchRcptLine);
-                BlanketOrderPurchaseLine.InitOutstanding;
+                BlanketOrderPurchaseLine.InitOutstanding();
                 BlanketOrderPurchaseLine.Modify();
             end;
     end;

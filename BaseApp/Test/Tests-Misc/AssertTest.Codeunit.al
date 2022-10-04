@@ -134,7 +134,7 @@ codeunit 132536 "Assert Test"
         InsertNameValueBuffer(NameValueBuffer, 1);
         asserterror Assert.TableIsEmpty(DATABASE::"Name/Value Buffer");
         Assert.AreEqual(
-          StrSubstNo(TableIsEmptyErr, NameValueBuffer.TableCaption, ''),
+          StrSubstNo(TableIsEmptyErr, NameValueBuffer.TableCaption(), ''),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsEmpty');
     end;
@@ -151,7 +151,7 @@ codeunit 132536 "Assert Test"
         NameValueBuffer.DeleteAll();
         asserterror Assert.TableIsNotEmpty(DATABASE::"Name/Value Buffer");
         Assert.AreEqual(
-          StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption, ''),
+          StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption(), ''),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsNotEmpty');
     end;
@@ -168,7 +168,7 @@ codeunit 132536 "Assert Test"
         InsertNameValueBuffer(NameValueBuffer, 1);
         asserterror Assert.RecordIsEmpty(NameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsEmptyErr, NameValueBuffer.TableCaption, NameValueBuffer.GetFilters),
+          StrSubstNo(TableIsEmptyErr, NameValueBuffer.TableCaption(), NameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsEmpty');
 
@@ -179,7 +179,7 @@ codeunit 132536 "Assert Test"
         NameValueBuffer.SetRange(ID, 1);
         asserterror Assert.RecordIsEmpty(NameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsEmptyErr, NameValueBuffer.TableCaption, NameValueBuffer.GetFilters),
+          StrSubstNo(TableIsEmptyErr, NameValueBuffer.TableCaption(), NameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsEmpty');
     end;
@@ -196,7 +196,7 @@ codeunit 132536 "Assert Test"
         NameValueBuffer.DeleteAll();
         asserterror Assert.RecordIsNotEmpty(NameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption, NameValueBuffer.GetFilters),
+          StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption(), NameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsNotEmpty');
 
@@ -207,7 +207,7 @@ codeunit 132536 "Assert Test"
         NameValueBuffer.SetRange(ID, 2);
         asserterror Assert.RecordIsNotEmpty(NameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption, NameValueBuffer.GetFilters),
+          StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption(), NameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsNotEmpty');
     end;
@@ -224,7 +224,7 @@ codeunit 132536 "Assert Test"
         InsertNameValueBuffer(TempNameValueBuffer, 1);
         asserterror Assert.RecordIsEmpty(TempNameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsEmptyErr, TempNameValueBuffer.TableCaption, TempNameValueBuffer.GetFilters),
+          StrSubstNo(TableIsEmptyErr, TempNameValueBuffer.TableCaption(), TempNameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsEmpty');
 
@@ -234,7 +234,7 @@ codeunit 132536 "Assert Test"
         TempNameValueBuffer.SetRange(ID, 1);
         asserterror Assert.RecordIsEmpty(TempNameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsEmptyErr, TempNameValueBuffer.TableCaption, TempNameValueBuffer.GetFilters),
+          StrSubstNo(TableIsEmptyErr, TempNameValueBuffer.TableCaption(), TempNameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsEmpty');
     end;
@@ -251,7 +251,7 @@ codeunit 132536 "Assert Test"
         TempNameValueBuffer.DeleteAll();
         asserterror Assert.RecordIsNotEmpty(TempNameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsNotEmptyErr, TempNameValueBuffer.TableCaption, TempNameValueBuffer.GetFilters),
+          StrSubstNo(TableIsNotEmptyErr, TempNameValueBuffer.TableCaption(), TempNameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsNotEmpty');
 
@@ -262,7 +262,7 @@ codeunit 132536 "Assert Test"
         TempNameValueBuffer.SetRange(ID, 2);
         asserterror Assert.RecordIsNotEmpty(TempNameValueBuffer);
         Assert.AreEqual(
-          StrSubstNo(TableIsNotEmptyErr, TempNameValueBuffer.TableCaption, TempNameValueBuffer.GetFilters),
+          StrSubstNo(TableIsNotEmptyErr, TempNameValueBuffer.TableCaption(), TempNameValueBuffer.GetFilters),
           GetLastErrorText,
           'Unexpected error message for Assert.TableIsNotEmpty');
     end;

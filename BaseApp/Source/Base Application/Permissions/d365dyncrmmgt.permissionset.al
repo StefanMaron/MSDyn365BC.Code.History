@@ -13,6 +13,7 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "CDS Teamroles" = RIMD,
                   tabledata "Coupling Field Buffer" = RIMD,
                   tabledata "Coupling Record Buffer" = RIMD,
+                  tabledata "Dataverse Entity Change" = RID,
                   tabledata "CRM Account" = RIMD,
                   tabledata "CRM Account Statistics" = RIMD,
                   tabledata "CRM Annotation" = RIMD,
@@ -61,7 +62,7 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "CRM Uom" = RIMD,
                   tabledata "CRM Uomschedule" = RIMD,
                   tabledata "Customer Templ." = Rimd,
-#if not CLEAN18
+#if not CLEAN19
                   tabledata "Customer Template" = Rimd,
 #endif
                   tabledata "Integration Field Mapping" = RIMD,

@@ -448,7 +448,7 @@ codeunit 136404 "Resource Matrix Management"
         // [GIVEN] Resource Capacity.
         LibraryResource.CreateResourceNew(Resource);
         // [GIVEN] Set Capacity for the Resource: 4 for Date1, 6 for Date2 (Date2 > Date1).
-        Date[2] := WorkDate;
+        Date[2] := WorkDate();
         Date[1] := LibraryRandom.RandDateFrom(CalcDate('<-1M>', Date[2]), -10);
         for i := 1 to ArrayLen(Date) do begin
             CreateWorkHourTemplate(WorkHourTemplate[i]);
@@ -478,7 +478,7 @@ codeunit 136404 "Resource Matrix Management"
         // [GIVEN] Resource Capacity.
         LibraryResource.CreateResourceNew(Resource);
         // [GIVEN] Set Capacity for the Resource: 4 for Date1, 6 for Date2 (Date2 > Date1).
-        Date[2] := WorkDate;
+        Date[2] := WorkDate();
         Date[1] := LibraryRandom.RandDateFrom(CalcDate('<-1M>', Date[2]), -10);
         for i := 1 to ArrayLen(Date) do begin
             CreateWorkHourTemplate(WorkHourTemplate[i]);
@@ -508,9 +508,9 @@ codeunit 136404 "Resource Matrix Management"
         LibraryResource.CreateResourceNew(Resource);
         // [GIVEN] Set Capacity for the Resource: 4 for Date1.
         CreateWorkHourTemplate(WorkHourTemplate);
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
         // [GIVEN] Set Capacity for the Resource for Date1 using zero Work-Hour Template (total week hours = 0).
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, CreateZeroWorkHourTemplate);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, CreateZeroWorkHourTemplate);
 
         // [WHEN] Open Resource Capacity Matrix Page with "View by" = Week, "View as" = Net Change.
         // [THEN] Resource Capacity = 0 for Date1.
@@ -576,7 +576,7 @@ codeunit 136404 "Resource Matrix Management"
         // [THEN] "Qty. on Assembly Order" = 3, "Net Availability" = 9
         ResourceAvailabilityPage.PeriodType.SetValue(PeriodType::"Accounting Period");
         ResourceAvailabilityPage.AmountType.SetValue(ValueType::"Balance at Date");
-        ResourceAvailabilityPage.ResAvailLines.FILTER.SetFilter("Period Start", Format(CalcDate('<-CM>', WorkDate)));
+        ResourceAvailabilityPage.ResAvailLines.FILTER.SetFilter("Period Start", Format(CalcDate('<-CM>', WorkDate())));
         ResourceAvailabilityPage.ResAvailLines.QtyOnAssemblyOrder.AssertEquals(AssemblyQuantity);
         ResourceAvailabilityPage.ResAvailLines.NetAvailability.AssertEquals(Capacity - AssemblyQuantity);
     end;
@@ -658,10 +658,10 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [GIVEN] Resource Capacity updated for Resource "X", capacity = 1
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [WHEN] Update Resource Capacity second time for Resource "X"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 1 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", WorkHourTemplate.Monday);
@@ -687,7 +687,7 @@ codeunit 136404 "Resource Matrix Management"
         CreateResourceWithWHTemplate(Resource, WorkHourTemplate, 0);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 2 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", WorkHourTemplate.Monday);
@@ -712,13 +712,13 @@ codeunit 136404 "Resource Matrix Management"
         CreateCompanyBaseCalendar(BaseCalendar);
 
         // [GIVEN] "Nonworking" day in Company's Base Calendar Change for date "Y"
-        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate, BaseCalendarChange);
+        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate(), BaseCalendarChange);
 
         // [GIVEN] Work Hour Template with Day = 1 for date "Y"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 0 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
@@ -749,13 +749,13 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [GIVEN] Resource Capacity updated for Resource "X"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [GIVEN] Change "Working" day to "Nonworking" day in Base Calendar Change for date "Y"
-        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate, BaseCalendarChange);
+        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate(), BaseCalendarChange);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 0 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
@@ -786,16 +786,16 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [GIVEN] Resource Capacity updated for Resource "X"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [GIVEN] Change "Working" day to "Nonworking" day in Base Calendar Change for date "Y"
-        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate, BaseCalendarChange);
+        CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate(), BaseCalendarChange);
 
         // [GIVEN] Increased capacity for date "Y", capacity = 2
         ModifyWorkHourTemplate(WorkHourTemplate, WorkHourTemplate.Monday + LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 0 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
@@ -823,7 +823,7 @@ codeunit 136404 "Resource Matrix Management"
         CreateResourceWithWHTemplate(Resource, WorkHourTemplate, 0.5);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" for Resource "X" is equal to 2.5
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", WorkHourTemplate.Monday);
@@ -853,7 +853,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         LibraryResource.CreateResourceNew(Resource);
         CreateWorkHourTemplate(WorkHourTemplate);
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate, WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
         ModifyWorkHourTemplate(WorkHourTemplate, WorkHourTemplate.Monday + LibraryRandom.RandIntInRange(3, 10) + Decimals);
     end;
 
@@ -885,7 +885,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         LibraryHumanResource.CreateEmployeeAbsence(EmployeeAbsence);
         EmployeeAbsence.Validate("Employee No.", EmployeeNo);
-        EmployeeAbsence.Validate("From Date", WorkDate);
+        EmployeeAbsence.Validate("From Date", WorkDate());
         EmployeeAbsence.Validate("Cause of Absence Code", GetCauseOfAbsenceCode);
 
         // Use random for Quantity.
@@ -913,7 +913,7 @@ codeunit 136404 "Resource Matrix Management"
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
         ResourceAllocations."Resource No.".SetValue(ResourceNo);
         ResourceAllocations."Allocated Hours".SetValue(AllocatedHours2);
-        ResourceAllocations."Allocation Date".SetValue(WorkDate);
+        ResourceAllocations."Allocation Date".SetValue(WorkDate());
         ResourceAllocations.OK.Invoke;
     end;
 
@@ -984,7 +984,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
-        ServiceLine.Validate("Order Date", WorkDate);
+        ServiceLine.Validate("Order Date", WorkDate());
         ServiceLine.Modify(true);
     end;
 
@@ -1055,8 +1055,8 @@ codeunit 136404 "Resource Matrix Management"
             "Entry No." += 1;
             "Resource No." := ResourceNo;
             Capacity := NewCapacity;
-            Date := WorkDate;
-            Insert;
+            Date := WorkDate();
+            Insert();
         end;
     end;
 
@@ -1070,8 +1070,8 @@ codeunit 136404 "Resource Matrix Management"
             Type := Type::Resource;
             "No." := ResourceNo;
             "Remaining Quantity (Base)" := NewQuantity;
-            "Due Date" := WorkDate;
-            Insert;
+            "Due Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -1151,7 +1151,7 @@ codeunit 136404 "Resource Matrix Management"
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
         ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
-        ServiceOrderAllocation.TestField("Allocation Date", WorkDate);
+        ServiceOrderAllocation.TestField("Allocation Date", WorkDate());
     end;
 
     local procedure VerifyResGroupAvailability(ResourceGroupNo: Code[20]; Capacity: Decimal; QtyAllocated: Decimal)
@@ -1164,7 +1164,7 @@ codeunit 136404 "Resource Matrix Management"
         ResGroupAvailability.Trap;
         ResGroupCapacity.MatrixForm.ResGroupAvailability.Invoke;
         ResGroupAvailability.PeriodType.SetValue(PeriodType::Day);
-        ResGroupAvailability.ResGrAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ResGroupAvailability.ResGrAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ResGroupAvailability.ResGrAvailLines.Capacity.AssertEquals(Capacity);
         ResGroupAvailability.ResGrAvailLines.CapacityAfterOrders.AssertEquals(Capacity - QtyAllocated);
     end;
@@ -1181,7 +1181,7 @@ codeunit 136404 "Resource Matrix Management"
     [Scope('OnPrem')]
     procedure AbsenceOverviewByMatrixHandler(var AbsOverByCatMatrix: TestPage "Abs. Over. by Cat. Matrix")
     begin
-        AbsOverByCatMatrix.FILTER.SetFilter("Period Start", Format(WorkDate));
+        AbsOverByCatMatrix.FILTER.SetFilter("Period Start", Format(WorkDate()));
         AbsOverByCatMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
     end;
 
@@ -1189,7 +1189,7 @@ codeunit 136404 "Resource Matrix Management"
     [Scope('OnPrem')]
     procedure AbsencesByCategoriesMatrix(var EmplAbsencesByCatMatrix: TestPage "Empl. Absences by Cat. Matrix")
     begin
-        EmplAbsencesByCatMatrix.FILTER.SetFilter("Period Start", Format(WorkDate));
+        EmplAbsencesByCatMatrix.FILTER.SetFilter("Period Start", Format(WorkDate()));
         EmplAbsencesByCatMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
     end;
 

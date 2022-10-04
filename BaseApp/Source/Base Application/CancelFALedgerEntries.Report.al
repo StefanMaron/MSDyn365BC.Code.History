@@ -209,8 +209,6 @@ report 5688 "Cancel FA Ledger Entries"
     end;
 
     var
-        Text000: Label 'The Starting Date is later than the Ending Date.';
-        Text001: Label 'Canceling fixed asset    #1##########';
         GenJnlLine: Record "Gen. Journal Line";
         FASetup: Record "FA Setup";
         FAJnlLine: Record "FA Journal Line";
@@ -237,11 +235,14 @@ report 5688 "Cancel FA Ledger Entries"
         FirstFAJnl: Boolean;
         FAJnlNextLineNo: Integer;
         GenJnlNextLineNo: Integer;
+        UseNewPostingDate: Boolean;
+        NewPostingDate: Date;
+
+        Text000: Label 'The Starting Date is later than the Ending Date.';
+        Text001: Label 'Canceling fixed asset    #1##########';
         Text002: Label 'You must specify New Posting Date.';
         Text003: Label 'You must not specify New Posting Date.';
         Text004: Label 'You must not specify a closing date.';
-        UseNewPostingDate: Boolean;
-        NewPostingDate: Date;
 
     protected var
         FALedgEntry: Record "FA Ledger Entry";
@@ -326,7 +327,7 @@ report 5688 "Cancel FA Ledger Entries"
     var
         Index: Integer;
     begin
-        Index := FALedgEntry.ConvertPostingType + 1;
+        Index := FALedgEntry.ConvertPostingType() + 1;
         if CancelChoices[Index] then begin
             if GLIntegration[Index] and not "Fixed Asset"."Budgeted Asset" then
                 JournalType := JournalType::GenJnlType

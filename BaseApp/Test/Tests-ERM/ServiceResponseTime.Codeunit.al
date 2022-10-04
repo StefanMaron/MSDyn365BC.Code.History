@@ -34,7 +34,7 @@ codeunit 136106 "Service Response Time"
         CreateServiceItemWithResponseTime(ServiceItem, LibraryRandom.RandInt(100));
 
         // 2. Exercise: Create Service Order - Service Header and Service Item Line.
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", WorkDate);
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", WorkDate());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // 3. Verify: Verify that the Response Time (Hours) on Service Item Line is equal to value of Response Time (Hours) of Service Item.
@@ -64,7 +64,7 @@ codeunit 136106 "Service Response Time"
         ServiceItem.Modify(true);
 
         // 2. Exercise: Create Service Order - Service Header and Service Item Line.
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", WorkDate);
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", WorkDate());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // 3. Verify: Verify that the value of the Response Time (Hours) on Service Item Line is equal to the value of Response Time
@@ -86,7 +86,7 @@ codeunit 136106 "Service Response Time"
 
         // 1. Setup: Create Service Order for a Working Day - Service Item, Service Header, Service Item Line.
         Initialize();
-        OrderDate := LibraryService.GetFirstWorkingDay(WorkDate);
+        OrderDate := LibraryService.GetFirstWorkingDay(WorkDate());
         CreateServiceHeaderGivenDate(ServiceItemLine, OrderDate);
 
         // 2. Exercise: Get Service Hour for the relevant Date and validate Response Time (Hours) as any time falling within the Service
@@ -115,7 +115,7 @@ codeunit 136106 "Service Response Time"
 
         // 1. Setup: Create Service Order for a Working Day - Service Item, Service Header, Service Item Line.
         Initialize();
-        OrderDate := LibraryService.GetFirstWorkingDay(WorkDate);
+        OrderDate := LibraryService.GetFirstWorkingDay(WorkDate());
         CreateServiceHeaderGivenDate(ServiceItemLine, OrderDate);
 
         // 2. Exercise: Get Service Hour for the relevant Date and validate Response Time (Hours) on Service Item Line having boundary value
@@ -145,7 +145,7 @@ codeunit 136106 "Service Response Time"
         // 1. Setup: Create Service Order for a Working Day - Service Item, Service Header, Service Item Line.
         Initialize();
         CreateServiceItem(ServiceItem);
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate()));
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // 2. Exercise: Get Service Hour for the relevant Date and validate Response Time (Hours) on Service Item Line as boundary value 0.
@@ -318,7 +318,7 @@ codeunit 136106 "Service Response Time"
     begin
         // Verify Service Item Line "Response Time" in case of Service Hour 23:59:59 Ending Time
         Initialize();
-        Date := CalcDate('<1M>', WorkDate);
+        Date := CalcDate('<1M>', WorkDate());
         UpdateDefaultServiceHours(Date);
 
         CreateServiceItemWithResponseTime(ServiceItem, 24);
@@ -403,7 +403,7 @@ codeunit 136106 "Service Response Time"
         Date: Record Date;
         NonWorkingDate: Date;
     begin
-        NonWorkingDate := GetNonWorkingDay(WorkDate);
+        NonWorkingDate := GetNonWorkingDay(WorkDate());
         if not LibraryService.GetServiceHourForDate(ServiceHour, NonWorkingDate) then begin
             Date.Get(Date."Period Type"::Date, NonWorkingDate);
             Evaluate(ServiceHour.Day, Date."Period Name");
@@ -439,7 +439,7 @@ codeunit 136106 "Service Response Time"
         ServiceHour: Record "Service Hour";
         WorkingDate: Date;
     begin
-        WorkingDate := WorkDate;
+        WorkingDate := WorkDate();
         repeat
             WorkingDate := CalcDate('<1D>', WorkingDate);
         until
@@ -454,7 +454,7 @@ codeunit 136106 "Service Response Time"
         ServiceHour: Record "Service Hour";
         WorkingDate: Date;
     begin
-        WorkingDate := WorkDate;
+        WorkingDate := WorkDate();
         repeat
             WorkingDate := CalcDate('<1D>', WorkingDate);
         until
@@ -468,7 +468,7 @@ codeunit 136106 "Service Response Time"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -491,7 +491,7 @@ codeunit 136106 "Service Response Time"
             "Valid on Holidays" := true;
             for DoW := Day::Monday to Day::Sunday do begin
                 Day := DoW;
-                Insert;
+                Insert();
             end;
         end;
     end;

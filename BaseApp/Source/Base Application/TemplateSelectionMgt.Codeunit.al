@@ -7,32 +7,32 @@ codeunit 1900 "Template Selection Mgt."
 
     procedure SaveCustTemplateSelectionForCurrentUser(TemplateCode: Code[10])
     begin
-        SaveTemplateSelectionForCurrentUser(TemplateCode, GetCustomerTemplateSelectionCode);
+        SaveTemplateSelectionForCurrentUser(TemplateCode, GetCustomerTemplateSelectionCode());
     end;
 
     procedure GetLastCustTemplateSelection(var TemplateCode: Code[10]): Boolean
     begin
-        exit(GetLastTemplateSelection(TemplateCode, GetCustomerTemplateSelectionCode));
+        exit(GetLastTemplateSelection(TemplateCode, GetCustomerTemplateSelectionCode()));
     end;
 
     procedure SaveVendorTemplateSelectionForCurrentUser(TemplateCode: Code[10])
     begin
-        SaveTemplateSelectionForCurrentUser(TemplateCode, GetVendorTemplateSelectionCode);
+        SaveTemplateSelectionForCurrentUser(TemplateCode, GetVendorTemplateSelectionCode());
     end;
 
     procedure GetLastVendorTemplateSelection(var TemplateCode: Code[10]): Boolean
     begin
-        exit(GetLastTemplateSelection(TemplateCode, GetVendorTemplateSelectionCode));
+        exit(GetLastTemplateSelection(TemplateCode, GetVendorTemplateSelectionCode()));
     end;
 
     procedure SaveItemTemplateSelectionForCurrentUser(TemplateCode: Code[10])
     begin
-        SaveTemplateSelectionForCurrentUser(TemplateCode, GetItemTemplateSelectionCode);
+        SaveTemplateSelectionForCurrentUser(TemplateCode, GetItemTemplateSelectionCode());
     end;
 
     procedure GetLastItemTemplateSelection(var TemplateCode: Code[10]): Boolean
     begin
-        exit(GetLastTemplateSelection(TemplateCode, GetItemTemplateSelectionCode));
+        exit(GetLastTemplateSelection(TemplateCode, GetItemTemplateSelectionCode()));
     end;
 
     procedure GetCustomerTemplateSelectionCode(): Code[20]
@@ -72,7 +72,7 @@ codeunit 1900 "Template Selection Mgt."
             exit(false);
 
         UserPreference.CalcFields("User Selection");
-        TemplateCode := CopyStr(UserPreference.GetUserSelectionAsText, 1, MaxStrLen(TemplateCode));
+        TemplateCode := CopyStr(UserPreference.GetUserSelectionAsText(), 1, MaxStrLen(TemplateCode));
         exit(true);
     end;
 }

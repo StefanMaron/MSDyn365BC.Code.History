@@ -57,14 +57,14 @@ table 86 "Exch. Rate Adjmt. Reg."
         field(10; "Adjusted Base (Add.-Curr.)"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCodeFromGLSetup;
+            AutoFormatExpression = GetCurrencyCodeFromGLSetup();
             AutoFormatType = 1;
             Caption = 'Adjusted Base (Add.-Curr.)';
         }
         field(11; "Adjusted Amt. (Add.-Curr.)"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCodeFromGLSetup;
+            AutoFormatExpression = GetCurrencyCodeFromGLSetup();
             AutoFormatType = 1;
             Caption = 'Adjusted Amt. (Add.-Curr.)';
         }

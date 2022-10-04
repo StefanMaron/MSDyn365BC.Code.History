@@ -29,7 +29,7 @@ page 1014 "Job Transfer Job Planning Line"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        SelectJobJournalTemplate;
+                        SelectJobJournalTemplate();
                     end;
                 }
                 field(JobJournalBatchName; JobJournalBatchName)
@@ -42,7 +42,7 @@ page 1014 "Job Transfer Job Planning Line"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        SelectJobJournalBatch;
+                        SelectJobJournalBatch();
                     end;
                 }
             }
@@ -55,7 +55,7 @@ page 1014 "Job Transfer Job Planning Line"
 
     trigger OnOpenPage()
     begin
-        InitializeValues;
+        InitializeValues();
     end;
 
     var
@@ -68,7 +68,7 @@ page 1014 "Job Transfer Job Planning Line"
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlBatch: Record "Job Journal Batch";
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         JobJnlTemplate.SetRange("Page ID", PAGE::"Job Journal");
         JobJnlTemplate.SetRange(Recurring, false);

@@ -125,7 +125,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
         // [GIVEN] Cancelled and unapplied Posted Credit Memo
-        PurchCrMemoHdr.Find;
+        PurchCrMemoHdr.Find();
         CancelCrMemo(PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsPost;
 
@@ -423,7 +423,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelCrMemo(PurchCrMemoHdr);
 
         // [WHEN] Cancel Invoice "A" by Credit Memo "C"
-        OrigPurchInvHeader.Find;
+        OrigPurchInvHeader.Find();
         CancelInvoice(NewPurchCrMemoHdr, OrigPurchInvHeader);
 
         // [THEN] Cancelled Document exists for Posted Invoice "A" - Posted Credit Memo "C"
@@ -1042,7 +1042,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     local procedure CreateInvtPeriod(var InventoryPeriod: Record "Inventory Period")
     begin
         InventoryPeriod.Init();
-        InventoryPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
+        InventoryPeriod."Ending Date" := CalcDate('<+1D>', WorkDate());
         InventoryPeriod.Closed := true;
         InventoryPeriod.Insert();
     end;
@@ -1052,11 +1052,11 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendLedgEntry, FieldNo("Entry No."));
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             "Entry Type" := EntryType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1097,7 +1097,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
         with PurchHeader do begin
-            Init;
+            Init();
             Validate("Document Type", "Document Type"::Invoice);
             Insert(true);
         end;

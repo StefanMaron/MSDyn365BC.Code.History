@@ -211,10 +211,6 @@ page 2901 "Demand Forecast Card"
                 ApplicationArea = Planning;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -227,10 +223,6 @@ page 2901 "Demand Forecast Card"
                 ApplicationArea = Planning;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -243,10 +235,6 @@ page 2901 "Demand Forecast Card"
                 ApplicationArea = Planning;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -259,16 +247,32 @@ page 2901 "Demand Forecast Card"
                 ApplicationArea = Planning;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Previous Column_Promoted"; "Previous Column")
+                {
+                }
+                actionref("Next Column_Promoted"; "Next Column")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -308,7 +312,7 @@ page 2901 "Demand Forecast Card"
         LocationFilterIsEnabled := Rec."Forecast By Locations";
     end;
 
-    var
+    protected var
         MatrixRecords: array[32] of Record Date;
         VariantFilterIsEnabled: Boolean;
         LocationFilterIsEnabled: Boolean;
@@ -328,7 +332,7 @@ page 2901 "Demand Forecast Card"
         FilterPage: FilterPageBuilder;
         ItemCaptionTxt: Code[20];
     begin
-        ItemCaptionTxt := CopyStr(Item.TableCaption, 1, MaxStrLen(ItemCaptionTxt));
+        ItemCaptionTxt := CopyStr(Item.TableCaption(), 1, MaxStrLen(ItemCaptionTxt));
         RequestPageParametersHelper.BuildDynamicRequestPage(FilterPage, ItemCaptionTxt, Database::Item);
         RequestPageParametersHelper.SetViewOnDynamicRequestPage(FilterPage, ItemFilterBlobText, ItemCaptionTxt, Database::Item);
         FilterPage.PageCaption := ItemCaptionTxt;
@@ -373,8 +377,7 @@ page 2901 "Demand Forecast Card"
         exit(true);
     end;
 
-
-    local procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
+    protected procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
@@ -382,10 +385,9 @@ page 2901 "Demand Forecast Card"
         SetMatrix();
     end;
 
-    local procedure SetMatrix()
+    protected procedure SetMatrix()
     begin
         CurrPage.Matrix.PAGE.Load(MatrixColumnCaptions, MatrixRecords, Rec.Name, Rec."Date Filter", Rec."Forecast Type", Rec."Quantity Type", CurrentSetLength, Rec.GetItemFilterBlobAsViewFilters(), Rec.GetLocationFilterBlobAsText(), Rec."Forecast By Locations", Rec."Forecast By Variants", Rec.GetVariantFilterBlobAsText());
     end;
-
 }
 

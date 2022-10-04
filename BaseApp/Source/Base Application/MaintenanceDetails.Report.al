@@ -16,7 +16,7 @@ report 5634 "Maintenance - Details"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DeprBookText; DeprBookText)
@@ -182,8 +182,8 @@ report 5634 "Maintenance - Details"
     trigger OnPreReport()
     begin
         DeprBook.Get(DeprBookCode);
-        FAFilter := "Fixed Asset".GetFilters;
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        FAFilter := "Fixed Asset".GetFilters();
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         GroupCounter := 0;
     end;
 

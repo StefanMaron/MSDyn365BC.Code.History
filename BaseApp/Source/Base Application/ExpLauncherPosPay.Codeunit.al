@@ -100,7 +100,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
-        if DataExchLineDef.FindSet() then begin
+        if DataExchLineDef.FindSet() then
             repeat
                 // Insert the Data Exchange Header records
                 DataExch."Entry No." := 0;
@@ -130,7 +130,6 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 if DataExchDef."Reading/Writing Codeunit" = CODEUNIT::"Exp. Writing Pos. Pay" then
                     PositivePayExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", HdrCount);
             until DataExchLineDef.Next() = 0;
-        end;
     end;
 
     local procedure ProcessDetails(var CheckLedgerEntry: Record "Check Ledger Entry"; DataExchDefCode: Code[20]; var DataExchEntryCodeDetail: Integer; var DetailArray: array[100] of Integer; Filename: Text)
@@ -205,7 +204,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
-        if DataExchLineDef.FindSet() then begin
+        if DataExchLineDef.FindSet() then
             repeat
                 // Insert the Data Exchange Footer records
                 DataExch."Entry No." := 0;
@@ -236,7 +235,6 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                     PositivePayExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", 0);
                 DataExchEntryCodeFooter := DataExch."Entry No.";
             until DataExchLineDef.Next() = 0;
-        end;
     end;
 }
 

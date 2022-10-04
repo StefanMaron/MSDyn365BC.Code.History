@@ -25,7 +25,7 @@ table 99000774 "Family Line"
             trigger OnValidate()
             begin
                 if "Item No." = '' then
-                    Init
+                    Init()
                 else begin
                     Item.Get("Item No.");
                     Description := Item.Description;

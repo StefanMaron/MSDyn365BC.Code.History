@@ -10,7 +10,7 @@ codeunit 1801 "Company Setup Service"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.LockTable();
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             CompanyInformation.Insert();
         CompanyInformation.Name := Name;
         CompanyInformation.Address := Address;
@@ -20,7 +20,7 @@ codeunit 1801 "Company Setup Service"
         CompanyInformation."Post Code" := PostCode;
         CompanyInformation."Country/Region Code" := CountryCode;
         CompanyInformation."Phone No." := PhoneNo;
-        exit(CompanyInformation.Modify);
+        exit(CompanyInformation.Modify());
     end;
 }
 

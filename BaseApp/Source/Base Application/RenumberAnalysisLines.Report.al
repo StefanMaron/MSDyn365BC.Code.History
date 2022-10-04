@@ -47,7 +47,7 @@ report 7110 "Renumber Analysis Lines"
             if Find('-') then
                 repeat
                     Validate("Row Ref. No.", RowRefNo);
-                    Modify;
+                    Modify();
                     RowRefNo := IncStr(RowRefNo);
                 until Next() = 0;
     end;

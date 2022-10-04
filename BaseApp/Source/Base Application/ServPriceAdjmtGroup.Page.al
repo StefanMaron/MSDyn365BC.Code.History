@@ -49,11 +49,20 @@ page 6082 "Serv. Price Adjmt. Group"
                 ApplicationArea = Service;
                 Caption = '&Details';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Serv. Price Adjmt. Detail";
                 RunPageLink = "Serv. Price Adjmt. Gr. Code" = FIELD(Code);
                 ToolTip = 'View details about the price.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Details_Promoted"; "&Details")
+                {
+                }
             }
         }
     }

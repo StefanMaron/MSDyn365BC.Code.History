@@ -32,7 +32,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Customer Posting Group" = R,
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Templ." = rm,
-#if not CLEAN18
+#if not CLEAN19
                   tabledata "Customer Template" = r,
 #endif
                   tabledata "Default Dimension" = RIMD,
@@ -110,7 +110,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Sales Invoice Header" = rm,
                   tabledata "Sales Invoice Line" = rm,
                   tabledata "Sales Line" = Rm,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = Rd,
                   tabledata "Sales Price" = Rid,
 #endif

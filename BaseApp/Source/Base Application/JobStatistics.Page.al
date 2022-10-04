@@ -1347,7 +1347,7 @@ page 1025 "Job Statistics"
     begin
         Clear(JobCalcStatistics);
         JobCalcStatistics.JobCalculateCommonFilters(Rec);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         JobCalcStatistics.GetCostAmounts(C);

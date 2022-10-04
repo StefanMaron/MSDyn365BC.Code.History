@@ -1,5 +1,6 @@
 table 132450 "Job Queue Sample Logging"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -44,13 +45,13 @@ table 132450 "Job Queue Sample Logging"
         if FindLast() then
             nextKey := "No." + 1;
 
-        Init;
+        Init();
         "No." := nextKey;
         "User ID" := UserId;
         "Session ID" := ServiceInstanceId;
         MessageToLog := '[' + Format(DT2Time(CurrentDateTime), 0, '<Hours24>:<Minutes>:<Seconds>.<Thousands>') + '] ' + Msg;
 
-        Insert;
+        Insert();
         Commit();
     end;
 }

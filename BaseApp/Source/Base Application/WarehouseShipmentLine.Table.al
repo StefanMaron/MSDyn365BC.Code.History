@@ -1,4 +1,4 @@
-﻿table 7321 "Warehouse Shipment Line"
+table 7321 "Warehouse Shipment Line"
 {
     Caption = 'Warehouse Shipment Line';
     DrillDownPageID = "Whse. Shipment Lines";
@@ -66,7 +66,7 @@
                 Bin: Record Bin;
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                TestReleased;
+                TestReleased();
                 if xRec."Bin Code" <> "Bin Code" then
                     if "Bin Code" <> '' then begin
                         GetLocation("Location Code");
@@ -89,7 +89,7 @@
 
             trigger OnValidate()
             begin
-                TestReleased;
+                TestReleased();
                 if xRec."Zone Code" <> "Zone Code" then begin
                     if "Zone Code" <> '' then begin
                         GetLocation("Location Code");
@@ -119,8 +119,8 @@
             begin
                 if Quantity <= 0 then
                     FieldError(Quantity, Text003);
-                TestReleased;
-                CheckSourceDocLineQty;
+                TestReleased();
+                CheckSourceDocLineQty();
 
                 if Quantity < "Qty. Picked" then
                     FieldError(Quantity, StrSubstNo(Text001, "Qty. Picked"));
@@ -129,7 +129,7 @@
 
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
                 "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
-                InitOutstandingQtys;
+                InitOutstandingQtys();
                 "Completely Picked" := (Quantity = "Qty. Picked") or ("Qty. (Base)" = "Qty. Picked (Base)");
 
                 GetLocation("Location Code");
@@ -139,7 +139,7 @@
                 IsHandled := false;
                 OnValidateQuantityStatusUpdate(Rec, xRec, IsHandled);
                 if not IsHandled then begin
-                    Status := CalcStatusShptLine;
+                    Status := CalcStatusShptLine();
                     if (Status <> xRec.Status) and (not IsTemporary) then begin
                         GetWhseShptHeader("No.");
                         OrderStatus := WhseShptHeader.GetDocumentStatus(0);
@@ -508,7 +508,7 @@
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        TestReleased;
+        TestReleased();
 
         if "Assemble to Order" then
             Validate("Qty. to Ship", 0);
@@ -535,10 +535,13 @@
     end;
 
     var
-        Text000: Label 'You cannot handle more than the outstanding %1 units.';
         Location: Record Location;
         Item: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
+        IgnoreErrors: Boolean;
+        ErrorOccured: Boolean;
+
+        Text000: Label 'You cannot handle more than the outstanding %1 units.';
         Text001: Label 'must not be less than %1 units';
         Text002: Label 'must not be greater than %1 units';
         Text003: Label 'must be greater than zero';
@@ -548,8 +551,6 @@
         Text009: Label '%1 is set to %2. %3 should be %4.\\';
         Text010: Label 'Accept the entered value?';
         Text011: Label 'Nothing to handle.';
-        IgnoreErrors: Boolean;
-        ErrorOccured: Boolean;
 
     protected var
         WhseShptHeader: Record "Warehouse Shipment Header";
@@ -558,14 +559,14 @@
 
     procedure InitNewLine(DocNo: Code[20])
     begin
-        Reset;
+        Reset();
         "No." := DocNo;
         SetRange("No.", "No.");
         LockTable();
         if FindLast() then;
 
-        Init;
-        SetIgnoreErrors;
+        Init();
+        SetIgnoreErrors();
         "Line No." := "Line No." + 10000;
     end;
 
@@ -777,7 +778,7 @@
                     else
                         Validate("Qty. to Ship (Base)", "Qty. Outstanding (Base)");
                     OnAutoFillQtyToHandleOnBeforeModify(WhseShptLine);
-                    Modify;
+                    Modify();
                     if not NotEnough then
                         if ("Qty. to Ship (Base)" < "Qty. Outstanding (Base)") and
                            ("Shipping Advice" = "Shipping Advice"::Complete)
@@ -800,14 +801,13 @@
         if IsHandled then
             exit;
 
-        with WhseShptLine do begin
+        with WhseShptLine do
             if Find('-') then
                 repeat
                     Validate("Qty. to Ship", 0);
                     OnDeleteQtyToHandleOnBeforeModify(WhseShptLine);
-                    Modify;
+                    Modify();
                 until Next() = 0;
-        end;
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -854,7 +854,7 @@
             WhseShipmentCreatePick.SetHideValidationDialog(HideValidationDialog);
             WhseShipmentCreatePick.UseRequestPage(not HideValidationDialog);
             WhseShipmentCreatePick.RunModal();
-            WhseShipmentCreatePick.GetResultMessage;
+            WhseShipmentCreatePick.GetResultMessage();
             Clear(WhseShipmentCreatePick);
         end;
         OnAfterCreatePickDoc(WhseShptHeader, WhseShptLine);
@@ -888,7 +888,7 @@
         TestField("No.");
         TestField("Qty. (Base)");
 
-        GetItem;
+        GetItem();
         Item.TestField("Item Tracking Code");
 
         SecondSourceQtyArray[1] := DATABASE::"Warehouse Shipment Line";
@@ -897,26 +897,20 @@
 
         case "Source Type" of
             DATABASE::"Sales Line":
-                begin
-                    if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        SalesLineReserve.CallItemTrackingSecondSource(SalesLine, SecondSourceQtyArray, "Assemble to Order");
-                end;
+                if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
+                    SalesLineReserve.CallItemTrackingSecondSource(SalesLine, SecondSourceQtyArray, "Assemble to Order");
             DATABASE::"Service Line":
-                begin
-                    if ServiceLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        ServiceLineReserve.CallItemTracking(ServiceLine);
-                end;
+                if ServiceLine.Get("Source Subtype", "Source No.", "Source Line No.") then
+                    ServiceLineReserve.CallItemTracking(ServiceLine);
             DATABASE::"Purchase Line":
-                begin
-                    if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
-                end;
+                if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
+                    PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
             DATABASE::"Transfer Line":
                 begin
                     Direction := Direction::Outbound;
                     if TransferLine.Get("Source No.", "Source Line No.") then
                         TransferLineReserve.CallItemTracking(TransferLine, Direction, SecondSourceQtyArray);
-                end
+                end;
         end;
 
         OnAfterOpenItemTrackingLines(Rec, SecondSourceQtyArray);

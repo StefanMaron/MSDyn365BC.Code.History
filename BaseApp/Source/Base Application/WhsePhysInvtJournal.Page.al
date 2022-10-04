@@ -7,7 +7,6 @@ page 7326 "Whse. Phys. Invt. Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Item,Line';
     SaveValues = true;
     SourceTable = "Warehouse Journal Line";
     UsageCategory = Tasks;
@@ -33,7 +32,7 @@ page 7326 "Whse. Phys. Invt. Journal"
                 trigger OnValidate()
                 begin
                     Rec.CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -211,8 +210,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -236,8 +233,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -250,8 +245,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -273,8 +266,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                     Caption = 'Calculate &Inventory';
                     Ellipsis = true;
                     Image = CalculateInventory;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Start the process of counting inventory by filling the journal with known quantities.';
 
                     trigger OnAction()
@@ -324,8 +315,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -360,8 +349,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                     ApplicationArea = Warehouse;
                     Caption = '&Register';
                     Image = Confirm;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'F9';
                     ToolTip = 'Register the warehouse entry in question, such as a positive adjustment. ';
 
@@ -377,8 +364,6 @@ page 7326 "Whse. Phys. Invt. Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Register and &Print';
                     Image = ConfirmAndPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Register the warehouse entry adjustments and print an overview of the changes. ';
 
@@ -391,12 +376,82 @@ page 7326 "Whse. Phys. Invt. Journal"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Calculate &Inventory_Promoted"; "Calculate &Inventory")
+                {
+                }
+                actionref("&Calculate Counting Period_Promoted"; "&Calculate Counting Period")
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Registering';
+                    ShowAs = SplitButton;
+
+                    actionref("&Register_Promoted"; "&Register")
+                    {
+                    }
+                    actionref("Register and &Print_Promoted"; "Register and &Print")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         Rec.GetItem(Rec."Item No.", ItemDescription);
-        SetControls;
+        SetControls();
     end;
 
     trigger OnInit()
@@ -414,7 +469,7 @@ page 7326 "Whse. Phys. Invt. Journal"
     var
         JnlSelected: Boolean;
     begin
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             CurrentLocationCode := Rec."Location Code";
             Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
@@ -457,7 +512,7 @@ page 7326 "Whse. Phys. Invt. Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         Rec.SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

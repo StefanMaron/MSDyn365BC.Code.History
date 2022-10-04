@@ -26,7 +26,7 @@ page 5715 "Responsibility Center List"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location of the responsibility center.';

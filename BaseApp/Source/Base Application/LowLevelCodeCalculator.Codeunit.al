@@ -191,6 +191,7 @@ codeunit 3687 "Low-Level Code Calculator"
     begin
         TotalProdBOMCount := ProductionBOMHeader.Count();
 
+        CurrentBOMHeaderNo := '';
         ProductionBOMLineDetails.SetFilter(Type, '<> %1', "Production BOM Line Type"::" ");
         ProductionBOMLineDetails.Open();
         while ProductionBOMLineDetails.Read() do begin

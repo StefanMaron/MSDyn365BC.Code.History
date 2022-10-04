@@ -21,25 +21,25 @@ page 6057 "Contract Line Selection"
 
                 trigger OnValidate()
                 begin
-                    SelectionFilterOnAfterValidate;
+                    SelectionFilterOnAfterValidate();
                 end;
             }
             repeater(Control1)
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     Caption = 'Item No.';
                     ToolTip = 'Specifies the item number linked to the service item.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of this item.';
@@ -49,23 +49,23 @@ page 6057 "Contract Line Selection"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of this item.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns this item.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the vendor for this item.';
                     Visible = false;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
@@ -125,22 +125,22 @@ page 6057 "Contract Line Selection"
         SetFilter(Status, '<>%1', Status::Defective);
         FilterGroup(0);
         SetRange("Ship-to Code", ShipToCode);
-        SetSelectionFilter;
+        SetSelectionFilter();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
         if OKButton then begin
             ServContract.Get(ContractType, ContractNo);
             CurrPage.SetSelectionFilter(Rec);
             ServContractLine.HideDialogBox(true);
             if Find('-') then
                 repeat
-                    CheckServContractLine;
+                    CheckServContractLine();
                 until Next() = 0;
-            CreateServContractLines;
+            CreateServContractLines();
             Commit();
         end;
     end;
@@ -191,19 +191,19 @@ page 6057 "Contract Line Selection"
         ServContractLine.SetRange("Contract Type", ServContract."Contract Type");
         ServContractLine.SetRange("Service Item No.", TempServItem."No.");
         if ServContractLine.FindFirst() then begin
-            Message(Text000, TempServItem.TableCaption, TempServItem."No.");
+            Message(Text000, TempServItem.TableCaption(), TempServItem."No.");
             exit;
         end;
 
         ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
         ServContractLine.SetRange("Service Item No.", TempServItem."No.");
-        ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
-        ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
+        ServContractLine.SetFilter("Contract Status", '<>%1', "Service Contract Status"::Cancelled);
+        ServContractLine.SetRange("Contract Type", "Service Contract Type"::Contract);
         ServContractLine.SetFilter("Contract No.", '<>%1', ServContract."Contract No.");
         if ServContractLine.FindFirst() then begin
             if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(Text001, TempServItem.TableCaption, TempServItem."No."), true)
+                 StrSubstNo(Text001, TempServItem.TableCaption(), TempServItem."No."), true)
             then
                 exit;
         end else begin
@@ -214,14 +214,14 @@ page 6057 "Contract Line Selection"
             ServContractLine.SetFilter("Contract No.", '<>%1', ServContract."Contract No.");
             if ServContractLine.FindFirst() then
                 if not ConfirmManagement.GetResponseOrDefault(
-                     StrSubstNo(Text001, TempServItem.TableCaption, TempServItem."No."), true)
+                     StrSubstNo(Text001, TempServItem.TableCaption(), TempServItem."No."), true)
                 then
                     exit;
         end;
 
         if TempServItem."Ship-to Code" <> ServContract."Ship-to Code" then
             if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(Text002, TempServItem.TableCaption, TempServItem."No."), true)
+                 StrSubstNo(Text002, TempServItem.TableCaption(), TempServItem."No."), true)
             then
                 exit;
 
@@ -231,7 +231,7 @@ page 6057 "Contract Line Selection"
     local procedure CreateServContractLines()
     begin
         ServContractLine.LockTable();
-        LineNo := FindlineNo + 10000;
+        LineNo := FindlineNo() + 10000;
         if TempServItem.Find('-') then
             repeat
                 ServContractLine.Init();
@@ -239,7 +239,7 @@ page 6057 "Contract Line Selection"
                 ServContractLine."Contract Type" := ServContract."Contract Type";
                 ServContractLine."Contract No." := ServContract."Contract No.";
                 ServContractLine."Line No." := LineNo;
-                ServContractLine.SetupNewLine;
+                ServContractLine.SetupNewLine();
                 ServContractLine.Validate("Service Item No.", TempServItem."No.");
                 ServContractLine.Validate("Line Value", TempServItem."Default Contract Value");
                 ServContractLine.Validate("Line Discount %", TempServItem."Default Contract Discount %");
@@ -262,7 +262,7 @@ page 6057 "Contract Line Selection"
     local procedure SelectionFilterOnAfterValidate()
     begin
         CurrPage.Update();
-        SetSelectionFilter;
+        SetSelectionFilter();
     end;
 
     local procedure LookupOKOnPush()

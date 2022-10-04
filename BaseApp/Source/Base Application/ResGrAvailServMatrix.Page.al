@@ -33,7 +33,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -422,7 +422,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
                         Clear(ServOrderAllocMgt);
                         ServOrderAllocMgt.AllocateDate(
                           CurrentDocumentType, CurrentDocumentNo, CurrentEntryNo, '', "No.", SelectedDate, QtytoAllocate);
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 }
             }
@@ -431,7 +431,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
 
     trigger OnAfterGetRecord()
     begin
-        MatrixOnAfterGetRecord;
+        MatrixOnAfterGetRecord();
     end;
 
     trigger OnInit()
@@ -477,7 +477,6 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
     end;
 
     var
-        Text000: Label 'You cannot allocate a resource when selected period is %1.';
         MatrixColumnDateFilters: array[32] of Record Date;
         MatrixRec: Record "Resource Group";
         ServMgtSetup: Record "Service Mgt. Setup";
@@ -557,6 +556,8 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
         [InDataSet]
         QtytoallocateEnable: Boolean;
 
+        Text000: Label 'You cannot allocate a resource when selected period is %1.';
+
     procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Enum "Analysis Period Type")
     begin
         CurrentDocumentType := DocumentType;
@@ -589,7 +590,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
                         MATRIX_CellData[I] := '';
                 until MatrixRec.Next() = 0;
         end;
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MatrixOnDrillDown(Column: Integer)

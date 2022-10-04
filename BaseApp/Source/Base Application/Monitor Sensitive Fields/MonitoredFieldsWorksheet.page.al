@@ -39,14 +39,14 @@ page 1369 "Monitored Fields Worksheet"
                         end;
                     end;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     Caption = 'Table Caption';
                     ToolTip = 'Specifies the name of the table that includes the monitored field.';
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                 }
-                field("Field No"; "Field No.")
+                field("Field No"; Rec."Field No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the identifier of the monitored field.';
@@ -71,7 +71,7 @@ page 1369 "Monitored Fields Worksheet"
                         end;
                     end;
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -97,10 +97,6 @@ page 1369 "Monitored Fields Worksheet"
                 Caption = 'Add fields';
                 ToolTip = 'Choose the fields to monitor based on filter criteria, such as their data sensitivity classification.';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 trigger OnAction()
                 begin
                     MonitorSensitiveField.OpenDataSensitivityFilterPage();
@@ -112,10 +108,6 @@ page 1369 "Monitored Fields Worksheet"
                 Caption = 'Set for Notification';
                 ToolTip = 'Turn on notifications for the selected fields.';
                 Image = ApplyEntries;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 begin
@@ -128,10 +120,6 @@ page 1369 "Monitored Fields Worksheet"
                 Caption = 'Clear for  Notification';
                 ToolTip = 'Turn off notification for the selected fields.';
                 Image = ClearLog;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 begin
@@ -144,10 +132,6 @@ page 1369 "Monitored Fields Worksheet"
                 Caption = 'Field Monitoring Setup';
                 ToolTip = 'Open the Field Monitoring Setup page.';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Field Monitoring Setup";
             }
             action("Changes Entries")
@@ -156,11 +140,30 @@ page 1369 "Monitored Fields Worksheet"
                 ToolTip = 'View a history of changes in monitored fields.';
                 ApplicationArea = Basic, Suite;
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = page "Monitored Field Log Entries";
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Add Fields_Promoted"; "Add Fields")
+                {
+                }
+                actionref("Set Notification_Promoted"; "Set Notification")
+                {
+                }
+                actionref("Clear Notification_Promoted"; "Clear Notification")
+                {
+                }
+                actionref("Setup Monitor_Promoted"; "Setup Monitor")
+                {
+                }
+                actionref("Changes Entries_Promoted"; "Changes Entries")
+                {
+                }
             }
         }
     }

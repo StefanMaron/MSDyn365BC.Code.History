@@ -63,7 +63,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         CreateItemwithStock(Item, ExtendedTxt, Quantity);
         LibraryPatterns.MAKESalesQuote(SalesHeader, SalesLine, Item, '', '',
-          Quantity, WorkDate, LibraryRandom.RandIntInRange(1, 10));
+          Quantity, WorkDate(), LibraryRandom.RandIntInRange(1, 10));
         if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
             TransferExtendedText.InsertSalesExtText(SalesLine);
 
@@ -72,7 +72,7 @@ codeunit 137410 "Extended Text Documents"
         // Exercise: Create Sales Order form Sales Quote.
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
 
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // Verify
         VerifySalesOrder(SalesLine."No.", ExtendedTxt);
@@ -93,7 +93,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         CreateItemwithStock(Item, ExtendedTxt, Quantity);
         LibraryPatterns.MAKESalesBlanketOrder(SalesHeader, SalesLine, Item, '', '',
-          Quantity, WorkDate, LibraryRandom.RandIntInRange(1, 10));
+          Quantity, WorkDate(), LibraryRandom.RandIntInRange(1, 10));
         if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
             TransferExtendedText.InsertSalesExtText(SalesLine);
 
@@ -157,7 +157,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         LibraryPatterns.MAKEItemWithExtendedText(Item, ExtendedTxt, Item."Costing Method"::FIFO, 0);
         LibraryPatterns.MAKEPurchaseQuote(PurchaseHeader, PurchaseLine,
-          Item, '', '', Quantity, WorkDate, LibraryRandom.RandIntInRange(1, 10));
+          Item, '', '', Quantity, WorkDate(), LibraryRandom.RandIntInRange(1, 10));
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchaseLine, false) then
             TransferExtendedText.InsertPurchExtText(PurchaseLine);
 
@@ -183,7 +183,7 @@ codeunit 137410 "Extended Text Documents"
         Quantity := LibraryRandom.RandIntInRange(1, 10);
         LibraryPatterns.MAKEItemWithExtendedText(Item, ExtendedTxt, Item."Costing Method"::FIFO, 0);
         LibraryPatterns.MAKEPurchaseBlanketOrder(PurchaseHeader, PurchaseLine,
-          Item, '', '', Quantity, WorkDate, LibraryRandom.RandIntInRange(1, 10));
+          Item, '', '', Quantity, WorkDate(), LibraryRandom.RandIntInRange(1, 10));
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchaseLine, false) then
             TransferExtendedText.InsertPurchExtText(PurchaseLine);
 
@@ -503,7 +503,7 @@ codeunit 137410 "Extended Text Documents"
     local procedure CreateItemwithStock(var Item: Record Item; ExtendedText: Text[50]; Quantity: Decimal)
     begin
         LibraryPatterns.MAKEItemWithExtendedText(Item, ExtendedText, Item."Costing Method"::FIFO, 0);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
     end;
 
     local procedure CreateSalesLineWithExtText(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; QtyToShip: Decimal)

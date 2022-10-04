@@ -11,7 +11,7 @@ report 301 "Vendor - List"
         dataitem(Vendor; Vendor)
         {
             RequestFilterFields = "No.", "Search Name", "Vendor Posting Group";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Vendor_TABLECAPTION__________VendFilter; TableCaption + ': ' + VendFilter)

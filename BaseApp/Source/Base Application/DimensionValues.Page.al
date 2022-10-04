@@ -29,7 +29,7 @@ page 537 "Dimension Values"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies a descriptive name for the dimension value.';
                 }
-                field("Dimension Value Type"; "Dimension Value Type")
+                field("Dimension Value Type"; Rec."Dimension Value Type")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the purpose of the dimension value.';
@@ -48,7 +48,7 @@ page 537 "Dimension Values"
                         DimVal.SetRange("Dimension Code", "Dimension Code");
                         DimValList.SetTableView(DimVal);
                         DimValList.LookupMode := true;
-                        if DimValList.RunModal = ACTION::LookupOK then begin
+                        if DimValList.RunModal() = ACTION::LookupOK then begin
                             DimValList.GetRecord(DimVal);
                             Text := DimVal.Code;
                             exit(true);
@@ -61,13 +61,13 @@ page 537 "Dimension Values"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Map-to IC Dimension Value Code"; "Map-to IC Dimension Value Code")
+                field("Map-to IC Dimension Value Code"; Rec."Map-to IC Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which intercompany dimension value corresponds to the dimension value on the line.';
                     Visible = false;
                 }
-                field("Consolidation Code"; "Consolidation Code")
+                field("Consolidation Code"; Rec."Consolidation Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code that is used for consolidation.';
@@ -125,7 +125,7 @@ page 537 "Dimension Values"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLine;
+        FormatLine();
     end;
 
     trigger OnOpenPage()

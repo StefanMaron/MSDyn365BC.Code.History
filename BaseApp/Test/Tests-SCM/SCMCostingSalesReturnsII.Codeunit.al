@@ -86,7 +86,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SelectSalesLines(SalesLine, SalesHeader."No.", SalesHeader."Document Type"::"Return Order");
         TempItem.FindFirst();
         UpdateSalesLine(SalesLine, TempItem."Unit Price", 1);  // Qty Sign Factor value important for Test.
-        SalesLine.Next;
+        SalesLine.Next();
         if NoOfCharges > 0 then begin
             UpdateSalesLine(SalesLine, -LibraryRandom.RandInt(10), 1);  // Qty Sign Factor value important for Test.
             CreateItemChargeAssignment(SalesLine, SalesOrderNo);
@@ -235,7 +235,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesLine3.FindSet();
         repeat
             CreateItemChargeAssignment(SalesLine3, SalesOrderNo);
-        until SalesLine3.Next = 0;
+        until SalesLine3.Next() = 0;
 
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
         LibrarySales.PostSalesDocument(SalesHeader3, true, false);
@@ -348,7 +348,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         if (NoOfItems > 0) and (NoOfCharges > 0) then begin
             TempItem.FindFirst();
             UpdateSalesLine(SalesLine, SignFactor * TempItem."Unit Price", SignFactor);
-            SalesLine.Next;
+            SalesLine.Next();
         end;
         if NoOfItems > 1 then begin
             TempItem.FindFirst();
@@ -447,7 +447,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         TempItem.FindFirst();
         UpdateSalesLine(SalesLine, TempItem."Unit Price", -1);  // Qty Sign Factor value important for Test.
         if NoOfCharges > 0 then begin
-            SalesLine.Next;
+            SalesLine.Next();
             UpdateSalesLine(SalesLine, LibraryRandom.RandInt(10), 1);  // Qty Sign Factor value important for Test.
             CreateItemChargeAssignment(SalesLine, SalesOrderNo);
         end;
@@ -570,14 +570,14 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         Quantity := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Ship item on the WORKDATE
-        CreateSalesOrderPostShipment(SalesHeader, Customer."No.", WorkDate, Item."No.", Quantity * 2);
+        CreateSalesOrderPostShipment(SalesHeader, Customer."No.", WorkDate(), Item."No.", Quantity * 2);
 
         // [GIVEN] Ship and return item on the WORKDATE + 1D, so that the inbount entry is applied to the first outbound posted on the previous day
-        CreateSalesOrderPostShipment(SalesHeader, Customer."No.", CalcDate('<1D>', WorkDate), Item."No.", Quantity);
+        CreateSalesOrderPostShipment(SalesHeader, Customer."No.", CalcDate('<1D>', WorkDate()), Item."No.", Quantity);
         UndoSalesShipmentLine(SalesHeader."No.");
 
         // [GIVEN] Ship item on the WORKDATE + 2 days
-        CreateSalesOrderPostShipment(SalesHeader, Customer."No.", CalcDate('<2D>', WorkDate), Item."No.", Quantity * 2);
+        CreateSalesOrderPostShipment(SalesHeader, Customer."No.", CalcDate('<2D>', WorkDate()), Item."No.", Quantity * 2);
 
         // [WHEN] Run Adjust Cost - Item Entries batch job
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -614,7 +614,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [THEN] All item ledger entries receive item charge amount
-        Item.Find;
+        Item.Find();
         VerifyItemLedgerEntriesActualCost(Item);
     end;
 
@@ -647,7 +647,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [THEN] All item ledger entries receive item charge amount
-        Item.Find;
+        Item.Find();
         VerifyItemLedgerEntriesActualCost(Item);
     end;
 
@@ -853,13 +853,13 @@ codeunit 137013 "SCM Costing Sales Returns-II"
                 LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TempItem."No.", ItemQty);
                 if SameItemTwice then
                     LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TempItem."No.", ItemQty);
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
 
         if TempItemCharge.FindSet() then
             repeat
                 LibrarySales.CreateSalesLine(
                   SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", TempItemCharge."No.", LibraryRandom.RandInt(1));
-            until TempItemCharge.Next = 0;
+            until TempItemCharge.Next() = 0;
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -1037,7 +1037,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         repeat
             TempSalesLine := SalesLine;
             TempSalesLine.Insert();
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Normal]
@@ -1077,7 +1077,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         TempItem.FindSet();
         for Counter := 1 to TempItem.Count do begin
             LibraryCosting.AdjustCostItemEntries(TempItem."No.", '');
-            TempItem.Next;
+            TempItem.Next();
         end;
     end;
 
@@ -1092,7 +1092,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
                 VerifyItemLedgerReturnReceipt(SalesHeader."External Document No.")
             else
                 VerifyItemLedgerShipment(TempSalesLine, SalesOrderNo);  // Verification for Sales Line type - Charge.
-        until TempSalesLine.Next = 0;
+        until TempSalesLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntriesActualCost(Item: Record Item)
@@ -1150,14 +1150,14 @@ codeunit 137013 "SCM Costing Sales Returns-II"
 
         repeat
             CalcSalesAmount += ReturnReceiptLine.Quantity * ReturnReceiptLine."Unit Price";
-        until ReturnReceiptLine.Next = 0;
+        until ReturnReceiptLine.Next() = 0;
         ItemLedgerEntry.SetRange("Document No.", ReturnReceiptHeader."No.");
         ItemLedgerEntry.FindSet();
 
         repeat
             ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
             ActualSalesAmount += ItemLedgerEntry."Sales Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         Assert.AreNearlyEqual(Abs(CalcSalesAmount), Abs(ActualSalesAmount), GeneralLedgerSetup."Amount Rounding Precision",
           ErrAmountsMustBeSame);
@@ -1187,7 +1187,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
             TotalAmountIncVAT +=
               TempSalesLine.Quantity * TempSalesLine."Unit Price" +
               (TempSalesLine.Quantity * TempSalesLine."Unit Price" * (TempSalesLine."VAT %" / 100));
-        until TempSalesLine.Next = 0;
+        until TempSalesLine.Next() = 0;
     end;
 
     [ConfirmHandler]

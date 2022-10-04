@@ -68,7 +68,7 @@ table 1506 "Workflow Table Relation Value"
     var
         FieldRef: FieldRef;
     begin
-        Init;
+        Init();
         "Workflow Step Instance ID" := WorkflowStepInstance.ID;
         "Workflow Code" := WorkflowStepInstance."Workflow Code";
         "Workflow Step ID" := NextStepId;
@@ -79,7 +79,7 @@ table 1506 "Workflow Table Relation Value"
         FieldRef := RecRef.Field(WorkflowTableRelation."Field ID");
         Value := FieldRef.Value;
         "Record ID" := RecRef.RecordId;
-        Insert;
+        Insert();
     end;
 
     procedure UpdateRelationValue(RecRef: RecordRef)

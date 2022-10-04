@@ -15,7 +15,7 @@ report 5983 "Contract Gain/Loss Entries"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TblCaptContGainLossFilter; TableCaption + ': ' + ContractGainLossFilter)
@@ -132,11 +132,10 @@ report 5983 "Contract Gain/Loss Entries"
 
     trigger OnPreReport()
     begin
-        ContractGainLossFilter := "Contract Gain/Loss Entry".GetFilters;
+        ContractGainLossFilter := "Contract Gain/Loss Entry".GetFilters();
     end;
 
     var
-        Text000: Label 'Total for Contract ';
         Cust: Record Customer;
         ShiptoAddr: Record "Ship-to Address";
         ContractGainLossFilter: Text;
@@ -144,6 +143,8 @@ report 5983 "Contract Gain/Loss Entries"
         ContractGain: Decimal;
         ContractLoss: Decimal;
         TotalLbl: Label 'Total';
+
+        Text000: Label 'Total for Contract ';
         ContractGainLossEntriesCaptionLbl: Label 'Contract Gain/Loss Entries';
         CurrReportPageNoCaptionLbl: Label 'Page';
         ShiptoCodeCaptionLbl: Label 'Ship-to Code';

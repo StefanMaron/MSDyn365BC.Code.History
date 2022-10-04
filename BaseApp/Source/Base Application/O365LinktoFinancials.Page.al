@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2196 "O365 Link to Financials"
 {
     Caption = 'O365 Link to Financials';
     PageType = CardPart;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -61,4 +65,4 @@ page 2196 "O365 Link to Financials"
         ShowLabel := IsFinApp and IsSaas and IsInvAppAreaSet;
     end;
 }
-
+#endif

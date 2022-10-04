@@ -68,7 +68,7 @@ xmlport 130403 "CAL Export Test Result"
                         "CAL Test Result".SetFilter(Result, '<>%1', "CAL Test Result".Result::Passed);
 
                     if LastTestRun then begin
-                        TestRunNo := "CAL Test Result".LastTestRunNo;
+                        TestRunNo := "CAL Test Result".LastTestRunNo();
                         "CAL Test Result".SetRange("Test Run No.", TestRunNo);
                     end;
                 end;

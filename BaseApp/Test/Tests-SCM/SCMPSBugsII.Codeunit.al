@@ -196,7 +196,7 @@ codeunit 137036 "SCM PS Bugs - II"
         repeat
             Assert.AreEqual(
               ProductionOrder."Dimension Set ID", ProdOrderComponent."Dimension Set ID", 'Wrong dimension in Prod. Order Component');
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     [Test]
@@ -338,7 +338,7 @@ codeunit 137036 "SCM PS Bugs - II"
         with PurchaseHeader do begin
             Get("Document Type", "No.");
             Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            Modify;
+            Modify();
         end;
 
         // Exercise.
@@ -841,7 +841,7 @@ codeunit 137036 "SCM PS Bugs - II"
         DimensionValue: Record "Dimension Value";
     begin
         LibraryDimension.FindDimension(Dimension);
-        Dimension.Next;
+        Dimension.Next();
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         exit(LibraryDimension.CreateDimSet(OldDimSetID, Dimension.Code, DimensionValue.Code));
     end;
@@ -887,7 +887,7 @@ codeunit 137036 "SCM PS Bugs - II"
                   ProdOrderLine."Dimension Set ID", ProdOrderLine."Shortcut Dimension 1 Code", ProdOrderLine."Shortcut Dimension 2 Code");
                 ProdOrderLine.Modify(true);
             end;
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
     end;
 
     local procedure UpdateProductionOrderDimensionSetId(var ProductionOrder: Record "Production Order"; DimensionSetID: Integer)
@@ -905,7 +905,7 @@ codeunit 137036 "SCM PS Bugs - II"
             SetRange("Document No.", SalesHeader."No.");
             FindFirst();
             Validate("Qty. to Invoice", Quantity / 2);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -979,7 +979,7 @@ codeunit 137036 "SCM PS Bugs - II"
             DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
             DimensionSetEntry.FindFirst();
             Assert.AreEqual(ExpectedDimValueCode, DimensionSetEntry."Dimension Value Code", ErrMsgDimension);
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
     end;
 
     local procedure VerifyProductionOrderComponentDimension(ProductionOrder: Record "Production Order"; DimensionSetId: Integer; ProdOrderLineNo: Integer)
@@ -1002,7 +1002,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderComponent.FindSet();
         repeat
             ProdOrderComponent.TestField("Qty. Picked", ExpectedQty);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     [MessageHandler]

@@ -69,17 +69,17 @@ page 6060 "Contract Trendscape"
                     trigger OnValidate()
                     begin
                         if PeriodType = PeriodType::"Accounting Period" then
-                            PeriodPeriodTypeOnValidate;
+                            PeriodPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Year then
-                            YearPeriodTypeOnValidate;
+                            YearPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Quarter then
-                            QuarterPeriodTypeOnValidate;
+                            QuarterPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Month then
-                            MonthPeriodTypeOnValidate;
+                            MonthPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Week then
-                            WeekPeriodTypeOnValidate;
+                            WeekPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Day then
-                            DayPeriodTypeOnValidate;
+                            DayPeriodTypeOnValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -91,9 +91,9 @@ page 6060 "Contract Trendscape"
                     trigger OnValidate()
                     begin
                         if AmountType = AmountType::"Balance at Date" then
-                            BalanceatDateAmountTypeOnValid;
+                            BalanceatDateAmountTypeOnValid();
                         if AmountType = AmountType::"Net Change" then
-                            NetChangeAmountTypeOnValidate;
+                            NetChangeAmountTypeOnValidate();
                     end;
                 }
             }
@@ -111,7 +111,7 @@ page 6060 "Contract Trendscape"
     trigger OnAfterGetCurrRecord()
     begin
         ContractNo := "Contract No.";
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     var
@@ -132,82 +132,82 @@ page 6060 "Contract Trendscape"
 
     local procedure DayPeriodTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure WeekPeriodTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure MonthPeriodTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure QuarterPeriodTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure YearPeriodTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure PeriodPeriodTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure BalanceatDateAmountTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure NetChangeAmountTypeOnPush()
     begin
-        UpdateSubform;
+        UpdateSubForm();
     end;
 
     local procedure DayPeriodTypeOnValidate()
     begin
-        DayPeriodTypeOnPush;
+        DayPeriodTypeOnPush();
     end;
 
     local procedure WeekPeriodTypeOnValidate()
     begin
-        WeekPeriodTypeOnPush;
+        WeekPeriodTypeOnPush();
     end;
 
     local procedure MonthPeriodTypeOnValidate()
     begin
-        MonthPeriodTypeOnPush;
+        MonthPeriodTypeOnPush();
     end;
 
     local procedure QuarterPeriodTypeOnValidate()
     begin
-        QuarterPeriodTypeOnPush;
+        QuarterPeriodTypeOnPush();
     end;
 
     local procedure YearPeriodTypeOnValidate()
     begin
-        YearPeriodTypeOnPush;
+        YearPeriodTypeOnPush();
     end;
 
     local procedure PeriodPeriodTypeOnValidate()
     begin
-        PeriodPeriodTypeOnPush;
+        PeriodPeriodTypeOnPush();
     end;
 
     local procedure NetChangeAmountTypeOnValidate()
     begin
-        NetChangeAmountTypeOnPush;
+        NetChangeAmountTypeOnPush();
     end;
 
     local procedure BalanceatDateAmountTypeOnValid()
     begin
-        BalanceatDateAmountTypeOnPush;
+        BalanceatDateAmountTypeOnPush();
     end;
 }
 

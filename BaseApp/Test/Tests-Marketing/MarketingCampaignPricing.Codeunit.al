@@ -31,7 +31,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         ValueMustMatch: Label 'Value must match.';
         FeatureIsOnErr: Label 'This page is no longer available. It was used by a feature that has been replaced or removed.';
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure CampaignSalesPriceDateChangeError()
@@ -146,7 +146,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Setup: Create Campaign without Sales Price.
         Initialize();
         CreateAndUpdateCampaign(Campaign);
-        LibraryVariableStorage.Enqueue(StrSubstNo(SalesPriceConfirmMessage, Campaign.TableCaption));  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(StrSubstNo(SalesPriceConfirmMessage, Campaign.TableCaption()));  // Enqueue for ConfirmHandler.
 
         // Exercise.
         asserterror ActivatePriceLineDiscountPage(Campaign."No.");
@@ -172,7 +172,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         CreateSegment(Campaign."No.", Contact."No.");
 
         // Enqueue for ConfirmHandler and MessageHandler.
-        LibraryVariableStorage.Enqueue(StrSubstNo(SalesPriceConfirmMessage, Campaign.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(SalesPriceConfirmMessage, Campaign.TableCaption()));
         LibraryVariableStorage.Enqueue(StrSubstNo(CampaignActivatedMessage, Campaign."No."));
 
         // Exercise.
@@ -181,7 +181,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify: Verification is done in MessageHandler.
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -423,7 +423,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // [THEN] "Item No." = 1000 (editable)
         Assert.IsTrue(SalesPrices."Item No.".Editable, '');
         SalesPrices."Item No.".AssertEquals(ItemNo);
-        SalesPrices.Close;
+        SalesPrices.Close();
     end;
 
     [Test]
@@ -574,7 +574,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryMarketing.RunAddContactsReport(LibraryVariableStorageVariant, false);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure ChangeDateOnSalesPricePage(CampaignNo: Code[20])
     var
         SalesPrices: TestPage "Sales Prices";
@@ -582,7 +582,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesPrices.OpenEdit;
         SalesPrices.FILTER.SetFilter("Sales Type", SalesPrices."Sales Type".GetOption(4));  // Take Index 4 for Campaign option.
         SalesPrices.FILTER.SetFilter("Sales Code", CampaignNo);
-        SalesPrices."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use RandInt to change Date.
+        SalesPrices."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;
 
     local procedure ChangeDateOnSalesLineDiscountPage(CampaignNo: Code[20])
@@ -592,7 +592,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesLineDiscounts.OpenEdit;
         SalesLineDiscounts.FILTER.SetFilter("Sales Type", SalesLineDiscounts.SalesType.GetOption(4));  // Take Index 4 for Campaign option.
         SalesLineDiscounts.FILTER.SetFilter("Sales Code", CampaignNo);
-        SalesLineDiscounts."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use RandInt to change Date.
+        SalesLineDiscounts."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;
 #endif
 
@@ -600,14 +600,14 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         CampaignCard.OpenEdit;
         CampaignCard.FILTER.SetFilter("No.", CampaignNo);
-        CampaignCard."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use RandInt to change Date.
+        CampaignCard."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;
 
     local procedure CreateAndUpdateCampaign(var Campaign: Record Campaign)
     begin
         LibraryMarketing.CreateCampaign(Campaign);
-        Campaign.Validate("Starting Date", WorkDate);
-        Campaign.Validate("Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use RandInt to validate Date.
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to validate Date.
         Campaign.Modify(true);
     end;
 
@@ -616,7 +616,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         Customer: Record Customer;
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
-        LibraryVariableStorage.Enqueue(StrSubstNo(CustomerCreationMessage, Customer.TableCaption));  // Enqueue for MessageHandler.
+        LibraryVariableStorage.Enqueue(StrSubstNo(CustomerCreationMessage, Customer.TableCaption()));  // Enqueue for MessageHandler.
         Contact.CreateCustomerFromTemplate(GetCustomerTemplateCode);
     end;
 
@@ -659,7 +659,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price")
     var
         Campaign: Record Campaign;
@@ -794,7 +794,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SegmentHeader.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifySalesPriceWksht(SalesPrice: Record "Sales Price")
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -838,7 +838,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price")

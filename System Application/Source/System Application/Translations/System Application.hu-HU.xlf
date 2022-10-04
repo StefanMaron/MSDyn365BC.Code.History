@@ -843,30 +843,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Tenant Impl. - NamedType AADTenantDomainNameErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 1532988062" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authentication email should be the first entity to update.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AuthenticationEmailUpdateShouldBeTheFirstForANewUserErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 2729636235" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of users retrieved: %1.</source>
           <note from="Developer" annotates="general" priority="2">%1=integer number</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType NoOfUsersRetrievedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 253900575" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Applying changes for user: '#1#################################\</source>
-          <note from="Developer" annotates="general" priority="2">%1 User name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ProgressDlgApplyUpdatesMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 2077785973" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of users retrieved: '#1#################################\Current user name: '#2#################################\</source>
           <note from="Developer" annotates="general" priority="2">%1 Integer number, %2 a user name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ProgressDlgMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 3547619046" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number of users retrieved: '#1#################################\Number of Business Central users processed: '#2#################################\Last processed Business Central user name: '#3#################################\</source>
-          <note from="Developer" annotates="general" priority="2">%1 Total number of users, %2 Number of BC users, %3 User name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ProgressDlgWithBCUsersMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 3975998961" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Initialization of allowed secret names failed.</source>
@@ -1013,11 +998,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType PermissionErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1128445799 - NamedType 2120394878" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The %1 extension was successfully installed. All active users must sign out and sign in again to see the navigation changes.</source>
-          <note from="Developer" annotates="general" priority="2">Indicates that users need to restart their activity to pick up new menusuite items. %1=Name of Extension</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType RestartActivityInstallMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 1044243123" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The %1 extension was successfully uninstalled. All active users must sign out and sign in again to see the navigation changes.</source>
           <note from="Developer" annotates="general" priority="2">Indicates that users need to restart their activity to pick up new menusuite items. %1=Name of Extension</note>
@@ -1048,11 +1028,6 @@
           <note from="Developer" annotates="general" priority="2">JSON parsing error. %1=target property name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType ParseFailureErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4126082712 - NamedType 22707660" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Extension deployment is in progress. Please check the Deployment Status page for updates.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType CurrentOperationProgressMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4126082712 - NamedType 2456773564" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Export</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1063,25 +1038,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType NotSufficientPermissionErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4126082712 - NamedType 3784204251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We are installing the extension. You can view the progress on the Status page.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType OperationProgressMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4126082712 - NamedType 1760359929" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Text Files (*.txt)|*.txt|*.*</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType OutExtTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4126082712 - NamedType 3618600829" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Extension deployment has been scheduled for the next major version. Please check the Deployment Status page for updates.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType ScheduledOperationMajorProgressMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4126082712 - NamedType 1924031217" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Extension deployment has been scheduled for the next minor version. Please check the Deployment Status page for updates.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType ScheduledOperationMinorProgressMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1384518899 - NamedType 1943873903" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must sign out and then sign in again to make the changes take effect.</source>
@@ -2023,11 +1983,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Action ActionFinish - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 1105213220 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Manage,View</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 1105213220 - NamedType 1965782370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to set data sensitivity to %1 on %2 fields?</source>
           <note from="Developer" annotates="general" priority="2">%1=Choosen sensitivity %2=total number of fields</note>
@@ -2343,20 +2298,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Date-Time Dialog - Control Time - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3170013184 - Control 2014750533 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the version of the App.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control AppVersion - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 3170013184 - Control 2014750533 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>App Version</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control AppVersion - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3170013184 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the App.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3170013184 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
@@ -2373,20 +2318,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control Operation Type - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3170013184 - Control 1772640682 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the App Publisher.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control Publisher - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 3170013184 - Control 1772640682 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Publisher</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control Publisher - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3170013184 - Control 2019212495 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the deployment Schedule.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control Schedule - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3170013184 - Control 2019212495 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Schedule</source>
@@ -2618,11 +2553,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Logo Part - Control Logo - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2005578726 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Details,Manage</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 2005578726 - NamedType 860257111" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 cannot be unpublished because it is installed.</source>
           <note from="Developer" annotates="general" priority="2">%1 = name of extension</note>
@@ -2692,11 +2622,6 @@
           <source>Check status for upload process for extensions.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Action Deployment Status - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2005578726 - Action 737724599 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Deployment Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Action Deployment Status - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - Action 523556947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Download the source code for the extension.</source>
@@ -3127,11 +3052,6 @@
           <source>Extension Installation</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Marketplace Extn Deployment - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 513864971 - Control 3753104505 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose Language</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Marketplace Extn Deployment - Control Choose Language - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 513864971 - Control 4093990710 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Language</source>

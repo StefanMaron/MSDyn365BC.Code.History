@@ -9,7 +9,7 @@ report 5067 "Questionnaire - Test"
         dataitem("Profile Questionnaire Header"; "Profile Questionnaire Header")
         {
             RequestFilterFields = "Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -71,9 +71,9 @@ report 5067 "Questionnaire - Test"
                 begin
                     case Type of
                         Type::Question:
-                            TestQuestion;
+                            TestQuestion();
                         Type::Answer:
-                            TestAnswer;
+                            TestAnswer();
                     end;
                 end;
             }

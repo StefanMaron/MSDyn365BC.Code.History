@@ -12,7 +12,7 @@ page 7177 "Available Credit"
             group(General)
             {
                 Caption = 'General';
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
@@ -29,67 +29,67 @@ page 7177 "Available Credit"
                         CustLedgEntry.DrillDownOnEntries(DtldCustLedgEntry);
                     end;
                 }
-                field("Outstanding Orders (LCY)"; "Outstanding Orders (LCY)")
+                field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
                 }
-                field("Shipped Not Invoiced (LCY)"; "Shipped Not Invoiced (LCY)")
+                field("Shipped Not Invoiced (LCY)"; Rec."Shipped Not Invoiced (LCY)")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Shipped Not Invd. (LCY)';
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders where items have been shipped.';
                 }
-                field(GetReturnRcdNotInvAmountLCY; GetReturnRcdNotInvAmountLCY)
+                field(GetReturnRcdNotInvAmountLCY; GetReturnRcdNotInvAmountLCY())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ret. Rcd. Not Inv. (LCY)';
                     ToolTip = 'Specifies the amount on sales returns from the customer that are not yet refunded.';
                 }
-                field("Outstanding Invoices (LCY)"; "Outstanding Invoices (LCY)")
+                field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Outstanding Invoices (LCY)';
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
                 }
-                field("Outstanding Serv. Orders (LCY)"; "Outstanding Serv. Orders (LCY)")
+                field("Outstanding Serv. Orders (LCY)"; Rec."Outstanding Serv. Orders (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies your expected service income from the customer in LCY based on ongoing service orders.';
                 }
-                field("Serv Shipped Not Invoiced(LCY)"; "Serv Shipped Not Invoiced(LCY)")
+                field("Serv Shipped Not Invoiced(LCY)"; Rec."Serv Shipped Not Invoiced(LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies your expected service income from the customer in LCY based on service orders that are shipped but not invoiced.';
                 }
-                field("Outstanding Serv.Invoices(LCY)"; "Outstanding Serv.Invoices(LCY)")
+                field("Outstanding Serv.Invoices(LCY)"; Rec."Outstanding Serv.Invoices(LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies your expected service income from the customer in LCY based on unpaid service invoices.';
                 }
-                field(GetTotalAmountLCYUI; GetTotalAmountLCYUI)
+                field(GetTotalAmountLCYUI; GetTotalAmountLCYUI())
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
                     Caption = 'Total (LCY)';
                     ToolTip = 'Specifies the payment amount that you owe the vendor for completed purchases plus purchases that are still ongoing.';
                 }
-                field("Credit Limit (LCY)"; "Credit Limit (LCY)")
+                field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
                 }
-                field(CalcAvailableCreditUI; CalcAvailableCreditUI)
+                field(CalcAvailableCreditUI; CalcAvailableCreditUI())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Available Credit (LCY)';
                     ToolTip = 'Specifies a customer''s available credit. If the available credit is 0 and the customer''s credit limit is also 0, then the customer has unlimited credit because no credit limit has been defined.';
                 }
-                field("Balance Due (LCY)"; CalcOverdueBalance)
+                field("Balance Due (LCY)"; CalcOverdueBalance())
                 {
                     ApplicationArea = Suite;
-                    CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate)));
+                    CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate())));
 
                     trigger OnDrillDown()
                     var
@@ -103,7 +103,7 @@ page 7177 "Available Credit"
                         CustLedgEntry.DrillDownOnOverdueEntries(DtldCustLedgEntry);
                     end;
                 }
-                field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY)
+                field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY())
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Invoiced Prepayment Amount (LCY)';
@@ -132,8 +132,8 @@ page 7177 "Available Credit"
 
     trigger OnAfterGetRecord()
     begin
-        SetRange("Date Filter", 0D, WorkDate);
-        StyleTxt := SetStyle;
+        SetRange("Date Filter", 0D, WorkDate());
+        StyleTxt := SetStyle();
     end;
 
     var

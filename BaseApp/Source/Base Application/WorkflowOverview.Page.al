@@ -32,12 +32,12 @@ page 1529 "Workflow Overview"
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the status of the workflow step instance. Active means that the step instance in ongoing. Completed means that the workflow step instance is done. Ignored means that the workflow step instance was skipped in favor of another path.';
                 }
-                field("Last Modified Date-Time"; "Last Modified Date-Time")
+                field("Last Modified Date-Time"; Rec."Last Modified Date-Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time when a user last participated in the workflow step instance.';
                 }
-                field("Last Modified By User ID"; "Last Modified By User ID")
+                field("Last Modified By User ID"; Rec."Last Modified By User ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user who last participated in the workflow step instance.';
@@ -59,7 +59,7 @@ page 1529 "Workflow Overview"
 
     trigger OnAfterGetRecord()
     begin
-        UpdatePageControls;
+        UpdatePageControls();
     end;
 
     var
@@ -75,15 +75,11 @@ page 1529 "Workflow Overview"
     begin
         case Type of
             Type::"Event":
-                begin
-                    if WorkflowEvent.Get("Function Name") then
-                        exit(WorkflowEvent.Description);
-                end;
+                if WorkflowEvent.Get("Function Name") then
+                    exit(WorkflowEvent.Description);
             Type::Response:
-                begin
-                    if WorkflowStepArgument.Get(Argument) then
-                        exit(WorkflowResponseHandling.GetDescription(WorkflowStepArgument));
-                end;
+                if WorkflowStepArgument.Get(Argument) then
+                    exit(WorkflowResponseHandling.GetDescription(WorkflowStepArgument));
         end;
         exit('');
     end;
@@ -107,8 +103,8 @@ page 1529 "Workflow Overview"
         else
             Indent := 2;
 
-        Description := CopyStr(GetDescription, 1, MaxStrLen(Description));
-        StyleTxt := GetStyle;
+        Description := CopyStr(GetDescription(), 1, MaxStrLen(Description));
+        StyleTxt := GetStyle();
         WorkflowRecord := Format("Record ID", 0, 1);
     end;
 }

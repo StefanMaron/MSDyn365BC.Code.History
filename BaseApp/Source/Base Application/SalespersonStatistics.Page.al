@@ -13,12 +13,12 @@ page 5117 "Salesperson Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("No. of Interactions"; "No. of Interactions")
+                field("No. of Interactions"; Rec."No. of Interactions")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of interactions handled by this salesperson.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total cost of all the interactions handled by the salesperson. The field is not editable.';
@@ -30,7 +30,7 @@ page 5117 "Salesperson Statistics"
                     Caption = 'Avg. Cost per Response';
                     ToolTip = 'Specifies the cost of the campaign per response.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total duration of all the interactions handled by the salesperson. The field is not editable.';
@@ -46,27 +46,27 @@ page 5117 "Salesperson Statistics"
             group(Opportunities)
             {
                 Caption = 'Opportunities';
-                field("No. of Opportunities"; "No. of Opportunities")
+                field("No. of Opportunities"; Rec."No. of Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of open opportunities handled by the salesperson.';
                 }
-                field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+                field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total estimated value of all the opportunities handled by the salesperson. The field is not editable.';
                 }
-                field("Avg. Estimated Value (LCY)"; "Avg. Estimated Value (LCY)")
+                field("Avg. Estimated Value (LCY)"; Rec."Avg. Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the average estimated value of the opportunities handled by the salesperson.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total calculated current value of all the opportunities handled by the salesperson. The field is not editable.';
                 }
-                field("Avg.Calcd. Current Value (LCY)"; "Avg.Calcd. Current Value (LCY)")
+                field("Avg.Calcd. Current Value (LCY)"; Rec."Avg.Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the average calculated current value of the opportunities handled by that salesperson.';

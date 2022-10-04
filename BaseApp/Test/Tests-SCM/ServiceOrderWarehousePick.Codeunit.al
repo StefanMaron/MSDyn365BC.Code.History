@@ -44,7 +44,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine.Quantity);
             WhseWorksheetLine.Modify(true);
-        until WhseWorksheetLine.Next <= 0;
+        until WhseWorksheetLine.Next() <= 0;
         Commit();
         CODEUNIT.Run(CODEUNIT::"Whse. Create Pick", WhseWorksheetLine);
     end;
@@ -138,8 +138,8 @@ codeunit 136144 "Service Order Warehouse Pick"
         repeat
             Assert.AreEqual(WhseWorksheetLine."Source Line No.", WarehouseShipmentLine."Source Line No.",
               ERR_SourceLineNoMismatchedInShipmentLineAndWorksheetLine + ' ' + WarehouseShipmentHeader."No.");
-            WarehouseShipmentLine.Next;
-        until WhseWorksheetLine.Next = 0;
+            WarehouseShipmentLine.Next();
+        until WhseWorksheetLine.Next() = 0;
     end;
 
     [Normal]
@@ -316,7 +316,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         PickWorksheetTestPage.Trap;
         PickWorksheetTestPage.OpenEdit;
         PickWorksheetTestPage."Get Warehouse Documents".Invoke;
-        PickWorksheetTestPage.Close;
+        PickWorksheetTestPage.Close();
     end;
 
     [Normal]

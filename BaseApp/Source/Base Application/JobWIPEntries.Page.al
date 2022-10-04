@@ -15,47 +15,47 @@ page 1008 "Job WIP Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("WIP Posting Date"; "WIP Posting Date")
+                field("WIP Posting Date"; Rec."WIP Posting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the posting date you entered in the Posting Date field on the Options FastTab in the Job Calculate WIP batch job.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the document number you entered in the Document No. field on the Options FastTab in the Job Calculate WIP batch job.';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job.';
                 }
-                field("Job Complete"; "Job Complete")
+                field("Job Complete"; Rec."Job Complete")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether the Job WIP Entry was created for a job with a Completed status.';
                 }
-                field("Job WIP Total Entry No."; "Job WIP Total Entry No.")
+                field("Job WIP Total Entry No."; Rec."Job WIP Total Entry No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the entry number of the WIP total.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the general ledger account number to which the WIP on this entry will be posted, if you run the Job Post WIP to the general ledger batch job.';
                 }
-                field("G/L Bal. Account No."; "G/L Bal. Account No.")
+                field("G/L Bal. Account No."; Rec."G/L Bal. Account No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the general ledger balancing account number that WIP on this entry will be posted to, if you run the Job Post WIP to general ledger batch job.';
                 }
-                field("WIP Method Used"; "WIP Method Used")
+                field("WIP Method Used"; Rec."WIP Method Used")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the WIP method that was specified for the job when you ran the Job Calculate WIP batch job.';
                 }
-                field("WIP Posting Method Used"; "WIP Posting Method Used")
+                field("WIP Posting Method Used"; Rec."WIP Posting Method Used")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the WIP posting method used. The information in this field comes from the setting you have specified on the job card.';
@@ -65,12 +65,12 @@ page 1008 "Job WIP Entries"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the WIP type for this entry.';
                 }
-                field("WIP Entry Amount"; "WIP Entry Amount")
+                field("WIP Entry Amount"; Rec."WIP Entry Amount")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the WIP amount that will be posted for this entry, if you run the Job Post WIP to G/L batch job.';
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the posting group related to this entry.';
@@ -80,65 +80,65 @@ page 1008 "Job WIP Entries"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether the entry has been part of a reverse transaction (correction) made by the reverse function.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -175,8 +175,6 @@ page 1008 "Job WIP Entries"
                     ApplicationArea = Jobs;
                     Caption = 'WIP Totals';
                     Image = EntriesList;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Job WIP Totals";
                     RunPageLink = "Entry No." = FIELD("Job WIP Total Entry No.");
                     ToolTip = 'View the job''s WIP totals.';
@@ -205,8 +203,19 @@ page 1008 "Job WIP Entries"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("<Action57>_Promoted"; "<Action57>")
+                {
                 }
             }
         }

@@ -135,7 +135,7 @@ codeunit 7312 "Create Pick"
                             TempWhseItemTrackingLine.Modify();
                         end;
                         NewQtyToHandle :=
-                          Round(RemQtyToPick / RemQtyToPickBase * TempWhseItemTrackingLine."Qty. to Handle (Base)", UOMMgt.QtyRndPrecision); // TODO
+                          Round(RemQtyToPick / RemQtyToPickBase * TempWhseItemTrackingLine."Qty. to Handle (Base)", UOMMgt.QtyRndPrecision()); // TODO
                         if TempWhseItemTrackingLine."Qty. to Handle" <> NewQtyToHandle then begin
                             TempWhseItemTrackingLine."Qty. to Handle" := NewQtyToHandle;
                             OnBeforeTempWhseItemTrackingLineModify(TempWhseItemTrackingLine);
@@ -159,7 +159,7 @@ codeunit 7312 "Create Pick"
                 TotalQtytoPick := RemQtyToPick;
                 TotalQtytoPickBase := RemQtyToPickBase;
 
-                SaveTempItemTrkgLines;
+                SaveTempItemTrkgLines();
                 Clear(TempWhseItemTrackingLine);
                 WhseItemTrkgExists := false;
             end;
@@ -296,7 +296,7 @@ codeunit 7312 "Create Pick"
         if WhseWkshLine."From Unit of Measure Code" <> WhseWkshLine."Unit of Measure Code" then begin
             FromBinContent.Get(
               LocationCode, FromBinCode, ItemNo, VariantCode, WhseWkshLine."From Unit of Measure Code");
-            FromBinContent.SetFilterOnUnitOfMeasure;
+            FromBinContent.SetFilterOnUnitOfMeasure();
             FromBinContent.CalcFields("Quantity (Base)", "Pick Quantity (Base)", "Negative Adjmt. Qty. (Base)");
 
             QtyAvailableBase :=
@@ -678,14 +678,6 @@ codeunit 7312 "Create Pick"
                     if TotalQtytoPickBase < AvailableQtyBase then
                         AvailableQtyBase := TotalQtytoPickBase;
 
-#if not CLEAN18
-                    OnCalcAvailQtyOnFindPickBin(
-                        ItemNo, VariantCode,
-                        WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
-                        TempWhseItemTrackingLine."Lot No.", TempWhseItemTrackingLine."Serial No.",
-                        FromBinContent."Location Code", FromBinContent."Bin Code",
-                        SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, AvailableQtyBase);
-#endif
                     OnCalcAvailQtyOnFindPickBin2(
                         ItemNo, VariantCode,
                         WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
@@ -776,7 +768,7 @@ codeunit 7312 "Create Pick"
 
             if TotalAvailQtyToPickBase < TotalQtytoPickBase then begin
                 TotalQtytoPickBase := TotalAvailQtyToPickBase;
-                TotalQtytoPick := Round(TotalQtytoPickBase / ToQtyPerUOM, UOMMgt.QtyRndPrecision);
+                TotalQtytoPick := Round(TotalQtytoPickBase / ToQtyPerUOM, UOMMgt.QtyRndPrecision());
             end;
         end;
 
@@ -912,7 +904,7 @@ codeunit 7312 "Create Pick"
             if TotalAvailQtyToPickBase < TotalQtytoPickBase then begin
                 TotalQtytoPickBase := TotalAvailQtyToPickBase;
                 ItemUOM.Get(ItemNo, UnitofMeasureCode);
-                TotalQtytoPick := Round(TotalQtytoPickBase / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                TotalQtytoPick := Round(TotalQtytoPickBase / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             end;
         end;
 
@@ -1053,7 +1045,7 @@ codeunit 7312 "Create Pick"
     local procedure CalcBinAvailQtyToBreakbulk(var TempWhseActivLine2: Record "Warehouse Activity Line"; var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyToPickBase: Decimal
     begin
         with BinContent do begin
-            SetFilterOnUnitOfMeasure;
+            SetFilterOnUnitOfMeasure();
             CalcFields("Quantity (Base)", "Pick Quantity (Base)", "Negative Adjmt. Qty. (Base)");
             QtyToPickBase := "Quantity (Base)" - "Pick Quantity (Base)" - "Negative Adjmt. Qty. (Base)";
         end;
@@ -1073,7 +1065,7 @@ codeunit 7312 "Create Pick"
             if WhseItemTrkgExists then
                 SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup)
             else
-                ClearTrackingFilter;
+                ClearTrackingFilter();
 
             ClearSourceFilter();
             SetRange("Breakbulk No.");
@@ -1123,7 +1115,7 @@ codeunit 7312 "Create Pick"
     local procedure CalcBinAvailQtyFromSmallerUOM(var AvailableQtyBase: Decimal; var BinContent: Record "Bin Content"; AllowInitialZero: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
         with BinContent do begin
-            SetFilterOnUnitOfMeasure;
+            SetFilterOnUnitOfMeasure();
             CalcFields("Quantity (Base)", "Pick Quantity (Base)", "Negative Adjmt. Qty. (Base)");
             AvailableQtyBase := "Quantity (Base)" - "Pick Quantity (Base)" - "Negative Adjmt. Qty. (Base)";
         end;
@@ -1168,7 +1160,7 @@ codeunit 7312 "Create Pick"
             if FromQtyToPickBase = ToQtyToPickBase then
                 QtyToBreakBulk := ToQtyToPick
             else
-                QtyToBreakBulk := Round(FromQtyToPick * FromQtyPerUOM / ToQtyPerUOM, UOMMgt.QtyRndPrecision);
+                QtyToBreakBulk := Round(FromQtyToPick * FromQtyPerUOM / ToQtyPerUOM, UOMMgt.QtyRndPrecision());
             CreateTempActivityLine(
               LocationCode, FromBinCode, ToUOMCode, ToQtyPerUOM, QtyToBreakBulk, FromQtyToPickBase, 2, BreakbulkNo2, QtyRndPrec, QtyRndPrecBase);
         end;
@@ -1193,7 +1185,7 @@ codeunit 7312 "Create Pick"
         if not TempWhseActivLine.Find('-') then begin
             OnCreateWhseDocumentOnBeforeShowError(ShowError);
             if ShowError then
-                Error(Text000, DequeueCannotBeHandledReason);
+                Error(Text000, DequeueCannotBeHandledReason());
             exit;
         end;
 
@@ -1233,7 +1225,7 @@ codeunit 7312 "Create Pick"
                         CreateWhseActivHeader(
                           TempWhseActivLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
                           NoOfSourceDoc, NoOfLines, WhseDocCreated);
-                        CreateWhseDocLine;
+                        CreateWhseDocLine();
                     end else
                         CreateNewWhseDoc(
                           OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo,
@@ -1244,7 +1236,7 @@ codeunit 7312 "Create Pick"
                             CreateWhseActivHeader(
                               TempWhseActivLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
                               NoOfSourceDoc, NoOfLines, WhseDocCreated);
-                            CreateWhseDocLine;
+                            CreateWhseDocLine();
                         end else
                             CreateNewWhseDoc(
                               OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo,
@@ -1255,7 +1247,7 @@ codeunit 7312 "Create Pick"
                                 CreateWhseActivHeader(
                                   TempWhseActivLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
                                   NoOfSourceDoc, NoOfLines, WhseDocCreated);
-                                CreateWhseDocLine;
+                                CreateWhseDocLine();
                             end else
                                 CreateNewWhseDoc(
                                   OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo,
@@ -1298,7 +1290,7 @@ codeunit 7312 "Create Pick"
             CreateWhseActivHeader(
               TempWhseActivLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
               NoOfSourceDoc, NoOfLines, WhseDocCreated);
-            CreateWhseDocLine;
+            CreateWhseDocLine();
         end else begin
             NoOfLines := NoOfLines + 1;
             if TempWhseActivLine."Source No." <> OldSourceNo then
@@ -1311,7 +1303,7 @@ codeunit 7312 "Create Pick"
                 CreateWhseActivHeader(
                   TempWhseActivLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
                   NoOfSourceDoc, NoOfLines, WhseDocCreated);
-            CreateWhseDocLine;
+            CreateWhseDocLine();
         end;
     end;
 
@@ -1436,7 +1428,7 @@ codeunit 7312 "Create Pick"
 
         // insert breakbulk lines
         if Location."Directed Put-away and Pick" then begin
-            TempWhseActivLine.ClearSourceFilter;
+            TempWhseActivLine.ClearSourceFilter();
             TempWhseActivLine.SetRange("Line No.");
             TempWhseActivLine.SetRange("Unit of Measure Code");
             TempWhseActivLine.SetFilter("Breakbulk No.", '<>0');
@@ -1563,7 +1555,7 @@ codeunit 7312 "Create Pick"
                             end;
                         until (TempWhseActivLine.Next() = 0) or (PickQtyBase = 0);
                     end else
-                        if TempWhseActivLine.Delete then;
+                        if TempWhseActivLine.Delete() then;
                     TempWhseActivLine.Copy(TempWhseActivLine3);
                 end;
 
@@ -1786,7 +1778,7 @@ codeunit 7312 "Create Pick"
     local procedure GetBinType(BinTypeCode: Code[10])
     begin
         if BinTypeCode = '' then
-            BinType.Init
+            BinType.Init()
         else
             if BinType.Code <> BinTypeCode then
                 BinType.Get(BinTypeCode);
@@ -1926,7 +1918,7 @@ codeunit 7312 "Create Pick"
     begin
         JobPlanningLine := JobPlanningLine2;
         TempNo := 1;
-        SetSource(DATABASE::Job, 0, JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
+        SetSource(DATABASE::"Job Planning Line", 2, JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
     end;
 
     procedure SetTempWhseItemTrkgLine(SourceID: Code[20]; SourceType: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10])
@@ -2009,7 +2001,7 @@ codeunit 7312 "Create Pick"
         OnAfterSetSourceWhseItemTrkgLine(TempWhseItemTrackingLine, LastWhseItemTrkgLineNo);
     end;
 
-    local procedure SaveTempItemTrkgLines()
+    procedure SaveTempItemTrkgLines()
     var
         i: Integer;
     begin
@@ -2125,8 +2117,8 @@ codeunit 7312 "Create Pick"
                 if Location."Always Create Pick Line" then
                     InsertTempItemTrkgLine(Location.Code, ItemNo, VariantCode, DummyEntrySummary2, RemQtyToPickBase);
         if not HasExpiredItems then begin
-            HasExpiredItems := WhseItemTrackingFEFO.GetHasExpiredItems;
-            EnqueueCannotBeHandledReason(WhseItemTrackingFEFO.GetResultMessageForExpiredItem);
+            HasExpiredItems := WhseItemTrackingFEFO.GetHasExpiredItems();
+            EnqueueCannotBeHandledReason(WhseItemTrackingFEFO.GetResultMessageForExpiredItem());
         end;
     end;
 
@@ -2273,7 +2265,7 @@ codeunit 7312 "Create Pick"
                 QtyResvdNotOnILE += CalcQtyResvdNotOnILE(ReservEntry."Entry No.", ReservEntry.Positive);
             until ReservEntry.Next() = 0;
             QtyBaseResvdNotOnILE := QtyResvdNotOnILE;
-            QtyResvdNotOnILE := Round(QtyResvdNotOnILE / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision);
+            QtyResvdNotOnILE := Round(QtyResvdNotOnILE / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision());
 
             WhseManagement.GetOutboundDocLineQtyOtsdg(SourceType, SourceSubType,
               SourceNo, SourceLineNo, SourceSubLineNo, SrcDocQtyToBeFilledByInvt, SrcDocQtyBaseToBeFilledByInvt);
@@ -2289,7 +2281,7 @@ codeunit 7312 "Create Pick"
             if QuantityBase <= SrcDocQtyBaseToBeFilledByInvt then
                 if (QuantityBase > QtyBaseAvailToPick) and (QtyBaseAvailToPick >= 0) then begin
                     QuantityBase := QtyBaseAvailToPick;
-                    Quantity := Round(QtyBaseAvailToPick / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision);
+                    Quantity := Round(QtyBaseAvailToPick / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision());
                 end;
 
             ReservedForItemLedgEntry := QuantityBase <> 0;
@@ -2299,7 +2291,7 @@ codeunit 7312 "Create Pick"
             end;
 
             if Quantity <= 0 then
-                EnqueueCannotBeHandledReason(GetMessageForUnhandledQtyDueToReserv);
+                EnqueueCannotBeHandledReason(GetMessageForUnhandledQtyDueToReserv());
         end else
             ReservationExists := false;
 
@@ -2793,7 +2785,7 @@ codeunit 7312 "Create Pick"
             "Qty. per Unit of Measure" := QtyPerUOM;
             "Qty. Rounding Precision" := QtyRndPrec;
             "Qty. Rounding Precision (Base)" := QtyRndPrecBase;
-            "Starting Date" := WorkDate;
+            "Starting Date" := WorkDate();
             "Bin Code" := BinCode;
             "Action Type" := "Warehouse Action Type".FromInteger(ActionType);
             "Breakbulk No." := BreakBulkNo;
@@ -2988,7 +2980,7 @@ codeunit 7312 "Create Pick"
                 end;
             0 .. ToQtyPerUOM:
                 begin
-                    FromQtyToPick := Round(ToQtyToPickBase / FromQtyPerUOM, UOMMgt.QtyRndPrecision);
+                    FromQtyToPick := Round(ToQtyToPickBase / FromQtyPerUOM, UOMMgt.QtyRndPrecision());
                     FromQtyToPickBase := ToQtyToPickBase;
                 end;
             else
@@ -2996,7 +2988,7 @@ codeunit 7312 "Create Pick"
                 FromQtyToPickBase := FromQtyToPick * FromQtyPerUOM;
                 if FromQtyToPickBase > QtyAvailableBase then begin
                     FromQtyToPickBase := ToQtyToPickBase;
-                    FromQtyToPick := Round(FromQtyToPickBase / FromQtyPerUOM, UOMMgt.QtyRndPrecision);
+                    FromQtyToPick := Round(FromQtyToPickBase / FromQtyPerUOM, UOMMgt.QtyRndPrecision());
                 end;
         end;
     end;
@@ -3007,11 +2999,11 @@ codeunit 7312 "Create Pick"
         if ToQtyToPickBase > TotalQtyToPickBase then
             ToQtyToPickBase := TotalQtyToPickBase;
 
-        ToQtyToPick := Round(ToQtyToPickBase / ToQtyPerUOM, UOMMgt.QtyRndPrecision);
+        ToQtyToPick := Round(ToQtyToPickBase / ToQtyPerUOM, UOMMgt.QtyRndPrecision());
         if ToQtyToPick > TotalQtyToPick then
             ToQtyToPick := TotalQtyToPick;
         if (ToQtyToPick <> TotalQtyToPick) and (ToQtyToPickBase = TotalQtyToPickBase) then
-            if Abs(1 - ToQtyToPick / TotalQtyToPick) <= UOMMgt.QtyRndPrecision then
+            if Abs(1 - ToQtyToPick / TotalQtyToPick) <= UOMMgt.QtyRndPrecision() then
                 ToQtyToPick := TotalQtyToPick;
     end;
 
@@ -3071,7 +3063,7 @@ codeunit 7312 "Create Pick"
             SetRange("No.", ItemNo);
             SetRange("Variant Code", VariantCode);
             CalcSums("Qty. Picked (Base)", "Consumed Quantity (Base)");
-            QtyAssgndToAsmLine := CalcQtyPickedNotConsumedBase;
+            QtyAssgndToAsmLine := CalcQtyPickedNotConsumedBase();
         end;
 
         OnAfterCalcTotalQtyAssgndOnWhse(
@@ -3187,7 +3179,7 @@ codeunit 7312 "Create Pick"
 
     procedure GetCannotBeHandledReason(): Text
     begin
-        exit(DequeueCannotBeHandledReason);
+        exit(DequeueCannotBeHandledReason());
     end;
 
     local procedure PickStrictExpirationPosting(ItemNo: Code[20]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
@@ -3219,8 +3211,8 @@ codeunit 7312 "Create Pick"
     begin
         with AsmLine do begin
             TestField("Qty. per Unit of Measure");
-            QtyToPickBase := CalcQtyToPickBase;
-            QtyToPick := CalcQtyToPick;
+            QtyToPickBase := CalcQtyToPickBase();
+            QtyToPick := CalcQtyToPick();
             OnCreateAssemblyPickLineOnAfterCalcQtyToPick(AsmLine, QtyToPickBase, QtyToPick);
             if QtyToPick > 0 then begin
                 SetAssemblyLine(AsmLine, 1);
@@ -3281,13 +3273,25 @@ codeunit 7312 "Create Pick"
               "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
               "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
             SetRange("Source ID", SourceNo);
-            if SourceType = DATABASE::"Prod. Order Component" then begin
-                SetRange("Source Ref. No.", SourceSubLineNo);
-                SetRange("Source Prod. Order Line", SourceLineNo);
-            end else
-                SetRange("Source Ref. No.", SourceLineNo);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubType);
+            case SourceType of
+                Database::"Prod. Order Component":
+                    begin
+                        SetRange("Source Ref. No.", SourceSubLineNo);
+                        SetRange("Source Prod. Order Line", SourceLineNo);
+                        SetRange("Source Type", SourceType);
+                        SetRange("Source Subtype", SourceSubType);
+                    end;
+                Database::Job:
+                    begin
+                        SetRange("Source Ref. No.", SourceLineNo);
+                        SetRange("Source Type", Database::"Job Planning Line");
+                        SetRange("Source Subtype", 2);
+                    end;
+                else
+                    SetRange("Source Ref. No.", SourceLineNo);
+                    SetRange("Source Type", SourceType);
+                    SetRange("Source Subtype", SourceSubType);
+            end;
             SetRange("Reservation Status", "Reservation Status"::Reservation);
         end;
     end;
@@ -3482,7 +3486,7 @@ codeunit 7312 "Create Pick"
         end;
     end;
 
-    local procedure EnqueueCannotBeHandledReason(CannotBeHandledReason: Text)
+    procedure EnqueueCannotBeHandledReason(CannotBeHandledReason: Text)
     var
         NewReasonAdded: Boolean;
         i: Integer;
@@ -3776,14 +3780,6 @@ codeunit 7312 "Create Pick"
     local procedure OnCalcAvailQtyOnFindBWPickBin(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
     begin
     end;
-
-#if not CLEAN18
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnCalcAvailQtyOnFindPickBin2', '18.0')]
-    local procedure OnCalcAvailQtyOnFindPickBin(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAvailQtyOnFindPickBin2(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; LotNo: Code[50]; SerialNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)

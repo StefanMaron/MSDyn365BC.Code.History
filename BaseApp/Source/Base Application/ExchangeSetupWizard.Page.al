@@ -224,7 +224,7 @@ page 1806 "Exchange Setup Wizard"
                 trigger OnAction()
                 begin
                     if Step = Step::Credentials then
-                        ValidateCredentials;
+                        ValidateCredentials();
                     NextStep(false);
                 end;
             }
@@ -240,9 +240,9 @@ page 1806 "Exchange Setup Wizard"
                 var
                     GuidedExperience: Codeunit "Guided Experience";
                 begin
-                    DeployToExchange;
+                    DeployToExchange();
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Exchange Setup Wizard");
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -258,14 +258,14 @@ page 1806 "Exchange Setup Wizard"
         if User.FindFirst() then
             Email := User."Authentication Email";
 
-        LoadTopBanners;
+        LoadTopBanners();
         CredentialsRequired := (Email = '') or ExchangeAddinSetup.CredentialsRequired(Email);
         EmailIsHostedO365 := true;
     end;
 
     trigger OnOpenPage()
     begin
-        ShowIntroStep;
+        ShowIntroStep();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -331,9 +331,9 @@ page 1806 "Exchange Setup Wizard"
 
         case Step of
             Step::Intro:
-                ShowIntroStep;
+                ShowIntroStep();
             Step::DeploymentMode:
-                ShowDeploymentModeStep;
+                ShowDeploymentModeStep();
             Step::UseO365:
                 ShowO365Step(Backwards);
             Step::Credentials:
@@ -341,7 +341,7 @@ page 1806 "Exchange Setup Wizard"
             Step::Email:
                 ShowEmailStep(Backwards);
             Step::Done:
-                ShowDoneStep;
+                ShowDoneStep();
         end;
 
         CurrPage.Update(true);
@@ -349,14 +349,14 @@ page 1806 "Exchange Setup Wizard"
 
     local procedure ShowIntroStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         IntroVisible := true;
         BackEnabled := false;
     end;
 
     local procedure ShowDeploymentModeStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         NextEnabled := true;
         DeploymentModeVisible := true;
         OnPremOrgDeploy := false;
@@ -364,7 +364,7 @@ page 1806 "Exchange Setup Wizard"
 
     local procedure ShowO365Step(Backwards: Boolean)
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         NextEnabled := true;
         O365Visible := true;
 
@@ -374,30 +374,30 @@ page 1806 "Exchange Setup Wizard"
 
     local procedure ShowCredentialsStep(Backwards: Boolean)
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         CredentialsVisible := true;
         OnPremOrgDeploy := (DeploymentMode = DeploymentMode::Organization) and (not EmailIsHostedO365);
 
         if OnPremOrgDeploy and (PSEndpoint = '') then
             PSEndpoint := SampleEndpointTxt;
 
-        if not NeedCredentials then
+        if not NeedCredentials() then
             NextStep(Backwards);
     end;
 
     local procedure ShowEmailStep(Backwards: Boolean)
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         NextEnabled := true;
         EmailVisible := true;
 
-        if (not ExchangeAddinSetup.SampleEmailsAvailable) or OnPremOrgDeploy then
+        if (not ExchangeAddinSetup.SampleEmailsAvailable()) or OnPremOrgDeploy then
             NextStep(Backwards);
     end;
 
     local procedure ShowDoneStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         DoneVisible := true;
         NextEnabled := false;
         FinishEnabled := true;
@@ -434,7 +434,7 @@ page 1806 "Exchange Setup Wizard"
         ProgressWindow.Update(2, 3000);
 
         if not OnPremOrgDeploy then
-            if NeedCredentials then
+            if NeedCredentials() then
                 ExchangeAddinSetup.InitializeServiceWithCredentials(Email, Password);
 
         Session.LogMessage('0000ACW', StrSubstNo(SetupTelemetryTxt, Format(DeploymentMode)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
@@ -444,7 +444,7 @@ page 1806 "Exchange Setup Wizard"
             ProgressWindow.Update(2, 6000);
             ExchangeAddinSetup.DeployAddins(OfficeAddin);
         end else
-            if OfficeAddin.GetAddins then begin
+            if OfficeAddin.GetAddins() then begin
                 Progress := 4000;
                 ProgressWindow.Update(1, DeployOrgMsg);
                 ProgressWindow.Update(2, Progress);
@@ -470,7 +470,7 @@ page 1806 "Exchange Setup Wizard"
         end;
 
         ProgressWindow.Update(2, 10000);
-        ProgressWindow.Close;
+        ProgressWindow.Close();
     end;
 
     local procedure ValidateCredentials()
@@ -482,7 +482,7 @@ page 1806 "Exchange Setup Wizard"
             if (UserName = '') or (Password = '') or (PSEndpoint = '') then
                 Error(UsernamePasswordMissingErr);
         end else begin
-            if NeedCredentials and not CredentialsValidated then begin
+            if NeedCredentials() and not CredentialsValidated then begin
                 if (Email = '') or (Password = '') then
                     Error(EmailPasswordMissingErr);
                 ExchangeAddinSetup.InitializeServiceWithCredentials(Email, Password);
@@ -503,8 +503,8 @@ page 1806 "Exchange Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

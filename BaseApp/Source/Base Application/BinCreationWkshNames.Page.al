@@ -1,7 +1,7 @@
 page 7369 "Bin Creation Wksh. Names"
 {
     Caption = 'Bin Creation Wksh. Names';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Bin Creation Wksh. Name";
@@ -23,7 +23,7 @@ page 7369 "Bin Creation Wksh. Names"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description for the worksheet.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code for which the worksheet should be used.';

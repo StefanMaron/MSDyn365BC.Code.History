@@ -16,7 +16,7 @@ report 304 "Vendor - Detail Trial Balance"
             column(VendDatetFilterPeriod; StrSubstNo(Text000, VendDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(VendorTblCapVendFltr; TableCaption + ': ' + VendFilter)
@@ -383,9 +383,7 @@ report 304 "Vendor - Detail Trial Balance"
     end;
 
     var
-        Text000: Label 'Period: %1';
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendFilter: Text;
         VendAmount: Decimal;
         VendRemainAmount: Decimal;
         VendEntryDueDate: Date;
@@ -397,6 +395,8 @@ report 304 "Vendor - Detail Trial Balance"
         RemainingAmtCaption: Text[30];
         PageGroupNo: Integer;
         SumCorrections: Decimal;
+
+        Text000: Label 'Period: %1';
         VendDetailTrialBalCapLbl: Label 'Vendor - Detail Trial Balance';
         PageCaptionLbl: Label 'Page';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
@@ -416,6 +416,7 @@ report 304 "Vendor - Detail Trial Balance"
         PrintAmountsInLCY: Boolean;
         StartBalAdjLCY: Decimal;
         VendBalanceLCY: Decimal;
+        VendFilter: Text;
         VendDateFilter: Text;
         VendCurrencyCode: Code[10];
 

@@ -16,7 +16,7 @@ codeunit 5080 "Image Handler Management"
         ImageHandler := ImageHandler.ImageHandler(SourceImageInStream);
 
         if ImageQuality = 0 then
-            ImageQuality := GetDefaultImageQuality;
+            ImageQuality := GetDefaultImageQuality();
 
         if (ImageHandler.Height <= NewHeight) and (ImageHandler.Width <= NewWidth) then begin
             CopyStream(ResizedImageOutStream, SourceImageInStream);
@@ -32,7 +32,7 @@ codeunit 5080 "Image Handler Management"
         ImageInStream: InStream;
         ImageOutStream: OutStream;
     begin
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
 
         TempBlob.CreateInStream(ImageInStream);
@@ -69,7 +69,7 @@ codeunit 5080 "Image Handler Management"
     var
         ImageInStream: InStream;
     begin
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
 
         TempBlob.CreateInStream(ImageInStream);

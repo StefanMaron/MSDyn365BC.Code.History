@@ -29,12 +29,15 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         Config.Insert();
     end;
 
+#if not CLEAN21
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestLegacyConfigSuccessful()
     var
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         InitializeConfig();
 
@@ -53,14 +56,18 @@ codeunit 139100 "Online Doc. Storage Conf Test"
 
         Assert.IsTrue(DocServPage."Test Connection".Enabled, 'Validation of config data not enabled');
         DocServPage."Test Connection".Invoke();
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestOAuthConfigSuccessful()
     var
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         InitializeConfig();
 
@@ -74,15 +81,19 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         Assert.IsTrue(DocServPage."User Name".Enabled, 'Setting user name in OAuth2 Authentication Type is enabled');
 
         Assert.IsTrue(DocServPage."Test Connection".Enabled, 'Validation of config data not enabled');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestUnsuccessfulTestConnection()
     var
         DocumentService: Record "Document Service";
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Expect Test Connection to fail fast due to table validation failing.
         // This test intentionally only tests CAL code without testing the full validation stack.
@@ -113,26 +124,18 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage."Document Repository".SetValue('Document Repository');
         DocServPage."Test Connection".Invoke;
         Assert.IsTrue(DocServPage.ValidationErrorCount > 0, 'Validation errors did not occur');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestOnlyOneConfigExists()
-    var
-        DocServConf: Record "Document Service";
-    begin
-        InitializeConfig;
-
-        Assert.AreEqual(DocServConf.Count, 1, 'No configuration or more than one entry detected');
-    end;
-
-    [Test]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestRecordInitializedOnFirstOpenPage()
     var
         DocumentService: Record "Document Service";
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         DocumentService.DeleteAll();
         DocServPage.OpenEdit;
@@ -146,15 +149,18 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         Assert.IsTrue(DocServPage."Document Repository".Value() = '', 'The Document Repository should have defaulted to empty.');
         Assert.IsTrue(DocumentService.FindFirst(), 'The default record should have been initialized upon Open Page.');
         Assert.IsTrue(DocumentService.Password = '', 'The Password should have defaulted to empty.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('PasswordPageHandler,PasswordPageConfirmationHandler')]
+    [HandlerFunctions('PasswordPageHandler,PasswordPageConfirmationHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestSetPassword()
     var
         DocumentService: Record "Document Service";
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         InitializeConfig;
         DocServPage.OpenEdit;
@@ -163,15 +169,18 @@ codeunit 139100 "Online Doc. Storage Conf Test"
 
         DocumentService.FindFirst();
         Assert.AreEqual('Password', DocumentService.Password, 'Password was not saved.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('PasswordEmptyPageHandler,PasswordPageConfirmationHandler')]
+    [HandlerFunctions('PasswordEmptyPageHandler,PasswordPageConfirmationHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestClearPassword()
     var
         DocumentService: Record "Document Service";
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         InitializeConfig;
         DocumentService.FindFirst();
@@ -185,15 +194,18 @@ codeunit 139100 "Online Doc. Storage Conf Test"
 
         DocumentService.FindFirst();
         Assert.AreEqual('', DocumentService.Password, 'Password was not cleared.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('PasswordPageHandler,PasswordPageDeclineConfirmationHandler')]
+    [HandlerFunctions('PasswordPageHandler,PasswordPageDeclineConfirmationHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestDeclinePasswordChange()
     var
         DocumentService: Record "Document Service";
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         InitializeConfig;
         DocumentService.FindFirst();
@@ -207,22 +219,41 @@ codeunit 139100 "Online Doc. Storage Conf Test"
 
         DocumentService.FindFirst();
         Assert.AreEqual('OldPwd', DocumentService.Password, 'Password change should have been declined.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('PasswordMismatchPageHandler,MessageHandler')]
+    [HandlerFunctions('PasswordMismatchPageHandler,MessageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestMismatchingPassword()
     var
         DocServPage: TestPage "Document Service Config";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         InitializeConfig;
 
         // Test fails if the mismatch message does not appear.
         DocServPage.OpenEdit;
         DocServPage."Set Password".Invoke;
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+#endif
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestOnlyOneConfigExists()
+    var
+        DocServConf: Record "Document Service";
+    begin
+        InitializeConfig;
+
+        Assert.AreEqual(DocServConf.Count, 1, 'No configuration or more than one entry detected');
     end;
 
+#if not CLEAN21
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PasswordPageHandler(var PwdPage: TestPage "Document Service Acc. Pwd.")
@@ -267,12 +298,26 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         Reply := false;
     end;
 
+    [RecallNotificationHandler]
+    [Scope('OnPrem')]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+#endif
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
 
+#if not CLEAN21
     local procedure TestConfigSuccessful(var DocServPage: TestPage "Document Service Config")
     begin
         DocServPage."Service ID".SetValue('Service ID');
@@ -287,6 +332,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocServPage.Folder.SetValue('Folder');
         Assert.AreEqual(DocServPage.Folder.Value(), 'Folder', 'Setting Folder value failed');
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

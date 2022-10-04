@@ -150,11 +150,11 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteCampaignEntries.RunModal();
 
         // 3. Verify: Verify Campaign Entries and Interaction Log Entry are successfully Deleted.
-        Assert.IsFalse(CampaignEntry.FindFirst, StrSubstNo(ExistError, CampaignEntry.TableCaption, SegmentHeader."Campaign No."));
+        Assert.IsFalse(CampaignEntry.FindFirst, StrSubstNo(ExistError, CampaignEntry.TableCaption(), SegmentHeader."Campaign No."));
 
         InteractionLogEntry.SetRange("Campaign No.", SegmentHeader."Campaign No.");
         Assert.IsFalse(
-          InteractionLogEntry.FindFirst, StrSubstNo(ExistError, InteractionLogEntry.TableCaption, InteractionLogEntry."Campaign No."));
+          InteractionLogEntry.FindFirst, StrSubstNo(ExistError, InteractionLogEntry.TableCaption(), InteractionLogEntry."Campaign No."));
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 136207 "Marketing Batch Jobs"
         RunLogSegment(SegmentHeader."No.", false);
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
         LoggedSegment.FindFirst();
-        LoggedSegment.ToggleCanceledCheckmark;
+        LoggedSegment.ToggleCanceledCheckmark();
 
         // 2. Exercise: Run Delete Logged Segments Batch Report.
         DeleteLoggedSegments.SetTableView(LoggedSegment);
@@ -188,7 +188,7 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteLoggedSegments.RunModal();
 
         // 3. Verify: Verify Logged Segment deleted.
-        Assert.IsFalse(LoggedSegment.FindFirst, StrSubstNo(ExistError, LoggedSegment.TableCaption, SegmentHeader."No."));
+        Assert.IsFalse(LoggedSegment.FindFirst, StrSubstNo(ExistError, LoggedSegment.TableCaption(), SegmentHeader."No."));
     end;
 
     [Test]
@@ -215,12 +215,12 @@ codeunit 136207 "Marketing Batch Jobs"
         // 3. Verify: Verify Opportunity successfully closed and Opportunity Entry created.
         Opportunity.FindFirst();
         Opportunity.TestField(Closed, true);
-        Opportunity.TestField("Date Closed", WorkDate);
+        Opportunity.TestField("Date Closed", WorkDate());
 
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
         OpportunityEntry.FindFirst();
         OpportunityEntry.TestField("Contact No.", ContactNo);
-        OpportunityEntry.TestField("Date Closed", WorkDate);
+        OpportunityEntry.TestField("Date Closed", WorkDate());
 
         // 4. Teardown: Rollback Default Sale Cycle Code on Marketing Setup.
         UpdateDefaultSalesCycleCode(DefaultSalesCycleCode);
@@ -253,10 +253,10 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteOpportunities.RunModal();
 
         // 3. Verify: Verify Opportunity and Opportunity Entry are deleted.
-        Assert.IsFalse(Opportunity.FindFirst, StrSubstNo(ExistError, Opportunity.TableCaption, ContactNo));
+        Assert.IsFalse(Opportunity.FindFirst, StrSubstNo(ExistError, Opportunity.TableCaption(), ContactNo));
 
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
-        Assert.IsFalse(OpportunityEntry.FindFirst, StrSubstNo(ExistError, OpportunityEntry.TableCaption, Opportunity."No."));
+        Assert.IsFalse(OpportunityEntry.FindFirst, StrSubstNo(ExistError, OpportunityEntry.TableCaption(), Opportunity."No."));
 
         // 4. Teardown: Rollback Default Sale Cycle Code on Marketing Setup.
         UpdateDefaultSalesCycleCode(DefaultSalesCycleCode);
@@ -323,7 +323,7 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteServiceEmailQueue.RunModal();
 
         // 3. Verify: Verify Service E-Mail Queue deleted.
-        Assert.IsFalse(ServiceEmailQueue.FindFirst, StrSubstNo(ExistError, ServiceEmailQueue.TableCaption, ServiceHeader."No."));
+        Assert.IsFalse(ServiceEmailQueue.FindFirst, StrSubstNo(ExistError, ServiceEmailQueue.TableCaption(), ServiceHeader."No."));
     end;
 
     [Test]
@@ -387,7 +387,7 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteTasks.RunModal();
 
         // 3. Verify: Verify To-Do deleted.
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(ExistError, Task.TableCaption, Team.Code));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(ExistError, Task.TableCaption(), Team.Code));
     end;
 
     [Test]
@@ -408,7 +408,7 @@ codeunit 136207 "Marketing Batch Jobs"
         ContDuplicateSearchString.DeleteAll();
 
         // 3. Verify: Verify that no data exists in the table.
-        Assert.IsTrue(ContDuplicateSearchString.IsEmpty, StrSubstNo(SearchResultError, ContDuplicateSearchString.TableCaption));
+        Assert.IsTrue(ContDuplicateSearchString.IsEmpty, StrSubstNo(SearchResultError, ContDuplicateSearchString.TableCaption()));
     end;
 
     [Test]
@@ -433,7 +433,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // 3. Verify: Verify that data exists in Contact Duplicate Search String Table.
         Assert.IsFalse(
           ContDuplicateSearchString.IsEmpty,
-          StrSubstNo(ExistError, ContDuplicateSearchString.FieldCaption("Contact Company No."), ContDuplicateSearchString.TableCaption));
+          StrSubstNo(ExistError, ContDuplicateSearchString.FieldCaption("Contact Company No."), ContDuplicateSearchString.TableCaption()));
     end;
 
     local procedure CancelCampaignEntry(CampaignNo: Code[20])
@@ -442,7 +442,7 @@ codeunit 136207 "Marketing Batch Jobs"
     begin
         CampaignEntry.SetRange("Campaign No.", CampaignNo);
         CampaignEntry.FindFirst();
-        CampaignEntry.ToggleCanceledCheckmark;
+        CampaignEntry.ToggleCanceledCheckmark();
     end;
 
     local procedure CreateOpportunityWithContact(var DefaultSalesCycleCode: Code[10]; var ContactNo: Code[20])
@@ -568,7 +568,7 @@ codeunit 136207 "Marketing Batch Jobs"
         TempTask.Insert();
         TempTask.Validate(Type, TempTask.Type::" ");
         TempTask.Validate(Description, DescriptionForPage);
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
 
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);

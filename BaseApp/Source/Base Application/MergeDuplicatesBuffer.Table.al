@@ -12,7 +12,7 @@ table 64 "Merge Duplicates Buffer"
 
             trigger OnValidate()
             begin
-                CalcTableName;
+                CalcTableName();
             end;
         }
         field(2; Duplicate; Code[20])
@@ -30,7 +30,7 @@ table 64 "Merge Duplicates Buffer"
                 TestField(Duplicate);
                 if Current = Duplicate then
                     FieldError(Duplicate);
-                CollectData;
+                CollectData();
             end;
         }
         field(3; Current; Code[20])
@@ -57,7 +57,7 @@ table 64 "Merge Duplicates Buffer"
 
             trigger OnValidate()
             begin
-                CollectData;
+                CollectData();
             end;
         }
         field(7; "Current Record ID"; RecordID)
@@ -111,7 +111,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         RecordRef.Open("Table ID");
         "Table Name" := CopyStr(RecordRef.Caption, 1, MaxStrLen("Table Name"));
-        RecordRef.Close;
+        RecordRef.Close();
     end;
 
     local procedure ClearData()
@@ -125,10 +125,10 @@ table 64 "Merge Duplicates Buffer"
 
     internal procedure CollectData()
     begin
-        ClearData;
-        CollectFieldData;
-        if not IsConflict then
-            CollectRelatedTables;
+        ClearData();
+        CollectFieldData();
+        if not IsConflict() then
+            CollectRelatedTables();
 
         OnAfterCollectData(Rec, TempMergeDuplicatesLineBuffer);
     end;
@@ -144,9 +144,9 @@ table 64 "Merge Duplicates Buffer"
         TempMergeDuplicatesLineBuffer.GetPrimaryKeyFields(RecordRef[1], TempPKInt);
         for Index := 1 to RecordRef[1].FieldCount do
             TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, "Conflict Field ID", Index, FoundDuplicateRecord, TempPKInt);
-        RecordRef[1].Close;
+        RecordRef[1].Close();
         if FoundDuplicateRecord then
-            RecordRef[2].Close;
+            RecordRef[2].Close();
     end;
 
     local procedure CollectRelatedTables()
@@ -174,7 +174,7 @@ table 64 "Merge Duplicates Buffer"
                     TempMergeDuplicatesLineBuffer.Modify();
             until TempMergeDuplicatesLineBuffer.Next() = 0;
         Conflicts := TempMergeDuplicatesConflict.Count();
-        Modify;
+        Modify();
         TempMergeDuplicatesLineBuffer.Reset();
         exit(Conflicts > 0);
     end;
@@ -188,7 +188,7 @@ table 64 "Merge Duplicates Buffer"
         KeyRef := RecordRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
         FieldRef.SetRange(PKey);
-        exit(RecordRef.FindFirst);
+        exit(RecordRef.FindFirst());
     end;
 
     local procedure FindRecords(var RecordRef: array[2] of RecordRef; var FoundDuplicateRecord: Boolean)
@@ -235,7 +235,7 @@ table 64 "Merge Duplicates Buffer"
             until TableRelationsMetadata.Next() = 0;
         IncludeDefaultDimTable(TempTableRelationsMetadata);
         OnAfterFindRelatedFields(TempTableRelationsMetadata);
-        exit(TempTableRelationsMetadata.FindSet);
+        exit(TempTableRelationsMetadata.FindSet());
     end;
 
     procedure GetConflictsMsg(): Text
@@ -255,7 +255,7 @@ table 64 "Merge Duplicates Buffer"
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
         FieldNo := FieldRef.Number;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetKeyValues(RecordRef: RecordRef; var KeyValue: array[16] of Variant) Index: Integer
@@ -294,11 +294,11 @@ table 64 "Merge Duplicates Buffer"
     [Scope('OnPrem')]
     procedure InsertFromConflict(MergeDuplicatesConflict: Record "Merge Duplicates Conflict")
     begin
-        Init;
+        Init();
         "Conflict Field ID" := MergeDuplicatesConflict."Field ID";
         Validate("Current Record ID", MergeDuplicatesConflict.Current);
         Validate("Duplicate Record ID", MergeDuplicatesConflict.Duplicate);
-        Insert;
+        Insert();
     end;
 
     [Scope('OnPrem')]
@@ -310,8 +310,8 @@ table 64 "Merge Duplicates Buffer"
     [Scope('OnPrem')]
     procedure FindModifiedKeyFields(): Boolean
     begin
-        if IsConflict then
-            exit(TempMergeDuplicatesLineBuffer.HasModifiedField);
+        if IsConflict() then
+            exit(TempMergeDuplicatesLineBuffer.HasModifiedField());
     end;
 
     procedure Show(TableID: Integer; CurrentKey: Code[20])
@@ -330,7 +330,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
         MergeDuplicateConflicts.RunModal();
-        FindConflicts;
+        FindConflicts();
     end;
 
     [Scope('OnPrem')]
@@ -338,17 +338,17 @@ table 64 "Merge Duplicates Buffer"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if FindConflicts then
+        if FindConflicts() then
             exit(false);
         if not ConfirmManagement.GetResponseOrDefault(ConfirmMergeTxt, true) then
             exit(false);
         case "Table ID" of
             DATABASE::Contact:
-                MergeContacts;
+                MergeContacts();
             DATABASE::Customer:
-                MergeCustomers;
+                MergeCustomers();
             DATABASE::Vendor:
-                MergeVendors;
+                MergeVendors();
         end;
         exit(true);
     end;
@@ -399,7 +399,7 @@ table 64 "Merge Duplicates Buffer"
         NewSystemID := RecordRef[2].Field(RecordRef[2].SystemIdNo).Value;
         OldSystemID := RecordRef[1].Field(RecordRef[1].SystemIdNo).Value;
 
-        if IntegrationManagement.IsIntegrationActivated then begin
+        if IntegrationManagement.IsIntegrationActivated() then begin
             IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef[1], CurrentDateTime());
             IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef[2], CurrentDateTime());
             if IntegrationRecord[2].FindByRecordId(RecordRef[2].RecordId) then
@@ -459,7 +459,7 @@ table 64 "Merge Duplicates Buffer"
         ConfirmManagement: Codeunit "Confirm Management";
         RecordRef: array[2] of RecordRef;
     begin
-        if FindModifiedKeyFields then
+        if FindModifiedKeyFields() then
             Error(RestorePKeyFieldErr);
 
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ConfirmRemoveTxt, "Duplicate Record ID"), true) then
@@ -469,9 +469,9 @@ table 64 "Merge Duplicates Buffer"
         RecordRef[2].Get("Duplicate Record ID");
         if OverrideSelectedFields(RecordRef[2], RecordRef[1], true) then
             RecordRef[1].Modify();
-        RecordRef[1].Close;
+        RecordRef[1].Close();
         Result := RecordRef[2].Delete(true);
-        RecordRef[2].Close;
+        RecordRef[2].Close();
     end;
 
     [Scope('OnPrem')]
@@ -485,7 +485,7 @@ table 64 "Merge Duplicates Buffer"
         VariantKeyValue: array[16] of Variant;
         Index: Integer;
     begin
-        if not FindModifiedKeyFields then
+        if not FindModifiedKeyFields() then
             Error(ModifyPKeyFieldErr);
 
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ConfirmRenameTxt, "Duplicate Record ID"), true) then
@@ -590,7 +590,7 @@ table 64 "Merge Duplicates Buffer"
                         FieldRef.Value(NewID);
                         RecRef.Modify();
                     until RecRef.Next() = 0;
-                RecRef.Close;
+                RecRef.Close();
             until TableRelationsMetadata.Next() = 0;
     end;
 

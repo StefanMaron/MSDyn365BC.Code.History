@@ -14,29 +14,29 @@ page 5783 "Cross-Dock Opportunities"
             group(General)
             {
                 Caption = 'General';
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the item number of the items that can be cross-docked.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location on the warehouse receipt line related to this cross-dock opportunity.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure in which the item has been received.';
@@ -45,99 +45,99 @@ page 5783 "Cross-Dock Opportunities"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("To Source Document"; "To Source Document")
+                field("To Source Document"; Rec."To Source Document")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the type of source document for which the cross-dock opportunity can be used, such as sales order.';
                 }
-                field("To Source No."; "To Source No.")
+                field("To Source No."; Rec."To Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document for which items can be cross-docked.';
                 }
-                field("Qty. Needed"; "Qty. Needed")
+                field("Qty. Needed"; Rec."Qty. Needed")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that is still needed on the document for which the items can be cross-docked.';
                     Visible = true;
                 }
-                field("Qty. Needed (Base)"; "Qty. Needed (Base)")
+                field("Qty. Needed (Base)"; Rec."Qty. Needed (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that is needed to complete the outbound source document line, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Pick Qty."; "Pick Qty.")
+                field("Pick Qty."; Rec."Pick Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item that is on pick instructions for the outbound source document, but that has not yet been registered as picked.';
                     Visible = false;
                 }
-                field("Pick Qty. (Base)"; "Pick Qty. (Base)")
+                field("Pick Qty. (Base)"; Rec."Pick Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item that is on pick instructions for the outbound source document, but that has not yet been registered as picked.';
                     Visible = false;
                 }
-                field("Qty. to Cross-Dock"; "Qty. to Cross-Dock")
+                field("Qty. to Cross-Dock"; Rec."Qty. to Cross-Dock")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that is ready to cross-dock.';
 
                     trigger OnValidate()
                     begin
-                        CalcValues;
-                        QtytoCrossDockOnAfterValidate;
+                        CalcValues();
+                        QtytoCrossDockOnAfterValidate();
                     end;
                 }
-                field("Qty. to Cross-Dock (Base)"; "Qty. to Cross-Dock (Base)")
+                field("Qty. to Cross-Dock (Base)"; Rec."Qty. to Cross-Dock (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity, in the base units of measure, that is ready to cross-dock.';
                     Visible = false;
                 }
-                field("To-Src. Unit of Measure Code"; "To-Src. Unit of Measure Code")
+                field("To-Src. Unit of Measure Code"; Rec."To-Src. Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the unit of measure code on the source document line that needs the cross-dock opportunity item.';
                     Visible = true;
                 }
-                field("To-Src. Qty. per Unit of Meas."; "To-Src. Qty. per Unit of Meas.")
+                field("To-Src. Qty. per Unit of Meas."; Rec."To-Src. Qty. per Unit of Meas.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity of base units of measure, on the source document line, that needs the cross-dock opportunity items.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the outbound warehouse activity should be started.';
                 }
-                field("Unit of Measure Code2"; "Unit of Measure Code")
+                field("Unit of Measure Code2"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Qty. per Unit of Measure2"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure2"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of base units of measure in which the item has been received.';
                     Visible = false;
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the number of units of the item on the line reserved for the source document line.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the number of units of the item on the line reserved for the related source document line.';
                     Visible = false;
                 }
-                field("""Qty. Needed (Base)"" - ""Qty. to Cross-Dock (Base)"""; "Qty. Needed (Base)" - "Qty. to Cross-Dock (Base)")
+                field("""Qty. Needed (Base)"" - ""Qty. to Cross-Dock (Base)"""; Rec."Qty. Needed (Base)" - "Qty. to Cross-Dock (Base)")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Rem. Qty. to Cross-Dock (Base)';
@@ -180,7 +180,7 @@ page 5783 "Cross-Dock Opportunities"
                     group("Total Qty. To Be Cross-Docked")
                     {
                         Caption = 'Total Qty. To Be Cross-Docked';
-                        field("Qty. Cross-Docked (Base)"; "Qty. Cross-Docked (Base)")
+                        field("Qty. Cross-Docked (Base)"; Rec."Qty. Cross-Docked (Base)")
                         {
                             ApplicationArea = Warehouse;
                             Caption = 'Total Qty. To Be Cross-Docked';
@@ -210,7 +210,7 @@ page 5783 "Cross-Dock Opportunities"
                     group("Total Rem. Qty. to Cross-Dock (Base)")
                     {
                         Caption = 'Total Rem. Qty. to Cross-Dock (Base)';
-                        field("""Total Qty. Needed (Base)"" - ""Qty. Cross-Docked (Base)"""; "Total Qty. Needed (Base)" - "Qty. Cross-Docked (Base)")
+                        field("""Total Qty. Needed (Base)"" - ""Qty. Cross-Docked (Base)"""; Rec."Total Qty. Needed (Base)" - "Qty. Cross-Docked (Base)")
                         {
                             ApplicationArea = Warehouse;
                             Caption = 'Total Rem. Qty. to Cross-Dock (Base)';
@@ -284,9 +284,6 @@ page 5783 "Cross-Dock Opportunities"
                     ApplicationArea = Warehouse;
                     Caption = 'Refresh &Cross-Dock Opportunities';
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Get the latest information about cross-dock opportunities.';
 
                     trigger OnAction()
@@ -294,7 +291,7 @@ page 5783 "Cross-Dock Opportunities"
                         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
                         Dummy: Decimal;
                     begin
-                        if Confirm(Text001, false, WhseCrossDockOpportunity.TableCaption) then begin
+                        if Confirm(Text001, false, WhseCrossDockOpportunity.TableCaption()) then begin
                             CrossDockMgt.SetTemplate(TemplateName2, NameNo2, LocationCode2);
                             CrossDockMgt.CalculateCrossDockLine(
                               Rec, ItemNo2, VariantCode2,
@@ -330,11 +327,22 @@ page 5783 "Cross-Dock Opportunities"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Refresh &Cross-Dock Opportunities_Promoted"; "Refresh &Cross-Dock Opportunities")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        CalcValues;
+        CalcValues();
         CalcFields("Qty. Cross-Docked (Base)");
     end;
 
@@ -350,7 +358,7 @@ page 5783 "Cross-Dock Opportunities"
 
     trigger OnOpenPage()
     begin
-        CalcValues;
+        CalcValues();
     end;
 
     var

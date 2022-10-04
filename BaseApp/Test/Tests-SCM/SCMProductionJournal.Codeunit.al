@@ -180,7 +180,7 @@ codeunit 137034 "SCM Production Journal"
 
         // Exercise: Select second Production Order line and Open Production Journal.
         // Page Handler Invoked: JournalPageHandler
-        ProdOrderLine.Next;
+        ProdOrderLine.Next();
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
 
         // Verify: Verification of Production Journal Lines without posting.
@@ -344,7 +344,7 @@ codeunit 137034 "SCM Production Journal"
         // Dimensions for Consumption Entries.
         TempItemJournalLine2.FindSet();
         VerifyDimensionSetEntry(DefaultDimension);
-        TempItemJournalLine2.Next;
+        TempItemJournalLine2.Next();
         VerifyDimensionSetEntry(DefaultDimension2);
 
         // Dimensions for Output Entries.
@@ -1951,18 +1951,18 @@ codeunit 137034 "SCM Production Journal"
         ProductionOrder: Record "Production Order";
     begin
         with ProductionOrder do begin
-            Init;
+            Init();
             Status := Status::Released;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Production Order");
-            Insert;
+            Insert();
         end;
 
         with ProdOrderLine do begin
-            Init;
+            Init();
             Status := ProductionOrder.Status;
             "Prod. Order No." := ProductionOrder."No.";
             "Line No." := LibraryUtility.GetNewRecNo(ProdOrderLine, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2027,7 +2027,7 @@ codeunit 137034 "SCM Production Journal"
         repeat
             TempItemJournalLine := ItemJournalLine;
             if TempItemJournalLine.Insert() then;
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure CopyProdJournalAndDimToTemp(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20])
@@ -2046,8 +2046,8 @@ codeunit 137034 "SCM Production Journal"
             repeat
                 TempDimensionSetEntry := DimensionSetEntry;
                 if TempDimensionSetEntry.Insert() then;
-            until DimensionSetEntry.Next = 0;
-        until ItemJournalLine.Next = 0;
+            until DimensionSetEntry.Next() = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure CopyLocation(var NewLocCode: Code[10]; ExistingLocCode: Code[10]; ExistingBinCode: Code[20])
@@ -2061,7 +2061,7 @@ codeunit 137034 "SCM Production Journal"
         ExistingBin.Get(ExistingLocCode, ExistingBinCode);
 
         with NewLocation do begin
-            Init;
+            Init();
             NewLocation := ExistingLocation;
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location));
             Insert(true);
@@ -2069,7 +2069,7 @@ codeunit 137034 "SCM Production Journal"
         end;
 
         with NewBin do begin
-            Init;
+            Init();
             NewBin := ExistingBin;
             Validate("Location Code", NewLocation.Code);
             Insert(true);
@@ -2114,8 +2114,8 @@ codeunit 137034 "SCM Production Journal"
         TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(ProdOrderComponent."Quantity per" * ProductionOrder.Quantity, TempItemJournalLine.Quantity, ErrMsgQuantity);
-            TempItemJournalLine.Next;
-        until ProdOrderComponent.Next = 0;
+            TempItemJournalLine.Next();
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyConsumpEntriesAfterPost()
@@ -2123,7 +2123,7 @@ codeunit 137034 "SCM Production Journal"
         TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(0, TempItemJournalLine.Quantity, ErrMsgQuantity);
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyFamilyConsumptionEntries(ItemNo: Code[20]; ProdOrderNo: Code[20])
@@ -2140,9 +2140,9 @@ codeunit 137034 "SCM Production Journal"
         TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(ProdOrderComponent."Quantity per" * ProdOrderLine.Quantity, TempItemJournalLine.Quantity, ErrMsgQuantity);
-            TempItemJournalLine.Next;
-            ProdOrderLine.Next;
-        until ProdOrderComponent.Next = 0;
+            TempItemJournalLine.Next();
+            ProdOrderLine.Next();
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyOutputEntries(ProdOrderNo: Code[20])
@@ -2156,7 +2156,7 @@ codeunit 137034 "SCM Production Journal"
             Assert.AreEqual(ProductionOrder.Quantity, TempItemJournalLine."Output Quantity", ErrMsgQuantity);
             Assert.AreEqual(0, TempItemJournalLine."Setup Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Setup Time")));
             Assert.AreEqual(0, TempItemJournalLine."Run Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Run Time")));
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyOutputEntriesAfterPost()
@@ -2167,7 +2167,7 @@ codeunit 137034 "SCM Production Journal"
             Assert.AreEqual(0, TempItemJournalLine."Output Quantity", ErrMsgQuantity);
             Assert.AreEqual(0, TempItemJournalLine."Setup Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Setup Time")));
             Assert.AreEqual(0, TempItemJournalLine."Run Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Run Time")));
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyFamilyOutputEntries(ItemNo: Code[20]; FamilyNo: Code[20])
@@ -2183,7 +2183,7 @@ codeunit 137034 "SCM Production Journal"
             Assert.AreEqual(FamilyLine.Quantity, TempItemJournalLine."Output Quantity", ErrMsgQuantity);
             Assert.AreEqual(0, TempItemJournalLine."Setup Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Setup Time")));
             Assert.AreEqual(0, TempItemJournalLine."Run Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Run Time")));
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyDimensionSetEntry(DefaultDimension: Record "Default Dimension")
@@ -2270,7 +2270,7 @@ codeunit 137034 "SCM Production Journal"
             ItemJournalLine.Validate("Setup Time", LibraryRandom.RandInt(5));  // Random values not important.
             ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(5));
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
 
         // Post Production Journal lines with modified Setup time, Run time.
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);

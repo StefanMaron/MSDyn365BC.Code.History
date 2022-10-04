@@ -1,4 +1,4 @@
-﻿codeunit 7311 "Whse. Worksheet-Create"
+codeunit 7311 "Whse. Worksheet-Create"
 {
 
     trigger OnRun()
@@ -475,7 +475,7 @@
         AvailQtyToPick: Decimal;
     begin
         with WhseWkshLine do begin
-            AvailQtyToPick := AvailableQtyToPickExcludingQCBins;
+            AvailQtyToPick := AvailableQtyToPickExcludingQCBins();
             "Qty. to Handle" := TypeHelper.Minimum(AvailQtyToPick, "Qty. Outstanding");
             "Qty. to Handle (Base)" := CalcBaseQty("Qty. to Handle");
             CalcReservedNotFromILEQty(AvailQtyToPick, "Qty. to Handle", "Qty. to Handle (Base)");

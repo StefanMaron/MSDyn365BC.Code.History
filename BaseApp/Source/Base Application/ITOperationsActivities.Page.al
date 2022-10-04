@@ -36,30 +36,9 @@ page 9072 "IT Operations Activities"
                         var
                             IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
                         begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
+                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl());
                         end;
                     }
-#if not CLEAN18
-                    action("Intelligent Cloud Insights")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Intelligent Cloud Insights';
-                        Image = TileCloud;
-                        RunPageMode = View;
-                        ToolTip = 'View your Intelligent Cloud insights.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
-                        end;
-                    }
-#endif
                 }
             }
 #endif  
@@ -171,7 +150,7 @@ page 9072 "IT Operations Activities"
             Rec.Insert();
         end;
 
-        DataClassNotificationMgt.ShowNotifications;
+        DataClassNotificationMgt.ShowNotifications();
 
         DataSensitivity.SetRange("Company Name", CompanyName);
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
@@ -181,7 +160,7 @@ page 9072 "IT Operations Activities"
         Rec.SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
         Rec.SetRange("User ID Filter", UserId());
 
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
     end;

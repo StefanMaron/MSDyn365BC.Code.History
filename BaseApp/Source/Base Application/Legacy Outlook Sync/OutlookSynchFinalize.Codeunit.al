@@ -22,7 +22,7 @@ codeunit 5311 "Outlook Synch. Finalize"
         RootIterator: Text[38];
         StartSynchTimeText: Text[30];
     begin
-        XmlTextReader := XmlTextReader.XmlTextReader;
+        XmlTextReader := XmlTextReader.XmlTextReader();
 
         if not XmlTextReader.LoadXml(XMLMessage) then
             Error(Text001);

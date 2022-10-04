@@ -34,7 +34,7 @@ page 3731 "Product Video Topics"
         {
             action("Show Assisted Setup")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Show Assisted Setup';
                 Tooltip = 'Get assistance with set-up.';
 

@@ -15,7 +15,7 @@ report 5904 "Service Tasks"
             column(TodayFormat; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServItem_ServItemLine; TableCaption + ': ' + ServItemLineFilter)
@@ -113,7 +113,7 @@ report 5904 "Service Tasks"
 
     trigger OnPreReport()
     begin
-        ServItemLineFilter := "Service Item Line".GetFilters;
+        ServItemLineFilter := "Service Item Line".GetFilters();
     end;
 
     var

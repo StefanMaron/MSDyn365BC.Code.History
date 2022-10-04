@@ -26,7 +26,7 @@ report 5602 "Fixed Asset Journal - Test"
                 column(FA_Journal_Batch___Journal_Template_Name_; "FA Journal Batch"."Journal Template Name")
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FA_Journal_Line__TABLECAPTION__________FAJnlLineFilter; "FA Journal Line".TableCaption + ': ' + FAJnlLineFilter)
@@ -202,52 +202,52 @@ report 5602 "Fixed Asset Journal - Test"
                             if not FA.Get("FA No.") then begin
                                 AddError(
                                   StrSubstNo(
-                                    Text005, FA.TableCaption, "FA No."));
+                                    Text005, FA.TableCaption(), "FA No."));
                                 FA.Init();
                             end;
                             if FA.Blocked then
                                 AddError(
                                   StrSubstNo(
                                     Text006,
-                                    FA.FieldCaption(Blocked), false, FA.TableCaption, "FA No."));
+                                    FA.FieldCaption(Blocked), false, FA.TableCaption(), "FA No."));
                             if FA.Inactive then
                                 AddError(
                                   StrSubstNo(
                                     Text006,
-                                    FA.FieldCaption(Inactive), false, FA.TableCaption, "FA No."));
+                                    FA.FieldCaption(Inactive), false, FA.TableCaption(), "FA No."));
 
                             if not DeprBook.Get("Depreciation Book Code") then begin
                                 AddError(
                                   StrSubstNo(
                                     Text005,
-                                    DeprBook.TableCaption,
+                                    DeprBook.TableCaption(),
                                     "Depreciation Book Code"));
                                 DeprBook.Init();
                             end;
                             if not FADeprBook.Get("FA No.", "Depreciation Book Code") then begin
                                 AddError(
                                   StrSubstNo(
-                                    Text007, FADeprBook.TableCaption, "FA No.", "Depreciation Book Code"));
+                                    Text007, FADeprBook.TableCaption(), "FA No.", "Depreciation Book Code"));
                                 FADeprBook.Init();
                             end;
                             if not FA."Budgeted Asset" then
-                                CheckFAIntegration;
+                                CheckFAIntegration();
                             if "FA Error Entry No." > 0 then
-                                CheckErrorNo;
-                            CheckConsistency;
+                                CheckErrorNo();
+                            CheckConsistency();
                             if not DeprBook."Allow Identical Document No." and
                                ("Depreciation Book Code" <> '') and ("Document No." <> '')
                             then
-                                CheckFADocNo;
+                                CheckFADocNo();
                         end;
 
                         if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                            AddError(DimMgt.GetDimCombErr);
+                            AddError(DimMgt.GetDimCombErr());
 
                         TableID[1] := DATABASE::"Fixed Asset";
                         No[1] := "FA No.";
                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                            AddError(DimMgt.GetDimValuePostingErr);
+                            AddError(DimMgt.GetDimValuePostingErr());
 
                         DeprUntilFAPostingDate := Format("Depr. until FA Posting Date");
                     end;
@@ -261,13 +261,13 @@ report 5602 "Fixed Asset Journal - Test"
                                   StrSubstNo(
                                     Text000,
                                     FieldCaption("FA Posting Date")));
-                            SetRange("FA Posting Date", 0D, WorkDate);
+                            SetRange("FA Posting Date", 0D, WorkDate());
                             if GetFilter("Expiration Date") <> '' then
                                 AddError(
                                   StrSubstNo(
                                     Text000,
                                     FieldCaption("Expiration Date")));
-                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                         end;
 
                         Clear(Amount);
@@ -295,24 +295,10 @@ report 5602 "Fixed Asset Journal - Test"
 
     trigger OnPreReport()
     begin
-        FAJnlLineFilter := "FA Journal Line".GetFilters;
+        FAJnlLineFilter := "FA Journal Line".GetFilters();
     end;
 
     var
-        Text000: Label '%1 cannot be filtered when you post recurring journals.';
-        Text001: Label '%1 must be specified.';
-        Text002: Label '%1 cannot be a closing date.';
-        Text003: Label '%1 is not within your range of allowed posting dates.';
-        Text004: Label '%1 is not different than %2.';
-        Text005: Label '%1 %2 does not exist.';
-        Text006: Label '%1 must be %2 for %3 %4.';
-        Text007: Label '%1 %2 %3 does not exist.';
-        Text008: Label 'When G/L integration is activated, %1 must not be specified in the FA journal.';
-        Text009: Label 'must not be specified when %1 is specified.';
-        Text010: Label 'must not be specified together with %1 = %2.';
-        Text011: Label '%1 must not be specified when %2 is a %3.';
-        Text012: Label 'Insurance integration is not activated for %1 %2.';
-        Text013: Label '%1 must be identical to %2.';
         FAJnlTemplate: Record "FA Journal Template";
         FA: Record "Fixed Asset";
         DeprBook: Record "Depreciation Book";
@@ -330,6 +316,21 @@ report 5602 "Fixed Asset Journal - Test"
         DeprUntilFAPostingDate: Text[30];
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+
+        Text000: Label '%1 cannot be filtered when you post recurring journals.';
+        Text001: Label '%1 must be specified.';
+        Text002: Label '%1 cannot be a closing date.';
+        Text003: Label '%1 is not within your range of allowed posting dates.';
+        Text004: Label '%1 is not different than %2.';
+        Text005: Label '%1 %2 does not exist.';
+        Text006: Label '%1 must be %2 for %3 %4.';
+        Text007: Label '%1 %2 %3 does not exist.';
+        Text008: Label 'When G/L integration is activated, %1 must not be specified in the FA journal.';
+        Text009: Label 'must not be specified when %1 is specified.';
+        Text010: Label 'must not be specified together with %1 = %2.';
+        Text011: Label '%1 must not be specified when %2 is a %3.';
+        Text012: Label 'Insurance integration is not activated for %1 %2.';
+        Text013: Label '%1 must be identical to %2.';
         Text014: Label '%1 %2 already exists.';
         FA_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
         Fixed_Asset_Journal___TestCaptionLbl: Label 'Fixed Asset Journal - Test';

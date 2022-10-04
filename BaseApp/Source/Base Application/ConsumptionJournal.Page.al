@@ -6,7 +6,6 @@ page 99000846 "Consumption Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Prepare,Line,Prod. Order,Page';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -318,8 +317,6 @@ page 99000846 "Consumption Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -334,9 +331,7 @@ page 99000846 "Consumption Journal"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -349,8 +344,6 @@ page 99000846 "Consumption Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -368,8 +361,6 @@ page 99000846 "Consumption Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Released Production Order";
                     RunPageLink = "No." = FIELD("Order No.");
                     ShortCutKey = 'Shift+F7';
@@ -384,8 +375,6 @@ page 99000846 "Consumption Journal"
                         ApplicationArea = Manufacturing;
                         Caption = 'Item Ledger E&ntries';
                         Image = ItemLedger;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         RunObject = Page "Item Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("Order No.");
@@ -397,8 +386,6 @@ page 99000846 "Consumption Journal"
                         ApplicationArea = Manufacturing;
                         Caption = 'Capacity Ledger Entries';
                         Image = CapacityLedger;
-                        Promoted = true;
-                        PromotedCategory = Category7;
                         RunObject = Page "Capacity Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("Order No.");
@@ -420,8 +407,6 @@ page 99000846 "Consumption Journal"
                     Caption = 'Calc. Co&nsumption';
                     Ellipsis = true;
                     Image = CalculateConsumption;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Use a batch job to help you fill the consumption journal with actual or expected consumption figures.';
 
                     trigger OnAction()
@@ -456,9 +441,6 @@ page 99000846 "Consumption Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -474,9 +456,6 @@ page 99000846 "Consumption Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -494,8 +473,6 @@ page 99000846 "Consumption Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -521,8 +498,6 @@ page 99000846 "Consumption Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show Lines with Issues';
                         Image = Error;
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         Visible = BackgroundErrorCheck;
                         Enabled = not ShowAllLinesEnabled;
                         ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -537,8 +512,6 @@ page 99000846 "Consumption Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show All Lines';
                         Image = ExpandAll;
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         Visible = BackgroundErrorCheck;
                         Enabled = ShowAllLinesEnabled;
                         ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -550,6 +523,91 @@ page 99000846 "Consumption Journal"
                     }
 
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref("Calc. Co&nsumption_Promoted"; "Calc. Co&nsumption")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Prepare', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Prod. Order', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("Item Ledger E&ntries_Promoted"; "Item Ledger E&ntries")
+                {
+                }
+                actionref("Capacity Ledger Entries_Promoted"; "Capacity Ledger Entries")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -587,7 +645,7 @@ page 99000846 "Consumption Journal"
     begin
         SetDimensionsVisibility();
 
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
@@ -622,7 +680,7 @@ page 99000846 "Consumption Journal"
 
     local procedure CurrentJnlBatchNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
         CurrPage.Update(false);

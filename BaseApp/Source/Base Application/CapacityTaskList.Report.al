@@ -15,7 +15,7 @@ report 99000780 "Capacity Task List"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PORtngLineTableCaptFilter; TableCaption + ':' + ProdOrderRtngLineFilter)
@@ -89,7 +89,7 @@ report 99000780 "Capacity Task List"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderRtngLineFilter := GetFilters;
+                ProdOrderRtngLineFilter := GetFilters();
             end;
         }
     }

@@ -3,7 +3,6 @@ page 7359 "Whse. Internal Pick List"
     ApplicationArea = Warehouse;
     Caption = 'Warehouse Internal Picks';
     CardPageID = "Whse. Internal Pick";
-    PromotedActionCategories = 'New,Process,Report,Release,Navigate';
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
@@ -17,22 +16,22 @@ page 7359 "Whse. Internal Pick List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the internal pick is being performed.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the warehouse internal pick lines are sorted.';
@@ -42,31 +41,31 @@ page 7359 "Whse. Internal Pick List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether the internal pick is open or released.';
                 }
-                field("To Zone Code"; "To Zone Code")
+                field("To Zone Code"; Rec."To Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone in which you want the items to be placed when they are picked.';
                     Visible = false;
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin in which you want the items to be placed when they are picked.';
                     Visible = false;
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the document status of the internal pick.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
                     Visible = false;
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
@@ -113,8 +112,6 @@ page 7359 "Whse. Internal Pick List"
                     ApplicationArea = Warehouse;
                     Caption = 'Pick Lines';
                     Image = PickLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST("Internal Pick"),
                                   "Whse. Document No." = FIELD("No.");
@@ -164,8 +161,6 @@ page 7359 "Whse. Internal Pick List"
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
@@ -182,8 +177,6 @@ page 7359 "Whse. Internal Pick List"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -192,6 +185,32 @@ page 7359 "Whse. Internal Pick List"
                     begin
                         ReleaseWhseInternalPick.Reopen(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Re&lease_Promoted"; "Re&lease")
+                {
+                }
+                actionref("Re&open_Promoted"; "Re&open")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Pick Lines_Promoted"; "Pick Lines")
+                {
                 }
             }
         }
@@ -236,7 +255,7 @@ page 7359 "Whse. Internal Pick List"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := WhseInternalPickHeader;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 

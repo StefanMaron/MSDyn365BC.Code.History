@@ -17,12 +17,12 @@ page 452 "Issued Fin. Charge Memo List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer number the finance charge memo is for.';
@@ -32,18 +32,18 @@ page 452 "Issued Fin. Charge Memo List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer the finance charge memo is for.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the currency that the issued finance charge memo is in.';
                 }
-                field("Interest Amount"; "Interest Amount")
+                field("Interest Amount"; Rec."Interest Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the total of the interest amounts on the finance charge memo lines.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -55,19 +55,19 @@ page 452 "Issued Fin. Charge Memo List"
                     ToolTip = 'Specifies the city name of the customer the finance charge memo is for.';
                     Visible = false;
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many times the document has been printed.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -130,8 +130,6 @@ page 452 "Issued Fin. Charge Memo List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Issued Fin. Charge Memo Stat.";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -147,8 +145,6 @@ page 452 "Issued Fin. Charge Memo List"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. The report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -164,8 +160,6 @@ page 452 "Issued Fin. Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Send by &Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to send the document by email. The Send Email window opens prefilled for the customer where you can add or change information before you send the email.';
 
                 trigger OnAction()
@@ -182,14 +176,12 @@ page 452 "Issued Fin. Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action(Cancel)
@@ -198,8 +190,6 @@ page 452 "Issued Fin. Charge Memo List"
                 Caption = 'Cancel';
                 Ellipsis = true;
                 Image = Cancel;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Cancel the issued finance charge memo.';
 
                 trigger OnAction()
@@ -218,7 +208,6 @@ page 452 "Issued Fin. Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Finance Charge Memo Nos.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Finance Charge Memo Nos.";
@@ -229,8 +218,6 @@ page 452 "Issued Fin. Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Customer - Balance to Date';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Customer - Balance to Date";
                 ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
             }
@@ -239,11 +226,41 @@ page 452 "Issued Fin. Charge Memo List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Customer - Detail Trial Bal.';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Customer - Detail Trial Bal.";
                 ToolTip = 'View the balance for customers with balances on a specified date. The report can be used at the close of an accounting period, for example, or for an audit.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("Send by &Email_Promoted"; "Send by &Email")
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Cancel_Promoted; Cancel)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Customer - Balance to Date_Promoted"; "Customer - Balance to Date")
+                {
+                }
             }
         }
     }

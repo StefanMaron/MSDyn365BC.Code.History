@@ -25,8 +25,8 @@ codeunit 5201 "Employee/Salesperson Update"
     local procedure SalesPersonUpdate(Employee: Record Employee)
     begin
         SalespersonPurchaser.Get(Employee."Salespers./Purch. Code");
-        SalespersonPurchaser.Name := CopyStr(Employee.FullName, 1, 50);
-        SalespersonPurchaser.Modify
+        SalespersonPurchaser.Name := CopyStr(Employee.FullName(), 1, 50);
+        SalespersonPurchaser.Modify();
     end;
 }
 

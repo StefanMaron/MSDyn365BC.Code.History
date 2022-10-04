@@ -14,11 +14,11 @@ codeunit 5778 "Whse. Create Pick"
         WkshPickLine.Copy(Rec);
         WhseCreatePick.SetWkshPickLine(WkshPickLine);
         WhseCreatePick.RunModal();
-        if WhseCreatePick.GetResultMessage then
+        if WhseCreatePick.GetResultMessage() then
             AutofillQtyToHandle(Rec);
         Clear(WhseCreatePick);
 
-        Reset;
+        Reset();
         SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
         FilterGroup := 2;
         SetRange("Worksheet Template Name", "Worksheet Template Name");

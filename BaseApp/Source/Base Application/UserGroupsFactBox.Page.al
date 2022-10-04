@@ -20,7 +20,7 @@ page 9829 "User Groups FactBox"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the user group.';
                 }
-                field("Default Profile ID"; "Default Profile ID")
+                field("Default Profile ID"; Rec."Default Profile ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Default Profile';

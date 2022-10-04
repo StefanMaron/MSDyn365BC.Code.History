@@ -15,62 +15,62 @@ page 5924 "Loaner Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies whether the document type of the entry is a quote or order.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service document specifying the service item you have replaced with the loaner.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item that you have replaced with the loaner.';
                 }
-                field("Service Item Line No."; "Service Item Line No.")
+                field("Service Item Line No."; Rec."Service Item Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item line for which you have lent the loaner.';
                 }
-                field("Loaner No."; "Loaner No.")
+                field("Loaner No."; Rec."Loaner No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the loaner.';
                 }
-                field("Service Item Group Code"; "Service Item Group Code")
+                field("Service Item Group Code"; Rec."Service Item Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item group code of the service item that you have replaced with the loaner.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer to whom you have lent the loaner.';
                 }
-                field("Date Lent"; "Date Lent")
+                field("Date Lent"; Rec."Date Lent")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when you lent the loaner.';
                 }
-                field("Time Lent"; "Time Lent")
+                field("Time Lent"; Rec."Time Lent")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when you lent the loaner.';
                 }
-                field("Date Received"; "Date Received")
+                field("Date Received"; Rec."Date Received")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when you received the loaner.';
                 }
-                field("Time Received"; "Time Received")
+                field("Time Received"; Rec."Time Received")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when you received the loaner.';

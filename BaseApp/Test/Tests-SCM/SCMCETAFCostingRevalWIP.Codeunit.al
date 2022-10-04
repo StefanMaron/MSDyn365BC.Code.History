@@ -32,7 +32,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, false, 0, 1.5);
     end;
 
     [Test]
@@ -42,7 +42,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, false, false, 0, 1.5);
     end;
 
     [Test]
@@ -52,7 +52,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate, false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), false, false, false, 0, 1.5);
     end;
 
     [Test]
@@ -62,7 +62,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate, false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), false, false, false, 0, 1.5);
     end;
 
     [Test]
@@ -72,7 +72,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate, false, false, false, 0, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), false, false, false, 0, 1.5);
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -92,7 +92,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -112,7 +112,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -132,7 +132,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -142,7 +142,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate, true, false, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), true, false, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -152,7 +152,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -162,7 +162,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -172,7 +172,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -202,7 +202,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate, false, true, false, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -222,7 +222,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -232,7 +232,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::FIFO, WorkDate, false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::LIFO, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -242,7 +242,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::FIFO, WorkDate, false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Average, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::FIFO, WorkDate, false, false, true, CalculatePer::Item, 1.5);
+        TestProdOrder(Item."Costing Method"::Standard, Item."Costing Method"::FIFO, WorkDate(), false, false, true, CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -262,7 +262,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -282,7 +282,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -292,7 +292,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -302,7 +302,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -312,7 +312,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -322,7 +322,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_ZeroInv(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item);
+        TestProdOrder_ZeroInv(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item);
     end;
 
     [Test]
@@ -333,7 +333,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     begin
         Initialize();
         TestProdOrder(
-          Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, false, true, false, CalculatePer::"Item Ledger Entry", 1.5);
+          Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), false, true, false, CalculatePer::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -344,7 +344,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     begin
         Initialize();
         TestProdOrder(
-          Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, false, true, false, CalculatePer::"Item Ledger Entry", 1.5);
+          Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), false, true, false, CalculatePer::"Item Ledger Entry", 1.5);
     end;
 
     [Test]
@@ -354,7 +354,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialILEs(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate);
+        TestProdOrder_RevalPartialILEs(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate());
     end;
 
     [Test]
@@ -364,7 +364,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialILEs(Item."Costing Method"::FIFO, Item."Costing Method"::Average, WorkDate);
+        TestProdOrder_RevalPartialILEs(Item."Costing Method"::FIFO, Item."Costing Method"::Average, WorkDate());
     end;
 
     [Test]
@@ -374,7 +374,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialILEs(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate);
+        TestProdOrder_RevalPartialILEs(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate());
     end;
 
     [Test]
@@ -384,7 +384,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialILEs(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate);
+        TestProdOrder_RevalPartialILEs(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate());
     end;
 
     [Test]
@@ -394,7 +394,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialILEs(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate);
+        TestProdOrder_RevalPartialILEs(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate());
     end;
 
     [Test]
@@ -404,7 +404,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -414,7 +414,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -424,7 +424,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Average, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -434,7 +434,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::Average, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -454,7 +454,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -464,7 +464,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_NegConsumption(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate, CalculatePer::Item, 1.5);
+        TestProdOrder_NegConsumption(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), CalculatePer::Item, 1.5);
     end;
 
     [Test]
@@ -474,7 +474,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate, 1.5);
+        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::FIFO, WorkDate(), 1.5);
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate, 1.5);
+        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::FIFO, Item."Costing Method"::Standard, WorkDate(), 1.5);
     end;
 
     [Test]
@@ -494,7 +494,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate, 1.5);
+        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::LIFO, WorkDate(), 1.5);
     end;
 
     [Test]
@@ -504,7 +504,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate, 1.5);
+        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::LIFO, Item."Costing Method"::Standard, WorkDate(), 1.5);
     end;
 
     [Test]
@@ -514,7 +514,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate, 1.5);
+        TestProdOrder_RevalPartialConsumption(Item."Costing Method"::Standard, Item."Costing Method"::Standard, WorkDate(), 1.5);
     end;
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAverageComponent(Item."Costing Method"::FIFO, WorkDate);
+        TestProdOrderAverageComponent(Item."Costing Method"::FIFO, WorkDate());
     end;
 
     [Test]
@@ -534,7 +534,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAverageComponent(Item."Costing Method"::Average, WorkDate);
+        TestProdOrderAverageComponent(Item."Costing Method"::Average, WorkDate());
     end;
 
     [Test]
@@ -544,7 +544,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAverageComponent(Item."Costing Method"::LIFO, WorkDate);
+        TestProdOrderAverageComponent(Item."Costing Method"::LIFO, WorkDate());
     end;
 
     [Test]
@@ -554,7 +554,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAverageComponent(Item."Costing Method"::Standard, WorkDate);
+        TestProdOrderAverageComponent(Item."Costing Method"::Standard, WorkDate());
     end;
 
     [Test]
@@ -564,7 +564,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAvgCompwithReval(Item."Costing Method"::FIFO, WorkDate);
+        TestProdOrderAvgCompwithReval(Item."Costing Method"::FIFO, WorkDate());
     end;
 
     [Test]
@@ -574,7 +574,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAvgCompwithReval(Item."Costing Method"::LIFO, WorkDate);
+        TestProdOrderAvgCompwithReval(Item."Costing Method"::LIFO, WorkDate());
     end;
 
     [Test]
@@ -584,7 +584,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAvgCompwithReval(Item."Costing Method"::Standard, WorkDate);
+        TestProdOrderAvgCompwithReval(Item."Costing Method"::Standard, WorkDate());
     end;
 
     [Test]
@@ -594,7 +594,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Item: Record Item;
     begin
         Initialize();
-        TestProdOrderAvgCompwithReval(Item."Costing Method"::Standard, WorkDate);
+        TestProdOrderAvgCompwithReval(Item."Costing Method"::Standard, WorkDate());
     end;
 
     local procedure TestProdOrder(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; RevalueBeforeProdOrder1: Boolean; RevalueBeforeProdOrder2: Boolean; RevalueAfterProdOrder2: Boolean; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
@@ -1200,7 +1200,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         SetupAvgCostPeriod(NewAvgCostPeriod, OldAvgCostPeriod);
         CreateItem(CompItem, CompItem."Costing Method"::Average);
         CreateItem(ProdItem, ProdItem."Costing Method"::FIFO);
-        StartDate := WorkDate;
+        StartDate := WorkDate();
         TotalQty := 10000;
         ProdQty := 9990;
         UnitAmount := 0.2;

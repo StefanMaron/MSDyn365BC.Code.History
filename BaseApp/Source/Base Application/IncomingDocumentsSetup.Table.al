@@ -85,8 +85,8 @@ table 131 "Incoming Documents Setup"
         if Fetched then
             exit;
         Fetched := true;
-        if not Get then
-            Init;
+        if not Get() then
+            Init();
     end;
 }
 

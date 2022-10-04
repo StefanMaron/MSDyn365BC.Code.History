@@ -20,7 +20,7 @@ page 1041 "Copy Job Tasks"
                     trigger OnValidate()
                     begin
                         if (SourceJobNo <> '') and not SourceJob.Get(SourceJobNo) then
-                            Error(Text003, SourceJob.TableCaption, SourceJobNo);
+                            Error(Text003, SourceJob.TableCaption(), SourceJobNo);
 
                         FromJobTaskNo := '';
                         ToJobTaskNo := '';
@@ -49,7 +49,7 @@ page 1041 "Copy Job Tasks"
                         JobTask: Record "Job Task";
                     begin
                         if (FromJobTaskNo <> '') and not JobTask.Get(SourceJob."No.", FromJobTaskNo) then
-                            Error(Text003, JobTask.TableCaption, FromJobTaskNo);
+                            Error(Text003, JobTask.TableCaption(), FromJobTaskNo);
                     end;
                 }
                 field(ToJobTaskNo; ToJobTaskNo)
@@ -75,7 +75,7 @@ page 1041 "Copy Job Tasks"
                         JobTask: Record "Job Task";
                     begin
                         if (ToJobTaskNo <> '') and not JobTask.Get(SourceJobNo, ToJobTaskNo) then
-                            Error(Text003, JobTask.TableCaption, ToJobTaskNo);
+                            Error(Text003, JobTask.TableCaption(), ToJobTaskNo);
                     end;
                 }
                 field("From Source"; Source)
@@ -87,7 +87,7 @@ page 1041 "Copy Job Tasks"
 
                     trigger OnValidate()
                     begin
-                        ValidateSource;
+                        ValidateSource();
                     end;
                 }
                 field("Planning Line Type"; PlanningLineType)
@@ -132,7 +132,7 @@ page 1041 "Copy Job Tasks"
                     trigger OnValidate()
                     begin
                         if (TargetJobNo <> '') and not TargetJob.Get(TargetJobNo) then
-                            Error(Text003, TargetJob.TableCaption, TargetJobNo);
+                            Error(Text003, TargetJob.TableCaption(), TargetJobNo);
                     end;
                 }
             }
@@ -163,13 +163,13 @@ page 1041 "Copy Job Tasks"
     begin
         PlanningLineType := PlanningLineType::"Budget+Billable";
         LedgerEntryType := LedgerEntryType::"Usage+Sale";
-        ValidateSource;
+        ValidateSource();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            ValidateUserInput;
+            ValidateUserInput();
             CopyJob.SetCopyOptions(false, CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType);
             CopyJob.SetJobTaskRange(FromJobTaskNo, ToJobTaskNo);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
@@ -205,10 +205,10 @@ page 1041 "Copy Job Tasks"
     local procedure ValidateUserInput()
     begin
         if (SourceJobNo = '') or not SourceJob.Get(SourceJobNo) then
-            Error(Text004, SourceJob.TableCaption);
+            Error(Text004, SourceJob.TableCaption());
 
         if (TargetJobNo = '') or not TargetJob.Get(TargetJobNo) then
-            Error(Text005, TargetJob.TableCaption);
+            Error(Text005, TargetJob.TableCaption());
     end;
 
     local procedure ValidateSource()

@@ -1,4 +1,4 @@
-﻿page 9237 "Resource Capacity Matrix"
+page 9237 "Resource Capacity Matrix"
 {
     Caption = 'Resource Capacity Matrix';
     Editable = true;
@@ -13,7 +13,7 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -280,7 +280,7 @@
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN19
+#if not CLEAN21
                 action(Costs)
                 {
                     ApplicationArea = Jobs;

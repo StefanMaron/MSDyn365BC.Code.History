@@ -29,7 +29,7 @@ codeunit 5150 "Integration Management"
         if CompanyName = '' then
             exit;
 
-        if not GetIntegrationActivated then
+        if not GetIntegrationActivated() then
             exit;
 
         OnEnabledDatabaseTriggersSetup(TableID, Enabled);
@@ -48,7 +48,7 @@ codeunit 5150 "Integration Management"
     var
         TimeStamp: DateTime;
     begin
-        if not GetIntegrationActivated then
+        if not GetIntegrationActivated() then
             exit;
 
         TimeStamp := CurrentDateTime;
@@ -58,13 +58,13 @@ codeunit 5150 "Integration Management"
 
     procedure OnDatabaseModify(RecRef: RecordRef)
     var
-        TimeStamp: DateTime;
         SourceRecRef: RecordRef;
+        TimeStamp: DateTime;
     begin
-        if not GetIntegrationActivated then
+        if not GetIntegrationActivated() then
             exit;
 
-        // Verify record exists - Calling if modify then; on non existing records would fail
+        // Verify record exists - Calling if Modify() then; on non existing records would fail
         if IsNullGuid(RecRef.Field(RecRef.SystemIdNo()).Value) then
             if not SourceRecRef.Get(RecRef.RecordId()) then
                 exit;
@@ -82,7 +82,7 @@ codeunit 5150 "Integration Management"
         SkipDeletion: Boolean;
         TimeStamp: DateTime;
     begin
-        if not GetIntegrationActivated then
+        if not GetIntegrationActivated() then
             exit;
 
         TimeStamp := CurrentDateTime;
@@ -115,7 +115,7 @@ codeunit 5150 "Integration Management"
         IntegrationRecord: Record "Integration Record";
         TimeStamp: DateTime;
     begin
-        if not GetIntegrationActivated then
+        if not GetIntegrationActivated() then
             exit;
 
         TimeStamp := CurrentDateTime;
@@ -141,7 +141,7 @@ codeunit 5150 "Integration Management"
         Customer: Record Customer;
         ShipToAddress: Record "Ship-to Address";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
-#if not CLEAN19
+#if not CLEAN21
         SalesPrice: Record "Sales Price";
         CustomerPriceGroup: Record "Customer Price Group";
 #endif
@@ -182,7 +182,7 @@ codeunit 5150 "Integration Management"
                         InsertUpdateIntegrationRecord(ParentRecRef, TimeStamp);
                     end;
                 end;
-#if not CLEAN19
+#if not CLEAN21
             DATABASE::"Sales Price":
                 begin
                     RecRef.SetTable(SalesPrice);
@@ -306,21 +306,8 @@ codeunit 5150 "Integration Management"
             AddToIntegrationPageList(PAGE::"Countries/Regions", DATABASE::"Country/Region", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Shipment Methods", DATABASE::"Shipment Method", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Opportunity List", DATABASE::Opportunity, TempNameValueBuffer, NextId);
-#if not CLEAN18
-            AddToIntegrationPageList(PAGE::"Units of Measure Entity", DATABASE::"Unit of Measure", TempNameValueBuffer, NextId);
-#endif
             AddToIntegrationPageList(PAGE::Dimensions, DATABASE::Dimension, TempNameValueBuffer, NextId);
-#if not CLEAN18
-            AddToIntegrationPageList(PAGE::"Item Categories Entity", DATABASE::"Item Category", TempNameValueBuffer, NextId);
-            AddToIntegrationPageList(PAGE::"Currencies Entity", DATABASE::Currency, TempNameValueBuffer, NextId);
-            AddToIntegrationPageList(PAGE::"Country/Regions Entity", DATABASE::"Country/Region", TempNameValueBuffer, NextId);
-            AddToIntegrationPageList(PAGE::"Payment Methods Entity", DATABASE::"Payment Method", TempNameValueBuffer, NextId);
-            AddToIntegrationPageList(PAGE::"Employee Entity", DATABASE::Employee, TempNameValueBuffer, NextId);
-#endif
             AddToIntegrationPageList(PAGE::"Unlinked Attachments", DATABASE::"Unlinked Attachment", TempNameValueBuffer, NextId);
-#if not CLEAN18            
-            AddToIntegrationPageList(PAGE::"Time Registration Entity", DATABASE::"Time Sheet Detail", TempNameValueBuffer, NextId);
-#endif
         end;
         OnAfterAddToIntegrationPageList(TempNameValueBuffer, NextId);
     end;
@@ -334,29 +321,29 @@ codeunit 5150 "Integration Management"
 
     procedure IsIntegrationActivated(): Boolean
     begin
-        exit(GetIntegrationActivated);
+        exit(GetIntegrationActivated());
     end;
 
     procedure EnableIntegrationServices()
     begin
-        if IsIntegrationServicesEnabled then
+        if IsIntegrationServicesEnabled() then
             exit;
 
-        SetupIntegrationService;
-        SetupIntegrationServices;
+        SetupIntegrationService();
+        SetupIntegrationServices();
         if not HideMessages then
-            Message(IntegrationServicesEnabledMsg, PRODUCTNAME.Full);
+            Message(IntegrationServicesEnabledMsg, PRODUCTNAME.Full());
     end;
 
     procedure DisableIntegrationServices()
     begin
-        if not IsIntegrationServicesEnabled then
+        if not IsIntegrationServicesEnabled() then
             exit;
 
-        DeleteIntegrationService;
-        DeleteIntegrationServices;
+        DeleteIntegrationService();
+        DeleteIntegrationServices();
 
-        Message(IntegrationServicesDisabledMsg, PRODUCTNAME.Full);
+        Message(IntegrationServicesDisabledMsg, PRODUCTNAME.Full());
     end;
 
     procedure SetConnectorIsEnabledForSession(IsEnabled: Boolean)
@@ -398,7 +385,7 @@ codeunit 5150 "Integration Management"
            DATABASE::Contact,
            DATABASE::"Country/Region",
            DATABASE::"Customer Price Group",
-#if not CLEAN19
+#if not CLEAN21
            DATABASE::"Sales Price",
 #endif
            DATABASE::"Price List Header",
@@ -510,7 +497,7 @@ codeunit 5150 "Integration Management"
             if IsSyncEnabled then
                 IntegrationIsActivated := true
             else
-                IntegrationIsActivated := IsCRMConnectionEnabled;
+                IntegrationIsActivated := IsCRMConnectionEnabled();
         end;
 
         exit(IntegrationIsActivated);
@@ -535,7 +522,7 @@ codeunit 5150 "Integration Management"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        if not CRMConnectionSetup.Get then
+        if not CRMConnectionSetup.Get() then
             exit(false);
 
         exit(CRMConnectionSetup."Is Enabled");
@@ -616,7 +603,7 @@ codeunit 5150 "Integration Management"
                 repeat
                     InsertUpdateIntegrationRecord(RecRef, CurrentDateTime);
                 until Next() = 0;
-            Close;
+            Close();
         end;
     end;
 
@@ -633,10 +620,10 @@ codeunit 5150 "Integration Management"
                     "Modified On" := IntegrationLastModified;
                     UpdateReferencedIdField("Integration ID", RecRef, Handled);
                     OnUpdateRelatedRecordIdFields(RecRef);
-                    Modify;
+                    Modify();
                 end else begin
-                    Reset;
-                    Init;
+                    Reset();
+                    Init();
                     "Integration ID" := RecRef.Field(RecRef.SystemIdNo).Value;
                     "Record ID" := RecRef.RecordId;
                     "Table ID" := RecRef.Number;
@@ -667,9 +654,9 @@ codeunit 5150 "Integration Management"
         MomentForJobToBeReady: DateTime;
         EarliestStartDateTime: DateTime;
     begin
-        if DataUpgradeMgt.IsUpgradeInProgress then
+        if DataUpgradeMgt.IsUpgradeInProgress() then
             exit;
-        JobQueueEntry.FilterInactiveOnHoldEntries;
+        JobQueueEntry.FilterInactiveOnHoldEntries();
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.IsEmpty() then
             exit;
@@ -730,12 +717,12 @@ codeunit 5150 "Integration Management"
     local procedure AddToIntegrationPageList(PageId: Integer; TableId: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; var NextId: Integer)
     begin
         with TempNameValueBuffer do begin
-            Init;
+            Init();
             ID := NextId;
             NextId := NextId + 1;
             Name := Format(PageId);
             Value := Format(TableId);
-            Insert;
+            Insert();
         end;
     end;
 

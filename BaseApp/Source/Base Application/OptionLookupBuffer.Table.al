@@ -49,15 +49,6 @@ table 1670 "Option Lookup Buffer"
         InvalidTypeErr: Label '''%1'' is not a valid type for this document.', Comment = '%1 = Type caption. Fx. Item';
         CurrentType: Text[30];
 
-#if not CLEAN18
-    [Obsolete('Replaced by FillLookupBuffer().', '18.0')]
-    [Scope('OnPrem')]
-    procedure FillBuffer(LookupType: Option)
-    begin
-        FillLookupBuffer("Option Lookup Type".FromInteger(LookupType));
-    end;
-#endif
-
     procedure FillLookupBuffer(LookupType: Enum "Option Lookup Type")
     var
         SalesLine: Record "Sales Line";
@@ -84,15 +75,6 @@ table 1670 "Option Lookup Buffer"
                 end;
         end;
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by AutoCompleteLookup().', '18.0')]
-    [Scope('OnPrem')]
-    procedure AutoCompleteOption(var OptionType: Text[30]; LookupType: Option): Boolean
-    begin
-        exit(AutoCompleteLookup(OptionType, "Option Lookup Type".FromInteger(LookupType)));
-    end;
-#endif
 
     procedure AutoCompleteLookup(var OptionType: Text[30]; LookupType: Enum "Option Lookup Type"): Boolean
     var
@@ -169,13 +151,13 @@ table 1670 "Option Lookup Buffer"
             exit;
 
         Option := FieldRef.Value;
-        case FieldRef.Record.Number of
+        case FieldRef.Record().Number of
             DATABASE::"Sales Line", DATABASE::"Standard Sales Line":
                 if Option = SalesLine.Type::" ".AsInteger() then
-                    exit(SalesLine.FormatType);
+                    exit(SalesLine.FormatType());
             DATABASE::"Purchase Line", DATABASE::"Standard Purchase Line":
                 if Option = PurchaseLine.Type::" ".AsInteger() then
-                    exit(PurchaseLine.FormatType);
+                    exit(PurchaseLine.FormatType());
         end;
 
         exit(Format(FieldRef));

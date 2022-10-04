@@ -14,17 +14,17 @@ page 5931 "Service Register"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the entries in the register were created.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -36,22 +36,22 @@ page 5931 "Service Register"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("From Entry No."; "From Entry No.")
+                field("From Entry No."; Rec."From Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the first item entry number in the register.';
                 }
-                field("To Entry No."; "To Entry No.")
+                field("To Entry No."; Rec."To Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the last sequence number from the range of service ledger entries created for this register line.';
                 }
-                field("From Warranty Entry No."; "From Warranty Entry No.")
+                field("From Warranty Entry No."; Rec."From Warranty Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the first sequence number from the range of warranty ledger entries created for this register line.';
                 }
-                field("To Warranty Entry No."; "To Warranty Entry No.")
+                field("To Warranty Entry No."; Rec."To Warranty Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the last sequence number from the range of warranty ledger entries created for this register line.';
@@ -86,9 +86,6 @@ page 5931 "Service Register"
                     ApplicationArea = Service;
                     Caption = 'Service Ledger';
                     Image = ServiceLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Serv Reg.-Show Ledger Entries";
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -97,11 +94,22 @@ page 5931 "Service Register"
                     ApplicationArea = Service;
                     Caption = 'Warranty Ledger';
                     Image = WarrantyLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Serv Reg.-Show WarrLdgEntries";
                     ToolTip = 'View all of the warranty ledger entries for service items or service orders. The entries are the result of posting transactions in service documents.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Service Ledger_Promoted"; "Service Ledger")
+                {
+                }
+                actionref("Warranty Ledger_Promoted"; "Warranty Ledger")
+                {
                 }
             }
         }

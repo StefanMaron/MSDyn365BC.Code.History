@@ -1,4 +1,4 @@
-codeunit 132442 "Test VAT Content"
+﻿codeunit 132442 "Test VAT Content"
 {
     TableNo = "VAT Report Header";
 
@@ -11,6 +11,6 @@ codeunit 132442 "Test VAT Content"
     begin
         TempBlob.CreateOutStream(ContentOutStream);
         ContentOutStream.WriteText(LibraryUtility.GenerateGUID());
-        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code", "No.", TempBlob);
+        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code", Rec."No.", TempBlob);
     end;
 }

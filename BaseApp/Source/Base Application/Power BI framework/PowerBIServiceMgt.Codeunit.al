@@ -5,7 +5,6 @@ codeunit 6301 "Power BI Service Mgt."
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        PowerBISessionManager: Codeunit "Power BI Session Manager";
 #if not CLEAN19
         PowerBIWorkspaceMgt: Codeunit "Power BI Workspace Mgt.";
 #endif
@@ -18,31 +17,34 @@ codeunit 6301 "Power BI Service Mgt."
         NavAppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862351', Locked = true;
         Dyn365AppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862352', Locked = true;
         PowerBIMyOrgUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862353', Locked = true;
+        JobQueueCategoryCodeTxt: Label 'PBI EMBED', Locked = true;
+        JobQueueCategoryDescriptionTxt: Label 'Synchronize Power BI reports', Comment = 'At most 30 characters long';
+        // Telemetry constants
+        PowerBiLicenseCheckErrorTelemetryMsg: Label 'Power BI license check finished with status code: %1. Error: %2', Locked = true;
+        PowerBiLicenseCheckStatusCodeTelemetryMsg: Label 'Power BI license check returned status code: %1.', Locked = true;
+        PowerBiTelemetryCategoryLbl: Label 'PowerBI', Locked = true;
+        OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
+        ErrorWebResponseTelemetryMsg: Label 'GetData failed with an error. The status code is: %1.', Locked = true;
+        RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
+        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
+        ScheduleSyncTelemetryMsg: Label 'Scheduling sync for datetime: %1.', Locked = true;
 #if not CLEAN19
         ItemTxt: Label 'Items', Locked = true;
         VendorTxt: Label 'Vendors', Locked = true;
         CustomerTxt: Label 'Customers', Locked = true;
         SalesTxt: Label 'Sales Orders', Locked = true;
         InvoicesTxt: Label 'Purchase Invoices', Locked = true;
-#endif
-        HackPowerBIGuidTxt: Label '06D251CE-A824-44B2-A5F9-318A0674C3FB', Locked = true;
-        JobQueueCategoryCodeTxt: Label 'PBI EMBED', Locked = true;
-        JobQueueCategoryDescriptionTxt: Label 'Synchronize Power BI reports', Comment = 'At most 30 characters long';
-        // Telemetry constants
-        PowerBiTelemetryCategoryLbl: Label 'PowerBI', Locked = true;
-        GetReportsForContextTelemetryMsg: Label 'Empty report URL when loading Power BI reports (but the report ID is not empty).', Locked = true;
-        GhostReportTelemetryMsg: Label 'Power BI Report Configuration has an entry without URL and with null ID.', Locked = true;
-        OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
-        ErrorWebResponseTelemetryMsg: Label 'GetData failed with an error. The status code is: %1.', Locked = true;
-        RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
-        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
-#if not CLEAN19
         ParseReportsWarningTelemetryMsg: Label 'Parse reports encountered an unexpected token.', Locked = true;
         UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Length: %1.', Locked = true;
 #endif
+#if not CLEAN21
+        HackPowerBIGuidTxt: Label '06D251CE-A824-44B2-A5F9-318A0674C3FB', Locked = true;
         DeploymentDisabledTelemetryMsg: Label 'Report deployment is disabled (tenant: %1, app service: %2)', Locked = true;
+        GhostReportTelemetryMsg: Label 'Power BI Report Configuration has an entry without URL and with null ID.', Locked = true;
+        GetReportsForContextTelemetryMsg: Label 'Empty report URL when loading Power BI reports (but the report ID is not empty).', Locked = true;
         ServiceCallsDisabledTelemetryMsg: Label 'Service calls are disabled for the tenant.', Locked = true;
-        ScheduleSyncTelemetryMsg: Label 'Scheduling sync for datetime: %1.', Locked = true;
+#endif
+
 
 #if not CLEAN19
     [Scope('OnPrem')]
@@ -83,6 +85,8 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 #endif
 
+#if not CLEAN21
+    [Obsolete('Use physical table PowerBIReportConfiguration instead of temporary table TempPowerBIReportBuffer.', '21.0')]
     [Scope('OnPrem')]
     procedure GetReportsForUserContext(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; EnglishContext: Text[30])
     var
@@ -115,28 +119,31 @@ codeunit 6301 "Power BI Service Mgt."
                         Session.LogMessage('0000EDL', GhostReportTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             until PowerBIReportConfiguration.Next() = 0;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure CheckForPowerBILicenseInForeground(): Boolean
     var
-        PowerBIReportUploads: Record "Power BI Report Uploads";
+        DummyResponseText: Text;
+        ExceptionMessage: Text;
+        ExceptionDetails: Text;
+        ErrorStatusCode: Integer;
     begin
-        // Checks whether the user has power bi license/account or not
-        if PowerBISessionManager.GetHasPowerBILicense() then
+        DummyResponseText := GetDataCatchErrors(ExceptionMessage, ExceptionDetails, ErrorStatusCode, GetReportsUrl());
+
+        if ExceptionMessage <> '' then
+            Session.LogMessage('0000B6Y', StrSubstNo(PowerBiLicenseCheckErrorTelemetryMsg, ErrorStatusCode, GetLastErrorText(true)), Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+
+        Session.LogMessage('0000C0H', StrSubstNo(PowerBiLicenseCheckStatusCodeTelemetryMsg, ErrorStatusCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+
+        // REMARK: 404 means the Power BI user workspace has not been provisioned yet. It could be that the user just activated a license and we can actually
+        // start autodeployment already, or that the user does not have a license at all and autodeployment would fail. We do not have a way to distinguish
+        // these cases. So, we take the conservative approach and consider it a missing license scenario (if the license has just been assigned, it usually takes
+        // 10-15 minutes to propagate and provision, so not too bad; the user can force this by uploading a report from the Power BI home page).
+        if (ErrorStatusCode = 0) and (ExceptionMessage = '') then
             exit(true);
 
-        PowerBIReportUploads.Reset();
-        PowerBIReportUploads.SetFilter("User ID", UserSecurityId());
-
-        // Record in this table indicates the power bi service is already called on behalf of this user.
-        if not PowerBIReportUploads.IsEmpty() then begin
-            PowerBISessionManager.SetHasPowerBILicense(true);
-            exit(true);
-        end;
-
-        Codeunit.Run(Codeunit::"PBI Check License Task"); // Saves value in table
-
-        exit(PowerBISessionManager.GetHasPowerBILicense());
+        exit(false);
     end;
 
     [Scope('OnPrem')]
@@ -150,7 +157,7 @@ codeunit 6301 "Power BI Service Mgt."
     [Scope('OnPrem')]
     procedure IsUserReadyForPowerBI(): Boolean
     begin
-        if not AzureAdMgt.IsAzureADAppSetupDone then
+        if not AzureAdMgt.IsAzureADAppSetupDone() then
             exit(false);
 
         exit(AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false) <> '');
@@ -160,7 +167,7 @@ codeunit 6301 "Power BI Service Mgt."
     var
         PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
     begin
-        exit(PowerBIUrlMgt.GetPowerBIResourceUrl);
+        exit(PowerBIUrlMgt.GetPowerBIResourceUrl());
     end;
 
     procedure GetPowerBiResourceName(): Text
@@ -230,12 +237,6 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
         ScheduledDateTime: DateTime;
     begin
-        // Schedules a background task to do default report deletion
-        if not CanHandleServiceCalls() then begin
-            Codeunit.Run(Codeunit::"Power BI Report Synchronizer"); // Run in foreground instead
-            exit;
-        end;
-
         if PowerBIServiceStatusSetup.FindFirst() and (PowerBIServiceStatusSetup."Retry After" > CurrentDateTime()) then
             ScheduledDateTime := PowerBIServiceStatusSetup."Retry After"
         else
@@ -248,21 +249,12 @@ codeunit 6301 "Power BI Service Mgt."
     [Scope('OnPrem')]
     procedure IsUserSynchronizingReports(): Boolean
     var
-#if not CLEAN18
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-#endif
         PowerBIUserStatus: Record "Power BI User Status";
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if PowerBIUserStatus.Get(UserSecurityId()) then
             if PowerBIUserStatus."Is Synchronizing" then
                 exit(true);
-
-#if not CLEAN18
-        if PowerBIOngoingDeployments.Get(UserSecurityId()) then
-            if PowerBIOngoingDeployments."Is Deploying Reports" or PowerBIOngoingDeployments."Is Deleting Reports" or PowerBIOngoingDeployments."Is Retrying Uploads" then
-                exit(true);
-#endif
 
         JobQueueEntry.SetRange("User ID", UserId());
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
@@ -316,14 +308,15 @@ codeunit 6301 "Power BI Service Mgt."
         exit(true);
     end;
 
-
+#if not CLEAN21
+    [Obsolete('Disabling the integration through AzureADMgtSetup has been discontinued. Remove permissions from single users instead.', '21.0')]
     procedure CanHandleServiceCalls() CanHandle: Boolean
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
     begin
         // Checks if the current codeunit is allowed to handle Power BI service requests rather than a mock.
         CanHandle := false;
-        if AzureADMgtSetup.Get then
+        if AzureADMgtSetup.Get() then
             CanHandle := (AzureADMgtSetup."PBI Service Mgt. Codeunit ID" = CODEUNIT::"Power BI Service Mgt.");
 
         if not CanHandle then
@@ -331,22 +324,43 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Global switch for Power BI report deployment is no longer supported.', '21.0')]
+    procedure IsPowerBIDeploymentEnabled(): Boolean
+    var
+        PowerBIBlob: Record "Power BI Blob";
+        DisabledForAppService: Boolean;
+    begin
+        DisabledForAppService := PowerBIBlob.Get(HackPowerBIGuidTxt);
+
+        if not DisabledForAppService then
+            exit(true);
+
+        Session.LogMessage('0000DZ0', StrSubstNo(DeploymentDisabledTelemetryMsg, false, DisabledForAppService), Verbosity::Normal,
+            DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
+        exit(false);
+    end;
+
+    [Scope('OnPrem')]
     [IntegrationEvent(false, false)]
+    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
     procedure OnGetReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
     begin
     end;
 
     [Scope('OnPrem')]
     [IntegrationEvent(false, false)]
+    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
     procedure OnUploadReports(var ApiRequestList: DotNet ImportReportRequestList; var ApiResponseList: DotNet ImportReportResponseList)
     begin
     end;
 
     [Scope('OnPrem')]
     [IntegrationEvent(false, false)]
+    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
     procedure OnRetryUploads(var ImportIdList: DotNet ImportedReportRequestList; var ApiResponseList: DotNet ImportedReportResponseList)
     begin
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure HasUploads(): Boolean
@@ -429,7 +443,7 @@ codeunit 6301 "Power BI Service Mgt."
             ExceptionMessage := Exception.Message;
             ExceptionDetails := Exception.ToString();
 
-            DotNetExceptionHandler.Collect;
+            DotNetExceptionHandler.Collect();
             if DotNetExceptionHandler.CastToType(WebException, GetDotNetType(WebException)) then begin // If this is true, WebException is not null
                 HttpWebResponse := WebException.Response;
                 if not IsNull(HttpWebResponse) then
@@ -500,46 +514,8 @@ codeunit 6301 "Power BI Service Mgt."
     var
         PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
     begin
-        exit(PowerBIUrlMgt.GetPowerBIReportsUrl);
+        exit(PowerBIUrlMgt.GetPowerBIReportsUrl());
     end;
-
-#if not CLEAN18
-    [Scope('OnPrem')]
-    procedure IsPowerBIDeploymentEnabled(): Boolean
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-        PowerBIBlob: Record "Power BI Blob";
-        DisabledForAppService: Boolean;
-        DisabledForTenant: Boolean;
-    begin
-        // First check for application service
-        DisabledForAppService := PowerBIBlob.Get(HackPowerBIGuidTxt);
-        DisabledForTenant := PowerBIOngoingDeployments.Get(HackPowerBIGuidTxt);
-
-        if not DisabledForAppService and not DisabledForTenant then
-            exit(true);
-
-        Session.LogMessage('0000DZ0', StrSubstNo(DeploymentDisabledTelemetryMsg, DisabledForTenant, DisabledForAppService), Verbosity::Normal,
-            DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
-        exit(false);
-    end;
-#else
-    [Scope('OnPrem')]
-    procedure IsPowerBIDeploymentEnabled(): Boolean
-    var
-        PowerBIBlob: Record "Power BI Blob";
-        DisabledForAppService: Boolean;
-    begin
-        DisabledForAppService := PowerBIBlob.Get(HackPowerBIGuidTxt);
-
-        if not DisabledForAppService then
-            exit(true);
-
-        Session.LogMessage('0000DZ0', StrSubstNo(DeploymentDisabledTelemetryMsg, false, DisabledForAppService), Verbosity::Normal,
-            DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
-        exit(false);
-    end;
-#endif
 
 #if not CLEAN19
     [Obsolete('This function was used to update old records just-in-time, and is no longer needed.', '19.0')]
@@ -598,20 +574,24 @@ codeunit 6301 "Power BI Service Mgt."
     procedure CheckPowerBITablePermissions(): Boolean
     var
         PowerBIBlob: Record "Power BI Blob";
+#if not CLEAN21
         PowerBIUserLicense: Record "Power BI User License";
+#endif
         PowerBIDefaultSelection: Record "Power BI Default Selection";
         PowerBIUserConfiguration: Record "Power BI User Configuration";
         AreBlobPermissionsValid: Boolean;
-        AreLicensePermissionsValid: Boolean;
         AreSelectionPermissionsValid: Boolean;
         AreUserConfigPermissionsValid: Boolean;
     begin
-        AreLicensePermissionsValid := PowerBIUserLicense.WritePermission and PowerBIUserLicense.ReadPermission;
+#if not CLEAN21
+        if not (PowerBIUserLicense.WritePermission and PowerBIUserLicense.ReadPermission) then
+            exit(false);
+#endif
         AreBlobPermissionsValid := PowerBIBlob.ReadPermission;
         AreSelectionPermissionsValid := PowerBIDefaultSelection.ReadPermission;
         AreUserConfigPermissionsValid := PowerBIUserConfiguration.WritePermission and PowerBIUserConfiguration.ReadPermission;
 
-        exit(AreLicensePermissionsValid and AreBlobPermissionsValid and AreSelectionPermissionsValid and AreUserConfigPermissionsValid);
+        exit(AreBlobPermissionsValid and AreSelectionPermissionsValid and AreUserConfigPermissionsValid);
     end;
 
     procedure GetPowerBiTelemetryCategory(): Text
@@ -630,252 +610,4 @@ codeunit 6301 "Power BI Service Mgt."
 
         exit(JobQueueCategory.Code);
     end;
-
-#if not CLEAN18
-    [Obsolete('User IsUserSynchronizingReports instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure GetIsDeployingReports(): Boolean
-    begin
-        exit(IsPowerBIDeploymentEnabled() and (IsUserDeployingReports() or IsUserRetryingUploads() or
-                                             IsUserDeletingReports() or IsUserSynchronizingReports()));
-    end;
-
-    [Obsolete('License check is no longer performed as a background task. Use CheckForPowerBILicenseInForeground instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure CheckForPowerBILicense(): Boolean
-    var
-        PowerBIReportUploads: Record "Power BI Report Uploads";
-    begin
-        // Checks whether the user has power bi license/account or not
-        if PowerBISessionManager.GetHasPowerBILicense() then
-            exit(true);
-
-        PowerBIReportUploads.Reset();
-        PowerBIReportUploads.SetFilter("User ID", UserSecurityId());
-
-        // Record in this table indicates the power bi service is already called on behalf of this user.
-        if not PowerBIReportUploads.IsEmpty() then begin
-            PowerBISessionManager.SetHasPowerBILicense(true);
-            exit(true);
-        end;
-
-        TaskScheduler.CreateTask(Codeunit::"PBI Check License Task", 0, true);
-
-        exit(false);
-    end;
-
-    [Obsolete('Use SynchronizeReportsInBackground instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure UploadDefaultReportInBackground()
-    begin
-        if not CanHandleServiceCalls() then begin
-            Codeunit.Run(Codeunit::"PBI Start Uploads Task");
-            exit;
-        end;
-        // Schedules a background task to do default report deployment (codeunit 6311 which calls back into
-        // the UploadAllDefaultReports method in this codeunit).
-        SetIsDeployingReports(true);
-        TaskScheduler.CreateTask(Codeunit::"PBI Start Uploads Task", Codeunit::"PBI Deployment Failure", true);
-    end;
-
-    [Obsolete('Run codeunit "Power BI Report Synchronizer" instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure UploadDefaultReport()
-    begin
-        Codeunit.Run(Codeunit::"Power BI Report Synchronizer");
-        SetIsSynchronizing(false);
-    end;
-
-    [Obsolete('Use SynchronizeReportsInBackground instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure RetryUnfinishedReportsInBackground()
-    begin
-        if not CanHandleServiceCalls() then begin
-            Codeunit.Run(Codeunit::"PBI Retry Uploads Task");
-            exit;
-        end;
-        // Schedules a background task to do completion of partial uploads (codeunit 6312 which calls
-        // back into the RetryAllPartialReportUploads method in this codeunit).
-        SetIsRetryingUploads(true);
-        TaskScheduler.CreateTask(Codeunit::"PBI Retry Uploads Task", Codeunit::"PBI Retry Failure", true);
-    end;
-
-    [Obsolete('Run codeunit "Power BI Report Synchronizer" instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure RetryAllPartialReportUploads()
-    begin
-        // Starts a sequence of default report deployments for any reports that only partially finished.
-        // Prioritizes the active role center over other reports since the user will probably see those first.
-        // Unlike UploadAllDefaultReports, doesn't end early if anything failed - want to avoid getting stuck
-        // on a faulty report.
-        // Should only be called as part of a background session to reduce perf impact (see RetryUnfinishedReportsInBackground).
-        Codeunit.Run(Codeunit::"Power BI Report Synchronizer");
-
-        SetIsRetryingUploads(false);
-    end;
-
-    [Obsolete('Use PowerBIReportSynchronizer.SelectDefaultReports instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure SelectDefaultReports()
-    var
-        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
-    begin
-        PowerBIReportSynchronizer.SelectDefaultReports();
-    end;
-
-    [Obsolete('Use SynchronizeReportsInBackground instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure DeleteDefaultReportsInBackground()
-    begin
-        // Schedules a background task to do default report deletion (codeunit 6315 which calls back into
-        // the DeleteMarkedDefaultReports method in this codeunit).
-        SetIsDeletingReports(true);
-        TaskScheduler.CreateTask(Codeunit::"PBI Start Deletions Task", Codeunit::"PBI Deletion Failure", true);
-    end;
-
-    [Obsolete('Run codeunit "Power BI Report Synchronizer" instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure DeleteMarkedDefaultReports()
-    begin
-        Codeunit.Run(Codeunit::"Power BI Report Synchronizer");
-
-        SetIsDeletingReports(false);
-    end;
-
-    [Obsolete('Use PowerBIReportSynchronizer.UserNeedsToSynchronize instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure UserNeedsToDeployReports(Context: Text[50]): Boolean
-    var
-        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
-    begin
-        exit(PowerBIReportSynchronizer.UserNeedsToSynchronize(Context));
-    end;
-
-    [Obsolete('Use PowerBIReportSynchronizer.UserNeedsToSynchronize instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure UserNeedsToRetryUploads(): Boolean
-    var
-        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
-    begin
-        exit(PowerBIReportSynchronizer.UserNeedsToSynchronize(''));
-    end;
-
-    [Obsolete('Use PowerBIReportSynchronizer.UserNeedsToSynchronize instead', '18.0')]
-    [Scope('OnPrem')]
-    procedure UserNeedsToDeleteReports(): Boolean
-    var
-        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
-    begin
-        exit(PowerBIReportSynchronizer.UserNeedsToSynchronize(''));
-    end;
-
-    [Obsolete('Use IsUserSynchronizingReports instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure IsUserDeployingReports(): Boolean
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-    begin
-        // Checks whether any background sessions are running (or waiting to run) for doing PBI default
-        // report uploads, based on the values in table 6308.
-        PowerBIOngoingDeployments.Reset();
-        PowerBIOngoingDeployments.SetFilter("User Security ID", UserSecurityId());
-        exit(PowerBIOngoingDeployments.FindFirst() and PowerBIOngoingDeployments."Is Deploying Reports");
-    end;
-
-    [Obsolete('Use IsUserSynchronizingReports instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure IsUserRetryingUploads(): Boolean
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-    begin
-        // Checks whether any background sessions are running (or waiting to run) for finishing partial
-        // uploads of PBI default reports, based on the values in table 6308.
-        PowerBIOngoingDeployments.Reset();
-        PowerBIOngoingDeployments.SetFilter("User Security ID", UserSecurityId());
-        exit(PowerBIOngoingDeployments.FindFirst() and PowerBIOngoingDeployments."Is Retrying Uploads");
-    end;
-
-    [Obsolete('Use IsUserSynchronizingReports instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure IsUserDeletingReports(): Boolean
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-    begin
-        // Checks whether any background sessions are running (or waiting to run) for deleting any
-        // uploaded PBI default reports, based on the values in table 6308.
-        PowerBIOngoingDeployments.Reset();
-        PowerBIOngoingDeployments.SetFilter("User Security ID", UserSecurityId());
-        exit(PowerBIOngoingDeployments.FindFirst() and PowerBIOngoingDeployments."Is Deleting Reports");
-    end;
-
-    [Obsolete('Use SetIsSynchronizing instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure SetIsDeployingReports(IsDeploying: Boolean)
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-    begin
-        // Sets values in table 6308 to indicate a report deployment session is currently running or
-        // waiting to run. This lets us make sure we don't schedule any simulatenous sessions that would
-        // accidentally deploy a report multiple times or something.
-        SendPowerBiOngoingDeploymentsTelemetry(PowerBIOngoingDeployments.FieldCaption("Is Deploying Reports"), IsDeploying);
-        PowerBIOngoingDeployments.LockTable();
-
-        if PowerBIOngoingDeployments.Get(UserSecurityId()) then begin
-            PowerBIOngoingDeployments."Is Deploying Reports" := IsDeploying;
-            PowerBIOngoingDeployments.Modify();
-        end else begin
-            PowerBIOngoingDeployments.Init();
-            PowerBIOngoingDeployments."User Security ID" := UserSecurityId();
-            PowerBIOngoingDeployments."Is Deploying Reports" := IsDeploying;
-            PowerBIOngoingDeployments.Insert();
-        end;
-    end;
-
-    [Obsolete('Use SetIsSynchronizing instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure SetIsRetryingUploads(IsRetrying: Boolean)
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-    begin
-        // Sets values in table 6308 to indicate a deployment retry session is currently running or
-        // waiting to run. This lets us make sure we don't schedule any simulatenous sessions that would
-        // accidentally retry an upload multiple times or something.
-        SendPowerBiOngoingDeploymentsTelemetry(PowerBIOngoingDeployments.FieldCaption("Is Retrying Uploads"), IsRetrying);
-        PowerBIOngoingDeployments.LockTable();
-
-        if PowerBIOngoingDeployments.Get(UserSecurityId()) then begin
-            PowerBIOngoingDeployments."Is Retrying Uploads" := IsRetrying;
-            PowerBIOngoingDeployments.Modify();
-        end else begin
-            PowerBIOngoingDeployments.Init();
-            PowerBIOngoingDeployments."User Security ID" := UserSecurityId();
-            PowerBIOngoingDeployments."Is Retrying Uploads" := IsRetrying;
-            PowerBIOngoingDeployments.Insert();
-        end;
-    end;
-
-    [Obsolete('Use SetIsSynchronizing instead.', '18.0')]
-    [Scope('OnPrem')]
-    procedure SetIsDeletingReports(IsDeleting: Boolean)
-    var
-        PowerBIOngoingDeployments: Record "Power BI Ongoing Deployments";
-    begin
-        // Sets values in table 6308 to indicate a report deletion session is currently running or
-        // waiting to run. This lets us make sure we don't schedule any simultaneous sessions that would
-        // accidentally delete a report that is already trying to delete or something.
-        SendPowerBiOngoingDeploymentsTelemetry(PowerBIOngoingDeployments.FieldCaption("Is Deleting Reports"), IsDeleting);
-        PowerBIOngoingDeployments.LockTable();
-
-        if PowerBIOngoingDeployments.Get(UserSecurityId()) then begin
-            PowerBIOngoingDeployments."Is Deleting Reports" := IsDeleting;
-            PowerBIOngoingDeployments.Modify();
-        end else begin
-            PowerBIOngoingDeployments.Init();
-            PowerBIOngoingDeployments."User Security ID" := UserSecurityId();
-            PowerBIOngoingDeployments."Is Deleting Reports" := IsDeleting;
-            PowerBIOngoingDeployments.Insert();
-        end;
-    end;
-#endif
-
 }

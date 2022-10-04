@@ -111,13 +111,13 @@ table 9650 "Custom Report Layout"
         TestField("Report ID");
         if Code = '' then
             Code := GetDefaultCode("Report ID");
-        SetUpdated;
+        SetUpdated();
     end;
 
     trigger OnModify()
     begin
         TestField("Report ID");
-        SetUpdated;
+        SetUpdated();
     end;
 
     var
@@ -184,7 +184,7 @@ table 9650 "Custom Report Layout"
                 OnInitBuiltInLayout(CustomReportLayout, ReportID, LayoutType);
         end;
 
-        CustomReportLayout.SetDefaultCustomXmlPart;
+        CustomReportLayout.SetDefaultCustomXmlPart();
         CustomReportLayout.SetLayoutLastUpdated();
 
         exit(CustomReportLayout.Code);
@@ -203,14 +203,14 @@ table 9650 "Custom Report Layout"
             if Evaluate(ReportID, GetFilter("Report ID")) then
                 ReportLayoutLookup.SetReportID(ReportID);
         FilterGroup(0);
-        if ReportLayoutLookup.RunModal = ACTION::OK then begin
-            if ReportLayoutLookup.SelectedAddWordLayot then
-                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID, Type::Word.AsInteger());
-            if ReportLayoutLookup.SelectedAddRdlcLayot then
-                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID, Type::RDLC.AsInteger());
+        if ReportLayoutLookup.RunModal() = ACTION::OK then begin
+            if ReportLayoutLookup.SelectedAddWordLayot() then
+                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID(), Type::Word.AsInteger());
+            if ReportLayoutLookup.SelectedAddRdlcLayot() then
+                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID(), Type::RDLC.AsInteger());
 
-            LayoutSelected := ReportLayoutLookup.SelectedAddWordLayot OR ReportLayoutLookup.SelectedAddRdlcLayot;
-            IF (NOT LayoutSelected) AND (NOT ReportLayoutLookup.InitCustomTypeLayouts) THEN
+            LayoutSelected := ReportLayoutLookup.SelectedAddWordLayot() OR ReportLayoutLookup.SelectedAddRdlcLayot();
+            IF (NOT LayoutSelected) AND (NOT ReportLayoutLookup.InitCustomTypeLayouts()) THEN
                 MESSAGE(NoLayoutSelectedMsg);
         end;
     end;
@@ -225,8 +225,8 @@ table 9650 "Custom Report Layout"
         CustomLayoutCode: Code[20];
     begin
         // Temporarily selected layout for Design-time report execution?
-        if ReportLayoutSelection.GetTempLayoutSelected <> '' then
-            CustomLayoutCode := ReportLayoutSelection.GetTempLayoutSelected
+        if ReportLayoutSelection.GetTempLayoutSelected() <> '' then
+            CustomLayoutCode := ReportLayoutSelection.GetTempLayoutSelected()
         else  // Normal selection
             if ReportLayoutSelection.HasCustomLayout(ReportID) = 1 then
                 CustomLayoutCode := ReportLayoutSelection."Custom Report Layout Code";
@@ -237,7 +237,7 @@ table 9650 "Custom Report Layout"
             TestField(Type, Type::RDLC);
             if UpdateReportLayout(true, false) then
                 Commit(); // Save the updated layout
-            RdlcTxt := GetLayout;
+            RdlcTxt := GetLayout();
         end else begin
             REPORT.RdlcLayout(ReportID, InStream);
             InStream.Read(RdlcTxt);
@@ -269,8 +269,8 @@ table 9650 "Custom Report Layout"
             SetLayoutBlob(TempBlob);
         end;
 
-        if not HasCustomXmlPart then
-            SetDefaultCustomXmlPart;
+        if not HasCustomXmlPart() then
+            SetDefaultCustomXmlPart();
 
         exit(Code);
     end;
@@ -286,7 +286,7 @@ table 9650 "Custom Report Layout"
         if IsEmpty() then
             Error(NoRecordsErr);
 
-        if not CanBeModified then
+        if not CanBeModified() then
             exit;
 
         case Type of
@@ -352,7 +352,7 @@ table 9650 "Custom Report Layout"
 
         if FileExtension <> '' then
             "File Extension" := FileExtension;
-        SetDefaultCustomXmlPart;
+        SetDefaultCustomXmlPart();
         Modify(true);
         SetLayoutLastUpdated();
         Commit();
@@ -374,11 +374,11 @@ table 9650 "Custom Report Layout"
             UpdateReportLayout(true, false); // Don't block on errors (return false) as we in all cases want to have an export file to edit.
 
         GetLayoutBlob(TempBlob);
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit('');
 
         if DefaultFileName = '' then
-            DefaultFileName := '*.' + GetFileExtension;
+            DefaultFileName := '*.' + GetFileExtension();
 
         exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
@@ -393,7 +393,7 @@ table 9650 "Custom Report Layout"
     begin
         TestField("Report ID");
         GetLayoutBlob(TempBlob);
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
 
         TempBlob.CreateInStream(DocumentInStream);
@@ -456,7 +456,7 @@ table 9650 "Custom Report Layout"
         StoredCustomXmlPart: Text;
         ErrorMessage: Text;
     begin
-        TestCustomXmlPart;
+        TestCustomXmlPart();
         TestField("Report ID");
         CurrentCustomXmlPart := GetWordXmlPart("Report ID");
         StoredCustomXmlPart := GetCustomXmlPart();
@@ -466,7 +466,7 @@ table 9650 "Custom Report Layout"
                 exit(''); // no need to update
 
         GetLayoutBlob(InTempBlob);
-        if not InTempBlob.HasValue then
+        if not InTempBlob.HasValue() then
             exit('');
         InTempBlob.CreateInStream(DocumentInStream);
 
@@ -486,7 +486,7 @@ table 9650 "Custom Report Layout"
 
         SetCustomXmlPart(CurrentCustomXmlPart);
 
-        if OutTempBlob.HasValue then
+        if OutTempBlob.HasValue() then
             SetLayoutBlob(OutTempBlob);
 
         SetLayoutLastUpdated();
@@ -521,7 +521,7 @@ table 9650 "Custom Report Layout"
             DefaultFileName := '*.xml';
 
         GetWordXML(TempBlob);
-        if TempBlob.HasValue then
+        if TempBlob.HasValue() then
             exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
 
@@ -569,7 +569,7 @@ table 9650 "Custom Report Layout"
         ModifyLayout: Boolean;
     begin
         GetLayoutBlob(InTempBlob);
-        if not InTempBlob.HasValue then
+        if not InTempBlob.HasValue() then
             exit;
 
         if ReportUpgrade.ChangeCount < 1 then
@@ -595,10 +595,10 @@ table 9650 "Custom Report Layout"
 
         if not testOnly then begin
             if TempReportChangeLogCollection.Failures = 0 then begin
-                SetDefaultCustomXmlPart;
+                SetDefaultCustomXmlPart();
                 ModifyLayout := true;
             end;
-            if OutTempBlob.HasValue then begin
+            if OutTempBlob.HasValue() then begin
                 SetLayoutBlob(OutTempBlob);
                 ModifyLayout := true;
             end;
@@ -606,12 +606,11 @@ table 9650 "Custom Report Layout"
                 Commit();
         end;
 
-        if TempReportChangeLogCollection.Count > 0 then begin
+        if TempReportChangeLogCollection.Count > 0 then
             if IsNull(ReportChangeLogCollection) then
                 ReportChangeLogCollection := TempReportChangeLogCollection
             else
                 ReportChangeLogCollection.AddRange(TempReportChangeLogCollection);
-        end;
     end;
 
     [TryFunction]
@@ -626,7 +625,7 @@ table 9650 "Custom Report Layout"
 
     local procedure FilterOnReport(ReportID: Integer)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Report ID", "Company Name", Type);
         SetFilter("Company Name", '%1|%2', '', StrSubstNo('@%1', CompanyName));
         SetRange("Report ID", ReportID);
@@ -713,29 +712,29 @@ table 9650 "Custom Report Layout"
     procedure HasLayout(): Boolean
     begin
         if "Built-In" then
-            exit(HasBuiltInLayout);
-        exit(HasNonBuiltInLayout);
+            exit(HasBuiltInLayout());
+        exit(HasNonBuiltInLayout());
     end;
 
     procedure HasCustomXmlPart(): Boolean
     begin
         if "Built-In" then
-            exit(HasBuiltInCustomXmlPart);
-        exit(HasNonBuiltInCustomXmlPart);
+            exit(HasBuiltInCustomXmlPart());
+        exit(HasNonBuiltInCustomXmlPart());
     end;
 
     procedure GetLayout(): Text
     begin
         if "Built-In" then
-            exit(GetBuiltInLayout);
-        exit(GetNonBuiltInLayout);
+            exit(GetBuiltInLayout());
+        exit(GetNonBuiltInLayout());
     end;
 
     procedure GetCustomXmlPart(): Text
     begin
         if "Built-In" then
-            exit(GetBuiltInCustomXmlPart);
-        exit(GetNonBuiltInCustomXmlPart);
+            exit(GetBuiltInCustomXmlPart());
+        exit(GetNonBuiltInCustomXmlPart());
     end;
 
     procedure GetLayoutBlob(var TempBlob: Codeunit "Temp Blob")
@@ -774,7 +773,7 @@ table 9650 "Custom Report Layout"
             exit(false);
         if not WritePermission then
             exit(false);
-        if not User.Get(UserSecurityId) then
+        if not User.Get(UserSecurityId()) then
             exit(true);
         exit(User."License Type" <> User."License Type"::"Limited User");
     end;
@@ -833,13 +832,13 @@ table 9650 "Custom Report Layout"
         if "Built-In" then
             Error(ModifyBuiltInLayoutErr);
         Clear(Layout);
-        if TempBlob.HasValue then begin
+        if TempBlob.HasValue() then begin
             RecordRef.GetTable(Rec);
             TempBlob.ToRecordRef(RecordRef, FieldNo(Layout));
             RecordRef.SetTable(Rec);
         end;
-        if CanModify then
-            Modify;
+        if CanModify() then
+            Modify();
     end;
 
     local procedure HasNonBuiltInLayout(): Boolean
@@ -882,7 +881,7 @@ table 9650 "Custom Report Layout"
         Content: Text;
     begin
         CalcFields(Layout);
-        if not Layout.HasValue then
+        if not Layout.HasValue() then
             exit('');
 
         case Type of
@@ -904,7 +903,7 @@ table 9650 "Custom Report Layout"
         Content: Text;
     begin
         CalcFields("Custom XML Part");
-        if not "Custom XML Part".HasValue then
+        if not "Custom XML Part".HasValue() then
             exit('');
 
         "Custom XML Part".CreateInStream(InStr, TEXTENCODING::UTF16);
@@ -922,7 +921,7 @@ table 9650 "Custom Report Layout"
             exit('');
 
         ReportLayout.CalcFields(Layout);
-        if not ReportLayout.Layout.HasValue then
+        if not ReportLayout.Layout.HasValue() then
             exit('');
 
         case Type of
@@ -946,7 +945,7 @@ table 9650 "Custom Report Layout"
             exit('');
 
         ReportLayout.CalcFields("Custom XML Part");
-        if not ReportLayout."Custom XML Part".HasValue then
+        if not ReportLayout."Custom XML Part".HasValue() then
             exit('');
 
         ReportLayout."Custom XML Part".CreateInStream(InStr, TEXTENCODING::UTF16);
@@ -968,8 +967,8 @@ table 9650 "Custom Report Layout"
             end;
             OutStr.Write(Content);
         end;
-        if CanModify then
-            Modify;
+        if CanModify() then
+            Modify();
     end;
 
     local procedure SetNonBuiltInCustomXmlPart(Content: Text)
@@ -982,8 +981,8 @@ table 9650 "Custom Report Layout"
             OutStr.Write(Content);
         end;
 
-        if CanModify then
-            Modify;
+        if CanModify() then
+            Modify();
     end;
 
     internal procedure SetLayoutLastUpdated()

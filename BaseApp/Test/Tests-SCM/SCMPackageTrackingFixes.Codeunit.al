@@ -161,7 +161,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', '', '', Qty);
         ReservationEntry.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
         ReservationEntry.Validate("Package No.", PackageNo[1]);
-        ReservationEntry.UpdateItemTracking;
+        ReservationEntry.UpdateItemTracking();
         ReservationEntry.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', PackageNo[1], Qty);
@@ -188,7 +188,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
         // [WHEN] Post Item Journal Line without "Package No." assigned
         LibraryInventory.CreateItemJnlLine(
-          ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", WorkDate, Item."No.", LibraryRandom.RandInt(100), Location.Code);
+          ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", LibraryRandom.RandInt(100), Location.Code);
         asserterror LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
         // [THEN] Error Message "Package Number required. Line No. = '10000'" is shown
@@ -442,7 +442,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
         LibraryInventory.CreateItemJnlLine(
-          ItemJnlLine, EntryType, WorkDate, Item."No.", LibraryRandom.RandInt(100), Location.Code);
+          ItemJnlLine, EntryType, WorkDate(), Item."No.", LibraryRandom.RandInt(100), Location.Code);
 
         asserterror LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
         Assert.ExpectedError(StrSubstNo(PackageNumberIsRequired, Item."No."));

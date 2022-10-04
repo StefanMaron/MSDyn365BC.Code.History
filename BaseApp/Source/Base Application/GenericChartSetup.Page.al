@@ -44,8 +44,8 @@ page 9183 "Generic Chart Setup"
                         CalledFrom: Option "Source Type","Source ID";
                     begin
                         ResetFields(CalledFrom::"Source Type");
-                        UpdateChartDefinition;
-                        StoreTempXRecValues
+                        UpdateChartDefinition();
+                        StoreTempXRecValues()
                     end;
 
                     trigger OnValidate()
@@ -53,8 +53,8 @@ page 9183 "Generic Chart Setup"
                         CalledFrom: Option "Source Type","Source ID";
                     begin
                         ResetFields(CalledFrom::"Source Type");
-                        UpdateChartDefinition;
-                        StoreTempXRecValues
+                        UpdateChartDefinition();
+                        StoreTempXRecValues()
                     end;
                 }
                 field("Source ID"; TempGenericChartSetup."Source ID")
@@ -74,8 +74,8 @@ page 9183 "Generic Chart Setup"
                         ResetFields(CalledFrom::"Source ID");
                         GenericChartMgt.ValidateObjectID(
                           TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartSetup."Object Name");
-                        UpdateChartDefinition;
-                        StoreTempXRecValues
+                        UpdateChartDefinition();
+                        StoreTempXRecValues()
                     end;
 
                     trigger OnValidate()
@@ -86,8 +86,8 @@ page 9183 "Generic Chart Setup"
                         ResetFields(CalledFrom::"Source ID");
                         GenericChartMgt.ValidateObjectID(
                           TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartSetup."Object Name");
-                        UpdateChartDefinition;
-                        StoreTempXRecValues
+                        UpdateChartDefinition();
+                        StoreTempXRecValues()
                     end;
                 }
                 field("Source Name"; TempGenericChartSetup."Object Name")
@@ -99,7 +99,7 @@ page 9183 "Generic Chart Setup"
 
                     trigger OnValidate()
                     begin
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
                 field("TempGenericChartSetup.""Filter Text"""; TempGenericChartSetup."Filter Text")
@@ -111,7 +111,7 @@ page 9183 "Generic Chart Setup"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowChartFiltersPage;
+                        ShowChartFiltersPage();
                         CurrPage.Update();
                     end;
                 }
@@ -161,7 +161,7 @@ page 9183 "Generic Chart Setup"
                             trigger OnValidate()
                             begin
                                 CheckAggregation(1);
-                                UpdateChartDefinition;
+                                UpdateChartDefinition();
                             end;
                         }
                         field(RequiredMeasureType; ChartType)
@@ -173,8 +173,8 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnValidate()
                             begin
-                                UpdateChartDefinition;
-                                EnableControls;
+                                UpdateChartDefinition();
+                                EnableControls();
                             end;
                         }
                         field(RequiredMeasureCaption; MeasureCaption[1])
@@ -189,14 +189,14 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnAssistEdit()
                             begin
-                                MeasureCaption[1] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.RequiredMeasureCode);
-                                UpdateChartDefinition;
+                                MeasureCaption[1] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.RequiredMeasureCode());
+                                UpdateChartDefinition();
                             end;
 
                             trigger OnValidate()
                             begin
-                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.RequiredMeasureCode, GenericChartMgt.GetUserLanguage, MeasureCaption[1]);
-                                UpdateChartDefinition;
+                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.RequiredMeasureCode(), GenericChartMgt.GetUserLanguage(), MeasureCaption[1]);
+                                UpdateChartDefinition();
                             end;
                         }
                     }
@@ -232,7 +232,7 @@ page 9183 "Generic Chart Setup"
                             trigger OnValidate()
                             begin
                                 CheckAggregation(2);
-                                UpdateChartDefinition;
+                                UpdateChartDefinition();
                             end;
                         }
                         field(OptionalMeasureType1; ChartTypeReduced[2])
@@ -245,8 +245,8 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnValidate()
                             begin
-                                UpdateChartDefinition;
-                                EnableControls;
+                                UpdateChartDefinition();
+                                EnableControls();
                             end;
                         }
                         field(OptionalMeasureCaption1; MeasureCaption[2])
@@ -258,14 +258,14 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnAssistEdit()
                             begin
-                                MeasureCaption[2] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure1Code);
-                                UpdateChartDefinition;
+                                MeasureCaption[2] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure1Code());
+                                UpdateChartDefinition();
                             end;
 
                             trigger OnValidate()
                             begin
-                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure1Code, GenericChartMgt.GetUserLanguage, MeasureCaption[2]);
-                                UpdateChartDefinition;
+                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure1Code(), GenericChartMgt.GetUserLanguage(), MeasureCaption[2]);
+                                UpdateChartDefinition();
                             end;
                         }
                     }
@@ -301,7 +301,7 @@ page 9183 "Generic Chart Setup"
                             trigger OnValidate()
                             begin
                                 CheckAggregation(3);
-                                UpdateChartDefinition;
+                                UpdateChartDefinition();
                             end;
                         }
                         field(OptionalMeasureType2; ChartTypeReduced[3])
@@ -314,8 +314,8 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnValidate()
                             begin
-                                UpdateChartDefinition;
-                                EnableControls;
+                                UpdateChartDefinition();
+                                EnableControls();
                             end;
                         }
                         field(OptionalMeasureCaption2; MeasureCaption[3])
@@ -327,14 +327,14 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnAssistEdit()
                             begin
-                                MeasureCaption[3] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure2Code);
-                                UpdateChartDefinition;
+                                MeasureCaption[3] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure2Code());
+                                UpdateChartDefinition();
                             end;
 
                             trigger OnValidate()
                             begin
-                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure2Code, GenericChartMgt.GetUserLanguage, MeasureCaption[3]);
-                                UpdateChartDefinition;
+                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure2Code(), GenericChartMgt.GetUserLanguage(), MeasureCaption[3]);
+                                UpdateChartDefinition();
                             end;
                         }
                     }
@@ -370,7 +370,7 @@ page 9183 "Generic Chart Setup"
                             trigger OnValidate()
                             begin
                                 CheckAggregation(4);
-                                UpdateChartDefinition;
+                                UpdateChartDefinition();
                             end;
                         }
                         field(OptionalMeasureType3; ChartTypeReduced[4])
@@ -383,8 +383,8 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnValidate()
                             begin
-                                UpdateChartDefinition;
-                                EnableControls;
+                                UpdateChartDefinition();
+                                EnableControls();
                             end;
                         }
                         field(OptionalMeasureCaption3; MeasureCaption[4])
@@ -396,14 +396,14 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnAssistEdit()
                             begin
-                                MeasureCaption[4] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure3Code);
-                                UpdateChartDefinition;
+                                MeasureCaption[4] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure3Code());
+                                UpdateChartDefinition();
                             end;
 
                             trigger OnValidate()
                             begin
-                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure3Code, GenericChartMgt.GetUserLanguage, MeasureCaption[4]);
-                                UpdateChartDefinition;
+                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure3Code(), GenericChartMgt.GetUserLanguage(), MeasureCaption[4]);
+                                UpdateChartDefinition();
                             end;
                         }
                     }
@@ -439,7 +439,7 @@ page 9183 "Generic Chart Setup"
                             trigger OnValidate()
                             begin
                                 CheckAggregation(5);
-                                UpdateChartDefinition;
+                                UpdateChartDefinition();
                             end;
                         }
                         field(OptionalMeasureType4; ChartTypeReduced[5])
@@ -452,8 +452,8 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnValidate()
                             begin
-                                UpdateChartDefinition;
-                                EnableControls;
+                                UpdateChartDefinition();
+                                EnableControls();
                             end;
                         }
                         field(OptionalMeasureCaption4; MeasureCaption[5])
@@ -465,14 +465,14 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnAssistEdit()
                             begin
-                                MeasureCaption[5] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure4Code);
-                                UpdateChartDefinition;
+                                MeasureCaption[5] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure4Code());
+                                UpdateChartDefinition();
                             end;
 
                             trigger OnValidate()
                             begin
-                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure4Code, GenericChartMgt.GetUserLanguage, MeasureCaption[5]);
-                                UpdateChartDefinition;
+                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure4Code(), GenericChartMgt.GetUserLanguage(), MeasureCaption[5]);
+                                UpdateChartDefinition();
                             end;
                         }
                     }
@@ -508,7 +508,7 @@ page 9183 "Generic Chart Setup"
                             trigger OnValidate()
                             begin
                                 CheckAggregation(6);
-                                UpdateChartDefinition;
+                                UpdateChartDefinition();
                             end;
                         }
                         field(OptionalMeasureType5; ChartTypeReduced[6])
@@ -521,8 +521,8 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnValidate()
                             begin
-                                UpdateChartDefinition;
-                                EnableControls;
+                                UpdateChartDefinition();
+                                EnableControls();
                             end;
                         }
                         field(OptionalMeasureCaption5; MeasureCaption[6])
@@ -534,14 +534,14 @@ page 9183 "Generic Chart Setup"
 
                             trigger OnAssistEdit()
                             begin
-                                MeasureCaption[6] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure5Code);
-                                UpdateChartDefinition;
+                                MeasureCaption[6] := GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.OptionalMeasure5Code());
+                                UpdateChartDefinition();
                             end;
 
                             trigger OnValidate()
                             begin
-                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure5Code, GenericChartMgt.GetUserLanguage, MeasureCaption[6]);
-                                UpdateChartDefinition;
+                                TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.OptionalMeasure5Code(), GenericChartMgt.GetUserLanguage(), MeasureCaption[6]);
+                                UpdateChartDefinition();
                             end;
                         }
                     }
@@ -555,15 +555,15 @@ page 9183 "Generic Chart Setup"
                     trigger OnAssistEdit()
                     begin
                         TempGenericChartSetup."Y-Axis Title" :=
-                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.YAxisTitleCode);
-                        UpdateChartDefinition;
+                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.YAxisTitleCode());
+                        UpdateChartDefinition();
                     end;
 
                     trigger OnValidate()
                     begin
-                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.YAxisTitleCode, GenericChartMgt.GetUserLanguage,
+                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.YAxisTitleCode(), GenericChartMgt.GetUserLanguage(),
                           TempGenericChartSetup."Y-Axis Title");
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
                 field("Show Y-Axis Title"; TempGenericChartSetup."Y-Axis Show Title")
@@ -577,7 +577,7 @@ page 9183 "Generic Chart Setup"
                         GenericChartMgt: Codeunit "Generic Chart Mgt";
                     begin
                         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
             }
@@ -596,7 +596,7 @@ page 9183 "Generic Chart Setup"
                     begin
                         with TempGenericChartSetup do
                             GenericChartMgt.RetrieveFieldColumn(TempGenericChartSetup, "X-Axis Field ID", "X-Axis Field Name", "X-Axis Title", 0, false);
-                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisTitleCode, GenericChartMgt.GetUserLanguage,
+                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisTitleCode(), GenericChartMgt.GetUserLanguage(),
                           TempGenericChartSetup."X-Axis Title");
                         ValidateDimension(1);
                     end;
@@ -615,15 +615,15 @@ page 9183 "Generic Chart Setup"
                     trigger OnAssistEdit()
                     begin
                         TempGenericChartSetup."X-Axis Title" :=
-                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.XAxisTitleCode);
-                        UpdateChartDefinition;
+                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.XAxisTitleCode());
+                        UpdateChartDefinition();
                     end;
 
                     trigger OnValidate()
                     begin
-                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisTitleCode, GenericChartMgt.GetUserLanguage,
+                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisTitleCode(), GenericChartMgt.GetUserLanguage(),
                           TempGenericChartSetup."X-Axis Title");
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
                 field("Show X-Axis Title"; TempGenericChartSetup."X-Axis Show Title")
@@ -637,7 +637,7 @@ page 9183 "Generic Chart Setup"
                         GenericChartMgt: Codeunit "Generic Chart Mgt";
                     begin
                         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
                 field("Data Point X Label"; TempGenericChartSetup."X-Axis Field Caption")
@@ -649,15 +649,15 @@ page 9183 "Generic Chart Setup"
                     trigger OnAssistEdit()
                     begin
                         TempGenericChartSetup."X-Axis Field Caption" :=
-                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.XAxisCaptionCode);
-                        UpdateChartDefinition;
+                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.XAxisCaptionCode());
+                        UpdateChartDefinition();
                     end;
 
                     trigger OnValidate()
                     begin
-                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisCaptionCode, GenericChartMgt.GetUserLanguage,
+                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisCaptionCode(), GenericChartMgt.GetUserLanguage(),
                           TempGenericChartSetup."X-Axis Field Caption");
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
                 field("Z-Axis Field"; TempGenericChartSetup."Z-Axis Field Name")
@@ -691,15 +691,15 @@ page 9183 "Generic Chart Setup"
                     trigger OnAssistEdit()
                     begin
                         TempGenericChartSetup."Z-Axis Field Caption" :=
-                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.ZAxisCaptionCode);
-                        UpdateChartDefinition;
+                          GenericChartMgt.TextMLAssistEdit(TempGenericChartCaptionsBuf, GenericChartMgt.ZAxisCaptionCode());
+                        UpdateChartDefinition();
                     end;
 
                     trigger OnValidate()
                     begin
-                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.ZAxisCaptionCode, GenericChartMgt.GetUserLanguage,
+                        TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.ZAxisCaptionCode(), GenericChartMgt.GetUserLanguage(),
                           TempGenericChartSetup."Z-Axis Field Caption");
-                        UpdateChartDefinition;
+                        UpdateChartDefinition();
                     end;
                 }
             }
@@ -716,14 +716,14 @@ page 9183 "Generic Chart Setup"
 
                     trigger OnAssistEdit()
                     begin
-                        ChartDescription := GenericChartMgt.MemoMLAssistEdit(TempGenericChartMemoBuf, GenericChartMgt.DescriptionCode);
-                        UpdateChartDefinition;
+                        ChartDescription := GenericChartMgt.MemoMLAssistEdit(TempGenericChartMemoBuf, GenericChartMgt.DescriptionCode());
+                        UpdateChartDefinition();
                     end;
 
                     trigger OnValidate()
                     begin
-                        TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage, ChartDescription);
-                        UpdateChartDefinition;
+                        TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode(), GenericChartMgt.GetUserLanguage(), ChartDescription);
+                        UpdateChartDefinition();
                     end;
                 }
             }
@@ -745,14 +745,11 @@ page 9183 "Generic Chart Setup"
                 Caption = 'Import Chart';
                 Ellipsis = true;
                 Image = Import;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Import a generic chart in XML format.';
 
                 trigger OnAction()
                 begin
-                    ImportChartDefinition;
+                    ImportChartDefinition();
                 end;
             }
             action("E&xport Chart")
@@ -761,14 +758,11 @@ page 9183 "Generic Chart Setup"
                 Caption = 'E&xport Chart';
                 Ellipsis = true;
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Export a generic chart in XML format. You can rename the file, modify the chart definition using an XML editor, and then import the new chart into another client.';
 
                 trigger OnAction()
                 begin
-                    ExportChartDefinition;
+                    ExportChartDefinition();
                 end;
             }
             action("Copy Chart")
@@ -777,9 +771,6 @@ page 9183 "Generic Chart Setup"
                 Caption = 'Copy Chart';
                 Ellipsis = true;
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Copy an existing chart to create a new generic chart.';
 
                 trigger OnAction()
@@ -798,24 +789,41 @@ page 9183 "Generic Chart Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Filters';
                 Image = EditFilter;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Filter on the generic charts.';
 
                 trigger OnAction()
                 begin
-                    ShowChartFiltersPage;
+                    ShowChartFiltersPage();
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Import Chart_Promoted"; "Import Chart")
+                {
+                }
+                actionref("E&xport Chart_Promoted"; "E&xport Chart")
+                {
+                }
+                actionref("Copy Chart_Promoted"; "Copy Chart")
+                {
+                }
+                actionref(Filters_Promoted; Filters)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SetFieldValues;
-        EnableControls;
+        SetFieldValues();
+        EnableControls();
     end;
 
     var
@@ -860,23 +868,23 @@ page 9183 "Generic Chart Setup"
 
     local procedure SetFieldValues()
     begin
-        ClearAllVariables;
+        ClearAllVariables();
         GenericChartMgt.RetrieveXML(
           Rec, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
-        ChartDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage);
+        ChartDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode(), GenericChartMgt.GetUserLanguage());
         TempGenericChartSetup."Y-Axis Title" :=
-          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.YAxisTitleCode, GenericChartMgt.GetUserLanguage);
+          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.YAxisTitleCode(), GenericChartMgt.GetUserLanguage());
         TempGenericChartSetup."X-Axis Field Caption" :=
-          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.XAxisCaptionCode, GenericChartMgt.GetUserLanguage);
+          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.XAxisCaptionCode(), GenericChartMgt.GetUserLanguage());
         TempGenericChartSetup."X-Axis Title" :=
-          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.XAxisTitleCode, GenericChartMgt.GetUserLanguage);
+          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.XAxisTitleCode(), GenericChartMgt.GetUserLanguage());
         TempGenericChartSetup."Z-Axis Field Caption" :=
-          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.ZAxisCaptionCode, GenericChartMgt.GetUserLanguage);
+          TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.ZAxisCaptionCode(), GenericChartMgt.GetUserLanguage());
         TempGenericChartSetup.Insert();
-        StoreTempXRecValues;
-        FillMatrixWhenOpenPage;
-        UpdateTempGenericChartYAXis;
-        RefreshPreview;
+        StoreTempXRecValues();
+        FillMatrixWhenOpenPage();
+        UpdateTempGenericChartYAXis();
+        RefreshPreview();
     end;
 
     local procedure ValidateDataColumn(Index: Integer)
@@ -885,18 +893,17 @@ page 9183 "Generic Chart Setup"
         i: Integer;
     begin
         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
-        for i := 1 to ArrayLen(DataColumn) do begin
+        for i := 1 to ArrayLen(DataColumn) do
             if (DataColumn[i] <> '') and (Index <> i) then
                 FieldAlreadyExists := (DataColumn[Index] = DataColumn[i]) or FieldAlreadyExists;
-        end;
 
         if FieldAlreadyExists then
             Error(Text002, DataColumn[Index]);
 
         GenericChartMgt.CheckDataTypeAggregationCompliance(TempGenericChartSetup, DataColumn[Index], Aggregation[Index]);
         GenericChartMgt.ValidateFieldColumn(TempGenericChartSetup, DummyInt, DataColumn[Index], DummyCaption, 2, false, Aggregation[Index]);
-        UpdateChartDefinition;
-        EnableControls;
+        UpdateChartDefinition();
+        EnableControls();
     end;
 
     local procedure ValidateDimension(Index: Integer)
@@ -904,10 +911,9 @@ page 9183 "Generic Chart Setup"
         DummyAggregation: Option "None","Count","Sum","Min","Max",Avg;
     begin
         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
-        with TempGenericChartSetup do begin
+        with TempGenericChartSetup do
             if ("X-Axis Field Name" <> '') and ("Z-Axis Field Name" <> '') and ("X-Axis Field Name" = "Z-Axis Field Name") then
                 Error(Text002, DataColumn[Index]);
-        end;
         with TempGenericChartSetup do
             case Index of
                 1:
@@ -917,8 +923,8 @@ page 9183 "Generic Chart Setup"
                     GenericChartMgt.ValidateFieldColumn(
                       TempGenericChartSetup, "Z-Axis Field ID", "Z-Axis Field Name", "Z-Axis Title", 0, false, DummyAggregation);
             end;
-        UpdateChartDefinition;
-        EnableControls;
+        UpdateChartDefinition();
+        EnableControls();
     end;
 
     local procedure UpdateTempGenericChartYAXis()
@@ -928,7 +934,7 @@ page 9183 "Generic Chart Setup"
     begin
         TempGenericChartYAxis.DeleteAll();
 
-        if ChartCapableOfOptionalMeasures then
+        if ChartCapableOfOptionalMeasures() then
             Count := ArrayLen(DataColumn)
         else
             Count := 1;
@@ -964,19 +970,19 @@ page 9183 "Generic Chart Setup"
 
         i := 0;
         if TempGenericChartYAxis.FindSet() then begin
-            CurrentCaptionCode := GenericChartMgt.RequiredMeasureCode;
+            CurrentCaptionCode := GenericChartMgt.RequiredMeasureCode();
             repeat
                 i += 1;
                 DataColumn[i] := TempGenericChartYAxis."Y-Axis Measure Field Name";
-                MeasureCaption[i] := TempGenericChartCaptionsBuf.GetCaption(CurrentCaptionCode, GenericChartMgt.GetUserLanguage);
+                MeasureCaption[i] := TempGenericChartCaptionsBuf.GetCaption(CurrentCaptionCode, GenericChartMgt.GetUserLanguage());
                 Aggregation[i] := TempGenericChartYAxis.Aggregation;
                 if i = 1 then
                     ChartType := TempGenericChartYAxis."Chart Type"
                 else
                     ChartTypeReduced[i] := TempGenericChartYAxis."Chart Type";
 
-                if CurrentCaptionCode = GenericChartMgt.RequiredMeasureCode then
-                    CurrentCaptionCode := GenericChartMgt.OptionalMeasure1Code
+                if CurrentCaptionCode = GenericChartMgt.RequiredMeasureCode() then
+                    CurrentCaptionCode := GenericChartMgt.OptionalMeasure1Code()
                 else
                     CurrentCaptionCode := IncStr(CurrentCaptionCode)
             until TempGenericChartYAxis.Next() = 0;
@@ -985,13 +991,13 @@ page 9183 "Generic Chart Setup"
 
     local procedure UpdateChartDefinition()
     begin
-        if ChartDefinitionCreationIsPossible then begin
-            UpdateTempGenericChartYAXis;
+        if ChartDefinitionCreationIsPossible() then begin
+            UpdateTempGenericChartYAXis();
             GenericChartMgt.SaveChanges(Rec, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
               TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
         end;
-        EnableControls;
-        RefreshPreview;
+        EnableControls();
+        RefreshPreview();
     end;
 
     local procedure ChartDefinitionCreationIsPossible(): Boolean
@@ -1004,8 +1010,8 @@ page 9183 "Generic Chart Setup"
     var
         chartBuilder: DotNet BusinessChartBuilder;
     begin
-        if ChartDefinitionCreationIsPossible then begin
-            chartBuilder := chartBuilder.Empty;
+        if ChartDefinitionCreationIsPossible() then begin
+            chartBuilder := chartBuilder.Empty();
             GenericChartMgt.FillChartHelper(chartBuilder, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
               TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
 
@@ -1039,8 +1045,8 @@ page 9183 "Generic Chart Setup"
             until TempGenericChartFilter2.Next() = 0;
         GenericChartMgt.FinalizeFilterText(FilterText);
         TempGenericChartSetup."Filter Text" := FilterText;
-        if TempGenericChartSetup.Modify then;
-        UpdateChartDefinition;
+        if TempGenericChartSetup.Modify() then;
+        UpdateChartDefinition();
     end;
 
     local procedure ResetFields(CalledFrom: Option "Source Type","Source ID")
@@ -1072,7 +1078,7 @@ page 9183 "Generic Chart Setup"
                     end;
             end;
         end;
-        ClearAllVariables;
+        ClearAllVariables();
         TempGenericChartSetup.ID := ID;
         with TempGenericChartSetup do begin
             "Source Type" := SourceType;
@@ -1124,14 +1130,14 @@ page 9183 "Generic Chart Setup"
         if FileMgt.BLOBImport(TempBlob, '*.xml') = '' then
             exit;
 
-        if BLOB.HasValue then
-            if not Confirm(Text003, false, TableCaption, ID) then
+        if BLOB.HasValue() then
+            if not Confirm(Text003, false, TableCaption(), ID) then
                 exit;
 
         RecordRef.GetTable(Rec);
         TempBlob.ToRecordRef(RecordRef, FieldNo(BLOB));
         RecordRef.SetTable(Rec);
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
     end;
 
     local procedure ExportChartDefinition()
@@ -1140,17 +1146,17 @@ page 9183 "Generic Chart Setup"
         FileMgt: Codeunit "File Management";
     begin
         TempBlob.FromRecord(Rec, FieldNo(BLOB));
-        if TempBlob.HasValue then
+        if TempBlob.HasValue() then
             FileMgt.BLOBExport(TempBlob, '*.xml', true);
     end;
 
     local procedure EnableControls()
     begin
-        OptionalMeasuresEnabled := ChartCapableOfOptionalMeasures and (TempGenericChartSetup."Z-Axis Field Name" = '');
+        OptionalMeasuresEnabled := ChartCapableOfOptionalMeasures() and (TempGenericChartSetup."Z-Axis Field Name" = '');
         ZAxisEnabled :=
-          ChartCapableOfOptionalMeasures and
+          ChartCapableOfOptionalMeasures() and
           (DataColumn[2] = '') and (DataColumn[3] = '') and (DataColumn[4] = '') and (DataColumn[5] = '') and (DataColumn[6] = '');
-        TitleEnabled := ChartDefinitionCreationIsPossible;
+        TitleEnabled := ChartDefinitionCreationIsPossible();
         DataColumn1Enabled := Aggregation[1] <> Aggregation[1] ::Count;
         DataColumn2Enabled := Aggregation[2] <> Aggregation[2] ::Count;
         DataColumn3Enabled := Aggregation[3] <> Aggregation[3] ::Count;
@@ -1173,10 +1179,9 @@ page 9183 "Generic Chart Setup"
         CountColumnName: Text[50];
         ReplaceDataColumn: Boolean;
     begin
-        for i := 1 to ArrayLen(Aggregation) do begin
+        for i := 1 to ArrayLen(Aggregation) do
             if (Aggregation[i] = Aggregation[i] ::Count) and (index <> i) then
                 FieldOfTypeCountAlreadyExists := (Aggregation[index] = Aggregation[i]) or FieldOfTypeCountAlreadyExists;
-        end;
 
         if FieldOfTypeCountAlreadyExists then
             Error(Text004);

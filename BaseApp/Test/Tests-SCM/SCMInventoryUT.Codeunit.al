@@ -114,14 +114,14 @@ codeunit 137821 "SCM - Inventory UT"
 
         with SalesReceivablesSetup do begin
             // [GIVEN] "Sales & Receivables Setup" with a blank field "Customer Nos."
-            Get;
+            Get();
             Validate("Customer Nos.", '');
             Modify(true);
         end;
 
         with Customer do begin
             // [WHEN] Insert "Customer" with blank "No."
-            Init;
+            Init();
             Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Customer));
 
             // [THEN] Error occurs : "Customer Nos. must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty."
@@ -144,14 +144,14 @@ codeunit 137821 "SCM - Inventory UT"
 
         with PurchasesPayablesSetup do begin
             // [GIVEN] "Purchases & Payables Setup" with a blank field "Vendor Nos."
-            Get;
+            Get();
             Validate("Vendor Nos.", '');
             Modify(true);
         end;
 
         with Vendor do begin
             // [WHEN] Insert "Vendor" with blank "No."
-            Init;
+            Init();
             Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Vendor));
 
             // [THEN] Error occurs : "Vendor Nos. must have a value in Purchases & Payables Setup: Primary Key=. It cannot be zero or empty."
@@ -174,14 +174,14 @@ codeunit 137821 "SCM - Inventory UT"
 
         with InventorySetup do begin
             // [GIVEN] "Inventory Setup" with a blank field "Item Nos."
-            Get;
+            Get();
             Validate("Item Nos.", '');
             Modify(true);
         end;
 
         with Item do begin
             // [WHEN] Insert "Item" with blank "No."
-            Init;
+            Init();
             Validate(Description, LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::Item));
 
             // [THEN] Error occurs : "Item Nos. must have a value in Inventory Setup: Primary Key=. It cannot be zero or empty."
@@ -212,22 +212,22 @@ codeunit 137821 "SCM - Inventory UT"
     local procedure MockItem(var Item: Record Item; No: Code[20]; ItemTrackingCode: Code[10])
     begin
         with Item do begin
-            Init;
+            Init();
             "No." := No;
             "Item Tracking Code" := ItemTrackingCode;
             "Costing Method" := "Costing Method"::FIFO;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; IsSpecificTracking: Boolean)
     begin
         with ItemTrackingCode do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "Lot Specific Tracking" := IsSpecificTracking;
             "SN Specific Tracking" := IsSpecificTracking;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -238,14 +238,14 @@ codeunit 137821 "SCM - Inventory UT"
             "Document No." := LibraryUtility.GenerateGUID();
             Type := Type::Item;
             "No." := ItemNo;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20])
     begin
         with ReservationEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, FieldNo("Entry No."));
             Positive := false;
             "Item No." := ItemNo;
@@ -253,18 +253,18 @@ codeunit 137821 "SCM - Inventory UT"
             "Quantity (Base)" := Quantity;
             "Item Tracking" := "Item Tracking"::"Serial No.";
             "Serial No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; ReservationEntry: Record "Reservation Entry")
     begin
         with TrackingSpecification do begin
-            Init;
+            Init();
             "Item No." := ReservationEntry."Item No.";
             "Quantity (Base)" := ReservationEntry."Quantity (Base)";
             "Serial No." := ReservationEntry."Serial No.";
-            Insert;
+            Insert();
         end;
     end;
 }

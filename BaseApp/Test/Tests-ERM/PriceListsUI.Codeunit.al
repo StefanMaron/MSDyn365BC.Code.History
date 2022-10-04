@@ -135,7 +135,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesPriceLists.Next(), 'found 4th');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T003_SalesPriceListsDiscountsFromCustomersList()
     var
@@ -379,7 +379,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T008_SalesPriceListsDiscForDiscGroupFromCustomersCard()
     var
@@ -809,14 +809,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerCard.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN19
+#if not CLEAN21
         Assert.IsFalse(CustomerCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(CustomerCard."Line Discounts".Visible(), 'Line Discounts. Visible');
 #endif
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T021_CustomerCardPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -849,14 +849,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerList.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN19
+#if not CLEAN21
         Assert.IsFalse(CustomerList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerList.Prices_Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(CustomerList.Prices_LineDiscounts.Visible(), 'Prices_LineDiscounts. Visible');
 #endif
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T023_CustomerListPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -1830,7 +1830,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceLists.Next(), 'found 4th');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T053_PurchasePriceListsDiscountsFromVendorsList()
     var
@@ -2231,14 +2231,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorCard.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN19
+#if not CLEAN21
         Assert.IsFalse(VendorCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(VendorCard."Line Discounts".Visible(), 'Line Discounts. Visible');
 #endif
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T071_VendorCardPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -2271,14 +2271,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorList.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN19
+#if not CLEAN21
         Assert.IsFalse(VendorList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorList.Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(VendorList."Line Discounts".Visible(), 'Prices_LineDiscounts. Visible');
 #endif
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T073_VendorListPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -2582,7 +2582,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesJobPriceLists.Next(), 'found 5th');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T103_SalesJobPriceListsDiscountsFromJobsList()
     var
@@ -2767,7 +2767,7 @@ codeunit 134117 "Price Lists UI"
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobCard.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
         Assert.IsTrue(JobCard.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
-#if not CLEAN19
+#if not CLEAN21
         Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard."&Resource".Visible(), '"&Resource". Visible');
@@ -2776,7 +2776,7 @@ codeunit 134117 "Price Lists UI"
 #endif
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T121_JobCardPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -2813,7 +2813,7 @@ codeunit 134117 "Price Lists UI"
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobList.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
         Assert.IsTrue(JobList.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
-#if not CLEAN19
+#if not CLEAN21
         Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList."&Resource".Visible(), '"&Resource". Visible');
@@ -2822,7 +2822,7 @@ codeunit 134117 "Price Lists UI"
 #endif
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T123_JobListPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -3076,7 +3076,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found 5th');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T153_PurchaseJobPriceListsDiscountsFromJobList()
     var

@@ -100,14 +100,14 @@ table 5452 "Graph Integration Rec. Archive"
     begin
         GraphIntegrationRecArchive.SetRange("Graph ID", GraphID);
         GraphIntegrationRecArchive.SetFilter("Table ID", Format(DestinationTableID));
-        exit(GraphIntegrationRecArchive.FindFirst);
+        exit(GraphIntegrationRecArchive.FindFirst());
     end;
 
     local procedure FindRowFromIntegrationID(IntegrationID: Guid; var GraphIntegrationRecArchive: Record "Graph Integration Rec. Archive"): Boolean
     begin
         GraphIntegrationRecArchive.SetCurrentKey("Integration ID");
         GraphIntegrationRecArchive.SetFilter("Integration ID", IntegrationID);
-        exit(GraphIntegrationRecArchive.FindFirst);
+        exit(GraphIntegrationRecArchive.FindFirst());
     end;
 }
 

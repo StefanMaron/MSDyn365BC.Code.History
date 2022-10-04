@@ -44,9 +44,9 @@ page 1526 "Workflow Event Conditions"
                                 begin
                                     WorkflowStep.Get("Workflow Code", "Workflow Step ID");
 
-                                    WorkflowStep.OpenEventConditions;
+                                    WorkflowStep.OpenEventConditions();
 
-                                    FilterConditionText := WorkflowStep.GetConditionAsDisplayText;
+                                    FilterConditionText := WorkflowStep.GetConditionAsDisplayText();
                                 end;
                             }
                         }
@@ -144,9 +144,9 @@ page 1526 "Workflow Event Conditions"
                             ShowAdvancedCondition := not ShowAdvancedCondition;
 
                             if not ShowAdvancedCondition then
-                                ClearRule;
+                                ClearRule();
 
-                            UpdateLabels;
+                            UpdateLabels();
                         end;
                     }
                 }
@@ -165,7 +165,7 @@ page 1526 "Workflow Event Conditions"
         ShowFilter := true;
 
         ShowAdvancedCondition := "Field No." <> 0;
-        UpdateLabels;
+        UpdateLabels();
     end;
 
     trigger OnInit()
@@ -181,7 +181,7 @@ page 1526 "Workflow Event Conditions"
         WorkflowStep.Get("Workflow Code", "Workflow Step ID");
         WorkflowEvent.Get(WorkflowStep."Function Name");
         EventDescription := WorkflowEvent.Description;
-        FilterConditionText := WorkflowStep.GetConditionAsDisplayText;
+        FilterConditionText := WorkflowStep.GetConditionAsDisplayText();
     end;
 
     var
@@ -239,7 +239,7 @@ page 1526 "Workflow Event Conditions"
         else
             Field.SetFilter("Field Caption", '%1', '@' + CaptionToFind + '*');
 
-        exit(Field.FindFirst);
+        exit(Field.FindFirst());
     end;
 
     local procedure UpdateLabels()

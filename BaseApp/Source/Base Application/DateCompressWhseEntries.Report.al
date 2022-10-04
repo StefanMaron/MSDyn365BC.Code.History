@@ -37,7 +37,7 @@ report 7398 "Date Compress Whse. Entries"
                     SetRange("Warranty Date", "Warranty Date");
                     SetRange("Expiration Date", "Expiration Date");
 
-                    CalcCompressWhseEntry;
+                    CalcCompressWhseEntry();
 
                     NewWhseEntry.Init();
                     NewWhseEntry."Location Code" := "Location Code";
@@ -60,7 +60,7 @@ report 7398 "Date Compress Whse. Entries"
                     Window.Update(2, DateComprReg."No. of New Records");
 
                     repeat
-                        Delete;
+                        Delete();
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(3, DateComprReg."No. Records Deleted");
                         if UseDataArchive then
@@ -118,7 +118,7 @@ report 7398 "Date Compress Whse. Entries"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Registering Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 RetainSerialNo := RetainNo(FieldNo("Serial No."));
                 RetainLotNo := RetainNo(FieldNo("Lot No."));
@@ -258,12 +258,6 @@ report 7398 "Date Compress Whse. Entries"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing warehouse entries...\\';
-        Text005: Label 'Date                 #1######\\';
-        Text006: Label 'No. of new entries   #2######\';
-        Text007: Label 'No. of entries del.  #3######';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -298,6 +292,13 @@ report 7398 "Date Compress Whse. Entries"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing warehouse entries...\\';
+        Text005: Label 'Date                 #1######\\';
+        Text006: Label 'No. of new entries   #2######\';
+        Text007: Label 'No. of entries del.  #3######';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -357,7 +358,7 @@ report 7398 "Date Compress Whse. Entries"
         FoundLastEntryNo := WhseEntry2.GetLastEntryNo();
         if LastEntryNo <> FoundLastEntryNo then begin
             LastEntryNo := FoundLastEntryNo;
-            InitRegisters;
+            InitRegisters();
         end;
     end;
 

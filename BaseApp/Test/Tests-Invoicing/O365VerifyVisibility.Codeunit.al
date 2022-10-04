@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138913 "O365 Verify Visibility"
 {
     Subtype = Test;
@@ -457,7 +458,7 @@ codeunit 138913 "O365 Verify Visibility"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -493,7 +494,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365SalesCustomerCard.OpenNew();
         CustomerName := LibraryUtility.GenerateGUID();
         O365SalesCustomerCard.Name.Value(CustomerName);
-        O365SalesCustomerCard.Close;
+        O365SalesCustomerCard.Close();
     end;
 
     local procedure CreateItemWithPage() ItemNo: Code[20]
@@ -558,4 +559,4 @@ codeunit 138913 "O365 Verify Visibility"
         Assert.Fail(StrSubstNo('No notification should be thrown. The notification was %1.', TheNotification.Message));
     end;
 }
-
+#endif

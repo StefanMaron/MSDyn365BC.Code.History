@@ -1,7 +1,12 @@
+#if not CLEAN21
 page 9552 "Document Service Acc. Pwd."
 {
     Caption = 'Document Service Acc. Pwd.';
     PageType = StandardDialog;
+
+    ObsoleteReason = 'Use the new Document Service Setup page to configure the Document Service';
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
 
     layout
     {
@@ -52,4 +57,4 @@ page 9552 "Document Service Acc. Pwd."
         exit(PasswordField);
     end;
 }
-
+#endif

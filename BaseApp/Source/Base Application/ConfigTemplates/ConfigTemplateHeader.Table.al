@@ -28,13 +28,13 @@ table 8618 "Config. Template Header"
 
             trigger OnValidate()
             begin
-                TestXRec;
+                TestXRec();
                 CalcFields("Table Name");
             end;
         }
         field(4; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Table),
                                                                         "Object ID" = FIELD("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -42,7 +42,7 @@ table 8618 "Config. Template Header"
         }
         field(5; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -50,7 +50,7 @@ table 8618 "Config. Template Header"
         }
         field(6; "Used In Hierarchy"; Boolean)
         {
-            CalcFormula = Exist ("Config. Template Line" WHERE("Data Template Code" = FIELD(Code),
+            CalcFormula = Exist("Config. Template Line" WHERE("Data Template Code" = FIELD(Code),
                                                                Type = CONST(Template)));
             Caption = 'Used In Hierarchy';
             Editable = false;
@@ -105,10 +105,11 @@ table 8618 "Config. Template Header"
     end;
 
     var
-        Text000: Label 'Template lines that relate to %1 exists. Delete the lines to change the Table ID.';
         ConfigTemplateLine: Record "Config. Template Line";
-        Text001: Label 'A new instance %1 has been created in table %2 %3.', Comment = '%2 = Table ID, %3 = Table Caption';
         ConfigValidateMgt: Codeunit "Config. Validate Management";
+
+        Text000: Label 'Template lines that relate to %1 exists. Delete the lines to change the Table ID.';
+        Text001: Label 'A new instance %1 has been created in table %2 %3.', Comment = '%2 = Table ID, %3 = Table Caption';
 
     local procedure TestXRec()
     var
@@ -122,8 +123,8 @@ table 8618 "Config. Template Header"
 
     procedure ConfirmNewInstance(var RecRef: RecordRef)
     var
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyFieldCount: Integer;
         MessageString: Text[1024];
     begin
@@ -162,7 +163,7 @@ table 8618 "Config. Template Header"
         FromConfigTemplateHeader.Get(FromConfigTemplateCode);
         Validate("Table ID", FromConfigTemplateHeader."Table ID");
         Enabled := FromConfigTemplateHeader.Enabled;
-        Modify;
+        Modify();
     end;
 
     local procedure CopyConfigTemplateLines(FromConfigTemplateCode: Code[10]; ConfigTemplateCode: Code[10])

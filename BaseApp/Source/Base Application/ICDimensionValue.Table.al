@@ -13,7 +13,7 @@ table 412 "IC Dimension Value"
 
             trigger OnValidate()
             begin
-                UpdateMapToDimensionCode;
+                UpdateMapToDimensionCode();
             end;
         }
         field(2; "Code"; Code[20])

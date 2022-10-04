@@ -18,7 +18,7 @@ page 5112 "Profile Question Details"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the profile question or answer.';
                 }
-                field("Multiple Answers"; "Multiple Answers")
+                field("Multiple Answers"; Rec."Multiple Answers")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the question has more than one possible answer.';
@@ -27,17 +27,17 @@ page 5112 "Profile Question Details"
             group(Classification)
             {
                 Caption = 'Classification';
-                field("Auto Contact Classification"; "Auto Contact Classification")
+                field("Auto Contact Classification"; Rec."Auto Contact Classification")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the question is automatically answered when you run the Update Contact Classification batch job.';
 
                     trigger OnValidate()
                     begin
-                        AutoContactClassificationOnAft;
+                        AutoContactClassificationOnAft();
                     end;
                 }
-                field("Customer Class. Field"; "Customer Class. Field")
+                field("Customer Class. Field"; Rec."Customer Class. Field")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = CustomerClassFieldEditable;
@@ -45,10 +45,10 @@ page 5112 "Profile Question Details"
 
                     trigger OnValidate()
                     begin
-                        CustomerClassFieldOnAfterValid;
+                        CustomerClassFieldOnAfterValid();
                     end;
                 }
-                field("Vendor Class. Field"; "Vendor Class. Field")
+                field("Vendor Class. Field"; Rec."Vendor Class. Field")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = VendorClassFieldEditable;
@@ -56,10 +56,10 @@ page 5112 "Profile Question Details"
 
                     trigger OnValidate()
                     begin
-                        VendorClassFieldOnAfterValidat;
+                        VendorClassFieldOnAfterValidat();
                     end;
                 }
-                field("Contact Class. Field"; "Contact Class. Field")
+                field("Contact Class. Field"; Rec."Contact Class. Field")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = ContactClassFieldEditable;
@@ -67,29 +67,29 @@ page 5112 "Profile Question Details"
 
                     trigger OnValidate()
                     begin
-                        ContactClassFieldOnAfterValida;
+                        ContactClassFieldOnAfterValida();
                     end;
                 }
-                field("Min. % Questions Answered"; "Min. % Questions Answered")
+                field("Min. % Questions Answered"; Rec."Min. % Questions Answered")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = MinPctQuestionsAnsweredEditable;
                     HideValue = MinPctQuestionsAnsweredHideValue;
                     ToolTip = 'Specifies the number of questions in percentage that must be answered for this rating to be calculated.';
                 }
-                field("Starting Date Formula"; "Starting Date Formula")
+                field("Starting Date Formula"; Rec."Starting Date Formula")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = StartingDateFormulaEditable;
                     ToolTip = 'Specifies the date to start the automatic classification of your contacts.';
                 }
-                field("Ending Date Formula"; "Ending Date Formula")
+                field("Ending Date Formula"; Rec."Ending Date Formula")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = EndingDateFormulaEditable;
                     ToolTip = 'Specifies the date to stop the automatic classification of your contacts.';
                 }
-                field("Classification Method"; "Classification Method")
+                field("Classification Method"; Rec."Classification Method")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = ClassificationMethodEditable;
@@ -97,16 +97,16 @@ page 5112 "Profile Question Details"
 
                     trigger OnValidate()
                     begin
-                        ClassificationMethodOnAfterVal;
+                        ClassificationMethodOnAfterVal();
                     end;
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = SortingMethodEditable;
                     ToolTip = 'Specifies the sorting method for the automatic classification on which the question is based. This field is only valid when you select Percentage of Value or Percentage of Contacts in the Classification Method field. It indicates the direction of the percentage. There are two options:';
                 }
-                field("No. of Decimals"; "No. of Decimals")
+                field("No. of Decimals"; Rec."No. of Decimals")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = NoOfDecimalsEditable;
@@ -140,8 +140,6 @@ page 5112 "Profile Question Details"
                 Caption = '&Answer Points';
                 Enabled = AnswerValuesEnable;
                 Image = Answers;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the number of points a questionnaire answer gives.';
 
                 trigger OnAction()
@@ -152,15 +150,26 @@ page 5112 "Profile Question Details"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(AnswerValues_Promoted; AnswerValues)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         MinPctQuestionsAnsweredHideValue := false;
         NoOfDecimalsHideValue := false;
-        SetEditable;
-        NoofDecimalsOnFormat;
-        Min37QuestionsAnsweredOnFormat;
+        SetEditable();
+        NoofDecimalsOnFormat();
+        Min37QuestionsAnsweredOnFormat();
     end;
 
     trigger OnInit()
@@ -246,27 +255,27 @@ page 5112 "Profile Question Details"
 
     local procedure AutoContactClassificationOnAft()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     local procedure CustomerClassFieldOnAfterValid()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     local procedure VendorClassFieldOnAfterValidat()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     local procedure ContactClassFieldOnAfterValida()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     local procedure ClassificationMethodOnAfterVal()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     local procedure NoofDecimalsOnFormat()

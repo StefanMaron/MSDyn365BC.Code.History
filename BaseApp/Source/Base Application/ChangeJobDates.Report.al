@@ -29,7 +29,7 @@ report 1087 "Change Job Dates"
 
             trigger OnPostDataItem()
             begin
-                CalculateBatches.ChangeDatesEnd;
+                CalculateBatches.ChangeDatesEnd();
             end;
         }
     }

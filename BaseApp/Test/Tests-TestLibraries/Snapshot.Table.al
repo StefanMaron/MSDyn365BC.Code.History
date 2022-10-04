@@ -1,5 +1,6 @@
 table 130013 Snapshot
 {
+    ReplicateData = false;
 
     fields
     {

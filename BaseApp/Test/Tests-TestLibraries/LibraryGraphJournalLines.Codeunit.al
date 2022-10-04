@@ -41,14 +41,14 @@ codeunit 130622 "Library - Graph Journal Lines"
         APIEntitiesSetup: Record "API Entities Setup";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        APIEntitiesSetup.SafeGet;
+        APIEntitiesSetup.SafeGet();
         GenJournalLine.Reset();
-        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName);
+        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName());
 
         GenJournalLine.DeleteAll();
 
         GenJournalLine.Reset();
-        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName);
+        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName());
 
         GenJournalLine.DeleteAll();
     end;
@@ -86,7 +86,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine."Line No." := GetNextJournalLineNo(JournalLineBatchName);
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalLineBatchName);
-        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName);
+        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName());
         GenJournalLine.Validate("Journal Batch Name", JournalLineBatchName);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate(Amount, Amount);
@@ -124,7 +124,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine.Init();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", CustomerPaymentBatchName);
-        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName);
+        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName());
         GenJournalLine.Validate("Journal Batch Name", CustomerPaymentBatchName);
         GenJournalLine."Line No." := GetNextCustomerPaymentNo(CustomerPaymentBatchName);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
@@ -132,7 +132,7 @@ codeunit 130622 "Library - Graph Journal Lines"
             GenJournalLine.Validate("Customer Id", CustomerId);
         if CustomerNo <> '' then
             GenJournalLine.Validate("Account No.", CustomerNo);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate(Amount, Amount);
@@ -162,7 +162,7 @@ codeunit 130622 "Library - Graph Journal Lines"
             GenJournalLine.Validate("Vendor Id", VendorId);
         if VendorNo <> '' then
             GenJournalLine.Validate("Account No.", VendorNo);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate(Amount, Amount);
@@ -246,7 +246,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         InvoiceNo: Code[20];
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader."Posting Date" := WorkDate;
+        SalesHeader."Posting Date" := WorkDate();
         SalesHeader.Modify();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
@@ -283,7 +283,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         NewDocumentNo := 'DOC001';
         NewExternalDocumentNo := 'EXTDOC01';
         NewDescription := 'Test Description';
-        NewPostingDate := Format(WorkDate, 0, 9);
+        NewPostingDate := Format(WorkDate(), 0, 9);
         NewComment := 'Test Comment';
 
         LineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', LineNumberNameTxt, Format(NewLineNo));
@@ -308,7 +308,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         NewDocumentNo := 'DOC001';
         NewExternalDocumentNo := 'EXTDOC01';
         NewDescription := 'Test Description';
-        NewDate := WorkDate;
+        NewDate := WorkDate();
         NewComment := 'Test Comment';
 
         Assert.AreEqual(NewAmount, GenJournalLine.Amount, 'Journal Line ' + AmountNameTxt + ' should be changed');

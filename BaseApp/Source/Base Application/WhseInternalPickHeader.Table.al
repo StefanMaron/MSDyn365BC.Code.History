@@ -87,7 +87,7 @@ table 7333 "Whse. Internal Pick Header"
             trigger OnValidate()
             begin
                 if "Sorting Method" <> xRec."Sorting Method" then
-                    SortWhseDoc;
+                    SortWhseDoc();
             end;
         }
         field(7; "No. Series"; Code[20])
@@ -126,7 +126,7 @@ table 7333 "Whse. Internal Pick Header"
                               "To Bin Code",
                               StrSubstNo(
                                 Text005, Location.FieldCaption("Adjustment Bin Code"),
-                                Location.TableCaption));
+                                Location.TableCaption()));
                         Bin.Get("Location Code", "To Bin Code");
                         "To Zone Code" := Bin."Zone Code";
                     end;
@@ -203,7 +203,7 @@ table 7333 "Whse. Internal Pick Header"
     trigger OnDelete()
     begin
         TestField(Status, Status::Open);
-        DeleteRelatedLines;
+        DeleteRelatedLines();
     end;
 
     trigger OnInsert()
@@ -224,12 +224,13 @@ table 7333 "Whse. Internal Pick Header"
     var
         Location: Record Location;
         WhseSetup: Record "Warehouse Setup";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        WmsManagement: Codeunit "WMS Management";
+
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change the %1, because the document has one or more lines.';
-        WmsManagement: Codeunit "WMS Management";
         Text003: Label 'You are not allowed to use %1 %2.';
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         Text005: Label 'must not be the %1 of the %2';
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Internal Pick Lines.\';
         Text007: Label 'You must update the existing Warehouse Internal Pick Lines manually.';
@@ -283,7 +284,7 @@ table 7333 "Whse. Internal Pick Header"
                 SequenceNo := 10000;
                 repeat
                     "Sorting Sequence No." := SequenceNo;
-                    Modify;
+                    Modify();
                     SequenceNo := SequenceNo + 10000;
                 until Next() = 0;
             end;
@@ -340,7 +341,7 @@ table 7333 "Whse. Internal Pick Header"
     end;
 
 #if not CLEAN19
-    [Obsolete('Replaced by platform capabilities.','19.0')]
+    [Obsolete('Replaced by platform capabilities.', '19.0')]
     procedure LookupWhseInternalPickHeader(var WhseInternalPickHeader: Record "Whse. Internal Pick Header")
     begin
         Commit();

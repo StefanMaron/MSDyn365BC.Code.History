@@ -43,13 +43,13 @@ page 5460 "Webhook Supported Resources"
         if Initialized then
             exit(true);
 
-        if not GraphMgtGeneralTools.IsApiSubscriptionEnabled then begin
+        if not GraphMgtGeneralTools.IsApiSubscriptionEnabled() then begin
             Initialized := true;
             exit(false);
         end;
 
-        View := GetView;
-        Reset;
+        View := GetView();
+        Reset();
 
         ApiWebhookEntity.SetRange("Object Type", ApiWebhookEntity."Object Type"::Page);
         ApiWebhookEntity.SetRange("Table Temporary", false);
@@ -63,7 +63,7 @@ page 5460 "Webhook Supported Resources"
                     I += 1;
                     ID := I;
                     "Value Long" := CopyStr(GetResourceUri(ApiWebhookEntity), 1, MaxStrLen("Value Long"));
-                    Insert;
+                    Insert();
                 end;
         until ApiWebhookEntity.Next() = 0;
 

@@ -84,8 +84,8 @@ report 357 "Copy Company"
             var
                 JobQueueManagement: Codeunit "Job Queue Management";
             begin
-                ProgressWindow.Close;
-                SetNewNameToNewCompanyInfo;
+                ProgressWindow.Close();
+                SetNewNameToNewCompanyInfo();
                 JobQueueManagement.SetRecurringJobsOnHold(NewCompanyName);
                 OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName, Company);
                 RegisterUpgradeTags(NewCompanyName);
@@ -238,7 +238,7 @@ report 357 "Copy Company"
         Company.Modify();
 
         if CompanyInformation.ChangeCompany(NewCompanyName) then
-            if CompanyInformation.Get then begin
+            if CompanyInformation.Get() then begin
                 CompanyInformation.Name := NewCompanyName;
                 CompanyInformation.Modify(true);
             end;

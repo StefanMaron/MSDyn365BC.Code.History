@@ -90,7 +90,7 @@ codeunit 5402 "Unit of Measure Management"
             QtyRounded := RoundQty(QtyBase * QtyPerUOM, QtyRndingPrecision);
 
             if (QtyRounded = 0) and (QtyBase <> 0) then
-                Error(QuantityImbalanceErr, BasedOnField, DummyItem.TableCaption, ItemNo, FromFieldName, ToFieldName);
+                Error(QuantityImbalanceErr, BasedOnField, DummyItem.TableCaption(), ItemNo, FromFieldName, ToFieldName);
         end;
         OnAfterCalcBaseQtyPerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, QtyRounded);
     end;
@@ -112,7 +112,7 @@ codeunit 5402 "Unit of Measure Management"
 
     procedure RoundQty(Qty: Decimal): Decimal
     begin
-        exit(Round(Qty, QtyRndPrecision));
+        exit(Round(Qty, QtyRndPrecision()));
     end;
 
     procedure RoundQty(Qty: Decimal; QtyRndingPrecision: Decimal): Decimal

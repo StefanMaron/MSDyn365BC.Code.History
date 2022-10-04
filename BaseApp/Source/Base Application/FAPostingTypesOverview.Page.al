@@ -65,9 +65,6 @@ page 5662 "FA Posting Types Overview"
                 ApplicationArea = FixedAssets;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -85,10 +82,6 @@ page 5662 "FA Posting Types Overview"
                 ApplicationArea = FixedAssets;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -101,9 +94,6 @@ page 5662 "FA Posting Types Overview"
                 ApplicationArea = FixedAssets;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -112,17 +102,34 @@ page 5662 "FA Posting Types Overview"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     var
         FAMatrixPostingType: Record "FA Matrix Posting Type";
     begin
-        FAMatrixPostingType.CreateTypes;
+        FAMatrixPostingType.CreateTypes();
 
         PeriodType := PeriodType::Year;
         AmountType := AmountType::"Balance at Date";
-        NoOfColumns := GetMatrixDimension;
+        NoOfColumns := GetMatrixDimension();
         SetStartFilter(' ');
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
@@ -178,11 +185,11 @@ page 5662 "FA Posting Types Overview"
 
         if MATRIX_CurrentNoOfColumns > 0 then begin
             MatrixRecord.SetPosition(MATRIX_PKFirstRecInCurrSet);
-            MatrixRecord.Find;
+            MatrixRecord.Find();
             repeat
                 MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MatrixRecord);
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-            until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next <> 1);
+            until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next() <> 1);
         end;
     end;
 

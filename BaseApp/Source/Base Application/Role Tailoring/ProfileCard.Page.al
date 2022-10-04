@@ -97,7 +97,7 @@ page 9170 "Profile Card"
                             AllObjectsWithCaptionPage.SetRecord(AllObjWithCaptionRec);
 
                         AllObjectsWithCaptionPage.LookupMode := true;
-                        if AllObjectsWithCaptionPage.RunModal = ACTION::LookupOK then begin
+                        if AllObjectsWithCaptionPage.RunModal() = ACTION::LookupOK then begin
                             AllObjectsWithCaptionPage.GetRecord(AllObjWithCaptionRec);
                             Validate("Role Center ID", AllObjWithCaptionRec."Object ID");
                         end;
@@ -207,9 +207,6 @@ page 9170 "Profile Card"
                     Caption = 'Copy profile';
                     Ellipsis = true;
                     Image = Copy;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a copy of this profile including any page customizations made by users for this profile.';
                     AccessByPermission = tabledata "Tenant Profile" = I;
 
@@ -228,9 +225,6 @@ page 9170 "Profile Card"
                     Image = SetupColumns;
                     Visible = IsWebClient;
                     Enabled = IsProfileEditable;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the user interface for this profile to fit the unique needs of the role (opens in a new tab). The changes that you make only apply to users that are assigned this profile.';
                     AccessByPermission = tabledata "Tenant Profile" = M;
 
@@ -244,9 +238,6 @@ page 9170 "Profile Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&lear customized pages';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Delete all customizations that are made for the profile.';
                     AccessByPermission = tabledata "Tenant Profile Page Metadata" = D;
                     Enabled = HasCustomizedPages;
@@ -256,6 +247,23 @@ page 9170 "Profile Card"
                         ConfPersonalizationMgt.ClearProfileConfiguration(Rec);
                         UpdateHasCustomizedPages();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CustomizeRoleAction_Promoted; CustomizeRoleAction)
+                {
+                }
+                actionref(CopyProfileAction_Promoted; CopyProfileAction)
+                {
+                }
+                actionref(ClearCustomizedPagesAction_Promoted; ClearCustomizedPagesAction)
+                {
                 }
             }
         }
@@ -294,7 +302,7 @@ page 9170 "Profile Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Scope := Scope::Tenant;
-        "Role Center ID" := ConfPersonalizationMgt.DefaultRoleCenterID;
+        "Role Center ID" := ConfPersonalizationMgt.DefaultRoleCenterID();
         Enabled := true;
     end;
 

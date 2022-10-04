@@ -15,13 +15,13 @@ page 5965 "Service Quote Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the line.';
                     Visible = false;
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item number registered in the Service Item table.';
@@ -34,30 +34,30 @@ page 5965 "Service Quote Subform"
                         if xRec.Get("Document Type", "Document No.", "Line No.") then;
                     end;
                 }
-                field("Service Item Group Code"; "Service Item Group Code")
+                field("Service Item Group Code"; Rec."Service Item Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service item group for this item.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item number linked to this service item.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of this item.';
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEditSerialNo;
+                        AssistEditSerialNo();
                     end;
                 }
                 field(Description; Description)
@@ -65,18 +65,18 @@ page 5965 "Service Quote Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of this service item.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies an additional description of this item.';
                     Visible = false;
                 }
-                field("Repair Status Code"; "Repair Status Code")
+                field("Repair Status Code"; Rec."Repair Status Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the repair status of this service item.';
                 }
-                field("Service Shelf No."; "Service Shelf No.")
+                field("Service Shelf No."; Rec."Service Shelf No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service shelf this item is stored on.';
@@ -87,91 +87,91 @@ page 5965 "Service Quote Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that warranty on either parts or labor exists for this item.';
                 }
-                field("Warranty Starting Date (Parts)"; "Warranty Starting Date (Parts)")
+                field("Warranty Starting Date (Parts)"; Rec."Warranty Starting Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the spare parts warranty for this item.';
                     Visible = false;
                 }
-                field("Warranty Ending Date (Parts)"; "Warranty Ending Date (Parts)")
+                field("Warranty Ending Date (Parts)"; Rec."Warranty Ending Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the spare parts warranty for this item.';
                     Visible = false;
                 }
-                field("Warranty % (Parts)"; "Warranty % (Parts)")
+                field("Warranty % (Parts)"; Rec."Warranty % (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of spare parts costs covered by the warranty for this item.';
                     Visible = false;
                 }
-                field("Warranty % (Labor)"; "Warranty % (Labor)")
+                field("Warranty % (Labor)"; Rec."Warranty % (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of labor costs covered by the warranty for this item.';
                     Visible = false;
                 }
-                field("Warranty Starting Date (Labor)"; "Warranty Starting Date (Labor)")
+                field("Warranty Starting Date (Labor)"; Rec."Warranty Starting Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the labor warranty for this item.';
                     Visible = false;
                 }
-                field("Warranty Ending Date (Labor)"; "Warranty Ending Date (Labor)")
+                field("Warranty Ending Date (Labor)"; Rec."Warranty Ending Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the labor warranty for this item.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service contract associated with the item or service on the line.';
                 }
-                field("Fault Reason Code"; "Fault Reason Code")
+                field("Fault Reason Code"; Rec."Fault Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault reason code for the item.';
                     Visible = false;
                 }
-                field("Service Price Group Code"; "Service Price Group Code")
+                field("Service Price Group Code"; Rec."Service Price Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service price group associated with the item.';
                     Visible = false;
                 }
-                field("Adjustment Type"; "Adjustment Type")
+                field("Adjustment Type"; Rec."Adjustment Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the adjustment type for the line.';
                     Visible = false;
                 }
-                field("Base Amount to Adjust"; "Base Amount to Adjust")
+                field("Base Amount to Adjust"; Rec."Base Amount to Adjust")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the amount that the service line, linked to this service item line, will be adjusted to.';
                     Visible = false;
                 }
-                field("Fault Area Code"; "Fault Area Code")
+                field("Fault Area Code"; Rec."Fault Area Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault area code for this item.';
                     Visible = false;
                 }
-                field("Symptom Code"; "Symptom Code")
+                field("Symptom Code"; Rec."Symptom Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the symptom code for this item.';
                     Visible = false;
                 }
-                field("Fault Code"; "Fault Code")
+                field("Fault Code"; Rec."Fault Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault code for this item.';
                     Visible = false;
                 }
-                field("Resolution Code"; "Resolution Code")
+                field("Resolution Code"; Rec."Resolution Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the resolution code for this item.';
@@ -182,64 +182,64 @@ page 5965 "Service Quote Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service priority for this item.';
                 }
-                field("Response Time (Hours)"; "Response Time (Hours)")
+                field("Response Time (Hours)"; Rec."Response Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated hours from order creation, to the time when the repair status of the item line changes from Initial, to In Process.';
                 }
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated date when service should start on this service item line.';
                 }
-                field("Response Time"; "Response Time")
+                field("Response Time"; Rec."Response Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when service should start on this service item.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the vendor of this item.';
                     Visible = false;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                     Visible = false;
                 }
-                field("Loaner No."; "Loaner No.")
+                field("Loaner No."; Rec."Loaner No.")
                 {
                     ApplicationArea = Service;
                     LookupPageID = "Available Loaners";
                     ToolTip = 'Specifies the number of the loaner that has been lent to the customer in the service order to replace this item.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when service on this item began and when the repair status changed to In process.';
                     Visible = false;
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when service on this item began and when the repair status changed to In process.';
                     Visible = false;
                 }
-                field("Finishing Date"; "Finishing Date")
+                field("Finishing Date"; Rec."Finishing Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the finishing date of the service and when the repair status of this item changes to Finished.';
                     Visible = false;
                 }
-                field("Finishing Time"; "Finishing Time")
+                field("Finishing Time"; Rec."Finishing Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the finishing time of the service and when the repair status of this item changes to Finished.';
                     Visible = false;
                 }
-                field("No. of Previous Services"; "No. of Previous Services")
+                field("No. of Previous Services"; Rec."No. of Previous Services")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of services performed on service items with the same item and serial number as this service item.';
@@ -265,7 +265,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        AllocateResource;
+                        AllocateResource();
                     end;
                 }
                 action("Service &Item Worksheet")
@@ -277,7 +277,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowServOrderWorksheet;
+                        ShowServOrderWorksheet();
                     end;
                 }
                 action(Troubleshooting)
@@ -289,7 +289,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowChecklist;
+                        ShowChecklist();
                     end;
                 }
                 action("&Fault/Resol. Codes Relations")
@@ -300,7 +300,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowFaultResolutionRelation;
+                        ShowFaultResolutionRelation();
                     end;
                 }
                 action(Dimensions)
@@ -390,7 +390,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowServItemEventLog;
+                        ShowServItemEventLog();
                     end;
                 }
             }
@@ -407,7 +407,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ReceiveLoaner;
+                        ReceiveLoaner();
                     end;
                 }
                 action("Create Service &Item")
@@ -418,7 +418,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        CreateServItemOnServItemLine;
+                        CreateServItemOnServItemLine();
                     end;
                 }
                 action("Get St&d. Service Codes")
@@ -451,7 +451,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        RegisterServInvLines;
+                        RegisterServInvLines();
                     end;
                 }
             }
@@ -472,7 +472,7 @@ page 5965 "Service Quote Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     var
@@ -571,7 +571,7 @@ page 5965 "Service Quote Subform"
                   CannotOpenWindowErr,
                   ServMgtSetup.FieldCaption("Fault Reporting Level"),
                   ServMgtSetup."Fault Reporting Level",
-                  ServMgtSetup.TableCaption);
+                  ServMgtSetup.TableCaption());
         end;
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.SetDocument(

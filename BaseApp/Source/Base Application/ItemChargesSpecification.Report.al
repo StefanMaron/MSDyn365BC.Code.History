@@ -13,7 +13,7 @@ report 5806 "Item Charges - Specification"
         {
             DataItemTableView = SORTING("Item Charge No.", "Inventory Posting Group", "Item No.") WHERE("Item Charge No." = FILTER(<> ''));
             RequestFilterFields = "Item No.", "Posting Date", "Inventory Posting Group";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -178,7 +178,7 @@ report 5806 "Item Charges - Specification"
 
     trigger OnPreReport()
     begin
-        ValueEntryFilter := "Value Entry".GetFilters;
+        ValueEntryFilter := "Value Entry".GetFilters();
 
         ReportTitle := Text000;
         if PrintDetails then
@@ -186,14 +186,6 @@ report 5806 "Item Charges - Specification"
     end;
 
     var
-        Text000: Label 'Item Charges - Overview';
-        Text001: Label 'Item Charges - Specification';
-        Text002: Label ' (Sales)';
-        Text003: Label ' (Purchases)';
-        Text004: Label 'Inventory Posting Group';
-        Text005: Label 'Group Subtotal';
-        Text006: Label 'Inventory Posting Group Subtotal';
-        Text007: Label 'Group Total';
         Item: Record Item;
         PrintDetails: Boolean;
         ReportTitle: Text[100];
@@ -207,6 +199,15 @@ report 5806 "Item Charges - Specification"
         ItemDescription: Text[100];
         SourceType: Option Sale,Purchase;
         SourceTypePurch: Boolean;
+
+        Text000: Label 'Item Charges - Overview';
+        Text001: Label 'Item Charges - Specification';
+        Text002: Label ' (Sales)';
+        Text003: Label ' (Purchases)';
+        Text004: Label 'Inventory Posting Group';
+        Text005: Label 'Group Subtotal';
+        Text006: Label 'Inventory Posting Group Subtotal';
+        Text007: Label 'Group Total';
         CurrReportPageNoCaptionLbl: Label 'Page';
         ValueEntryCostAmtActlCptnLbl: Label 'Amount';
         TotalCaptionLbl: Label 'Total';

@@ -6,6 +6,8 @@ permissionset 5417 "Account Schedules - View"
 
     Permissions = tabledata "Acc. Schedule Line" = R,
                   tabledata "Acc. Schedule Name" = RI,
+                  tabledata "Financial Report" = RI,
+                  tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Analysis View" = R,
                   tabledata "Analysis View Budget Entry" = R,
                   tabledata "Analysis View Entry" = R,

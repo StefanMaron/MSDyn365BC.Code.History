@@ -579,10 +579,6 @@ codeunit 139312 "Excel Data Migration Test"
         CustLedgerEntry.DeleteAll();
         VendLedgerEntry.DeleteAll();
         ItemJournalLine.DeleteAll();
-
-#if not CLEAN18
-        SetupDataMigration;
-#endif
     end;
 
     local procedure CreateAttachmentWithFileName(FileName: Text)
@@ -590,10 +586,10 @@ codeunit 139312 "Excel Data Migration Test"
         Attachment: Record Attachment;
     begin
         with Attachment do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GetNewRecNo(Attachment, FieldNo("No."));
             "Storage Pointer" := CopyStr(FileName, 1, MaxStrLen("Storage Pointer"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -632,7 +628,7 @@ codeunit 139312 "Excel Data Migration Test"
         TempExcelBuffer.Reset();
         TempExcelBuffer.DeleteAll();
         TempExcelBuffer.OpenBook(FileName, ConfigPackageTable."Table Name");
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.SetRange("Row No.", ColumnHeaderRow);
 
         RecordRef.Open(TableId);
@@ -655,7 +651,7 @@ codeunit 139312 "Excel Data Migration Test"
                                   Format(FieldRef.Value),
                                   StrSubstNo(FieldValueErr, FieldRef.Name, ConfigPackageTable."Table Name"));
                         end;
-                until TempExcelBuffer.Next = 0
+                until TempExcelBuffer.Next() = 0
             else
                 exit;
 
@@ -719,30 +715,6 @@ codeunit 139312 "Excel Data Migration Test"
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
     end;
 
-#if not CLEAN18
-    local procedure SetupDataMigration()
-    var
-        DataMigrationSetup: Record "Data Migration Setup";
-        ItemTemplateCode: Code[10];
-    begin
-        ItemTemplateCode := CreateItemTemplate;
-        DataMigrationSetup.Get();
-        DataMigrationSetup."Default Item Template" := ItemTemplateCode;
-        DataMigrationSetup.Modify();
-    end;
-
-    local procedure CreateItemTemplate(): Code[10]
-    var
-        TempItemTemplate: Record "Item Template" temporary;
-        Item: Record Item;
-        LibraryInventory: Codeunit "Library - Inventory";
-    begin
-        LibraryInventory.CreateItem(Item);
-        TempItemTemplate.CreateConfigTemplateFromExistingItem(Item, TempItemTemplate);
-        Item.Delete();
-        exit(TempItemTemplate.Code);
-    end;
-#endif
     local procedure RunWizardToCompletion(var DataMigrationWizard: TestPage "Data Migration Wizard")
     begin
         CreateAttachmentWithFileName(GetExcelFileName);

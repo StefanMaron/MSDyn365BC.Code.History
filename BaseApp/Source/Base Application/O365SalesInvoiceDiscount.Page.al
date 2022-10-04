@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2155 "O365 Sales Invoice Discount"
 {
     Caption = 'Edit Discount';
@@ -5,6 +6,9 @@ page 2155 "O365 Sales Invoice Discount"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Sales Header";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,7 +19,7 @@ page 2155 "O365 Sales Invoice Discount"
                 ShowCaption = false;
                 field("Subtotal Amount"; SubTotalAmount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Before Discount';
@@ -27,7 +31,7 @@ page 2155 "O365 Sales Invoice Discount"
                     Caption = 'Specify Discount';
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Discount %';
                         DecimalPlaces = 1 : 3;
                         ToolTip = 'Specifies a discount percentage that is applied to the invoice, based on sales lines where the Allow Invoice Disc. field is selected. The percentage and criteria are defined in the Customer Invoice Discounts page, but you can enter or change the percentage manually.';
@@ -35,12 +39,12 @@ page 2155 "O365 Sales Invoice Discount"
                         trigger OnValidate()
                         begin
                             InvoiceDiscountPct := GetValueWithinBounds(InvoiceDiscountPct, 0, 100);
-                            ValidateInvoiceDiscountPercent;
+                            ValidateInvoiceDiscountPercent();
                         end;
                     }
                     field("Invoice Discount Amount"; InvoiceDiscountAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = "Currency Code";
                         AutoFormatType = 1;
                         Caption = 'Discount Amount';
@@ -53,7 +57,7 @@ page 2155 "O365 Sales Invoice Discount"
                                 InvoiceDiscountPct := InvoiceDiscountAmount / SubTotalAmount * 100
                             else
                                 InvoiceDiscountPct := 0;
-                            ValidateInvoiceDiscountPercent;
+                            ValidateInvoiceDiscountPercent();
                         end;
                     }
                 }
@@ -62,10 +66,10 @@ page 2155 "O365 Sales Invoice Discount"
                     Caption = 'Total After Discount';
                     field(TotalAmount; TotalAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = "Currency Code";
                         AutoFormatType = 1;
-                        CaptionClass = GetCaptionClass;
+                        CaptionClass = GetCaptionClass();
                         ToolTip = 'Specifies the sum of the value in the Line Amount Excl. VAT field on all lines in the document minus any discount amount in the Invoice Discount Amount field.';
 
                         trigger OnValidate()
@@ -75,7 +79,7 @@ page 2155 "O365 Sales Invoice Discount"
                                 InvoiceDiscountPct := (SubTotalAmount - TotalAmount) / SubTotalAmount * 100
                             else
                                 InvoiceDiscountAmount := 0;
-                            ValidateInvoiceDiscountPercent;
+                            ValidateInvoiceDiscountPercent();
                         end;
                     }
                 }
@@ -89,14 +93,14 @@ page 2155 "O365 Sales Invoice Discount"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CalculateTotals;
+        CalculateTotals();
         if not IsInitialized then begin
             IsInitialized := true;
             OriginalInvoiceDiscount := InvoiceDiscountPct;
             if OverrideInitialDiscountPercentage then begin
                 InvoiceDiscountPct := InitialDiscountPercentage;
-                ValidateInvoiceDiscountPercent;
-                CalculateTotals;
+                ValidateInvoiceDiscountPercent();
+                CalculateTotals();
             end;
         end;
     end;
@@ -108,8 +112,8 @@ page 2155 "O365 Sales Invoice Discount"
 
     trigger OnOpenPage()
     begin
-        SetRecFilter;
-        CalculateTotals;
+        SetRecFilter();
+        CalculateTotals();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -120,7 +124,7 @@ page 2155 "O365 Sales Invoice Discount"
         if (CloseAction in [ACTION::LookupOK, ACTION::OK]) and (OriginalInvoiceDiscount <> InvoiceDiscountPct) then
             Session.LogMessage('000023Y', InvoiceDiscountAppliedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvoiceDiscountCategoryLbl);
 
-        CalcInvDiscForHeader;
+        CalcInvDiscForHeader();
     end;
 
     var
@@ -157,7 +161,7 @@ page 2155 "O365 Sales Invoice Discount"
         SalesLine: Record "Sales Line";
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
-        GetTotalSalesHeader;
+        GetTotalSalesHeader();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         if SalesLine.FindFirst() then begin
@@ -185,7 +189,7 @@ page 2155 "O365 Sales Invoice Discount"
             Clear(TotalSalesHeader);
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure ValidateInvoiceDiscountPercent()
@@ -205,11 +209,11 @@ page 2155 "O365 Sales Invoice Discount"
     local procedure GetValueWithinBounds(Value: Decimal; MinValue: Decimal; MaxValue: Decimal): Decimal
     begin
         if Value < MinValue then begin
-            SendOutsideRangeNotification;
+            SendOutsideRangeNotification();
             exit(MinValue);
         end;
         if Value > MaxValue then begin
-            SendOutsideRangeNotification;
+            SendOutsideRangeNotification();
             exit(MaxValue);
         end;
         exit(Value);
@@ -222,10 +226,10 @@ page 2155 "O365 Sales Invoice Discount"
     begin
         if AmountOutsideOfBoundsNotificationSend then
             exit;
-        AmountOutOfBoundsNotification.Id := CreateGuid;
+        AmountOutOfBoundsNotification.Id := CreateGuid();
         AmountOutOfBoundsNotification.Message := AmountOutsideRangeMsg;
         AmountOutOfBoundsNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        GetTotalSalesHeader;
+        GetTotalSalesHeader();
         NotificationLifecycleMgt.SendNotification(AmountOutOfBoundsNotification, TotalSalesHeader.RecordId);
         AmountOutsideOfBoundsNotificationSend := true;
     end;
@@ -240,4 +244,4 @@ page 2155 "O365 Sales Invoice Discount"
         end;
     end;
 }
-
+#endif

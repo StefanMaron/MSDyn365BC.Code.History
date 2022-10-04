@@ -107,8 +107,9 @@ table 5203 "Employee Qualification"
     end;
 
     var
-        Text000: Label 'You cannot delete employee qualification information if there are comments associated with it.';
         Qualification: Record Qualification;
         Employee: Record Employee;
+
+        Text000: Label 'You cannot delete employee qualification information if there are comments associated with it.';
 }
 

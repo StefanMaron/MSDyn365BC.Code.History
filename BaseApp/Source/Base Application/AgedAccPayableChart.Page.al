@@ -41,7 +41,7 @@ page 769 "Aged Acc. Payable Chart"
 
                 trigger Refresh()
                 begin
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
         }
@@ -61,7 +61,7 @@ page 769 "Aged Acc. Payable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Day;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(WeekPeriod)
@@ -74,7 +74,7 @@ page 769 "Aged Acc. Payable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(MonthPeriod)
@@ -87,7 +87,7 @@ page 769 "Aged Acc. Payable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Month;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(QuarterPeriod)
@@ -100,7 +100,7 @@ page 769 "Aged Acc. Payable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Quarter;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(YearPeriod)
@@ -113,7 +113,7 @@ page 769 "Aged Acc. Payable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Year;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(All)
@@ -126,7 +126,7 @@ page 769 "Aged Acc. Payable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::None;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             separator(Action5)
@@ -151,7 +151,7 @@ page 769 "Aged Acc. Payable Chart"
     begin
         if "No." <> xRec."No." then begin
             VendorNo := "No.";
-            UpdateChart;
+            UpdateChart();
         end;
     end;
 
@@ -183,15 +183,15 @@ page 769 "Aged Acc. Payable Chart"
     local procedure Initialize()
     begin
         isInitialized := true;
-        UpdatePage;
+        UpdatePage();
     end;
 
     local procedure UpdatePage()
     begin
-        EnableActions;
-        UpdateStatusText;
-        UpdateChart;
-        SavePeriodSelection;
+        EnableActions();
+        UpdateStatusText();
+        UpdateChart();
+        SavePeriodSelection();
     end;
 
     local procedure UpdateChart()
@@ -205,7 +205,7 @@ page 769 "Aged Acc. Payable Chart"
         if UpdatedVendorNo = VendorNo then
             exit;
 
-        BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+        BusinessChartBuffer."Period Filter Start Date" := WorkDate();
         AgedAccPayable.UpdateDataPerVendor(BusinessChartBuffer, VendorNo, TempEntryNoAmountBuf);
         BusinessChartBuffer.Update(CurrPage.BusinessChart);
         UpdatedVendorNo := VendorNo;
@@ -255,7 +255,7 @@ page 769 "Aged Acc. Payable Chart"
             exit;
 
         VendorNo := NewVendorNo;
-        UpdateChart;
+        UpdateChart();
     end;
 }
 

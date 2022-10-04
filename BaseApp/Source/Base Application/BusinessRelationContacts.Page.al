@@ -12,23 +12,23 @@ page 5062 "Business Relation Contacts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the contact number of the company you are assigning a business relation.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the contact company to which you assign a business relation. This field is not editable.';
                 }
-                field("Link to Table"; "Link to Table")
+                field("Link to Table"; Rec."Link to Table")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the name of the table to which the contact is linked. There are four possible options: &lt;blank&gt;, Vendor, Customer, and Bank Account.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

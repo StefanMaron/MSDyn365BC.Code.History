@@ -8,7 +8,7 @@ page 9109 "Item Warehouse FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Suite;
                 Caption = 'Item No.';
@@ -16,30 +16,30 @@ page 9109 "Item Warehouse FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
-            field("Identifier Code"; "Identifier Code")
+            field("Identifier Code"; Rec."Identifier Code")
             {
                 ApplicationArea = Warehouse;
                 ToolTip = 'Specifies a unique code for the item in terms that are useful for automatic data capture.';
             }
-            field("Base Unit of Measure"; "Base Unit of Measure")
+            field("Base Unit of Measure"; Rec."Base Unit of Measure")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the unit in which the item is held in inventory.';
             }
-            field("Put-away Unit of Measure Code"; "Put-away Unit of Measure Code")
+            field("Put-away Unit of Measure Code"; Rec."Put-away Unit of Measure Code")
             {
                 ApplicationArea = Warehouse;
                 ToolTip = 'Specifies the code of the item unit of measure in which the program will put the item away.';
             }
-            field("Purch. Unit of Measure"; "Purch. Unit of Measure")
+            field("Purch. Unit of Measure"; Rec."Purch. Unit of Measure")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the unit of measure code used when you purchase the item.';
             }
-            field("Item Tracking Code"; "Item Tracking Code")
+            field("Item Tracking Code"; Rec."Item Tracking Code")
             {
                 ApplicationArea = ItemTracking;
                 ToolTip = 'Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.';
@@ -53,23 +53,23 @@ page 9109 "Item Warehouse FactBox"
                     PAGE.Run(PAGE::"Item Tracking Code Card", ItemTrackCode);
                 end;
             }
-            field("Special Equipment Code"; "Special Equipment Code")
+            field("Special Equipment Code"; Rec."Special Equipment Code")
             {
                 ApplicationArea = Warehouse;
                 ToolTip = 'Specifies the code of the equipment that warehouse employees must use when handling the item.';
             }
-            field("Last Phys. Invt. Date"; "Last Phys. Invt. Date")
+            field("Last Phys. Invt. Date"; Rec."Last Phys. Invt. Date")
             {
                 ApplicationArea = Warehouse;
                 ToolTip = 'Specifies the date on which you last posted the results of a physical inventory for the item to the item ledger.';
             }
-            field(NetWeight; GetNetWeight)
+            field(NetWeight; GetNetWeight())
             {
                 ApplicationArea = Suite;
                 Caption = 'Net Weight';
                 ToolTip = 'Specifies the total net weight of the items that should be shipped.';
             }
-            field("Warehouse Class Code"; "Warehouse Class Code")
+            field("Warehouse Class Code"; Rec."Warehouse Class Code")
             {
                 ApplicationArea = Warehouse;
                 Caption = 'Warehouse Class Code';
@@ -84,7 +84,7 @@ page 9109 "Item Warehouse FactBox"
 
     trigger OnAfterGetRecord()
     begin
-        GetNetWeight;
+        GetNetWeight();
     end;
 
     local procedure ShowDetails()

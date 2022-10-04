@@ -7,12 +7,14 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     end;
 
     var
-        Text002: Label 'must be filled in when a quantity is reserved.';
-        Text004: Label 'must not be changed when a quantity is reserved.';
         ReservMgt: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         DeleteItemTracking: Boolean;
+        CalledFromInvtPutawayPick: Boolean;
+
+        Text002: Label 'must be filled in when a quantity is reserved.';
+        Text004: Label 'must not be changed when a quantity is reserved.';
 
     local procedure FindReservEntry(JobJnlLine: Record "Job Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
@@ -93,7 +95,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
 
         if HasError then begin
             FindReservEntry(NewJobJnlLine, TempReservEntry);
-            TempReservEntry.ClearTrackingFilter;
+            TempReservEntry.ClearTrackingFilter();
 
             PointerChanged := (NewJobJnlLine."Job No." <> OldJobJnlLine."Job No.") or
               (NewJobJnlLine."Entry Type" <> OldJobJnlLine."Entry Type") or
@@ -128,7 +130,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
                     exit;
             ReservMgt.SetReservSource(NewJobJnlLine);
             if "Qty. per Unit of Measure" <> OldJobJnlLine."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             if "Quantity (Base)" * OldJobJnlLine."Quantity (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
@@ -154,11 +156,11 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     procedure DeleteLineConfirm(var JobJnlLine: Record "Job Journal Line"): Boolean
     begin
         with JobJnlLine do begin
-            if not ReservEntryExist then
+            if not ReservEntryExist() then
                 exit(true);
 
             ReservMgt.SetReservSource(JobJnlLine);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -185,8 +187,14 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
         if IsReclass then
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, JobJnlLine."Posting Date");
-        ItemTrackingLines.SetInbound(JobJnlLine.IsInbound);
+        ItemTrackingLines.SetInbound(JobJnlLine.IsInbound());
         ItemTrackingLines.RunModal();
+    end;
+
+    internal procedure TransJobJnlLineToItemJnlLine(var JobJnlLine: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; CalledFromInvtPutawayPickVal: Boolean): Decimal
+    begin
+        CalledFromInvtPutawayPick := CalledFromInvtPutawayPickVal;
+        exit(TransJobJnlLineToItemJnlLine(JobJnlLine, ItemJnlLine, TransferQty));
     end;
 
     procedure TransJobJnlLineToItemJnlLine(var JobJnlLine: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal): Decimal
@@ -195,7 +203,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     begin
         if not FindReservEntry(JobJnlLine, OldReservEntry) then
             exit(TransferQty);
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
         // Handle Item Tracking on drop shipment:
         Clear(CreateReservEntry);
 
@@ -203,6 +211,9 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
 
         if TransferQty = 0 then
             exit;
+
+        //Do not transfer remaining quantity when posting from Inventory Pick as the entry is created during posting process of Item through Item Jnl Line.
+        CreateReservEntry.SetCalledFromInvtPutawayPick(CalledFromInvtPutawayPick);
 
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then
             repeat

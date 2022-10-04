@@ -1,5 +1,6 @@
 table 134399 "Table With PK 16 Fields"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -93,7 +94,7 @@ table 134399 "Table With PK 16 Fields"
     [Scope('OnPrem')]
     procedure Create(Type: Option; "Code": Code[20]; RecID: RecordID)
     begin
-        Init;
+        Init();
         Field6 := Type;
         Field1 := Code;
         Field2 := LibraryRandom.RandInt(1000);
@@ -101,7 +102,7 @@ table 134399 "Table With PK 16 Fields"
         Field4 := Today;
         Field5 := LibraryRandom.RandDec(1000, 2);
         Field7 := CurrentDateTime;
-        Field8 := CreateGuid;
+        Field8 := CreateGuid();
         Field9 := true;
         Field10 := CurrentDateTime - Field7;
         Field11 := RecID;
@@ -110,7 +111,7 @@ table 134399 "Table With PK 16 Fields"
         Field14 := CopyStr(LibraryRandom.RandText(10), 1, 10);
         Field15 := CopyStr(LibraryRandom.RandText(10), 1, 10);
         Field16 := CopyStr(LibraryRandom.RandText(9), 1, 9);
-        Insert;
+        Insert();
     end;
 }
 

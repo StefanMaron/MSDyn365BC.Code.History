@@ -11,8 +11,6 @@ codeunit 1351 "Telemetry Subscribers"
         Telemetry: Codeunit Telemetry;
         ProfileChangedTelemetryMsg: Label 'Profile changed from %1 to %2.', Comment = '%1=Previous profile id, %2=New profile id';
         ProfileChangedTelemetryCategoryTxt: Label 'AL User Profile';
-        NoSeriesCategoryTxt: Label 'AL NoSeries', Locked = true;
-        NoSeriesEditedTelemetryTxt: Label 'The number series was changed by the user.', Locked = true;
         PermissionSetCategoryTxt: Label 'AL PermissionSet', Locked = true;
         PermissionSetLinkAddedTelemetryTxt: Label 'A Permission Set Link was added between Source Permission Set %1 and Permission Set %2. Total count of Permission Set Links are %3.', Locked = true;
         PermissionSetAssignedToUserGroupTelemetryTxt: Label 'Permission Set %1 was added to a user group %2.', Locked = true;
@@ -46,7 +44,9 @@ codeunit 1351 "Telemetry Subscribers"
         UserCreatingInteractionLogEntryBasedOnEmailTxt: Label 'User created an interaction log entry from an email message.', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         BankAccountRecPostedWithBankAccCurrencyCodeMsg: Label 'Bank Account Reconciliation posted with CurrencyCode set to: %1', Locked = true;
+#if not CLEAN21
         BankAccountRecAutoMatchMsg: Label 'Total number of lines in the bank statement: %1; Total number of automatches: %2', Locked = true;
+#endif
         BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
         BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
         PurchaseDocumentInformationLbl: Label 'Purchase document posted: %1', Locked = true;
@@ -63,15 +63,6 @@ codeunit 1351 "Telemetry Subscribers"
             exit;
 
         Session.LogMessage('00001O5', StrSubstNo(ProfileChangedTelemetryMsg, PrevAllProfile."Profile ID", CurrentAllProfile."Profile ID"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', ProfileChangedTelemetryCategoryTxt);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"BC O365 No. Series Card", 'OnAfterNoSeriesModified', '', true, true)]
-    local procedure LogNoSeriesModifiedInvoicing()
-    begin
-        if not IsSaaS() then
-            exit;
-
-        Session.LogMessage('00001PI', NoSeriesEditedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NoSeriesCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Permission Set Link", 'OnAfterInsertEvent', '', true, true)]
@@ -479,7 +470,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000CST', StrSubstNo(PurchaseDocumentInformationLbl, DocumentNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", 'OnAfterConfirmPost', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", 'OnAfterPost', '', true, true)]
     local procedure LogNumberOfSalesLines(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -609,11 +600,13 @@ codeunit 1351 "Telemetry Subscribers"
         end;
     end;
 
+#if not CLEAN21
     [EventSubscriber(ObjectType::Codeunit, codeunit::"Match Bank Rec. Lines", 'OnAfterMatchBankRecLinesMatchSingle', '', true, true)]
     local procedure LogTelemetryOnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates: Integer; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer")
     begin
         Session.LogMessage('0000AHZ', StrSubstNo(BankAccountRecAutoMatchMsg, CountMatchCandidates, TempBankStatementMatchingBuffer.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Page, Page::"Payment Reconciliation Journal", 'OnBeforeInvokePost', '', true, true)]
     local procedure LogTelemetryOnPaymentRecJournalOnBeforeInvokePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")

@@ -30,7 +30,7 @@ codeunit 131335 "Library - XML Read"
     procedure Initialize(FullFilePath: Text)
     begin
         Clear(XMLDocOut);
-        XMLDocOut := XMLDocOut.XmlDocument;
+        XMLDocOut := XMLDocOut.XmlDocument();
         // TFS 379960 - We keep XmlDocument.Load, because the library intended to be ran on client
         XMLDocOut.Load(FullFilePath);
     end;
@@ -38,14 +38,14 @@ codeunit 131335 "Library - XML Read"
     procedure InitializeFromXmlText(XmlText: Text)
     begin
         CLEAR(XMLDocOut);
-        XMLDocOut := XMLDocOut.XmlDocument;
+        XMLDocOut := XMLDocOut.XmlDocument();
         XMLDocOut.LoadXml(XmlText);
     end;
 
     procedure InitializeFromStream(XmlStream: InStream)
     begin
         CLEAR(XMLDocOut);
-        XMLDocOut := XMLDocOut.XmlDocument;
+        XMLDocOut := XMLDocOut.XmlDocument();
         XMLDocOut.Load(XmlStream);
     end;
 

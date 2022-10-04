@@ -15,7 +15,7 @@ page 9860 "AAD Application List"
         {
             repeater(Group)
             {
-                field("Client ID"; "Client Id")
+                field("Client ID"; Rec."Client Id")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;

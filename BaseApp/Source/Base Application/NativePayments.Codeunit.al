@@ -42,7 +42,7 @@ codeunit 2831 "Native - Payments"
 
         GenJournalLine.Validate("Posting Date", NativePayment."Payment Date");
         GenJournalLine."Document No." := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", GenJournalLine."Posting Date", false);
-        GenJournalLine.Validate("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType);
+        GenJournalLine.Validate("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType());
         GenJournalLine.Validate("Account No.", NativePayment."Customer No.");
         GenJournalLine.Validate(Amount, NativePayment.Amount);
         GenJournalLine.Validate("Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
@@ -62,11 +62,10 @@ codeunit 2831 "Native - Payments"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
-        if SalesInvoiceHeader.FindSet() then begin
+        if SalesInvoiceHeader.FindSet() then
             repeat
                 LoadPayments(NativePayment, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
             until SalesInvoiceHeader.Next() = 0;
-        end;
     end;
 
     procedure LoadPayments(var NativePayment: Record "Native - Payment"; AppliesToInvoiceIdFilter: Text)
@@ -90,7 +89,7 @@ codeunit 2831 "Native - Payments"
 
         PaymentCustLedgerEntry.SetCurrentKey("Closed by Entry No.");
         PaymentCustLedgerEntry.SetRange("Closed by Entry No.", InvoiceCustLedgerEntry."Entry No.");
-        if PaymentCustLedgerEntry.FindSet() then begin
+        if PaymentCustLedgerEntry.FindSet() then
             repeat
                 PaymentNo += 10000;
                 Clear(NativePayment);
@@ -99,7 +98,6 @@ codeunit 2831 "Native - Payments"
                 SetValuesFromCustomerLedgerEntry(NativePayment, PaymentCustLedgerEntry);
                 NativePayment.Insert();
             until PaymentCustLedgerEntry.Next() = 0;
-        end;
 
         if PaymentCustLedgerEntry.Get(InvoiceCustLedgerEntry."Closed by Entry No.") then begin
             PaymentNo += 10000;
@@ -147,7 +145,7 @@ codeunit 2831 "Native - Payments"
         ApplyUnapplyParameters."Posting Date" := DetailedCustLedgEntry."Posting Date";
         CustEntryApplyPostedEntries.PostUnApplyCustomerCommit(DetailedCustLedgEntry, ApplyUnapplyParameters, false);
 
-        ReversalEntry.SetHideWarningDialogs;
+        ReversalEntry.SetHideWarningDialogs();
         ReversalEntry.ReverseTransaction(PaymentCustLedgerEntry."Transaction No.");
     end;
 }

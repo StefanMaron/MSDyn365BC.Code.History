@@ -14,7 +14,7 @@ report 1011 "Job Suggested Billing"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(JobTableCaptionJobFilter; TableCaption + ': ' + JobFilter)
@@ -173,7 +173,7 @@ report 1011 "Job Suggested Billing"
                     JobBuffer[1]."Amount 3" := TotalAmt[3];
                     JobBuffer[1]."Amount 4" := TotalAmt[4];
                     JobBuffer[2] := JobBuffer[1];
-                    if JobBuffer[2].Find then begin
+                    if JobBuffer[2].Find() then begin
                         JobBuffer[2]."Amount 1" := JobBuffer[2]."Amount 1" + JobBuffer[1]."Amount 1";
                         JobBuffer[2]."Amount 2" := JobBuffer[2]."Amount 2" + JobBuffer[1]."Amount 2";
                         JobBuffer[2]."Amount 3" := JobBuffer[2]."Amount 3" + JobBuffer[1]."Amount 3";
@@ -197,7 +197,7 @@ report 1011 "Job Suggested Billing"
         dataitem(TotalBilling; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(TotalForCustTableCaption; Text001 + ' ' + Cust.TableCaption)
+            column(TotalForCustTableCaption; Text001 + ' ' + Cust.TableCaption())
             {
             }
             column(DescriptionCaption; DescriptionCaptionLbl)
@@ -294,8 +294,8 @@ report 1011 "Job Suggested Billing"
 
     trigger OnPreReport()
     begin
-        JobFilter := Job.GetFilters;
-        JobTaskFilter := "Job Task".GetFilters;
+        JobFilter := Job.GetFilters();
+        JobTaskFilter := "Job Task".GetFilters();
         CurrencyField[2] := CurrencyField[1];
         CurrencyField[3] := CurrencyField[1];
         JobBuffer[1].DeleteAll();

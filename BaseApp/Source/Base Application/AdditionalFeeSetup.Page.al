@@ -12,52 +12,52 @@ page 1050 "Additional Fee Setup"
             repeater(Control15)
             {
                 ShowCaption = false;
-                field("Charge Per Line"; "Charge Per Line")
+                field("Charge Per Line"; Rec."Charge Per Line")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that additional fees are calculated per document line.';
                     Visible = false;
                 }
-                field("Reminder Terms Code"; "Reminder Terms Code")
+                field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the reminder terms code for the reminder.';
                     Visible = false;
                 }
-                field("Reminder Level No."; "Reminder Level No.")
+                field("Reminder Level No."; Rec."Reminder Level No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total of the additional fee amounts on the reminder lines.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency that is used on the entry.';
                 }
-                field("Threshold Remaining Amount"; "Threshold Remaining Amount")
+                field("Threshold Remaining Amount"; Rec."Threshold Remaining Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount that remains before the additional fee is incurred.';
                 }
-                field("Additional Fee Amount"; "Additional Fee Amount")
+                field("Additional Fee Amount"; Rec."Additional Fee Amount")
                 {
                     ApplicationArea = Suite;
                     CaptionClass = AddFeeCaptionExpression;
                     ToolTip = 'Specifies the line amount of the additional fee.';
                 }
-                field("Additional Fee %"; "Additional Fee %")
+                field("Additional Fee %"; Rec."Additional Fee %")
                 {
                     ApplicationArea = Suite;
                     CaptionClass = AddFeePercCaptionExpression;
                     ToolTip = 'Specifies the percentage of the total amount that makes up the additional fee.';
                 }
-                field("Min. Additional Fee Amount"; "Min. Additional Fee Amount")
+                field("Min. Additional Fee Amount"; Rec."Min. Additional Fee Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the lowest amount that a fee can be.';
                 }
-                field("Max. Additional Fee Amount"; "Max. Additional Fee Amount")
+                field("Max. Additional Fee Amount"; Rec."Max. Additional Fee Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the highest amount that a fee can be.';
@@ -78,18 +78,18 @@ page 1050 "Additional Fee Setup"
     trigger OnAfterGetCurrRecord()
     begin
         if ShowChart then
-            CurrPage.Chart.PAGE.UpdateData;
+            CurrPage.Chart.PAGE.UpdateData();
     end;
 
     trigger OnOpenPage()
     var
         ReminderLevel: Record "Reminder Level";
     begin
-        ShowChart := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
+        ShowChart := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows;
         if ShowChart then begin
             ReminderLevel.Get("Reminder Terms Code", "Reminder Level No.");
             CurrPage.Chart.PAGE.SetViewMode(ReminderLevel, "Charge Per Line", false);
-            CurrPage.Chart.PAGE.UpdateData;
+            CurrPage.Chart.PAGE.UpdateData();
         end;
 
         if "Charge Per Line" then

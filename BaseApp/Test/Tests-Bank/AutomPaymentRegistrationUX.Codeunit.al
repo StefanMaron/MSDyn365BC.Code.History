@@ -64,7 +64,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankPaymentWorksheet.Trap;
         BankAccReconciliation.OpenNewWorksheet;
 
-        BankPaymentWorksheet.Close;
+        BankPaymentWorksheet.Close();
     end;
 
     [Test]
@@ -83,7 +83,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
 
         BankPaymentWorksheet.Trap;
         BankAccReconciliation.OpenNewWorksheet;
-        BankPaymentWorksheet.Close;
+        BankPaymentWorksheet.Close();
 
         BankAccount.Get(BankAccNo);
         BankAccReconciliation.SetRange("Bank Account No.", BankAccNo);

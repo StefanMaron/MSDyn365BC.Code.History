@@ -16,7 +16,7 @@ codeunit 5433 "Automation - Apply RSPackage"
         ConfigPackageMgt.ApplyPackage(Rec, ConfigPackageTable, true);
 
         // refreshing the record as ApplyPackage updated the Configuration package with the number of records in the package, etc.
-        Find;
+        Find();
         Validate("Apply Status", "Apply Status"::Completed);
         Modify(true);
         Commit();

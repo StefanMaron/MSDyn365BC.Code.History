@@ -8,7 +8,7 @@ codeunit 5647 "Make Maintenance Ledger Entry"
     procedure CopyFromFAJnlLine(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; FAJnlLine: Record "FA Journal Line")
     begin
         with MaintenanceLedgEntry do begin
-            Init;
+            Init();
             "User ID" := UserId;
             "G/L Entry No." := 0;
             "Depreciation Book Code" := FAJnlLine."Depreciation Book Code";
@@ -43,7 +43,7 @@ codeunit 5647 "Make Maintenance Ledger Entry"
     procedure CopyFromGenJnlLine(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; GenJnlLine: Record "Gen. Journal Line")
     begin
         with MaintenanceLedgEntry do begin
-            Init;
+            Init();
             "User ID" := UserId;
             "Entry No." := GenJnlLine."FA Error Entry No.";
             "G/L Entry No." := 1;
@@ -94,7 +94,7 @@ codeunit 5647 "Make Maintenance Ledger Entry"
             "FA Subclass Code" := FA."FA Subclass Code";
             "FA Location Code" := FA."FA Location Code";
             "Location Code" := FA."Location Code";
-            "FA Exchange Rate" := FADeprBook.GetExchangeRate;
+            "FA Exchange Rate" := FADeprBook.GetExchangeRate();
         end;
 
         OnAfterCopyFromFACard(MaintenanceLedgEntry, FA, FADeprBook);

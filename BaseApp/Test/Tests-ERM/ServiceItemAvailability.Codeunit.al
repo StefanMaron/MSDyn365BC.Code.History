@@ -106,7 +106,7 @@ codeunit 136137 "Service Item Availability"
                 AssertLocationDemandQuantities(DemandQuantity, 0, -DemandQuantity, ItemAvailabilityByLocation);
                 FoundSecondLocation := true;
             end;
-        until not ItemAvailabilityByLocation.ItemAvailLocLines.Next;
+        until not ItemAvailabilityByLocation.ItemAvailLocLines.Next();
 
         Assert.AreEqual(true, FoundSecondLocation, StrSubstNo('Verify that location %1 is found in the grid.', SecondLocationName));
         Assert.AreEqual(true, FoundFirstLocation, StrSubstNo('Verify that location %1 is found in the grid.', FirstLocationName));
@@ -151,7 +151,7 @@ codeunit 136137 "Service Item Availability"
                   ItemAvailabilityByLocation);
                 FoundLocationCount := FoundLocationCount + 1;
             end;
-        until not ItemAvailabilityByLocation.ItemAvailLocLines.Next;
+        until not ItemAvailabilityByLocation.ItemAvailLocLines.Next();
 
         Assert.AreEqual(1, FoundLocationCount, 'Number of lines with supply and demand for the test location');
     end;
@@ -208,7 +208,7 @@ codeunit 136137 "Service Item Availability"
           'Quantity on Demands from Service is not correct');
 
         // CLEANUP: Close the sku page
-        StockKeepingCard.Close;
+        StockKeepingCard.Close();
     end;
 
     [Test]
@@ -234,12 +234,12 @@ codeunit 136137 "Service Item Availability"
         MoveItemCardtoItemNo(ItemCard, Item);
         ItemAvailabilityByPeriod.Trap;
         ItemCard.Period.Invoke;
-        SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate);
+        SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate());
 
         // VERIFY: The quantities in demand by period grid columns for the demand date
         // VERIFY: Gross Requirement, Scheduled Receipt and Projected Available Balance are correct.
         AssertDemandByPeriodQuantities(DemandQuantity, SupplyQuantity, SupplyQuantity - DemandQuantity, ItemAvailabilityByPeriod);
-        ItemAvailabilityByPeriod.Close;
+        ItemAvailabilityByPeriod.Close();
     end;
 
     [Test]
@@ -264,7 +264,7 @@ codeunit 136137 "Service Item Availability"
         ServiceOrderNo := CreateServiceDemand(Item."No.", DemandQuantity);
 
         // EXECUTE: Open the Item Availability By Period page.
-        NeededByDate := CalcDate('<+1D>', WorkDate);
+        NeededByDate := CalcDate('<+1D>', WorkDate());
         EditServiceLinesNeededDate(ServiceOrderNo, NeededByDate);
 
         ItemCard.OpenView;
@@ -274,11 +274,11 @@ codeunit 136137 "Service Item Availability"
 
         // VERIFY: The quantities in demand by period grid columns for demand date and work date
         // VERIFY: Gross Requirement, Scheduled Receipt and Projected Available Balance are correct.
-        SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate);
+        SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate());
         AssertDemandByPeriodQuantities(0, SupplyQuantity, SupplyQuantity, ItemAvailabilityByPeriod);
         SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", NeededByDate);
         AssertDemandByPeriodQuantities(DemandQuantity, 0, SupplyQuantity - DemandQuantity, ItemAvailabilityByPeriod);
-        ItemAvailabilityByPeriod.Close;
+        ItemAvailabilityByPeriod.Close();
     end;
 
     [Test]
@@ -316,10 +316,10 @@ codeunit 136137 "Service Item Availability"
                 AssertVariantDemandQuantities(DemandQuantity, SupplyQuantity, SupplyQuantity - DemandQuantity, ItemAvailabilityByVariant);
                 FoundVariantCount := FoundVariantCount + 1;
             end;
-        until not ItemAvailabilityByVariant.ItemAvailLocLines.Next;
+        until not ItemAvailabilityByVariant.ItemAvailLocLines.Next();
 
         Assert.AreEqual(1, FoundVariantCount, 'Number of lines with supply and demand for the Variant is 1.');
-        ItemAvailabilityByVariant.Close;
+        ItemAvailabilityByVariant.Close();
     end;
 
     [Test]
@@ -365,11 +365,11 @@ codeunit 136137 "Service Item Availability"
                 AssertVariantDemandQuantities(DemandQuantity, 0, -DemandQuantity, ItemAvailabilityByVariant);
                 FoundSecondVariant := true;
             end;
-        until not ItemAvailabilityByVariant.ItemAvailLocLines.Next;
+        until not ItemAvailabilityByVariant.ItemAvailLocLines.Next();
 
         Assert.AreEqual(true, FoundFirstVariant, 'Found first variant');
         Assert.AreEqual(true, FoundSecondVariant, 'Found second variant');
-        ItemAvailabilityByVariant.Close;
+        ItemAvailabilityByVariant.Close();
     end;
 
     [Test]
@@ -396,7 +396,7 @@ codeunit 136137 "Service Item Availability"
             // SETUP: Create Assembly Order.
             Quantity := LibraryRandom.RandDec(10, 2);
             QuantityPer := LibraryRandom.RandDec(10, 2);
-            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, ParentItem."No.", Location.Code, Quantity, '');
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), ParentItem."No.", Location.Code, Quantity, '');
             LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", '', Quantity, QuantityPer, '');
 
             // EXECUTE: Create Stockkeeping Unit.
@@ -425,7 +425,7 @@ codeunit 136137 "Service Item Availability"
         Initialize();
         SupplyQuantity := RANDOMRANGE(2, 12);
         DemandQuantity := LibraryRandom.RandInt(SupplyQuantity - 1);
-        PostingDate := CalcDate('<-1D>', WorkDate);
+        PostingDate := CalcDate('<-1D>', WorkDate());
         PostingDate1 := CalcDate('<-1M>', PostingDate);
         NeededByDate := CalcDate('<+1Y>', PostingDate1);
 
@@ -440,7 +440,7 @@ codeunit 136137 "Service Item Availability"
         // Enqueue value for ItemAvailByEventHandler.
         LibraryVariableStorage.Enqueue(PostingDate1);
         LibraryVariableStorage.Enqueue(PostingDate);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(NeededByDate);
 
         // EXECUTE: Open the Item Availability By Event page.
@@ -466,7 +466,7 @@ codeunit 136137 "Service Item Availability"
         UpdateSalesReceivablesSetup();
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
-        ShipmentDate[1] := WorkDate;
+        ShipmentDate[1] := WorkDate();
         ShipmentDate[2] := CalcDate('<1M>', ShipmentDate[1]);
 
         CreateBlanketSalesOrderWith2Lines(BlanketSalesHeader[1], TotalQty[1], QtyToShip[1], Customer."No.", Item."No.", ShipmentDate);
@@ -511,8 +511,8 @@ codeunit 136137 "Service Item Availability"
         Qty2 := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Two Item Ledger Entries for Item "I" on Location "L": "ILE1" and "ILE2"
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Qty1, WorkDate, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Qty2, WorkDate, LibraryRandom.RandDec(100, 2));
+        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Qty1, WorkDate(), LibraryRandom.RandDec(100, 2));
+        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Qty2, WorkDate(), LibraryRandom.RandDec(100, 2));
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 
@@ -623,19 +623,19 @@ codeunit 136137 "Service Item Availability"
     local procedure CreatePurchaseSupply(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
     begin
         // Creates a Purchase order for the given item at the specified location.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyVariant(ItemNo: Code[20]; Quantity: Integer; VariantCode: Code[10]): Code[20]
     begin
         // Creates a Purchase order for the given item After a source document date.
-        exit(CreatePurchaseSupplyBasis(ItemNo, Quantity, '', VariantCode, WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, Quantity, '', VariantCode, WorkDate()));
     end;
 
     local procedure CreateSalesLineWithReservedQuantity(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
@@ -676,17 +676,17 @@ codeunit 136137 "Service Item Availability"
 
     local procedure CreateServiceDemand(ItemNo: Code[20]; Quantity: Integer): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', '', WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', '', WorkDate()));
     end;
 
     local procedure CreateServiceDemandAtLocation(ItemNo: Code[20]; Quantity: Integer; LocationCode: Code[10]): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, LocationCode, '', WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, LocationCode, '', WorkDate()));
     end;
 
     local procedure CreateServiceDemandVariant(ItemNo: Code[20]; Quantity: Integer; VariantCode: Code[10]): Code[20]
     begin
-        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', VariantCode, WorkDate));
+        exit(CreateServiceDemandBasis(ItemNo, Quantity, '', VariantCode, WorkDate()));
     end;
 
     local procedure CreateStockkeepingUnit(ItemNo: Code[20]; LocationCode: Code[10])
@@ -769,7 +769,7 @@ codeunit 136137 "Service Item Availability"
             "Remaining Forecast" := LibraryRandom.RandDec(100, 2);
             "Gross Requirement" := LibraryRandom.RandDec(100, 2);
             "Scheduled Receipt" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -805,7 +805,7 @@ codeunit 136137 "Service Item Availability"
                 Item.Get(ServiceItem."Item No.");
                 if (Customer.Blocked = Customer.Blocked::" ") and not Item.Blocked then
                     exit;
-            until ServiceItem.Next = 0;
+            until ServiceItem.Next() = 0;
         Error(NoDataForExecutionError);
     end;
 
@@ -930,7 +930,7 @@ codeunit 136137 "Service Item Availability"
 
             // Verify the Data is sorting correctly by date.
             Assert.AreEqual(ExpectedPeriodStartDate[i], ItemAvailabilityByEvent."Period Start".AsDate, PeriodStartErrorMsg);
-            ItemAvailabilityByEvent.Next;
+            ItemAvailabilityByEvent.Next();
         end;
         ItemAvailabilityByEvent.OK.Invoke;
     end;
@@ -1013,7 +1013,7 @@ codeunit 136137 "Service Item Availability"
         ItemAvailabilityByEvent."Gross Requirement".AssertEquals(Gross);
         ItemAvailabilityByEvent."Projected Inventory".AssertEquals(Projected);
         ItemAvailabilityByEvent.Forecast.AssertEquals(Forecast);
-        ItemAvailabilityByEvent.Next;
+        ItemAvailabilityByEvent.Next();
     end;
 
     [RecallNotificationHandler]

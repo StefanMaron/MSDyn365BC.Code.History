@@ -7,6 +7,7 @@ table 2002 "Azure Machine Learning Usage"
     ObsoleteReason = 'Table 2003 replaces this.';
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {
@@ -50,7 +51,7 @@ table 2002 "Azure Machine Learning Usage"
         if AzureMLServiceProcessingTime <= 0 then
             Error(ProcessingTimeLessThanZeroErr);
 
-        if GetSingleInstance then begin
+        if GetSingleInstance() then begin
             "Total Processing Time" += AzureMLServiceProcessingTime;
             "Last Date Updated" := Today;
             Modify(true);
@@ -59,8 +60,8 @@ table 2002 "Azure Machine Learning Usage"
 
     procedure IsAzureMLLimitReached(AzureMLUsageLimit: Decimal): Boolean
     begin
-        if GetSingleInstance then
-            if GetTotalProcessingTime >= AzureMLUsageLimit then
+        if GetSingleInstance() then
+            if GetTotalProcessingTime() >= AzureMLUsageLimit then
                 exit(true);
         exit(false);
     end;
@@ -68,24 +69,24 @@ table 2002 "Azure Machine Learning Usage"
     procedure GetTotalProcessingTime(): Decimal
     begin
         // in case Azure ML is used by other features processing time should be added here
-        if GetSingleInstance then
+        if GetSingleInstance() then
             exit("Total Processing Time");
     end;
 
     procedure GetSingleInstance(): Boolean
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit(false);
         if not FindFirst() then begin
-            Init;
+            Init();
             "Last Date Updated" := Today;
-            Insert;
+            Insert();
         end;
 
         // reset total processing time when new month starts
         if Date2DMY(Today, 2) <> Date2DMY("Last Date Updated", 2) then begin
             "Total Processing Time" := 0;
-            Modify;
+            Modify();
         end;
         exit(true);
     end;

@@ -119,11 +119,6 @@ report 6002 "Delete Service Document Log"
     end;
 
     var
-        Text000: Label 'There is nothing to delete.';
-        Text001: Label '%1 %2 records will be deleted.\\Do you want to continue?', Comment = '10 Service Docuent Log record(s) will be deleted.\\Do you want to continue?';
-        Text003: Label 'No records were deleted.';
-        Text004: Label '%1 records were deleted.';
-        Text005: Label '%1 record was deleted.';
         ServHeader: Record "Service Header";
         ServShptHeader: Record "Service Shipment Header";
         ServInvHeader: Record "Service Invoice Header";
@@ -136,11 +131,17 @@ report 6002 "Delete Service Document Log"
         CounterTotal: Integer;
         ProcessDeletedOnly: Boolean;
         HideConfirmationDlg: Boolean;
+        OnPostReportStatus: Boolean;
+
+        Text000: Label 'There is nothing to delete.';
+        Text001: Label '%1 %2 records will be deleted.\\Do you want to continue?', Comment = '10 Service Docuent Log record(s) will be deleted.\\Do you want to continue?';
+        Text003: Label 'No records were deleted.';
+        Text004: Label '%1 records were deleted.';
+        Text005: Label '%1 record was deleted.';
         Text006: Label 'Do you want to delete the service order log entries for deleted service orders?';
         Text007: Label 'Log entries processed: #1######\\';
         Text008: Label 'Log entries deleted:   #2######\\';
         Text009: Label '@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
-        OnPostReportStatus: Boolean;
 
     procedure SetHideConfirmationDlg(HideDlg: Boolean)
     begin

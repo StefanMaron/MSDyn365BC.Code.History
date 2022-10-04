@@ -81,7 +81,7 @@ codeunit 139211 "Json Text Reader/Writer Test"
             SetRange("Token type", "Token type"::"Property Name");
             SetRange(Value, PropertyName);
             FindFirst();
-            Reset;
+            Reset();
             Next;
             case true of
                 PropertyValue.IsText:

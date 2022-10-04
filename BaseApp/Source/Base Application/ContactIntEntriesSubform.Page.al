@@ -27,18 +27,18 @@ page 5073 "Contact Int. Entries Subform"
                         ShowEntryAttachments();
                     end;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code for the salesperson who carried out the interaction.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the type of document if there is one that the interaction log entry records. You cannot change the contents of this field.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the document (if any) that the interaction log entry records.';
@@ -67,12 +67,12 @@ page 5073 "Contact Int. Entries Subform"
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that a comment exists for this interaction log entry.';
                 }
-                field("Opportunity No."; "Opportunity No.")
+                field("Opportunity No."; Rec."Opportunity No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the opportunity to which the interaction is linked.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign (if any) to which the interaction is linked. This field is not editable.';
@@ -88,7 +88,7 @@ page 5073 "Contact Int. Entries Subform"
                     ToolTip = 'Specifies the evaluation of the interaction. There are five options: Very Positive, Positive, Neutral, Negative, and Very Negative.';
                     Visible = false;
                 }
-                field("Time of Interaction"; "Time of Interaction")
+                field("Time of Interaction"; Rec."Time of Interaction")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the time when the interaction was created. This field is not editable.';
@@ -100,19 +100,19 @@ page 5073 "Contact Int. Entries Subform"
                     ToolTip = 'Specifies whether the interaction has been canceled. The field is not editable.';
                     Visible = false;
                 }
-                field("Attempt Failed"; "Attempt Failed")
+                field("Attempt Failed"; Rec."Attempt Failed")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies whether the interaction records an failed attempt to reach the contact. This field is not editable.';
                     Visible = false;
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the duration of the interaction.';
                     Visible = false;
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the cost of the interaction.';

@@ -1,4 +1,4 @@
-﻿report 5754 "Create Pick"
+report 5754 "Create Pick"
 {
     Caption = 'Create Pick';
     ProcessingOnly = true;
@@ -18,10 +18,11 @@
 
                 if PickWhseWkshLine.Find('-') then begin
                     if PickWhseWkshLine."Location Code" = '' then
-                        Location.Init
+                        Location.Init()
                     else
                         Location.Get(PickWhseWkshLine."Location Code");
                     repeat
+                        CheckSourceDocument();
                         PickWhseWkshLine.CheckBin(PickWhseWkshLine."Location Code", PickWhseWkshLine."To Bin Code", true);
                         TempNo := TempNo + 1;
 
@@ -33,19 +34,19 @@
                             PickWhseWkshLine.SetRange("Destination Type", PickWhseWkshLine."Destination Type");
                             PickWhseWkshLine.SetRange("Destination No.", PickWhseWkshLine."Destination No.");
                             OnAfterGetRecordOnBeforeSetPickFiltersPerDestination(PickWhseWkshLine);
-                            SetPickFilters;
+                            SetPickFilters();
                             PickWhseWkshLineFilter.CopyFilter("Destination Type", PickWhseWkshLine."Destination Type");
                             PickWhseWkshLineFilter.CopyFilter("Destination No.", PickWhseWkshLine."Destination No.");
                         end else begin
                             PickWhseWkshLineFilter.CopyFilter("Destination Type", PickWhseWkshLine."Destination Type");
                             PickWhseWkshLineFilter.CopyFilter("Destination No.", PickWhseWkshLine."Destination No.");
-                            SetPickFilters;
+                            SetPickFilters();
                         end;
                         PickWhseWkshLineFilter.CopyFilter("Whse. Document Type", PickWhseWkshLine."Whse. Document Type");
                         PickWhseWkshLineFilter.CopyFilter("Whse. Document No.", PickWhseWkshLine."Whse. Document No.");
                         OnAfterGetRecordOnAfterPickWhseWkshLineFilterSetFilters(PickWhseWkshLineFilter, PickWhseWkshLine);
                     until not PickWhseWkshLine.Find('-');
-                    CheckPickActivity;
+                    CheckPickActivity();
                 end else begin
                     IsHandled := false;
                     OnBeforeNothingToHandedErr(IsHandled, PickWhseWkshLineFilter);
@@ -163,7 +164,7 @@
                             WhseEmployee.SetRange("Location Code", LocationCode);
                             LookupWhseEmployee.LookupMode(true);
                             LookupWhseEmployee.SetTableView(WhseEmployee);
-                            if LookupWhseEmployee.RunModal = ACTION::LookupOK then begin
+                            if LookupWhseEmployee.RunModal() = ACTION::LookupOK then begin
                                 LookupWhseEmployee.GetRecord(WhseEmployee);
                                 AssignedID := WhseEmployee."User ID";
                             end;
@@ -232,9 +233,6 @@
     end;
 
     var
-        NothingToHandedErr: Label 'There is nothing to handle.';
-        Text001: Label 'Pick activity no. %1 has been created.';
-        Text002: Label 'Pick activities no. %1 to %2 have been created.';
         Location: Record Location;
         PickWhseWkshLineFilter: Record "Whse. Worksheet Line";
         Cust: Record Customer;
@@ -257,7 +255,12 @@
         DoNotFillQtytoHandle: Boolean;
         Text003: Label 'You can create a Pick only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
         BreakbulkFilter: Boolean;
+
+        NothingToHandedErr: Label 'There is nothing to handle.';
+        Text001: Label 'Pick activity no. %1 has been created.';
+        Text002: Label 'Pick activities no. %1 to %2 have been created.';
         NothingToHandleErr: Label 'There is nothing to handle. %1.';
+        SourceDocumentDoesNotExistErr: Label 'The %1 does not exist. Filters: %2.', Comment = '%1 = Table caption; %2 = filters';
 
     protected var
         PickWhseWkshLine: Record "Whse. Worksheet Line";
@@ -283,10 +286,10 @@
             if Location."Bin Mandatory" and
                (not Location."Always Create Pick Line")
             then
-                if PickWhseWkshLine.CalcAvailableQtyBase < PickWhseWkshLine."Qty. to Handle (Base)" then
+                if PickWhseWkshLine.CalcAvailableQtyBase() < PickWhseWkshLine."Qty. to Handle (Base)" then
                     Error(
                       Text003,
-                      PickWhseWkshLine.TableCaption, PickWhseWkshLine.FieldCaption("Worksheet Template Name"),
+                      PickWhseWkshLine.TableCaption(), PickWhseWkshLine.FieldCaption("Worksheet Template Name"),
                       PickWhseWkshLine."Worksheet Template Name", PickWhseWkshLine.FieldCaption(Name),
                       PickWhseWkshLine.Name, PickWhseWkshLine.FieldCaption("Location Code"),
                       PickWhseWkshLine."Location Code", PickWhseWkshLine.FieldCaption("Line No."),
@@ -352,7 +355,7 @@
                   "Unit of Measure Code", '', "To Bin Code", "Qty. per Unit of Measure",
                   "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", PickQty, PickQtyBase);
 
-            TotalQtyPickedBase := CreatePick.GetActualQtyPickedBase;
+            TotalQtyPickedBase := CreatePick.GetActualQtyPickedBase();
 
             // Update/delete lines
             PickWhseWkshLine."Qty. to Handle (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. to Handle");
@@ -459,7 +462,7 @@
             exit;
 
         if FirstPickNo = '' then
-            Error(NothingToHandleErr, CreatePick.GetCannotBeHandledReason);
+            Error(NothingToHandleErr, CreatePick.GetCannotBeHandledReason());
     end;
 
     local procedure SetPickFilters()
@@ -469,21 +472,21 @@
         if PerItem then begin
             PickWhseWkshLine.SetRange("Item No.", PickWhseWkshLine."Item No.");
             if PerBin then
-                SetPerBinFilters
+                SetPerBinFilters()
             else begin
                 if not Location."Bin Mandatory" then
                     PickWhseWkshLineFilter.CopyFilter("Shelf No.", PickWhseWkshLine."Shelf No.");
-                SetPerDateFilters;
+                SetPerDateFilters();
             end;
             PickWhseWkshLineFilter.CopyFilter("Item No.", PickWhseWkshLine."Item No.");
         end else begin
             PickWhseWkshLineFilter.CopyFilter("Item No.", PickWhseWkshLine."Item No.");
             if PerBin then
-                SetPerBinFilters
+                SetPerBinFilters()
             else begin
                 if not Location."Bin Mandatory" then
                     PickWhseWkshLineFilter.CopyFilter("Shelf No.", PickWhseWkshLine."Shelf No.");
-                SetPerDateFilters;
+                SetPerDateFilters();
             end;
         end;
 
@@ -496,11 +499,11 @@
             PickWhseWkshLine.SetRange("Shelf No.", PickWhseWkshLine."Shelf No.");
         if PerDate then begin
             PickWhseWkshLine.SetRange("Due Date", PickWhseWkshLine."Due Date");
-            CreateTempLine;
+            CreateTempLine();
             PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
         end else begin
             PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
-            CreateTempLine;
+            CreateTempLine();
         end;
         if not Location."Bin Mandatory" then
             PickWhseWkshLineFilter.CopyFilter("Shelf No.", PickWhseWkshLine."Shelf No.");
@@ -510,11 +513,80 @@
     begin
         if PerDate then begin
             PickWhseWkshLine.SetRange("Due Date", PickWhseWkshLine."Due Date");
-            CreateTempLine;
+            CreateTempLine();
             PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
         end else begin
             PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
-            CreateTempLine;
+            CreateTempLine();
+        end;
+    end;
+
+    local procedure CheckSourceDocument()
+    var
+        SalesLine: Record "Sales Line";
+        PurchLine: Record "Purchase Line";
+        TransLine: Record "Transfer Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        AssemblyLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        case PickWhseWkshLine."Source Type" of
+            DATABASE::"Sales Line":
+                begin
+                    SalesLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
+                    SalesLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+                    SalesLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+                    if SalesLine.IsEmpty() then
+                        Error(SourceDocumentDoesNotExistErr, SalesLine.TableCaption(), SalesLine.GetFilters());
+                end;
+            DATABASE::"Purchase Line":
+                begin
+                    PurchLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
+                    PurchLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+                    PurchLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+                    if PurchLine.IsEmpty() then
+                        Error(SourceDocumentDoesNotExistErr, PurchLine.TableCaption(), PurchLine.GetFilters());
+                end;
+            DATABASE::"Transfer Line":
+                begin
+                    TransLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+                    TransLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+                    if TransLine.IsEmpty() then
+                        Error(SourceDocumentDoesNotExistErr, TransLine.TableCaption(), TransLine.GetFilters());
+                end;
+            DATABASE::"Prod. Order Component":
+                begin
+                    ProdOrderComp.SetRange(Status, PickWhseWkshLine."Source Subtype");
+                    ProdOrderComp.SetRange("Prod. Order No.", PickWhseWkshLine."Source No.");
+                    ProdOrderComp.SetRange("Prod. Order Line No.", PickWhseWkshLine."Source Line No.");
+                    ProdOrderComp.SetRange("Line No.", PickWhseWkshLine."Source Subline No.");
+                    if ProdOrderComp.IsEmpty() then
+                        Error(SourceDocumentDoesNotExistErr, ProdOrderComp.TableCaption(), ProdOrderComp.GetFilters());
+                end;
+            DATABASE::"Assembly Line":
+                begin
+                    AssemblyLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
+                    AssemblyLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+                    AssemblyLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+                    if AssemblyLine.IsEmpty() then
+                        Error(SourceDocumentDoesNotExistErr, AssemblyLine.TableCaption(), AssemblyLine.GetFilters());
+                end;
+            DATABASE::Job:
+                begin
+                    JobPlanningLine.SetRange("Job Contract Entry No.", PickWhseWkshLine."Source Line No.");
+                    if not JobPlanningLine.FindFirst() then
+                        Error(SourceDocumentDoesNotExistErr, JobPlanningLine.TableCaption(), JobPlanningLine.GetFilters());
+                    JobPlanningLine.TestStatusOpen();
+                end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
+                    ServiceLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+                    ServiceLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+                    if ServiceLine.IsEmpty() then
+                        Error(SourceDocumentDoesNotExistErr, ServiceLine.TableCaption(), ServiceLine.GetFilters());
+                end;
         end;
     end;
 

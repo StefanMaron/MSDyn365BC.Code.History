@@ -49,6 +49,17 @@ page 9061 "Plan Configuration List"
 
     actions
     {
+        area(Promoted)
+        {
+            actionref(New_Promoted; New)
+            {
+            }
+
+            actionref(Configure_Promoted; Configure)
+            {
+            }
+        }
+
         area(Creation)
         {
             action(New)
@@ -56,11 +67,7 @@ page 9061 "Plan Configuration List"
                 ApplicationArea = All;
                 Caption = 'Add License Configuration';
                 Image = Add;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                ToolTip = 'Add a license configuration.';
+                ToolTip = 'Add a configuration for a license.';
 
                 trigger OnAction()
                 var
@@ -78,10 +85,6 @@ page 9061 "Plan Configuration List"
                 ApplicationArea = All;
                 Caption = 'Configure';
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Plan Configuration Card";
                 RunPageLink = "Plan ID" = Field("Plan ID");
                 Scope = Repeater;

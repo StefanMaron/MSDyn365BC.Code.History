@@ -24,7 +24,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     var
         BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
         NextMatchID: Integer;
-        RemainigAmount: Decimal;
+        RemainingAmount: Decimal;
     begin
         OnBeforeApplyEntries(BankAccReconLine, BankAccLedgEntry, Relation);
 
@@ -41,7 +41,6 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                     if BankAccLedgEntry.IsApplied() then
                         exit(false);
 
-                    BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
                     BankAccReconLine."Ready for Application" := true;
                     SetReconNo(BankAccLedgEntry, BankAccReconLine);
                     BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
@@ -54,7 +53,6 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                     if BankAccLedgEntry.IsApplied() then
                         exit(false);
 
-                    BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
                     BankAccReconLine."Ready for Application" := true;
                     SetReconNo(BankAccLedgEntry, BankAccReconLine);
                     BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
@@ -87,7 +85,6 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                     BankAccRecMatchBuffer."Match ID" := NextMatchID;
                     BankAccRecMatchBuffer.Insert();
 
-                    BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
                     BankAccReconLine."Ready for Application" := true;
                     if BankAccLedgEntry."Statement Line No." <> -1 then begin
                         SetReconNo(BankAccLedgEntry, BankAccReconLine);
@@ -99,8 +96,8 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                         BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
                         AppliedAmount += BankAccReconLine."Applied Amount";
                     end else begin
-                        RemainigAmount := BankAccLedgEntry."Remaining Amount" - AppliedAmount;
-                        BankAccReconLine."Applied Amount" := RemainigAmount;
+                        RemainingAmount := BankAccLedgEntry."Remaining Amount" - AppliedAmount;
+                        BankAccReconLine."Applied Amount" := RemainingAmount;
                     end;
 
                     BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" + 1;
@@ -181,7 +178,6 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
              BankAccLedgEntry."Statement No.", BankAccLedgEntry."Statement Line No.")
         then begin
             BankAccReconLine.TestField("Statement Type", BankAccReconLine."Statement Type"::"Bank Reconciliation");
-            BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
             RemoveReconNo(BankAccLedgEntry, BankAccReconLine, true);
 
             BankAccReconLine."Applied Amount" -= BankAccLedgEntry."Remaining Amount";
@@ -259,8 +255,6 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     begin
         BankAccLedgEntry.TestField(Open, true);
         if Test then begin
-            BankAccLedgEntry.TestField(
-            "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
             BankAccLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
             BankAccLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
             BankAccLedgEntry.TestField("Bank Account No.", BankAccReconLine."Bank Account No.");
@@ -278,8 +272,6 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         if CheckLedgEntry.Find('-') then
             repeat
                 if Test then begin
-                    CheckLedgEntry.TestField(
-                      "Statement Status", CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
                     CheckLedgEntry.TestField("Statement No.", '');
                     CheckLedgEntry.TestField("Statement Line No.", 0);
                 end;

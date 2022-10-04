@@ -59,7 +59,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(false, true, false));
         CreatePurchaseOrder(PurchaseLine, Item."No.", LibraryRandom.RandInt(20));
         AssignSerialNoAndReceivePurchaseOrder(PurchaseHeader, PurchaseLine);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
 
         // [WHEN] Post Partial Invoice from Purchase Order.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -174,7 +174,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarning);  // Enqueue value for ConfirmHandler.
         SalesLine.OpenItemTrackingLines();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
 
         // Exercise: Delete Item Tracking Lines from Planning Worksheet.
         DeleteItemTrackingLines(SalesLine);
@@ -421,7 +421,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         Initialize();
         PostWhseRcptAndRegisterPutAway(PurchaseLine);
         Item.Get(PurchaseLine."No.");
-        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());
 
         // Exercise: Create Sales Order with Item Tracking.
         CreateSalesOrderWithIT(SalesLine, PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity / 2, 1);  // Taking partial Quantity and 1 for Quantity as Item Tracking code is Serial Specific.
@@ -447,7 +447,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PostWhseRcptAndRegisterPutAway(PurchaseLine);
         CreateWhseShptAndRegisterPick(PurchaseLine);
         Item.Get(PurchaseLine."No.");
-        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());
 
         // Exercise: Create Sales Order with Item Tracking.
         CreateSalesOrderWithIT(SalesLine, PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity / 2, 0);  // Taking partial Quantity and 0 for Quantity as Item Tracking code is Serial Specific.
@@ -640,7 +640,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, CreateAndUpdateItem(false, true), TrackingOption::AssignLotNo);
         LibraryVariableStorage.Dequeue(LotNo);
         Item.Get(PurchaseLine."No.");
-        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());
 
         // Create another Purchase Order.
         CreatePurchaseOrder(PurchaseLine, PurchaseLine."No.", PurchaseLine.Quantity);  // Take random Quantity.
@@ -694,7 +694,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         Initialize();
         LotNo := SetupForMultipleExpirDateOnILE(PurchaseLine);
         Item.Get(PurchaseLine."No.");
-        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());
 
         // Exercise: Create Purchase Order.
         CreatePurchaseOrderWithIT(PurchaseLine, PurchaseLine."No.", LotNo);
@@ -1246,7 +1246,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           LotNoInformationList.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate()), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1277,7 +1277,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           SerialNoInformationList.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate()), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1308,7 +1308,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           LotNoInformationCard.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate()), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1339,7 +1339,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           SerialNoInformationCard.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate()), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1382,7 +1382,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryWarehouse.PostInventoryActivity(WhseActivHeader, true);
 
         // [THEN] The production output is fully posted.
-        ProdOrderLine.Find;
+        ProdOrderLine.Find();
         ProdOrderLine.TestField("Finished Quantity", Qty);
     end;
 
@@ -1423,7 +1423,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        ExpDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpDate := CalcDate(Item."Expiration Calculation", WorkDate());
 
         // [GIVEN] Create inventory put-away for purchase order with autofilled quantity to handle
         LibraryWarehouse.CreateInvtPutPickMovement(
@@ -1501,7 +1501,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
         FindAndUpdateRequisitionLine(RequisitionLine, Item."No.", LocationCode, VendorNo);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
@@ -1614,10 +1614,10 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ReservationEntry.SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
         ReservationEntry.SetRange("Source Ref. No.", ItemJnlLine."Line No.");
 
-        if (ReservationEntry.FindSet) then
+        if (ReservationEntry.FindSet()) then
             repeat
                 Assert.IsTrue(SerialNoInformation.Get(ReservationEntry."Item No.", '', ReservationEntry."Serial No."), TheSerialNoInfoDoesNotExistErr);
-            until (ReservationEntry.Next = 0);
+            until (ReservationEntry.Next() = 0);
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -2016,7 +2016,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
-          CreateLotSNWarehouseTrackingItem, 1, CreatePutawayPickLocation, WorkDate);
+          CreateLotSNWarehouseTrackingItem, 1, CreatePutawayPickLocation, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseRequest."Source Document"::"Purchase Order", PurchaseHeader."No.", true, false, false);
@@ -2058,7 +2058,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateAndPostPosAdjmtItemJournalLineWithIT(Bin, ItemNo, 1);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
-          ItemNo, 1, LocationCode, WorkDate);
+          ItemNo, 1, LocationCode, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseRequest."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
@@ -2283,7 +2283,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ExpirationDate: Date;
     begin
         Item.Get(ItemNo);
-        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);
+        ExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());
         FindItemLedgerEntry(ItemLedgerEntry, ItemNo);
         ItemLedgerEntry.Validate("Expiration Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', ExpirationDate));
         ItemLedgerEntry.Modify(true);

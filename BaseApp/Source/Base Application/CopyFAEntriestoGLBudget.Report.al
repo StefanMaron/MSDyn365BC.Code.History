@@ -174,8 +174,6 @@ report 5684 "Copy FA Entries to G/L Budget"
     end;
 
     var
-        Text000: Label 'You must specify an Ending Date that is later than the Starting Date.';
-        Text001: Label 'Copying fixed asset    #1##########';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -190,6 +188,9 @@ report 5684 "Copy FA Entries to G/L Budget"
         StartingDate: Date;
         EndingDate: Date;
         EndingDate2: Date;
+
+        Text000: Label 'You must specify an Ending Date that is later than the Starting Date.';
+        Text001: Label 'Copying fixed asset    #1##########';
         Text002: Label 'You should not set a filter on %1.';
 
     local procedure GetTransferType(var FALedgEntry: Record "FA Ledger Entry"): Boolean

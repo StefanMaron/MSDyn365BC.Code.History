@@ -13,7 +13,7 @@ report 717 "Inventory - Reorders"
         {
             DataItemTableView = SORTING("Vendor No.");
             RequestFilterFields = "No.", "Location Filter", "Variant Filter", "Assembly BOM", "Inventory Posting Group", "Shelf No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaption; TableCaption + ': ' + ItemFilter)
@@ -127,7 +127,7 @@ report 717 "Inventory - Reorders"
             column(SKUFIlter; SKUFIlter)
             {
             }
-            column(CompanyName_SKU; COMPANYPROPERTY.DisplayName)
+            column(CompanyName_SKU; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PageCaption_SKU; PageCaptionLbl)
@@ -344,8 +344,8 @@ report 717 "Inventory - Reorders"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        SKUFIlter := "Stockkeeping Unit".GetFilters;
+        ItemFilter := Item.GetFilters();
+        SKUFIlter := "Stockkeeping Unit".GetFilters();
     end;
 
     var
@@ -355,12 +355,12 @@ report 717 "Inventory - Reorders"
         TransferRoute: Record "Transfer Route";
         ShippingAgentServices: Record "Shipping Agent Services";
         AvailabilityMgt: Codeunit "Available Management";
+        TimeCalculation: DateFormula;
         ItemFilter: Text;
         QtyAvailable: Decimal;
         ReorderQty: Decimal;
         UseStockkeepingUnit: Boolean;
         SKUFIlter: Text;
-        TimeCalculation: DateFormula;
         BuyFromVendorNo: Code[20];
         TransferFromCode: Code[10];
         [InDataSet]

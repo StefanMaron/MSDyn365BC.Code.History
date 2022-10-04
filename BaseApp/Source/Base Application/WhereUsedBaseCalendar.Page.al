@@ -15,31 +15,31 @@ page 7608 "Where-Used Base Calendar"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Source Type';
                     ToolTip = 'Specifies whether this customized calendar entry was set up for your company, a customer, vendor, location, shipping agent, or a service.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Source Code';
                     ToolTip = 'Specifies the source identity of the business partner the customized calendar is set up for.';
                 }
-                field("Additional Source Code"; "Additional Source Code")
+                field("Additional Source Code"; Rec."Additional Source Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Additional Source Code';
                     ToolTip = 'Specifies the code of the shipping agent service if the Source Type field contains Shipping Agent.';
                 }
-                field("Source Name"; "Source Name")
+                field("Source Name"; Rec."Source Name")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Source Name';
                     ToolTip = 'Specifies the source name associated with this entry.';
                 }
-                field("Customized Changes Exist"; "Customized Changes Exist")
+                field("Customized Changes Exist"; Rec."Customized Changes Exist")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Customized Changes Exist';

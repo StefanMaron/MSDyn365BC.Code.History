@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 7053 "Implement Price Change"
 {
     Caption = 'Implement Price Change';
@@ -86,6 +86,10 @@ report 7053 "Implement Price Change"
     }
 
     var
+        SalesPrice: Record "Sales Price";
+        Window: Dialog;
+        DeleteWhstLine: Boolean;
+
         Text000: Label 'Updating Unit Prices...\\';
         Text005: Label 'The item prices have now been updated in accordance with the suggested price changes.\\Do you want to delete the suggested price changes?';
         Text007: Label 'Item No.               #1##########\';
@@ -93,9 +97,6 @@ report 7053 "Implement Price Change"
         Text009: Label 'Sales Code             #3##########\';
         Text010: Label 'Currency Code          #4##########\';
         Text011: Label 'Starting Date          #5######';
-        SalesPrice: Record "Sales Price";
-        Window: Dialog;
-        DeleteWhstLine: Boolean;
 
     procedure InitializeRequest(NewDeleteWhstLine: Boolean)
     begin

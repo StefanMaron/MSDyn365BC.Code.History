@@ -19,7 +19,7 @@ page 9245 "Demand Forecast Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     Editable = false;

@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 9029 "O365 Sales Activities RC"
 {
     Caption = 'Microsoft Invoicing';
     PageType = RoleCenter;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -9,15 +13,15 @@ page 9029 "O365 Sales Activities RC"
         {
             part(Control2; "O365 Sales Activities")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             part(Control3; "BC O365 Top five Cust")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             part(Control4; "O365 Sales Year Summary")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
         }
     }
@@ -29,7 +33,7 @@ page 9029 "O365 Sales Activities RC"
             ToolTip = 'See KPI charts, get the overview, and manage your business.';
             action(InvoicesHomeItem)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Invoices';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -38,7 +42,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(InvoicesHomeItemDraft)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Draft';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -48,7 +52,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(InvoicesHomeItemSent)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Sent';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -59,7 +63,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(InvoicesHomeItemOverdue)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Overdue';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -71,7 +75,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(InvoicesHomeItemPaid)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Paid';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -83,7 +87,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(InvoicesHomeItemCanceled)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Canceled';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -94,7 +98,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(EstimatesHomeItem)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Estimates';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -103,7 +107,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(EstimatesHomeItemAccepted)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Accepted';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -113,7 +117,7 @@ page 9029 "O365 Sales Activities RC"
             }
             action(EstimatesHomeItemExpired)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Expired';
                 Promoted = true;
                 PromotedCategory = Process;
@@ -124,14 +128,14 @@ page 9029 "O365 Sales Activities RC"
             }
             action(CustomersHomeItem)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Customers';
                 RunObject = Page "BC O365 Customer List";
                 ToolTip = 'View or edit detailed information for the customers that you trade with.';
             }
             action(ItemsHomeItem)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Prices';
                 RunObject = Page "BC O365 Item List";
                 ToolTip = 'View or edit detailed information for the products that you trade in.';
@@ -139,4 +143,4 @@ page 9029 "O365 Sales Activities RC"
         }
     }
 }
-
+#endif

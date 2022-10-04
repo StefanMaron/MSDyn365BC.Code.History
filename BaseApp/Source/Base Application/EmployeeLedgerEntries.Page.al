@@ -6,7 +6,6 @@ page 5237 "Employee Ledger Entries"
     InsertAllowed = false;
     PageType = List;
     Permissions = TableData "Employee Ledger Entry" = m;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Employee Ledger Entry";
     UsageCategory = History;
     AdditionalSearchTerms = 'Employee Check, Employee Expense, Pay Employee';
@@ -18,31 +17,31 @@ page 5237 "Employee Ledger Entries"
         {
             repeater(Group)
             {
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the employee entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the document type that the employee entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the employee entry''s document number.';
                 }
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the number of the employee that the entry is linked to.';
                 }
-                field("Message to Recipient"; "Message to Recipient")
+                field("Message to Recipient"; Rec."Message to Recipient")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
@@ -53,17 +52,17 @@ page 5237 "Employee Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies a description of the employee entry.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the payment method that was used to make the payment that resulted in the entry.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount of the original entry.';
                 }
-                field("Original Amt. (LCY)"; "Original Amt. (LCY)")
+                field("Original Amt. (LCY)"; Rec."Original Amt. (LCY)")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount that the entry originally consisted of, in LCY.';
@@ -74,30 +73,30 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount of the entry.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("Remaining Amt. (LCY)"; "Remaining Amt. (LCY)")
+                field("Remaining Amt. (LCY)"; Rec."Remaining Amt. (LCY)")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the type of balancing account that is used for the entry.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
@@ -110,91 +109,91 @@ page 5237 "Employee Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
-                field("Amount to Apply"; "Amount to Apply")
+                field("Amount to Apply"; Rec."Amount to Apply")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount to apply.';
                     Visible = false;
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("Applying Entry"; "Applying Entry")
+                field("Applying Entry"; Rec."Applying Entry")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies whether the entry will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("Exported to Payment File"; "Exported to Payment File")
+                field("Exported to Payment File"; Rec."Exported to Payment File")
                 {
                     ApplicationArea = BasicHR;
                     Editable = true;
                     ToolTip = 'Specifies that the entry was created as a result of exporting a payment journal line.';
                     Visible = false;
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the payment of the employee document.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -218,9 +217,6 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Applied E&ntries';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Applied Employee Entries";
                     RunPageOnRec = true;
                     Scope = Repeater;
@@ -232,8 +228,6 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Scope = Repeater;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
@@ -248,9 +242,6 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Detailed Empl. Ledger Entries";
                     RunPageLink = "Employee Ledger Entry No." = FIELD("Entry No."),
                                   "Employee No." = FIELD("Employee No.");
@@ -264,9 +255,6 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -291,9 +279,6 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Apply Entries';
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Select one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
@@ -319,9 +304,6 @@ page 5237 "Employee Ledger Entries"
                     Caption = 'Unapply Entries';
                     Ellipsis = true;
                     Image = UnApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Unselect one or more ledger entries that you want to unapply this record.';
 
@@ -337,9 +319,6 @@ page 5237 "Employee Ledger Entries"
                     ApplicationArea = BasicHR;
                     Caption = 'Create Payment';
                     Image = SuggestVendorPayments;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a payment journal based on the selected entries.';
 
                     trigger OnAction()
@@ -349,7 +328,7 @@ page 5237 "Employee Ledger Entries"
                         GenJnlManagement: Codeunit GenJnlManagement;
                     begin
                         CurrPage.SetSelectionFilter(EmployeeLedgerEntry);
-                        if CreateEmployeePayment.RunModal = ACTION::OK then begin
+                        if CreateEmployeePayment.RunModal() = ACTION::OK then begin
                             CreateEmployeePayment.MakeGenJnlLines(EmployeeLedgerEntry);
                             GetBatchRecord(GenJournalBatch);
                             GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
@@ -364,8 +343,6 @@ page 5237 "Employee Ledger Entries"
                     Caption = 'Reverse Transaction';
                     Ellipsis = true;
                     Image = ReverseRegister;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Reverse an erroneous employee ledger entry.';
 
@@ -377,10 +354,51 @@ page 5237 "Employee Ledger Entries"
                         if Reversed then
                             ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
                         if "Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError;
+                            ReversalEntry.TestFieldError();
                         TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction("Transaction No.");
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ActionApplyEntries_Promoted; ActionApplyEntries)
+                {
+                }
+                actionref(UnapplyEntries_Promoted; UnapplyEntries)
+                {
+                }
+                actionref(CreatePayment_Promoted; CreatePayment)
+                {
+                }
+                actionref(ReverseTransaction_Promoted; ReverseTransaction)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Applied E&ntries_Promoted"; "Applied E&ntries")
+                {
+                }
+                actionref("Detailed &Ledger Entries_Promoted"; "Detailed &Ledger Entries")
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
                 }
             }
         }
@@ -423,7 +441,7 @@ page 5237 "Employee Ledger Entries"
         if GenJournalTemplate.FindFirst() then
             JournalTemplateName := GenJournalTemplate.Name;
 
-        JournalBatchName := CreateEmployeePayment.GetBatchNumber;
+        JournalBatchName := CreateEmployeePayment.GetBatchNumber();
 
         GenJournalTemplate.Get(JournalTemplateName);
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);

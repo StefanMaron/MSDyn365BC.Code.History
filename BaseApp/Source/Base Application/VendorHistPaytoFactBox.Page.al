@@ -8,7 +8,7 @@ page 9096 "Vendor Hist. Pay-to FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Vendor No.';
@@ -16,74 +16,74 @@ page 9096 "Vendor Hist. Pay-to FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             group(Control1)
             {
                 ShowCaption = false;
                 Visible = false;
-                field("Pay-to No. of Quotes"; "Pay-to No. of Quotes")
+                field("Pay-to No. of Quotes"; Rec."Pay-to No. of Quotes")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quotes';
                     DrillDownPageID = "Purchase Quotes";
                     ToolTip = 'Specifies the number of quotes that exist for the vendor.';
                 }
-                field("Pay-to No. of Blanket Orders"; "Pay-to No. of Blanket Orders")
+                field("Pay-to No. of Blanket Orders"; Rec."Pay-to No. of Blanket Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Blanket Orders';
                     DrillDownPageID = "Blanket Purchase Orders";
                     ToolTip = 'Specifies the number of blanket orders.';
                 }
-                field("Pay-to No. of Orders"; "Pay-to No. of Orders")
+                field("Pay-to No. of Orders"; Rec."Pay-to No. of Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Orders';
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of posted orders that exist for the vendor.';
                 }
-                field("Pay-to No. of Invoices"; "Pay-to No. of Invoices")
+                field("Pay-to No. of Invoices"; Rec."Pay-to No. of Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Invoices';
                     DrillDownPageID = "Purchase Invoices";
                     ToolTip = 'Specifies the amount that relates to invoices.';
                 }
-                field("Pay-to No. of Return Orders"; "Pay-to No. of Return Orders")
+                field("Pay-to No. of Return Orders"; Rec."Pay-to No. of Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Return Orders';
                     DrillDownPageID = "Purchase Return Order List";
                     ToolTip = 'Specifies how many return orders have been registered for the customer when the customer acts as the pay-to customer.';
                 }
-                field("Pay-to No. of Credit Memos"; "Pay-to No. of Credit Memos")
+                field("Pay-to No. of Credit Memos"; Rec."Pay-to No. of Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credit Memos';
                     DrillDownPageID = "Purchase Credit Memos";
                     ToolTip = 'Specifies the amount that relates to credit memos.';
                 }
-                field("Pay-to No. of Pstd. Return S."; "Pay-to No. of Pstd. Return S.")
+                field("Pay-to No. of Pstd. Return S."; Rec."Pay-to No. of Pstd. Return S.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Pstd. Return Shipments';
                     ToolTip = 'Specifies the number of posted return shipments that exist for the vendor.';
                 }
-                field("Pay-to No. of Pstd. Receipts"; "Pay-to No. of Pstd. Receipts")
+                field("Pay-to No. of Pstd. Receipts"; Rec."Pay-to No. of Pstd. Receipts")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Pstd. Receipts';
                     ToolTip = 'Specifies the number of posted receipts that exist for the vendor.';
                 }
-                field("Pay-to No. of Pstd. Invoices"; "Pay-to No. of Pstd. Invoices")
+                field("Pay-to No. of Pstd. Invoices"; Rec."Pay-to No. of Pstd. Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Invoices';
                     ToolTip = 'Specifies the amount that relates to posted invoices.';
                 }
-                field("Pay-to No. of Pstd. Cr. Memos"; "Pay-to No. of Pstd. Cr. Memos")
+                field("Pay-to No. of Pstd. Cr. Memos"; Rec."Pay-to No. of Pstd. Cr. Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Credit Memos';

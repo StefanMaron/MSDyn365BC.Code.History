@@ -338,7 +338,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
                 begin
                     CreateAndPostWarehouseReceipt(PurchaseHeader, TransferHeaderNo, LocationCode2, ItemNo);
                     TransferHeader.SetRange("No.", TransferHeaderNo);
-                    Assert.IsTrue(TransferHeader.IsEmpty, StrSubstNo(ErrorRec, TransferHeader.TableCaption, LocationCode));
+                    Assert.IsTrue(TransferHeader.IsEmpty, StrSubstNo(ErrorRec, TransferHeader.TableCaption(), LocationCode));
                 end;
             ProcessTypeGlobal::RequestBlank:  // Check no request pending after register Warehouse Activity line.
                 begin
@@ -595,7 +595,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         WarehouseSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate(), false));
     end;
 
     local procedure FindWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Code[10]; WhseWorksheetTemplateName: Code[10]; LocationCode: Code[10])
@@ -675,7 +675,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         Assert.AreEqual(
           PutawayRequestDocumentNo, WhsePutAwayRequest."Document No.",
           StrSubstNo(ErrorDocumentNo, WhsePutAwayRequest.FieldCaption("Document No."), PutawayRequestDocumentNo,
-            WhsePutAwayRequest.TableCaption));
+            WhsePutAwayRequest.TableCaption()));
     end;
 
     local procedure VerifyWhseRequest(LocationCode: Code[10]; SourceNo: Code[20])
@@ -687,7 +687,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseRequest.TestField("Source No.", SourceNo);
         Assert.AreEqual(
           PutAwayNo, WarehouseRequest."Put-away / Pick No.",
-          StrSubstNo(ErrorDocumentNo, WarehouseRequest.FieldCaption("Put-away / Pick No."), PutAwayNo, WarehouseRequest.TableCaption));
+          StrSubstNo(ErrorDocumentNo, WarehouseRequest.FieldCaption("Put-away / Pick No."), PutAwayNo, WarehouseRequest.TableCaption()));
     end;
 
     local procedure VerifyShipmentQuantity(Quantity: Decimal; No: Code[20])

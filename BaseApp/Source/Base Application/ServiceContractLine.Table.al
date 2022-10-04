@@ -1,4 +1,4 @@
-﻿table 5964 "Service Contract Line"
+table 5964 "Service Contract Line"
 {
     Caption = 'Service Contract Line';
     DrillDownPageID = "Serv. Contr. List (Serv. Item)";
@@ -19,11 +19,9 @@
         {
             Caption = 'Line No.';
         }
-        field(4; "Contract Status"; Option)
+        field(4; "Contract Status"; Enum "Service Contract Status")
         {
             Caption = 'Contract Status';
-            OptionCaption = ' ,Signed,Cancelled';
-            OptionMembers = " ",Signed,Cancelled;
         }
         field(5; "Service Item No."; Code[20])
         {
@@ -35,14 +33,14 @@
                 ServiceItemLine: Record "Service Item Line";
                 ServContractMgt: Codeunit ServContractManagement;
                 ConfirmManagement: Codeunit "Confirm Management";
+                InvoicePeriod: DateFormula;
                 LastInvoiceDate: Date;
                 NewLastInvoiceDate: Date;
-                InvoicePeriod: DateFormula;
                 ServiceItemNoIsNotEmpty: Boolean;
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
-                GetServContractHeader;
+                TestStatusOpen();
+                GetServContractHeader();
                 if ServContractHeader."Last Invoice Date" <> 0D then begin
                     LastInvoiceDate := ServContractHeader."Last Invoice Date";
                     Evaluate(InvoicePeriod, ServContractMgt.GetInvoicePeriodText(ServContractHeader."Invoice Period"));
@@ -50,7 +48,7 @@
                     if (ServContractHeader."Expiration Date" <> 0D) and
                        (NewLastInvoiceDate > ServContractHeader."Expiration Date")
                     then
-                        Error(Text025, ServiceItemLine.TableCaption, ServContractHeader.FieldCaption("Expiration Date"));
+                        Error(Text025, ServiceItemLine.TableCaption(), ServContractHeader.FieldCaption("Expiration Date"));
                 end;
                 if (ServContractHeader.Status = ServContractHeader.Status::Signed) and
                    (not "New Line")
@@ -60,7 +58,7 @@
                 ServiceItemNoIsNotEmpty := "Service Item No." <> '';
                 OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(Rec, ServiceItemNoIsNotEmpty);
                 if ServiceItemNoIsNotEmpty then begin
-                    GetServItem;
+                    GetServItem();
                     TestField("Customer No.");
 
                     IsHandled := false;
@@ -124,7 +122,7 @@
                     "Ship-to Code" := ServItem."Ship-to Code";
                 end;
                 ServContractLine := Rec;
-                Init;
+                Init();
                 OnValidateServiceItemNoOnAfterInit(Rec, ServContractLine);
                 "Starting Date" := ServContractLine."Starting Date";
                 "Contract Expiration Date" := ServContractLine."Contract Expiration Date";
@@ -174,7 +172,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(7; "Serial No."; Code[50])
@@ -183,7 +181,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Item No.");
             end;
         }
@@ -194,7 +192,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Service Item No.");
             end;
         }
@@ -216,16 +214,16 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "Item No." <> xRec."Item No." then
                     TestField("Service Item No.", '');
 
                 if "Item No." <> '' then begin
                     Item.Get("Item No.");
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                     Description := Item.Description;
                     "Unit of Measure Code" := Item."Sales Unit of Measure";
-                    GetServContractHeader;
+                    GetServContractHeader();
                     "Response Time (Hours)" := ServContractHeader."Response Time (Hours)";
                     ServMgtSetup.Get();
                     "Line Cost" :=
@@ -259,7 +257,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "Unit of Measure Code" <> xRec."Unit of Measure Code" then begin
                     TestField("Service Item No.", '');
                     TestField("Item No.");
@@ -275,7 +273,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(14; "Last Planned Service Date"; Date)
@@ -289,7 +287,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if ("Next Planned Service Date" <> 0D) and
                    ("Next Planned Service Date" < "Starting Date")
                 then
@@ -316,7 +314,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 TestField(Credited, false);
 
@@ -331,7 +329,7 @@
             var
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnBeforeValidateContractExpirationDate(Rec, xRec, CurrFieldNo, IsHandled);
@@ -399,7 +397,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(22; "Line Value"; Decimal)
@@ -428,14 +426,14 @@
             var
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnBeforeValidateLineDiscountPercent(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
 
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
                 "Line Value" := Round("Line Value", Currency."Amount Rounding Precision");
                 "Line Amount" :=
                   Round("Line Value" - "Line Value" * "Line Discount %" / 100,
@@ -455,14 +453,14 @@
             var
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 IsHandled := false;
                 OnBeforeValidateLineAmount(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
 
                 TestField("Line Value");
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
                 "Line Discount Amount" := Round("Line Value" - "Line Amount", Currency."Amount Rounding Precision");
                 "Line Discount %" := "Line Discount Amount" / "Line Value" * 100;
                 Profit := Round("Line Amount" - "Line Cost", Currency."Amount Rounding Precision");
@@ -475,7 +473,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(29; "Starting Date"; Date)
@@ -495,7 +493,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Contract Expiration Date");
             end;
         }
@@ -507,8 +505,8 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                Currency.InitRoundingPrecision;
+                TestStatusOpen();
+                Currency.InitRoundingPrecision();
                 Profit := Round("Line Amount" - "Line Cost", Currency."Amount Rounding Precision");
             end;
         }
@@ -520,8 +518,8 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                Currency.InitRoundingPrecision;
+                TestStatusOpen();
+                Currency.InitRoundingPrecision();
                 if "Line Value" <> 0 then
                     "Line Discount %" := "Line Discount Amount" / "Line Value" * 100
                 else
@@ -539,8 +537,8 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                Currency.InitRoundingPrecision;
+                TestStatusOpen();
+                Currency.InitRoundingPrecision();
                 "Line Amount" := Round(Profit + "Line Cost", Currency."Amount Rounding Precision");
                 "Line Discount Amount" := Round("Line Value" - "Line Amount", Currency."Amount Rounding Precision");
                 if "Line Value" <> 0 then
@@ -580,10 +578,10 @@
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         if "Contract Type" = "Contract Type"::Contract then begin
-            GetServContractHeader;
-            if ServContractHeader.Status = ServContractHeader.Status::Canceled then
+            GetServContractHeader();
+            if ServContractHeader.Status = ServContractHeader.Status::Cancelled then
                 Error(Text015, ServContractHeader.Status);
             if (ServContractHeader.Status = ServContractHeader.Status::Signed) and
                (not "New Line") and
@@ -597,7 +595,7 @@
                (not "New Line") and
                (not ServContractHeader."Automatic Credit Memos")
             then
-                if CreditMemoBaseExists and
+                if CreditMemoBaseExists() and
                    (not StatusCheckSuspended)
                 then
                     if not ConfirmManagement.GetResponseOrDefault(Text022, true) then
@@ -614,7 +612,7 @@
                     ContractChangeLog.LogContractChange(
                       "Contract No.", 1, FieldCaption(Description), 2, Description, '', '', "Line No.");
 
-            GetServContractHeader;
+            GetServContractHeader();
             if (not ServContractHeader."Allow Unbalanced Amounts") and
                (ServContractHeader.Status = ServContractHeader.Status::Signed)
             then
@@ -635,7 +633,7 @@
     trigger OnInsert()
     begin
         TestField(Description);
-        GetServContractHeader;
+        GetServContractHeader();
         CheckServContractHeader();
 
         ServMgtSetup.Get();
@@ -645,7 +643,7 @@
         if ("Service Item No." = '') and ("Response Time (Hours)" = 0) then
             "Response Time (Hours)" := ServContractHeader."Response Time (Hours)";
 
-        if "Contract Type" = "Contract Type"::Contract then begin
+        if "Contract Type" = "Contract Type"::Contract then
             if "Service Item No." <> '' then begin
                 if ServMgtSetup."Register Contract Changes" then
                     ContractChangeLog.LogContractChange(
@@ -656,7 +654,6 @@
                 if ServMgtSetup."Register Contract Changes" then
                     ContractChangeLog.LogContractChange(
                       "Contract No.", 1, FieldCaption(Description), 1, '', Description, '', "Line No.");
-        end;
     end;
 
     trigger OnModify()
@@ -694,18 +691,20 @@
         ServContractHeader: Record "Service Contract Header";
         ServContractLine: Record "Service Contract Line";
         ServItem: Record "Service Item";
-        Text000: Label 'This service item does not belong to customer no. %1.';
-        Text001: Label 'Service item %1 has a different ship-to code for this customer.\\Do you want to continue?';
-        Text003: Label 'This service item already exists in this service contract.';
-        Text008: Label '%1 field value cannot be later than the %2 field value on the contract line.';
-        Text009: Label 'The %1 cannot be less than the %2.';
-        Text011: Label 'Service ledger entry exists for service contract line %1.\\You may need to create a credit memo.';
         ContractChangeLog: Record "Contract Change Log";
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
         ServCommentLine: Record "Service Comment Line";
         ServLogMgt: Codeunit ServLogManagement;
         HideDialog: Boolean;
         StatusCheckSuspended: Boolean;
+        UseServContractLineAsxRec: Boolean;
+
+        Text000: Label 'This service item does not belong to customer no. %1.';
+        Text001: Label 'Service item %1 has a different ship-to code for this customer.\\Do you want to continue?';
+        Text003: Label 'This service item already exists in this service contract.';
+        Text008: Label '%1 field value cannot be later than the %2 field value on the contract line.';
+        Text009: Label 'The %1 cannot be less than the %2.';
+        Text011: Label 'Service ledger entry exists for service contract line %1.\\You may need to create a credit memo.';
         Text013: Label 'You cannot change the %1 field on signed service contracts.';
         Text015: Label 'You cannot delete service contract lines on %1 service contracts.';
         Text016: Label 'Service contract lines must have at least a %1 filled in.';
@@ -716,7 +715,6 @@
         Text021: Label 'The service period for service item %1 under contract %2 has expired.';
         Text022: Label 'If you delete this contract line while the Automatic Credit Memos check box is not selected, a credit memo will not be created.\Do you want to continue?';
         Text023: Label 'The update has been interrupted to respect the warning.';
-        UseServContractLineAsxRec: Boolean;
         Text024: Label 'You cannot enter a later date in or clear the %1 field on the contract line that has been invoiced for the period containing that date.';
         Text025: Label 'You cannot add a new %1 because the service contract has expired. Renew the %2 on the service contract.', Comment = 'You cannot add a new Service Item Line because the service contract has expired. Renew the Expiration Date on the service contract.';
 
@@ -733,7 +731,7 @@
         if ("Contract Type" = "Contract Type"::Contract) and
            ("Contract Status" = "Contract Status"::Signed)
         then
-            "Starting Date" := WorkDate
+            "Starting Date" := WorkDate()
         else
             "Starting Date" := ServContractHeader."Starting Date";
 
@@ -760,7 +758,7 @@
         if (Format("Service Period") <> '') and
            ("Next Planned Service Date" <> 0D)
         then begin
-            GetServContractHeader;
+            GetServContractHeader();
             case ServMgtSetup."Next Service Calc. Method" of
                 ServMgtSetup."Next Service Calc. Method"::Planned:
                     "Next Planned Service Date" := CalcDate("Service Period", "Last Planned Service Date");
@@ -780,7 +778,7 @@
         LineAmount: Decimal;
         IsHandled: Boolean;
     begin
-        GetServContractHeader;
+        GetServContractHeader();
         IsHandled := false;
         OnUpdateContractAnnualAmountOnAfterGetServContractHeader(Rec, ServContractHeader, IsHandled);
         if IsHandled then
@@ -799,7 +797,7 @@
                         "Service Contract Change Type"::"Manual Update", "Contract Type", "Contract No.",
                         "Line Amount" - xRec."Line Amount", '')
                 else
-                    if ServContractHeader.Status = ServContractHeader.Status::Signed then begin
+                    if ServContractHeader.Status = ServContractHeader.Status::Signed then
                         if ServContractLine2.Get("Contract Type", "Contract No.", "Line No.") then
                             ContractGainLossEntry.CreateEntry(
                                 "Service Contract Change Type"::"Manual Update", "Contract Type", "Contract No.",
@@ -807,10 +805,9 @@
                         else
                             ContractGainLossEntry.CreateEntry(
                                 "Service Contract Change Type"::"Line Added", "Contract Type", "Contract No.",
-                                "Line Amount", '')
-                    end;
+                                "Line Amount", '');
             end;
-            ServContractHeader.ValidateNextInvoicePeriod;
+            ServContractHeader.ValidateNextInvoicePeriod();
             ServContractHeader.SuspendStatusCheck(StatusCheckSuspended);
             ServContractHeader.Modify(true);
             if ServContractHeader."Contract Type" = ServContractHeader."Contract Type"::Contract then
@@ -841,7 +838,7 @@
     begin
         if StatusCheckSuspended then
             exit;
-        GetServContractHeader;
+        GetServContractHeader();
         ServContractHeader.TestField("Change Status", ServContractHeader."Change Status"::Open);
 
         OnAfterTestStatusOpen(Rec, CurrFieldNo);
@@ -874,12 +871,11 @@
         if IsHandled then
             exit;
 
-        if "Credit Memo Date" <> 0D then begin
+        if "Credit Memo Date" <> 0D then
             if "Credit Memo Date" > "Contract Expiration Date" then
                 Error(
                   Text008,
                   FieldCaption("Credit Memo Date"), FieldCaption("Contract Expiration Date"));
-        end;
 
         if "Credit Memo Date" <> xRec."Credit Memo Date" then
             if "Credit Memo Date" = 0D then
@@ -950,7 +946,7 @@
         if "Line Amount" > 0 then begin
             TestField("Contract Expiration Date");
             if "Invoiced to Date" >= "Contract Expiration Date" then begin
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
                 if ServContractHeader.Prepaid then
                     FirstPrepaidPostingDate := ServContractMgt.FindFirstPrepaidTransaction("Contract No.")
                 else
@@ -963,20 +959,19 @@
                     ServContractMgt.CalcContractLineAmount("Line Amount",
                       "Contract Expiration Date", LastIncomePostingDate),
                     Currency."Amount Rounding Precision");
-                if FirstPrepaidPostingDate <> 0D then begin
-                    if "Contract Expiration Date" < FirstPrepaidPostingDate then begin
+                if FirstPrepaidPostingDate <> 0D then
+                    if "Contract Expiration Date" < FirstPrepaidPostingDate then
                         CreditAmount :=
                           Round(
                             ServContractMgt.CalcContractLineAmount("Line Amount",
                               FirstPrepaidPostingDate, "Invoiced to Date"),
-                            Currency."Amount Rounding Precision");
-                    end else
+                            Currency."Amount Rounding Precision")
+                    else
                         CreditAmount :=
                           Round(
                             ServContractMgt.CalcContractLineAmount("Line Amount",
                               "Contract Expiration Date", "Invoiced to Date"),
                             Currency."Amount Rounding Precision");
-                end;
             end;
             exit((CreditAmount > 0) and (not Credited));
         end;

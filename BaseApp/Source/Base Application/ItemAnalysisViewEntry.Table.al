@@ -126,10 +126,11 @@ table 7154 "Item Analysis View Entry"
     }
 
     var
+        ItemAnalysisView: Record "Item Analysis View";
+
         Text000: Label '1,5,,Dimension 1 Value Code';
         Text001: Label '1,5,,Dimension 2 Value Code';
         Text002: Label '1,5,,Dimension 3 Value Code';
-        ItemAnalysisView: Record "Item Analysis View";
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
     begin

@@ -281,7 +281,7 @@ codeunit 139058 "Office OCR Test"
 
         // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
         if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then begin
-            PurchaseInvoice.Close;
+            PurchaseInvoice.Close();
             PurchaseInvoice.Trap;
             PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
         end;
@@ -481,7 +481,7 @@ codeunit 139058 "Office OCR Test"
 
         // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
         if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then begin
-            PurchaseInvoice.Close;
+            PurchaseInvoice.Close();
             PurchaseInvoice.Trap;
             PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
         end;
@@ -538,7 +538,7 @@ codeunit 139058 "Office OCR Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Office OCR Test");
 
         LibraryApplicationArea.EnableFoundationSetup();
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             DeleteEncryptionKey();
         ResetOCRSetup();
         InitializeWithHostType(HostType);
@@ -686,7 +686,7 @@ codeunit 139058 "Office OCR Test"
     begin
         with OCRServiceSetup do begin
             DeleteAll();
-            Init;
+            Init();
             Insert(true);
 
             "User Name" := 'cronus.admin';
@@ -697,7 +697,7 @@ codeunit 139058 "Office OCR Test"
 
             "Service URL" := 'https://localhost:8080/OCR';
             "Default OCR Doc. Template" := 'BLANK';
-            Modify;
+            Modify();
         end;
 
         Commit();
@@ -708,9 +708,9 @@ codeunit 139058 "Office OCR Test"
         OCRServiceSetup: Record "OCR Service Setup";
     begin
         with OCRServiceSetup do begin
-            Init;
+            Init();
             Enabled := false;
-            Modify;
+            Modify();
         end;
 
         Commit();

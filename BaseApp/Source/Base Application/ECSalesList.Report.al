@@ -110,8 +110,8 @@ report 130 "EC Sales List"
             dataitem("VAT Entry"; "VAT Entry")
             {
                 DataItemLink = "Country/Region Code" = FIELD(Code);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") WHERE(Type = CONST(Sale), "Country/Region Code" = FILTER(<> ''));
-                RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date";
+                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") WHERE(Type = CONST(Sale), "Country/Region Code" = FILTER(<> ''));
+                RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date";
                 column(VATRegNo_VATEntry; "VAT Registration No.")
                 {
                 }
@@ -177,7 +177,7 @@ report 130 "EC Sales List"
                         if VATEntry."VAT Registration No." = "VAT Registration No." then
                             if ReportLayout = ReportLayout::"Separate &Lines" then begin
                                 if (VATEntry."EU Service" = "EU Service") and (VATEntry."EU 3-Party Trade" = "EU 3-Party Trade") then
-                                    CurrReport.Skip
+                                    CurrReport.Skip()
                             end else
                                 CurrReport.Skip();
                         ResetVATEntry := true
@@ -197,7 +197,7 @@ report 130 "EC Sales List"
                 begin
                     ResetVATEntry := true;
                     VATEntry.SetCurrentKey(
-                      Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
+                      Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
                     VATEntry.CopyFilters("VAT Entry");
                     if VATEntry.FindSet() then;
                 end;
@@ -248,7 +248,7 @@ report 130 "EC Sales List"
         CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
-        VATEntryFilter := "VAT Entry".GetFilters;
+        VATEntryFilter := "VAT Entry".GetFilters();
 
         GLSetup.Get();
     end;

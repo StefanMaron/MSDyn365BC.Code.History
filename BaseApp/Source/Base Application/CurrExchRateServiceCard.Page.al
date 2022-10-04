@@ -1,7 +1,6 @@
 page 1651 "Curr. Exch. Rate Service Card"
 {
     Caption = 'Currency Exch. Rate Service';
-    PromotedActionCategories = 'New,Process,Report,Setup';
     SourceTable = "Curr. Exch. Rate Update Setup";
 
     layout
@@ -44,7 +43,7 @@ page 1651 "Curr. Exch. Rate Service Card"
 
                     trigger OnDrillDown()
                     begin
-                        DrilldownCode;
+                        DrilldownCode();
                     end;
                 }
             }
@@ -62,22 +61,22 @@ page 1651 "Curr. Exch. Rate Service Card"
                     trigger OnValidate()
                     begin
                         SetWebServiceURL(WebServiceURL);
-                        GenerateXMLStructure;
+                        GenerateXMLStructure();
                     end;
                 }
-                field("Service Provider"; "Service Provider")
+                field("Service Provider"; Rec."Service Provider")
                 {
                     ApplicationArea = Suite;
                     Editable = NotEnabledAndCurrPageEditable;
                     ToolTip = 'Specifies the name of the service provider.';
                 }
-                field("Terms of Service"; "Terms of Service")
+                field("Terms of Service"; Rec."Terms of Service")
                 {
                     ApplicationArea = Suite;
                     Editable = NotEnabledAndCurrPageEditable;
                     ToolTip = 'Specifies the URL of the service provider''s terms of service.';
                 }
-                field("Log Web Requests"; "Log Web Requests")
+                field("Log Web Requests"; Rec."Log Web Requests")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = NotEnabledAndCurrPageEditable;
@@ -102,9 +101,6 @@ page 1651 "Curr. Exch. Rate Service Card"
                 ApplicationArea = Suite;
                 Caption = 'Preview';
                 Image = ReviewWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Test the setup of the currency exchange rate service to make sure the service is working.';
 
                 trigger OnAction()
@@ -113,8 +109,8 @@ page 1651 "Curr. Exch. Rate Service Card"
                     UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
                 begin
                     TestField(Code);
-                    VerifyServiceURL;
-                    VerifyDataExchangeLineDefinition;
+                    VerifyServiceURL();
+                    VerifyDataExchangeLineDefinition();
                     UpdateCurrencyExchangeRates.GenerateTempDataFromService(TempCurrencyExchangeRate, Rec);
                     PAGE.Run(PAGE::"Currency Exchange Rates", TempCurrencyExchangeRate);
                 end;
@@ -125,14 +121,34 @@ page 1651 "Curr. Exch. Rate Service Card"
                 Caption = 'Job Queue Entry';
                 Enabled = Enabled;
                 Image = JobListSetup;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the job that updates the exchange rates from the service. For example, you can see the status or change how often rates are updated.';
 
                 trigger OnAction()
                 begin
-                    ShowJobQueueEntry;
+                    ShowJobQueueEntry();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref(JobQueueEntry_Promoted; JobQueueEntry)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Setup', Comment = 'Generated from the PromotedActionCategories property index 3.';
             }
         }
     }
@@ -142,8 +158,8 @@ page 1651 "Curr. Exch. Rate Service Card"
         if not MakeWebServiceURL() then
             exit;
 
-        UpdateSimpleMappingsPart;
-        UpdateBasedOnEnable;
+        UpdateSimpleMappingsPart();
+        UpdateBasedOnEnable();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -153,7 +169,7 @@ page 1651 "Curr. Exch. Rate Service Card"
     begin
         MapCurrencyExchangeRate.GetSuggestedFields(TempField);
         CurrPage.SimpleDataExchSetup.PAGE.SetSuggestedField(TempField);
-        UpdateSimpleMappingsPart;
+        UpdateSimpleMappingsPart();
     end;
 
     trigger OnOpenPage()
@@ -161,10 +177,10 @@ page 1651 "Curr. Exch. Rate Service Card"
         EnvironmentInfo: Codeunit "Environment Information";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic;
+        ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic();
 
-        UpdateBasedOnEnable;
-        IsSoftwareAsService := EnvironmentInfo.IsSaaS;
+        UpdateBasedOnEnable();
+        IsSoftwareAsService := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -191,7 +207,7 @@ page 1651 "Curr. Exch. Rate Service Card"
     local procedure UpdateSimpleMappingsPart()
     begin
         CurrPage.SimpleDataExchSetup.PAGE.SetDataExchDefCode("Data Exch. Def Code");
-        CurrPage.SimpleDataExchSetup.PAGE.UpdateData;
+        CurrPage.SimpleDataExchSetup.PAGE.UpdateData();
         CurrPage.SimpleDataExchSetup.PAGE.Update(false);
         CurrPage.SimpleDataExchSetup.PAGE.SetSourceToBeMandatory("Web Service URL".HasValue);
     end;
@@ -237,7 +253,7 @@ page 1651 "Curr. Exch. Rate Service Card"
             TempXMLBuffer.Reset();
             CurrPage.SimpleDataExchSetup.PAGE.SetXMLDefinition(TempXMLBuffer);
         end else
-            ShowHttpError;
+            ShowHttpError();
     end;
 
     local procedure UpdateBasedOnEnable()
@@ -253,7 +269,7 @@ page 1651 "Curr. Exch. Rate Service Card"
     begin
         if Confirm(DisableEnableQst, true) then begin
             Enabled := false;
-            UpdateBasedOnEnable;
+            UpdateBasedOnEnable();
             CurrPage.Update();
         end;
     end;
@@ -275,7 +291,7 @@ page 1651 "Curr. Exch. Rate Service Card"
         if IsNull(WebException.Response) then
             Error(ErrorText);
 
-        ResponseInputStream := WebException.Response.GetResponseStream;
+        ResponseInputStream := WebException.Response.GetResponseStream();
 
         XMLDOMMgt.LoadXMLNodeFromInStream(ResponseInputStream, XmlNode);
 

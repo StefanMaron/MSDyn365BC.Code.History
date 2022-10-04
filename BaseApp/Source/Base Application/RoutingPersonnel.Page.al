@@ -2,7 +2,7 @@ page 99000836 "Routing Personnel"
 {
     AutoSplitKey = true;
     Caption = 'Routing Personnel';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Routing Personnel";
@@ -14,7 +14,7 @@ page 99000836 "Routing Personnel"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

@@ -86,12 +86,12 @@ table 6703 "Booking Service"
 
     trigger OnInsert()
     begin
-        CheckCurrency;
+        CheckCurrency();
     end;
 
     trigger OnModify()
     begin
-        CheckCurrency;
+        CheckCurrency();
     end;
 
     local procedure CheckCurrency()

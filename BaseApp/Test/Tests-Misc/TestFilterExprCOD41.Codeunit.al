@@ -169,20 +169,20 @@ codeunit 139000 "Test Filter Expr. COD41"
         MyCustomer: Record "My Customer";
     begin
         WITH MyCustomer DO BEGIN
-            INIT;
+            Init();
             "User ID" := USERID;
             "Customer No." := Customer."No.";
-            INSERT;
+            Insert();
         END;
     end;
 
     local procedure InsertVendor(var Vendor: Record "Vendor"; No: Code[20]; Name2: Text[50])
     begin
         WITH Vendor DO BEGIN
-            INIT;
+            Init();
             "No." := No;
             Name := Name2;
-            INSERT;
+            Insert();
         END;
     end;
 
@@ -191,20 +191,20 @@ codeunit 139000 "Test Filter Expr. COD41"
         MyVendor: Record "My Vendor";
     begin
         WITH MyVendor DO BEGIN
-            INIT;
+            Init();
             "User ID" := USERID;
             "Vendor No." := Vendor."No.";
-            INSERT;
+            Insert();
         END;
     end;
 
     local procedure InsertItem(var Item: Record "Item"; No: Code[20]; Description2: Text[50])
     begin
         WITH Item DO BEGIN
-            INIT;
+            Init();
             "No." := No;
             Description := Description2;
-            INSERT;
+            Insert();
         END;
     end;
 
@@ -213,10 +213,10 @@ codeunit 139000 "Test Filter Expr. COD41"
         MyItem: Record "My Item";
     begin
         WITH MyItem DO BEGIN
-            INIT;
+            Init();
             "User ID" := USERID;
             "Item No." := Item."No.";
-            INSERT;
+            Insert();
         END;
     end;
 

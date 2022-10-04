@@ -25,14 +25,14 @@ page 8640 "Config. Table Processing Rules"
                         CustomCodeunitIdEditable := Action = Action::Custom;
                     end;
                 }
-                field(FilterInfo; GetFilterInfo)
+                field(FilterInfo; GetFilterInfo())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Filter';
                     Editable = false;
                     ToolTip = 'Specifies any filters that are set.';
                 }
-                field("Custom Processing Codeunit ID"; "Custom Processing Codeunit ID")
+                field("Custom Processing Codeunit ID"; Rec."Custom Processing Codeunit ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -55,15 +55,23 @@ page 8640 "Config. Table Processing Rules"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Processing Filters';
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View or edit the filters that are used to process data.';
 
                     trigger OnAction()
                     begin
-                        ShowFilters;
+                        ShowFilters();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ProcessingFilters_Promoted; ProcessingFilters)
+                {
                 }
             }
         }

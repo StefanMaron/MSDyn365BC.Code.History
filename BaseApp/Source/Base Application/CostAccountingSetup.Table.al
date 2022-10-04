@@ -56,8 +56,8 @@ table 1108 "Cost Accounting Setup"
                 TransferGlEntriesToCA: Codeunit "Transfer GL Entries to CA";
             begin
                 if "Auto Transfer from G/L" then begin
-                    Modify;
-                    TransferGlEntriesToCA.GetGLEntries;
+                    Modify();
+                    TransferGlEntriesToCA.GetGLEntries();
                 end;
             end;
         }

@@ -2,7 +2,6 @@ page 7016 "Sales Price List"
 {
     Caption = 'Sales Price List';
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Price List Header";
     SourceTableView = WHERE("Price Type" = CONST(Sale));
@@ -295,8 +294,6 @@ page 7016 "Sales Price List"
                 Enabled = PriceListIsEditable;
                 Ellipsis = true;
                 Image = SuggestItemPrice;
-                Promoted = true;
-                PromotedCategory = Process;
                 Caption = 'Suggest Lines';
                 ToolTip = 'Creates the sales price list lines based on the unit price in the product cards, like item or resource. Change the price list status to ''Draft'' to run this action.';
 
@@ -313,8 +310,6 @@ page 7016 "Sales Price List"
                 Enabled = PriceListIsEditable and CopyLinesEnabled;
                 Ellipsis = true;
                 Image = CopyWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
                 Caption = 'Copy Lines';
                 ToolTip = 'Copies the lines from the existing price list. New prices can be adjusted by a factor and rounded differently. Change the price list status to ''Draft'' to run this action.';
 
@@ -331,8 +326,6 @@ page 7016 "Sales Price List"
                 Visible = PriceListIsEditable and (Rec.Status = Rec.Status::Active);
                 Ellipsis = true;
                 Image = CheckDuplicates;
-                Promoted = true;
-                PromotedCategory = Process;
                 Caption = 'Verify Lines';
                 ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
 
@@ -437,9 +430,61 @@ page 7016 "Sales Price List"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(VerifyLines_Promoted; VerifyLines)
+                {
+                }
+                actionref(CopyLines_Promoted; CopyLines)
+                {
+                }
+                actionref(SuggestLines_Promoted; SuggestLines)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                actionref(CRMGoToPricelevel_Promoted; CRMGoToPricelevel)
+                {
+                }
+            }
+        }
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

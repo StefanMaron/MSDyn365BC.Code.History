@@ -5,15 +5,16 @@ codeunit 843 "Cash Flow Wksh. - Register"
     trigger OnRun()
     begin
         CFWkshLine.Copy(Rec);
-        Code;
+        Code();
         Copy(CFWkshLine);
     end;
 
     var
+        CFWkshLine: Record "Cash Flow Worksheet Line";
+
         Text1001: Label 'Do you want to register the worksheet lines?';
         Text1002: Label 'There is nothing to register.';
         Text1003: Label 'The worksheet lines were successfully registered.';
-        CFWkshLine: Record "Cash Flow Worksheet Line";
 
     local procedure "Code"()
     begin
@@ -29,7 +30,7 @@ codeunit 843 "Cash Flow Wksh. - Register"
                 Message(Text1003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 "Line No." := 1;
             end;
         end;

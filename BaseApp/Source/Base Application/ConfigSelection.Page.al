@@ -19,12 +19,12 @@ page 8628 "Config. Selection"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the configuration package has been selected.';
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the configuration package part. The part can be one of the following types:';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the table that is used in the configuration selection.';
@@ -49,15 +49,23 @@ page 8628 "Config. Selection"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select All';
                 Image = AllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Select all lines.';
 
                 trigger OnAction()
                 begin
                     ModifyAll(Selected, true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Select All_Promoted"; "Select All")
+                {
+                }
             }
         }
     }
@@ -83,7 +91,7 @@ page 8628 "Config. Selection"
     begin
         if TempConfigSelection.FindSet() then
             repeat
-                Init;
+                Init();
                 "Line No." := TempConfigSelection."Line No.";
                 "Table ID" := TempConfigSelection."Table ID";
                 Name := TempConfigSelection.Name;
@@ -91,7 +99,7 @@ page 8628 "Config. Selection"
                 "Parent Line No." := TempConfigSelection."Parent Line No.";
                 "Vertical Sorting" := TempConfigSelection."Vertical Sorting";
                 Selected := TempConfigSelection.Selected;
-                Insert;
+                Insert();
             until TempConfigSelection.Next() = 0;
     end;
 

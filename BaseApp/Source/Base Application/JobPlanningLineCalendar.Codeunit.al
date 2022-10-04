@@ -11,12 +11,12 @@ codeunit 1034 "Job Planning Line - Calendar"
         LocalJobPlanningLine.SetFilter("Line Type", '%1|%2', "Line Type"::Budget, "Line Type"::"Both Budget and Billable");
         LocalJobPlanningLine.SetRange(Type, Type::Resource);
         LocalJobPlanningLine.SetFilter("No.", '<>''''');
-        if LocalJobPlanningLine.FindSet() then begin
+        if LocalJobPlanningLine.FindSet() then
             repeat
                 SetPlanningLine(LocalJobPlanningLine);
-                CreateAndSend;
-            until LocalJobPlanningLine.Next() = 0;
-        end else
+                CreateAndSend();
+            until LocalJobPlanningLine.Next() = 0
+        else
             Message(NoPlanningLinesMsg);
     end;
 
@@ -28,20 +28,21 @@ codeunit 1034 "Job Planning Line - Calendar"
         Contact: Record Contact;
         Customer: Record Customer;
         ProjectManagerResource: Record Resource;
+        Resource: Record Resource;
+
         AdditionalResourcesTxt: Label 'Additional Resources';
         SetPlanningLineErr: Label 'You must specify a job planning line before you can send the appointment.';
         DateTimeFormatTxt: Label '<Year4><Month,2><Day,2>T<Hours24,2><Minutes,2><Seconds,2>', Locked = true;
         ProdIDTxt: Label '//Microsoft Corporation//Dynamics 365//EN', Locked = true;
-        Resource: Record Resource;
         NoPlanningLinesMsg: Label 'There are no applicable planning lines for this action.';
         SendToCalendarTelemetryTxt: Label 'Sending job planning line to calendar.', Locked = true;
 
     procedure SetPlanningLine(NewJobPlanningLine: Record "Job Planning Line")
     begin
         JobPlanningLine := NewJobPlanningLine;
-        UpdateJob;
-        UpdateJobTask;
-        UpdateResource;
+        UpdateJob();
+        UpdateJobTask();
+        UpdateResource();
     end;
 
     [Scope('OnPrem')]
@@ -114,7 +115,7 @@ codeunit 1034 "Job Planning Line - Calendar"
 
         TempEmailItem.Initialize();
         TempEmailItem.Subject := JobTask.Description;
-        TempEmailItem.AddAttachment(InStream, StrSubstNo('%1.ics', JobTask.TableCaption));
+        TempEmailItem.AddAttachment(InStream, StrSubstNo('%1.ics', JobTask.TableCaption()));
         TempEmailItem."Send to" := RecipientEmail;
     end;
 
@@ -137,9 +138,9 @@ codeunit 1034 "Job Planning Line - Calendar"
             Method := 'REQUEST';
             Status := 'CONFIRMED';
         end;
-        Description := GetDescription;
+        Description := GetDescription();
 
-        StringBuilder := StringBuilder.StringBuilder;
+        StringBuilder := StringBuilder.StringBuilder();
         with StringBuilder do begin
             AppendLine('BEGIN:VCALENDAR');
             AppendLine('VERSION:2.0');
@@ -147,10 +148,10 @@ codeunit 1034 "Job Planning Line - Calendar"
             AppendLine('METHOD:' + Method);
             AppendLine('BEGIN:VEVENT');
             AppendLine('UID:' + DelChr(JobPlanningLineCalendar.UID, '<>', '{}'));
-            AppendLine('ORGANIZER:' + GetOrganizer);
+            AppendLine('ORGANIZER:' + GetOrganizer());
             AppendLine('LOCATION:' + Location);
-            AppendLine('DTSTART:' + GetStartDate);
-            AppendLine('DTEND:' + GetEndDate);
+            AppendLine('DTSTART:' + GetStartDate());
+            AppendLine('DTEND:' + GetEndDate());
             AppendLine('SUMMARY:' + Summary);
             AppendLine('DESCRIPTION:' + Description);
             AppendLine('X-ALT-DESC;FMTTYPE=' + GetHtmlDescription(Description));
@@ -160,7 +161,7 @@ codeunit 1034 "Job Planning Line - Calendar"
             AppendLine('END:VCALENDAR');
         end;
 
-        ICS := StringBuilder.ToString;
+        ICS := StringBuilder.ToString();
     end;
 
     local procedure GetAdditionalResources() AdditionalResources: Text
@@ -201,17 +202,17 @@ codeunit 1034 "Job Planning Line - Calendar"
         AppointmentFormat := Job.TableCaption + ': %1 - %2\r\n';
         AppointmentFormat += JobTask.TableCaption + ': %3 - %4\n\n';
         if Customer.Name <> '' then
-            AppointmentFormat += StrSubstNo('%1: %2\n', Customer.TableCaption, Customer.Name);
+            AppointmentFormat += StrSubstNo('%1: %2\n', Customer.TableCaption(), Customer.Name);
         AppointmentFormat += Contact.TableCaption + ': %5\n';
         AppointmentFormat += Contact.FieldCaption("Phone No.") + ': %6\n\n';
         AppointmentFormat += Resource.TableCaption + ': (%7) %8 - %9';
         AppointmentDescription := StrSubstNo(AppointmentFormat,
             Job."No.", Job.Description,
             JobTask."Job Task No.", JobTask.Description,
-            Customer.Contact, GetContactPhone,
+            Customer.Contact, GetContactPhone(),
             JobPlanningLine."Line Type", Resource.Name, JobPlanningLine.Description);
 
-        AppointmentDescription += GetAdditionalResources;
+        AppointmentDescription += GetAdditionalResources();
         if ProjectManagerResource.Name <> '' then
             AppointmentDescription += StrSubstNo('\n\n%1: %2',
                 Job.FieldCaption("Project Manager"), ProjectManagerResource.Name);
@@ -316,7 +317,7 @@ codeunit 1034 "Job Planning Line - Calendar"
             exit;
         if LocalJobPlanningLineCalendar.HasBeenSent(Rec) then begin
             SetPlanningLine(Rec);
-            CreateAndSend;
+            CreateAndSend();
         end;
     end;
 }

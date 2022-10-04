@@ -1,7 +1,7 @@
 table 202 "Resource Cost"
 {
     Caption = 'Resource Cost';
-#if not CLEAN19
+#if not CLEAN21
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else

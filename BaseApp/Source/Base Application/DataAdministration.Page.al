@@ -5,7 +5,6 @@ page 9035 "Data Administration"
     AdditionalSearchTerms = 'Clean, Cleanup Log, Logs, Delete, Compress, Archive';
     ApplicationArea = All;
     UsageCategory = Administration;
-    PromotedActionCategories = 'New, Process, Report';
     Editable = false;
 
     layout
@@ -58,10 +57,6 @@ page 9035 "Data Administration"
                 Caption = 'Data Administration Guide';
                 ToolTip = 'Start a guide that can help you manage settings for deleting and compressing data.';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 RunPageMode = View;
                 RunObject = page "Data Administration Guide";
             }
@@ -70,10 +65,6 @@ page 9035 "Data Administration"
                 Caption = 'Refresh';
                 ToolTip = 'Refresh the information on the page. Depending on the amount of data, this might take a few minutes.';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 Image = Refresh;
 
                 RunObject = codeunit "Table Information Cache";
@@ -577,6 +568,24 @@ page 9035 "Data Administration"
                         Ellipsis = true;
                     }
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = ' Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(DataAdministrationGuide_Promoted; DataAdministrationGuide)
+                {
+                }
+                actionref(RefreshTableInformationCache_Promoted; RefreshTableInformationCache)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = ' Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

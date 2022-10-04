@@ -17,12 +17,12 @@ page 710 "Activity Log"
         {
             repeater(Group)
             {
-                field("Activity Date"; "Activity Date")
+                field("Activity Date"; Rec."Activity Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the data of the activity.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -49,7 +49,7 @@ page 710 "Activity Log"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the activity.';
                 }
-                field("Activity Message"; "Activity Message")
+                field("Activity Message"; Rec."Activity Message")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the status or error message for the activity.';
@@ -75,12 +75,9 @@ page 710 "Activity Log"
         {
             action(OpenRelatedRecord)
             {
-                ApplicationArea = Suite, Invoicing;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'Open Related Record';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Open the record that is associated with this activity.';
 
                 trigger OnAction()
@@ -93,13 +90,10 @@ page 710 "Activity Log"
             }
             action(ViewDetails)
             {
-                ApplicationArea = Suite, Invoicing;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'View Details';
                 Ellipsis = true;
                 Image = GetSourceDoc;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Show more information about this activity.';
 
                 trigger OnAction()
@@ -109,7 +103,7 @@ page 710 "Activity Log"
             }
             action(Delete7days)
             {
-                ApplicationArea = Suite, Invoicing;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'Delete Entries Older than 7 Days';
                 Image = ClearLog;
                 ToolTip = 'Removes entries that are older than 7 days from the log.';
@@ -121,7 +115,7 @@ page 710 "Activity Log"
             }
             action(Delete0days)
             {
-                ApplicationArea = Suite, Invoicing;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'Delete All Entries';
                 Image = Delete;
                 ToolTip = 'Empties the log. All entries will be deleted.';
@@ -130,6 +124,20 @@ page 710 "Activity Log"
                 begin
                     DeleteEntries(0);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenRelatedRecord_Promoted; OpenRelatedRecord)
+                {
+                }
+                actionref(ViewDetails_Promoted; ViewDetails)
+                {
+                }
             }
         }
     }

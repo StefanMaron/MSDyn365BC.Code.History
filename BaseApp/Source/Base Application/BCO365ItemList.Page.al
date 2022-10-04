@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2314 "BC O365 Item List"
 {
     Caption = 'Prices';
@@ -8,6 +9,9 @@ page 2314 "BC O365 Item List"
     RefreshOnActivate = true;
     SourceTable = Item;
     SourceTableView = SORTING(Description);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,21 +20,21 @@ page 2314 "BC O365 Item List"
             repeater(Item)
             {
                 Caption = 'Price';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Enabled = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies what you are selling.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '2';
                     AutoFormatType = 10;
                     Caption = 'Price';
@@ -38,21 +42,21 @@ page 2314 "BC O365 Item List"
                 }
                 field("<Unit Price>"; UnitOfMeasureDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price per';
                     QuickEntry = false;
                     ToolTip = 'Specifies the price for one unit.';
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Enabled = false;
                     ToolTip = 'Specifies the unit in which the item is held in inventory. The base unit of measure also serves as the conversion basis for alternate units of measure.';
                     Visible = false;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Tax Group';
                     NotBlank = true;
                     ToolTip = 'Specifies the tax group code for the tax-detail entry.';
@@ -60,7 +64,7 @@ page 2314 "BC O365 Item List"
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT';
                     NotBlank = true;
                     QuickEntry = false;
@@ -77,7 +81,7 @@ page 2314 "BC O365 Item List"
         {
             action(Edit)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Edit';
                 RunObject = Page "BC O365 Item Card";
                 RunPageOnRec = true;
@@ -96,14 +100,14 @@ page 2314 "BC O365 Item List"
         if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
         if UnitOfMeasure.Get("Base Unit of Measure") then
-            UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage;
+            UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage();
     end;
 
     trigger OnInit()
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
     end;
 
     var
@@ -111,4 +115,4 @@ page 2314 "BC O365 Item List"
         IsUsingVAT: Boolean;
         UnitOfMeasureDescription: Text[50];
 }
-
+#endif

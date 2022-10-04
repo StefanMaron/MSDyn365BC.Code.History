@@ -3363,7 +3363,6 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 1780786116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The unit of measure values do not match to a specific Unit of Measure.</source>
-          <target state="translated">Hodnoty měrné jednotky se neshodují s určitou měrnou jednotkou.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType UnitOfMeasureValuesDontMatchErr</note>
         </trans-unit>
@@ -5158,7 +5157,6 @@
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 794240300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship Quantity</source>
-          <target state="translated">Množství dodání</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control receiveQuantity - Property Caption</note>
         </trans-unit>
@@ -6069,18 +6067,18 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3911703272" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1\\An invoice is posted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedInvoiceCreatedAndPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3551748667" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1\\An invoice is created but not posted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedInvoiceCreatedButNotPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2570812846" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1.</source>
           <target state="translated">Stornování dobropisu selhalo kvůli následující chybě: \\%1.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedNothingCreatedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -6729,19 +6727,19 @@
         <trans-unit id="Page 3783002405 - NamedType 3395541992" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1\\A credit memo is posted.</source>
           <target state="translated">Zrušení faktury se nezdařilo z důvodu následující chyby: \\%1\\Dobropis je zaúčtován.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedCreditMemoCreatedAndPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 554130235" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1\\A credit memo is created but not posted.</source>
           <target state="translated">Zrušení faktury se nezdařilo z důvodu následující chyby: \\%1\\Dobropis byl vytvořen, ale nebyl zaúčtován.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedCreditMemoCreatedButNotPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 31512856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1.</source>
           <target state="translated">Odstranění faktury bylo neúspěšné z důvodu následujících chyb: \\%1.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedNothingCreatedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">

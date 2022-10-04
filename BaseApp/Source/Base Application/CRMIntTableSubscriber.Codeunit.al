@@ -1,4 +1,4 @@
-﻿codeunit 5341 "CRM Int. Table. Subscriber"
+codeunit 5341 "CRM Int. Table. Subscriber"
 {
     SingleInstance = true;
 
@@ -9,6 +9,9 @@
     var
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
         CRMProductName: Codeunit "CRM Product Name";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+
         CannotFindSyncedProductErr: Label 'Cannot find a synchronized product for %1.', Comment = '%1=product identifier';
         CannotSynchOnlyLinesErr: Label 'Cannot synchronize invoice lines separately.';
         CannotSynchProductErr: Label 'Cannot synchronize the product %1.', Comment = '%1=product identification';
@@ -24,8 +27,6 @@
         NotCoupledResourceUoMErr: Label 'Cannot create the invoice in %1. The resource unit of measure %2 is not coupled to a %1 unit.', Comment = '%1= ataverse service name", %2=resource unit of measure code';
         NoCoupledSalesInvoiceHeaderErr: Label 'Cannot find the coupled %1 invoice header.', Comment = '%1 = Dataverse service name';
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.', Comment = '%1 =field caption, %2 = field value, %3 - product name ';
-        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - Dataverse service name';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
@@ -43,6 +44,15 @@
         FailedToGetPostedSalesInvoiceLinesTxt: Label 'Failed to get lines for posted sales invoice %1 from SQL database.', Locked = true;
         SalesInvoiceNotCommittedErr: Label 'Posted sales invoice %1 is not committed in the SQL database yet. It will be synchronized by the next scheduled synchronization run.', Comment = '%1 - invoice number';
         SalesInvoiceLinesNotCommittedErr: Label 'The lines of posted sales invoice %1 are not committed in the SQL database yet. The invoice will be synchronized by the next scheduled synchronization run.', Comment = '%1 - invoice number';
+        NotCoupledCRMUomErr: Label 'The %2 unit %1 is not coupled to a unit of measure.', Comment = '%1 = Unit name, %2 = Dataverse service name';
+        OrderPriceListLbl: Label 'Business Central Order %1 Price List', Locked = true, Comment = '%1 - Order No.';
+        SalesHeaderNotCoupledErr: Label 'Sales header is not coupled.';
+        WriteInProductErr: Label 'Sales line contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.';
+        UnitOfMeasureNotCoupledErr: Label 'Unit of measure %1 is not coupled.', Comment = '%1 - unit of measure code';
+        ItemUnitOfMeasureNotCoupledErr: Label 'Item unit of measure %1 is not coupled.', Comment = '%1 - unit of measure code';
+        ResourceUnitOfMeasureNotCoupledErr: Label 'Resource unit of measure %1 is not coupled.', Comment = '%1 - unit of measure code';
+        ItemUomDoesNotExistErr: Label 'The item unit of measure %1 does not exist.', Comment = '%1= item unit of measure code';
+        ResourceUomDoesNotExistErr: Label 'The resource unit of measure %1 does not exist.', Comment = '%1= resource unit of measure code';
 
     procedure ClearCache()
     begin
@@ -81,8 +91,11 @@
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterDeleteAfterPosting', '', false, false)]
     local procedure DeleteCouplingOnAfterDeleteAfterPosting(SalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; CommitIsSuppressed: Boolean)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
+        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
         if IsNullGuid(SalesHeader.SystemId) then
             exit;
         CRMIntegrationRecord.SetRange("Integration ID", SalesHeader.SystemId);
@@ -176,6 +189,8 @@
                         exit(IntegrationTableMapping."Coupling Codeunit ID" = Codeunit::"CDS Int. Table Couple");
                     end;
                 end;
+            Codeunit::"CRM Archived Sales Orders Job":
+                exit(true);
         end;
     end;
 
@@ -201,20 +216,38 @@
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeTransferRecordFields', '', false, false)]
     procedure OnBeforeTransferRecordFields(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Sales Invoice Header-CRM Invoice':
                 CheckItemOrResourceIsNotBlocked(SourceRecordRef);
+            'Sales Line-CRM Salesorderdetail':
+                AddSalesOrderIdToCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
+            'CRM Salesorderdetail-Sales Line':
+                begin
+                    AddDocumentNoToSalesOrderLine(SourceRecordRef, DestinationRecordRef);
+                    AddTypeToSalesOrderLine(SourceRecordRef, DestinationRecordRef);
+                end;
+            'CRM Salesorder-Sales Header':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    DestinationRecordRef.SetTable(SalesHeader);
+                    SalesHeader.Status := SalesHeader.Status::Open;
+                    DestinationRecordRef.GetTable(SalesHeader);
+                end;
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Record Synch.", 'OnTransferFieldData', '', false, false)]
     procedure OnTransferFieldData(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean; var NeedsConversion: Boolean)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         Item: Record Item;
         Resource: Record Resource;
         PriceListLine: Record "Price List Line";
+        SalesLine: Record "Sales Line";
         CRMProduct: Record "CRM Product";
         OptionValue: Integer;
         TableValue: Text;
@@ -226,6 +259,22 @@
             if (SourceFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) or
                 (DestinationFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) then
                 exit;
+
+        if (DestinationFieldRef.Record().Number() = Database::"Sales Line") and (DestinationFieldRef.Number() = SalesLine.FieldNo("No.")) then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                if AddWriteInProductNo(SourceFieldRef, NewValue) then begin
+                    IsValueFound := true;
+                    NeedsConversion := false;
+                    exit;
+                end;
+
+        if (DestinationFieldRef.Record().Number() = Database::"CRM Salesorderdetail") and (SourceFieldRef.Number() = SalesLine.FieldNo("No.")) then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                if AddWriteInSalesorderdetail(SourceFieldRef, NewValue) then begin
+                    IsValueFound := true;
+                    NeedsConversion := false;
+                    exit;
+                end;
 
         if CRMSynchHelper.ConvertTableToOption(SourceFieldRef, DestinationFieldRef, OptionValue) then begin
             NewValue := OptionValue;
@@ -268,6 +317,11 @@
                 IsValueFound := true;
                 NeedsConversion := false;
                 exit;
+            end;
+            if SourceFieldRef.Record().Number() = Database::"Unit Group" then begin
+                CRMSynchHelper.PrefixUnitGroupCode(SourceFieldRef, NewValue);
+                IsValueFound := true;
+                NeedsConversion := false;
             end;
         end;
 
@@ -315,7 +369,7 @@
             'CRM Account-Customer':
                 if UpdateCustomerBlocked(SourceRecordRef, DestinationRecordRef) then
                     AdditionalFieldsWereModified := true;
-#if not CLEAN19
+#if not CLEAN21
             'Sales Price-CRM Productpricelevel':
                 if UpdateCRMProductPricelevelAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
                     AdditionalFieldsWereModified := true;
@@ -347,11 +401,20 @@
             'Resource Unit of Measure-CRM Uom':
                 if UpdateCRMUomFromResourceAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
                     AdditionalFieldsWereModified := true;
+            'Sales Line-CRM Salesorderdetail':
+                if UpdateCRMSalesorderdetailUom(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
+            'CRM Salesorderdetail-Sales Line':
+                if UpdateSalesLineUnitOfMeasure(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeInsertRecord', '', false, false)]
     procedure OnBeforeInsertRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'CRM Contact-Contact':
@@ -360,7 +423,7 @@
                 UpdateCRMContactParentCustomerId(SourceRecordRef, DestinationRecordRef);
             'Currency-CRM Transactioncurrency':
                 UpdateCRMTransactionCurrencyBeforeInsertRecord(DestinationRecordRef);
-#if not CLEAN19
+#if not CLEAN21
             'Customer Price Group-CRM Pricelevel':
                 UpdateCRMPricelevelBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
 #endif
@@ -378,6 +441,20 @@
                 UpdateCRMOpportunityBeforeInsertRecord(DestinationRecordRef);
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
+            'Sales Header-CRM Salesorder':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    UpdateCRMSalesOrderPriceList(SourceRecordRef, DestinationRecordRef);
+                    SetCompanyId(DestinationRecordRef);
+                    SetCRMOrderName(SourceRecordRef, DestinationRecordRef);
+                    SetDocOccurenceNumber(SourceRecordRef, DestinationRecordRef);
+                    CDSIntTableSubscriber.SetOwnerId(SourceRecordRef, DestinationRecordRef);
+                end;
+            'CRM Salesorder-Sales Header':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    UpdateSalesOrderQuoteNo(SourceRecordRef, DestinationRecordRef);
+            'Sales Line-CRM Salesorderdetail':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    SetWriteInProduct(SourceRecordRef, DestinationRecordRef);
         end;
 
         case DestinationRecordRef.Number() of
@@ -389,11 +466,14 @@
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
     procedure OnAfterInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
         SourceDestCode: Text;
     begin
         SourceDestCode := GetSourceDestCode(SourceRecordRef, DestinationRecordRef);
         case SourceDestCode of
-#if not CLEAN19
+#if not CLEAN21
             'Customer Price Group-CRM Pricelevel':
                 ResetCRMProductpricelevelFromCustomerPriceGroup(SourceRecordRef);
 #endif
@@ -403,13 +483,29 @@
             'Resource-CRM Product':
                 UpdateCRMProductAfterInsertRecord(DestinationRecordRef);
             'Sales Invoice Header-CRM Invoice':
-                UpdateCRMInvoiceAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
+                begin
+                    UpdateCRMInvoiceAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
+                    UpdatePricesIncludeVATRounding(SourceRecordRef, DestinationRecordRef);
+                end;
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Item Unit of Measure-CRM Uom':
                 UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef);
             'Resource Unit of Measure-CRM Uom':
                 UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef);
+            'Sales Header-CRM Salesorder':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
+                    ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesorder.StateCode::Submitted);
+                end;
+            'CRM Salesorder-Sales Header':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
+                    ApplySalesOrderDiscounts(SourceRecordRef, DestinationRecordRef);
+                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    SetOrderNumberAndDocOccurenceNumber(SourceRecordRef, DestinationRecordRef);
+                    CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
+                end;
         end;
     end;
 
@@ -430,17 +526,35 @@
         ChangedCRMSalesOrder.Modify();
     end;
 
+    local procedure ChangeSalesOrderStatus(var SourceRecordRef: RecordRef; NewStatus: Enum "Sales Document Status")
+    var
+        SalesHeader: Record "Sales Header";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if not CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
+
+        SalesHeader.GetBySystemId(SourceRecordRef.Field(SourceRecordRef.SystemIdNo).Value());
+        if SalesHeader.Status = NewStatus then
+            exit;
+        SalesHeader.Status := NewStatus;
+        SalesHeader.Modify();
+
+        SourceRecordRef.GetTable(SalesHeader);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
     procedure OnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         CRMSalesOrder: Record "CRM Salesorder";
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'CRM Contact-Contact':
                 UpdateContactParentCompany(SourceRecordRef, DestinationRecordRef);
             'Contact-CRM Contact':
                 UpdateCRMContactParentCustomerId(SourceRecordRef, DestinationRecordRef);
-#if not CLEAN19
+#if not CLEAN21
             'Customer Price Group-CRM Pricelevel':
                 UpdateCRMPricelevelBeforeModifyRecord(SourceRecordRef, DestinationRecordRef);
 #endif
@@ -453,7 +567,10 @@
                 SetCompanyId(DestinationRecordRef);
             'Sales Header-CRM Salesorder':
                 begin
-                    ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesOrder.StateCode::Active);
+                    if not CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                        ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesOrder.StateCode::Active)
+                    else
+                        UpdateCRMSalesOrderPriceList(SourceRecordRef, DestinationRecordRef);
                     SetCompanyId(DestinationRecordRef);
                 end;
         end;
@@ -462,17 +579,30 @@
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterModifyRecord', '', false, false)]
     procedure OnAfterModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CRMSalesOrder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
-#if not CLEAN19
+#if not CLEAN21
             'Customer Price Group-CRM Pricelevel':
                 ResetCRMProductpricelevelFromCustomerPriceGroup(SourceRecordRef);
 #endif
             'Price List Header-CRM Pricelevel':
                 ResetCRMProductpricelevelFromPriceListHeader(SourceRecordRef);
             'Sales Header-CRM Salesorder':
-                ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesOrder.StateCode::Submitted);
+                begin
+                    if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                        ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
+                    ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesOrder.StateCode::Submitted);
+                end;
+            'CRM Salesorder-Sales Header':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
+                    ApplySalesOrderDiscounts(SourceRecordRef, DestinationRecordRef);
+                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
+                end;
         end;
 
         if DestinationRecordRef.Number() = DATABASE::Customer then
@@ -481,14 +611,27 @@
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterUnchangedRecordHandled', '', false, false)]
     procedure OnAfterUnchangedRecordHandled(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        SalesHeader: Record "Sales Header";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
-#if not CLEAN19
+#if not CLEAN21
             'Customer Price Group-CRM Pricelevel':
                 ResetCRMProductpricelevelFromCustomerPriceGroup(SourceRecordRef);
 #endif
             'Price List Header-CRM Pricelevel':
                 ResetCRMProductpricelevelFromPriceListHeader(SourceRecordRef);
+            'Sales Header-CRM Salesorder':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
+            'CRM Salesorder-Sales Header':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Open);
+                    ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
+                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
+                end;
         end;
     end;
 
@@ -511,7 +654,51 @@
                 HandleResourceQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
             DATABASE::"Sales Invoice Header":
                 IgnoreReadOnlyInvoiceOnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
+            Database::"Sales Header":
+                IgnoreArchievedSalesOrdersOnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
+            Database::"CRM Salesorder":
+                IgnoreArchievedCRMSalesordersOnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
         end;
+    end;
+
+    local procedure IgnoreArchievedSalesOrdersOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if IgnoreRecord then
+            exit;
+
+        SourceRecordRef.SetTable(SalesHeader);
+        if not SalesHeader."Coupled to CRM" then
+            exit;
+
+        if not CRMIntegrationRecord.FindByRecordID(SalesHeader.RecordId) then
+            exit;
+
+        if CRMIntegrationRecord."Archived Sales Order" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                IgnoreRecord := true;
+    end;
+
+    local procedure IgnoreArchievedCRMSalesordersOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if IgnoreRecord then
+            exit;
+
+        SourceRecordRef.SetTable(CRMSalesorder);
+
+        if not CRMIntegrationRecord.FindByCRMID(CRMSalesorder.SalesOrderId) then
+            exit;
+
+        if CRMIntegrationRecord."Archived Sales Order" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                IgnoreRecord := true;
     end;
 
     local procedure IgnoreReadOnlyInvoiceOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
@@ -554,7 +741,7 @@
         end;
 
         case SourceRecordRef.Number() of
-#if not CLEAN19
+#if not CLEAN21
             DATABASE::"Sales Price":
                 if CRMPriceListLineFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef) then
                     DestinationFound := true;
@@ -573,6 +760,7 @@
         if Rec.IsTemporary() then
             exit;
 
+        JobQueueEntry.LockTable();
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetFilter("Object ID to Run", '%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", Rec.RecordId());
@@ -601,6 +789,86 @@
             FeatureTelemetry.LogUptake('0000H7F', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Used);
             FeatureTelemetry.LogUsage('0000H7G', 'Dynamics 365 Sales', 'Sales entity synch');
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Rec. Uncouple Invoke", 'OnAfterUncoupleRecord', '', false, false)]
+    local procedure HandleOnAfterUncoupleRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
+    begin
+        RemoveChildCouplings(LocalRecordRef, IntegrationRecordRef);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnIsIntegrationRecordChild', '', false, false)]
+    local procedure HandleOnIsIntegrationRecordChild(TableId: Integer; var isIntegrationRecordChild: Boolean; var ReturnValue: Boolean)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if TableId = Database::"Sales Line" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                isIntegrationRecordChild := true;
+                ReturnValue := false;
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure HandleOnAfterDeleteAfterPosting(var Rec: Record "Sales Header")
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        MarkArchivedSalesOrder(Rec);
+    end;
+
+    procedure MarkArchivedSalesOrder(SalesHeader: Record "Sales Header")
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        if SalesHeader."Coupled to CRM" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Header");
+                CRMIntegrationRecord.SetRange("Integration ID", SalesHeader.SystemId);
+                if CRMIntegrationRecord.FindFirst() then begin
+                    CRMIntegrationRecord."Archived Sales Order" := true;
+                    CRMIntegrationRecord.Modify();
+                end;
+            end;
+    end;
+
+    local procedure RemoveChildCouplings(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
+    var
+        SalesLineList: List of [Guid];
+    begin
+        if GetCoupledSalesLines(LocalRecordRef, IntegrationRecordRef, SalesLineList) then
+            CRMIntegrationManagement.RemoveCoupling(Database::"Sales Line", SalesLineList, false);
+    end;
+
+    local procedure GetCoupledSalesLines(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var SalesLineList: List of [Guid]): Boolean
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        if IntegrationRecordRef.Number() <> Database::"CRM Salesorder" then
+            exit(false);
+
+        IntegrationRecordRef.SetTable(CRMSalesorder);
+        if IsNullGuid(CRMSalesorder.SalesOrderId) then
+            exit(false);
+
+        LocalRecordRef.SetTable(SalesHeader);
+        if IsNullGuid(SalesHeader.SystemId) then
+            exit(false);
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        if SalesLine.FindSet() then
+            repeat
+                if CRMIntegrationRecord.IsRecordCoupled(SalesLine.RecordId) then
+                    SalesLineList.Add(SalesLine.SystemId);
+            until SalesLine.Next() = 0;
+
+        exit(SalesLineList.Count() > 0);
     end;
 
     local procedure UpdateOwnerIdAndCompanyId(var DestinationRecordRef: RecordRef)
@@ -881,6 +1149,48 @@
         Commit();
     end;
 
+    local procedure UpdatePricesIncludeVATRounding(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMInvoice: Record "CRM Invoice";
+        CRMInvoicedetail: Record "CRM Invoicedetail";
+        WriteInCRMInvoicedetail: Record "CRM Invoicedetail";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        DifferenceAmount: Decimal;
+    begin
+        SourceRecordRef.SetTable(SalesInvoiceHeader);
+        DestinationRecordRef.SetTable(CRMInvoice);
+
+        if SalesInvoiceHeader."Prices Including VAT" then begin
+            SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+            if SalesInvoiceLine.FindSet() then begin
+                CRMInvoicedetail.SetRange(InvoiceId, CRMInvoice.InvoiceId);
+                CRMInvoicedetail.SetRange(IsProductOverridden, true);
+                CRMInvoicedetail.SetRange(ProductDescription, 'Rounding');
+                if not CRMInvoicedetail.IsEmpty() then
+                    exit;
+                CRMInvoicedetail.Reset();
+
+                repeat
+                    CRMInvoicedetail.SetRange(InvoiceId, CRMInvoice.InvoiceId);
+                    CRMInvoicedetail.SetRange(LineItemNumber, SalesInvoiceLine."Line No.");
+                    if CRMInvoicedetail.FindFirst() then
+                        DifferenceAmount += SalesInvoiceLine."Amount Including VAT" - ((CRMInvoicedetail.PricePerUnit * CRMInvoicedetail.Quantity) + CRMInvoicedetail.Tax - CRMInvoicedetail.ManualDiscountAmount);
+                until SalesInvoiceLine.Next() = 0;
+
+                if DifferenceAmount <> 0 then begin
+                    WriteInCRMInvoicedetail.Init();
+                    WriteInCRMInvoicedetail.InvoiceId := CRMInvoice.InvoiceId;
+                    WriteInCRMInvoicedetail.Quantity := 1;
+                    WriteInCRMInvoicedetail.PricePerUnit := DifferenceAmount;
+                    WriteInCRMInvoicedetail.IsProductOverridden := true;
+                    WriteInCRMInvoicedetail.ProductDescription := 'Rounding';
+                    WriteInCRMInvoicedetail.Insert();
+                end;
+            end;
+        end;
+    end;
+
     local procedure UpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     var
         CRMAccount: Record "CRM Account";
@@ -998,6 +1308,7 @@
         InitializeCRMInvoiceLineFromCRMHeader(CRMInvoicedetail, CRMSalesInvoiceHeaderId);
         InitializeCRMInvoiceLineFromSalesInvoiceHeader(CRMInvoicedetail, SalesInvoiceHeader);
         InitializeCRMInvoiceLineFromSalesInvoiceLine(CRMInvoicedetail, SalesInvoiceLine);
+        InitializeCRMInvoiceLineFromSalesInvoiceHeaderAndLine(CRMInvoicedetail, SalesInvoiceHeader, SalesInvoiceLine);
         InitializeCRMInvoiceLineWithProductDetails(CRMInvoicedetail, SalesInvoiceLine);
 
         CRMSynchHelper.CreateCRMProductpriceIfAbsent(CRMInvoicedetail);
@@ -1005,7 +1316,7 @@
         DestinationRecordRef.GetTable(CRMInvoicedetail);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateCRMPricelevelBeforeInsertRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         CRMPricelevel: Record "CRM Pricelevel";
@@ -1061,7 +1372,7 @@
         UpdateOwnerIdAndCompanyId(DestinationRecordRef);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateCRMPricelevelBeforeModifyRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         CRMPricelevel: Record "CRM Pricelevel";
@@ -1092,7 +1403,7 @@
         SetCompanyId(DestinationRecordRef);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure ResetCRMProductpricelevelFromCustomerPriceGroup(SourceRecordRef: RecordRef)
     var
         CustomerPriceGroup: Record "Customer Price Group";
@@ -1126,7 +1437,124 @@
         end;
     end;
 
-#if not CLEAN19
+    local procedure ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        CRMSalesorderdetail2: Record "CRM Salesorderdetail";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        SalesLineRecordRef: RecordRef;
+    begin
+        SourceRecordRef.SetTable(SalesHeader);
+        DestinationRecordRef.SetTable(CRMSalesorder);
+
+        CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
+        if CRMSalesorderdetail.FindSet() then
+            repeat
+                CRMIntegrationRecord.SetRange("CRM ID", CRMSalesorderdetail.SalesOrderDetailId);
+                CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Line");
+                if CRMIntegrationRecord.FindFirst() then begin
+                    SalesLine.SetRange(SystemId, CRMIntegrationRecord."Integration ID");
+                    if SalesLine.IsEmpty() then begin
+                        CRMIntegrationRecord.Delete();
+                        CRMSalesorderdetail2.Get(CRMSalesorderdetail.SalesOrderDetailId);
+                        CRMSalesorderdetail2.Delete();
+                    end;
+                end;
+            until CRMSalesorderdetail.Next() = 0;
+
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        if not SalesLine.IsEmpty() then begin
+            SalesLineRecordRef.GetTable(SalesLine);
+            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(SalesLineRecordRef, false, false);
+        end;
+    end;
+
+    local procedure ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Salesline2: Record "Sales Line";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        CRMSalesorderdetail2: Record "CRM Salesorderdetail";
+        CRMProduct: Record "CRM Product";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        CRMSalesorderdetailRecordRef: RecordRef;
+        CRMSalesorderdetailId: Guid;
+        CRMSalesorderdetailIdList: List of [Guid];
+        CRMSalesorderdetailIdFilter: Text;
+    begin
+        SourceRecordRef.SetTable(CRMSalesorder);
+        DestinationRecordRef.SetTable(SalesHeader);
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        if SalesLine.FindSet() then
+            repeat
+                CRMIntegrationRecord.SetRange("Integration ID", SalesLine.SystemId);
+                CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Line");
+                if CRMIntegrationRecord.FindFirst() then begin
+                    CRMSalesorderdetail.SetRange(SalesOrderDetailId, CRMIntegrationRecord."CRM ID");
+                    if CRMSalesorderdetail.IsEmpty() then begin
+                        CRMIntegrationRecord.Delete();
+                        SalesLine2.GetBySystemId(SalesLine.SystemId);
+                        Salesline2.Delete();
+                    end;
+                end;
+            until SalesLine.Next() = 0;
+
+        CRMSalesorderdetail.Reset();
+        CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
+        if CRMSalesorderdetail.FindSet() then begin
+            repeat
+                if IsNullGuid(CRMSalesorderdetail.ProductId) then
+                    CRMSalesorderdetailIdList.Add(CRMSalesorderdetail.SalesOrderDetailId)
+                else begin
+                    CRMProduct.Get(CRMSalesorderdetail.ProductId);
+                    if CRMProduct.ProductTypeCode in [CRMProduct.ProductTypeCode::SalesInventory, CRMProduct.ProductTypeCode::Services] then
+                        CRMSalesorderdetailIdList.Add(CRMSalesorderdetail.SalesOrderDetailId);
+                end;
+            until CRMSalesorderdetail.Next() = 0;
+
+            foreach CRMSalesorderdetailId in CRMSalesorderdetailIdList do
+                CRMSalesorderdetailIdFilter += CRMSalesorderdetailId + '|';
+            CRMSalesorderdetailIdFilter := CRMSalesorderdetailIdFilter.TrimEnd('|');
+
+            CRMSalesorderdetail2.SetFilter(SalesOrderDetailId, CRMSalesorderdetailIdFilter);
+            CRMSalesorderdetailRecordRef.GetTable(CRMSalesorderdetail2);
+            CRMIntegrationTableSynch.SynchRecordsFromIntegrationTable(CRMSalesorderdetailRecordRef, Database::"Sales Line", false, false);
+        end;
+    end;
+
+    local procedure ApplySalesOrderDiscounts(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        ChangedSalesHeader: Record "Sales Header";
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        CRMDiscountAmount: Decimal;
+    begin
+        SourceRecordRef.SetTable(CRMSalesorder);
+        DestinationRecordRef.SetTable(SalesHeader);
+
+        if (CRMSalesorder.DiscountAmount = 0) and (CRMSalesorder.DiscountPercentage = 0) then
+            exit;
+
+        CRMDiscountAmount := CRMSalesorder.TotalLineItemAmount - CRMSalesorder.TotalAmountLessFreight;
+        ChangedSalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(CRMDiscountAmount, ChangedSalesHeader);
+
+        DestinationRecordRef.GetTable(ChangedSalesHeader);
+    end;
+
+#if not CLEAN21
     local procedure UpdateCRMProductPricelevelAfterTransferRecordFields(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef) UoMHasBeenChanged: Boolean
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";
@@ -1264,7 +1692,7 @@
         CRMProductId: Guid;
     begin
         SourceFieldRef := SourceRecordRef.Field(ItemUnitOfMeasure.FieldNo("Item No."));
-        Item.Get(SourceFieldRef.Value());
+        Item.Get(Format(SourceFieldRef.Value()));
         ItemRecordRef.GetTable(Item);
         if CRMIntegrationRecord.FindIDFromRecordRef(ItemRecordRef, CRMProductId) then
             if CRMProduct.Get(CRMProductId) then
@@ -1282,7 +1710,7 @@
         CRMProductId: Guid;
     begin
         SourceFieldRef := SourceRecordRef.Field(ResourceUnitOfMeasure.FieldNo("Resource No."));
-        Resource.Get(SourceFieldRef.Value());
+        Resource.Get(Format(SourceFieldRef.Value()));
         ResourceRecordRef.GetTable(Resource);
         if CRMIntegrationRecord.FindIDFromRecordRef(ResourceRecordRef, CRMProductId) then
             if CRMProduct.Get(CRMProductId) then
@@ -1379,7 +1807,7 @@
             DestinationFound := DestinationRecordRef.Get(CRMTransactioncurrency.RecordId());
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CRMPriceListLineFindUncoupledDestinationRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef) DestinationFound: Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -1507,7 +1935,7 @@
         DestinationFieldRef := DestinationRecordRef.Field(CRMUom.FieldNo(UoMScheduleId));
         SourceFieldRef := SourceRecordRef.Field(ItemUnitOfMeasure.FieldNo("Item No."));
 
-        Item.Get(SourceFieldRef.Value());
+        Item.Get(Format(SourceFieldRef.Value()));
 
         UnitGroup.SetRange("Source Id", Item.SystemId);
         UnitGroup.SetRange("Source Type", UnitGroup."Source Type"::Item);
@@ -1515,7 +1943,7 @@
             Error(ItemUnitGroupNotFoundErr, Item."No.");
 
         CRMUomscheduleId := DestinationFieldRef.Value();
-        CRMUomschedule.SetRange(Name, UnitGroup.Code);
+        CRMUomschedule.SetRange(Name, UnitGroup.GetCode());
         if not CRMUomschedule.FindFirst() then begin
             CoupleAndSyncUnitGroup(UnitGroup);
             CRMUomschedule.FindFirst();
@@ -1553,7 +1981,7 @@
         DestinationFieldRef := DestinationRecordRef.Field(CRMUom.FieldNo(UoMScheduleId));
         SourceFieldRef := SourceRecordRef.Field(ResourceUnitOfMeasure.FieldNo("Resource No."));
 
-        Resource.Get(SourceFieldRef.Value());
+        Resource.Get(Format(SourceFieldRef.Value()));
 
         UnitGroup.SetRange("Source Id", Resource.SystemId);
         UnitGroup.SetRange("Source Type", UnitGroup."Source Type"::Resource);
@@ -1561,7 +1989,7 @@
             Error(ResourceUnitGroupNotFoundErr, Resource."No.");
 
         CRMUomscheduleId := DestinationFieldRef.Value();
-        CRMUomschedule.SetRange(Name, UnitGroup.Code);
+        CRMUomschedule.SetRange(Name, UnitGroup.GetCode());
         if not CRMUomschedule.FindFirst() then begin
             CoupleAndSyncUnitGroup(UnitGroup);
             CRMUomschedule.FindFirst();
@@ -1720,6 +2148,17 @@
         CRMInvoicedetail.Tax := SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount;
     end;
 
+    local procedure InitializeCRMInvoiceLineFromSalesInvoiceHeaderAndLine(var CRMInvoicedetail: Record "CRM Invoicedetail"; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        if SalesInvoiceHeader."Prices Including VAT" then
+            if SalesInvoiceLine.Quantity <> 0 then
+                CRMInvoicedetail.PricePerUnit := SalesInvoiceLine."Unit Price" -
+                                    Round((SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount) / SalesInvoiceLine.Quantity, GeneralLedgerSetup."Unit-Amount Rounding Precision");
+    end;
+
     local procedure InitializeCRMInvoiceLineWithProductDetails(var CRMInvoicedetail: Record "CRM Invoicedetail"; SalesInvoiceLine: Record "Sales Invoice Line")
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -1859,9 +2298,9 @@
                 UnitGroup.Get(UnitGroup."Source Type"::Item, Item.SystemId)
             else
                 UnitGroup.Get(UnitGroup."Source Type"::Resource, Resource.SystemId);
-            CRMUomschedule.SetRange(Name, UnitGroup.Code);
+            CRMUomschedule.SetRange(Name, UnitGroup.GetCode());
             if not CRMUomschedule.FindFirst() then
-                Error(CRMUnitGroupNotFoundErr, UnitGroup.Code);
+                Error(CRMUnitGroupNotFoundErr, UnitGroup.GetCode());
 
             CRMUom.SetRange(Name, UoMCode);
             CRMUom.SetRange(UoMScheduleId, CRMUomschedule.UoMScheduleId);
@@ -1870,7 +2309,7 @@
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CheckSalesPricesForSync(CustomerPriceGroupCode: Code[10]; ExpectedCurrencyCode: Code[10])
     var
         SalesPrice: Record "Sales Price";
@@ -1905,7 +2344,7 @@
             until PriceListLine.Next() = 0;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CheckCustPriceGroupForSync(var CRMTransactioncurrency: Record "CRM Transactioncurrency"; CustomerPriceGroup: Record "Customer Price Group")
     var
         SalesPrice: Record "Sales Price";
@@ -1954,6 +2393,489 @@
             until SalesInvLine.Next() = 0;
     end;
 
+    local procedure AddSalesOrderIdToCRMSalesorderdetail(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMSalesorderId: Guid;
+    begin
+        if not CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
+        SourceRecordRef.SetTable(SalesLine);
+        DestinationRecordRef.SetTable(CRMSalesorderdetail);
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
+        if not CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CRMSalesorderId) then
+            Error(SalesHeaderNotCoupledErr);
+        CRMSalesorderdetail.SalesOrderId := CRMSalesorderId;
+        DestinationRecordRef.GetTable(CRMSalesorderdetail);
+    end;
+
+    local procedure AddDocumentNoToSalesOrderLine(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesOrderRecordId: RecordId;
+    begin
+        if not CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
+        SourceRecordRef.SetTable(CRMSalesorderdetail);
+        DestinationRecordRef.SetTable(SalesLine);
+        if not CRMIntegrationRecord.FindRecordIDFromID(CRMSalesorderdetail.SalesOrderId, Database::"Sales Header", SalesOrderRecordId) then
+            Error(SalesHeaderNotCoupledErr);
+        SalesHeader.Get(SalesOrderRecordId);
+        SalesLine."Document No." := SalesHeader."No.";
+        DestinationRecordRef.GetTable(SalesLine);
+    end;
+
+    local procedure AddWriteInProductNo(SourceFieldRef: FieldRef; var NewValue: Variant): Boolean
+    var
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SourceFieldRef.Record().SetTable(CRMSalesorderdetail);
+        if IsNullGuid(CRMSalesorderdetail.ProductId) then begin
+            SalesReceivablesSetup.Get();
+            if SalesReceivablesSetup."Write-in Product No." = '' then
+                Error(WriteInProductErr);
+            SalesReceivablesSetup.Validate("Write-in Product No.");
+            NewValue := SalesReceivablesSetup."Write-in Product No.";
+            exit(true);
+        end;
+    end;
+
+    local procedure AddWriteInSalesorderdetail(SourceFieldRef: FieldRef; var NewValue: Variant): Boolean
+    var
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        EmptyGuid: Guid;
+    begin
+        SourceFieldRef.Record().SetTable(SalesLine);
+        SalesReceivablesSetup.Get();
+        if SalesReceivablesSetup."Write-in Product No." = SalesLine."No." then begin
+            NewValue := EmptyGuid;
+            exit(true);
+        end;
+    end;
+
+    local procedure CreateSalesOrderNotes(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMAnnotation: Record "CRM Annotation";
+        RecordLink: Record "Record Link";
+        RecordLink2: Record "Record Link";
+        CRMAnnotationCoupling: Record "CRM Annotation Coupling";
+    begin
+        SourceRecordRef.SetTable(CRMSalesorder);
+        DestinationRecordRef.SetTable(SalesHeader);
+
+        RecordLink.SetRange("Record ID", SalesHeader.RecordId);
+        if RecordLink.FindSet() then
+            repeat
+                CRMAnnotationCoupling.SetRange("Record Link Record ID", RecordLink.RecordId);
+                if CRMAnnotationCoupling.FindFirst() then begin
+                    CRMAnnotation.SetRange(AnnotationId, CRMAnnotationCoupling."CRM Annotation ID");
+                    if CRMAnnotation.IsEmpty() then begin
+                        CRMAnnotationCoupling.Delete();
+                        RecordLink2.GetBySystemId(RecordLink.SystemId);
+                        RecordLink2.Delete();
+                    end;
+                end;
+            until RecordLink.Next() = 0;
+
+        CRMAnnotation.Reset();
+        CRMAnnotation.SetRange(ObjectId, CRMSalesorder.SalesOrderId);
+        CRMAnnotation.SetRange(IsDocument, false);
+        CRMAnnotation.SetRange(FileSize, 0);
+        if CRMAnnotation.FindSet() then
+            repeat
+                if not CRMAnnotationCoupling.FindByCRMId(CRMAnnotation.AnnotationId) then begin
+                    CreateNote(SalesHeader, CRMAnnotation, RecordLink);
+                    CRMAnnotationCoupling.CoupleRecordLinkToCRMAnnotation(RecordLink, CRMAnnotation);
+                end;
+            until CRMAnnotation.Next() = 0;
+    end;
+
+    local procedure CreateNote(SalesHeader: Record "Sales Header"; CRMAnnotation: Record "CRM Annotation"; var RecordLink: Record "Record Link")
+    var
+        CRMAnnotationCoupling: Record "CRM Annotation Coupling";
+        RecordLinkManagement: Codeunit "Record Link Management";
+        NoteInStream: InStream;
+        AnnotationText: Text;
+    begin
+        Clear(RecordLink);
+        RecordLink."Record ID" := SalesHeader.RecordId;
+        RecordLink.Type := RecordLink.Type::Note;
+        RecordLink.Description := CRMAnnotation.Subject;
+        CRMAnnotation.CalcFields(NoteText);
+        CRMAnnotation.NoteText.CreateInStream(NoteInStream, TextEncoding::UTF16);
+        NoteInStream.Read(AnnotationText);
+        AnnotationText := CRMAnnotationCoupling.ExtractNoteText(AnnotationText);
+        RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
+        RecordLink.Created := CRMAnnotation.CreatedOn;
+        RecordLink.Company := CopyStr(CompanyName, 1, MaxStrLen(RecordLink.Company));
+        RecordLink.Insert();
+    end;
+
+    local procedure AddTypeToSalesOrderLine(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        CRMProduct: Record "CRM Product";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        if not CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
+        SourceRecordRef.SetTable(CRMSalesorderdetail);
+        DestinationRecordRef.SetTable(SalesLine);
+
+        if IsNullGuid(CRMSalesorderdetail.ProductId) then begin
+            SalesReceivablesSetup.Get();
+            if SalesReceivablesSetup."Write-in Product No." = '' then
+                Error(WriteInProductErr);
+            SalesReceivablesSetup.Validate("Write-in Product No.");
+            case SalesReceivablesSetup."Write-in Product Type" of
+                SalesReceivablesSetup."Write-in Product Type"::Item:
+                    SalesLine.Type := SalesLine.Type::Item;
+                SalesReceivablesSetup."Write-in Product Type"::Resource:
+                    SalesLine.Type := SalesLine.Type::Resource;
+            end;
+        end else begin
+            CRMProduct.Get(CRMSalesorderdetail.ProductId);
+            case CRMProduct.ProductTypeCode of
+                CRMProduct.ProductTypeCode::SalesInventory:
+                    SalesLine.Type := SalesLine.Type::Item;
+                CRMProduct.ProductTypeCode::Services:
+                    SalesLine.Type := SalesLine.Type::Resource;
+            end;
+        end;
+        DestinationRecordRef.GetTable(SalesLine);
+    end;
+
+    local procedure UpdateSalesLineUnitOfMeasure(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        CRMProduct: Record "CRM Product";
+        SalesLine: Record "Sales Line";
+        NAVItemUomRecordId: RecordID;
+        NAVResourceUomRecordId: RecordID;
+    begin
+        if not CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            exit;
+
+        SourceRecordRef.SetTable(CRMSalesorderdetail);
+        DestinationRecordRef.SetTable(SalesLine);
+
+        CRMProduct.Get(CRMSalesorderdetail.ProductId);
+        case CRMProduct.ProductTypeCode of
+            CRMProduct.ProductTypeCode::SalesInventory:
+                begin
+                    if not CRMIntegrationRecord.FindRecordIDFromID(CRMSalesorderdetail.UoMId, Database::"Item Unit of Measure", NAVItemUomRecordId) then
+                        Error(NotCoupledCRMUomErr, CRMSalesorderdetail.UoMIdName, CRMProductName.CDSServiceName());
+
+                    if not ItemUnitOfMeasure.Get(NAVItemUomRecordId) then
+                        Error(ItemUomDoesNotExistErr, CRMSalesorderdetail.UoMIdName);
+
+                    SalesLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+                end;
+            CRMProduct.ProductTypeCode::Services:
+                begin
+                    if not CRMIntegrationRecord.FindRecordIDFromID(CRMSalesorderdetail.UoMId, Database::"Resource Unit of Measure", NAVResourceUomRecordId) then
+                        Error(NotCoupledCRMUomErr, CRMSalesorderdetail.UoMIdName, CRMProductName.CDSServiceName());
+
+                    if not ResourceUnitOfMeasure.Get(NAVResourceUomRecordId) then
+                        Error(ResourceUomDoesNotExistErr, CRMSalesorderdetail.UoMIdName);
+
+                    SalesLine.Validate("Unit of Measure Code", ResourceUnitOfMeasure.Code);
+                end;
+        end;
+        DestinationRecordRef.GetTable(SalesLine);
+        exit(true);
+    end;
+
+    local procedure UpdateCRMSalesorderdetailUom(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Boolean
+    var
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesLine: Record "Sales Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMUom: Record "CRM Uom";
+        CRMUomscheduleId: Guid;
+        CRMUomId: Guid;
+    begin
+        SourceRecordRef.SetTable(SalesLine);
+        DestinationRecordRef.SetTable(CRMSalesorderdetail);
+
+        if IsNullGuid(CRMSalesorderdetail.ProductId) then
+            exit;
+
+        if not CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
+            UnitOfMeasure.Get(SalesLine."Unit of Measure Code");
+            if not CRMIntegrationRecord.FindIDFromRecordID(UnitOfMeasure.RecordId, CRMUomscheduleId) then
+                Error(UnitOfMeasureNotCoupledErr, UnitOfMeasure.Code);
+
+            CRMUom.SetRange(UoMScheduleId, CRMUomscheduleId);
+            CRMUom.SetRange(Name, UnitOfMeasure.Code);
+            if CRMUom.FindFirst() then
+                CRMSalesorderdetail.UoMId := CRMUom.UoMId;
+        end else
+            case SalesLine.Type of
+                SalesLine.Type::Item:
+                    begin
+                        ItemUnitOfMeasure.Get(SalesLine."No.", SalesLine."Unit of Measure Code");
+                        if not CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, CRMUomId) then
+                            Error(ItemUnitOfMeasureNotCoupledErr, ItemUnitOfMeasure.Code);
+                        CRMSalesorderdetail.UoMId := CRMUomId;
+                    end;
+                SalesLine.Type::Resource:
+                    begin
+                        ResourceUnitOfMeasure.Get(SalesLine."No.", SalesLine."Unit of Measure Code");
+                        if not CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, CRMUomId) then
+                            Error(ResourceUnitOfMeasureNotCoupledErr, ResourceUnitOfMeasure.Code);
+                        CRMSalesorderdetail.UoMId := CRMUomId;
+                    end;
+            end;
+        DestinationRecordRef.GetTable(CRMSalesorderdetail);
+    end;
+
+    local procedure UpdateCRMSalesOrderPriceList(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
+        CRMPricelevel: Record "CRM Pricelevel";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
+    begin
+        SourceRecordRef.SetTable(SalesHeader);
+        DestinationRecordRef.SetTable(CRMSalesorder);
+
+        if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
+            if IsNullGuid(CRMSalesorder.PriceLevelId) then begin
+                CRMSyncHelper.FindCRMDefaultPriceList(CRMPricelevel);
+                CRMSalesorder.PriceLevelId := CRMPricelevel.PriceLevelId;
+                DestinationRecordRef.GetTable(CRMSalesorder);
+            end;
+        end else
+            if IsNullGuid(CRMSalesorder.PriceLevelId) then begin
+                CreateCRMPriceList(SalesHeader, CRMPricelevel);
+                CRMSalesorder.PriceLevelId := CRMPricelevel.PriceLevelId;
+                DestinationRecordRef.GetTable(CRMSalesorder);
+            end else
+                UpdateCRMPriceList(SalesHeader, CRMSalesorder.PriceLevelId);
+    end;
+
+    local procedure CreateCRMPriceList(SalesHeader: Record "Sales Header"; var CRMPricelevel: Record "CRM Pricelevel")
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Resource: Record Resource;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        CRMProduct: Record "CRM Product";
+        CRMUom: Record "CRM Uom";
+        CRMId: Guid;
+    begin
+        CRMPricelevel.Init();
+        CRMPricelevel.Name := StrSubstNo(OrderPriceListLbl, SalesHeader."No.");
+        CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
+        CRMPricelevel.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
+        CRMPricelevel.TransactionCurrencyIdName := CRMTransactioncurrency.CurrencyName;
+        CRMPricelevel.Insert();
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                case SalesLine.Type of
+                    SalesLine.Type::Item:
+                        begin
+                            Item.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId) then
+                                if CRMProduct.Get(CRMId) then begin
+                                    CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                    if CRMUom.FindSet() then
+                                        repeat
+                                            CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevel.PriceLevelId, CRMUom);
+                                        until CRMUom.Next() = 0;
+                                end;
+                        end;
+                    SalesLine.Type::Resource:
+                        begin
+                            Resource.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId, CRMId) then
+                                if CRMProduct.Get(CRMId) then begin
+                                    CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                    if CRMUom.FindSet() then
+                                        repeat
+                                            CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevel.PriceLevelId, CRMUom);
+                                        until CRMUom.Next() = 0;
+                                end;
+                        end;
+                end;
+            until SalesLine.Next() = 0;
+    end;
+
+    local procedure UpdateCRMPriceList(SalesHeader: Record "Sales Header"; CRMPricelevelId: Guid)
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Resource: Record Resource;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMProduct: Record "CRM Product";
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        CRMUom: Record "CRM Uom";
+        CRMId: Guid;
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                case SalesLine.Type of
+                    SalesLine.Type::Item:
+                        begin
+                            Item.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId) then begin
+                                CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevelId);
+                                CRMProductpricelevel.SetRange(ProductId, CRMId);
+                                if CRMProductpricelevel.IsEmpty() then
+                                    if CRMProduct.Get(CRMId) then begin
+                                        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                        if CRMUom.FindSet() then
+                                            repeat
+                                                CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevelId, CRMUom);
+                                            until CRMUom.Next() = 0;
+                                    end;
+                            end;
+                        end;
+                    SalesLine.Type::Resource:
+                        begin
+                            Resource.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId, CRMId) then begin
+                                CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevelId);
+                                CRMProductpricelevel.SetRange(ProductId, CRMId);
+                                if CRMProductpricelevel.IsEmpty() then
+                                    if CRMProduct.Get(CRMId) then begin
+                                        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                        if CRMUom.FindSet() then
+                                            repeat
+                                                CRMSynchHelper.CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevelId, CRMUom);
+                                            until CRMUom.Next() = 0;
+                                    end;
+                            end;
+                        end;
+                end;
+            until SalesLine.Next() = 0;
+    end;
+
+    local procedure SetCRMOrderName(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
+    begin
+        SourceRecordRef.SetTable(SalesHeader);
+        DestinationRecordRef.SetTable(CRMSalesorder);
+
+        CRMSalesorder.Name := SalesHeader."Sell-to Customer Name";
+        DestinationRecordRef.GetTable(CRMSalesorder);
+    end;
+
+    local procedure SetDocOccurenceNumber(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
+    begin
+        SourceRecordRef.SetTable(SalesHeader);
+        DestinationRecordRef.SetTable(CRMSalesorder);
+
+        SetDocOccurenceNumber(CRMSalesorder, SalesHeader);
+
+        DestinationRecordRef.GetTable(CRMSalesorder);
+    end;
+
+    procedure SetDocOccurenceNumber(var CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
+    var
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        SalesHeaderArchive.SetRange("Document Type", SalesHeaderArchive."Document Type"::Order);
+        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
+        SalesHeaderArchive.SetCurrentKey("Doc. No. Occurrence");
+        SalesHeaderArchive.SetAscending("Doc. No. Occurrence", true);
+        if SalesHeaderArchive.FindLast() then
+            if SalesHeaderArchive."Document Date" = SalesHeader."Document Date" then
+                CRMSalesorder.BusinessCentralDocumentOccurrenceNumber := SalesHeaderArchive."Doc. No. Occurrence"
+            else
+                CRMSalesorder.BusinessCentralDocumentOccurrenceNumber := SalesHeaderArchive."Doc. No. Occurrence" + 1
+        else
+            CRMSalesorder.BusinessCentralDocumentOccurrenceNumber := 1;
+    end;
+
+    local procedure SetOrderNumberAndDocOccurenceNumber(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        ChangedCRMSalesorder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
+    begin
+        SourceRecordRef.SetTable(CRMSalesorder);
+        DestinationRecordRef.SetTable(SalesHeader);
+
+        ChangedCRMSalesorder.Get(CRMSalesorder.SalesOrderId);
+        SetDocOccurenceNumber(ChangedCRMSalesorder, SalesHeader);
+        ChangedCRMSalesorder.BusinessCentralOrderNumber := SalesHeader."No.";
+        ChangedCRMSalesorder.Modify();
+    end;
+
+    local procedure SetWriteInProduct(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SourceRecordRef.SetTable(SalesLine);
+        DestinationRecordRef.SetTable(CRMSalesorderdetail);
+
+        if IsNullGuid(CRMSalesorderdetail.ProductId) then begin
+            SalesReceivablesSetup.Get();
+            CRMSalesorderdetail.IsProductOverridden := true;
+            CRMSalesorderdetail.ProductDescription := SalesLine.Description;
+        end;
+
+        DestinationRecordRef.GetTable(CRMSalesorderdetail);
+    end;
+
+    local procedure UpdateSalesOrderQuoteNo(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        CRMQuote: Record "CRM Quote";
+        SalesHeader: Record "Sales Header";
+        QuoteSalesHeader: Record "Sales Header";
+        ArchiveManagement: Codeunit ArchiveManagement;
+    begin
+        SourceRecordRef.SetTable(CRMSalesorder);
+        DestinationRecordRef.SetTable(SalesHeader);
+
+        if not IsNullGuid(CRMSalesorder.QuoteId) then
+            if CRMQuote.Get(CRMSalesOrder.QuoteId) then begin
+                QuoteSalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
+                if QuoteSalesHeader.FindLast() then begin
+                    SalesHeader."Quote No." := QuoteSalesHeader."No.";
+                    ArchiveManagement.ArchSalesDocumentNoConfirm(QuoteSalesHeader);
+                end;
+            end;
+        DestinationRecordRef.GetTable(SalesHeader);
+    end;
+
     local procedure FindNewValueForCoupledRecordPK(IntegrationTableMapping: Record "Integration Table Mapping"; SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant) IsValueFound: Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -1998,6 +2920,16 @@
                     end;
                 end;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnIsCRMIntegrationRecord', '', false, false)]
+    local procedure HandleOnIsCRMIntegrationRecord(TableID: Integer; var isIntegrationRecord: Boolean)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if TableID = Database::"Sales Header Archive" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                isIntegrationRecord := true;
     end;
 
     [IntegrationEvent(false, false)]

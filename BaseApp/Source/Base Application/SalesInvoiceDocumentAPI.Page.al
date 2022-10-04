@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2200 "Sales Invoice Document API"
 {
     Caption = 'Sales Invoice Document API';
@@ -6,6 +7,9 @@ page 2200 "Sales Invoice Document API"
     ModifyAllowed = false;
     SourceTable = "O365 Sales Invoice Document";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,15 +17,15 @@ page 2200 "Sales Invoice Document API"
         {
             field(InvoiceId; InvoiceId)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             field(Base64; Base64)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             field(Binary; Binary)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
         }
     }
@@ -56,7 +60,7 @@ page 2200 "Sales Invoice Document API"
 
     trigger OnOpenPage()
     begin
-        SelectLatestVersion;
+        SelectLatestVersion();
     end;
 
     local procedure GetDocumentFromPostedInvoice(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -68,7 +72,7 @@ page 2200 "Sales Invoice Document API"
         OutStr: OutStream;
         DocumentPath: Text[250];
     begin
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         ReportSelections.GetPdfReportForCust(
           DocumentPath, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Sell-to Customer No.");
 
@@ -90,7 +94,7 @@ page 2200 "Sales Invoice Document API"
         OutStr: OutStream;
         DocumentPath: Text[250];
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         ReportSelections.GetPdfReportForCust(
           DocumentPath, ReportSelections.Usage::"S.Invoice Draft", SalesHeader, SalesHeader."Sell-to Customer No.");
 
@@ -103,4 +107,5 @@ page 2200 "Sales Invoice Document API"
         if FILE.Erase(DocumentPath) then;
     end;
 }
+#endif
 

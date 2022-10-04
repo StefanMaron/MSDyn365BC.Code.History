@@ -154,30 +154,30 @@ table 2840 "Native - Gen. Settings Buffer"
         Clear(Rec);
 
         CompanyInformation.Get();
-        "Country/Region Code" := CompanyInformation.GetCompanyCountryRegionCode;
+        "Country/Region Code" := CompanyInformation.GetCompanyCountryRegionCode();
 
         GeneralLedgerSetup.Get();
-        "Currency Symbol" := GeneralLedgerSetup.GetCurrencySymbol;
+        "Currency Symbol" := GeneralLedgerSetup.GetCurrencySymbol();
         "Amount Rounding Precision" := GetNumberOfDecimals(GeneralLedgerSetup."Amount Rounding Precision");
         "Unit-Amount Rounding Precision" := GetNumberOfDecimals(GeneralLedgerSetup."Unit-Amount Rounding Precision");
         "Quantity Rounding Precision" := 5;
         // We hardcode these to 2/3 as they are like that in business center.
-        if GeneralLedgerSetup.UseVat then
+        if GeneralLedgerSetup.UseVat() then
             "VAT/Tax Rounding Precision" := 2
         else
             "VAT/Tax Rounding Precision" := 3;
 
         PaypalAccountProxy.GetPaypalAccount("Paypal Email Address");
 
-        TempNativeAPITaxSetup.LoadSetupRecords;
+        TempNativeAPITaxSetup.LoadSetupRecords();
         TempNativeAPITaxSetup.SetRange(Default, true);
         if TempNativeAPITaxSetup.FindFirst() then begin
             "Default Tax ID" := TempNativeAPITaxSetup.Id;
             "Defauilt Tax Description" := TempNativeAPITaxSetup.Description;
         end;
 
-        GetLanguageInfo;
-        GetPaymentInfo;
+        GetLanguageInfo();
+        GetPaymentInfo();
 
         Insert(true);
     end;
@@ -188,22 +188,22 @@ table 2840 "Native - Gen. Settings Buffer"
         PaypalAccountProxy: Codeunit "Paypal Account Proxy";
     begin
         if xRec."Currency Symbol" <> "Currency Symbol" then
-            UpdateCurrencySymbol;
+            UpdateCurrencySymbol();
 
         if xRec."Paypal Email Address" <> "Paypal Email Address" then
             PaypalAccountProxy.SetPaypalAccount("Paypal Email Address", true);
 
         if xRec."Country/Region Code" <> "Country/Region Code" then
-            UpdateCountryRegionCode;
+            UpdateCountryRegionCode();
 
         if xRec."Language Locale ID" <> "Language Locale ID" then
-            UpdateLanguageId;
+            UpdateLanguageId();
 
         if xRec.EnableSync <> EnableSync then
-            UpdateSync;
+            UpdateSync();
 
         if xRec.EnableSyncCoupons <> EnableSyncCoupons then
-            UpdateCouponsSync;
+            UpdateCouponsSync();
     end;
 
     local procedure UpdateCurrencySymbol()
@@ -232,18 +232,18 @@ table 2840 "Native - Gen. Settings Buffer"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        UserPersonalization.Get(UserSecurityId);
+        UserPersonalization.Get(UserSecurityId());
         if "Language Locale ID" <> UserPersonalization."Language ID" then begin
             UserPersonalization.Validate("Language ID", "Language Locale ID");
             UserPersonalization.Modify(true);
-            GetLanguageInfo;
-            GetPaymentInfo;
+            GetLanguageInfo();
+            GetPaymentInfo();
         end;
     end;
 
     local procedure UpdateSync()
     begin
-        CheckSyncAllowed;
+        CheckSyncAllowed();
 
         if not EnableSync then
             EnableSyncCoupons := false;
@@ -254,7 +254,7 @@ table 2840 "Native - Gen. Settings Buffer"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         if EnableSyncCoupons then
-            CheckSyncAllowed;
+            CheckSyncAllowed();
 
         O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Coupons Integration Enabled" := EnableSyncCoupons;
@@ -294,7 +294,7 @@ table 2840 "Native - Gen. Settings Buffer"
         if PaymentMethod.Get(O365SalesInitialSetup."Default Payment Method Code") then begin
             "Default Payment Method ID" := PaymentMethod.SystemId;
             "Def. Pmt. Method Description" :=
-              CopyStr(PaymentMethod.GetDescriptionInCurrentLanguage, 1, MaxStrLen("Def. Pmt. Method Description"));
+              CopyStr(PaymentMethod.GetDescriptionInCurrentLanguage(), 1, MaxStrLen("Def. Pmt. Method Description"));
         end;
     end;
 
@@ -304,9 +304,9 @@ table 2840 "Native - Gen. Settings Buffer"
         Language: Codeunit Language;
         LanguageName: Text;
     begin
-        "Language Locale ID" := Language.GetDefaultApplicationLanguageId;
+        "Language Locale ID" := Language.GetDefaultApplicationLanguageId();
 
-        if UserPersonalization.Get(UserSecurityId) then
+        if UserPersonalization.Get(UserSecurityId()) then
             if UserPersonalization."Language ID" > 0 then
                 "Language Locale ID" := UserPersonalization."Language ID";
 
@@ -341,16 +341,16 @@ table 2840 "Native - Gen. Settings Buffer"
         EnvironmentInfo: Codeunit "Environment Information";
         WebhookManagement: Codeunit "Webhook Management";
     begin
-        if WebhookManagement.IsSyncAllowed then
+        if WebhookManagement.IsSyncAllowed() then
             exit;
 
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             Error(CannotGetCompanyInformationErr);
 
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             Error(SyncOnlyAllowedInSaasErr);
 
-        if CompanyInformationMgt.IsDemoCompany then
+        if CompanyInformationMgt.IsDemoCompany() then
             Error(SyncNotAllowedInDemoCompanyErr);
 
         Error(SyncNotAllowedErr);

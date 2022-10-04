@@ -7,11 +7,12 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     end;
 
     var
-        Text000: Label 'Do you want to post the prepayments for %1 %2?';
-        Text001: Label 'Do you want to post a credit memo for the prepayments for %1 %2?';
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
+
+        Text000: Label 'Do you want to post the prepayments for %1 %2?';
+        Text001: Label 'Do you want to post a credit memo for the prepayments for %1 %2?';
         UnsupportedDocTypeErr: Label 'Unsupported prepayment document type.';
 
     procedure PostPrepmtInvoiceYN(var SalesHeader2: Record "Sales Header"; Print: Boolean)
@@ -84,7 +85,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         SalesPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not SalesPostPrepayments.Run(SalesHeader) then
-            ErrorMessageHandler.ShowErrors;
+            ErrorMessageHandler.ShowErrors();
     end;
 
     procedure Preview(var SalesHeader: Record "Sales Header"; DocumentType: Option)
@@ -111,13 +112,13 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
                 DocumentType::Invoice:
                     begin
                         SalesInvHeader."No." := "Last Prepayment No.";
-                        SalesInvHeader.SetRecFilter;
+                        SalesInvHeader.SetRecFilter();
                         SalesInvHeader.PrintRecords(false);
                     end;
                 DocumentType::"Credit Memo":
                     begin
                         SalesCrMemoHeader."No." := "Last Prepmt. Cr. Memo No.";
-                        SalesCrMemoHeader.SetRecFilter;
+                        SalesCrMemoHeader.SetRecFilter();
                         SalesCrMemoHeader.PrintRecords(false);
                     end;
             end;

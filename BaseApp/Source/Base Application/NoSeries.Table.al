@@ -2,8 +2,8 @@ table 308 "No. Series"
 {
     Caption = 'No. Series';
     DataCaptionFields = "Code", Description;
-    DrillDownPageID = "No. Series List";
-    LookupPageID = "No. Series List";
+    DrillDownPageID = "No. Series";
+    LookupPageID = "No. Series";
 
     fields
     {
@@ -39,19 +39,6 @@ table 308 "No. Series"
         field(5; "Date Order"; Boolean)
         {
             Caption = 'Date Order';
-
-            trigger OnValidate()
-            var
-                NoSeriesLine: Record "No. Series Line";
-            begin
-                if not "Date Order" then
-                    exit;
-                FindNoSeriesLineToShow(NoSeriesLine);
-                if not NoSeriesLine.FindFirst() then
-                    exit;
-                if NoSeriesLine."Allow Gaps in Nos." then
-                    Error(AllowGapsNotAllowedWithDateOrderErr);
-            end;
         }
     }
 
@@ -71,6 +58,9 @@ table 308 "No. Series"
     }
 
     trigger OnDelete()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesRelationship: Record "No. Series Relationship";
     begin
         NoSeriesLine.SetRange("Series Code", Code);
         NoSeriesLine.DeleteAll();
@@ -83,11 +73,6 @@ table 308 "No. Series"
         NoSeriesRelationship.DeleteAll();
         NoSeriesRelationship.SetRange("Series Code");
     end;
-
-    var
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesRelationship: Record "No. Series Relationship";
-        AllowGapsNotAllowedWithDateOrderErr: Label 'The Date Order setting is not possible for this number series because the Allow Gaps in Nos. check box is selected on one of the number series lines.';
 
     procedure DrillDown()
     var
@@ -102,6 +87,13 @@ table 308 "No. Series"
 
     procedure UpdateLine(var StartDate: Date; var StartNo: Code[20]; var EndNo: Code[20]; var LastNoUsed: Code[20]; var WarningNo: Code[20]; var IncrementByNo: Integer; var LastDateUsed: Date)
     var
+        AllowGaps: Boolean;
+    begin
+        UpdateLine(StartDate, StartNo, EndNo, LastNoUsed, WarningNo, IncrementByNo, LastDateUsed, AllowGaps);
+    end;
+
+    procedure UpdateLine(var StartDate: Date; var StartNo: Code[20]; var EndNo: Code[20]; var LastNoUsed: Code[20]; var WarningNo: Code[20]; var IncrementByNo: Integer; var LastDateUsed: Date; var AllowGaps: Boolean)
+    var
         NoSeriesLine: Record "No. Series Line";
     begin
         FindNoSeriesLineToShow(NoSeriesLine);
@@ -110,13 +102,14 @@ table 308 "No. Series"
         StartDate := NoSeriesLine."Starting Date";
         StartNo := NoSeriesLine."Starting No.";
         EndNo := NoSeriesLine."Ending No.";
-        LastNoUsed := NoSeriesLine.GetLastNoUsed;
+        LastNoUsed := NoSeriesLine.GetLastNoUsed();
         WarningNo := NoSeriesLine."Warning No.";
         IncrementByNo := NoSeriesLine."Increment-by No.";
         LastDateUsed := NoSeriesLine."Last Date Used";
+        AllowGaps := NoSeriesLine."Allow Gaps in Nos.";
     end;
 
-    local procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
+    internal procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
@@ -128,5 +121,23 @@ table 308 "No. Series"
         NoSeriesLine.Reset();
         NoSeriesLine.SetRange("Series Code", Code);
     end;
+
+    internal procedure SetAllowGaps(AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+        StartDate: Date;
+    begin
+        FindNoSeriesLineToShow(NoSeriesLine);
+        StartDate := NoSeriesLine."Starting Date";
+        NoSeriesLine.SetRange("Allow Gaps in Nos.", not AllowGaps);
+        NoSeriesLine.SetFilter("Starting Date", '>=%1', StartDate);
+        NoSeriesLine.LockTable();
+        if NoSeriesLine.FindSet() then
+            repeat
+                NoSeriesLine.Validate("Allow Gaps in Nos.", AllowGaps);
+                NoSeriesLine.Modify();
+            until NoSeriesLine.Next() = 0;
+    end;
+
 }
 

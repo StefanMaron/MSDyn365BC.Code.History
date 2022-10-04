@@ -58,7 +58,7 @@ page 5756 "Transfer Shipment Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         CalculateTotals();
     end;

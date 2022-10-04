@@ -14,13 +14,13 @@ page 355 "Receivables-Payables Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the beginning of the period covered by the summary report of receivables for customers and payables for vendors.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Period Name';

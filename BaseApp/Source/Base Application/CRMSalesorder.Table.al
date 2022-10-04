@@ -885,6 +885,18 @@ table 5353 "CRM Salesorder"
             ExternalType = 'Picklist';
             InitValue = " ";
         }
+        field(107; BusinessCentralOrderNumber; Text[20])
+        {
+            Caption = 'Business Central Order Number';
+            ExternalName = 'bcbi_businesscentralordernumber';
+            ExternalType = 'String';
+        }
+        field(108; BusinessCentralDocumentOccurrenceNumber; Integer)
+        {
+            Caption = 'Business Central Document Occurrence Number';
+            ExternalName = 'bcbi_businesscentraldocumentoccurrencenumber';
+            ExternalType = 'Integer';
+        }
     }
 
     keys

@@ -37,7 +37,7 @@ page 5850 "Posted Sales Document Lines"
                                   CopyDocMgt.IsSalesFillExactCostRevLink(
                                     ToSalesHeader, CurrentMenuType, ToSalesHeader."Currency Code"), true);
                         end;
-                        ShowRevLinesOnlyOnAfterValidat;
+                        ShowRevLinesOnlyOnAfterValidat();
                     end;
                 }
                 field(OriginalQuantity; OriginalQuantity)
@@ -56,19 +56,19 @@ page 5850 "Posted Sales Document Lines"
                     field(PostedShipmentsBtn; CurrentMenuTypeOpt)
                     {
                         ApplicationArea = Basic, Suite;
-                        CaptionClass = OptionCaptionServiceTier;
+                        CaptionClass = OptionCaptionServiceTier();
                         OptionCaption = 'Posted Shipments,Posted Invoices,Posted Return Receipts,Posted Cr. Memos';
 
                         trigger OnValidate()
                         begin
                             if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x3 then
-                                x3CurrentMenuTypeOptOnValidate;
+                                x3CurrentMenuTypeOptOnValidate();
                             if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x2 then
-                                x2CurrentMenuTypeOptOnValidate;
+                                x2CurrentMenuTypeOptOnValidate();
                             if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x1 then
-                                x1CurrentMenuTypeOptOnValidate;
+                                x1CurrentMenuTypeOptOnValidate();
                             if CurrentMenuTypeOpt = CurrentMenuTypeOpt::x0 then
-                                x0CurrentMenuTypeOptOnValidate;
+                                x0CurrentMenuTypeOptOnValidate();
                         end;
                     }
                     field("STRSUBSTNO('(%1)',""No. of Pstd. Shipments"")"; StrSubstNo('(%1)', "No. of Pstd. Shipments"))
@@ -78,7 +78,7 @@ page 5850 "Posted Sales Document Lines"
                         Editable = false;
                         ToolTip = 'Specifies the lines that represent posted shipments.';
                     }
-                    field(NoOfPostedInvoices; StrSubstNo('(%1)', "No. of Pstd. Invoices" - NoOfPostedPrepmtInvoices))
+                    field(NoOfPostedInvoices; StrSubstNo('(%1)', "No. of Pstd. Invoices" - NoOfPostedPrepmtInvoices()))
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted I&nvoices';
@@ -92,7 +92,7 @@ page 5850 "Posted Sales Document Lines"
                         Editable = false;
                         ToolTip = 'Specifies the lines that represent posted return receipts.';
                     }
-                    field(NoOfPostedCrMemos; StrSubstNo('(%1)', "No. of Pstd. Credit Memos" - NoOfPostedPrepmtCrMemos))
+                    field(NoOfPostedCrMemos; StrSubstNo('(%1)', "No. of Pstd. Credit Memos" - NoOfPostedPrepmtCrMemos()))
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Cr. &Memos';
@@ -175,6 +175,10 @@ page 5850 "Posted Sales Document Lines"
         Text000: Label 'The document lines that have a G/L account that does not allow direct posting have not been copied to the new document.';
         OriginalQuantity: Boolean;
         Text002: Label 'Document Type Filter';
+        CurrentMenuTypeOpt: Option x0,x1,x2,x3;
+
+    protected var
+        ToSalesHeader: Record "Sales Header";
         [InDataSet]
         PostedShptsVisible: Boolean;
         [InDataSet]
@@ -183,10 +187,6 @@ page 5850 "Posted Sales Document Lines"
         PostedReturnRcptsVisible: Boolean;
         [InDataSet]
         PostedCrMemosVisible: Boolean;
-        CurrentMenuTypeOpt: Option x0,x1,x2,x3;
-
-    protected var
-        ToSalesHeader: Record "Sales Header";
         [InDataSet]
         ShowRevLineEnable: Boolean;
 
@@ -247,7 +247,7 @@ page 5850 "Posted Sales Document Lines"
                 Message(Text000);
     end;
 
-    local procedure ChangeSubMenu(NewMenuType: Integer)
+    procedure ChangeSubMenu(NewMenuType: Integer)
     begin
         if OldMenuType <> NewMenuType then
             SetSubMenu(OldMenuType, false);
@@ -313,7 +313,7 @@ page 5850 "Posted Sales Document Lines"
 
     local procedure x0CurrentMenuTypeOptOnValidate()
     begin
-        x0CurrentMenuTypeOptOnPush;
+        x0CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x1CurrentMenuTypeOptOnPush()
@@ -323,7 +323,7 @@ page 5850 "Posted Sales Document Lines"
 
     local procedure x1CurrentMenuTypeOptOnValidate()
     begin
-        x1CurrentMenuTypeOptOnPush;
+        x1CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x2CurrentMenuTypeOptOnPush()
@@ -333,7 +333,7 @@ page 5850 "Posted Sales Document Lines"
 
     local procedure x2CurrentMenuTypeOptOnValidate()
     begin
-        x2CurrentMenuTypeOptOnPush;
+        x2CurrentMenuTypeOptOnPush();
     end;
 
     local procedure x3CurrentMenuTypeOptOnPush()
@@ -343,7 +343,7 @@ page 5850 "Posted Sales Document Lines"
 
     local procedure x3CurrentMenuTypeOptOnValidate()
     begin
-        x3CurrentMenuTypeOptOnPush;
+        x3CurrentMenuTypeOptOnPush();
     end;
 
     local procedure NoOfPostedPrepmtInvoices(): Integer

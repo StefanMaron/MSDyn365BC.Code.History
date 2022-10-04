@@ -290,7 +290,7 @@ page 9005 "Sales Manager Role Center"
                 Caption = 'Tasks';
                 IsHeader = true;
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = RelationshipMgmt;

@@ -27,7 +27,7 @@ report 2501 "Day Book Cust. Ledger Entry"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(All_amounts_are_in___GLSetup__LCY_Code_; StrSubstNo(AllAmountsAreInLbl, GLSetup."LCY Code"))
@@ -63,7 +63,7 @@ report 2501 "Day Book Cust. Ledger Entry"
             column(CustLedgFilter; CustLedgFilter)
             {
             }
-            column(Total_for______Cust__Ledger_Entry__TABLENAME__________CustLedgFilter; StrSubstNo(TotalForCustLedgerEntryLbl, "Cust. Ledger Entry".TableCaption, CustLedgFilter))
+            column(Total_for______Cust__Ledger_Entry__TABLENAME__________CustLedgFilter; StrSubstNo(TotalForCustLedgerEntryLbl, "Cust. Ledger Entry".TableCaption(), CustLedgFilter))
             {
             }
             column(VATAmount; VATAmount)
@@ -283,7 +283,7 @@ report 2501 "Day Book Cust. Ledger Entry"
                         DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::Application);
                         if DtldCustLedgEntry.FindSet() then begin
                             TransactionNoFilter := Format(DtldCustLedgEntry."Transaction No.");
-                            while DtldCustLedgEntry.Next <> 0 do
+                            while DtldCustLedgEntry.Next() <> 0 do
                                 TransactionNoFilter := TransactionNoFilter + '|' + Format(DtldCustLedgEntry."Transaction No.");
                         end;
                         SetFilter("Transaction No.", TransactionNoFilter);
@@ -409,7 +409,7 @@ report 2501 "Day Book Cust. Ledger Entry"
 
                         trigger OnValidate()
                         begin
-                            PrintCLDetailsOnAfterValidate;
+                            PrintCLDetailsOnAfterValidate();
                         end;
                     }
                     field(PrintGLEntryDetails; PrintGLDetails)
@@ -420,7 +420,7 @@ report 2501 "Day Book Cust. Ledger Entry"
 
                         trigger OnValidate()
                         begin
-                            PrintGLDetailsOnAfterValidate;
+                            PrintGLDetailsOnAfterValidate();
                         end;
                     }
                 }
@@ -438,7 +438,7 @@ report 2501 "Day Book Cust. Ledger Entry"
 
     trigger OnPreReport()
     begin
-        CustLedgFilter := ReqCustLedgEntry.GetFilters;
+        CustLedgFilter := ReqCustLedgEntry.GetFilters();
         GLSetup.Get();
     end;
 

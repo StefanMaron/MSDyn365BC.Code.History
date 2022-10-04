@@ -137,8 +137,8 @@ table 5064 "Interaction Template"
             var
                 InteractTmplLanguage: Record "Interaction Tmpl. Language";
             begin
-                if not InteractTmplLanguage.Get(Code, "Language Code (Default)") then begin
-                    if Confirm(Text004, true, InteractTmplLanguage.TableCaption, "Language Code (Default)") then begin
+                if not InteractTmplLanguage.Get(Code, "Language Code (Default)") then
+                    if Confirm(Text004, true, InteractTmplLanguage.TableCaption(), "Language Code (Default)") then begin
                         InteractTmplLanguage.Init();
                         InteractTmplLanguage."Interaction Template Code" := Code;
                         InteractTmplLanguage."Language Code" := "Language Code (Default)";
@@ -146,7 +146,6 @@ table 5064 "Interaction Template"
                         InteractTmplLanguage.Insert();
                     end else
                         Error('');
-                end;
 
                 if InteractTmplLanguage."Custom Layout Code" <> '' then
                     "Wizard Action" := "Wizard Action"::Merge
@@ -181,7 +180,7 @@ table 5064 "Interaction Template"
                        ((InteractionTmplLanguage."Custom Layout Code" = '') and ("Wizard Action" = "Wizard Action"::Merge) and ("Word Template Code" = '')) or
                        (("Word Template Code" <> '') and ("Wizard Action" = "Wizard Action"::Import))
                     then
-                        Error(Text003, FieldCaption("Wizard Action"), "Wizard Action", TableCaption, Code);
+                        Error(Text003, FieldCaption("Wizard Action"), "Wizard Action", TableCaption(), Code);
             end;
         }
         field(19; "Ignore Contact Corres. Type"; Boolean)

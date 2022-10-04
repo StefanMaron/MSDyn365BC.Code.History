@@ -88,7 +88,7 @@ table 7320 "Warehouse Shipment Header"
             trigger OnValidate()
             begin
                 if "Sorting Method" <> xRec."Sorting Method" then
-                    SortWhseDoc;
+                    SortWhseDoc();
             end;
         }
         field(7; "No. Series"; Code[20])
@@ -324,8 +324,8 @@ table 7320 "Warehouse Shipment Header"
 
         GetLocation("Location Code");
         Validate("Bin Code", Location."Shipment Bin Code");
-        "Posting Date" := WorkDate;
-        "Shipment Date" := WorkDate;
+        "Posting Date" := WorkDate();
+        "Shipment Date" := WorkDate();
 
         OnAfterOnInsert(Rec, xRec);
     end;
@@ -339,13 +339,14 @@ table 7320 "Warehouse Shipment Header"
         Location: Record Location;
         WhseSetup: Record "Warehouse Setup";
         WhseShptHeader: Record "Warehouse Shipment Header";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        WmsManagement: Codeunit "WMS Management";
+
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change the %1, because the document has one or more lines.';
         Text002: Label 'You must first set up user %1 as a warehouse employee.';
-        WmsManagement: Codeunit "WMS Management";
         Text003: Label 'You are not allowed to use location code %1.';
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Shipment Lines.\';
         Text007: Label 'You must update the existing Warehouse Shipment Lines manually.';
         Text008: Label 'You have modified the %1.\\Do you want to update the lines?';
@@ -632,7 +633,7 @@ table 7320 "Warehouse Shipment Header"
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
             Rec := WhseShptHeader;
-            if not Find then;
+            if not Find() then;
         end;
         exit(RealSteps);
     end;
@@ -718,6 +719,13 @@ table 7320 "Warehouse Shipment Header"
         exit(Result);
     end;
 
+    procedure ShipmentLinesEditable() IsEditable: Boolean;
+    begin
+        IsEditable := true;
+
+        OnAfterShipmentLinesEditable(Rec, IsEditable);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistEdit(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
@@ -725,6 +733,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShipmentLinesEditable(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsEditable: Boolean);
     begin
     end;
 

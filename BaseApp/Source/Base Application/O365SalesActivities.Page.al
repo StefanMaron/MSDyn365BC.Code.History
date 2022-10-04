@@ -1,9 +1,13 @@
+#if not CLEAN21
 page 9039 "O365 Sales Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Cue";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,9 +17,9 @@ page 9039 "O365 Sales Activities"
             {
                 Caption = 'Invoiced';
                 CueGroupLayout = Wide;
-                field("Invoiced YTD"; "Invoiced YTD")
+                field("Invoiced YTD"; Rec."Invoiced YTD")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormatTxt;
                     AutoFormatType = 11;
                     Caption = 'Sales this year';
@@ -23,12 +27,12 @@ page 9039 "O365 Sales Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowYearlySalesOverview;
+                        ShowYearlySalesOverview();
                     end;
                 }
-                field("Invoiced CM"; "Invoiced CM")
+                field("Invoiced CM"; Rec."Invoiced CM")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormatTxt;
                     AutoFormatType = 11;
                     Caption = 'Sales this month';
@@ -37,7 +41,7 @@ page 9039 "O365 Sales Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowMonthlySalesOverview;
+                        ShowMonthlySalesOverview();
                     end;
                 }
             }
@@ -45,9 +49,9 @@ page 9039 "O365 Sales Activities"
             {
                 Caption = 'Payments';
                 CueGroupLayout = Wide;
-                field("Sales Invoices Outstanding"; "Sales Invoices Outstanding")
+                field("Sales Invoices Outstanding"; Rec."Sales Invoices Outstanding")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormatTxt;
                     AutoFormatType = 11;
                     Caption = 'Outstanding amount';
@@ -58,9 +62,9 @@ page 9039 "O365 Sales Activities"
                         ShowInvoices(false);
                     end;
                 }
-                field("Sales Invoices Overdue"; "Sales Invoices Overdue")
+                field("Sales Invoices Overdue"; Rec."Sales Invoices Overdue")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormatTxt;
                     AutoFormatType = 11;
                     Caption = 'Overdue amount';
@@ -79,35 +83,35 @@ page 9039 "O365 Sales Activities"
                 Caption = 'Ongoing sales';
                 field(NoOfDrafts; "No. of Draft Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Draft invoices';
                     ToolTip = 'Specifies the number of draft invoices.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowDraftInvoices;
+                        ShowDraftInvoices();
                     end;
                 }
                 field(NoOfQuotes; "No. of Quotes")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Estimates';
                     ToolTip = 'Specifies the number of estimates.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowQuotes;
+                        ShowQuotes();
                     end;
                 }
                 field(NoOfUnpaidInvoices; NumberOfUnpaidInvoices)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Unpaid invoices';
                     ToolTip = 'Specifies the number of invoices that have been sent but not paid yet.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowUnpaidInvoices;
+                        ShowUnpaidInvoices();
                     end;
                 }
             }
@@ -119,7 +123,7 @@ page 9039 "O365 Sales Activities"
                 {
                     action("New invoice")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'New invoice';
                         Image = TileNew;
                         RunObject = Page "BC O365 Sales Invoice";
@@ -128,7 +132,7 @@ page 9039 "O365 Sales Activities"
                     }
                     action("New estimate")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'New estimate';
                         Image = TileNew;
                         RunObject = Page "BC O365 Sales Quote";
@@ -146,7 +150,7 @@ page 9039 "O365 Sales Activities"
                 {
                     action(CreateTestInvoice)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Send a test invoice';
                         Image = TileNew;
                         RunObject = Page "BC O365 Sales Invoice";
@@ -162,7 +166,7 @@ page 9039 "O365 Sales Activities"
                     }
                     action(ReplayGettingStarted)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Play Getting Started';
                         Image = TileVideo;
                         ToolTip = 'Show the Getting Started guide.';
@@ -172,20 +176,20 @@ page 9039 "O365 Sales Activities"
                         var
                             O365GettingStarted: Record "O365 Getting Started";
                         begin
-                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then begin
+                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then begin
                                 O365GettingStarted."Tour in Progress" := false;
                                 O365GettingStarted."Current Page" := 1;
                                 O365GettingStarted.Modify();
                                 Commit();
                             end;
 
-                            if O365SetupMgmt.GettingStartedSupportedForInvoicing then
+                            if O365SetupMgmt.GettingStartedSupportedForInvoicing() then
                                 PAGE.Run(PAGE::"BC O365 Getting Started");
                         end;
                     }
                     action(SetupBusinessInfo)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Set up your information';
                         Image = TileSettings;
                         ToolTip = 'Set up your key business information';
@@ -198,7 +202,7 @@ page 9039 "O365 Sales Activities"
                     }
                     action(SetupPayments)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Set up online payments';
                         Image = TileCurrency;
                         ToolTip = 'Set up your online payments service.';
@@ -220,7 +224,7 @@ page 9039 "O365 Sales Activities"
                 {
                     action(TryBusinessCentral)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Try Business Central';
                         Image = TileReport;
                         RunObject = Page "O365 To D365 Trial";
@@ -260,8 +264,8 @@ page 9039 "O365 Sales Activities"
     trigger OnAfterGetCurrRecord()
     begin
         O365DocumentSendMgt.ShowRoleCenterEmailNotification(true);
-        NumberOfUnpaidInvoices := GetNumberOfUnpaidInvoices;
-        CreateTestInvoiceVisible := O365SetupMgmt.ShowCreateTestInvoice;
+        NumberOfUnpaidInvoices := GetNumberOfUnpaidInvoices();
+        CreateTestInvoiceVisible := O365SetupMgmt.ShowCreateTestInvoice();
         GettingStartedGroupVisible :=
           CreateTestInvoiceVisible or ReplayGettingStartedVisible or PaymentServicesVisible or SetupBusinessInfoVisible;
     end;
@@ -270,11 +274,11 @@ page 9039 "O365 Sales Activities"
     var
         TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
     begin
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
         TempPaymentServiceSetup.OnRegisterPaymentServiceProviders(TempPaymentServiceSetup);
-        PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty and not IsDevice;
-        ReplayGettingStartedVisible := O365SetupMgmt.GettingStartedSupportedForInvoicing;
-        WantMoreGroupVisible := O365SetupMgmt.GetBusinessCentralTrialVisibility;
+        PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty() and not IsDevice;
+        ReplayGettingStartedVisible := O365SetupMgmt.GettingStartedSupportedForInvoicing();
+        WantMoreGroupVisible := O365SetupMgmt.GetBusinessCentralTrialVisibility();
         SetupBusinessInfoVisible := not IsDevice;
     end;
 
@@ -282,7 +286,7 @@ page 9039 "O365 Sales Activities"
     begin
         OnOpenActivitiesPage(CurrencyFormatTxt);
         SetRange("User ID Filter", UserId);
-        PreparePageNotifier;
+        PreparePageNotifier();
         O365DocumentSendMgt.ShowRoleCenterEmailNotification(false);
     end;
 
@@ -310,10 +314,10 @@ page 9039 "O365 Sales Activities"
 
     local procedure PreparePageNotifier()
     begin
-        if not PageNotifier.IsAvailable then
+        if not PageNotifier.IsAvailable() then
             exit;
-        PageNotifier := PageNotifier.Create;
-        PageNotifier.NotifyPageReady;
+        PageNotifier := PageNotifier.Create();
+        PageNotifier.NotifyPageReady();
     end;
 
     trigger PageNotifier::PageReady()
@@ -345,4 +349,4 @@ page 9039 "O365 Sales Activities"
         CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
     end;
 }
-
+#endif

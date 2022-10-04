@@ -55,8 +55,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesReceiptTxt: Label 'Sales Receipt';
         YesUseDefaultSettingsTxt: Label 'Yes (Use Default Settings)';
         PdfTxt: Label 'PDF';
-        ProfileSelectionCustomerQst: Label 'Confirm the first profile and use it for all selected customers.,Confirm the profile for each customer.,Use the default profile for all selected customers without confirmation.';
-        ProfileSelectionVendorQst: Label 'Confirm the first profile and use it for all selected vendors.,Confirm the profile for each vendor.,Use the default profile for all selected vendors without confirmation.';
+        ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
         InterruptedByEventSubscriberErr: Label 'Interrupted by an event subscriber';
@@ -431,7 +430,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         PostedSalesInvoice.SendCustom.Invoke();
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         // Invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
@@ -681,7 +680,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesInvoiceHeader."No.", SalesInvoiceHeader2."No."));
         SalesInvoiceHeader.FindFirst();
 
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -805,7 +804,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesCrMemoHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesCrMemoHeader."No.", SalesCrMemoHeader2."No."));
         SalesCrMemoHeader.FindFirst();
 
-        SalesCrMemoHeader.SendRecords;
+        SalesCrMemoHeader.SendRecords();
 
         // verify that the request page contains the correct credit memo number
         LibraryReportDataset.LoadDataSetFile;
@@ -892,7 +891,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedSalesCreditMemo.OpenEdit;
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
         PostedSalesCreditMemo.SendCustom.Invoke();
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
 
         // invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
@@ -902,7 +901,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.GotoRecord(SalesCrMemoHeader);
         PostedSalesCreditMemos.SendCustom.Invoke();
-        PostedSalesCreditMemos.Close;
+        PostedSalesCreditMemos.Close();
     end;
 
     [Test]
@@ -959,7 +958,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.GotoRecord(SalesCrMemoHeader);
         PostedSalesCreditMemos.SendCustom.Invoke();
-        PostedSalesCreditMemos.Close;
+        PostedSalesCreditMemos.Close();
 
         // verify that the print request page contains the correct credit memo number
         LibraryReportDataset.LoadDataSetFile;
@@ -1164,7 +1163,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesCrMemoHeader.FindFirst();
 
         // in the handler, electronic document format will be chosen
-        SalesCrMemoHeader.SendRecords;
+        SalesCrMemoHeader.SendRecords();
     end;
 
     [Test]
@@ -1200,7 +1199,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.FindFirst();
 
         // in the handler, electronic document format will be chosen
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
     end;
 
     [Test]
@@ -1252,12 +1251,11 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(Customer2."E-Mail");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader2."No.");
 
-        SalesCrMemoHeader.SendRecords;
+        SalesCrMemoHeader.SendRecords();
 
-        // [THEN] Both invoices printed in seperate documents
+        // [THEN] Both invoices printed in a single document
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesCrMemoHeader1."No.", FileName);
-        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesCrMemoHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1313,12 +1311,11 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(Customer2."E-Mail");
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader2."No.");
 
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
-        // [THEN] Both invoices printed in separate documents
+        // [THEN] Both invoices printed in a single document
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader1."No.", FileName);
-        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1463,7 +1460,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedServiceInvoice.OpenEdit;
         PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
         PostedServiceInvoice.SendCustom.Invoke();
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
         // Invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -1507,7 +1504,7 @@ codeunit 139197 DocumentSendingPostTests
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         ServiceHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
         ServiceHeader.Validate("Your Reference", '123457890');
-        ServiceHeader.Validate("Due Date", WorkDate);
+        ServiceHeader.Validate("Due Date", WorkDate());
         ServiceHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
@@ -1719,7 +1716,7 @@ codeunit 139197 DocumentSendingPostTests
         ServiceInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', ServiceInvoiceHeader."No.", ServiceInvoiceHeader2."No."));
         ServiceInvoiceHeader.FindFirst();
 
-        ServiceInvoiceHeader.SendRecords;
+        ServiceInvoiceHeader.SendRecords();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -1755,7 +1752,7 @@ codeunit 139197 DocumentSendingPostTests
         // create a Service invoice
         CreateElectronicDocumentCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
-        ServiceHeader."Due Date" := WorkDate;
+        ServiceHeader."Due Date" := WorkDate();
         ServiceHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
@@ -1799,7 +1796,7 @@ codeunit 139197 DocumentSendingPostTests
         Customer."Document Sending Profile" := DocumentSendingProfile.Code;
         Customer.Modify();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
-        ServiceHeader.Validate("Due Date", WorkDate);
+        ServiceHeader.Validate("Due Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", 1);
@@ -1843,7 +1840,7 @@ codeunit 139197 DocumentSendingPostTests
         CreateCustomerWithEmail(Customer);
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
-        ServiceHeader.Validate("Due Date", WorkDate);
+        ServiceHeader.Validate("Due Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", 1);
 
@@ -1864,7 +1861,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedServiceCreditMemo.OpenEdit;
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
         PostedServiceCreditMemo.SendCustom.Invoke();
-        PostedServiceCreditMemo.Close;
+        PostedServiceCreditMemo.Close();
         // Invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -1910,7 +1907,7 @@ codeunit 139197 DocumentSendingPostTests
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
         ServiceHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
-        ServiceHeader.Validate("Due Date", WorkDate);
+        ServiceHeader.Validate("Due Date", WorkDate());
         ServiceHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
@@ -2123,7 +2120,7 @@ codeunit 139197 DocumentSendingPostTests
         ServiceCrMemoHeader.SetFilter("No.", StrSubstNo('%1|%2', ServiceCrMemoHeader."No.", ServiceCrMemoHeader2."No."));
         ServiceCrMemoHeader.FindFirst();
 
-        ServiceCrMemoHeader.SendRecords;
+        ServiceCrMemoHeader.SendRecords();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -2159,7 +2156,7 @@ codeunit 139197 DocumentSendingPostTests
         // create a service credit memo
         CreateElectronicDocumentCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
-        ServiceHeader."Due Date" := WorkDate;
+        ServiceHeader."Due Date" := WorkDate();
         ServiceHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
@@ -2482,7 +2479,7 @@ codeunit 139197 DocumentSendingPostTests
           DocRecRef, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [THEN] "SIH"."Document Exchange Status" set to "Sent to Document Exchange Service"
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.TestField(
           "Document Exchange Status", SalesInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service");
     end;
@@ -2514,7 +2511,7 @@ codeunit 139197 DocumentSendingPostTests
           DocRecRef, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [THEN] "SCNH"."Document Exchange Status" set to "Sent to Document Exchange Service"
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         SalesCrMemoHeader.TestField(
           "Document Exchange Status", SalesCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
     end;
@@ -2546,7 +2543,7 @@ codeunit 139197 DocumentSendingPostTests
           DocRecRef, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [THEN] "SIH"."Document Exchange Status" set to "Sent to Document Exchange Service"
-        ServiceInvoiceHeader.Find;
+        ServiceInvoiceHeader.Find();
         ServiceInvoiceHeader.TestField(
           "Document Exchange Status", ServiceInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service");
     end;
@@ -2578,7 +2575,7 @@ codeunit 139197 DocumentSendingPostTests
           DocRecRef, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
 
         // [THEN] "SCNH"."Document Exchange Status" set to "Sent to Document Exchange Service"
-        ServiceCrMemoHeader.Find;
+        ServiceCrMemoHeader.Find();
         ServiceCrMemoHeader.TestField(
           "Document Exchange Status", ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
     end;
@@ -2623,7 +2620,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [GIVEN] Posted sales invoice
         SalesInvoiceHeader.Get(CreatePostSalesDoc(DummySalesHeader."Document Type"::Invoice, true, true, Customer."No."));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Email posted sales invoice
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
@@ -2661,7 +2658,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [WHEN] Invoke "Send" action
         LibraryVariableStorage.Enqueue(1); // dummy enqueue to test handler's calls count (dequeue in VerifyAndCancelProfileSelectionMethodStrMenuHandler)
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
         // [THEN] Profile selection method dialog is shown once with 3 options:
         // [THEN] 1 - Confirm profile and use it for all selected documents
@@ -2687,7 +2684,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [WHEN] Invoke "Send" action
         LibraryVariableStorage.Enqueue(1); // dummy enqueue to test handler's calls count (dequeue in VerifyAndCancelProfileSelectionMethodStrMenuHandler)
-        SalesCrMemoHeader.SendRecords;
+        SalesCrMemoHeader.SendRecords();
 
         // [THEN] Profile selection method dialog is shown once with 3 options:
         // [THEN] 1 - Confirm profile and use it for all selected documents
@@ -2713,7 +2710,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [WHEN] Invoke "Send" action
         LibraryVariableStorage.Enqueue(1); // dummy enqueue to test handler's calls count (dequeue in VerifyAndCancelProfileSelectionMethodStrMenuHandler)
-        ServiceInvoiceHeader.SendRecords;
+        ServiceInvoiceHeader.SendRecords();
 
         // [THEN] Profile selection method dialog is shown once with 3 options:
         // [THEN] 1 - Confirm profile and use it for all selected documents
@@ -2739,7 +2736,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [WHEN] Invoke "Send" action
         LibraryVariableStorage.Enqueue(1); // dummy enqueue to test handler's calls count (dequeue in VerifyAndCancelProfileSelectionMethodStrMenuHandler)
-        ServiceCrMemoHeader.SendRecords;
+        ServiceCrMemoHeader.SendRecords();
 
         // [THEN] Profile selection method dialog is shown once with 3 options:
         // [THEN] 1 - Confirm profile and use it for all selected documents
@@ -2765,7 +2762,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [WHEN] Invoke "Send" action
         LibraryVariableStorage.Enqueue(1); // dummy enqueue to test handler's calls count (dequeue in VerifyAndCancelProfileSelectionMethodStrMenuHandler)
-        Job.SendRecords;
+        Job.SendRecords();
 
         // [THEN] Profile selection method dialog is shown once with 3 options:
         // [THEN] 1 - Confirm profile and use it for all selected documents
@@ -2791,7 +2788,7 @@ codeunit 139197 DocumentSendingPostTests
 
         // [WHEN] Invoke "Send" action
         LibraryVariableStorage.Enqueue(1); // dummy enqueue to test handler's calls count (dequeue in VerifyAndCancelProfileSelectionMethodStrMenuHandler)
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SendRecords();
 
         // [THEN] Profile selection method dialog is shown once with 3 options:
         // [THEN] 1 - Confirm profile and use it for all selected documents
@@ -3029,7 +3026,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(true); // for VerifySelectSendingOptionHandler
         LibraryVariableStorage.Enqueue(EmailDocumentSendingProfile); // for VerifySelectSendingOptionHandler
         LibraryVariableStorage.Enqueue(true); // for VerifySelectSendingOptionHandler
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
         // [GIVEN] Profile selection method dialog is shown
         // [WHEN] Choose the second one option ("Confirm profile per each document")
@@ -3076,7 +3073,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(true); // for VerifySelectSendingOptionHandler
         LibraryVariableStorage.Enqueue(Customer[2]."E-Mail"); // for EmailDialogHandlerNo
         LibraryVariableStorage.Enqueue(DocumentNo[2]); // for EmailDialogHandlerNo
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
         // [GIVEN] Profile selection method dialog is shown
         // [WHEN] Choose the second one option ("Confirm profile per each document")
@@ -3122,7 +3119,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(2); // for assert calls count in UseDefaultProfileSelectionMethodStrMenuHandler
         LibraryVariableStorage.Enqueue(Customer[2]."E-Mail"); // for EmailDialogHandlerNo
         LibraryVariableStorage.Enqueue(DocumentNo[2]); // for EmailDialogHandlerNo
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
         // [GIVEN] Profile selection method dialog is shown
         // [WHEN] Choose the third one option ("Use default profile per each document without confimation")
@@ -3164,7 +3161,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(true); // for VerifySelectSendingOptionHandler
         LibraryVariableStorage.Enqueue(EmailDocumentSendingProfile); // for VerifySelectSendingOptionHandler
         LibraryVariableStorage.Enqueue(true); // for VerifySelectSendingOptionHandler
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SendRecords();
 
         // [GIVEN] Profile selection method dialog is shown
         // [WHEN] Choose the second one option ("Confirm profile per each document")
@@ -3207,7 +3204,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(true); // for VerifySelectSendingOptionHandler
         LibraryVariableStorage.Enqueue(Vendor[2]."E-Mail"); // for EmailDialogHandlerNo
         LibraryVariableStorage.Enqueue(DocumentNo[2]); // for EmailDialogHandlerNo
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SendRecords();
 
         // [GIVEN] Profile selection method dialog is shown
         // [WHEN] Choose the second one option ("Confirm profile per each document")
@@ -3255,7 +3252,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(Vendor[2]."E-Mail"); // for EmailDialogHandlerNo
         LibraryVariableStorage.Enqueue(DocumentNo[2]); // for EmailDialogHandlerNo
         Commit();
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SendRecords();
 
         // [GIVEN] Profile selection method dialog is shown
         // [WHEN] Choose the second one option ("Use default profile per each document without confimation")
@@ -3314,8 +3311,8 @@ codeunit 139197 DocumentSendingPostTests
         CreatePurchaseQuoteWithDocumentSendingProfile(PurchaseHeader);
 
         // [WHEN] Purchase Quote is send for printing with "Send" ActionButton with default profile options.
-        PurchaseHeader.SetRecFilter;
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SetRecFilter();
+        PurchaseHeader.SendRecords();
 
         // [THEN] Purchase Quote is printed
         LibraryReportDataset.LoadDataSetFile;
@@ -3370,12 +3367,11 @@ codeunit 139197 DocumentSendingPostTests
         // [WHEN] When send posted "Invoice[1]" and "Invoice[2]" simultaneously
         SalesInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesInvoiceHeader1."No.", SalesInvoiceHeader2."No."));
         SalesInvoiceHeader.FindFirst();
-        SalesInvoiceHeader.SendRecords;
+        SalesInvoiceHeader.SendRecords();
 
-        // [THEN] Both invoices printed in separate documents
+        // [THEN] Both invoices printed in a single document
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader1."No.", FileName);
-        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -3431,7 +3427,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = "d@d.com"
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "d@d.com" // system gets from Document Layout of Bill-to Customer
 
@@ -3471,7 +3467,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3511,7 +3507,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3551,7 +3547,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3591,7 +3587,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3631,7 +3627,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = <blank> // system gets Sales Document."Sell-to E-Mail"
 
@@ -3671,7 +3667,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = "d@d.com"
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "d@d.com"
 
@@ -3711,7 +3707,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "b@b.com"
 
@@ -3751,7 +3747,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = <blank>
 
@@ -3791,7 +3787,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = <blank>
 
@@ -4117,7 +4113,7 @@ codeunit 139197 DocumentSendingPostTests
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote,
           LibraryPurchase.CreateVendorNo,
           LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', 0D);
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
     end;
 
     local procedure CreatePostSalesDoc(DocumentType: Enum "Sales Document Type"; Ship: Boolean; Invoice: Boolean; CustomerNo: Code[20]): Code[20]
@@ -4240,7 +4236,7 @@ codeunit 139197 DocumentSendingPostTests
         ServiceLine: Record "Service Line";
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
-        ServiceHeader."Due Date" := WorkDate;
+        ServiceHeader."Due Date" := WorkDate();
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, 1);
     end;
@@ -4431,7 +4427,7 @@ codeunit 139197 DocumentSendingPostTests
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CountryRegion: Record "Country/Region";
     begin
-        ElectronicDocumentFormat.DeleteAll;
+        ElectronicDocumentFormat.DeleteAll();
         ElectronicDocumentFormat.InsertElectronicFormat(
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0,
           ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
@@ -4461,7 +4457,7 @@ codeunit 139197 DocumentSendingPostTests
             if FindSet() then
                 repeat
                     "VAT Scheme" := Code;
-                    Modify;
+                    Modify();
                 until Next = 0;
         end;
     end;
@@ -4511,7 +4507,7 @@ codeunit 139197 DocumentSendingPostTests
     local procedure UpdateYourReferenceSalesHeader(var SalesHeader: Record "Sales Header"; YourReference: Text[35])
     begin
         SalesHeader."Your Reference" := YourReference;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure VerifyDocumentProfilesAreIdentical(ExpectedDocumentSendingProfile: Record "Document Sending Profile"; ActualDocumentSendingProfile: Record "Document Sending Profile")
@@ -4886,7 +4882,7 @@ codeunit 139197 DocumentSendingPostTests
     procedure VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         LibraryVariableStorage.DequeueInteger; // dummy dequeue to test calls count
-        Assert.ExpectedMessage(ProfileSelectionCustomerQst, Options);
+        Assert.ExpectedMessage(ProfileSelectionQst, Options);
         Assert.ExpectedMessage(CustomerProfileSelectionInstrTxt, Instruction);
         Assert.AreEqual(3, Choice, 'Wrong default profile method selection option.');
         Choice := 0;
@@ -4897,7 +4893,7 @@ codeunit 139197 DocumentSendingPostTests
     procedure VerifyAndCancelVendorProfileSelectionMethodStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         LibraryVariableStorage.DequeueInteger; // dummy dequeue to test calls count
-        Assert.ExpectedMessage(ProfileSelectionVendorQst, Options);
+        Assert.ExpectedMessage(ProfileSelectionQst, Options);
         Assert.ExpectedMessage(VendorProfileSelectionInstrTxt, Instruction);
         Assert.AreEqual(3, Choice, 'Wrong default profile method selection option.');
         Choice := 0;

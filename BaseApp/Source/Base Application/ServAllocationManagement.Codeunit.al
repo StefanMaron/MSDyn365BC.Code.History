@@ -142,7 +142,7 @@ codeunit 5930 ServAllocationManagement
     procedure SplitAllocation(var SplitServOrderAlloc: Record "Service Order Allocation")
     var
         ServOrderAlloc: Record "Service Order Allocation";
-        ServOrderAllocTemp: Record "Service Order Allocation" temporary;
+        TempServiceOrderAllocation: Record "Service Order Allocation" temporary;
         ServItemLine: Record "Service Item Line";
         Res: Record Resource;
         RepairStatus: Record "Repair Status";
@@ -154,7 +154,7 @@ codeunit 5930 ServAllocationManagement
             TestField(Status, Status::Active);
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text002, Res.TableCaption, "Resource No.", RepairStatus.TableCaption,
+                   Text002, Res.TableCaption(), "Resource No.", RepairStatus.TableCaption(),
                    RepairStatus.FieldCaption(Finished)), true)
             then
                 exit;
@@ -168,8 +168,8 @@ codeunit 5930 ServAllocationManagement
             ServOrderAlloc.SetHideDialog(true);
             if not ServOrderAlloc.Find('-') then
                 Error(Text003,
-                  ServOrderAlloc.TableCaption, FieldCaption("Allocated Hours"));
-            ServOrderAllocTemp.DeleteAll();
+                  ServOrderAlloc.TableCaption(), FieldCaption("Allocated Hours"));
+            TempServiceOrderAllocation.DeleteAll();
             repeat
                 ServItemLine.Get(
                   ServOrderAlloc."Document Type",
@@ -177,17 +177,17 @@ codeunit 5930 ServAllocationManagement
                   ServOrderAlloc."Service Item Line No.");
                 if RepairStatus.Get(ServItemLine."Repair Status Code") then
                     if not RepairStatus.Finished then begin
-                        ServOrderAllocTemp := ServOrderAlloc;
-                        ServOrderAllocTemp.Insert();
+                        TempServiceOrderAllocation := ServOrderAlloc;
+                        TempServiceOrderAllocation.Insert();
                     end;
             until ServOrderAlloc.Next() = 0;
 
-            NoOfRecords := ServOrderAllocTemp.Count + 1;
+            NoOfRecords := TempServiceOrderAllocation.Count + 1;
             if NoOfRecords <> 1 then begin
                 SplitAllocHours := Round("Allocated Hours" / NoOfRecords, 0.1);
-                ServOrderAllocTemp.Find('-');
+                TempServiceOrderAllocation.Find('-');
                 repeat
-                    ServOrderAlloc.Get(ServOrderAllocTemp."Entry No.");
+                    ServOrderAlloc.Get(TempServiceOrderAllocation."Entry No.");
                     if ServOrderAlloc."Entry No." <> "Entry No." then begin
                         ServOrderAlloc.Validate("Allocation Date", "Allocation Date");
                         ServOrderAlloc.Validate("Resource No.", "Resource No.");
@@ -197,10 +197,10 @@ codeunit 5930 ServAllocationManagement
                     end;
                     Validate("Allocated Hours", SplitAllocHours);
                     Modify(true);
-                until ServOrderAllocTemp.Next() = 0;
+                until TempServiceOrderAllocation.Next() = 0;
             end else
                 Error(Text003,
-                  ServOrderAlloc.TableCaption, FieldCaption("Allocated Hours"));
+                  ServOrderAlloc.TableCaption(), FieldCaption("Allocated Hours"));
         end;
     end;
 

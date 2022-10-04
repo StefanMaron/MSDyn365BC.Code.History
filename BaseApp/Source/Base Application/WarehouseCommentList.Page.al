@@ -1,7 +1,7 @@
 page 5777 "Warehouse Comment List"
 {
     Caption = 'Comment List';
-    DataCaptionExpression = FormCaption;
+    DataCaptionExpression = FormCaption();
     Editable = false;
     LinksAllowed = false;
     PageType = List;
@@ -14,7 +14,7 @@ page 5777 "Warehouse Comment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

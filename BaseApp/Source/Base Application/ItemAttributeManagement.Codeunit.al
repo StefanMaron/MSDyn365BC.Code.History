@@ -388,7 +388,7 @@ codeunit 7500 "Item Attribute Management"
                 ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
                 ItemAttributeValueMapping.SetRange("No.", Item."No.");
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeID);
-                if ItemAttributeValueMapping.FindFirst() then
+                if not ItemAttributeValueMapping.IsEmpty() then
                     exit(true);
             until Item.Next() = 0;
 
@@ -408,7 +408,7 @@ codeunit 7500 "Item Attribute Management"
     begin
         ItemAttributeValue.Reset();
         ItemAttributeValue.SetFilter(Value, '@' + Text);
-        exit(ItemAttributeValue.FindSet);
+        exit(ItemAttributeValue.FindSet());
     end;
 
     [IntegrationEvent(false, false)]

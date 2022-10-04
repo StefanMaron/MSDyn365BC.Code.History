@@ -67,7 +67,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.Validate("Account No.", JobPlanningLine."No.");
         GenJournalLine.Validate("Job No.", Job."No.");

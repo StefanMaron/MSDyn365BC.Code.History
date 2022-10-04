@@ -41,7 +41,7 @@ codeunit 5522 "Order Planning Mgt."
         SalesHeader: Record "Sales Header";
         GetUnplannedDemand: Codeunit "Get Unplanned Demand";
     begin
-        SetSalesOrder;
+        SetSalesOrder();
         PrepareRequisitionRecord(ReqLine);
 
         GetUnplannedDemand.SetIncludeMetDemandForSpecificSalesOrderNo(SalesOrderNo);
@@ -93,10 +93,10 @@ codeunit 5522 "Order Planning Mgt."
                     end;
 
                     InsertDemandLines(RequisitionLine);
-                    Delete;
+                    Delete();
                 until Next() = 0;
 
-            Window.Close;
+            Window.Close();
 
             RequisitionLine.Reset();
             RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
@@ -118,8 +118,8 @@ codeunit 5522 "Order Planning Mgt."
         with TempUnplannedDemand do begin
             UnplannedDemand.Copy(TempUnplannedDemand);
 
-            Reset;
-            SetRecFilter;
+            Reset();
+            SetRecFilter();
             SetRange("Demand Line No.");
             SetRange("Demand Ref. No.");
             SetRange(Level, 1);
@@ -137,7 +137,7 @@ codeunit 5522 "Order Planning Mgt."
                     ReqLine.SetSupplyDates("Demand Date");
                     InsertReqLineFromUnplannedDemand(ReqLine, Item);
                 end;
-                Delete;
+                Delete();
             until Next() = 0;
 
             Copy(UnplannedDemand);
@@ -169,22 +169,22 @@ codeunit 5522 "Order Planning Mgt."
                     "Demand Type"::Sales:
                         begin
                             SalesLine.Get("Demand SubType", "Demand Order No.", "Demand Line No.");
-                            ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, ReqLine.RowID1, true);
+                            ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
                         end;
                     "Demand Type"::Production:
                         begin
                             ProdOrderComp2.Get("Demand SubType", "Demand Order No.", "Demand Line No.", "Demand Ref. No.");
-                            ItemTrackingMgt.CopyItemTracking(ProdOrderComp2.RowID1, ReqLine.RowID1, true);
+                            ItemTrackingMgt.CopyItemTracking(ProdOrderComp2.RowID1(), ReqLine.RowID1(), true);
                         end;
                     "Demand Type"::Service:
                         begin
                             ServLine.Get("Demand SubType", "Demand Order No.", "Demand Line No.");
-                            ItemTrackingMgt.CopyItemTracking(ServLine.RowID1, ReqLine.RowID1, true);
+                            ItemTrackingMgt.CopyItemTracking(ServLine.RowID1(), ReqLine.RowID1(), true);
                         end;
                     "Demand Type"::Assembly:
                         begin
                             AsmLine.Get("Demand SubType", "Demand Order No.", "Demand Line No.");
-                            ItemTrackingMgt.CopyItemTracking(AsmLine.RowID1, ReqLine.RowID1, true);
+                            ItemTrackingMgt.CopyItemTracking(AsmLine.RowID1(), ReqLine.RowID1(), true);
                         end;
                 end;
             if ReqLine.Quantity > 0 then
@@ -196,7 +196,7 @@ codeunit 5522 "Order Planning Mgt."
     local procedure InsertDemandHeader(UnplannedDemand: Record "Unplanned Demand"; var ReqLine: Record "Requisition Line")
     begin
         with ReqLine do begin
-            Init;
+            Init();
             "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
             case UnplannedDemand."Demand Type" of
                 UnplannedDemand."Demand Type"::Sales:
@@ -221,7 +221,7 @@ codeunit 5522 "Order Planning Mgt."
             IncreaseReqLineNo(UnplannedDemand, ReqLine);
             "User ID" := UserId;
             OnInsertDemandHeaderOnBeforeReqLineInsert(UnplannedDemand, ReqLine);
-            Insert;
+            Insert();
             OnInsertDemandHeaderOnAfterReqLineInsert(UnplannedDemand, ReqLine);
         end;
     end;
@@ -272,7 +272,7 @@ codeunit 5522 "Order Planning Mgt."
         Item.SetRange("Date Filter", 0D, DemandDate);
         Item.SetRange("Drop Shipment Filter", false);
         if DemandDate = 0D then
-            DemandDate := WorkDate;
+            DemandDate := WorkDate();
         Evaluate(ODF, '<0D>');
 
         OnCalcATPQtyOnBeforeCalcQtyAvailabletoPromise(Item);
@@ -289,9 +289,9 @@ codeunit 5522 "Order Planning Mgt."
         if ItemNo = '' then
             exit(0D);
 
-        GetCompanyInfo;
+        GetCompanyInfo();
         if DemandDate = 0D then
-            DemandDate := WorkDate;
+            DemandDate := WorkDate();
 
         Item.Get(ItemNo);
         Item.SetRange("Variant Filter", VariantFilter);
@@ -338,7 +338,7 @@ codeunit 5522 "Order Planning Mgt."
     procedure InsertAltSupplySubstitution(var ReqLine: Record "Requisition Line")
     var
         TempItemSub: Record "Item Substitution" temporary;
-        ReqLine2: Record "Requisition Line" temporary;
+        TempReqLine2: Record "Requisition Line" temporary;
         ItemSubstMgt: Codeunit "Item Subst.";
         PlanningLineMgt: Codeunit "Planning Line Management";
         UnAvailableQtyBase: Decimal;
@@ -375,27 +375,27 @@ codeunit 5522 "Order Planning Mgt."
                 ReqLine.Delete(true);
                 DelReqLine := true;
             end else begin
-                ReqLine2 := ReqLine; // Save Original Line
+                TempReqLine2 := ReqLine; // Save Original Line
 
                 UnAvailableQtyBase :=
                   CalcNeededQty(
-                    TempItemSub."Quantity Avail. on Shpt. Date", ReqLine2."Demand Quantity (Base)");
+                    TempItemSub."Quantity Avail. on Shpt. Date", TempReqLine2."Demand Quantity (Base)");
 
                 // Update Req.Line
-                ReqLine."Worksheet Template Name" := ReqLine2."Worksheet Template Name";
-                ReqLine."Journal Batch Name" := ReqLine2."Journal Batch Name";
-                ReqLine."Line No." := ReqLine2."Line No.";
+                ReqLine."Worksheet Template Name" := TempReqLine2."Worksheet Template Name";
+                ReqLine."Journal Batch Name" := TempReqLine2."Journal Batch Name";
+                ReqLine."Line No." := TempReqLine2."Line No.";
                 ReqLine."Location Code" := ProdOrderComp."Location Code";
                 ReqLine."Bin Code" := ProdOrderComp."Bin Code";
                 ReqLine.Validate("No.", ProdOrderComp."Item No.");
                 ReqLine.Validate("Variant Code", ProdOrderComp."Variant Code");
                 ReqLine."Unit Of Measure Code (Demand)" := ProdOrderComp."Unit of Measure Code";
                 ReqLine."Qty. per UOM (Demand)" := ProdOrderComp."Qty. per Unit of Measure";
-                ReqLine.SetSupplyQty(ReqLine2."Demand Quantity (Base)", UnAvailableQtyBase);
-                ReqLine.SetSupplyDates(ReqLine2."Demand Date");
-                ReqLine."Original Item No." := ReqLine2."No.";
-                ReqLine."Original Variant Code" := ReqLine2."Variant Code";
-                OnBeforeReqLineModify(ReqLine, ReqLine2, ProdOrderComp);
+                ReqLine.SetSupplyQty(TempReqLine2."Demand Quantity (Base)", UnAvailableQtyBase);
+                ReqLine.SetSupplyDates(TempReqLine2."Demand Date");
+                ReqLine."Original Item No." := TempReqLine2."No.";
+                ReqLine."Original Variant Code" := TempReqLine2."Variant Code";
+                OnBeforeReqLineModify(ReqLine, TempReqLine2, ProdOrderComp);
                 ReqLine.Modify();
                 PlanningLineMgt.Calculate(ReqLine, 1, true, true, 0);
             end;
@@ -469,8 +469,8 @@ codeunit 5522 "Order Planning Mgt."
                         TempReqLine."Qty. per Unit of Measure" := 1;
 
                     TempReqLine."Demand Qty. Available" :=
-                      Round(AvailableQtyBase / TempReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-                    TempReqLine.Quantity := Round(AvailableQtyBase / TempReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                      Round(AvailableQtyBase / TempReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+                    TempReqLine.Quantity := Round(AvailableQtyBase / TempReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                     TempReqLine."Quantity (Base)" := AvailableQtyBase;
 
                     OnInsertAltSupplyLocationOnBeforeTempReqLineInsert(TempReqLine);
@@ -485,7 +485,7 @@ codeunit 5522 "Order Planning Mgt."
             ReqLine.CalcStartingDate('');
             if TempReqLine."Quantity (Base)" < ReqLine."Quantity (Base)" then
                 ReqLine.Validate(
-                  Quantity, Round(TempReqLine."Quantity (Base)" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+                  Quantity, Round(TempReqLine."Quantity (Base)" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
         end;
     end;
 

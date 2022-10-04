@@ -273,7 +273,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -335,7 +335,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(0D, WorkDate, 'Test', WorkDate, DocumentNo, true, false);
+        AdjustExchangeRates.InitializeRequest2(0D, WorkDate(), 'Test', WorkDate(), DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run();
     end;
@@ -363,7 +363,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         DetailedVendorLedgEntry.CalcSums("Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision", StrSubstNo(AmountErrorMessage,
-            DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedVendorLedgEntry.TableCaption,
+            DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedVendorLedgEntry.TableCaption(),
             DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 

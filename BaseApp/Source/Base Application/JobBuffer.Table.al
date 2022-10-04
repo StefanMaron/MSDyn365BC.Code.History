@@ -99,7 +99,7 @@ table 1017 "Job Buffer"
                         if JobWIPGLEntry.Type = JobWIPGLEntry.Type::"Accrued Sales" then
                             TempJobBuffer[1]."Amount 5" := JobWIPGLEntry."WIP Entry Amount";
                     TempJobBuffer[2] := TempJobBuffer[1];
-                    if TempJobBuffer[2].Find then begin
+                    if TempJobBuffer[2].Find() then begin
                         TempJobBuffer[2]."Amount 1" :=
                           TempJobBuffer[2]."Amount 1" + TempJobBuffer[1]."Amount 1";
                         TempJobBuffer[2]."Amount 2" :=
@@ -179,7 +179,7 @@ table 1017 "Job Buffer"
                     if Itemfilter then begin
                         Item.Init();
                         Item."No." := JobLedgEntry."No.";
-                        InFilter := Item.Find;
+                        InFilter := Item.Find();
                     end;
                     if InFilter then begin
                         Item3.Init();
@@ -192,7 +192,7 @@ table 1017 "Job Buffer"
                         TempJobBuffer[1]."Amount 2" := JobLedgEntry."Total Cost (LCY)";
                         TempJobBuffer[1]."Amount 3" := JobLedgEntry."Line Amount (LCY)";
                         TempJobBuffer[2] := TempJobBuffer[1];
-                        if TempJobBuffer[2].Find then begin
+                        if TempJobBuffer[2].Find() then begin
                             TempJobBuffer[2]."Amount 1" :=
                               TempJobBuffer[2]."Amount 1" + TempJobBuffer[1]."Amount 1";
                             TempJobBuffer[2]."Amount 2" :=
@@ -243,7 +243,7 @@ table 1017 "Job Buffer"
                 if JobFilter then begin
                     Job.Init();
                     Job."No." := JobLedgEntry."Job No.";
-                    InFilter := Job.Find;
+                    InFilter := Job.Find();
                 end;
                 if InFilter then begin
                     Job3.Init();
@@ -256,7 +256,7 @@ table 1017 "Job Buffer"
                     TempJobBuffer[1]."Amount 2" := JobLedgEntry."Total Cost (LCY)";
                     TempJobBuffer[1]."Amount 3" := JobLedgEntry."Line Amount (LCY)";
                     TempJobBuffer[2] := TempJobBuffer[1];
-                    if TempJobBuffer[2].Find then begin
+                    if TempJobBuffer[2].Find() then begin
                         TempJobBuffer[2]."Amount 1" :=
                           TempJobBuffer[2]."Amount 1" + TempJobBuffer[1]."Amount 1";
                         TempJobBuffer[2]."Amount 2" :=

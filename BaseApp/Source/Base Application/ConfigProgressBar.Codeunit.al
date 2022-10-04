@@ -70,7 +70,7 @@ codeunit 8615 "Config. Progress Bar"
 
     procedure Close()
     begin
-        Window.Close;
+        Window.Close();
     end;
 
     [IntegrationEvent(false, false)]

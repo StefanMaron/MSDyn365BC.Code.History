@@ -17,25 +17,25 @@ page 6022 "Reallocation Entry Reasons"
             group(Details)
             {
                 Caption = 'Details';
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the type of the document (Order or Quote) from which the allocation entry was created.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service order associated with this entry.';
                 }
-                field("Allocation Date"; "Allocation Date")
+                field("Allocation Date"; Rec."Allocation Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date when the resource allocation should start.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Service;
                     Caption = 'Old Resource No.';
@@ -48,7 +48,7 @@ page 6022 "Reallocation Entry Reasons"
                     Caption = 'New Resource No.';
                     Editable = false;
                 }
-                field("Resource Group No."; "Resource Group No.")
+                field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Service;
                     Caption = 'Old Resource Group No.';
@@ -61,26 +61,26 @@ page 6022 "Reallocation Entry Reasons"
                     Caption = 'New Resource Group No.';
                     Editable = false;
                 }
-                field("Service Item Line No."; "Service Item Line No.")
+                field("Service Item Line No."; Rec."Service Item Line No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service item line linked to this entry.';
                 }
-                field("Allocated Hours"; "Allocated Hours")
+                field("Allocated Hours"; Rec."Allocated Hours")
                 {
                     ApplicationArea = Service;
                     DecimalPlaces = 0 : 0;
                     Editable = false;
                     ToolTip = 'Specifies the hours allocated to the resource or resource group for the service task in this entry.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the time when you want the allocation to start.';
                 }
-                field("Finishing Time"; "Finishing Time")
+                field("Finishing Time"; Rec."Finishing Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;

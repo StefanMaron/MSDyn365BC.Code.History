@@ -46,12 +46,12 @@ codeunit 137029 "SCM Warehouse Orange Location"
         WhseActivityLine.FindFirst();
         // validate: check that bin code on put-away/take line is same as posted warehouse receipt line line.
         Assert.AreEqual(PostedWhseReceiptLine."Bin Code", WhseActivityLine."Bin Code",
-          StrSubstNo(BinError, PostedWhseReceiptLine."Bin Code", WhseActivityLine.TableCaption));
+          StrSubstNo(BinError, PostedWhseReceiptLine."Bin Code", WhseActivityLine.TableCaption()));
         // validate: check that bin code on put-away/place line is blank.
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.FindFirst();
-        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption));
+        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption()));
         // validate: registering put-away should throw error
         WhseActivityLine.Reset();
         asserterror CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
@@ -80,12 +80,12 @@ codeunit 137029 "SCM Warehouse Orange Location"
         WhseActivityLine.FindFirst();
         // validate: check that bin code on put-away/take line is same as posted warehouse receipt line line.
         Assert.AreEqual(PostedWhseReceiptLine."Bin Code", WhseActivityLine."Bin Code",
-          StrSubstNo(BinError, PostedWhseReceiptLine."Bin Code", WhseActivityLine.TableCaption));
+          StrSubstNo(BinError, PostedWhseReceiptLine."Bin Code", WhseActivityLine.TableCaption()));
         // validate: check that bin code on put-away/place line is blank.
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.FindFirst();
-        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption));
+        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption()));
         // Validate: Assign the Place bin code to SHIP on put-away/Place and validate that it throws an error
         // that bin code can not be one of SHIP or REC.
         asserterror WhseActivityLine.Validate("Bin Code", Bin.Code);
@@ -110,12 +110,12 @@ codeunit 137029 "SCM Warehouse Orange Location"
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.FindFirst();
         // Validate: Place line bin code should be blank.
-        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption));
+        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption()));
         // execute
         WhseActivityLine.Validate("Bin Code", Bin.Code);
         WhseActivityLine.Modify(true);
         // Validate : BIN1 should be assigned to Put-away/Place line
-        Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, Bin.Code, WhseActivityLine.TableCaption));
+        Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, Bin.Code, WhseActivityLine.TableCaption()));
         // validate : Registering put-away should not throw any error
         WhseActivityLine.Reset();
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
@@ -141,23 +141,23 @@ codeunit 137029 "SCM Warehouse Orange Location"
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Take, 0);
         WhseActivityLine.FindFirst();
-        Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, TextBIN2, WhseActivityLine.TableCaption));
+        Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, TextBIN2, WhseActivityLine.TableCaption()));
         // validate : bin code on 1st place line is blank
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.FindFirst();
-        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption));
+        Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption()));
         // validate : bin code on 2nd take line is REC.
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Take, 0);
         WhseActivityLine.Next(2);
         Assert.AreEqual(
-          Location."Receipt Bin Code", WhseActivityLine."Bin Code", StrSubstNo(BinError, TextREC, WhseActivityLine.TableCaption));
+          Location."Receipt Bin Code", WhseActivityLine."Bin Code", StrSubstNo(BinError, TextREC, WhseActivityLine.TableCaption()));
         // validate : bin code on 2nd place line is BIN2
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.Next(2);
-        Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, TextBIN2, WhseActivityLine.TableCaption));
+        Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, TextBIN2, WhseActivityLine.TableCaption()));
     end;
 
     [Test]
@@ -183,26 +183,26 @@ codeunit 137029 "SCM Warehouse Orange Location"
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Take, 0);
         WhseActivityLine.FindFirst();
-        Assert.AreEqual(BinRec2.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, BinRec2.Code, WhseActivityLine.TableCaption));
+        Assert.AreEqual(BinRec2.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, BinRec2.Code, WhseActivityLine.TableCaption()));
         // validate : bin code on 1st place line is bin1
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.FindFirst();
-        Assert.AreEqual(BinRec1.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, BinRec1.Code, WhseActivityLine.TableCaption));
+        Assert.AreEqual(BinRec1.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, BinRec1.Code, WhseActivityLine.TableCaption()));
         // validate : bin code on 2nd take line is REC.
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Take, 0);
         WhseActivityLine.Next(2);
         Assert.AreEqual(Location."Receipt Bin Code", WhseActivityLine."Bin Code", StrSubstNo(BinError, Location."Receipt Bin Code",
-            WhseActivityLine.TableCaption));
+            WhseActivityLine.TableCaption()));
         // validate : bin code on 2nd place line is neither REC or SHIP bin code
         FilterWhseActivityLine(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away",
           WhseActivityLine."Action Type"::Place, 0);
         WhseActivityLine.Next(2);
         Assert.AreNotEqual(Location."Receipt Bin Code", WhseActivityLine."Bin Code", StrSubstNo(BinError2,
-            Location."Receipt Bin Code", WhseActivityLine.TableCaption));
+            Location."Receipt Bin Code", WhseActivityLine.TableCaption()));
         Assert.AreNotEqual(Location."Shipment Bin Code", WhseActivityLine."Bin Code", StrSubstNo(BinError2,
-            Location."Shipment Bin Code", WhseActivityLine.TableCaption));
+            Location."Shipment Bin Code", WhseActivityLine.TableCaption()));
         // validate : Registering put-away should not throw any error
         WhseActivityLine.Reset();
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
@@ -339,7 +339,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         OrangeLocation := CreateOrangeLocation;
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst));
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst()));
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Orange Location");

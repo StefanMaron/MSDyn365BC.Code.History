@@ -1,7 +1,7 @@
 page 9241 "G/L Entries Dim. Overv. Matrix"
 {
     Caption = 'G/L Entries Dim. Overv. Matrix';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -16,22 +16,22 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the document type that the entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the entry''s Document No.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the account that the entry has been posted to.';
@@ -46,19 +46,19 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the Amount of the entry.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -72,7 +72,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(1);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field2; MATRIX_CellData[2])
@@ -84,7 +84,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(2);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field3; MATRIX_CellData[3])
@@ -96,7 +96,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(3);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field4; MATRIX_CellData[4])
@@ -108,7 +108,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(4);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field5; MATRIX_CellData[5])
@@ -120,7 +120,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(5);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field6; MATRIX_CellData[6])
@@ -132,7 +132,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(6);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field7; MATRIX_CellData[7])
@@ -144,7 +144,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(7);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field8; MATRIX_CellData[8])
@@ -156,7 +156,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(8);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field9; MATRIX_CellData[9])
@@ -168,7 +168,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(9);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field10; MATRIX_CellData[10])
@@ -180,7 +180,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(10);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field11; MATRIX_CellData[11])
@@ -192,7 +192,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(11);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field12; MATRIX_CellData[12])
@@ -204,7 +204,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(12);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field13; MATRIX_CellData[13])
@@ -216,7 +216,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(13);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field14; MATRIX_CellData[14])
@@ -228,7 +228,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(14);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field15; MATRIX_CellData[15])
@@ -240,7 +240,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(15);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field16; MATRIX_CellData[16])
@@ -252,7 +252,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(16);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field17; MATRIX_CellData[17])
@@ -264,7 +264,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(17);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field18; MATRIX_CellData[18])
@@ -276,7 +276,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(18);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field19; MATRIX_CellData[19])
@@ -288,7 +288,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(19);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field20; MATRIX_CellData[20])
@@ -300,7 +300,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(20);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field21; MATRIX_CellData[21])
@@ -312,7 +312,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(21);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field22; MATRIX_CellData[22])
@@ -324,7 +324,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(22);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field23; MATRIX_CellData[23])
@@ -336,7 +336,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(23);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field24; MATRIX_CellData[24])
@@ -348,7 +348,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(24);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field25; MATRIX_CellData[25])
@@ -360,7 +360,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(25);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field26; MATRIX_CellData[26])
@@ -372,7 +372,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(26);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field27; MATRIX_CellData[27])
@@ -384,7 +384,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(27);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field28; MATRIX_CellData[28])
@@ -396,7 +396,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(28);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field29; MATRIX_CellData[29])
@@ -408,7 +408,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(29);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field30; MATRIX_CellData[30])
@@ -420,7 +420,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(30);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field31; MATRIX_CellData[31])
@@ -432,7 +432,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(31);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
                 field(Field32; MATRIX_CellData[32])
@@ -444,7 +444,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         MATRIX_UpdateMatrixRecord(32);
-                        MATRIX_OnLookup;
+                        MATRIX_OnLookup();
                     end;
                 }
             }
@@ -504,7 +504,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
         if MATRIX_OnFindRecord('=') then begin
             MATRIX_CurrentColumnOrdinal := 1;
             repeat
-                MATRIX_OnAfterGetRecord;
+                MATRIX_OnAfterGetRecord();
                 MATRIX_Steps := MATRIX_OnNextRecord(1);
                 MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + MATRIX_Steps;
             until (MATRIX_CurrentColumnOrdinal - MATRIX_Steps = MATRIX_NoOfMatrixColumns) or (MATRIX_Steps = 0);
@@ -584,7 +584,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
     trigger OnOpenPage()
     begin
         MATRIX_NoOfMatrixColumns := ArrayLen(MATRIX_CellData);
-        SetColumnVisibility;
+        SetColumnVisibility();
     end;
 
     var

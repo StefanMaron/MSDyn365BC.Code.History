@@ -79,7 +79,7 @@ codeunit 134651 "O365 P. Cr. Type Lookup Test"
 
             // [THEN] The Subtype is set to service
             PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 134651 "O365 P. Cr. Type Lookup Test"
         // [WHEN] Setting the Subtype on the Purchase Line to co
         PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(CopyStr(PurchaseLine.FormatType, 1, 2));
         // [THEN] The Subtype is set to Comment
-        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
 
     [Test]
@@ -127,12 +127,12 @@ codeunit 134651 "O365 P. Cr. Type Lookup Test"
         // [WHEN] Setting the Subtype on the Purchase Line to ' '
         PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
 
         // [WHEN] Setting the Subtype on the Purchase Line to ''
         PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 134651 "O365 P. Cr. Type Lookup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

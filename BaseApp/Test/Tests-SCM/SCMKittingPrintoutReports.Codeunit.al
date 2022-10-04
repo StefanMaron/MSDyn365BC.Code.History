@@ -40,7 +40,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - Printout Reports");
         // Initialize setup.
-        ClearLastError;
+        ClearLastError();
         LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
@@ -52,7 +52,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
 
@@ -82,6 +82,8 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         ItemATO.Validate("Assembly Policy", ItemATO."Assembly Policy"::"Assemble-to-Order");
         ItemATO.Modify(true);
+
+
 
         isInitialized := true;
         Commit();
@@ -159,7 +161,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
                 LibraryInventory.CreateItemVariant(ItemVariant, BOMComponent."No.");
                 BOMComponent.Validate("Variant Code", ItemVariant.Code);
                 BOMComponent.Modify(true);
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
     end;
 
     [ModalPageHandler]
@@ -333,7 +335,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             end else
                 Assert.AreEqual('', DelChr(ActDimensionLine, '=', '; '), 'Dimension should not be printed.');
 
-        until PostedAssemblyLine.Next = 0;
+        until PostedAssemblyLine.Next() = 0;
     end;
 
     [Normal]
@@ -356,7 +358,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             end;
             DimText[i] += Delimeter + DimTxt;
             Delimeter := '; ';
-        until DimensionSetEntry.Next = 0;
+        until DimensionSetEntry.Next() = 0;
     end;
 
     [Normal]
@@ -853,7 +855,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('VariantCode_AssemblyLine', AssemblyLine."Variant Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('QuantityToConsume_AssemblyLine', AssemblyLine."Quantity to Consume");
             LibraryReportDataset.AssertCurrentRowValueEquals('DueDate_AssemblyLine', Format(AssemblyLine."Due Date"));
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
     end;
 
     [Normal]
@@ -898,7 +900,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
             AsmExists := false;
             with AssembleToOrderLink do begin
-                Reset;
+                Reset();
                 SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
                 SetRange(Type, Type::Sale);
                 SetRange("Document Type", SalesLine."Document Type");
@@ -924,11 +926,11 @@ codeunit 137311 "SCM Kitting - Printout Reports"
                         LibraryReportDataset.AssertCurrentRowValueEquals('BinCode_AssemblyLine', AssemblyLine."Bin Code");
                         LibraryReportDataset.AssertCurrentRowValueEquals('VariantCode_AssemblyLine', AssemblyLine."Variant Code");
                         LibraryReportDataset.AssertCurrentRowValueEquals('QuantityToConsume_AssemblyLine', AssemblyLine."Quantity to Consume");
-                    until AssemblyLine.Next = 0;
+                    until AssemblyLine.Next() = 0;
                 end;
             end;
 
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [RequestPageHandler]

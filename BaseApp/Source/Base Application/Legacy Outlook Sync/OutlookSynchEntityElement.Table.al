@@ -36,8 +36,8 @@ table 5301 "Outlook Synch. Entity Element"
             var
                 TableNo: Integer;
             begin
-                CheckMasterTableNo;
-                TableNo := OSynchSetupMgt.ShowTablesList;
+                CheckMasterTableNo();
+                TableNo := OSynchSetupMgt.ShowTablesList();
 
                 if TableNo <> 0 then
                     Validate("Table No.", TableNo);
@@ -46,8 +46,8 @@ table 5301 "Outlook Synch. Entity Element"
             trigger OnValidate()
             begin
                 if "Table No." <> xRec."Table No." then begin
-                    CheckUserSetup;
-                    CheckMasterTableNo;
+                    CheckUserSetup();
+                    CheckMasterTableNo();
                     TestField("Table No.");
 
                     if not OSynchSetupMgt.CheckPKFieldsQuantity("Table No.") then
@@ -58,9 +58,9 @@ table 5301 "Outlook Synch. Entity Element"
                            Confirm(
                              StrSubstNo(
                                Text003,
-                               OSynchField.TableCaption,
-                               OSynchFilter.TableCaption,
-                               OSynchDependency.TableCaption))
+                               OSynchField.TableCaption(),
+                               OSynchFilter.TableCaption(),
+                               OSynchDependency.TableCaption()))
                         then begin
                             "Table No." := xRec."Table No.";
                             exit;
@@ -114,7 +114,7 @@ table 5301 "Outlook Synch. Entity Element"
             var
                 CollectionName: Text[80];
             begin
-                CheckMasterTableNo;
+                CheckMasterTableNo();
                 OSynchEntity.Get("Synch. Entity Code");
 
                 OSynchEntity.TestField("Outlook Item");
@@ -131,14 +131,14 @@ table 5301 "Outlook Synch. Entity Element"
                     OSynchEntity.Get("Synch. Entity Code");
                     if not OSynchSetupMgt.ValidateOutlookCollectionName("Outlook Collection", OSynchEntity."Outlook Item") then
                         Error(Text002);
-                    CheckCollectionName;
+                    CheckCollectionName();
                 end;
 
                 if "Outlook Collection" = xRec."Outlook Collection" then
                     exit;
 
-                CheckUserSetup;
-                CheckMasterTableNo;
+                CheckUserSetup();
+                CheckMasterTableNo();
 
                 if "Element No." = 0 then
                     exit;
@@ -148,9 +148,9 @@ table 5301 "Outlook Synch. Entity Element"
                        Confirm(
                          StrSubstNo(
                            Text003,
-                           OSynchField.TableCaption,
-                           OSynchFilter.TableCaption,
-                           OSynchDependency.TableCaption))
+                           OSynchField.TableCaption(),
+                           OSynchFilter.TableCaption(),
+                           OSynchDependency.TableCaption()))
                     then begin
                         "Outlook Collection" := xRec."Outlook Collection";
                         exit;
@@ -244,7 +244,7 @@ table 5301 "Outlook Synch. Entity Element"
         TestField("Table No.");
 
         if IsNullGuid("Record GUID") then
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
     end;
 
     var

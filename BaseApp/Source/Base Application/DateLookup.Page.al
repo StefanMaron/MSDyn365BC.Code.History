@@ -11,7 +11,7 @@ page 749 "Date Lookup"
         {
             repeater(Group)
             {
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the time period associated with the date lookup.';
@@ -34,7 +34,7 @@ page 749 "Date Lookup"
         Date.FindSet();
         repeat
             TransferFields(Date);
-            Insert;
+            Insert();
         until Date.Next() = 0;
         FindFirst();
     end;

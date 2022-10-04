@@ -17,35 +17,35 @@ page 982 "Payment Registration Setup"
             {
                 Caption = 'General';
                 InstructionalText = 'Select which balancing account you want to register the payment to, as well as which journal template to use.';
-                field("Journal Template Name"; "Journal Template Name")
+                field("Journal Template Name"; Rec."Journal Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal template that the Payment Registration window is based on.';
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal batch that the Payment Registration window is based on.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balancing Account Type';
                     ToolTip = 'Specifies the type of account that is used as the balancing account for payments. The field is filled according to the selection in the Journal Batch Name field.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balancing Account';
                     ToolTip = 'Specifies the account number that is used as the balancing account for payments.';
                 }
-                field("Use this Account as Def."; "Use this Account as Def.")
+                field("Use this Account as Def."; Rec."Use this Account as Def.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Use this Account as Default';
                     ToolTip = 'Specifies if the account in the Bal. Account No. field is used for all payments.';
                 }
-                field("Auto Fill Date Received"; "Auto Fill Date Received")
+                field("Auto Fill Date Received"; Rec."Auto Fill Date Received")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Automatically Fill Date Received';
@@ -62,10 +62,10 @@ page 982 "Payment Registration Setup"
     trigger OnOpenPage()
     begin
         if not Get(UserId) then begin
-            if Get then;
+            if Get() then;
 
             "User ID" := UserId;
-            Insert;
+            Insert();
         end;
 
         PageCaption := '';

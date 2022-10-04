@@ -4,7 +4,6 @@ page 5870 "BOM Structure"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Item Availability by';
     SourceTable = "BOM Buffer";
     SourceTableTemporary = true;
 
@@ -28,7 +27,7 @@ page 5870 "BOM Structure"
                     begin
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -38,7 +37,7 @@ page 5870 "BOM Structure"
 
                     trigger OnValidate()
                     begin
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
             }
@@ -52,7 +51,7 @@ page 5870 "BOM Structure"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the item''s position in the BOM structure. Lower-level items are indented under their parents.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
@@ -81,29 +80,29 @@ page 5870 "BOM Structure"
                     trigger OnDrillDown()
                     begin
                         if HasWarning then
-                            ShowWarnings;
+                            ShowWarnings();
                     end;
                 }
-                field("Low-Level Code"; "Low-Level Code")
+                field("Low-Level Code"; Rec."Low-Level Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s level in the BOM structure.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant code that you entered in the Variant Filter field in the Item Availability by BOM Level window.';
                     Visible = false;
                 }
-                field("Qty. per Parent"; "Qty. per Parent")
+                field("Qty. per Parent"; Rec."Qty. per Parent")
                 {
                     ApplicationArea = Assembly;
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the parent.';
                 }
-                field("Qty. per Top Item"; "Qty. per Top Item")
+                field("Qty. per Top Item"; Rec."Qty. per Top Item")
                 {
                     ApplicationArea = Assembly;
                     DecimalPlaces = 0 : 5;
@@ -111,31 +110,31 @@ page 5870 "BOM Structure"
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the top item.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies the item''s replenishment system.';
                 }
-                field("Lead-Time Offset"; "Lead-Time Offset")
+                field("Lead-Time Offset"; Rec."Lead-Time Offset")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total number of days that are required to assemble or produce the item.';
                     Visible = false;
                 }
-                field("Safety Lead Time"; "Safety Lead Time")
+                field("Safety Lead Time"; Rec."Safety Lead Time")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies any safety lead time that is defined for the item.';
                     Visible = false;
                 }
-                field("Lead Time Calculation"; "Lead Time Calculation")
+                field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how long it takes to replenish the item, by purchase, assembly, or production.';
@@ -158,14 +157,11 @@ page 5870 "BOM Structure"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Event';
                     Image = "Event";
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByEvent);
+                        ItemAvail(ItemAvailFormsMgt.ByEvent());
                     end;
                 }
                 action(Period)
@@ -173,14 +169,11 @@ page 5870 "BOM Structure"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period';
                     Image = Period;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByPeriod);
+                        ItemAvail(ItemAvailFormsMgt.ByPeriod());
                     end;
                 }
                 action(Variant)
@@ -188,14 +181,11 @@ page 5870 "BOM Structure"
                     ApplicationArea = Planning;
                     Caption = 'Variant';
                     Image = ItemVariant;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByVariant);
+                        ItemAvail(ItemAvailFormsMgt.ByVariant());
                     end;
                 }
                 action(Location)
@@ -204,14 +194,11 @@ page 5870 "BOM Structure"
                     ApplicationArea = Location;
                     Caption = 'Location';
                     Image = Warehouse;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View the actual and projected quantity of the item per location.';
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByLocation);
+                        ItemAvail(ItemAvailFormsMgt.ByLocation());
                     end;
                 }
                 action(Lot)
@@ -230,14 +217,11 @@ page 5870 "BOM Structure"
                     ApplicationArea = Basic, Suite;
                     Caption = 'BOM Level';
                     Image = BOMLevel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByBOM);
+                        ItemAvail(ItemAvailFormsMgt.ByBOM());
                     end;
                 }
             }
@@ -249,15 +233,47 @@ page 5870 "BOM Structure"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Warnings';
                 Image = ErrorLog;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View details about bottlenecks.';
 
                 trigger OnAction()
                 begin
-                    ShowWarningsForAllLines;
+                    ShowWarningsForAllLines();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Show Warnings_Promoted"; "Show Warnings")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Item Availability by', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Event_Promoted; "Event")
+                {
+                }
+                actionref(Period_Promoted; Period)
+                {
+                }
+                actionref(Variant_Promoted; Variant)
+                {
+                }
+                actionref(Location_Promoted; Location)
+                {
+                }
+                actionref("BOM Level_Promoted"; "BOM Level")
+                {
+                }
             }
         }
     }
@@ -276,7 +292,7 @@ page 5870 "BOM Structure"
 
     trigger OnOpenPage()
     begin
-        RefreshPage;
+        RefreshPage();
     end;
 
     var
@@ -286,13 +302,14 @@ page 5870 "BOM Structure"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         [InDataSet]
         IsParentExpr: Boolean;
-        ItemFilter: Code[250];
-        CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
         [InDataSet]
         HasWarning: Boolean;
+
+        CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
         Text001: Label 'There are no warnings.';
 
     protected var
+        ItemFilter: Code[250];
         ShowBy: Enum "BOM Structure Show By";
 
     procedure InitItem(var NewItem: Record Item)
@@ -334,13 +351,13 @@ page 5870 "BOM Structure"
             exit;
 
         Item.SetFilter("No.", ItemFilter);
-        Item.SetRange("Date Filter", 0D, WorkDate);
+        Item.SetRange("Date Filter", 0D, WorkDate());
         CalcBOMTree.SetItemFilter(Item);
         case ShowBy of
             ShowBy::Item:
                 begin
                     Item.FindFirst();
-                    RaiseError := (not Item.HasBOM) and (Item."Routing No." = '');
+                    RaiseError := (not Item.HasBOM()) and (Item."Routing No." = '');
                     ErrorText := CouldNotFindBOMLevelsErr;
                     OnRefreshPageOnBeforeRaiseError(Item, RaiseError, ErrorText);
                     if RaiseError then

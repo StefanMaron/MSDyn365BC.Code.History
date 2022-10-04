@@ -101,9 +101,9 @@ page 6711 "OData Setup Wizard"
                         trigger OnValidate()
                         begin
                             "Object ID" := 0;
-                            ClearTables;
-                            ClearObjectType;
-                            ClearName;
+                            ClearTables();
+                            ClearObjectType();
+                            ClearName();
                         end;
                     }
                 }
@@ -133,7 +133,7 @@ page 6711 "OData Setup Wizard"
                                 TenantWebServicesLookup: Page "Tenant Web Services Lookup";
                             begin
                                 TenantWebServicesLookup.LookupMode := true;
-                                if TenantWebServicesLookup.RunModal = ACTION::LookupOK then begin
+                                if TenantWebServicesLookup.RunModal() = ACTION::LookupOK then begin
                                     TenantWebServicesLookup.GetRecord(TenantWebService);
                                     ServiceNameLookup := TenantWebService."Service Name";
                                     ObjectTypeLookup := TenantWebService."Object Type";
@@ -142,10 +142,9 @@ page 6711 "OData Setup Wizard"
                                 "Service Name" := ServiceNameLookup;
                                 "Object Type" := ObjectTypeLookup;
                                 "Object ID" := TenantWebService."Object ID";
-                                if ActionType = ActionType::"Create a copy of an existing data set" then begin
-                                    "Service Name" := ServiceNameEdit
-                                end;
-                                ClearTables;
+                                if ActionType = ActionType::"Create a copy of an existing data set" then
+                                    "Service Name" := ServiceNameEdit;
+                                ClearTables();
                             end;
 
                             trigger OnValidate()
@@ -158,9 +157,8 @@ page 6711 "OData Setup Wizard"
                                     ObjectTypeLookup := TenantWebService."Object Type";
                                     "Object Type" := ObjectTypeLookup;
                                     "Object ID" := TenantWebService."Object ID";
-                                    if ActionType = ActionType::"Create a copy of an existing data set" then begin
-                                        "Service Name" := ServiceNameEdit
-                                    end;
+                                    if ActionType = ActionType::"Create a copy of an existing data set" then
+                                        "Service Name" := ServiceNameEdit;
                                 end else
                                     Error(UseLookupErr);
                             end;
@@ -204,12 +202,12 @@ page 6711 "OData Setup Wizard"
                         begin
                             "Object Type" := ObjectTypeLookup;
                             if "Object Type" <> xRec."Object Type" then begin
-                                ClearTables;
+                                ClearTables();
                                 "Object ID" := 0;
                             end;
                         end;
                     }
-                    field("Object ID"; "Object ID")
+                    field("Object ID"; Rec."Object ID")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Data Source Id';
@@ -231,7 +229,7 @@ page 6711 "OData Setup Wizard"
                             AllObjectsWithCaption.SetTableView(AllObjWithCaption);
 
                             AllObjectsWithCaption.LookupMode := true;
-                            if AllObjectsWithCaption.RunModal = ACTION::LookupOK then begin
+                            if AllObjectsWithCaption.RunModal() = ACTION::LookupOK then begin
                                 AllObjectsWithCaption.GetRecord(AllObjWithCaption);
                                 if not ((AllObjWithCaption."Object Type" = AllObjWithCaption."Object Type"::Page) or
                                         (AllObjWithCaption."Object Type" = AllObjWithCaption."Object Type"::Query))
@@ -245,7 +243,7 @@ page 6711 "OData Setup Wizard"
                                 ObjectTypeLookup := AllObjWithCaption."Object Type";
 
                                 if "Object ID" <> xRec."Object ID" then
-                                    ClearTables;
+                                    ClearTables();
                             end;
                         end;
 
@@ -262,10 +260,10 @@ page 6711 "OData Setup Wizard"
                             end;
 
                             if "Object ID" <> xRec."Object ID" then
-                                ClearTables;
+                                ClearTables();
                         end;
                     }
-                    field(ObjectName; DisplayObjectName)
+                    field(ObjectName; DisplayObjectName())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Data Source Name';
@@ -337,7 +335,7 @@ page 6711 "OData Setup Wizard"
                 trigger OnAction()
                 begin
                     Clear(ChangeFields);
-                    ChangeFields := CurrPage.ODataColSubForm.PAGE.IncludeIsChanged;
+                    ChangeFields := CurrPage.ODataColSubForm.PAGE.IncludeIsChanged();
                     if ChangeFields then begin
                         Clear(TempTenantWebServiceFilter);
                         TempTenantWebServiceFilter.DeleteAll();
@@ -422,8 +420,8 @@ page 6711 "OData Setup Wizard"
                     CurrPage.ODataColSubForm.PAGE.GetColumns(TempTenantWebServiceColumns);
                     if not TempTenantWebServiceColumns.FindFirst() then
                         Error(PublishWithoutFieldsErr);
-                    CopyTempTableToConcreteTable;
-                    oDataUrl := DisplayODataUrl;
+                    CopyTempTableToConcreteTable();
+                    oDataUrl := DisplayODataUrl();
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"OData Setup Wizard");
                     PublishFlag := true;
                     CurrentPage := CurrentPage + 1;
@@ -441,7 +439,7 @@ page 6711 "OData Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action(CreateExcelWorkBook)
@@ -474,17 +472,17 @@ page 6711 "OData Setup Wizard"
 
     trigger OnInit()
     begin
-        CheckPermissions;
-        LoadTopBanners;
+        CheckPermissions();
+        LoadTopBanners();
         CurrentPage := 1;
         ObjectTypeLookup := "Object Type"::Page;
         "Object Type" := "Object Type"::Page;
-        EditInExcelVisible;
+        EditInExcelVisible();
     end;
 
     trigger OnOpenPage()
     begin
-        Insert;
+        Insert();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -544,7 +542,8 @@ page 6711 "OData Setup Wizard"
         FilterTextSource: Text;
     begin
         if TempTenantWebServiceColumns.FindFirst() then
-            DataItemDictionary := DataItemDictionary.Dictionary;
+            DataItemDictionary := DataItemDictionary.Dictionary();
+        OldTableNo := 0;
         repeat
             if OldTableNo <> TempTenantWebServiceColumns."Data Item" then begin
                 AllObjWithCaption.SetRange("Object ID", TempTenantWebServiceColumns."Data Item");
@@ -586,7 +585,7 @@ page 6711 "OData Setup Wizard"
         if TempTenantWebServiceColumns.FindFirst() then
             repeat
                 if OldTableNo <> TempTenantWebServiceColumns."Data Item" then begin
-                    ColumnList := ColumnList.List;
+                    ColumnList := ColumnList.List();
                     TempTenantWebServiceFilter.Init();
                     TempTenantWebServiceFilter.SetRange("Data Item", TempTenantWebServiceColumns."Data Item");
 
@@ -620,7 +619,7 @@ page 6711 "OData Setup Wizard"
                 end;
             until TempTenantWebServiceColumns.Next() = 0;
 
-        if FilterPage.RunModal then begin
+        if FilterPage.RunModal() then begin
             Clear(TempTenantWebServiceFilter);
             TempTenantWebServiceFilter.DeleteAll();
             foreach keyValuePair in DataItemDictionary do begin
@@ -641,8 +640,8 @@ page 6711 "OData Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -802,7 +801,7 @@ page 6711 "OData Setup Wizard"
 
     local procedure ClearTables()
     begin
-        CurrPage.ODataColSubForm.PAGE.DeleteColumns;
+        CurrPage.ODataColSubForm.PAGE.DeleteColumns();
         TempTenantWebServiceColumns.DeleteAll();
         TempTenantWebServiceFilter.DeleteAll();
     end;
@@ -864,7 +863,7 @@ page 6711 "OData Setup Wizard"
 
     procedure EditInExcelVisible()
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web then
             ExcelVisible := true;
     end;
 }

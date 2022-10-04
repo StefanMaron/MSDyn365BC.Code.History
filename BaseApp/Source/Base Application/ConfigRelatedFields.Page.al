@@ -10,17 +10,17 @@ page 8622 "Config. Related Fields"
         {
             repeater(Group)
             {
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the field in the related table.';
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the field in the configuration table that is related to the relation table.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the caption of the field in the configuration table that is related to the relation table.';

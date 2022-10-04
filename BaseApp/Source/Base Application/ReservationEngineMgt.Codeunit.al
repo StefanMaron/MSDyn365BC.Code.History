@@ -41,7 +41,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         ReservEntry.TestField("Disallow Cancellation", false);
 
         ReservEntry3.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-        DoCancel := ReservEntry3.TrackingExists or ReservEntry.TrackingExists;
+        DoCancel := ReservEntry3.TrackingExists() or ReservEntry.TrackingExists();
         OnCancelReservationOnBeforeDoCancel(ReservEntry3, ReservEntry, DoCancel);
         if DoCancel then begin
             ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
@@ -55,6 +55,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             RevertDateToSourceDate(ReservEntry3);
             ReservEntry3.Insert();
             TempSurplusEntry.DeleteAll();
+            UpdateSourcePlanned(ReservEntry);
             UpdateTempSurplusEntry(ReservEntry);
             UpdateTempSurplusEntry(ReservEntry3);
             UpdateOrderTracking(TempSurplusEntry);
@@ -162,7 +163,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             if (Item."Order Tracking Policy" = Item."Order Tracking Policy"::None) and
                (not TransferLineWithItemTracking(ReservEntry2)) and
                (((ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order") and ReservEntry2.Positive) or
-                (ReservEntry2."Source Type" = DATABASE::"Item Ledger Entry") or not ReservEntry2.TrackingExists)
+                (ReservEntry2."Source Type" = DATABASE::"Item Ledger Entry") or not ReservEntry2.TrackingExists())
             then
                 ReservEntry2.Delete()
             else begin
@@ -187,7 +188,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                     ReservEntry2.Validate("Quantity (Base)");
                     ReservEntry2.Validate(Binding, ReservEntry2.Binding::" ");
                     if Item."Order Tracking Policy" <> Item."Order Tracking Policy"::None then
-                        ReservEntry2."Untracked Surplus" := ReservEntry2.IsResidualSurplus;
+                        ReservEntry2."Untracked Surplus" := ReservEntry2.IsResidualSurplus();
                     OnCloseReservEntryOnBeforeModifyReservEntry2(ReservEntry2, OriginalReservEntry2);
                     ReservEntry2.Modify();
 
@@ -223,9 +224,9 @@ codeunit 99000831 "Reservation Engine Mgt."
         if ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Surplus then begin
             ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
             if not TransferLineWithItemTracking(ReservEntry2) and
-               ((ReservEntry2."Source Type" = DATABASE::"Item Ledger Entry") or not ReservEntry2.TrackingExists)
+               ((ReservEntry2."Source Type" = DATABASE::"Item Ledger Entry") or not ReservEntry2.TrackingExists())
             then
-                ReservEntry2.Delete
+                ReservEntry2.Delete()
             else begin
                 ReservEntry2."Reservation Status" := ReservEntry2."Reservation Status"::Surplus;
                 ReservEntry2.Modify();
@@ -512,7 +513,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         ActionMessageEntry.SetRange(Quantity, 0);
 
         ReservEntry2.Copy(ReservEntry);
-        ReservEntry2.SetPointerFilter;
+        ReservEntry2.SetPointerFilter();
         ReservEntry2.SetRange(
           "Reservation Status", ReservEntry2."Reservation Status"::Reservation, ReservEntry2."Reservation Status"::Tracking);
         FirstDate := ReservMgt.FindDate(ReservEntry2, 0, true);
@@ -544,7 +545,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         ActionMessageEntry.Type := ActionMessageEntry.Type::Reschedule;
         ActionMessageEntry."New Date" := FirstDate;
         ActionMessageEntry."Reservation Entry" := ReservEntry2."Entry No.";
-        while not ActionMessageEntry.Insert do
+        while not ActionMessageEntry.Insert() do
             ActionMessageEntry."Entry No." += 1;
     end;
 
@@ -628,7 +629,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             ReservEntry2."Expiration Date" := TrackingSpecification."Expiration Date";
             ReservEntry2."Entry No." := LastEntryNo;
             OnBeforeUpdateItemTracking(ReservEntry2, TrackingSpecification);
-            ReservEntry2.UpdateItemTracking;
+            ReservEntry2.UpdateItemTracking();
             if EntryMismatch then begin
                 if not CalledRecursively then
                     SaveLostReservQty(ReservEntry2); // Late Binding
@@ -677,7 +678,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             else
                 ReservEntry1."Appl.-to Item Entry" := TrackingSpecification."Appl.-to Item Entry";
             OnBeforeUpdateItemTracking(ReservEntry1, TrackingSpecification);
-            ReservEntry1.UpdateItemTracking;
+            ReservEntry1.UpdateItemTracking();
             if EntryMismatch then begin
                 if not CalledRecursively then
                     SaveLostReservQty(ReservEntry1); // Late Binding
@@ -740,7 +741,7 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     local procedure VerifySurplusRecord(var ReservEntry: Record "Reservation Entry"; var QtyToAddAsBlank: Decimal) Modified: Boolean
     begin
-        if ReservEntry.TrackingExists then
+        if ReservEntry.TrackingExists() then
             exit;
         if ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Prospect then begin
             ReservEntry.Validate("Quantity (Base)", 0);
@@ -797,12 +798,12 @@ codeunit 99000831 "Reservation Engine Mgt."
     begin
         FirstLoop := true;
 
-        while TempReservEntry.FindSet do begin
+        while TempReservEntry.FindSet() do begin
             if FirstLoop then begin
                 GetItem(TempReservEntry."Item No.");
                 if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then begin
                     repeat
-                        if (TempReservEntry."Source Type" = DATABASE::"Item Ledger Entry") or not TempReservEntry.TrackingExists then begin
+                        if (TempReservEntry."Source Type" = DATABASE::"Item Ledger Entry") or not TempReservEntry.TrackingExists() then begin
                             ReservEntry := TempReservEntry;
                             ReservEntry.Delete();
                         end;
@@ -853,6 +854,17 @@ codeunit 99000831 "Reservation Engine Mgt."
     begin
         if Item."No." <> ItemNo then
             Item.Get(ItemNo);
+    end;
+
+    local procedure UpdateSourcePlanned(ReservEntry: Record "Reservation Entry")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        if ReservEntry."Source Type" = DATABASE::"Sales Line" then begin
+            SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
+            SalesLine.UpdatePlanned();
+            SalesLine.Modify();
+        end;
     end;
 
     local procedure ItemTrackingMismatch(ReservEntry: Record "Reservation Entry"; NewItemTrackingSetup: Record "Item Tracking Setup"): Boolean
@@ -921,7 +933,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                 IsHandled := false;
                 OnInitRecordSetOnBeforeCheckItemTrackingExists(CarriesItemTracking, TempSortRec1, IsHandled);
                 if not IsHandled then
-                    CarriesItemTracking := TempSortRec1.TrackingExists;
+                    CarriesItemTracking := TempSortRec1.TrackingExists();
                 if CarriesItemTracking then begin
                     TempSortRec2 := TempSortRec1;
                     TempSortRec2.Insert();
@@ -1004,7 +1016,7 @@ codeunit 99000831 "Reservation Engine Mgt."
           "Shipment Date", "Expected Receipt Date");
 
         if ReservEntry.FindFirst() then
-            ReservEntry.SetPointerFilter;
+            ReservEntry.SetPointerFilter();
     end;
 
     procedure RenamePointer(TableID: Integer; OldSubtype: Integer; OldID: Code[20]; OldBatchName: Code[10]; OldProdOrderLine: Integer; OldRefNo: Integer; NewSubtype: Integer; NewID: Code[20]; NewBatchName: Code[10]; NewProdOrderLine: Integer; NewRefNo: Integer)
@@ -1049,7 +1061,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         else
             ReservEntry.SetRange("Source Prod. Order Line", 0);
 
-        ReservEntry.Lock;
+        ReservEntry.Lock();
 
         if ReservEntry.FindSet() then begin
             W.Open(Text007);
@@ -1068,7 +1080,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                 ReservEntry.Delete();
                 NewReservEntry.Insert();
             until ReservEntry.Next() = 0;
-            W.Close;
+            W.Close();
         end;
     end;
 
@@ -1267,7 +1279,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         exit(ResvExistsForHeader(ReservEntry));
     end;
 
-    local procedure ResvExistsForHeader(var ReservEntry: Record "Reservation Entry"): Boolean
+    procedure ResvExistsForHeader(var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         ReservEntry.SetRange("Source Batch Name", '');
         ReservEntry.SetRange("Source Prod. Order Line", 0);
@@ -1279,7 +1291,7 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     local procedure TransferLineWithItemTracking(ReservEntry: Record "Reservation Entry"): Boolean
     begin
-        exit((ReservEntry."Source Type" = DATABASE::"Transfer Line") and ReservEntry.TrackingExists);
+        exit((ReservEntry."Source Type" = DATABASE::"Transfer Line") and ReservEntry.TrackingExists());
     end;
 
     local procedure CheckTrackingNoMismatch(ReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; TrackingSpecification2: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code"): Boolean

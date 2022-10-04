@@ -22,12 +22,12 @@ codeunit 1209 "Export Payment File (Yes/No)"
         GenJnlBatch.TestField("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
         GenJnlBatch.TestField("Bal. Account No.");
 
-        CheckDocNoOnLines;
-        if IsExportedToPaymentFile then
+        CheckDocNoOnLines();
+        if IsExportedToPaymentFile() then
             if not Confirm(ExportAgainQst) then
                 exit;
         BankAcc.Get(GenJnlBatch."Bal. Account No.");
-        CODEUNIT.Run(BankAcc.GetPaymentExportCodeunitID, Rec);
+        CODEUNIT.Run(BankAcc.GetPaymentExportCodeunitID(), Rec);
 
         OnAfterOnRun(Rec, GenJnlBatch, BankAcc);
     end;

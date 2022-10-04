@@ -11,7 +11,7 @@ page 6415 "Flow Service Configuration"
     {
         area(content)
         {
-            field("Flow Service"; "Flow Service")
+            field("Flow Service"; Rec."Flow Service")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Power Automate Service';
@@ -28,16 +28,16 @@ page 6415 "Flow Service Configuration"
     var
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
     begin
-        if FlowUserEnvironmentConfig.Get(UserSecurityId) then
+        if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
             FlowUserEnvironmentConfig.Delete();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

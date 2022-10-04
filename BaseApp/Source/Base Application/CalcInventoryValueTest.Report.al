@@ -13,13 +13,13 @@ report 5811 "Calc. Inventory Value - Test"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text000_FORMAT_PostingDate__; StrSubstNo(Text000, Format(PostingDate)))
             {
             }
-            column(STRSUBSTNO___1___2__Item_TABLECAPTION_ItemFilter_; StrSubstNo('%1: %2', TableCaption, ItemFilter))
+            column(STRSUBSTNO___1___2__Item_TABLECAPTION_ItemFilter_; StrSubstNo('%1: %2', TableCaption(), ItemFilter))
             {
             }
             column(ItemFilter; ItemFilter)
@@ -48,7 +48,7 @@ report 5811 "Calc. Inventory Value - Test"
 
                 if CalcBase = CalcBase::"Standard Cost - Manufacturing" then begin
                     CalcStdCost.SetProperties(PostingDate, true, false, true, '', true);
-                    CalcStdCost.TestPreconditions(Item, ProdBOMVersionErrBuf, RtngVersionErrBuf);
+                    CalcStdCost.TestPreconditions(Item, TempProdBOMVersionErrBuf, TempRtngVersionErrBuf);
                 end;
             end;
         }
@@ -92,9 +92,9 @@ report 5811 "Calc. Inventory Value - Test"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    OK := TempErrorBuf.FindSet
+                    OK := TempErrorBuf.FindSet()
                 else
-                    OK := TempErrorBuf.Next <> 0;
+                    OK := TempErrorBuf.Next() <> 0;
                 if not OK then
                     CurrReport.Break();
 
@@ -124,19 +124,19 @@ report 5811 "Calc. Inventory Value - Test"
             column(Text002; Text002Lbl)
             {
             }
-            column(ProdBOMVersionErrBuf__Production_BOM_No__; ProdBOMVersionErrBuf."Production BOM No.")
+            column(ProdBOMVersionErrBuf__Production_BOM_No__; TempProdBOMVersionErrBuf."Production BOM No.")
             {
             }
-            column(ProdBOMVersionErrBuf__Version_Code_; ProdBOMVersionErrBuf."Version Code")
+            column(ProdBOMVersionErrBuf__Version_Code_; TempProdBOMVersionErrBuf."Version Code")
             {
             }
-            column(ProdBOMVersionErrBuf_Description; ProdBOMVersionErrBuf.Description)
+            column(ProdBOMVersionErrBuf_Description; TempProdBOMVersionErrBuf.Description)
             {
             }
-            column(ProdBOMVersionErrBuf__Starting_Date_; Format(ProdBOMVersionErrBuf."Starting Date"))
+            column(ProdBOMVersionErrBuf__Starting_Date_; Format(TempProdBOMVersionErrBuf."Starting Date"))
             {
             }
-            column(ProdBOMVersionErrBuf_Status; ProdBOMVersionErrBuf.Status)
+            column(ProdBOMVersionErrBuf_Status; TempProdBOMVersionErrBuf.Status)
             {
             }
             column(Text002Caption; Text002CaptionLbl)
@@ -161,23 +161,23 @@ report 5811 "Calc. Inventory Value - Test"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    OK := ProdBOMVersionErrBuf.Find('-')
+                    OK := TempProdBOMVersionErrBuf.Find('-')
                 else
-                    OK := ProdBOMVersionErrBuf.Next <> 0;
+                    OK := TempProdBOMVersionErrBuf.Next() <> 0;
                 if not OK then
                     CurrReport.Break();
 
-                if ProdBOMVersionErrBuf."Version Code" = '' then begin
-                    ProdBOMHeader.Get(ProdBOMVersionErrBuf."Production BOM No.");
-                    ProdBOMVersionErrBuf.Description := ProdBOMHeader.Description;
-                    ProdBOMVersionErrBuf.Status := ProdBOMHeader.Status;
+                if TempProdBOMVersionErrBuf."Version Code" = '' then begin
+                    ProdBOMHeader.Get(TempProdBOMVersionErrBuf."Production BOM No.");
+                    TempProdBOMVersionErrBuf.Description := ProdBOMHeader.Description;
+                    TempProdBOMVersionErrBuf.Status := ProdBOMHeader.Status;
                 end else begin
-                    ProdBOMVersion.Get(ProdBOMVersionErrBuf."Production BOM No.", ProdBOMVersionErrBuf."Version Code");
-                    ProdBOMVersionErrBuf.Description := ProdBOMVersion.Description;
-                    ProdBOMVersionErrBuf."Starting Date" := ProdBOMVersion."Starting Date";
-                    ProdBOMVersionErrBuf.Status := ProdBOMVersion.Status;
+                    ProdBOMVersion.Get(TempProdBOMVersionErrBuf."Production BOM No.", TempProdBOMVersionErrBuf."Version Code");
+                    TempProdBOMVersionErrBuf.Description := ProdBOMVersion.Description;
+                    TempProdBOMVersionErrBuf."Starting Date" := ProdBOMVersion."Starting Date";
+                    TempProdBOMVersionErrBuf.Status := ProdBOMVersion.Status;
                 end;
-                ProdBOMVersionErrBuf.Modify();
+                TempProdBOMVersionErrBuf.Modify();
             end;
         }
         dataitem(RtngVersionErrBufLoop; "Integer")
@@ -186,19 +186,19 @@ report 5811 "Calc. Inventory Value - Test"
             column(Text003; Text003Lbl)
             {
             }
-            column(RtngVersionErrBuf_Status; RtngVersionErrBuf.Status)
+            column(RtngVersionErrBuf_Status; TempRtngVersionErrBuf.Status)
             {
             }
-            column(RtngVersionErrBuf__Starting_Date_; Format(RtngVersionErrBuf."Starting Date"))
+            column(RtngVersionErrBuf__Starting_Date_; Format(TempRtngVersionErrBuf."Starting Date"))
             {
             }
-            column(RtngVersionErrBuf_Description; RtngVersionErrBuf.Description)
+            column(RtngVersionErrBuf_Description; TempRtngVersionErrBuf.Description)
             {
             }
-            column(RtngVersionErrBuf__Version_Code_; RtngVersionErrBuf."Version Code")
+            column(RtngVersionErrBuf__Version_Code_; TempRtngVersionErrBuf."Version Code")
             {
             }
-            column(RtngVersionErrBuf__Routing_No__; RtngVersionErrBuf."Routing No.")
+            column(RtngVersionErrBuf__Routing_No__; TempRtngVersionErrBuf."Routing No.")
             {
             }
             column(Text003Caption; Text003CaptionLbl)
@@ -223,23 +223,23 @@ report 5811 "Calc. Inventory Value - Test"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    OK := RtngVersionErrBuf.Find('-')
+                    OK := TempRtngVersionErrBuf.Find('-')
                 else
-                    OK := RtngVersionErrBuf.Next <> 0;
+                    OK := TempRtngVersionErrBuf.Next() <> 0;
                 if not OK then
                     CurrReport.Break();
 
-                if RtngVersionErrBuf."Version Code" = '' then begin
-                    RtngHeader.Get(RtngVersionErrBuf."Routing No.");
-                    RtngVersionErrBuf.Description := RtngHeader.Description;
-                    RtngVersionErrBuf.Status := RtngHeader.Status;
+                if TempRtngVersionErrBuf."Version Code" = '' then begin
+                    RtngHeader.Get(TempRtngVersionErrBuf."Routing No.");
+                    TempRtngVersionErrBuf.Description := RtngHeader.Description;
+                    TempRtngVersionErrBuf.Status := RtngHeader.Status;
                 end else begin
-                    RtngVersion.Get(RtngVersionErrBuf."Routing No.", RtngVersionErrBuf."Version Code");
-                    RtngVersionErrBuf.Description := RtngVersion.Description;
-                    RtngVersionErrBuf."Starting Date" := RtngVersion."Starting Date";
-                    RtngVersionErrBuf.Status := RtngVersion.Status;
+                    RtngVersion.Get(TempRtngVersionErrBuf."Routing No.", TempRtngVersionErrBuf."Version Code");
+                    TempRtngVersionErrBuf.Description := RtngVersion.Description;
+                    TempRtngVersionErrBuf."Starting Date" := RtngVersion."Starting Date";
+                    TempRtngVersionErrBuf.Status := RtngVersion.Status;
                 end;
-                RtngVersionErrBuf.Modify();
+                TempRtngVersionErrBuf.Modify();
             end;
         }
     }
@@ -271,9 +271,9 @@ report 5811 "Calc. Inventory Value - Test"
                         trigger OnValidate()
                         begin
                             if CalculatePer = CalculatePer::Item then
-                                ItemCalculatePerOnValidate;
+                                ItemCalculatePerOnValidate();
                             if CalculatePer = CalculatePer::"Item Ledger Entry" then
-                                ItemLedgerEntryCalculatePerOnV;
+                                ItemLedgerEntryCalculatePerOnV();
                         end;
                     }
                     field("By Location"; ByLocation)
@@ -316,9 +316,9 @@ report 5811 "Calc. Inventory Value - Test"
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
+                PostingDate := WorkDate();
 
-            ValidateCalcLevel;
+            ValidateCalcLevel();
         end;
     }
 
@@ -329,13 +329,13 @@ report 5811 "Calc. Inventory Value - Test"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var
         ItemLedgEntryErrBuf: Record "Item Ledger Entry";
-        ProdBOMVersionErrBuf: Record "Production BOM Version" temporary;
-        RtngVersionErrBuf: Record "Routing Version" temporary;
+        TempProdBOMVersionErrBuf: Record "Production BOM Version" temporary;
+        TempRtngVersionErrBuf: Record "Routing Version" temporary;
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
         RtngHeader: Record "Routing Header";
@@ -384,7 +384,7 @@ report 5811 "Calc. Inventory Value - Test"
 
     local procedure ValidateCalcLevel()
     begin
-        PageValidateCalcLevel;
+        PageValidateCalcLevel();
         exit;
     end;
 
@@ -399,12 +399,12 @@ report 5811 "Calc. Inventory Value - Test"
 
     local procedure ItemLedgerEntryCalculatePerOnV()
     begin
-        ValidateCalcLevel;
+        ValidateCalcLevel();
     end;
 
     local procedure ItemCalculatePerOnValidate()
     begin
-        ValidateCalcLevel;
+        ValidateCalcLevel();
     end;
 
     procedure InitializeRequest(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewCalcBase: Option)

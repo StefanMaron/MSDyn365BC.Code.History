@@ -91,9 +91,9 @@ table 5416 "Prod. Order Comp. Cmt Line"
         ProdOrderBOMComment.SetRange("Prod. Order Line No.", "Prod. Order Line No.");
         ProdOrderBOMComment.SetRange(
           "Prod. Order BOM Line No.", "Prod. Order BOM Line No.");
-        ProdOrderBOMComment.SetRange(Date, WorkDate);
+        ProdOrderBOMComment.SetRange(Date, WorkDate());
         if not ProdOrderBOMComment.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
     end;
 
     procedure Caption(): Text

@@ -79,7 +79,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         asserterror ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: Error message about missing VAT Posting Setup.
-        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(VATSetupError, VATPostingSetup.TableCaption)) > 0, GetLastErrorText);
+        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(VATSetupError, VATPostingSetup.TableCaption())) > 0, GetLastErrorText);
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         repeat
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
         Commit(); // This is Required for the ASSERTERROR to Work
 
         asserterror VATPostingSetup.TestField("VAT Identifier");
@@ -176,13 +176,13 @@ codeunit 134054 "ERM VAT Tool - Errors"
         repeat
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATRateChangeConv."From Code");
         VATPostingSetup.FindSet();
         repeat
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
         CreateDummySetup;

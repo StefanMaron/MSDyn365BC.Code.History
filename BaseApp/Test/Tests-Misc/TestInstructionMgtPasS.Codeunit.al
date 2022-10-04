@@ -29,7 +29,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
 
         // Verify
         // Instruction is not displayed
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]

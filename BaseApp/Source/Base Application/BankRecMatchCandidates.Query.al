@@ -1,6 +1,10 @@
+#if not CLEAN21
 query 1252 "Bank Rec. Match Candidates"
 {
     Caption = 'Bank Rec. Match Candidates';
+    ObsoleteReason = 'Using a query object for loading data required for matching is expensive, load each record as in MatchBankRecLines@SingleMatch';
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
 
     elements
     {
@@ -79,3 +83,4 @@ query 1252 "Bank Rec. Match Candidates"
     }
 }
 
+#endif

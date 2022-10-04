@@ -82,6 +82,10 @@ table 1223 "Data Exch. Column Def"
         {
             Caption = 'Use Node Name as Value';
         }
+        field(19; "Blank Zero"; Boolean)
+        {
+            Caption = 'Blank Zero';
+        }
     }
 
     keys
@@ -104,20 +108,20 @@ table 1223 "Data Exch. Column Def"
         DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
         DataExchFieldMapping.SetRange("Column No.", "Column No.");
-        if not DataExchFieldMapping.IsEmpty and GuiAllowed then
-            if not Confirm(StrSubstNo(DeleteFieldMappingQst, DataExchColumnDef.TableCaption, DataExchFieldMapping.TableCaption)) then
+        if not DataExchFieldMapping.IsEmpty() and GuiAllowed then
+            if not Confirm(StrSubstNo(DeleteFieldMappingQst, DataExchColumnDef.TableCaption(), DataExchFieldMapping.TableCaption())) then
                 Error('');
         DataExchFieldMapping.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        ValidateRec;
+        ValidateRec();
     end;
 
     trigger OnModify()
     begin
-        ValidateRec;
+        ValidateRec();
     end;
 
     var
@@ -125,7 +129,7 @@ table 1223 "Data Exch. Column Def"
 
     procedure InsertRec(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; NewShow: Boolean; DataType: Option; DataTypeFormatting: Text[100]; DataFormattingCulture: Text[10]; NewDescription: Text[50])
     begin
-        Init;
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         Validate("Column No.", ColumnNo);
@@ -135,12 +139,12 @@ table 1223 "Data Exch. Column Def"
         Validate("Data Format", DataTypeFormatting);
         Validate("Data Formatting Culture", DataFormattingCulture);
         Validate(Description, NewDescription);
-        Insert;
+        Insert();
     end;
 
     procedure InsertRecForExport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; DataType: Option; DataFormat: Text[100]; NewLength: Integer; NewConstant: Text[30])
     begin
-        Init;
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         Validate("Column No.", ColumnNo);
@@ -149,12 +153,20 @@ table 1223 "Data Exch. Column Def"
         Validate("Data Format", DataFormat);
         Validate(Length, NewLength);
         Validate(Constant, NewConstant);
-        Insert;
+        Insert();
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure InsertRecordForImport with extended paremeter NewDescription: Text[100]', '21.0')]
     procedure InsertRecForImport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; NewDescription: Text[50]; NewShow: Boolean; DataType: Option; DataFormat: Text[100]; DataFormattingCulture: Text[10])
     begin
-        Init;
+        InsertRecordForImport(DataExchDefCode, DataExchLineDefCode, ColumnNo, NewName, NewDescription, NewShow, DataType, DataFormat, DataFormattingCulture);
+    end;
+#endif
+
+    procedure InsertRecordForImport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; NewDescription: Text[100]; NewShow: Boolean; DataType: Option; DataFormat: Text[100]; DataFormattingCulture: Text[10])
+    begin
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         Validate("Column No.", ColumnNo);
@@ -164,7 +176,7 @@ table 1223 "Data Exch. Column Def"
         Validate("Data Type", DataType);
         Validate("Data Format", DataFormat);
         Validate("Data Formatting Culture", DataFormattingCulture);
-        Insert;
+        Insert();
     end;
 
     procedure ValidateRec()
@@ -179,10 +191,10 @@ table 1223 "Data Exch. Column Def"
         if DataExchDef."File Type" = DataExchDef."File Type"::"Fixed Text" then
             TestField(Length);
 
-        if IsDataFormatRequired then
+        if IsDataFormatRequired() then
             TestField("Data Format");
 
-        if IsDataFormattingCultureRequired then
+        if IsDataFormattingCultureRequired() then
             TestField("Data Formatting Culture");
     end;
 
@@ -190,7 +202,7 @@ table 1223 "Data Exch. Column Def"
     var
         DataExchDef: Record "Data Exch. Def";
     begin
-        if IsXML or IsJson then
+        if IsXML() or IsJson() then
             exit(false);
 
         DataExchDef.Get("Data Exch. Def Code");
@@ -209,7 +221,7 @@ table 1223 "Data Exch. Column Def"
     var
         DataExchDef: Record "Data Exch. Def";
     begin
-        if ("Data Type" <> "Data Type"::Text) and not IsXML and not IsJson then begin
+        if ("Data Type" <> "Data Type"::Text) and not IsXML() and not IsJson() then begin
             DataExchDef.Get("Data Exch. Def Code");
             exit(DataExchDef.Type <> DataExchDef.Type::"Payment Export");
         end;
@@ -243,7 +255,7 @@ table 1223 "Data Exch. Column Def"
             else
                 "Data Type" := DataExchColDef."Data Type"::Text;
         end;
-        Modify;
+        Modify();
     end;
 
     procedure IsOfDataLine(): Boolean
@@ -252,7 +264,7 @@ table 1223 "Data Exch. Column Def"
     begin
         DataExchLineDef.Get("Data Exch. Def Code", "Data Exch. Line Def Code");
 
-        if not (IsXML or IsJson) or (DataExchLineDef."Data Line Tag" = '') then
+        if not (IsXML() or IsJson()) or (DataExchLineDef."Data Line Tag" = '') then
             exit(true);
 
         exit(StrPos(Path, DataExchLineDef."Data Line Tag") > 0);

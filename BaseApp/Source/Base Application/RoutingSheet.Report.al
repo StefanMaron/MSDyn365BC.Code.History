@@ -36,7 +36,7 @@ report 99000787 "Routing Sheet"
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
                     PrintOnlyIfDetail = true;
-                    column(CompanyName; COMPANYPROPERTY.DisplayName)
+                    column(CompanyName; COMPANYPROPERTY.DisplayName())
                     {
                     }
                     column(TodayFormatted; Format(Today))
@@ -217,7 +217,7 @@ report 99000787 "Routing Sheet"
                                     "Setup Time" * CalendarMgt.TimeFactor("Setup Time Unit of Meas. Code") / RunTimeFactor +
                                     "Wait Time" * CalendarMgt.TimeFactor("Wait Time Unit of Meas. Code") / RunTimeFactor +
                                     "Move Time" * CalendarMgt.TimeFactor("Move Time Unit of Meas. Code") / RunTimeFactor +
-                                    ProductionQuantity * "Run Time", UOMMgt.TimeRndPrecision);
+                                    ProductionQuantity * "Run Time", UOMMgt.TimeRndPrecision());
                             end;
 
                             trigger OnPreDataItem()
@@ -268,7 +268,7 @@ report 99000787 "Routing Sheet"
                     CurrReport.Skip();
 
                 ActiveVersionCode :=
-                  VersionMgt.GetRtngVersion("Routing No.", WorkDate, true);
+                  VersionMgt.GetRtngVersion("Routing No.", WorkDate(), true);
 
                 if ActiveVersionCode <> '' then
                     ActiveVersionText := Text001
@@ -346,7 +346,6 @@ report 99000787 "Routing Sheet"
     end;
 
     var
-        Text000: Label 'Copy number:';
         VersionMgt: Codeunit VersionManagement;
         CalendarMgt: Codeunit "Shop Calendar Management";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -362,6 +361,8 @@ report 99000787 "Routing Sheet"
         PrintQualityMeasures: Boolean;
         TotalTime: Decimal;
         ActiveVersionCode: Code[20];
+
+        Text000: Label 'Copy number:';
         Text001: Label 'Active Version';
         OutputNo: Integer;
         CurrReportPageNoCaptionLbl: Label 'Page';

@@ -80,7 +80,7 @@ table 1705 "Posted Deferral Line"
 
     procedure InitFromDeferralLine(DeferralLine: Record "Deferral Line"; GenJnlDocNo: Code[20]; AccountNo: Code[20]; NewDocumentType: Integer; NewDocumentNo: Code[20]; NewLineNo: Integer; DeferralAccount: Code[20])
     begin
-        Init;
+        Init();
         TransferFields(DeferralLine);
         "Gen. Jnl. Document No." := GenJnlDocNo;
         "Account No." := AccountNo;

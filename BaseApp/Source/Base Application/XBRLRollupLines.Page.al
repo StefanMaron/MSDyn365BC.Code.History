@@ -15,18 +15,18 @@ page 587 "XBRL Rollup Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("From XBRL Taxonomy Line No."; "From XBRL Taxonomy Line No.")
+                field("From XBRL Taxonomy Line No."; Rec."From XBRL Taxonomy Line No.")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the number of the XBRL line from which this XBRL line is rolled up.';
                 }
-                field("From XBRL Taxonomy Line Name"; "From XBRL Taxonomy Line Name")
+                field("From XBRL Taxonomy Line Name"; Rec."From XBRL Taxonomy Line Name")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the name of the XBRL line from which this XBRL line is rolled up.';
                     Visible = false;
                 }
-                field("From XBRL Taxonomy Line Label"; "From XBRL Taxonomy Line Label")
+                field("From XBRL Taxonomy Line Label"; Rec."From XBRL Taxonomy Line Label")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the label of the XBRL line from which this XBRL line is rolled up.';

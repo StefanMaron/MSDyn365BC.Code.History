@@ -41,7 +41,7 @@ table 5466 "API Entities Setup"
 
     procedure SafeGet()
     begin
-        if not Get then
+        if not Get() then
             Insert(true);
     end;
 }

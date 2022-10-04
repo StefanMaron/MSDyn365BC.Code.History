@@ -64,7 +64,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         // Verify query: Query - database consistency.
         DelayedProdOrdersByCost.Open;
         count := 0;
-        while DelayedProdOrdersByCost.Read do begin
+        while DelayedProdOrdersByCost.Read() do begin
             count += 1;
             GetExpectedProdOrderBacklog(
               Qty, CostAmount, TotalCostAmount, '<=', false, DelayedProdOrdersByCost.Status, DelayedProdOrdersByCost.Item_No);
@@ -81,7 +81,7 @@ codeunit 137111 "SCM Production Backlog Chart"
               ProductionOrder.Status::Finished, DelayedProdOrdersByCost.Status, 'Item: ' + DelayedProdOrdersByCost.Item_No + '; field: ' + DelayedProdOrdersByCost.ColumnCaption(Status));
             PrevTotalCostAmount := TotalCostAmount;
         end;
-        DelayedProdOrdersByCost.Close;
+        DelayedProdOrdersByCost.Close();
 
         // Verify query: Database - query consistency.
         TempItem.FindSet();
@@ -89,7 +89,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             VerifyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
             VerifyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::Released);
-        until TempItem.Next = 0;
+        until TempItem.Next() = 0;
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         // Verify query: Query - database consistency.
         count := 0;
         Top10ProdOrdersByCost.Open;
-        while Top10ProdOrdersByCost.Read do begin
+        while Top10ProdOrdersByCost.Read() do begin
             GetExpectedProdOrderBacklog(
               Qty, CostAmount, TotalCostAmount, '', false, Top10ProdOrdersByCost.Status, Top10ProdOrdersByCost.Item_No);
             count += 1;
@@ -140,7 +140,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             Assert.AreNotEqual(ProductionOrder.Status::Finished, Top10ProdOrdersByCost.Status, 'Item: ' + Top10ProdOrdersByCost.Item_No + '; field: ' + Top10ProdOrdersByCost.ColumnCaption(Status));
             PrevTotalCostAmount := TotalCostAmount;
         end;
-        Top10ProdOrdersByCost.Close;
+        Top10ProdOrdersByCost.Close();
         Assert.IsTrue(Top10ProdOrdersByCost.TopNumberOfRows = 10, 'More than 10 records returned by query.');
     end;
 
@@ -180,7 +180,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         // Verify query: Query - database consistency.
         PendingProdOrdersByCost.Open;
         count := 0;
-        while PendingProdOrdersByCost.Read do begin
+        while PendingProdOrdersByCost.Read() do begin
             count += 1;
             GetExpectedProdOrderBacklog(
               Qty, CostAmount, TotalCostAmount, '>=', false, PendingProdOrdersByCost.Status, PendingProdOrdersByCost.Item_No);
@@ -197,7 +197,7 @@ codeunit 137111 "SCM Production Backlog Chart"
               ProductionOrder.Status::Finished, PendingProdOrdersByCost.Status, 'Item: ' + PendingProdOrdersByCost.Item_No + '; field: ' + PendingProdOrdersByCost.ColumnCaption(Status));
             PrevTotalCostAmount := TotalCostAmount;
         end;
-        PendingProdOrdersByCost.Close;
+        PendingProdOrdersByCost.Close();
 
         // Verify query: Database - query consistency.
         TempItem.FindSet();
@@ -205,7 +205,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             VerifyPendingBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyPendingBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
             VerifyPendingBacklogRecords(TempItem."No.", ProductionOrder.Status::Released);
-        until TempItem.Next = 0;
+        until TempItem.Next() = 0;
     end;
 
     [Test]
@@ -250,13 +250,13 @@ codeunit 137111 "SCM Production Backlog Chart"
         // Verify query: Query - database consistency.
         MyDelayedProdOrders.SetFilter(User_ID, UserId);
         MyDelayedProdOrders.Open;
-        while MyDelayedProdOrders.Read do begin
+        while MyDelayedProdOrders.Read() do begin
             GetExpectedProdOrderBacklog(Qty, CostAmount, TotalCostAmount, '<=', true, MyDelayedProdOrders.Status, MyDelayedProdOrders.Item_No);
             Assert.AreEqual(Qty, MyDelayedProdOrders.Sum_Remaining_Quantity, 'Item: ' + MyDelayedProdOrders.Item_No + '; field: ' + MyDelayedProdOrders.ColumnCaption(Sum_Remaining_Quantity));
             Assert.AreNotEqual(ProductionOrder.Status::Simulated, MyDelayedProdOrders.Status, 'Item: ' + MyDelayedProdOrders.Item_No + '; field: ' + MyDelayedProdOrders.ColumnCaption(Status));
             Assert.AreNotEqual(ProductionOrder.Status::Finished, MyDelayedProdOrders.Status, 'Item: ' + MyDelayedProdOrders.Item_No + '; field: ' + MyDelayedProdOrders.ColumnCaption(Status));
         end;
-        MyDelayedProdOrders.Close;
+        MyDelayedProdOrders.Close();
 
         // Verify query: Database - query consistency.
         TempItem.FindSet();
@@ -264,7 +264,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             VerifyMyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyMyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
             VerifyMyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::Released);
-        until TempItem.Next = 0;
+        until TempItem.Next() = 0;
     end;
 
     [Test]
@@ -311,7 +311,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         MyProdOrdersByCost.SetFilter(User_ID, UserId);
         MyProdOrdersByCost.Open;
         count := 0;
-        while MyProdOrdersByCost.Read do begin
+        while MyProdOrdersByCost.Read() do begin
             count += 1;
             GetExpectedProdOrderBacklog(Qty, CostAmount, TotalCostAmount, '', true, MyProdOrdersByCost.Status, MyProdOrdersByCost.Item_No);
             if count > 1 then
@@ -324,7 +324,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             Assert.AreNotEqual(ProductionOrder.Status::Finished, MyProdOrdersByCost.Status, 'Item: ' + MyProdOrdersByCost.Item_No + '; field: ' + MyProdOrdersByCost.ColumnCaption(Status));
             PrevTotalCostAmount := TotalCostAmount;
         end;
-        MyProdOrdersByCost.Close;
+        MyProdOrdersByCost.Close();
 
         // Verify query: Database - query consistency.
         TempItem.FindSet();
@@ -332,7 +332,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             VerifyMyBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyMyBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
             VerifyMyBacklogRecords(TempItem."No.", ProductionOrder.Status::Released);
-        until TempItem.Next = 0;
+        until TempItem.Next() = 0;
     end;
 
     [Test]
@@ -385,7 +385,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             repeat
                 Qty += ProdOrderLine."Remaining Quantity";
                 CostAmount += ProdOrderLine."Cost Amount";
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         Item.Get(ItemNo);
         Item.CalcFields("Cost of Open Production Orders");
@@ -408,7 +408,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             ExpQueryRecords := 1;
 
         DelayedProdOrdersByCost.Open;
-        while DelayedProdOrdersByCost.Read do
+        while DelayedProdOrdersByCost.Read() do
             if (DelayedProdOrdersByCost.Item_No = ItemNo) and (DelayedProdOrdersByCost.Status = Status) then begin
                 Assert.AreEqual(Qty, DelayedProdOrdersByCost.Sum_Remaining_Quantity, 'Item: ' + DelayedProdOrdersByCost.Item_No + '; field: ' + DelayedProdOrdersByCost.ColumnCaption(Sum_Remaining_Quantity));
                 Assert.AreEqual(
@@ -435,7 +435,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             ExpQueryRecords := 1;
 
         PendingProdOrdersByCost.Open;
-        while PendingProdOrdersByCost.Read do
+        while PendingProdOrdersByCost.Read() do
             if (PendingProdOrdersByCost.Item_No = ItemNo) and (PendingProdOrdersByCost.Status = Status) then begin
                 Assert.AreEqual(Qty, PendingProdOrdersByCost.Sum_Remaining_Quantity, 'Item: ' + PendingProdOrdersByCost.Item_No + '; field: ' + PendingProdOrdersByCost.ColumnCaption(Sum_Remaining_Quantity));
                 Assert.AreEqual(
@@ -463,7 +463,7 @@ codeunit 137111 "SCM Production Backlog Chart"
 
         MyDelayedProdOrders.SetFilter(User_ID, UserId);
         MyDelayedProdOrders.Open;
-        while MyDelayedProdOrders.Read do
+        while MyDelayedProdOrders.Read() do
             if (MyDelayedProdOrders.Item_No = ItemNo) and (MyDelayedProdOrders.Status = Status) then begin
                 Assert.AreEqual(Qty, MyDelayedProdOrders.Sum_Remaining_Quantity, 'Item: ' + MyDelayedProdOrders.Item_No + '; field: ' + MyDelayedProdOrders.ColumnCaption(Sum_Remaining_Quantity));
                 ActQueryRecords += 1;
@@ -489,7 +489,7 @@ codeunit 137111 "SCM Production Backlog Chart"
 
         MyProdOrdersByCost.SetFilter(User_ID, UserId);
         MyProdOrdersByCost.Open;
-        while MyProdOrdersByCost.Read do
+        while MyProdOrdersByCost.Read() do
             if (MyProdOrdersByCost.Item_No = ItemNo) and (MyProdOrdersByCost.Status = Status) then begin
                 Assert.AreEqual(Qty, MyProdOrdersByCost.Sum_Remaining_Quantity, 'Item: ' + MyProdOrdersByCost.Item_No + '; field: ' + MyProdOrdersByCost.ColumnCaption(Sum_Remaining_Quantity));
                 Assert.AreEqual(TotalCostAmount, MyProdOrdersByCost.Cost_of_Open_Production_Orders, 'Item: ' + MyProdOrdersByCost.Item_No + '; field: ' + MyProdOrdersByCost.ColumnCaption(Cost_of_Open_Production_Orders));

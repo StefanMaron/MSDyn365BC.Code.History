@@ -21,7 +21,7 @@ report 5851 "Suggest Item Standard Cost"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -142,13 +142,10 @@ report 5851 "Suggest Item Standard Cost"
             Error(Text004);
         StdCostWkshName.Get(ToStdCostWkshName);
 
-        ToStdCostWksh.LockTable
+        ToStdCostWksh.LockTable();
     end;
 
     var
-        Text004: Label 'You must specify a worksheet name to copy to.';
-        Text007: Label 'Copying worksheet...\\';
-        Text008: Label 'Item No. #1####################\';
         ToStdCostWksh: Record "Standard Cost Worksheet";
         Window: Dialog;
         ToStdCostWkshName: Code[10];
@@ -156,10 +153,14 @@ report 5851 "Suggest Item Standard Cost"
         AmtAdjustFactor: array[3] of Decimal;
         WindowUpdateDateTime: DateTime;
 
+        Text004: Label 'You must specify a worksheet name to copy to.';
+        Text007: Label 'Copying worksheet...\\';
+        Text008: Label 'Item No. #1####################\';
+
     local procedure InsertStdCostWksh(No2: Code[20])
     begin
         with ToStdCostWksh do begin
-            Init;
+            Init();
             Validate("Standard Cost Worksheet Name", ToStdCostWkshName);
             Validate(Type, Type::Item);
             Validate("No.", No2);

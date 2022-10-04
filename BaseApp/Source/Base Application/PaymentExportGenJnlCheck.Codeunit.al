@@ -25,14 +25,14 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         Handled: Boolean;
     begin
         with GenJournalLine do begin
-            DeletePaymentFileErrors;
+            DeletePaymentFileErrors();
             GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
             if not TempGenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
                 CheckGenJournalBatch(GenJournalLine, GenJnlBatch);
 
             if "Payment Method Code" = '' then
-                AddFieldEmptyError(GenJournalLine, TableCaption, FieldCaption("Payment Method Code"), '');
+                AddFieldEmptyError(GenJournalLine, TableCaption(), FieldCaption("Payment Method Code"), '');
 
             if ("Recipient Bank Account" <> '') and ("Creditor No." <> '') then
                 InsertPaymentFileError(StrSubstNo(SimultaneousPaymentDetailsErr,
@@ -40,11 +40,11 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
 
             if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then
                 InsertPaymentFileError(StrSubstNo(WrongBalAccountErr, FieldCaption("Bal. Account Type"),
-                    TableCaption, "Bal. Account Type"::"Bank Account", GenJnlBatch.TableCaption, GenJnlBatch.Name));
+                    TableCaption, "Bal. Account Type"::"Bank Account", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
 
             if "Bal. Account No." <> GenJnlBatch."Bal. Account No." then
                 InsertPaymentFileError(StrSubstNo(WrongBalAccountErr, FieldCaption("Bal. Account No."),
-                    TableCaption, GenJnlBatch."Bal. Account No.", GenJnlBatch.TableCaption, GenJnlBatch.Name));
+                    TableCaption, GenJnlBatch."Bal. Account No.", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
 
             if Amount <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);
@@ -81,14 +81,14 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         end;
     end;
 
-    procedure AddFieldEmptyError(var GenJnlLine: Record "Gen. Journal Line"; TableCaption: Text; FieldCaption: Text; KeyValue: Text)
+    procedure AddFieldEmptyError(var GenJnlLine: Record "Gen. Journal Line"; TableCaption2: Text; FieldCaption: Text; KeyValue: Text)
     var
         ErrorText: Text;
     begin
         if KeyValue = '' then
-            ErrorText := StrSubstNo(FieldBlankErr, TableCaption, FieldCaption)
+            ErrorText := StrSubstNo(FieldBlankErr, TableCaption2, FieldCaption)
         else
-            ErrorText := StrSubstNo(FieldKeyBlankErr, TableCaption, KeyValue, FieldCaption);
+            ErrorText := StrSubstNo(FieldKeyBlankErr, TableCaption2, KeyValue, FieldCaption);
         GenJnlLine.InsertPaymentFileError(ErrorText);
     end;
 
@@ -96,7 +96,7 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        AddFieldEmptyError(GenJnlLine, GenJnlBatch.TableCaption, FieldCaption, Format(KeyValue));
+        AddFieldEmptyError(GenJnlLine, GenJnlBatch.TableCaption(), FieldCaption, Format(KeyValue));
     end;
 
     local procedure CheckGenJournalBatch(GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
@@ -106,7 +106,7 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         TempGenJournalBatch := GenJournalBatch;
         TempGenJournalBatch.Insert();
 
-        GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
+        GenJournalBatch.OnCheckGenJournalLineExportRestrictions();
 
         if not GenJournalBatch."Allow Payment Export" then
             AddBatchEmptyError(GenJournalLine, GenJournalBatch.FieldCaption("Allow Payment Export"), '');
@@ -120,7 +120,7 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         if BankAccount.Get(GenJournalBatch."Bal. Account No.") then
             if BankAccount."Payment Export Format" = '' then
                 GenJournalLine.InsertPaymentFileError(
-                  StrSubstNo(FieldBlankErr, BankAccount.FieldCaption("Payment Export Format"), BankAccount.TableCaption));
+                  StrSubstNo(FieldBlankErr, BankAccount.FieldCaption("Payment Export Format"), BankAccount.TableCaption()));
     end;
 
     [IntegrationEvent(false, false)]

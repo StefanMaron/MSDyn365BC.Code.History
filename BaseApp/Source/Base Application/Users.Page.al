@@ -6,7 +6,6 @@ page 9800 Users
     CardPageID = "User Card";
     DelayedInsert = true;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     RefreshOnActivate = true;
     SourceTable = User;
     SourceTableView = sorting("User Name");
@@ -22,13 +21,13 @@ page 9800 Users
         {
             repeater(Group)
             {
-                field("User Security ID"; "User Security ID")
+                field("User Security ID"; Rec."User Security ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an ID that uniquely identifies the user. This value is generated automatically and should not be changed.';
                     Visible = false;
                 }
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Name';
@@ -36,10 +35,10 @@ page 9800 Users
 
                     trigger OnValidate()
                     begin
-                        ValidateUserName;
+                        ValidateUserName();
                     end;
                 }
-                field("Full Name"; "Full Name")
+                field("Full Name"; Rec."Full Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Full Name';
@@ -52,7 +51,7 @@ page 9800 Users
                     Caption = 'Status';
                     ToolTip = 'Specifies if the user''s login is enabled.';
                 }
-                field("Windows Security ID"; "Windows Security ID")
+                field("Windows Security ID"; Rec."Windows Security ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
@@ -77,21 +76,21 @@ page 9800 Users
                             WindowsUserName := IdentityManagement.UserName(UserSID);
                             if WindowsUserName <> '' then begin
                                 "Windows Security ID" := UserSID;
-                                ValidateSid;
-                                SetUserName;
+                                ValidateSid();
+                                SetUserName();
                             end else
                                 Error(Text001Err, WindowsUserName);
                         end;
                     end;
                 }
-                field("License Type"; "License Type")
+                field("License Type"; Rec."License Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'License Type';
                     Visible = not IsSaaS;
                     ToolTip = 'Specifies the type of license that applies to the user. For more information, see License Types.';
                 }
-                field("Authentication Email"; "Authentication Email")
+                field("Authentication Email"; Rec."Authentication Email")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -186,9 +185,6 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Groups';
                     Image = Users;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "User Groups";
                     ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
                 }
@@ -197,9 +193,6 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Task Groups';
                     Image = Users;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "User Task Groups";
                     ToolTip = 'Add or modify groups of users that you can assign user tasks to in this company.';
                 }
@@ -212,9 +205,6 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'Effective Permissions';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'View this user''s actual permissions for all objects per assigned permission set, and edit the user''s permissions in permission sets of type User-Defined.';
 
@@ -230,8 +220,6 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Sets';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Permission Sets";
                     ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
                 }
@@ -276,8 +264,6 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Email Policies';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Email View Policy List";
                 ToolTip = 'View or edit user email policies for the users of the database.';
             }
@@ -286,9 +272,6 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Settings';
                 Image = UserInterface;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 RunObject = Page "User Settings List";
                 ToolTip = 'Manage the user interface settings for the users.';
             }
@@ -297,9 +280,6 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Setup';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 RunObject = Page "User Setup";
                 ToolTip = 'Make additional choices for certain users.';
 
@@ -311,9 +291,6 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'Printer Selections';
                 Image = Print;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Printer Selections";
                 ToolTip = 'Assign printers to users and/or reports so that a user always uses a specific printer, or a specific report only prints on a specific printer.';
             }
@@ -322,9 +299,6 @@ page 9800 Users
                 ApplicationArea = Warehouse;
                 Caption = 'Warehouse Employees';
                 Image = WarehouseSetup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Warehouse Employees";
                 ToolTip = 'View the warehouse employees that exist in the system.';
             }
@@ -333,9 +307,6 @@ page 9800 Users
                 ApplicationArea = FixedAssets;
                 Caption = 'FA Journal Setup';
                 Image = FixedAssets;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 RunObject = Page "FA Journal Setup";
                 ToolTip = 'Set up journals, journal templates, and journal batches for fixed assets.';
             }
@@ -347,10 +318,6 @@ page 9800 Users
                 ApplicationArea = All;
                 Caption = 'Add me as Administrator';
                 Image = User;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Assign the Administrator status to your user account.';
                 Visible = NoUserExists and (not IsSaaS);
 
@@ -365,9 +332,6 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'Invite external accountant';
                 Image = SalesPerson;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Set up an external accountant with access to your Dynamics 365.';
                 Visible = IsSaaS;
 
@@ -404,10 +368,6 @@ page 9800 Users
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update users from Microsoft 365';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = Users;
                 ToolTip = 'Update the names, authentication email addresses, contact email addresses, plans etc. from Microsoft 365 for all users.';
                 Visible = IsSaaS and CanManageUsersOnTenant;
@@ -422,8 +382,6 @@ page 9800 Users
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this user.';
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = CanSendEmail;
 
                 trigger OnAction()
@@ -435,6 +393,65 @@ page 9800 Users
                     TempEmailitem."Send to" := Rec."Contact Email";
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(AddMeAsSuper_Promoted; AddMeAsSuper)
+                {
+                }
+                actionref("Update users from Office_Promoted"; "Update users from Office")
+                {
+                }
+                actionref("Effective Permissions_Promoted"; "Effective Permissions")
+                {
+                }
+                actionref("Invite External Accountant_Promoted"; "Invite External Accountant")
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Action15_Promoted; Action15)
+                {
+                }
+                actionref("User Task Groups_Promoted"; "User Task Groups")
+                {
+                }
+                actionref("Permission Sets_Promoted"; "Permission Sets")
+                {
+                }
+                actionref("User Email Policies_Promoted"; "User Email Policies")
+                {
+                }
+                actionref("User Settings_Promoted"; "User Settings")
+                {
+                }
+                actionref("User Setup_Promoted"; "User Setup")
+                {
+                }
+                actionref("Printer Selections_Promoted"; "Printer Selections")
+                {
+                }
+                actionref("Warehouse Employees_Promoted"; "Warehouse Employees")
+                {
+                }
+                actionref("FA Journal Setup_Promoted"; "FA Journal Setup")
+                {
+                }
             }
         }
     }
@@ -466,7 +483,7 @@ page 9800 Users
     begin
         if UserCard.DeleteUserIsAllowed(Rec) then
             exit(true);
-        if not UserCard.ManageUsersIsAllowed then
+        if not UserCard.ManageUsersIsAllowed() then
             Error('');
     end;
 
@@ -481,7 +498,7 @@ page 9800 Users
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if not UserCard.ManageUsersIsAllowed then
+        if not UserCard.ManageUsersIsAllowed() then
             Error('');
         if "User Name" = '' then
             Error(Text004Err, FieldCaption("User Name"));
@@ -489,7 +506,7 @@ page 9800 Users
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "User Security ID" := CreateGuid;
+        "User Security ID" := CreateGuid();
         WindowsUserName := '';
     end;
 
@@ -501,9 +518,9 @@ page 9800 Users
     begin
         NoUserExists := IsEmpty;
         UserSelection.HideExternalUsers(Rec);
-        if UserWithWebServiceKeyExist then begin
-            Usermanagement.BasicAuthUsedNotificationDefault(true);
-            if MyNotification.IsEnabled(UserManagement.BasicAuthUsedNotificationId()) then
+        if UserWithWebServiceKeyExist() then begin
+            Usermanagement.BasicAuthDepricationNotificationDefault(true);
+            if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
                 UserManagement.BasicAuthUsedNotificationShow(BasicAuthUsedNotification);
         end;
     end;
@@ -552,7 +569,7 @@ page 9800 Users
     local procedure SetUserName()
     begin
         "User Name" := WindowsUserName;
-        ValidateUserName;
+        ValidateUserName();
     end;
 
     procedure GetSelectionFilter(var User: Record User)
@@ -566,7 +583,7 @@ page 9800 Users
         WebServiceKey: Text[80];
         UserWithWebServiceKeyFound: Boolean;
     begin
-        if User.Count() > MaxNumberOfUsersToScanWebServcieAccessKey() then
+        if User.Count > MaxNumberOfUsersToScanWebServcieAccessKey() then
             Exit(false);
         UserWithWebServiceKeyFound := false;
         if User.FindSet() then
@@ -582,5 +599,6 @@ page 9800 Users
     begin
         exit(1000);
     end;
+
 }
 

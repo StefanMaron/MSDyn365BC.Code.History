@@ -41,7 +41,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
 
         Amount := LibraryRandom.RandInt(100);  // Store Random Amount in a variable and use it in DeltaAssert.
         DeltaAssert.Init();
-        DeltaAssert.AddWatch(DATABASE::"G/L Account", GLAccount.GetPosition, GLAccount.FieldNo(Balance), Amount);
+        DeltaAssert.AddWatch(DATABASE::"G/L Account", GLAccount.GetPosition(), GLAccount.FieldNo(Balance), Amount);
 
         CreateGnlJnlLines(GenJournalLine, GLAccount."No.", Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -102,7 +102,7 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         GLAccount2.FindFirst();
         Evaluate(GLAccountNo1, GLAccount2."No.");
 
-        GLAccount2.Next;
+        GLAccount2.Next();
         Evaluate(GLAccountNo2, GLAccount2."No.");
 
         // Create a new GL Account. Find the Account No. by dividing sum of Begin-Total Account and next Account by two.

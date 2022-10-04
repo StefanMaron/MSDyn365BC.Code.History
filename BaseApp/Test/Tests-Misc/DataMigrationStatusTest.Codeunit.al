@@ -224,7 +224,7 @@ codeunit 135023 "Data Migration Status Test"
         // [THEN] Data Migration error page is opened and the right error message is displayed
         // Verify in DataMigrationErrorModalPageHandler and Skip Error
 
-        DataMigrationOverview.Close;
+        DataMigrationOverview.Close();
 
         // [THEN] The Next task is changed to blank
         DataMigrationOverview.OpenView;
@@ -235,9 +235,9 @@ codeunit 135023 "Data Migration Status Test"
         ItemDataMigrationFacade.CreateItemJournalBatchIfNeeded('IJB', '', '');
         ItemDataMigrationFacade.CreateGeneralProductPostingSetupIfNeeded('GPPG', '', '');
         ItemDataMigrationFacade.CreateItemIfNeeded('IT001', '', '', 0);
-        ItemDataMigrationFacade.CreateItemJournalLine('IJB', 'Doc1', 'Description', WorkDate, 1, 123, '', 'GPPG');
+        ItemDataMigrationFacade.CreateItemJournalLine('IJB', 'Doc1', 'Description', WorkDate(), 1, 123, '', 'GPPG');
 
-        DataMigrationOverview.Close;
+        DataMigrationOverview.Close();
 
         // [THEN] The Next task is changed to Review and post
         DataMigrationOverview.OpenView;
@@ -250,7 +250,7 @@ codeunit 135023 "Data Migration Status Test"
         // [THEN] Item Journal page is opened
         // Verify in ItemJournalPageHandler
 
-        DataMigrationOverview.Close;
+        DataMigrationOverview.Close();
         DataMigrationStatus.DeleteAll();
 
         // [GIVEN] The Migration for Customer is selected
@@ -272,7 +272,7 @@ codeunit 135023 "Data Migration Status Test"
         CustomerDataMigrationFacade.SetPaymentMethodCode('PM');
         CustomerDataMigrationFacade.ModifyCustomer(true);
         CustomerDataMigrationFacade.CreateGeneralJournalBatchIfNeeded('GJB', '', '');
-        CustomerDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate, WorkDate, 123, 123, '', '');
+        CustomerDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate(), WorkDate, 123, 123, '', '');
 
         // [WHEN] The Data Migration Overview Page Opens
         DataMigrationOverview.OpenView;
@@ -289,7 +289,7 @@ codeunit 135023 "Data Migration Status Test"
         // Verify in GeneralJournalPageHandler
 
         DataMigrationStatus.DeleteAll();
-        DataMigrationOverview.Close;
+        DataMigrationOverview.Close();
 
         // [GIVEN] The Migration for Vendor is selected
         DataMigrationStatusFacade.InitStatusLine(
@@ -309,7 +309,7 @@ codeunit 135023 "Data Migration Status Test"
         VendorDataMigrationFacade.CreatePaymentMethodIfNeeded('PM', 'Payment Method');
         VendorDataMigrationFacade.SetPaymentMethod('PM');
         VendorDataMigrationFacade.ModifyVendor(true);
-        VendorDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate, WorkDate, 123, 123, '', '');
+        VendorDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate(), WorkDate, 123, 123, '', '');
 
         // [WHEN] The Data Migration Overview Page Opens
         DataMigrationOverview.OpenView;
@@ -325,7 +325,7 @@ codeunit 135023 "Data Migration Status Test"
         // [THEN] General Journal page is opened
         // Verify in GeneralJournalPageHandler
 
-        DataMigrationOverview.Close;
+        DataMigrationOverview.Close();
         DataMigrationStatus.DeleteAll();
 
         // [GIVEN] The Migration for Account is selected

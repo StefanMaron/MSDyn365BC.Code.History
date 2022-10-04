@@ -39,6 +39,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1345440638 - NamedType 3637975764" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please add at least one line item to the invoice.</source>
+          <target state="translated">Добавьте в счет по крайней мере одну строку.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1345440638 - NamedType 1331280005" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please add at least one line item to the estimate.</source>
+          <target state="translated">Добавьте по крайней мере один товар в строке в оценку.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellQuoteErr</note>
+        </trans-unit>
         <trans-unit id="Page 3262323309 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Accounts</source>
           <target state="translated">APIV2 - счета</target>
@@ -6402,19 +6414,19 @@
         <trans-unit id="Page 3006414751 - NamedType 3911703272" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1\\An invoice is posted.</source>
           <target state="translated">Не удалось отменить кредит-ноту в связи со следующей ошибкой: \\%1\\Счет учтен.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedInvoiceCreatedAndPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3551748667" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1\\An invoice is created but not posted.</source>
           <target state="translated">Не удалось отменить кредит-ноту в связи со следующей ошибкой: \\%1\\Счет создан, но не учтен.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedInvoiceCreatedButNotPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2570812846" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the credit memo failed because of the following error: \\%1.</source>
           <target state="translated">Не удалось отменить кредит-ноту в связи со следующей ошибкой: \\%1.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CancelingCreditMemoFailedNothingCreatedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -7074,19 +7086,19 @@
         <trans-unit id="Page 3783002405 - NamedType 3395541992" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1\\A credit memo is posted.</source>
           <target state="translated">Не удалось отменить счет в связи со следующей ошибкой: \\%1\\Кредит-нота учтена.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedCreditMemoCreatedAndPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 554130235" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1\\A credit memo is created but not posted.</source>
           <target state="translated">Не удалось отменить счет в связи со следующей ошибкой: \\%1\\Кредит-нота создана, но не учтена.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedCreditMemoCreatedButNotPostedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 31512856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1.</source>
           <target state="translated">Не удалось отменить счет в связи со следующей ошибкой: \\%1.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 - arbitrary text (an error message)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedNothingCreatedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">

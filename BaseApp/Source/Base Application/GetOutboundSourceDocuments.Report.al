@@ -84,12 +84,11 @@ report 7304 "Get Outbound Source Documents"
                     trigger OnAfterGetRecord()
                     begin
                         CalcFields("Pick Qty.", "Pick Qty. (Base)");
-                        if "Qty. (Base)" > "Qty. Picked (Base)" + "Pick Qty. (Base)" then begin
+                        if "Qty. (Base)" > "Qty. Picked (Base)" + "Pick Qty. (Base)" then
                             if WhsePickWkshCreate.FromWhseInternalPickLine(
                                  PickWkshTemplate, PickWkshName, LocationCode, "Whse. Internal Pick Line")
                             then
                                 LineCreated := true;
-                        end;
                     end;
 
                     trigger OnPreDataItem()
@@ -248,7 +247,6 @@ report 7304 "Get Outbound Source Documents"
     end;
 
     var
-        Text000: Label 'There are no Warehouse Worksheet Lines created.';
         Location: Record Location;
         Cust: Record Customer;
         WhsePickWkshCreate: Codeunit "Whse. Worksheet-Create";
@@ -258,6 +256,8 @@ report 7304 "Get Outbound Source Documents"
         Completed: Boolean;
         LineCreated: Boolean;
         HideDialog: Boolean;
+
+        Text000: Label 'There are no Warehouse Worksheet Lines created.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
@@ -315,18 +315,13 @@ report 7304 "Get Outbound Source Documents"
     local procedure ProcessJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
     var
         Item: Record Item;
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         GetLocation(JobPlanningLine."Location Code");
         if Location."Require Pick" and Location."Require Shipment" and not JobPlanningLine."Completely Picked" then begin
             Item.Get(JobPlanningLine."No.");
             if Item.IsInventoriableType() then
-                if ItemTrackingManagement.GetWhseItemTrkgSetup(Item."No.") then
-                    FeatureTelemetry.LogUsage('0000GRN', 'Picks on jobs', 'Skip Pick Worksheet: Warehouse Tracking Enabled')
-                else
-                    if WhsePickWkshCreate.FromJobPlanningLine(PickWkshTemplate, PickWkshName, JobPlanningLine) then
-                        LineCreated := true;
+                if WhsePickWkshCreate.FromJobPlanningLine(PickWkshTemplate, PickWkshName, JobPlanningLine) then
+                    LineCreated := true;
         end;
     end;
 

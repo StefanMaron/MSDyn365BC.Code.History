@@ -191,7 +191,7 @@ codeunit 137413 "SCM Item Attributes"
 
         ItemCard.GotoRecord(Item3);
         SetItemAttributesViaItemCard(ItemCard, SecondItemAttribute, SecondItemAttributeValue);
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] The factbox on the item card shows the names of the chosen attributes and values
         ItemCard.OpenView;
@@ -389,8 +389,8 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeCard.Values.DrillDown;
         ItemAttributeValues.New;
         ItemAttributeValues.Value.SetValue(LibraryUtility.GenerateGUID());
-        ItemAttributeValues.Close;
-        ItemAttributeCard.Close;
+        ItemAttributeValues.Close();
+        ItemAttributeCard.Close();
         CheckOptionItemAttributeValues(FirstItemAttribute);
     end;
 
@@ -415,7 +415,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributes.Values.DrillDown;
         ItemAttributeValues.New;
         ItemAttributeValues.Value.SetValue(LibraryUtility.GenerateGUID());
-        ItemAttributeValues.Close;
+        ItemAttributeValues.Close();
         CheckOptionItemAttributeValues(FirstItemAttribute);
     end;
 
@@ -575,7 +575,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemList.GotoRecord(Item);
         FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, FirstItemAttributeValue, ItemList);
-        ItemList.Close;
+        ItemList.Close();
 
         // [WHEN] The user blocks the assigned attribute or value
         FirstItemAttribute.Blocked := true;
@@ -668,7 +668,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemList.GotoRecord(Item);
         FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, DummyItemAttributeValue, ItemList);
-        ItemList.Close;
+        ItemList.Close();
 
         // [WHEN] The user deletes the assigned attribute value
         DummyItemAttributeValue.DeleteAll();
@@ -702,7 +702,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemList.GotoRecord(Item);
         FirstItemAttribute.FindFirst();
         AssignItemAttributeViaItemList(FirstItemAttribute, FirstItemAttributeValue, ItemList);
-        ItemList.Close;
+        ItemList.Close();
 
         // [WHEN] The user renames the assigned attribute or value
         NewAttributeCode := LibraryUtility.GenerateGUID();
@@ -1064,7 +1064,7 @@ codeunit 137413 "SCM Item Attributes"
         Assert.IsFalse(ItemAttributeCard."Unit of Measure".Visible, 'UoF Field is shown while it should be invisible');
         ItemAttributeCard.Type.SetValue(DummyItemAttribute.Type::Option);
         Assert.IsFalse(ItemAttributeCard."Unit of Measure".Visible, 'UoF Field is shown while it should be invisible');
-        ItemAttributeCard.Close;
+        ItemAttributeCard.Close();
     end;
 
     [Test]
@@ -1084,7 +1084,7 @@ codeunit 137413 "SCM Item Attributes"
         Assert.IsFalse(ItemAttributeCard.Values.Visible, 'Values field is shown while it should be invisible');
         ItemAttributeCard.Type.SetValue(DummyItemAttribute.Type::Integer);
         Assert.IsFalse(ItemAttributeCard.Values.Visible, 'Values field is shown while it should be invisible');
-        ItemAttributeCard.Close;
+        ItemAttributeCard.Close();
     end;
 
     [Test]
@@ -1223,7 +1223,7 @@ codeunit 137413 "SCM Item Attributes"
         OriginalAttributeValueID := ItemAttributeValueMapping."Item Attribute Value ID";
         ItemAttributeValueMapping.Delete(true);
         SetItemAttributesViaItemCard(ItemCard, ItemAttribute, SecondItemAttributeValue);
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] The factbox on the item card shows the names of the changed attributes and values
         ItemCard.OpenView;
@@ -1299,7 +1299,7 @@ codeunit 137413 "SCM Item Attributes"
         // [THEN] Both Items are shown
         ItemList.First;
         Assert.AreEqual(ItemWithAttributes."No.", ItemList."No.".Value, 'Wrong ItemAttribute was shown');
-        ItemList.Next;
+        ItemList.Next();
         Assert.AreEqual(ItemWithAttributes2."No.", ItemList."No.".Value, 'Wrong ItemAttribute was shown for the second item');
         Assert.IsFalse(ItemList.Next, 'There should not be any records present in the list');
         Assert.AreEqual(
@@ -1389,7 +1389,7 @@ codeunit 137413 "SCM Item Attributes"
         Assert.AreEqual(ItemWithAttributes."No.", ItemList."No.".Value, 'Wrong ItemAttribute was shown');
 
         // [THEN] Second item on page "Item List" has attribute "A"
-        ItemList.Next;
+        ItemList.Next();
         ItemAttributeValueMapping.Get(DATABASE::Item, ItemList."No.".Value, ItemAttributeValue."Attribute ID");
 
         // [THEN] Last item on page "Item List" is NX
@@ -1549,7 +1549,7 @@ codeunit 137413 "SCM Item Attributes"
           StrSubstNo('%1..%2', ItemInsideRange1."No.", ItemInsideRange2."No."), ItemList.FILTER.GetFilter("No."), 'Wrong filter was set');
         ItemList.First;
         Assert.AreEqual(ItemInsideRange1."No.", ItemList."No.".Value, 'Wrong ItemAttribute was shown');
-        ItemList.Next;
+        ItemList.Next();
         Assert.AreEqual(ItemInsideRange2."No.", ItemList."No.".Value, 'Wrong ItemAttribute was shown for the second item');
         Assert.IsFalse(ItemList.Next, 'There should not be any records present in the list');
     end;
@@ -1636,12 +1636,12 @@ codeunit 137413 "SCM Item Attributes"
         FilterText := ItemAttributeValue.Value;
 
         LibraryInventory.CreateItem(ItemWithAttributes2);
-        ItemAttributeValue.Next;
+        ItemAttributeValue.Next();
         SetItemAttributeValue(ItemWithAttributes2, ItemAttributeValue);
         FilterText += '|' + ItemAttributeValue.Value;
 
         LibraryInventory.CreateItem(ItemWithAttributes3);
-        ItemAttributeValue.Next;
+        ItemAttributeValue.Next();
         SetItemAttributeValue(ItemWithAttributes3, ItemAttributeValue);
 
         // [WHEN] The user sets a filter on the page searching for or condition
@@ -2074,7 +2074,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValue, ItemCategory.Code);
 
         // [THEN] Item attribute value "V" should be deleted
-        ItemAttributeValue.SetRecFilter;
+        ItemAttributeValue.SetRecFilter();
         Assert.RecordIsEmpty(ItemAttributeValue);
     end;
 
@@ -2099,7 +2099,7 @@ codeunit 137413 "SCM Item Attributes"
         SetCategoryAttributeValue(ItemCategory.Code);
 
         // [THEN] Attribute value "V1" should be deleted
-        ItemAttributeValue.SetRecFilter;
+        ItemAttributeValue.SetRecFilter();
         Assert.RecordIsEmpty(ItemAttributeValue);
     end;
 
@@ -2131,7 +2131,7 @@ codeunit 137413 "SCM Item Attributes"
         SetCategoryAttributeValue(ItemCategory.Code);
 
         // [THEN] Attribute value "V1" should not be deleted
-        ItemAttributeValue.SetRecFilter;
+        ItemAttributeValue.SetRecFilter();
         Assert.RecordIsNotEmpty(ItemAttributeValue);
     end;
 
@@ -2169,7 +2169,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValue, ItemCategory.Code);
 
         // [THEN] Attribute value "V1" should not be deleted
-        ItemAttributeValue.SetRecFilter;
+        ItemAttributeValue.SetRecFilter();
         Assert.RecordIsNotEmpty(ItemAttributeValue);
     end;
 
@@ -2189,8 +2189,8 @@ codeunit 137413 "SCM Item Attributes"
 
         // [GIVEN] Item Attribute "A".
         LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Date, LibraryUtility.GenerateGUID());
-        AttrValueFullYear := Format(WorkDate, 0, '<Month,2>/<Day,2>/<Year4>');
-        AttrValue := WorkDate;
+        AttrValueFullYear := Format(WorkDate(), 0, '<Month,2>/<Day,2>/<Year4>');
+        AttrValue := WorkDate();
 
         // [GIVEN] Item Attribute Value "V" of the attribute "A".
         // [GIVEN] "V"."Date Value" = '01\01\17'
@@ -2543,18 +2543,18 @@ codeunit 137413 "SCM Item Attributes"
         Assert.IsTrue(ItemAttributes.Name.Visible, '');
         Assert.IsTrue(ItemAttributes.Values.Visible, '');
         Assert.IsTrue(ItemAttributes.Blocked.Visible, '');
-        ItemAttributes.Close;
+        ItemAttributes.Close();
 
         ItemAttributeValues.OpenNew();
         Assert.IsTrue(ItemAttributeValues.ItemAttributeValueTranslations.Visible, '');
         Assert.IsTrue(ItemAttributeValues.Value.Visible, '');
         Assert.IsTrue(ItemAttributeValues.Blocked.Visible, '');
-        ItemAttributeValues.Close;
+        ItemAttributeValues.Close();
 
         ItemAttributeTranslations.OpenNew();
         Assert.IsTrue(ItemAttributeTranslations."Language Code".Visible, '');
         Assert.IsTrue(ItemAttributeTranslations.Name.Visible, '');
-        ItemAttributeTranslations.Close;
+        ItemAttributeTranslations.Close();
 
         ItemAttributeCard.OpenNew();
         Assert.IsTrue(ItemAttributeCard.ItemAttributeValues.Visible, '');
@@ -2574,25 +2574,25 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeCard.Type.SetValue(ItemAttribute.Type::Text);
         Assert.IsFalse(ItemAttributeCard."Unit of Measure".Visible, '');
         Assert.IsFalse(ItemAttributeCard.Values.Visible, '');
-        ItemAttributeCard.Close;
+        ItemAttributeCard.Close();
 
         ItemAttributeValueList.OpenNew();
         Assert.IsTrue(ItemAttributeValueList."Attribute Name".Visible, '');
         Assert.IsTrue(ItemAttributeValueList.Value.Visible, '');
-        ItemAttributeValueList.Close;
+        ItemAttributeValueList.Close();
 
         ItemAttrValueTranslations.OpenNew();
         Assert.IsTrue(ItemAttrValueTranslations."Language Code".Visible, '');
         Assert.IsTrue(ItemAttrValueTranslations.Name.Visible, '');
-        ItemAttrValueTranslations.Close;
+        ItemAttrValueTranslations.Close();
 
         ItemAttributesFactbox.OpenView;
         Assert.IsTrue(ItemAttributesFactbox.Attribute.Visible, '');
         Assert.IsTrue(ItemAttributesFactbox.Value.Visible, '');
-        ItemAttributesFactbox.Close;
+        ItemAttributesFactbox.Close();
 
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
     end;
 
     local procedure AssignItemAttributeViaItemList(ItemAttribute: Record "Item Attribute"; var ItemAttributeValue: Record "Item Attribute Value"; var ItemList: TestPage "Item List")
@@ -2857,11 +2857,11 @@ codeunit 137413 "SCM Item Attributes"
             if expectedValue <> '' then
                 expectedValue += ',';
             expectedValue += ItemAttributeValue.Value;
-        until ItemAttributeValue.Next = 0;
+        until ItemAttributeValue.Next() = 0;
         ItemAttributes.Values.AssertEquals(expectedValue);
         ItemAttributeCard.Values.AssertEquals(expectedValue);
-        ItemAttributes.Close;
-        ItemAttributeCard.Close;
+        ItemAttributes.Close();
+        ItemAttributeCard.Close();
     end;
 
     local procedure FindItemAttributeValue(var ItemAttributeValue: Record "Item Attribute Value"; ItemAttributeID: Integer; AttributeValue: Text)
@@ -2932,7 +2932,7 @@ codeunit 137413 "SCM Item Attributes"
                 ItemAttribute.Get(ItemAttributeValue."Attribute ID");
                 LibraryVariableStorage.Enqueue(ItemAttribute.Name);
                 LibraryVariableStorage.Enqueue(ItemAttributeValue.Value);
-            until ItemAttributeValue.Next = 0;
+            until ItemAttributeValue.Next() = 0;
 
         ItemList.FilterByAttributes.Invoke;
     end;

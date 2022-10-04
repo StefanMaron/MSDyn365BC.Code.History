@@ -30,7 +30,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
         // [HAVING] No accounting periods (first login).
         SetItemsToFiFoCosting;
         SetAccountPeriods(0D);
-        ReferenceDate := WorkDate;
+        ReferenceDate := WorkDate();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] The user opens the company
@@ -54,7 +54,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
 
         // [HAVING] No accounting periods (first login).
         SetItemsToFiFoCosting;
-        ReferenceDate := CalcDate('<-CY>', WorkDate);
+        ReferenceDate := CalcDate('<-CY>', WorkDate());
         SetAccountPeriods(CalcDate('<-CY>', CalcDate('<1Y>', ReferenceDate))); // should trigger creation of new accounting periods
 
         LibraryLowerPermissions.SetAccountPayables;
@@ -81,7 +81,7 @@ codeunit 138903 "O365 Test Acc. Period Init"
 
         // [HAVING] No accounting periods (first login).
         SetItemsToFiFoCosting;
-        ReferenceDate := WorkDate;
+        ReferenceDate := WorkDate();
         SetAccountPeriods(CalcDate('<-CY>', ReferenceDate + 800)); // should not trigger creation of new accounting periods
 
         LibraryLowerPermissions.SetAccountReceivables;

@@ -13,7 +13,7 @@ report 305 "Vendor - Summary Aging"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Search Name", "Vendor Posting Group", "Currency Filter";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -153,37 +153,37 @@ report 305 "Vendor - Summary Aging"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                column(Currency2_Code; Currency2.Code)
+                column(Currency2_Code; TempCurrency.Code)
                 {
                 }
                 column(LineTotalVendAmountDue_Control36; LineTotalVendAmountDue)
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(VendBalanceDue_5__Control35; VendBalanceDue[5])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(VendBalanceDue_4__Control34; VendBalanceDue[4])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(VendBalanceDue_3__Control33; VendBalanceDue[3])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(VendBalanceDue_2__Control32; VendBalanceDue[2])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(VendBalanceDue_1__Control31; VendBalanceDue[1])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(Vendor_Name_Control30; Vendor.Name)
@@ -198,12 +198,12 @@ report 305 "Vendor - Summary Aging"
                     DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
                 begin
                     if Number = 1 then
-                        Currency2.Find('-')
+                        TempCurrency.Find('-')
                     else
-                        if Currency2.Next() = 0 then
+                        if TempCurrency.Next() = 0 then
                             CurrReport.Break();
-                    Currency2.CalcFields("Vendor Ledg. Entries in Filter");
-                    if not Currency2."Vendor Ledg. Entries in Filter" then
+                    TempCurrency.CalcFields("Vendor Ledg. Entries in Filter");
+                    if not TempCurrency."Vendor Ledg. Entries in Filter" then
                         CurrReport.Skip();
 
                     PrintLine := false;
@@ -212,7 +212,7 @@ report 305 "Vendor - Summary Aging"
                         DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Initial Entry Due Date");
                         DtldVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
                         DtldVendLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
-                        DtldVendLedgEntry.SetRange("Currency Code", Currency2.Code);
+                        DtldVendLedgEntry.SetRange("Currency Code", TempCurrency.Code);
                         DtldVendLedgEntry.CalcSums(Amount);
                         VendBalanceDue[i] := DtldVendLedgEntry.Amount;
                         InVendBalanceDueLCY[i] := InVendBalanceDueLCY2[i];
@@ -226,14 +226,14 @@ report 305 "Vendor - Summary Aging"
                 begin
                     if PrintAmountsInLCY or not PrintLine then
                         CurrReport.Break();
-                    Currency2.Reset();
-                    Currency2.SetRange("Vendor Filter", Vendor."No.");
-                    Vendor.CopyFilter("Currency Filter", Currency2.Code);
+                    TempCurrency.Reset();
+                    TempCurrency.SetRange("Vendor Filter", Vendor."No.");
+                    Vendor.CopyFilter("Currency Filter", TempCurrency.Code);
                     if (Vendor.GetFilter("Global Dimension 1 Filter") <> '') or
                        (Vendor.GetFilter("Global Dimension 2 Filter") <> '')
                     then begin
-                        Vendor.CopyFilter("Global Dimension 1 Filter", Currency2."Global Dimension 1 Filter");
-                        Vendor.CopyFilter("Global Dimension 2 Filter", Currency2."Global Dimension 2 Filter");
+                        Vendor.CopyFilter("Global Dimension 1 Filter", TempCurrency."Global Dimension 1 Filter");
+                        Vendor.CopyFilter("Global Dimension 2 Filter", TempCurrency."Global Dimension 2 Filter");
                     end;
                 end;
             }
@@ -268,12 +268,12 @@ report 305 "Vendor - Summary Aging"
 
             trigger OnPreDataItem()
             begin
-                Currency2.Code := '';
-                Currency2.Insert();
+                TempCurrency.Code := '';
+                TempCurrency.Insert();
                 if Currency.Find('-') then
                     repeat
-                        Currency2 := Currency;
-                        Currency2.Insert();
+                        TempCurrency := Currency;
+                        TempCurrency.Insert();
                     until Currency.Next() = 0;
             end;
         }
@@ -320,7 +320,7 @@ report 305 "Vendor - Summary Aging"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[2] = 0D then
-                PeriodStartDate[2] := WorkDate;
+                PeriodStartDate[2] := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -342,7 +342,8 @@ report 305 "Vendor - Summary Aging"
 
     var
         Currency: Record Currency;
-        Currency2: Record Currency temporary;
+        TempCurrency: Record Currency temporary;
+        PeriodLength: DateFormula;
         PrintAmountsInLCY: Boolean;
         VendFilter: Text;
         PeriodStartDate: array[6] of Date;
@@ -350,7 +351,6 @@ report 305 "Vendor - Summary Aging"
         TotalVendAmtDueLCY: Decimal;
         VendBalanceDue: array[5] of Decimal;
         VendBalanceDueLCY: array[5] of Decimal;
-        PeriodLength: DateFormula;
         PrintLine: Boolean;
         i: Integer;
         InVendBalanceDueLCY: array[5] of Decimal;

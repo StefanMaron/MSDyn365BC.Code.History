@@ -172,9 +172,6 @@ page 776 "Analysis Report Chart Matrix"
                 ApplicationArea = Suite;
                 Caption = 'Select All';
                 Image = AllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Select all lines.';
 
                 trigger OnAction()
@@ -192,9 +189,6 @@ page 776 "Analysis Report Chart Matrix"
                 ApplicationArea = Suite;
                 Caption = 'Deselect All';
                 Image = CancelAllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Unselect all lines.';
 
                 trigger OnAction()
@@ -208,6 +202,20 @@ page 776 "Analysis Report Chart Matrix"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+                actionref(ShowNone_Promoted; ShowNone)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -217,13 +225,13 @@ page 776 "Analysis Report Chart Matrix"
         if AnalysisLine.Get("Analysis Area", "Analysis Line Template Name", "Analysis Line Line No.") then begin
             AnalysisLineRowNo := AnalysisLine."Row Ref. No.";
             AnalysisLineDescription := AnalysisLine.Description;
-            GetChartTypes;
+            GetChartTypes();
         end;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     var
@@ -237,7 +245,7 @@ page 776 "Analysis Report Chart Matrix"
 
     procedure SetFilters(AnalysisReportChartSetup: Record "Analysis Report Chart Setup")
     begin
-        Reset;
+        Reset();
 
         AnalysisReportChartSetup.SetLinkToLines(Rec);
         case AnalysisReportChartSetup."Base X-Axis on" of

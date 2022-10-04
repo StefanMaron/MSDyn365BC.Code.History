@@ -2,7 +2,7 @@ page 99000835 "Routing Tools"
 {
     AutoSplitKey = true;
     Caption = 'Routing Tools';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Routing Tool";
@@ -14,7 +14,7 @@ page 99000835 "Routing Tools"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

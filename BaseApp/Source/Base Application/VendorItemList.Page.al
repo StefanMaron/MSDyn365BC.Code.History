@@ -12,29 +12,29 @@ page 298 "Vendor Item List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor who offers the alternate direct unit cost.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item that the alternate direct unit cost is valid for.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Lead Time Calculation"; "Lead Time Calculation")
+                field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
@@ -64,7 +64,7 @@ page 298 "Vendor Item List"
             {
                 Caption = 'Vendor Item';
                 Image = Item;
-#if not CLEAN19
+#if not CLEAN21
                 action("Purch. Prices")
                 {
                     ApplicationArea = Suite;

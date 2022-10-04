@@ -42,7 +42,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
 
         // Create two GL Entries for two different GL Accounts having different Exchange Rate Adjustment.
         CreateGLEntryForAccount(
-          GLAccount, CurrencyExchangeRate."Currency Code", GLAccount."Exchange Rate Adjustment"::"Adjust Amount", WorkDate);
+          GLAccount, CurrencyExchangeRate."Currency Code", GLAccount."Exchange Rate Adjustment"::"Adjust Amount", WorkDate());
         CreateGLEntryForAccount(
           GLAccount2, CurrencyExchangeRate."Currency Code", GLAccount2."Exchange Rate Adjustment"::"Adjust Additional-Currency Amount",
           WorkDate);
@@ -51,7 +51,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         // 2. Exercise: Run the report Adjust Exchange Rate.
         DocumentNo := Format(LibraryRandom.RandInt(100));
         LibraryERM.RunAdjustExchangeRates(
-          CurrencyExchangeRate."Currency Code", WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, DocumentNo, true);
+          CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate, ExchangeRateAdjmtTxt, WorkDate(), DocumentNo, true);
 
         // 3. Verification: Verify that the amount in GL Entry is populated as per the adjustment exchange rate for both GL Accounts.
         VerifyGLEntryAdjustAmount(GLAccount, DocumentNo, CurrencyExchangeRate."Currency Code");
@@ -86,16 +86,16 @@ codeunit 134083 "ERM Adjust Exchange Rates"
           WorkDate);
 
         // Setup: Create new Exchange Rate for a WORKDATE.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyExchangeRate."Currency Code", WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyExchangeRate."Currency Code", WorkDate());
         UpdateExchangeRate(CurrencyExchangeRate, 100 * LibraryRandom.RandInt(4), 200 * LibraryRandom.RandInt(4));
 
         // 2. Exercise: Run the report Adjust Exchange Rate.
         DocumentNo := Format(LibraryRandom.RandInt(100));
         LibraryERM.RunAdjustExchangeRates(
-          CurrencyExchangeRate."Currency Code", WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, DocumentNo, true);
+          CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate, ExchangeRateAdjmtTxt, WorkDate(), DocumentNo, true);
 
         // 3. Verification: Verify that Entries with Posting Date Less than WORKDATE Were Not Adjusted.
-        Assert.IsFalse(VerifyGLEntryFound(DocumentNo, GLAccount."No."), StrSubstNo(ExpectNoAdjustmentErr, WorkDate));
+        Assert.IsFalse(VerifyGLEntryFound(DocumentNo, GLAccount."No."), StrSubstNo(ExpectNoAdjustmentErr, WorkDate()));
 
         // 4. Verification: Verify that Entries with Posting Date Equal to WORKDATE Were Adjusted.
         VerifyGLEntry(DocumentNo, GLAccount2."No.");
@@ -114,7 +114,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         // Setup:Create currency and create Exchange Rate with starting date only.
         Initialize();
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
 
         // Exercise: Open Currencies page.
         Currencies.OpenEdit;
@@ -152,7 +152,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
 
         // Create two GL Entries for two different GL Accounts having different Exchange Rate Adjustment.
         CreateGLEntryForAccount(
-          GLAccount, CurrencyExchangeRate."Currency Code", GLAccount."Exchange Rate Adjustment"::"Adjust Amount", WorkDate);
+          GLAccount, CurrencyExchangeRate."Currency Code", GLAccount."Exchange Rate Adjustment"::"Adjust Amount", WorkDate());
         CreateGLEntryForAccount(
           GLAccount2, CurrencyExchangeRate."Currency Code", GLAccount2."Exchange Rate Adjustment"::"Adjust Additional-Currency Amount",
           WorkDate);
@@ -162,7 +162,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         GLEntriesPreview.Trap();
         DocumentNo := Format(LibraryRandom.RandInt(100));
         RunAdjustExchangeRatesReport(
-            CurrencyExchangeRate."Currency Code", WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, DocumentNo, true);
+            CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate, ExchangeRateAdjmtTxt, WorkDate(), DocumentNo, true);
 
         // [THEN] Check Document No. in G/L Entries Preview
         TotalBalance := 0;
@@ -183,13 +183,15 @@ codeunit 134083 "ERM Adjust Exchange Rates"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
 
-        LibraryERM.SetJournalTemplNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         IsInitialized := true;
         Commit();
 
@@ -208,7 +210,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         UpdateExchangeRate(CurrencyExchangeRate, 100 * LibraryRandom.RandInt(4), 200 * LibraryRandom.RandInt(4));
     end;
 
-    local procedure CreateGLEntryForAccount(var GLAccount: Record "G/L Account"; CurrencyCode: Code[10]; ExchangeRateAdjustment: Option; PostingDate: Date)
+    local procedure CreateGLEntryForAccount(var GLAccount: Record "G/L Account"; CurrencyCode: Code[10]; ExchangeRateAdjustment: Enum "Exch. Rate Adjustment Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -243,7 +245,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
     var
         CurrencyExchangeRate2: Record "Currency Exchange Rate";
     begin
-        LibraryERM.CreateExchRate(CurrencyExchangeRate2, CurrencyExchangeRate."Currency Code", WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate2, CurrencyExchangeRate."Currency Code", WorkDate());
         UpdateExchangeRate(
           CurrencyExchangeRate2, CurrencyExchangeRate."Exchange Rate Amount", 2 * CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
@@ -299,7 +301,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GLEntry: Record "G/L Entry";
     begin
-        CurrencyExchangeRate.Get(CurrencyCode, WorkDate);
+        CurrencyExchangeRate.Get(CurrencyCode, WorkDate());
         GLAccount.CalcFields("Add.-Currency Balance at Date");
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -327,7 +329,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        exit(GLEntry.FindFirst);
+        exit(GLEntry.FindFirst())
     end;
 
     [MessageHandler]

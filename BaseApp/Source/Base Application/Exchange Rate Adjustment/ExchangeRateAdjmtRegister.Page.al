@@ -6,7 +6,6 @@ page 106 "Exchange Rate Adjmt. Register"
     PageType = List;
     SourceTable = "Exch. Rate Adjmt. Reg.";
     UsageCategory = Lists;
-    PromotedActionCategories = 'New,Process';
 
     layout
     {
@@ -113,14 +112,21 @@ page 106 "Exchange Rate Adjmt. Register"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Ledger Entries';
                     Image = LedgerEntries;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Exch.Rate Adjmt. Ledg.Entries";
                     RunPageLink = "Register No." = FIELD("No.");
                     Scope = Repeater;
                     ToolTip = 'View adjusted customer or vendor ledger entries for this register.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Show Ledger Entries_Promoted"; "Show Ledger Entries")
+                {
                 }
             }
         }

@@ -867,7 +867,7 @@ codeunit 135000 "Error Message Tests"
             ClearLog;
 
             // [THEN] No entries exists in the error message table
-            Reset;
+            Reset();
             Assert.AreEqual(0, Count, ErrorLoggedForValidDataErr);
         end;
     end;
@@ -893,11 +893,11 @@ codeunit 135000 "Error Message Tests"
         Assert.AreEqual(2, TempErrorMessage.Count, ErrorLoggedForValidDataErr);
         Assert.AreEqual(1, ErrorMessage.Count, ErrorLoggedForValidDataErr);
 
-        TempErrorMessage.ClearLog;
+        TempErrorMessage.ClearLog();
         Assert.AreEqual(0, TempErrorMessage.Count, ErrorLoggedForValidDataErr);
 
         ErrorMessage.SetContext(0);
-        asserterror ErrorMessage.ClearLog;
+        asserterror ErrorMessage.ClearLog();
         Assert.ExpectedError(DevMsgNotTemporaryErr);
     end;
 
@@ -940,7 +940,7 @@ codeunit 135000 "Error Message Tests"
 
         // [WHEN] HasErrorMessagesRelatedTo is called for another record in the same table
         // [THEN] HasErrorMessagesRelatedTo returns FALSE
-        Customer.Next;
+        Customer.Next();
         Assert.IsFalse(TempErrorMessage.HasErrorMessagesRelatedTo(Customer), ErrorLoggedForValidDataErr);
     end;
 
@@ -1116,7 +1116,7 @@ codeunit 135000 "Error Message Tests"
 
             // [WHEN] ThrowError is called
             // [THEN] Nothing happens
-            ThrowError;
+            ThrowError();
         end;
     end;
 
@@ -1246,7 +1246,7 @@ codeunit 135000 "Error Message Tests"
 
         // [WHEN] Open "Error Messages" page
         ErrorMessagesPage.Trap;
-        TempErrorMessage.ShowErrors;
+        TempErrorMessage.ShowErrors();
 
         // [THEN] Context "Field Name" is 'GLN', Source "Field Name" is 'VAT Registration No.'
         ErrorMessagesPage."Context Field Name".AssertEquals(GLBCustomerContext.FieldCaption(GLN));
@@ -1277,7 +1277,7 @@ codeunit 135000 "Error Message Tests"
 
         // [WHEN] Open "Error Messages" page
         ErrorMessagesPage.Trap;
-        TempErrorMessage.ShowErrors;
+        TempErrorMessage.ShowErrors();
         // [THEN] Context "Field Name" is <blank>, Source "Field Name" is 'VAT Registration No.'
         ErrorMessagesPage."Context Field Name".AssertEquals('');
         ErrorMessagesPage."Field Name".AssertEquals(GLBVendorContext.FieldCaption("VAT Registration No."));
@@ -1523,7 +1523,7 @@ codeunit 135000 "Error Message Tests"
         CurrencyRecordRef.Open(DATABASE::Currency);
         CurrencyRecordRef.FindFirst();
         with DataTypeBuffer do begin
-            Init;
+            Init();
             ID := LibraryRandom.RandIntInRange(1, 100);
             BLOB.CreateOutStream(OutStream);
             OutStream.WriteText(LibraryUtility.GenerateRandomText(100));
@@ -1537,7 +1537,7 @@ codeunit 135000 "Error Message Tests"
             Duration :=
               LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2005), DMY2Date(31, 12, 2020)) -
               LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2001), DMY2Date(31, 12, 2004));
-            GUID := CreateGuid;
+            GUID := CreateGuid();
             Option := LibraryRandom.RandIntInRange(1, 2);
             RecordID := CurrencyRecordRef.RecordId;
             Text := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Text));

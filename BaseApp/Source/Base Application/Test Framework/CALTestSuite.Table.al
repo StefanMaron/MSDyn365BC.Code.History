@@ -18,7 +18,7 @@ table 130400 "CAL Test Suite"
         }
         field(3; "Tests to Execute"; Integer)
         {
-            CalcFormula = Count ("CAL Test Line" WHERE("Test Suite" = FIELD(Name),
+            CalcFormula = Count("CAL Test Line" WHERE("Test Suite" = FIELD(Name),
                                                        "Line Type" = CONST(Function),
                                                        Run = CONST(true)));
             Caption = 'Tests to Execute';
@@ -27,7 +27,7 @@ table 130400 "CAL Test Suite"
         }
         field(4; "Tests not Executed"; Integer)
         {
-            CalcFormula = Count ("CAL Test Line" WHERE("Test Suite" = FIELD(Name),
+            CalcFormula = Count("CAL Test Line" WHERE("Test Suite" = FIELD(Name),
                                                        "Line Type" = CONST(Function),
                                                        Run = CONST(true),
                                                        Result = CONST(" ")));
@@ -37,7 +37,7 @@ table 130400 "CAL Test Suite"
         }
         field(5; Failures; Integer)
         {
-            CalcFormula = Count ("CAL Test Line" WHERE("Test Suite" = FIELD(Name),
+            CalcFormula = Count("CAL Test Line" WHERE("Test Suite" = FIELD(Name),
                                                        "Line Type" = CONST(Function),
                                                        Run = CONST(true),
                                                        Result = CONST(Failure)));
@@ -85,10 +85,10 @@ table 130400 "CAL Test Suite"
     end;
 
     var
-        CouldNotExportErr: Label 'Could not export Unit Test XML definition.', Locked = true;
-        UTTxt: Label 'UT', Locked = true;
         CALTestSuiteXML: XMLport "CAL Test Suite";
         CALTestResultsXML: XMLport "CAL Test Results";
+        CouldNotExportErr: Label 'Could not export Unit Test XML definition.', Locked = true;
+        UTTxt: Label 'UT', Locked = true;
 
     [Scope('OnPrem')]
     procedure ExportTestSuiteSetup()
@@ -104,7 +104,7 @@ table 130400 "CAL Test Suite"
         CALTestSuiteXML.SetDestination(OStream);
         CALTestSuiteXML.SetTableView(CALTestSuite);
 
-        if not CALTestSuiteXML.Export then
+        if not CALTestSuiteXML.Export() then
             Error(CouldNotExportErr);
 
         FileMgt.ServerTempFileName('*.xml');
@@ -121,7 +121,7 @@ table 130400 "CAL Test Suite"
         FileMgt.BLOBImport(TempBlob, '*.xml');
         TempBlob.CreateInStream(IStream);
         CALTestSuiteXML.SetSource(IStream);
-        CALTestSuiteXML.Import;
+        CALTestSuiteXML.Import();
     end;
 
     [Scope('OnPrem')]
@@ -138,7 +138,7 @@ table 130400 "CAL Test Suite"
         CALTestResultsXML.SetDestination(OStream);
         CALTestResultsXML.SetTableView(CALTestSuite);
 
-        if not CALTestResultsXML.Export then
+        if not CALTestResultsXML.Export() then
             Error(CouldNotExportErr);
 
         FileMgt.ServerTempFileName('*.xml');
@@ -155,7 +155,7 @@ table 130400 "CAL Test Suite"
         FileMgt.BLOBImport(TempBlob, '*.xml');
         TempBlob.CreateInStream(IStream);
         CALTestResultsXML.SetSource(IStream);
-        CALTestResultsXML.Import;
+        CALTestResultsXML.Import();
     end;
 }
 

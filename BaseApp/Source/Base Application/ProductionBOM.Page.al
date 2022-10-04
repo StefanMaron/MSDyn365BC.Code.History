@@ -2,7 +2,6 @@ page 99000786 "Production BOM"
 {
     Caption = 'Production BOM';
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Prod. BOM';
     SourceTable = "Production BOM Header";
 
     layout
@@ -12,7 +11,7 @@ page 99000786 "Production BOM"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -28,7 +27,7 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description for the production BOM.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -44,13 +43,13 @@ page 99000786 "Production BOM"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                     Importance = Additional;
                 }
-                field("Version Nos."; "Version Nos.")
+                field("Version Nos."; Rec."Version Nos.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version number series that the production BOM versions refer to.';
@@ -69,10 +68,10 @@ page 99000786 "Production BOM"
                         ProdBOMVersion.SetRange("Production BOM No.", "No.");
                         ProdBOMVersion.SetRange("Version Code", ActiveVersionCode);
                         PAGE.RunModal(PAGE::"Production BOM Version", ProdBOMVersion);
-                        ActiveVersionCode := VersionMgt.GetBOMVersion("No.", WorkDate, true);
+                        ActiveVersionCode := VersionMgt.GetBOMVersion("No.", WorkDate(), true);
                     end;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the last date that was modified.';
@@ -114,8 +113,6 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Manufacturing Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Production BOM Header"),
                                   "No." = FIELD("No.");
@@ -126,8 +123,6 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Versions';
                     Image = BOMVersions;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Prod. BOM Version List";
                     RunPageLink = "Production BOM No." = FIELD("No.");
                     ToolTip = 'View any alternate versions of the production BOM.';
@@ -137,8 +132,6 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ma&trix per Version';
                     Image = ProdBOMMatrixPerVersion;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View a list of all versions and items and the used quantity per item of a production BOM. You can use the matrix to compare different production BOM versions concerning the used items per version.';
 
                     trigger OnAction()
@@ -156,13 +149,11 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Where-used';
                     Image = "Where-Used";
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View a list of BOMs in which the item is used.';
 
                     trigger OnAction()
                     begin
-                        ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate);
+                        ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate());
                         ProdBOMWhereUsed.RunModal();
                         Clear(ProdBOMWhereUsed);
                     end;
@@ -181,8 +172,6 @@ page 99000786 "Production BOM"
                     Caption = 'Copy &BOM';
                     Ellipsis = true;
                     Image = CopyBOM;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy an existing production BOM to quickly create a similar BOM.';
 
                     trigger OnAction()
@@ -195,11 +184,43 @@ page 99000786 "Production BOM"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Copy &BOM_Promoted"; "Copy &BOM")
+                {
+                }
+                actionref(Versions_Promoted; Versions)
+                {
+                }
+                actionref("Ma&trix per Version_Promoted"; "Ma&trix per Version")
+                {
+                }
+                actionref("Where-used_Promoted"; "Where-used")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Prod. BOM', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        ActiveVersionCode := VersionMgt.GetBOMVersion("No.", WorkDate, true);
+        ActiveVersionCode := VersionMgt.GetBOMVersion("No.", WorkDate(), true);
     end;
 
     var

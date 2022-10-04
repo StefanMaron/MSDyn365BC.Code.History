@@ -1951,7 +1951,7 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                 if not FindNextInvoiceRec(InvoiceHeaderLoop.Number) then
                     currXMLport.Break();
 
-                GetTotals;
+                GetTotals();
 
                 PEPPOLMgt.GetGeneralInfo(
                   SalesHeader,
@@ -1967,9 +1967,9 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                   TaxCurrencyCodeListID,
                   AccountingCost);
 
-                UBLVersionID := GetUBLVersionID;
-                CustomizationID := GetCustomizationID;
-                ProfileID := GetProfileID;
+                UBLVersionID := GetUBLVersionID();
+                CustomizationID := GetCustomizationID();
+                ProfileID := GetProfileID();
             end;
         }
     }
@@ -2054,7 +2054,7 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
     begin
         if Position = 1 then
             exit(VATAmtLine.Find('-'));
-        exit(VATAmtLine.Next <> 0);
+        exit(VATAmtLine.Next() <> 0);
     end;
 
     procedure Initialize(DocVariant: Variant)
@@ -2068,7 +2068,7 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                     RecRef.SetTable(SalesInvoiceHeader);
                     if SalesInvoiceHeader."No." = '' then
                         Error(SpecifyASalesInvoiceNoErr);
-                    SalesInvoiceHeader.SetRecFilter;
+                    SalesInvoiceHeader.SetRecFilter();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
 
                     ProcessedDocType := ProcessedDocType::Sale;
@@ -2079,7 +2079,7 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                     if ServiceInvoiceHeader."No." = '' then
                         Error(SpecifyAServInvoiceNoErr);
                     ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-                    ServiceInvoiceHeader.SetRecFilter;
+                    ServiceInvoiceHeader.SetRecFilter();
 
                     ProcessedDocType := ProcessedDocType::Service;
                 end;

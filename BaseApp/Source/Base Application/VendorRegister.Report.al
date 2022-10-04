@@ -13,7 +13,7 @@ report 303 "Vendor Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -179,13 +179,13 @@ report 303 "Vendor Register"
                 trigger OnPreDataItem()
                 begin
                     SetRange("Entry No.", "G/L Register"."From Entry No.", "G/L Register"."To Entry No.");
-                    ClearAmounts;
+                    ClearAmounts();
                 end;
             }
 
             trigger OnPreDataItem()
             begin
-                ClearAmounts;
+                ClearAmounts();
             end;
         }
     }
@@ -222,7 +222,7 @@ report 303 "Vendor Register"
 
     trigger OnPreReport()
     begin
-        GLRegFilter := "G/L Register".GetFilters;
+        GLRegFilter := "G/L Register".GetFilters();
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Initial Entry");
     end;

@@ -64,13 +64,13 @@ table 5637 "FA G/L Posting Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "FA Posting Group";
         }
-        field(11; "FA Allocation Type"; Option)
+#pragma warning disable AS0070
+        field(11; "FA Allocation Type"; Enum "FA Allocation Type")
         {
             Caption = 'FA Allocation Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Acquisition,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Disposal,Maintenance,Gain,Loss,Book Value';
-            OptionMembers = Acquisition,Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,Gain,Loss,"Book Value";
         }
+#pragma warning restore AS0070
         field(12; "FA Allocation Line No."; Integer)
         {
             Caption = 'FA Allocation Line No.';

@@ -8,15 +8,16 @@ codeunit 376 "Check Entry Set Recon.-No."
     end;
 
     var
-        Text000: Label 'cannot be %1';
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
+
+        Text000: Label 'cannot be %1';
 
     procedure ToggleReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; ChangeAmount: Boolean)
     begin
         BankAccLedgEntry.LockTable();
         CheckLedgEntry.LockTable();
         BankAccReconLine.LockTable();
-        BankAccReconLine.Find;
+        BankAccReconLine.Find();
         if CheckLedgEntry."Statement No." = '' then begin
             SetReconNo(CheckLedgEntry, BankAccReconLine);
             BankAccReconLine."Applied Amount" := BankAccReconLine."Applied Amount" - CheckLedgEntry.Amount;
@@ -99,7 +100,7 @@ codeunit 376 "Check Entry Set Recon.-No."
           "Bank Account Ledger Entry No.", CheckLedgEntry."Bank Account Ledger Entry No.");
         CheckLedgEntry2.SetRange(
           "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
-        if not CheckLedgEntry2.FindFirst() then begin
+        if CheckLedgEntry2.IsEmpty() then begin
             BankAccLedgEntry.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
             BankAccLedgEntry.TestField(Open, true);
             if Test then begin
@@ -130,7 +131,6 @@ codeunit 376 "Check Entry Set Recon.-No."
             exit;
 
         BankAccReconLine.TestField("Statement Type", BankAccReconLine."Statement Type"::"Bank Reconciliation");
-        BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Check Ledger Entry");
         RemoveReconNo(CheckLedgerEntry, BankAccReconLine, true);
 
         BankAccReconLine."Applied Amount" += CheckLedgerEntry.Amount;

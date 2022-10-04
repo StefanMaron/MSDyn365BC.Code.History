@@ -94,7 +94,7 @@ codeunit 134607 "Test Report SaveAs"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         with JobQueueEntry do begin
-            Init;
+            Init();
             "Object Type to Run" := "Object Type to Run"::Report;
             "Object ID to Run" := ReportID;
             "Report Output Type" := OutputType;

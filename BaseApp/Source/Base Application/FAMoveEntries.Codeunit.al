@@ -9,10 +9,6 @@ codeunit 5623 "FA MoveEntries"
     end;
 
     var
-        Text000: Label 'Only disposed fixed assets can be deleted.';
-        Text001: Label 'You cannot delete a fixed asset that has ledger entries in a fiscal year that has not been closed yet.';
-        Text002: Label 'The field %1 cannot be changed for a fixed asset with ledger entries.';
-        Text003: Label 'The field %1 cannot be changed for a fixed asset with insurance coverage ledger entries.';
         FA: Record "Fixed Asset";
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
@@ -20,9 +16,14 @@ codeunit 5623 "FA MoveEntries"
         AccountingPeriod: Record "Accounting Period";
         FiscalYearStartDate: Date;
 
+        Text000: Label 'Only disposed fixed assets can be deleted.';
+        Text001: Label 'You cannot delete a fixed asset that has ledger entries in a fiscal year that has not been closed yet.';
+        Text002: Label 'The field %1 cannot be changed for a fixed asset with ledger entries.';
+        Text003: Label 'The field %1 cannot be changed for a fixed asset with insurance coverage ledger entries.';
+
     procedure MoveFAEntries(FADeprBook: Record "FA Depreciation Book")
     begin
-        ClearAll;
+        ClearAll();
         FA.LockTable();
         FALedgEntry.LockTable();
         MaintenanceLedgEntry.LockTable();
@@ -95,7 +96,7 @@ codeunit 5623 "FA MoveEntries"
     procedure MoveInsuranceEntries(Insurance: Record Insurance)
     begin
         with InsCoverageLedgEntry do begin
-            Reset;
+            Reset();
             LockTable();
             SetCurrentKey("Insurance No.");
             SetRange("Insurance No.", Insurance."No.");
@@ -103,7 +104,7 @@ codeunit 5623 "FA MoveEntries"
                 repeat
                     "FA No." := '';
                     "Insurance No." := '';
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -117,7 +118,7 @@ codeunit 5623 "FA MoveEntries"
                 repeat
                     "Insurance No." := '';
                     "FA No." := '';
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;

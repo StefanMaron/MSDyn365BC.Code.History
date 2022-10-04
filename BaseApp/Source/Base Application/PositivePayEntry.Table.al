@@ -45,13 +45,13 @@ table 1231 "Positive Pay Entry"
         }
         field(10; "Check Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromBank;
+            AutoFormatExpression = GetCurrencyCodeFromBank();
             AutoFormatType = 1;
             Caption = 'Check Amount';
         }
         field(11; "Void Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromBank;
+            AutoFormatExpression = GetCurrencyCodeFromBank();
             AutoFormatType = 1;
             Caption = 'Void Amount';
         }
@@ -103,7 +103,7 @@ table 1231 "Positive Pay Entry"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Exported File"));
 
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             Error(PositivePayFileNotFoundErr);
 
         ExportDate := DT2Date("Upload Date-Time");

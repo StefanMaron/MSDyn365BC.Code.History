@@ -10,11 +10,11 @@ codeunit 5847 "Get Average Cost Calc Overview"
         AvgCostAdjmtEntryPoint.SetFilter("Valuation Date", GetFilter("Valuation Date"));
         OnRunOnSetAvgCostAdjmtEntryPointFilters(AvgCostAdjmtEntryPoint, Rec);
 
-        Reset;
+        Reset();
         DeleteAll();
         if AvgCostAdjmtEntryPoint.Find('-') then
             repeat
-                Init;
+                Init();
                 Type := Type::"Closing Entry";
                 "Entry No." := "Entry No." + 1;
                 CopyAvgCostAdjmtEntryPointFieldsToAverageCostCalcOverview(AvgCostAdjmtEntryPoint, Rec);
@@ -42,7 +42,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
     begin
         with ValueEntry do begin
             AvgCostCalcOverview2 := AvgCostCalcOverview;
-            AvgCostCalcOverview.Find;
+            AvgCostCalcOverview.Find();
             AvgCostCalcOverview.TestField("Item No.");
             AvgCostCalcOverview.TestField(Type, AvgCostCalcOverview.Type::"Closing Entry");
 
@@ -69,6 +69,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
             AvgCostCalcOverview.Reset();
             AvgCostCalcOverview.Find('+');
 
+            FirstEntryNo := 0;
             if EntriesExist(AvgCostCalcOverview2) then
                 repeat
                     InsertAvgCostCalcOvervwFromILE(AvgCostCalcOverview, ValueEntry, AvgCostCalcOverview2."Valuation Date");
@@ -99,7 +100,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
             ModifyLine := Find('-');
             if not ModifyLine then begin
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                Init;
+                Init();
                 CopyItemLedgerEntryFieldsToAverageCostCalcOverview(ItemLedgEntry, AvgCostCalcOverview);
                 "Entry No." := CopyOfAvgCostCalcOverview."Entry No." + 1;
                 case true of
@@ -170,7 +171,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
             Item.Get(AvgCostCalcOverview."Item No.");
             OnEntriesExistOnAfterGetItem(Item, AvgCostCalcOverview);
 
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", AvgCostCalcOverview."Item No.");
 

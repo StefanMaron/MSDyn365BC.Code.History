@@ -39,7 +39,7 @@ page 2860 "Native - Units of Measure"
 
                     trigger OnValidate()
                     begin
-                        if DescriptionInCurrentLanguage <> GetDescriptionInCurrentLanguage then begin
+                        if DescriptionInCurrentLanguage <> GetDescriptionInCurrentLanguage() then begin
                             Validate(Description, CopyStr(DescriptionInCurrentLanguage, 1, MaxStrLen(Description)));
                             RegisterFieldSet(FieldNo(Description));
                         end;
@@ -70,7 +70,7 @@ page 2860 "Native - Units of Measure"
 
     trigger OnAfterGetRecord()
     begin
-        DescriptionInCurrentLanguage := GetDescriptionInCurrentLanguage;
+        DescriptionInCurrentLanguage := GetDescriptionInCurrentLanguage();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

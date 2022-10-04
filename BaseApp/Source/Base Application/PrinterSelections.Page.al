@@ -13,25 +13,25 @@ page 64 "Printer Selections"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the ID of the user for whom you want to define permissions.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field("Printer Name"; "Printer Name")
+                field("Printer Name"; Rec."Printer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Printers;
@@ -63,15 +63,23 @@ page 64 "Printer Selections"
                 ApplicationArea = All;
                 Caption = 'Printer Management';
                 Image = Open;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Open the Printer Management page.';
 
                 trigger OnAction()
                 begin
                     Page.Run(Page::"Printer Management");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenPrinterManagement_Promoted; OpenPrinterManagement)
+                {
+                }
             }
         }
     }

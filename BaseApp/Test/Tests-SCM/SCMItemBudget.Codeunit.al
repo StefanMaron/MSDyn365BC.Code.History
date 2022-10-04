@@ -69,7 +69,7 @@ codeunit 137401 "SCM Item Budget"
 
         // Exercise: Run Sales Budget Overview.
         RunSalesBudgetOverview(
-          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption, ItemBudgetEntry."Item No.",
+          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption(), ItemBudgetEntry."Item No.",
           ItemBudgetEntry."Source No.", RoundingFactor::"1");
 
         // Verify: Verify Amount must be rounded with 1 precision.
@@ -119,7 +119,7 @@ codeunit 137401 "SCM Item Budget"
 
         // Exercise: Run Sales Budget Overview and invoke Delete Budget.
         RunSalesBudgetOverview(
-          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption, ItemBudgetEntry."Item No.",
+          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption(), ItemBudgetEntry."Item No.",
           ItemBudgetEntry."Source No.", RoundingFactor::"1");
         SalesBudgetOverview.DeleteBudget.Invoke;
 
@@ -145,7 +145,7 @@ codeunit 137401 "SCM Item Budget"
 
         // Exercise: Run Sales Budget Overview and invoke Delete Budget.
         RunSalesBudgetOverview(
-          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption, ItemBudgetEntry."Item No.",
+          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption(), ItemBudgetEntry."Item No.",
           ItemBudgetEntry."Source No.", RoundingFactor::"1");
         SalesBudgetOverview.DeleteBudget.Invoke;
 
@@ -175,7 +175,7 @@ codeunit 137401 "SCM Item Budget"
 
         // Exercise: Run Sales Budget Overview.
         RunSalesBudgetOverview(
-          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption, ItemBudgetEntry."Item No.",
+          SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption(), ItemBudgetEntry."Item No.",
           ItemBudgetEntry."Source No.", RoundingFactor::"1");
 
         // Verify: Verify Amount must be zero on Sales Budget Overview Page.
@@ -259,7 +259,7 @@ codeunit 137401 "SCM Item Budget"
     local procedure CreateItemBudgetEntry(var ItemBudgetEntry: Record "Item Budget Entry")
     begin
         LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName, WorkDate, CreateItem);
+          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName, WorkDate(), CreateItem);
         ItemBudgetEntry.Validate("Source Type", ItemBudgetEntry."Source Type"::Customer);
         ItemBudgetEntry.Validate("Source No.", LibrarySales.CreateCustomerNo);
         ItemBudgetEntry.Validate("Sales Amount", LibraryRandom.RandDec(100, 2));  // Use Random Value.
@@ -358,7 +358,7 @@ codeunit 137401 "SCM Item Budget"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
-        until not DimensionSelectionMultiple.Next;
+        until not DimensionSelectionMultiple.Next();
         DimensionSelectionMultiple.OK.Invoke;
     end;
 

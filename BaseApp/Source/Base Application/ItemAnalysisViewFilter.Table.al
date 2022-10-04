@@ -53,19 +53,19 @@ table 7153 "Item Analysis View Filter"
         ItemAnalysisView.TestField(Blocked, false);
         with ItemAnalysisView do begin
             ValidateDelete(ItemAnalysisViewFilter.FieldCaption("Dimension Code"));
-            ItemAnalysisViewReset;
-            Modify;
+            ItemAnalysisViewReset();
+            Modify();
         end;
     end;
 
     trigger OnInsert()
     begin
-        ValidateModifyFilter;
+        ValidateModifyFilter();
     end;
 
     trigger OnModify()
     begin
-        ValidateModifyFilter;
+        ValidateModifyFilter();
     end;
 
     trigger OnRename()
@@ -86,15 +86,15 @@ table 7153 "Item Analysis View Filter"
         if (ItemAnalysisView."Last Entry No." <> 0) and (xRec."Dimension Code" <> "Dimension Code") then
             with ItemAnalysisView do begin
                 ValidateDelete(ItemAnalysisViewFilter.FieldCaption("Dimension Code"));
-                ItemAnalysisViewReset;
+                ItemAnalysisViewReset();
                 "Dimension Value Filter" := '';
-                Modify;
+                Modify();
             end;
         if (ItemAnalysisView."Last Entry No." <> 0) and (xRec."Dimension Value Filter" <> "Dimension Value Filter") then
             with ItemAnalysisView do begin
                 ValidateDelete(ItemAnalysisViewFilter.FieldCaption("Dimension Value Filter"));
-                ItemAnalysisViewReset;
-                Modify;
+                ItemAnalysisViewReset();
+                Modify();
             end;
     end;
 }

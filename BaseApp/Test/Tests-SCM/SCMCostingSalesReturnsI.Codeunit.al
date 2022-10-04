@@ -523,7 +523,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
         SalesHeaderCopySalesDoc(SalesHeader, FromDocType, DocumentNo, true, true);
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst();
@@ -548,7 +548,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
             SalesLine.Validate("Qty. to Ship", 0);
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(50, 2));
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure UpdateApplyFromItemEntryNo(ItemNo: Code[20]; SalesHeader: Record "Sales Header")
@@ -634,7 +634,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         repeat
             TempSalesLine := SalesLine;
             TempSalesLine.Insert();
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesAmountChargeReturn(var TempSalesLine: Record "Sales Line" temporary; var TempSalesLine2: Record "Sales Line" temporary)
@@ -675,14 +675,14 @@ codeunit 137012 "SCM Costing Sales Returns I"
         repeat
             CustLedgerEntry.CalcFields(Amount);
             ActualCustLedgerAmount += CustLedgerEntry.Amount;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
 
         TempSalesLine.FindSet();
         repeat
             ExpectedSalesInvoiceAmount +=
               TempSalesLine.Quantity * TempSalesLine."Unit Price" + TempSalesLine."VAT %" *
               (TempSalesLine.Quantity * TempSalesLine."Unit Price") / 100;
-        until TempSalesLine.Next = 0;
+        until TempSalesLine.Next() = 0;
 
         TempSalesLine2.Reset();
         TempSalesLine2.FindSet();
@@ -690,7 +690,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
             ExpectedSalesCrMemoAmount +=
               TempSalesLine2.Quantity * TempSalesLine2."Unit Price" + TempSalesLine2."VAT %" *
               (TempSalesLine2.Quantity * TempSalesLine2."Unit Price") / 100;
-        until TempSalesLine2.Next = 0;
+        until TempSalesLine2.Next() = 0;
 
         Assert.AreNearlyEqual(
           ExpectedSalesInvoiceAmount - ExpectedSalesCrMemoAmount, ActualCustLedgerAmount, 0.1, SalesAmountMustBeSameErr);

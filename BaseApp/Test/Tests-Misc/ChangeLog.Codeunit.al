@@ -103,7 +103,7 @@ codeunit 139031 "Change Log"
     begin
         OldValue := false;
 
-        if ChangeLogSetup.Get then begin
+        if ChangeLogSetup.Get() then begin
             OldValue := ChangeLogSetup."Change Log Activated";
             ChangeLogSetup.Validate("Change Log Activated", ChangeLogActivated);
             ChangeLogSetup.Modify(true);
@@ -131,7 +131,7 @@ codeunit 139031 "Change Log"
         // Exercise
         ChangeLogSetupPage.OpenEdit;
         ChangeLogSetupPage."Change Log Activated".SetValue(true);
-        ChangeLogSetupPage.Close;
+        ChangeLogSetupPage.Close();
 
         // Verify
         ChangeLogSetup.Get();
@@ -157,7 +157,7 @@ codeunit 139031 "Change Log"
         // Exercise
         ChangeLogSetupPage.OpenEdit;
         ChangeLogSetupPage."Change Log Activated".SetValue(true);
-        ChangeLogSetupPage.Close;
+        ChangeLogSetupPage.Close();
 
         // Verify
         ChangeLogSetup.Get();
@@ -889,12 +889,12 @@ codeunit 139031 "Change Log"
         with CVLedgerEntryBuffer do begin
             if FindLast() then
                 LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Description)), 1, MaxStrLen(Description));
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -954,13 +954,13 @@ codeunit 139031 "Change Log"
     local procedure MockChangeLogEntry(var ChangeLogEntry: Record "Change Log Entry"; NewTableNoValue: Integer; NewFieldNoValue: Integer; NewValue: Text)
     begin
         with ChangeLogEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ChangeLogEntry, FieldNo("Entry No."));
             "Table No." := NewTableNoValue;
             "Field No." := NewFieldNoValue;
             "Record ID" := RecordId;
             "New Value" := CopyStr(NewValue, 1, MaxStrLen("New Value"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -969,12 +969,12 @@ codeunit 139031 "Change Log"
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
     begin
         with ChangeLogSetupTable do begin
-            Init;
+            Init();
             "Table No." := TableNo;
             "Log Insertion" := "Log Insertion"::"All Fields";
             "Log Modification" := "Log Modification"::"All Fields";
             "Log Deletion" := "Log Deletion"::"All Fields";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1555,7 +1555,7 @@ codeunit 139031 "Change Log"
         LotNoInformationCard.GotoRecord(LotNoInformation);
         ItemTrackingComments.Trap;
         LotNoInformationCard.Comment.Invoke;
-        ItemTrackingComments.Close;
+        ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Lot No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
@@ -1589,7 +1589,7 @@ codeunit 139031 "Change Log"
         LotNoInformationList.GotoRecord(LotNoInformation);
         ItemTrackingComments.Trap;
         LotNoInformationList.Comment.Invoke;
-        ItemTrackingComments.Close;
+        ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Lot No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
@@ -1623,7 +1623,7 @@ codeunit 139031 "Change Log"
         SerialNoInformationCard.GotoRecord(SerialNoInformation);
         ItemTrackingComments.Trap;
         SerialNoInformationCard.Comment.Invoke;
-        ItemTrackingComments.Close;
+        ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Serial No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
@@ -1657,7 +1657,7 @@ codeunit 139031 "Change Log"
         SerialNoInformationList.GotoRecord(SerialNoInformation);
         ItemTrackingComments.Trap;
         SerialNoInformationList.Comment.Invoke;
-        ItemTrackingComments.Close;
+        ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Serial No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
@@ -2055,7 +2055,6 @@ codeunit 139031 "Change Log"
         TenantWebService.Insert(true);
 
         RecRef.GetTable(TenantWebService);
-        ChangeLogManagement.LogInsertion(RecRef);
 
         // Verify: Check if the values are correctly logged in ChangeLogEntry
         ChangeLogEntry.SetRange("Table No.", LocalTableNo);
@@ -2064,6 +2063,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.SetRange("Primary Key", RecRef.GetPosition(false));
         ChangeLogEntry.SetRange("Field No.", TenantWebService.FieldNo("Service Name"));
 
+        Assert.RecordCount(ChangeLogEntry, 1);
         ChangeLogEntry.FindFirst();
 
         Assert.AreEqual(TenantWebService."Service Name",

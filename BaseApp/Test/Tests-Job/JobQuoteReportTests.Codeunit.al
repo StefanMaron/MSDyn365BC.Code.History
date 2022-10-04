@@ -195,7 +195,7 @@ codeunit 136314 "Job Quote Report Tests"
         Job.SetRange("No.", No);
         Clear(JobQuote);
         JobQuote.SetTableView(Job);
-        LibraryReportValidation.SetFileName(CreateGuid);
+        LibraryReportValidation.SetFileName(CreateGuid());
         JobQuote.SaveAsExcel(LibraryReportValidation.GetFileName);
         LibraryReportValidation.DownloadFile;
     end;
@@ -352,7 +352,7 @@ codeunit 136314 "Job Quote Report Tests"
         LibraryReportValidation.OpenFile;
         with Job do
             Assert.IsTrue(
-              LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1: %2: %3', TableCaption, FieldCaption("No."), "No.")),
+              LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1: %2: %3', TableCaption(), FieldCaption("No."), "No.")),
               ValueNotFoundErr);
     end;
 

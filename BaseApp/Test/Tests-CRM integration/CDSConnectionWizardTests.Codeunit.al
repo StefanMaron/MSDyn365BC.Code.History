@@ -169,7 +169,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
 
         // [THEN] Error message appears stating user should fill synch user credentials
         Assert.ExpectedError(MissingClientIdOrSecretOnPremErr);
-        //CDSConnectionSetupWizard.Close;
+        //CDSConnectionSetupWizard.Close();
     end;
 
     [Test]

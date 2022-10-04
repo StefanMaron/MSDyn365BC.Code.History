@@ -77,7 +77,7 @@ table 2121 "O365 Brand Color"
         end;
 
         O365BrandColor."Color Value" := ColorValue;
-        O365BrandColor.MakePicture;
+        O365BrandColor.MakePicture();
         O365BrandColor.Modify();
     end;
 
@@ -121,13 +121,13 @@ table 2121 "O365 Brand Color"
         Color := ColorTranslator.FromHtml("Color Value");
         SolidColorBrush := SolidColorBrush.SolidBrush(Color);
         Graphics.FillEllipse(SolidColorBrush, 0, 0, 100, 100);
-        Graphics.Dispose;
+        Graphics.Dispose();
 
         TempBlob.CreateInStream(InStr);
         Bitmap.Save(InStr, ImageFormat.Png);
 
         "Sample Picture".ImportStream(InStr, '');
-        Bitmap.Dispose;
+        Bitmap.Dispose();
     end;
 
     local procedure BlendColorWithWhite(Value: Integer; Alpha: Integer): Integer
@@ -191,7 +191,7 @@ table 2121 "O365 Brand Color"
         O365BrandColor.Code := BrandColorCode;
         O365BrandColor.Name := BrandColorName;
         O365BrandColor."Color Value" := ColorValue;
-        O365BrandColor.MakePicture;
+        O365BrandColor.MakePicture();
         O365BrandColor.Insert();
     end;
 }

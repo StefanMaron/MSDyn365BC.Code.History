@@ -16,22 +16,22 @@ page 99000900 "Avail. - Planning Components"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location, where the item on the planning component line will be registered.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when this planning component must be finished.';
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the value in the Quantity field on the line.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -45,7 +45,7 @@ page 99000900 "Avail. - Planning Components"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the components that is available for reservation.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -59,7 +59,7 @@ page 99000900 "Avail. - Planning Components"
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                         CurrPage.Update();
                     end;
                 }
@@ -98,7 +98,7 @@ page 99000900 "Avail. - Planning Components"
                     trigger OnAction()
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
+                        UpdateReservMgt();
                         GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
@@ -128,14 +128,14 @@ page 99000900 "Avail. - Planning Components"
                         ReservEntry2.Copy(ReservEntry);
                         SetReservationFilters(ReservEntry2);
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 if ReservEntry2."Quantity (Base)" < 0 then
                                     Error(Text002);
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
                             until ReservEntry2.Next() = 0;
 
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -156,17 +156,13 @@ page 99000900 "Avail. - Planning Components"
         SetRange("Variant Code", ReservEntry."Variant Code");
         SetRange("Location Code", ReservEntry."Location Code");
         SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-        if ReservMgt.IsPositive then
+        if ReservMgt.IsPositive() then
             SetFilter("Quantity (Base)", '<0')
         else
             SetFilter("Quantity (Base)", '>0');
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text002: Label 'Do not close negative reservations manually.';
-        Text003: Label 'Available Quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -179,6 +175,11 @@ page 99000900 "Avail. - Planning Components"
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Do you want to cancel the reservation?';
+        Text002: Label 'Do not close negative reservations manually.';
+        Text003: Label 'Available Quantity is %1.';
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -277,13 +278,13 @@ page 99000900 "Avail. - Planning Components"
         TestField("Variant Code", ReservEntry."Variant Code");
         TestField("Location Code", ReservEntry."Location Code");
 
-        UpdateReservMgt;
+        UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Planning Component", 0, "Worksheet Template Name",
           "Worksheet Batch Name", "Worksheet Line No.", "Line No.", "Variant Code", "Location Code", "Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
           ReservEntry.Description, "Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
-        UpdateReservFrom;
+        UpdateReservFrom();
     end;
 
     local procedure UpdateReservFrom()

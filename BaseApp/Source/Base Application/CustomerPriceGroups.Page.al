@@ -3,7 +3,6 @@ page 7 "Customer Price Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Price Groups';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = "Customer Price Group";
     UsageCategory = Administration;
 
@@ -24,33 +23,33 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the customer price group.';
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
+                field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will override the method set in the sales setup for customers in this group.';
                 }
-                field("Allow Line Disc."; "Allow Line Disc.")
+                field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a line discount will be calculated when the sales price is offered.';
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the ordinary invoice discount calculation will apply to customers in this price group.';
                 }
-                field("Price Includes VAT"; "Price Includes VAT")
+                field("Price Includes VAT"; Rec."Price Includes VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the prices given for this price group will include VAT.';
                 }
-                field("VAT Bus. Posting Gr. (Price)"; "VAT Bus. Posting Gr. (Price)")
+                field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT business posting group that determines the default VAT percentage to add to sales prices for customers in this group.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the customer price group is coupled to a price list in Dynamics 365 Sales.';
@@ -80,14 +79,12 @@ page 7 "Customer Price Groups"
             group("Cust. &Price Group")
             {
                 Caption = 'Cust. &Price Group';
-#if not CLEAN19
+#if not CLEAN21
                 action(SalesPrices)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
                     ObsoleteState = Pending;
@@ -111,8 +108,6 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Lists';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lists with prices for products that you sell to customers that belong to the customer price group.';
 
@@ -129,8 +124,6 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales prices for products that you sell to customers that belong to the customer price group.';
 
@@ -234,6 +227,63 @@ page 7 "Customer Price Groups"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Customer_Price_Group)
+            {
+                Caption = 'Customer Price Group';
+
+#if not CLEAN21
+                actionref(SalesPrices_Promoted; SalesPrices)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(PriceLists_Promoted; PriceLists)
+                {
+                }
+                actionref(PriceLines_Promoted; PriceLines)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled and not ExtendedPriceEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                actionref(CRMGoToPricelevel_Promoted; CRMGoToPricelevel)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -245,7 +295,7 @@ page 7 "Customer Price Groups"
 
     trigger OnOpenPage()
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 

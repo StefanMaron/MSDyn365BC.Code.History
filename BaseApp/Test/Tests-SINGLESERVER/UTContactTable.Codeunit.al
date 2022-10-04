@@ -167,33 +167,6 @@ codeunit 134826 "UT Contact Table"
         VerifyContactRelatedRecordsDeleted(Contact."No.");
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('ConfirmHandlerNo')]
-    [Scope('OnPrem')]
-    procedure SalesQuoteCustNameWhenCreateCustFromContact()
-    var
-        Contact: Record Contact;
-        SalesHeader: Record "Sales Header";
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Sales Quote]
-        // [SCENARIO 275793] Customer Name is set for Sales Quote, when Stan creates Customer from Contact.
-
-        // [GIVEN] Sales Quote with Sell-to Contact and Bill-to Contact.
-        MockContact(Contact, Contact.Type::Person);
-        MockSalesQuoteWithSellBillToContactNo(SalesHeader, Contact."No.");
-
-        // [WHEN] Create Customer from that Contact.
-        LibraryMarketing.CreateCustomerFromContact(Customer, Contact);
-
-        // [THEN] Customer Name is set for Sales Quote.
-        SalesHeader.Find;
-        SalesHeader.TestField("Sell-to Customer Name", Customer.Name);
-        SalesHeader.TestField("Bill-to Name", Customer.Name);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure TestCustomerUpdateContactWhenContactNameIsBlank()
@@ -218,7 +191,7 @@ codeunit 134826 "UT Contact Table"
         Customer.Modify(true);
 
         // [THEN] Contact Name is updated to 'AAA' respectively
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Name, Customer.Name);
     end;
 
@@ -254,7 +227,7 @@ codeunit 134826 "UT Contact Table"
         Customer.Modify(true);
 
         // [THEN] Contact still have name 'XXX'
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Name, ContactName);
     end;
 
@@ -282,7 +255,7 @@ codeunit 134826 "UT Contact Table"
         Vendor.Modify(true);
 
         // [THEN] Contact Name is updated to 'AAA' respectively
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Name, Vendor.Name);
     end;
 
@@ -318,7 +291,7 @@ codeunit 134826 "UT Contact Table"
         Vendor.Modify(true);
 
         // [THEN] Contact still have name 'XXX'
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Name, ContactName);
     end;
 
@@ -347,7 +320,7 @@ codeunit 134826 "UT Contact Table"
         BankAccount.Modify(true);
 
         // [THEN] Contact Name is updated to 'AAA' respectively
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Name, BankAccount.Name);
     end;
 
@@ -384,7 +357,7 @@ codeunit 134826 "UT Contact Table"
         BankAccount.Modify(true);
 
         // [THEN] Contact still have name 'XXX'
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Name, ContactName);
     end;
 
@@ -740,7 +713,7 @@ codeunit 134826 "UT Contact Table"
         Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
 
         // [THEN] Customer Card has Date Filter which is equal to "before today"
-        DateFilter := StrSubstNo('''''..%1', WorkDate);
+        DateFilter := StrSubstNo('''''..%1', WorkDate());
         Assert.AreEqual(DateFilter, CustomerCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 
@@ -769,7 +742,7 @@ codeunit 134826 "UT Contact Table"
         ;
 
         // [THEN] Vendor Card has Date Filter which is equal to "before today"
-        DateFilter := StrSubstNo('''''..%1', WorkDate);
+        DateFilter := StrSubstNo('''''..%1', WorkDate());
         Assert.AreEqual(DateFilter, VendorCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 
@@ -797,7 +770,7 @@ codeunit 134826 "UT Contact Table"
         Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
 
         // [THEN] Bank Account Card has Date Filter which is equal to "before today"
-        DateFilter := StrSubstNo('''''..%1', WorkDate);
+        DateFilter := StrSubstNo('''''..%1', WorkDate());
         Assert.AreEqual(DateFilter, BankAccountCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 

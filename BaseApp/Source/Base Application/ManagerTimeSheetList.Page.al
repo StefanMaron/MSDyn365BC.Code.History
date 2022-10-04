@@ -19,17 +19,17 @@ page 953 "Manager Time Sheet List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the starting date for a time sheet.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the ending date for a time sheet.';
@@ -40,81 +40,81 @@ page 953 "Manager Time Sheet List"
                     ToolTip = 'Specifies the description for a time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource for the time sheet.';
                 }
-                field("Resource Name"; "Resource Name")
+                field("Resource Name"; Rec."Resource Name")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the name of the resource for the time sheet.';
                     Visible = false;
                 }
-                field("Quantity"; "Quantity")
+                field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Total';
                     ToolTip = 'Specifies the total number of hours that are registered on the time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Open"; "Quantity Open")
+                field("Quantity Open"; Rec."Quantity Open")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Open';
                     ToolTip = 'Specifies the total number of hours with the status Open on the time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Submitted"; "Quantity Submitted")
+                field("Quantity Submitted"; Rec."Quantity Submitted")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Submitted';
                     ToolTip = 'Specifies the total number of hours with the status Submitted on the time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Approved"; "Quantity Approved")
+                field("Quantity Approved"; Rec."Quantity Approved")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Approved';
                     ToolTip = 'Specifies the total number of hours with the status Approved on the time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Rejected"; "Quantity Rejected")
+                field("Quantity Rejected"; Rec."Quantity Rejected")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Rejected';
                     ToolTip = 'Specifies the total number of hours with the status Rejected on the time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Open Exists"; "Open Exists")
+                field("Open Exists"; Rec."Open Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies if there are time sheet lines with the status Open.';
                     Visible = not TimeSheetV2Enabled;
                 }
-                field("Submitted Exists"; "Submitted Exists")
+                field("Submitted Exists"; Rec."Submitted Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies if there are time sheet lines with the status Submitted.';
                     Visible = not TimeSheetV2Enabled;
                 }
-                field("Rejected Exists"; "Rejected Exists")
+                field("Rejected Exists"; Rec."Rejected Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies whether there are time sheet lines with the status Rejected.';
                     Visible = not TimeSheetV2Enabled;
                 }
-                field("Approved Exists"; "Approved Exists")
+                field("Approved Exists"; Rec."Approved Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies whether there are time sheet lines with the status Approved.';
                     Visible = not TimeSheetV2Enabled;
                 }
-                field("Posted Exists"; "Posted Exists")
+                field("Posted Exists"; Rec."Posted Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
@@ -137,18 +137,15 @@ page 953 "Manager Time Sheet List"
             action("&Edit Time Sheet")
             {
                 ApplicationArea = Jobs;
-                Caption = '&Edit Time Sheet';
+                Caption = '&Review Time Sheet';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
-                ToolTip = 'Open the time sheet in edit mode.';
+                ToolTip = 'Open the time sheet to approve its details. This requires that you''re the time sheet owner, administrator, or approver.';
                 Visible = not TimeSheetV2Enabled;
 
                 trigger OnAction()
                 begin
-                    EditTimeSheet;
+                    ReviewTimeSheet();
                 end;
             }
             action(MoveTimeSheetsToArchive)
@@ -156,8 +153,6 @@ page 953 "Manager Time Sheet List"
                 ApplicationArea = Jobs;
                 Caption = 'Move Time Sheets to Archive';
                 Image = Archive;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Move Time Sheets to Archive";
                 ToolTip = 'Archive time sheets.';
                 Visible = TimeSheetAdminActionsVisible;
@@ -191,6 +186,23 @@ page 953 "Manager Time Sheet List"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Edit Time Sheet_Promoted"; "&Edit Time Sheet")
+                {
+                }
+                actionref(MoveTimeSheetsToArchive_Promoted; MoveTimeSheetsToArchive)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -213,7 +225,7 @@ page 953 "Manager Time Sheet List"
         TimeSheetV2Enabled: Boolean;
         TimeSheetAdminActionsVisible: Boolean;
 
-    local procedure EditTimeSheet()
+    local procedure ReviewTimeSheet()
     var
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetCard: Page "Time Sheet Card";

@@ -50,7 +50,7 @@ table 206 "Res. Journal Template"
             begin
                 ResJnlLine.SetRange("Journal Template Name", Name);
                 ResJnlLine.ModifyAll("Source Code", "Source Code");
-                Modify;
+                Modify();
             end;
         }
         field(11; "Reason Code"; Code[10])
@@ -78,7 +78,7 @@ table 206 "Res. Journal Template"
         }
         field(13; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -86,7 +86,7 @@ table 206 "Res. Journal Template"
         }
         field(14; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -94,7 +94,7 @@ table 206 "Res. Journal Template"
         }
         field(15; "Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Posting Report ID")));
             Caption = 'Posting Report Caption';
             Editable = false;
@@ -160,10 +160,11 @@ table 206 "Res. Journal Template"
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         ResJnlBatch: Record "Res. Journal Batch";
         ResJnlLine: Record "Res. Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 }
 

@@ -169,7 +169,7 @@ codeunit 136305 "Job Journal"
         OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
         // [THEN] Page "Item Units of Measure" is open and contains lines related to Item "I"
         // [THEN] "JJL"."Unit of Measure" = "UM"
-        JobJournalLine.Find;
+        JobJournalLine.Find();
         Assert.AreEqual(UnitOfMeasureCode, JobJournalLine."Unit of Measure Code",
           JobJournalLine.FieldCaption("Unit of Measure Code"));
     end;
@@ -194,7 +194,7 @@ codeunit 136305 "Job Journal"
         OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
         // [THEN] Page "Resource Units of Measure" is open and contains lines related to Resource "R"
         // [THEN] "JJL"."Unit of Measure" = "UM"
-        JobJournalLine.Find;
+        JobJournalLine.Find();
         Assert.AreEqual(UnitOfMeasureCode, JobJournalLine."Unit of Measure Code",
           JobJournalLine.FieldCaption("Unit of Measure Code"));
     end;
@@ -221,12 +221,12 @@ codeunit 136305 "Job Journal"
         OpenJobJournalAndLookupUnitofMeasure(JobJournalLine."Journal Batch Name");
         // [THEN] Page "Units of Measure" is open and contains lines
         // [THEN] "JJL"."Unit of Measure" = "UM"
-        JobJournalLine.Find;
+        JobJournalLine.Find();
         Assert.AreEqual(UnitOfMeasure.Code, JobJournalLine."Unit of Measure Code",
           JobJournalLine.FieldCaption("Unit of Measure Code"));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure UnitCostFactorOnJobGLJournalLine()
@@ -305,7 +305,7 @@ codeunit 136305 "Job Journal"
         DeleteJobJournalTemplate(JobJournalLine."Journal Template Name");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure JobItemPriceCreation()
@@ -347,7 +347,7 @@ codeunit 136305 "Job Journal"
         with JobItemPrice do
             Assert.ExpectedError(
               StrSubstNo(
-                BlankJobNoError, FieldCaption("Job No."), TableCaption, FieldCaption("Job No."), '', FieldCaption("Job Task No."),
+                BlankJobNoError, FieldCaption("Job No."), TableCaption(), FieldCaption("Job No."), '', FieldCaption("Job Task No."),
                 "Job Task No.",
                 FieldCaption("Item No."), "Item No.", FieldCaption("Variant Code"), "Variant Code", FieldCaption("Unit of Measure Code"),
                 "Unit of Measure Code", FieldCaption("Currency Code"), "Currency Code"));
@@ -401,7 +401,7 @@ codeunit 136305 "Job Journal"
         // [THEN] Verify the contents of the error message
         Assert.ExpectedError(
           StrSubstNo(
-            JobTaskTypeError, JobTask.FieldCaption("Job Task Type"), JobTask.TableCaption, JobTask.FieldCaption("Job No."),
+            JobTaskTypeError, JobTask.FieldCaption("Job Task Type"), JobTask.TableCaption(), JobTask.FieldCaption("Job No."),
             JobTask."Job No.", JobTask.FieldCaption("Job Task No."), JobTask."Job Task No.", JobTask."Job Task Type"));
     end;
 
@@ -462,7 +462,7 @@ codeunit 136305 "Job Journal"
         asserterror LibraryJob.CreateJobItemPrice(JobItemPrice, JobTask."Job No.", JobTask."Job Task No.", '', '', '', '');  // Blank value is for Item No., Currency Code, Variant Code and Unit of Measure Code.
 
         // [THEN] Verify that the creation failed
-        Assert.VerifyFailure(RecordNotFound, StrSubstNo(TestForBlankValuesPassed, JobItemPrice.TableCaption));
+        Assert.VerifyFailure(RecordNotFound, StrSubstNo(TestForBlankValuesPassed, JobItemPrice.TableCaption()));
     end;
 #endif
 
@@ -509,7 +509,7 @@ codeunit 136305 "Job Journal"
         CreateJobWithJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         Commit();  // Using Commit to prevent Test Failure.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::Item);
 
@@ -520,7 +520,7 @@ codeunit 136305 "Job Journal"
         VerifyPostingGroupOnJobLedgerEntry(DocumentNo, JobTask."Job No.", JobPlanningLine."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure JobResourcePricesWithTypeResource()
@@ -561,7 +561,7 @@ codeunit 136305 "Job Journal"
         with JobResourcePrice do
             Assert.ExpectedError(
               StrSubstNo(
-                BlankJobNoError, FieldCaption("Job No."), TableCaption, FieldCaption("Job No."), '', FieldCaption("Job Task No."),
+                BlankJobNoError, FieldCaption("Job No."), TableCaption(), FieldCaption("Job No."), '', FieldCaption("Job Task No."),
                 "Job Task No.", FieldCaption(Type), Type, FieldCaption(Code), Code, FieldCaption("Work Type Code"), "Work Type Code",
                 FieldCaption("Currency Code"), "Currency Code"));
     end;
@@ -614,7 +614,7 @@ codeunit 136305 "Job Journal"
         // [THEN] Verify that the correct error is reported
         Assert.ExpectedError(
           StrSubstNo(
-            JobTaskTypeError, JobTask.FieldCaption("Job Task Type"), JobTask.TableCaption, JobTask.FieldCaption("Job No."),
+            JobTaskTypeError, JobTask.FieldCaption("Job Task Type"), JobTask.TableCaption(), JobTask.FieldCaption("Job No."),
             JobTask."Job No.", JobTask.FieldCaption("Job Task No."), JobTask."Job Task No.", JobTask."Job Task Type"));
     end;
 
@@ -676,7 +676,7 @@ codeunit 136305 "Job Journal"
             JobResourcePrice, JobTask."Job No.", JobTask."Job Task No.", JobResourcePrice.Type::Resource, '', '', '');  // Blank value is for Code, Work Type Code, Currency Code.
 
         // [THEN] Verify the content of the error
-        Assert.VerifyFailure(RecordNotFound, StrSubstNo(TestForBlankValuesPassed, JobResourcePrice.TableCaption));
+        Assert.VerifyFailure(RecordNotFound, StrSubstNo(TestForBlankValuesPassed, JobResourcePrice.TableCaption()));
     end;
 
     [Test]
@@ -786,7 +786,7 @@ codeunit 136305 "Job Journal"
         ChangeItemQuantityAndVerifyNoStockWarning(JobJournalLine);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure JobResourcePricesWithBlankTypeGroupResource()
@@ -874,7 +874,7 @@ codeunit 136305 "Job Journal"
         with JobGLAccountPrice do
             Assert.ExpectedError(
               StrSubstNo(
-                FieldsBlankError, FieldCaption("Job No."), TableCaption, FieldCaption("Job No."), '', FieldCaption("Job Task No."), '',
+                FieldsBlankError, FieldCaption("Job No."), TableCaption(), FieldCaption("Job No."), '', FieldCaption("Job Task No."), '',
                 FieldCaption("G/L Account No."), '', FieldCaption("Currency Code"), ''));
     end;
 
@@ -898,7 +898,7 @@ codeunit 136305 "Job Journal"
         with JobGLAccountPrice do
             Assert.ExpectedError(
               StrSubstNo(
-                FieldsBlankError, FieldCaption("G/L Account No."), TableCaption, FieldCaption("Job No."), "Job No.",
+                FieldsBlankError, FieldCaption("G/L Account No."), TableCaption(), FieldCaption("Job No."), "Job No.",
                 FieldCaption("Job Task No."), '', FieldCaption("G/L Account No."), '', FieldCaption("Currency Code"), ''));
     end;
 
@@ -1246,7 +1246,7 @@ codeunit 136305 "Job Journal"
         Commit();  // Using Commit to prevent Test Failure.
 
         // [WHEN] Creating Sales Invoice from Job Planning Line.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Passing False to avoid Credit Memo creation.
 
         // [THEN] Verify Unit Price and Quantity on Sales Line.
@@ -1283,7 +1283,7 @@ codeunit 136305 "Job Journal"
 
         UpdateJobPlanningLine(JobPlanningLine, JobTask, JobGLAccountPrice."G/L Account No.");
         Commit();  // Using Commit to prevent Test Failure.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Passing False to avoid Credit Memo creation.
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::"G/L Account");
 
@@ -1408,7 +1408,7 @@ codeunit 136305 "Job Journal"
         CreateJobPlanningLineToCreateInvoice(JobJournalLine, JobPlanningLine);
 
         // [WHEN] Creating a sales invoice from the job planning line
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
         // [THEN] Verify that the sales lines contain the updated line discounts
@@ -1435,7 +1435,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job Journal Line and update Line Amount. Create Sales Invoice through Job Planning Line.
         Initialize();
         CreateJobPlanningLineToCreateInvoice(JobJournalLine, JobPlanningLine);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobJournalLine."Job No.", SalesLine.Type::Item);
 
@@ -1465,7 +1465,7 @@ codeunit 136305 "Job Journal"
         CreateJobWithJobTask(JobTask);
         CreateJobGLJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Bal. Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo, JobTask."Job No.", JobTask."Job Task No.", CreateCurrency);
-        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate);  // Calculate Amount in LCY.
+        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate());  // Calculate Amount in LCY.
 
         // [WHEN] Posting the General Journal Lines
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1476,7 +1476,7 @@ codeunit 136305 "Job Journal"
         VerifyDifferentCostsInJobLedgerEntry(GenJournalLine, Amount);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('JobJournalTemplateListPageHandler,JobCalcRemainingUsageRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1724,8 +1724,8 @@ codeunit 136305 "Job Journal"
         // [THEN] Error populates for Source Code in Gen. Journal Template must not be equal to Job G/L WIP in Source Code Setup.
         Assert.ExpectedError(
           StrSubstNo(
-            SourceCodeEqualError, GenJournalTemplate.FieldCaption("Source Code"), GenJournalTemplate.TableCaption,
-            SourceCodeSetup.FieldCaption("Job G/L WIP"), SourceCodeSetup.TableCaption));
+            SourceCodeEqualError, GenJournalTemplate.FieldCaption("Source Code"), GenJournalTemplate.TableCaption(),
+            SourceCodeSetup.FieldCaption("Job G/L WIP"), SourceCodeSetup.TableCaption()));
 
         // Tear Down: Roll Back the values for Source Code Setup.
         UpdateSourceCodeSetup(SourceCodeSetup."Job G/L Journal", SourceCodeSetup."Job G/L WIP");
@@ -1753,7 +1753,7 @@ codeunit 136305 "Job Journal"
         CreateJobPlanningLineWithTypeText(JobPlanningLine, JobPlanningLine."Line Type"::Billable, JobTask);
 
         Commit();
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::Item);
 
@@ -1819,7 +1819,7 @@ codeunit 136305 "Job Journal"
 
         with JobJournalLine do begin
             // [GIVEN] Job Journal Line with "Line Amount (LCY)" <> 0 and "Line Discount Amount (LCY)" <> 0
-            Init;
+            Init();
             "Line Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
             "Line Discount Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
 
@@ -1906,7 +1906,7 @@ codeunit 136305 "Job Journal"
         Initialize();
 
         // [GIVEN] Currency with Exchanges Rate: 01.01 = 10,00. 03.01 = 10,50.
-        CreateCurrencyAndTwoCurrencyRates(Currency, WorkDate, WorkDate + 2);
+        CreateCurrencyAndTwoCurrencyRates(Currency, WorkDate(), WorkDate + 2);
         // [GIVEN] Job, Job Task and Job Planning Line with "Posting Date" = 01.01 and "Exchange Rate" = 10,00
         CreateJobPlanningLineWithCurrency(JobPlanningLine, Currency.Code);
 
@@ -1933,7 +1933,7 @@ codeunit 136305 "Job Journal"
         Initialize();
 
         // [GIVEN] Currency with Exchanges Rate: 01.01 = 10,00. 03.01 = 10,50.
-        CreateCurrencyAndTwoCurrencyRates(Currency, WorkDate, WorkDate + 2);
+        CreateCurrencyAndTwoCurrencyRates(Currency, WorkDate(), WorkDate + 2);
         // [GIVEN] Job, Job Task and Job Planning Line with "Posting Date" = 01.01 and "Exchange Rate" = 10,00
         CreateJobPlanningLineWithCurrency(JobPlanningLine, Currency.Code);
 
@@ -1961,7 +1961,7 @@ codeunit 136305 "Job Journal"
         Initialize();
 
         // [GIVEN] Currency with Exchanges Rate: 01.01 = 10,00. 03.01 = 10,50.
-        CreateCurrencyAndTwoCurrencyRates(Currency, WorkDate, WorkDate + 2);
+        CreateCurrencyAndTwoCurrencyRates(Currency, WorkDate(), WorkDate + 2);
         // [GIVEN] Job, Job Task and Job Planning Line with "Posting Date" = 01.01 and "Exchange Rate" = 11,00
         CreateJobPlanningLineWithCurrency(JobPlanningLine, Currency.Code);
         JobPlanningLine.Validate("Currency Factor", LibraryRandom.RandDec(100, 2));
@@ -2098,7 +2098,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Modify(true);
 
         // [GIVEN] Sales invoice "I" created from "JPL"
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
@@ -2140,7 +2140,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] Linked "Reservation Entry" record with "Quantity (Base)" = 100
         MockReservationEntry(JobJournalLine);
         // [GIVEN] Ensure "Job Journal Line"."Reserved Qty. (Base)" = 100 after FIND
-        JobJournalLine.Find;
+        JobJournalLine.Find();
         JobJournalLine.TestField("Reserved Qty. (Base)");
 
         // [WHEN] Perform COD 1013 "Job Jnl.-Post Batch".RUN()
@@ -2181,7 +2181,7 @@ codeunit 136305 "Job Journal"
 
         // [WHEN] Creating a sales invoice from the Job Planning Line
         FindJobPlanningLine(JobPlanningLine, JobJournalLine."Job No.", JobJournalLine."Job Task No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
@@ -2213,7 +2213,7 @@ codeunit 136305 "Job Journal"
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
         Commit();
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::"G/L Account");
 
@@ -2701,7 +2701,7 @@ codeunit 136305 "Job Journal"
         NoSeriesCode := '';
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateAndUpdateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobTask: Record "Job Task")
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -2750,7 +2750,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Validate("Qty. to Transfer to Invoice", JobPlanningLine.Quantity);
         JobPlanningLine.Modify(true);
         Commit();  // Required to avoid test failure.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, true);
     end;
 
@@ -2821,7 +2821,7 @@ codeunit 136305 "Job Journal"
     begin
         CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.Validate("Starting Date", CalcDate('<-CY>', WorkDate));
+        CurrencyExchangeRate.Validate("Starting Date", CalcDate('<-CY>', WorkDate()));
 
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
@@ -2846,7 +2846,7 @@ codeunit 136305 "Job Journal"
         exit(Resource."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateJobItemPrice(var JobItemPrice: Record "Job Item Price")
     var
         Item: Record Item;
@@ -3065,7 +3065,7 @@ codeunit 136305 "Job Journal"
         ResourceUnitOfMeasure.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateJobResourcePrice(var JobResourcePrice: Record "Job Resource Price"; Type: Option; No: Code[20])
     var
         JobTask: Record "Job Task";
@@ -3168,7 +3168,7 @@ codeunit 136305 "Job Journal"
         SalesLine.FindFirst();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure ModifyJobItemPriceForUnitPrice(var JobItemPrice: Record "Job Item Price"; UnitPrice: Decimal)
     begin
         JobItemPrice.Validate("Unit Price", UnitPrice);
@@ -3249,7 +3249,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateLineDiscountPctOnJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price")
     begin
         JobGLAccountPrice.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Taking Random value for Line Discount Percent.
@@ -3274,7 +3274,7 @@ codeunit 136305 "Job Journal"
         SourceCodeSetup.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateUnitCostFactorOnJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price")
     begin
         JobGLAccountPrice.Validate("Unit Cost Factor", LibraryRandom.RandDec(10, 2));  // Taking Random value for Unit Cost Factor.
@@ -3465,10 +3465,10 @@ codeunit 136305 "Job Journal"
         JobJournal.GotoKey(JobJournalLine."Journal Template Name", JobJournalLine."Journal Batch Name", JobJournalLine."Line No.");
         NewQuantity := LibraryRandom.RandDec(100, 1);
         JobJournal.Quantity.SetValue(NewQuantity);
-        JobJournal.Next;
+        JobJournal.Next();
 
         // [THEN] No out of stock warning is generated (no SendNotification UI unhandled) and the job journal line quantity is updated
-        JobJournalLine.Find;
+        JobJournalLine.Find();
         JobJournalLine.TestField(Quantity, NewQuantity);
     end;
 
@@ -3519,8 +3519,8 @@ codeunit 136305 "Job Journal"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         JobCalcRemainingUsage."Job Task".SetFilter("Job No.", LibraryVariableStorage.DequeueText);
-        JobCalcRemainingUsage.DocumentNo.SetValue(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
-        JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate));
+        JobCalcRemainingUsage.DocumentNo.SetValue(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+        JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate()));
         JobCalcRemainingUsage.OK.Invoke;
     end;
 
@@ -3586,7 +3586,7 @@ codeunit 136305 "Job Journal"
     local procedure OnBeforeRunCheck(var JobJnlLine: Record "Job Journal Line")
     begin
         // Verify auto calc field is reset
-        JobJnlLine.Find;
+        JobJnlLine.Find();
         JobJnlLine.TestField("Reserved Qty. (Base)", 0);
     end;
 

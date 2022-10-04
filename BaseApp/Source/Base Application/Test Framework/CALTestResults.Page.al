@@ -4,7 +4,6 @@ page 130405 "CAL Test Results"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Call Stack';
     SourceTable = "CAL Test Result";
 
     layout
@@ -14,26 +13,26 @@ page 130405 "CAL Test Results"
             repeater(Group)
             {
                 Caption = 'Repeater';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
-                field("Test Run No."; "Test Run No.")
+                field("Test Run No."; Rec."Test Run No.")
                 {
                     ApplicationArea = All;
                 }
-                field("Codeunit ID"; "Codeunit ID")
+                field("Codeunit ID"; Rec."Codeunit ID")
                 {
                     ApplicationArea = All;
                 }
-                field("Codeunit Name"; "Codeunit Name")
+                field("Codeunit Name"; Rec."Codeunit Name")
                 {
                     ApplicationArea = All;
                     Visible = false;
                 }
-                field("Function Name"; "Function Name")
+                field("Function Name"; Rec."Function Name")
                 {
                     ApplicationArea = All;
                 }
@@ -52,21 +51,21 @@ page 130405 "CAL Test Results"
                     ApplicationArea = All;
                     Visible = false;
                 }
-                field("Start Time"; "Start Time")
+                field("Start Time"; Rec."Start Time")
                 {
                     ApplicationArea = All;
                 }
-                field("Execution Time"; "Execution Time")
+                field("Execution Time"; Rec."Execution Time")
                 {
                     ApplicationArea = All;
                 }
-                field("Error Message"; "Error Message")
+                field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = All;
                     Style = Unfavorable;
                     StyleExpr = TRUE;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -89,16 +88,13 @@ page 130405 "CAL Test Results"
                 ApplicationArea = All;
                 Caption = 'Call Stack';
                 Image = DesignCodeBehind;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 var
                     InStr: InStream;
                     CallStack: Text;
                 begin
-                    if "Call Stack".HasValue then begin
+                    if "Call Stack".HasValue() then begin
                         CalcFields("Call Stack");
                         "Call Stack".CreateInStream(InStr);
                         InStr.ReadText(CallStack);
@@ -111,9 +107,6 @@ page 130405 "CAL Test Results"
                 ApplicationArea = All;
                 Caption = 'E&xport';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 var
@@ -124,11 +117,34 @@ page 130405 "CAL Test Results"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Export_Promoted; Export)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Call Stack', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Call Stack_Promoted"; "Call Stack")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        Style := GetStyle;
+        Style := GetStyle();
     end;
 
     var

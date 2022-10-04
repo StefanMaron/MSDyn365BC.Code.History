@@ -97,7 +97,7 @@ codeunit 9275 "My Settings"
         if User."User Security ID" <> UserPersonalization."User SID" then begin
             if UserPersonalization2.Get(User."User Security ID") then begin
                 UserPersonalization2.CalcFields("User ID");
-                Error(UserAlreadyExistErr, UserPersonalization.TableCaption, UserPersonalization2."User ID");
+                Error(UserAlreadyExistErr, UserPersonalization.TableCaption(), UserPersonalization2."User ID");
             end;
 
             UserPersonalization.Validate("User SID", User."User Security ID");

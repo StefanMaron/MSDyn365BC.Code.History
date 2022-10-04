@@ -1,7 +1,7 @@
 page 9297 "Inventory - G/L Recon Matrix"
 {
     Caption = 'Inventory - G/L Reconciliation';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     Editable = false;
     LinksAllowed = false;
     PageType = List;
@@ -488,14 +488,14 @@ page 9297 "Inventory - G/L Recon Matrix"
         InvtReportHeader."Column Option" := DimCodeToOption(ColumnDimCode);
 
         GetInvtReport.SetReportHeader(InvtReportHeader);
-        GetInvtReport.Run(InvtReportEntry);
-        SetVisible;
+        GetInvtReport.Run(TempInventoryReportEntry);
+        SetVisible();
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
         InvtReportHeader: Record "Inventory Report Header";
-        InvtReportEntry: Record "Inventory Report Entry" temporary;
+        TempInventoryReportEntry: Record "Inventory Report Entry" temporary;
         RowIntegerLine: Record "Integer";
         ColIntegerLine: Record "Integer";
         MatrixRecords: array[32] of Record "Dimension Code Buffer";
@@ -659,7 +659,7 @@ page 9297 "Inventory - G/L Recon Matrix"
 
     local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer"; IsRow: Boolean)
     begin
-        with InvtReportEntry do
+        with TempInventoryReportEntry do
             case true of
                 ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Balance Sheet") and IsRow) or
               ((InvtReportHeader."Column Option" = InvtReportHeader."Column Option"::"Balance Sheet") and not IsRow):
@@ -725,7 +725,7 @@ page 9297 "Inventory - G/L Recon Matrix"
     local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Code1;
             Name := CopyStr(Name1, 1, MaxStrLen(Name));
             Indentation := Indentation1;
@@ -736,7 +736,7 @@ page 9297 "Inventory - G/L Recon Matrix"
     local procedure Calculate(MATRIX_ColumnOrdinal: Integer) Amount: Decimal
     begin
         GetGLSetup();
-        with InvtReportEntry do begin
+        with TempInventoryReportEntry do begin
             case true of
                 FieldCaption("G/L Total") in [Name, MatrixRecords[MATRIX_ColumnOrdinal].Name]:
                     SetRange(Type, Type::"G/L Account");
@@ -973,7 +973,7 @@ page 9297 "Inventory - G/L Recon Matrix"
 
     local procedure GetWarningText(TheField: Text[80]; ShowType: Option ReturnAsText,ShowAsMessage): Text[250]
     begin
-        with InvtReportEntry do begin
+        with TempInventoryReportEntry do begin
             if "Expected Cost Posting Warning" then
                 if TheField in [FieldCaption("Inventory (Interim)"),
                                 FieldCaption("Invt. Accrual (Interim)"),
@@ -1032,7 +1032,7 @@ page 9297 "Inventory - G/L Recon Matrix"
     var
         Text: Text[250];
     begin
-        with InvtReportEntry do
+        with TempInventoryReportEntry do
             case Name of
                 FieldCaption(Warning):
                     case MatrixRecords[MATRIX_ColumnOrdinal].Name of
@@ -1143,13 +1143,13 @@ page 9297 "Inventory - G/L Recon Matrix"
     begin
         GetGLSetup();
 
-        with InvtReportEntry do begin
+        with TempInventoryReportEntry do begin
             if FieldCaption(Warning) = MATRIX_CaptionSet[MATRIX_ColumnOrdinal] then begin
                 ShowWarningText(1, MATRIX_ColumnOrdinal);
                 exit;
             end;
 
-            Reset;
+            Reset();
             if FieldCaption("G/L Total") in [MATRIX_CaptionSet[MATRIX_ColumnOrdinal], Name] then
                 SetRange(Type, Type::"G/L Account")
             else
@@ -1172,17 +1172,17 @@ page 9297 "Inventory - G/L Recon Matrix"
                                 FieldCaption(Inventory):
                                     begin
                                         SetFilter(Inventory, '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, Inventory);
+                                        PAGE.Run(0, TempInventoryReportEntry, Inventory);
                                     end;
                                 FieldCaption("WIP Inventory"):
                                     begin
                                         SetFilter("WIP Inventory", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "WIP Inventory");
+                                        PAGE.Run(0, TempInventoryReportEntry, "WIP Inventory");
                                     end;
                                 FieldCaption("Inventory (Interim)"):
                                     begin
                                         SetFilter("Inventory (Interim)", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Inventory (Interim)");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Inventory (Interim)");
                                     end;
                             end;
                         FieldCaption("COGS (Interim)"):
@@ -1190,24 +1190,24 @@ page 9297 "Inventory - G/L Recon Matrix"
                                                                            FieldCaption("Inventory (Interim)")]
                             then begin
                                 SetFilter("COGS (Interim)", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "COGS (Interim)");
+                                PAGE.Run(0, TempInventoryReportEntry, "COGS (Interim)");
                             end;
                         FieldCaption("Direct Cost Applied"):
                             case MATRIX_CaptionSet[MATRIX_ColumnOrdinal] of
                                 FieldCaption(Total), FieldCaption("G/L Total"):
                                     begin
                                         SetFilter("Direct Cost Applied", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Direct Cost Applied");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Direct Cost Applied");
                                     end;
                                 FieldCaption(Inventory):
                                     begin
                                         SetFilter("Direct Cost Applied Actual", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Direct Cost Applied Actual");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Direct Cost Applied Actual");
                                     end;
                                 FieldCaption("WIP Inventory"):
                                     begin
                                         SetFilter("Direct Cost Applied WIP", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Direct Cost Applied WIP");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Direct Cost Applied WIP");
                                     end;
                             end;
                         FieldCaption("Overhead Applied"):
@@ -1215,17 +1215,17 @@ page 9297 "Inventory - G/L Recon Matrix"
                                 FieldCaption(Total), FieldCaption("G/L Total"):
                                     begin
                                         SetFilter("Overhead Applied", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Overhead Applied");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Overhead Applied");
                                     end;
                                 FieldCaption(Inventory):
                                     begin
                                         SetFilter("Overhead Applied Actual", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Overhead Applied Actual");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Overhead Applied Actual");
                                     end;
                                 FieldCaption("WIP Inventory"):
                                     begin
                                         SetFilter("Overhead Applied WIP", '<>%1', 0);
-                                        PAGE.Run(0, InvtReportEntry, "Overhead Applied WIP");
+                                        PAGE.Run(0, TempInventoryReportEntry, "Overhead Applied WIP");
                                     end;
                             end;
                         FieldCaption("Inventory Adjmt."):
@@ -1233,91 +1233,91 @@ page 9297 "Inventory - G/L Recon Matrix"
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Inventory Adjmt.", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Inventory Adjmt.");
+                                PAGE.Run(0, TempInventoryReportEntry, "Inventory Adjmt.");
                             end;
                         FieldCaption("Invt. Accrual (Interim)"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption("Inventory (Interim)")]
                             then begin
                                 SetFilter("Invt. Accrual (Interim)", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Invt. Accrual (Interim)");
+                                PAGE.Run(0, TempInventoryReportEntry, "Invt. Accrual (Interim)");
                             end;
                         FieldCaption(COGS):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter(COGS, '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, COGS);
+                                PAGE.Run(0, TempInventoryReportEntry, COGS);
                             end;
                         FieldCaption("Purchase Variance"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Purchase Variance", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Purchase Variance");
+                                PAGE.Run(0, TempInventoryReportEntry, "Purchase Variance");
                             end;
                         FieldCaption("Material Variance"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Material Variance", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Material Variance");
+                                PAGE.Run(0, TempInventoryReportEntry, "Material Variance");
                             end;
                         FieldCaption("Capacity Variance"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Capacity Variance", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Capacity Variance");
+                                PAGE.Run(0, TempInventoryReportEntry, "Capacity Variance");
                             end;
                         FieldCaption("Subcontracted Variance"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Subcontracted Variance", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Subcontracted Variance");
+                                PAGE.Run(0, TempInventoryReportEntry, "Subcontracted Variance");
                             end;
                         FieldCaption("Capacity Overhead Variance"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Capacity Overhead Variance", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Capacity Overhead Variance");
+                                PAGE.Run(0, TempInventoryReportEntry, "Capacity Overhead Variance");
                             end;
                         FieldCaption("Mfg. Overhead Variance"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Mfg. Overhead Variance", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Mfg. Overhead Variance");
+                                PAGE.Run(0, TempInventoryReportEntry, "Mfg. Overhead Variance");
                             end;
                         FieldCaption("Direct Cost Applied Actual"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Direct Cost Applied Actual", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Direct Cost Applied Actual");
+                                PAGE.Run(0, TempInventoryReportEntry, "Direct Cost Applied Actual");
                             end;
                         FieldCaption("Direct Cost Applied WIP"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption("WIP Inventory")]
                             then begin
                                 SetFilter("Direct Cost Applied WIP", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Direct Cost Applied WIP");
+                                PAGE.Run(0, TempInventoryReportEntry, "Direct Cost Applied WIP");
                             end;
                         FieldCaption("Overhead Applied WIP"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption(Total), FieldCaption("G/L Total"),
                                                                            FieldCaption("WIP Inventory")]
                             then begin
                                 SetFilter("Overhead Applied WIP", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Overhead Applied WIP");
+                                PAGE.Run(0, TempInventoryReportEntry, "Overhead Applied WIP");
                             end;
                         FieldCaption("Inventory To WIP"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption("G/L Total"),
                                                                            FieldCaption("WIP Inventory"), FieldCaption(Inventory)]
                             then begin
                                 SetFilter("Inventory To WIP", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "Inventory To WIP");
+                                PAGE.Run(0, TempInventoryReportEntry, "Inventory To WIP");
                             end;
                         FieldCaption("WIP To Interim"):
                             if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [FieldCaption("G/L Total"),
@@ -1325,11 +1325,11 @@ page 9297 "Inventory - G/L Recon Matrix"
                                                                            FieldCaption("Inventory (Interim)")]
                             then begin
                                 SetFilter("WIP To Interim", '<>%1', 0);
-                                PAGE.Run(0, InvtReportEntry, "WIP To Interim");
+                                PAGE.Run(0, TempInventoryReportEntry, "WIP To Interim");
                             end;
                     end;
             end;
-            Reset;
+            Reset();
         end;
     end;
 
@@ -1341,7 +1341,7 @@ page 9297 "Inventory - G/L Recon Matrix"
         else
             MATRIX_CellData[MATRIX_ColumnOrdinal] := '';
 
-        with InvtReportEntry do begin
+        with TempInventoryReportEntry do begin
             TotalEmphasize := "Show in Bold";
 
             if FieldCaption(Warning) in [Name, MatrixRecords[MATRIX_ColumnOrdinal].Name] then begin

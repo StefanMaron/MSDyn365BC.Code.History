@@ -400,7 +400,7 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -491,7 +491,7 @@ codeunit 134462 "ERM Copy Item"
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
         CommentLine.SetRange("No.", CopyItemBuffer."Target Item No.");
         for i := 1 to ArrayLen(Comments) do begin
-            CommentLine.Next;
+            CommentLine.Next();
             CommentLine.TestField(Comment, Comments[i]);
         end;
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -530,8 +530,8 @@ codeunit 134462 "ERM Copy Item"
         SourceDefaultDimension.SetRange("No.", Item."No.");
         TargetDefaultDimension.CopyFilters(SourceDefaultDimension);
         for i := 1 to NoOfDims do begin
-            SourceDefaultDimension.Next;
-            TargetDefaultDimension.Next;
+            SourceDefaultDimension.Next();
+            TargetDefaultDimension.Next();
             TargetDefaultDimension.TestField("Dimension Code", SourceDefaultDimension."Dimension Code");
             TargetDefaultDimension.TestField("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
         end;
@@ -782,7 +782,7 @@ codeunit 134462 "ERM Copy Item"
 
         // [GIVEN] Number series "NOS" with next number "ITEM1"
         NoSeriesCode := CreateUniqItemNoSeries;
-        TargetItemNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        TargetItemNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
 
         // [WHEN] Run "Item Copy" report for item "I" with parameter "Target No. Series" = "NOS"
         LibraryVariableStorage.Enqueue(NoSeriesCode);
@@ -813,7 +813,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
         // Remember next number from InventorySetup."Item Nos."
         InventorySetup.Get();
-        TargetItemNo := NoSeriesManagement.GetNextNo(InventorySetup."Item Nos.", WorkDate, false);
+        TargetItemNo := NoSeriesManagement.GetNextNo(InventorySetup."Item Nos.", WorkDate(), false);
 
         // [WHEN] Run "Item Copy" report for item "I" for item "I" with Number Of Copies = 5
         NumberOfCopies := LibraryRandom.RandIntInRange(5, 10);
@@ -881,7 +881,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory.CreateItem(Item);
         // Remember next number from InventorySetup."Item Nos."
         InventorySetup.Get();
-        FirstItemNo := NoSeriesManagement.GetNextNo(InventorySetup."Item Nos.", WorkDate, false);
+        FirstItemNo := NoSeriesManagement.GetNextNo(InventorySetup."Item Nos.", WorkDate(), false);
         LastItemNo := FirstItemNo;
 
         // [GIVEN] Run "Item Copy" report for item "I" with Number Of Copies = 5
@@ -1468,7 +1468,7 @@ codeunit 134462 "ERM Copy Item"
         BOMComponent: Record "BOM Component";
     begin
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, ParentItemNo, BOMComponent.Type::Item.AsInteger(), Item."No.", QuantityPer, Item."Base Unit of Measure");
+          BOMComponent, ParentItemNo, BOMComponent.Type::Item, Item."No.", QuantityPer, Item."Base Unit of Measure");
     end;
 
     local procedure CreateDefaultDimensionForItem(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20])
@@ -1544,7 +1544,7 @@ codeunit 134462 "ERM Copy Item"
         ItemTranslation: Record "Item Translation";
     begin
         with ItemTranslation do begin
-            Init;
+            Init();
             Validate("Item No.", ItemNo);
             Validate("Language Code", LanguageCode);
             Validate(Description, ItemNo + LanguageCode);
@@ -1576,25 +1576,25 @@ codeunit 134462 "ERM Copy Item"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::Item, ItemNo, SkillCode.Code);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchasePriceWithLineDiscount(var PurchasePrice: Record "Purchase Price"; var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreatePurchasePrice(
-          PurchasePrice, LibraryPurchase.CreateVendorNo, Item."No.", WorkDate, '', '', Item."Base Unit of Measure",
+          PurchasePrice, LibraryPurchase.CreateVendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure",
           LibraryRandom.RandDec(10, 2));
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, Item."No.", PurchasePrice."Vendor No.", WorkDate, '', '', Item."Base Unit of Measure",
+          PurchaseLineDiscount, Item."No.", PurchasePrice."Vendor No.", WorkDate(), '', '', Item."Base Unit of Measure",
           LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreateSalesPriceWithLineDiscount(var SalesPrice: Record "Sales Price"; var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, Item."No.", WorkDate,
+          SalesPrice, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, Item."No.", WorkDate(),
           '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer,
-          SalesPrice."Sales Code", WorkDate, '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
+          SalesPrice."Sales Code", WorkDate(), '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
     end;
 #endif
     local procedure CreateTroubleshootingHeader(var TroubleshootingHeader: Record "Troubleshooting Header")
@@ -1737,7 +1737,7 @@ codeunit 134462 "ERM Copy Item"
           ExtendedTextLine."Line No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifyPurchasePrice(PurchasePrice: Record "Purchase Price"; ItemNo: Code[20])
     var
         PurchasePrice2: Record "Purchase Price";
@@ -1835,7 +1835,7 @@ codeunit 134462 "ERM Copy Item"
         repeat
             TargetItemAttributeValueMapping.Get(DATABASE::Item, TargetItemNo, SourceItemAttributeValueMapping."Item Attribute ID");
             TargetItemAttributeValueMapping.TestField("Item Attribute Value ID", SourceItemAttributeValueMapping."Item Attribute Value ID");
-        until SourceItemAttributeValueMapping.Next = 0;
+        until SourceItemAttributeValueMapping.Next() = 0;
     end;
 
     local procedure VerifyPriceListLines(PriceListLine: array[6] of Record "Price List Line"; NewItemNo: Code[20])
@@ -1944,7 +1944,7 @@ codeunit 134462 "ERM Copy Item"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         NoSeriesList.OK.Invoke;

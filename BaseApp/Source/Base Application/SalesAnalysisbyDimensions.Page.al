@@ -30,14 +30,14 @@ page 7158 "Sales Analysis by Dimensions"
                           Dim1Filter, Dim2Filter, Dim3Filter);
                         ItemAnalysisMgt.SetLineAndColumnDim(
                           ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
-                        UpdateFilterFields;
+                        UpdateFilterFields();
                         CurrPage.Update(false);
                     end;
 
                     trigger OnValidate()
                     begin
                         ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView);
-                        CurrentItemAnalysisViewCodeOnA;
+                        CurrentItemAnalysisViewCodeOnA();
                     end;
                 }
                 field(LineDimCode; LineDimCode)
@@ -72,7 +72,7 @@ page 7158 "Sales Analysis by Dimensions"
                             SetCurrentKey("Period Start")
                         else
                             SetCurrentKey(Code);
-                        LineDimCodeOnAfterValidate;
+                        LineDimCodeOnAfterValidate();
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -104,7 +104,7 @@ page 7158 "Sales Analysis by Dimensions"
                           ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        ColumnDimCodeOnAfterValidate;
+                        ColumnDimCodeOnAfterValidate();
                     end;
                 }
                 field(ValueType; ValueType)
@@ -132,7 +132,7 @@ page 7158 "Sales Analysis by Dimensions"
                         DateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
                         InternalDateFilter := DateFilter;
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -146,8 +146,8 @@ page 7158 "Sales Analysis by Dimensions"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
-                        if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
@@ -155,7 +155,7 @@ page 7158 "Sales Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        ItemFilterOnAfterValidate;
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -169,15 +169,15 @@ page 7158 "Sales Analysis by Dimensions"
                         LocationList: Page "Location List";
                     begin
                         LocationList.LookupMode(true);
-                        if LocationList.RunModal = ACTION::LookupOK then begin
-                            Text := LocationList.GetSelectionFilter;
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
+                            Text := LocationList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        LocationFilterOnAfterValidate;
+                        LocationFilterOnAfterValidate();
                     end;
                 }
                 field(BudgetFilter; BudgetFilter)
@@ -202,7 +202,7 @@ page 7158 "Sales Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        BudgetFilterOnAfterValidate;
+                        BudgetFilterOnAfterValidate();
                     end;
                 }
                 field(Dim1FilterControl; Dim1Filter)
@@ -222,7 +222,7 @@ page 7158 "Sales Analysis by Dimensions"
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 1 Filter", Dim1Filter);
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        Dim1FilterOnAfterValidate;
+                        Dim1FilterOnAfterValidate();
                     end;
                 }
                 field(Dim2FilterControl; Dim2Filter)
@@ -242,7 +242,7 @@ page 7158 "Sales Analysis by Dimensions"
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 2 Filter", Dim2Filter);
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        Dim2FilterOnAfterValidate;
+                        Dim2FilterOnAfterValidate();
                     end;
                 }
                 field(Dim3FilterControl; Dim3Filter)
@@ -262,7 +262,7 @@ page 7158 "Sales Analysis by Dimensions"
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", Dim3Filter);
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        Dim3FilterOnAfterValidate;
+                        Dim3FilterOnAfterValidate();
                     end;
                 }
             }
@@ -289,7 +289,7 @@ page 7158 "Sales Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnAfterValidate;
+                        ShowColumnNameOnAfterValidate();
                     end;
                 }
                 field(ShowOppositeSign; ShowOppositeSign)
@@ -339,8 +339,6 @@ page 7158 "Sales Analysis by Dimensions"
                     ApplicationArea = Dimensions;
                     Caption = 'Reverse Lines and Columns';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the display of the matrix by inverting the values in the Show as Lines and Show as Columns fields.';
 
                     trigger OnAction()
@@ -368,15 +366,12 @@ page 7158 "Sales Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the actual analysis report according to the selected filters and options.';
 
                 trigger OnAction()
                 begin
                     Clear(SalesAnalysisByDimMatrix);
-                    ShowMatrix;
+                    ShowMatrix();
                 end;
             }
             action(PreviousSet)
@@ -384,10 +379,6 @@ page 7158 "Sales Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -400,15 +391,32 @@ page 7158 "Sales Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousSet_Promoted; PreviousSet)
+                {
+                }
+                actionref(ShowMatrix_Process_Promoted; ShowMatrix_Process)
+                {
+                }
+                actionref(NextSet_Promoted; NextSet)
+                {
+                }
+                actionref("Reverse Lines and Columns_Promoted"; "Reverse Lines and Columns")
+                {
+                }
             }
         }
     }
@@ -462,7 +470,7 @@ page 7158 "Sales Analysis by Dimensions"
 
         FindPeriod('');
 
-        NoOfColumns := SalesAnalysisByDimMatrix.GetMatrixDimension;
+        NoOfColumns := SalesAnalysisByDimMatrix.GetMatrixDimension();
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
@@ -580,7 +588,7 @@ page 7158 "Sales Analysis by Dimensions"
                         FirstColumnDate := MATRIX_PeriodRecords[1]."Period Start";
                         LastColumnDate := MATRIX_PeriodRecords[MATRIX_CurrSetLength]."Period Start";
                     end;
-                    RefreshInternalDateFilter;
+                    RefreshInternalDateFilter();
                 end;
             ColumnDimType::"Dimension 1":
                 SetPointsDim(ItemAnalysisView."Dimension 1 Code", Dim1Filter, StepType);
@@ -708,7 +716,7 @@ page 7158 "Sales Analysis by Dimensions"
           Dim1Filter, Dim2Filter, Dim3Filter);
         ItemAnalysisMgt.SetLineAndColumnDim(
           ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
-        UpdateFilterFields;
+        UpdateFilterFields();
         CurrPage.Update(false);
     end;
 

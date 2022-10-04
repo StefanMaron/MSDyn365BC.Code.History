@@ -44,7 +44,7 @@
                                                "Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account", "Bal. Account Type"::"Fixed Asset"]
                     then
                         Validate("Payment Terms Code", '');
-                UpdateSource;
+                UpdateSource();
 
                 if xRec."Account Type" in
                    [xRec."Account Type"::Customer, xRec."Account Type"::Vendor]
@@ -76,8 +76,8 @@
                     "IC Partner Code" := '';
 
                 if "Account No." = '' then begin
-                    UpdateLineBalance;
-                    UpdateSource;
+                    UpdateLineBalance();
+                    UpdateSource();
                     CreateDimFromDefaultDim(FieldNo("Account No."));
                     if xRec."Account No." <> '' then begin
                         "Gen. Posting Type" := "Gen. Posting Type"::" ";
@@ -94,26 +94,26 @@
 
                 case "Account Type" of
                     "Account Type"::"G/L Account":
-                        GetGLAccount;
+                        GetGLAccount();
                     "Account Type"::Customer:
-                        GetCustomerAccount;
+                        GetCustomerAccount();
                     "Account Type"::Vendor:
-                        GetVendorAccount;
+                        GetVendorAccount();
                     "Account Type"::"Bank Account":
-                        GetBankAccount;
+                        GetBankAccount();
                     "Account Type"::"Fixed Asset":
-                        GetFAAccount;
+                        GetFAAccount();
                     "Account Type"::"IC Partner":
-                        GetICPartnerAccount;
+                        GetICPartnerAccount();
                 end;
 
                 Validate("Currency Code");
                 Validate("VAT Prod. Posting Group");
-                UpdateLineBalance;
-                UpdateSource;
+                UpdateLineBalance();
+                UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Account No."));
 
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
+                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
             end;
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
@@ -143,14 +143,14 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
                   "VAT Calculation Type"::"Reverse Charge VAT":
                         "VAT Amount" :=
                           Round(
                             Amount * "VAT %" / (100 + "VAT %"),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Full VAT":
                         "VAT Amount" := Amount;
                     "VAT Calculation Type"::"Sales Tax":
@@ -164,7 +164,7 @@
                               Amount -
                               SalesTaxCalculate.ReverseCalculateTax(
                                 "Tax Area Code", "Tax Group Code", "Tax Liable",
-                                WorkDate, Amount, Quantity, "Currency Factor");
+                                WorkDate(), Amount, Quantity, "Currency Factor");
                             if Amount - "VAT Amount" <> 0 then
                                 "VAT %" := Round(100 * "VAT Amount" / (Amount - "VAT Amount"), 0.00001)
                             else
@@ -200,8 +200,8 @@
                     "IC Partner Code" := '';
 
                 if "Bal. Account No." = '' then begin
-                    UpdateLineBalance;
-                    UpdateSource;
+                    UpdateLineBalance();
+                    UpdateSource();
                     CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                     if xRec."Bal. Account No." <> '' then begin
                         "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
@@ -218,26 +218,26 @@
 
                 case "Bal. Account Type" of
                     "Bal. Account Type"::"G/L Account":
-                        GetGLBalAccount;
+                        GetGLBalAccount();
                     "Bal. Account Type"::Customer:
-                        GetCustomerBalAccount;
+                        GetCustomerBalAccount();
                     "Bal. Account Type"::Vendor:
-                        GetVendorBalAccount;
+                        GetVendorBalAccount();
                     "Bal. Account Type"::"Bank Account":
-                        GetBankBalAccount;
+                        GetBankBalAccount();
                     "Bal. Account Type"::"Fixed Asset":
-                        GetFABalAccount;
+                        GetFABalAccount();
                     "Bal. Account Type"::"IC Partner":
-                        GetICPartnerBalAccount;
+                        GetICPartnerBalAccount();
                 end;
 
                 Validate("Currency Code");
                 Validate("Bal. VAT Prod. Posting Group");
-                UpdateLineBalance;
-                UpdateSource;
+                UpdateLineBalance();
+                UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
 
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
+                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
             end;
         }
         field(12; "Currency Code"; Code[10])
@@ -249,23 +249,21 @@
             var
                 BankAcc: Record "Bank Account";
             begin
-                if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then begin
+                if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                     if BankAcc.Get("Bal. Account No.") and (BankAcc."Currency Code" <> '') then
                         BankAcc.TestField("Currency Code", "Currency Code");
-                end;
-                if "Account Type" = "Account Type"::"Bank Account" then begin
+                if "Account Type" = "Account Type"::"Bank Account" then
                     if BankAcc.Get("Account No.") and (BankAcc."Currency Code" <> '') then
                         BankAcc.TestField("Currency Code", "Currency Code");
-                end;
 
                 if "Currency Code" <> '' then begin
-                    GetCurrency;
+                    GetCurrency();
                     if ("Currency Code" <> xRec."Currency Code") or
                        (CurrFieldNo = FieldNo("Currency Code")) or
                        ("Currency Factor" = 0)
                     then
                         "Currency Factor" :=
-                          CurrExchRate.ExchangeRate(WorkDate, "Currency Code");
+                          CurrExchRate.ExchangeRate(WorkDate(), "Currency Code");
                 end else
                     "Currency Factor" := 0;
                 Validate("Currency Factor");
@@ -278,20 +276,20 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 if "Currency Code" = '' then
                     "Amount (LCY)" := Amount
                 else
                     "Amount (LCY)" := Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
-                          WorkDate, "Currency Code",
+                          WorkDate(), "Currency Code",
                           Amount, "Currency Factor"));
 
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
 
                 Validate("VAT %");
                 Validate("Bal. VAT %");
-                UpdateLineBalance;
+                UpdateLineBalance();
             end;
         }
         field(14; "Debit Amount"; Decimal)
@@ -303,7 +301,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "Debit Amount" := Round("Debit Amount", Currency."Amount Rounding Precision");
                 Correction := "Debit Amount" < 0;
                 Amount := "Debit Amount";
@@ -319,7 +317,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "Credit Amount" := Round("Credit Amount", Currency."Amount Rounding Precision");
                 Correction := "Credit Amount" < 0;
                 Amount := -"Credit Amount";
@@ -496,8 +494,8 @@
                     TestField(Amount);
                 end;
 
-                GetCurrency;
-                "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                GetCurrency();
+                "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
 
                 if "VAT Amount" * Amount < 0 then
                     if "VAT Amount" > 0 then
@@ -511,7 +509,7 @@
                   "VAT Amount" -
                   Round(
                     Amount * "VAT %" / (100 + "VAT %"),
-                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(Text013, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
             end;
@@ -637,7 +635,7 @@
                                           "Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account", "Account Type"::"Fixed Asset"]
                     then
                         Validate("Payment Terms Code", '');
-                UpdateSource;
+                UpdateSource();
 
                 if xRec."Bal. Account Type" in
                    [xRec."Bal. Account Type"::Customer, xRec."Bal. Account Type"::Vendor]
@@ -715,14 +713,14 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 case "Bal. VAT Calculation Type" of
                     "Bal. VAT Calculation Type"::"Normal VAT",
                   "Bal. VAT Calculation Type"::"Reverse Charge VAT":
                         "Bal. VAT Amount" :=
                           Round(
                             -Amount * "Bal. VAT %" / (100 + "Bal. VAT %"),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "Bal. VAT Calculation Type"::"Full VAT":
                         "Bal. VAT Amount" := -Amount;
                     "Bal. VAT Calculation Type"::"Sales Tax":
@@ -736,7 +734,7 @@
                               -(Amount -
                                 SalesTaxCalculate.ReverseCalculateTax(
                                   "Bal. Tax Area Code", "Bal. Tax Group Code", "Bal. Tax Liable",
-                                  WorkDate, Amount, Quantity, "Currency Factor"));
+                                  WorkDate(), Amount, Quantity, "Currency Factor"));
                             if Amount + "Bal. VAT Amount" <> 0 then
                                 "Bal. VAT %" := Round(100 * -"Bal. VAT Amount" / (Amount + "Bal. VAT Amount"), 0.00001)
                             else
@@ -768,9 +766,9 @@
                     TestField(Amount);
                 end;
 
-                GetCurrency;
+                GetCurrency();
                 "Bal. VAT Amount" :=
-                  Round("Bal. VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                  Round("Bal. VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
 
                 if "Bal. VAT Amount" * Amount > 0 then
                     if "Bal. VAT Amount" > 0 then
@@ -784,7 +782,7 @@
                   "Bal. VAT Amount" -
                   Round(
                     -Amount * "Bal. VAT %" / (100 + "Bal. VAT %"),
-                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 if Abs("Bal. VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(
                       Text013, FieldCaption("Bal. VAT Difference"), Currency."Max. VAT Difference Allowed");
@@ -817,7 +815,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "VAT Base Amount" := Round("VAT Base Amount", Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
@@ -825,7 +823,7 @@
                         Amount :=
                           Round(
                             "VAT Base Amount" * (1 + "VAT %" / 100),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Full VAT":
                         if "VAT Base Amount" <> 0 then
                             FieldError(
@@ -843,7 +841,7 @@
                         end else begin
                             "VAT Amount" :=
                               SalesTaxCalculate.CalculateTax(
-                                "Tax Area Code", "Tax Group Code", "Tax Liable", WorkDate,
+                                "Tax Area Code", "Tax Group Code", "Tax Liable", WorkDate(),
                                 "VAT Base Amount", Quantity, "Currency Factor");
                             if "VAT Base Amount" <> 0 then
                                 "VAT %" := Round(100 * "VAT Amount" / "VAT Base Amount", 0.00001)
@@ -865,7 +863,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "Bal. VAT Base Amount" := Round("Bal. VAT Base Amount", Currency."Amount Rounding Precision");
                 case "Bal. VAT Calculation Type" of
                     "Bal. VAT Calculation Type"::"Normal VAT",
@@ -873,7 +871,7 @@
                         Amount :=
                           Round(
                             -"Bal. VAT Base Amount" * (1 + "Bal. VAT %" / 100),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "Bal. VAT Calculation Type"::"Full VAT":
                         if "Bal. VAT Base Amount" <> 0 then
                             FieldError(
@@ -892,7 +890,7 @@
                             "Bal. VAT Amount" :=
                               SalesTaxCalculate.CalculateTax(
                                 "Bal. Tax Area Code", "Bal. Tax Group Code", "Bal. Tax Liable",
-                                WorkDate, "Bal. VAT Base Amount", Quantity, "Currency Factor");
+                                WorkDate(), "Bal. VAT Base Amount", Quantity, "Currency Factor");
                             if "Bal. VAT Base Amount" <> 0 then
                                 "Bal. VAT %" := Round(100 * "Bal. VAT Amount" / "Bal. VAT Base Amount", 0.00001)
                             else
@@ -929,7 +927,7 @@
                 if ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '') or
                    ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '')
                 then
-                    UpdateSource
+                    UpdateSource()
                 else
                     "Source No." := '';
             end;
@@ -950,7 +948,7 @@
                 if ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '') or
                    ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '')
                 then
-                    UpdateSource;
+                    UpdateSource();
             end;
         }
         field(80; "Posting No. Series"; Code[20])
@@ -1237,16 +1235,17 @@
     end;
 
     var
-        Text000: Label '%1 or %2 must be G/L Account or Bank Account.';
-        Text001: Label 'You cannot rename a %1.';
-        Text002: Label 'cannot be specified without %1';
-        Text006: Label 'The %1 option can only be used internally in the system.';
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         VATPostingSetup: Record "VAT Posting Setup";
         DimMgt: Codeunit DimensionManagement;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         CurrencyCode: Code[10];
+
+        Text000: Label '%1 or %2 must be G/L Account or Bank Account.';
+        Text001: Label 'You cannot rename a %1.';
+        Text002: Label 'cannot be specified without %1';
+        Text006: Label 'The %1 option can only be used internally in the system.';
         Text007: Label '%1 or %2 must be a Bank Account.';
         Text008: Label ' must be 0 when %1 is %2.';
         Text010: Label '%1 must be %2 or %3.';
@@ -1309,7 +1308,7 @@
 
     local procedure CheckGLAcc(GLAcc: Record "G/L Account")
     begin
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         if GLAcc."Direct Posting" or ("Journal Template Name" = '') then
             exit;
         GLAcc.TestField("Direct Posting", true);
@@ -1355,7 +1354,7 @@
             AccountType::"IC Partner":
                 begin
                     ICPartner.Get(AccountNo);
-                    ICPartner.CheckICPartner;
+                    ICPartner.CheckICPartner();
                 end;
         end;
     end;
@@ -1397,7 +1396,7 @@
     begin
         if CurrencyCode = '' then begin
             Clear(Currency);
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         end else
             if CurrencyCode <> Currency.Code then begin
                 Currency.Get(CurrencyCode);
@@ -1528,7 +1527,7 @@
         "Tax Area Code" := GLAcc."Tax Area Code";
         "Tax Liable" := GLAcc."Tax Liable";
         "Tax Group Code" := GLAcc."Tax Group Code";
-        if WorkDate = ClosingDate(WorkDate) then begin
+        if WorkDate() = ClosingDate(WorkDate()) then begin
             "Gen. Posting Type" := "Gen. Posting Type"::" ";
             "Gen. Bus. Posting Group" := '';
             "Gen. Prod. Posting Group" := '';
@@ -1565,7 +1564,7 @@
         "Bal. Tax Area Code" := GLAcc."Tax Area Code";
         "Bal. Tax Liable" := GLAcc."Tax Liable";
         "Bal. Tax Group Code" := GLAcc."Tax Group Code";
-        if WorkDate = ClosingDate(WorkDate) then begin
+        if WorkDate() = ClosingDate(WorkDate()) then begin
             "Bal. Gen. Bus. Posting Group" := '';
             "Bal. Gen. Prod. Posting Group" := '';
             "Bal. VAT Bus. Posting Group" := '';
@@ -1597,14 +1596,13 @@
         "Gen. Prod. Posting Group" := '';
         "VAT Bus. Posting Group" := '';
         "VAT Prod. Posting Group" := '';
-        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> "Account No.") then begin
+        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> "Account No.") then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text014, Cust.TableCaption, Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
+                   Text014, Cust.TableCaption(), Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
                    Cust."Bill-to Customer No."), true)
             then
                 Error('');
-        end;
         Validate("Payment Terms Code");
     end;
 
@@ -1632,14 +1630,13 @@
         "Bal. Gen. Prod. Posting Group" := '';
         "Bal. VAT Bus. Posting Group" := '';
         "Bal. VAT Prod. Posting Group" := '';
-        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> "Bal. Account No.") then begin
+        if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> "Bal. Account No.") then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text014, Cust.TableCaption, Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
+                   Text014, Cust.TableCaption(), Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
                    Cust."Bill-to Customer No."), true)
             then
                 Error('');
-        end;
         Validate("Payment Terms Code");
     end;
 
@@ -1666,14 +1663,13 @@
         "Gen. Prod. Posting Group" := '';
         "VAT Bus. Posting Group" := '';
         "VAT Prod. Posting Group" := '';
-        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Account No.") then begin
+        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Account No.") then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text014, Vend.TableCaption, Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
+                   Text014, Vend.TableCaption(), Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
                    Vend."Pay-to Vendor No."), true)
             then
                 Error('');
-        end;
         Validate("Payment Terms Code");
     end;
 
@@ -1701,14 +1697,13 @@
         "Bal. Gen. Prod. Posting Group" := '';
         "Bal. VAT Bus. Posting Group" := '';
         "Bal. VAT Prod. Posting Group" := '';
-        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Bal. Account No.") then begin
+        if (Vend."Pay-to Vendor No." <> '') and (Vend."Pay-to Vendor No." <> "Bal. Account No.") then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text014, Vend.TableCaption, Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
+                   Text014, Vend.TableCaption(), Vend."No.", Vend.FieldCaption("Pay-to Vendor No."),
                    Vend."Pay-to Vendor No."), true)
             then
                 Error('');
-        end;
         Validate("Payment Terms Code");
     end;
 
@@ -1802,7 +1797,7 @@
         ICPartner: Record "IC Partner";
     begin
         ICPartner.Get("Account No.");
-        ICPartner.CheckICPartner;
+        ICPartner.CheckICPartner();
         Description := ICPartner.Name;
         if ("Bal. Account No." = '') or ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") then
             "Currency Code" := ICPartner."Currency Code";

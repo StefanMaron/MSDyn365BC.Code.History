@@ -60,7 +60,7 @@ codeunit 139002 "Web Services Tests"
         WebServicesPage.GotoKey(WebService."Object Type"::Page, UnpublishedPageTxt);
         Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, 'SOAP Url should be empty when not published: ' + CodeunitServiceTxt);
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageATxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageATxt + ' all tenants should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -110,7 +110,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageBTxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageBTxt + ' all tenants should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsFalse(WebServicesPage.Published.AsBoolean, PageCTxt + ' web service record "Published" field should not be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageCTxt + ' all tenants should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -160,7 +160,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageDTxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageDTxt + ' all tenants should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageETxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageETxt + ' all tenants should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageFTxt + ' web service record "Published" field should be checked.');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageFTxt + ' all tenants should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -244,7 +244,7 @@ codeunit 139002 "Web Services Tests"
 
         Assert.IsFalse(WebServicesPage.GotoKey(WebService."Object Type"::Page, PageJTxt), PageJTxt + ' should not be displayed.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -275,7 +275,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsFalse(
           WebServicesPage.Published.AsBoolean, PageMTxt + ' web service record "Published" field should not be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -306,7 +306,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(
           WebServicesPage.Published.AsBoolean, PageOTxt + ' web service record "Published" field should be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -337,7 +337,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsFalse(
           WebServicesPage.Published.AsBoolean, PageQTxt + ' web service record "Published" field should not be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     local procedure Initialize()
@@ -354,222 +354,222 @@ codeunit 139002 "Web Services Tests"
             DeleteAll();
 
             // Add a Page for both OData and SOAP.
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Service Name" := PageServiceTxt;
             "Object ID" := PAGE::"Customer List";
             Published := true;
-            Insert;
+            Insert();
 
             // Add a Codeunit for SOAP.
-            Init;
+            Init();
             "Object Type" := "Object Type"::Codeunit;
             "Service Name" := CodeunitServiceTxt;
             "Object ID" := CODEUNIT::"CustVendBank-Update";
             Published := true;
-            Insert;
+            Insert();
 
             // Add a Query for OData.
-            Init;
+            Init();
             "Object Type" := "Object Type"::Query;
             "Service Name" := QueryServiceTxt;
             "Object ID" := QUERY::"My Customers";
             Published := true;
-            Insert;
+            Insert();
 
             // Add an unpublished Page.
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Service Name" := UnpublishedPageTxt;
             "Object ID" := PAGE::"Customer Ledger Entries";
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Company Information";
             "Service Name" := PageATxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Payment Terms";
             "Service Name" := PageBTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::Currencies;
             "Service Name" := PageCTxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Finance Charge Terms";
             "Service Name" := PageDTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Customer Price Groups";
             "Service Name" := PageETxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::Languages;
             "Service Name" := PageFTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Chart of Accounts";
             "Service Name" := PageGTxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Vendor Card";
             "Service Name" := PageHTxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Vendor Card";
             "Service Name" := PageITxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Resource Groups";
             "Service Name" := PageKTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Job Card";
             "Service Name" := PageNTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Job List";
             "Service Name" := PagePTxt;
             Published := true;
-            Insert;
+            Insert();
         end;
 
         with TenantWebService do begin
             DeleteAll();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Payment Terms";
             "Service Name" := PageBTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::Currencies;
             "Service Name" := PageCTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Finance Charge Terms";
             "Service Name" := PageDTxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Standard Text Codes";
             "Service Name" := PageETxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Countries/Regions";
             "Service Name" := PageFTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Chart of Accounts";
             "Service Name" := PageGTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Vendor Card";
             "Service Name" := PageHTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Vendor Card";
             "Service Name" := PageITxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Vendor Card";
             "Service Name" := PageJTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Resource Groups";
             "Service Name" := PageKTxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Printer Selections";
             "Service Name" := PageLTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Rounding Methods";
             "Service Name" := PageMTxt;
             Published := false;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Job Card";
             "Service Name" := PageOTxt;
             Published := true;
-            Insert;
+            Insert();
 
-            Init;
+            Init();
             "Object Type" := "Object Type"::Page;
             "Object ID" := PAGE::"Job List";
             "Service Name" := PageQTxt;
             Published := false;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -600,7 +600,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(WebServicesPage."All Tenants".Enabled, 'All tenants should be enabled when user can write to app db');
         Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, 'All tenants should default checked when user can write to app db');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -614,7 +614,7 @@ codeunit 139002 "Web Services Tests"
     begin
         // Test unselecting the all tenants checkbox will remove the system record and add a tenant record
         // if one doesn't already exist.
-        AutoServiceName := CreateGuid;
+        AutoServiceName := CreateGuid();
 
         WebService.Init();
         WebService."Object Type" := WebService."Object Type"::Page;
@@ -633,7 +633,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(
           WebServicesPage."All Tenants".AsBoolean, AutoServiceName + ' web service record "All Tenants" field should be checked.');
         WebServicesPage."All Tenants".Value := Format(false);
-        WebServicesPage.Next;
+        WebServicesPage.Next();
 
         Assert.IsFalse(
           WebService.Get(WebService."Object Type"::Page, AutoServiceName),
@@ -642,7 +642,7 @@ codeunit 139002 "Web Services Tests"
           TenantWebService.Get(TenantWebService."Object Type"::Page, AutoServiceName),
           AutoServiceName + ' should exist in the Tenant Web Service table');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -656,7 +656,7 @@ codeunit 139002 "Web Services Tests"
     begin
         // Test unselecting the all tenants checkbox will remove the system record and add a tenant record
         // if one doesn't already exist.
-        AutoServiceName := CreateGuid;
+        AutoServiceName := CreateGuid();
 
         WebService.Init();
         WebService."Object Type" := WebService."Object Type"::Page;
@@ -682,7 +682,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsTrue(
           WebServicesPage."All Tenants".AsBoolean, AutoServiceName + ' web service record "All Tenants" field should be checked.');
         WebServicesPage."All Tenants".Value := Format(false);
-        WebServicesPage.Next;
+        WebServicesPage.Next();
 
         Assert.IsFalse(
           WebService.Get(WebService."Object Type"::Page, AutoServiceName),
@@ -693,7 +693,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsFalse(
           TenantWebService.Published, AutoServiceName + ' tenant web service record "Published" field should not be checked.');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 
     [Test]
@@ -706,7 +706,7 @@ codeunit 139002 "Web Services Tests"
         AutoServiceName: Text[240];
     begin
         // Test selecting the all tenant checkbox will add a system record.
-        AutoServiceName := CreateGuid;
+        AutoServiceName := CreateGuid();
 
         TenantWebService.Init();
         TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
@@ -724,7 +724,7 @@ codeunit 139002 "Web Services Tests"
         Assert.IsFalse(
           WebServicesPage."All Tenants".AsBoolean, AutoServiceName + ' web service record "All Tenants" field should not be checked.');
         WebServicesPage."All Tenants".Value := Format(true);
-        WebServicesPage.Next;
+        WebServicesPage.Next();
 
         Assert.IsTrue(
           WebService.Get(WebService."Object Type"::Page, AutoServiceName), AutoServiceName + ' should exist in the Web Service table');
@@ -732,7 +732,7 @@ codeunit 139002 "Web Services Tests"
           TenantWebService.Get(TenantWebService."Object Type"::Page, AutoServiceName),
           AutoServiceName + ' should (still) exist in the Tenant Web Service table');
 
-        WebServicesPage.Close;
+        WebServicesPage.Close();
     end;
 }
 

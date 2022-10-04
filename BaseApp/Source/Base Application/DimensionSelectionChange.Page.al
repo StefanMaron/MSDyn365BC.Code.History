@@ -31,12 +31,12 @@ page 567 "Dimension Selection-Change"
                     Editable = false;
                     ToolTip = 'Specifies a description of the dimension.';
                 }
-                field("Dimension Value Filter"; "Dimension Value Filter")
+                field("Dimension Value Filter"; Rec."Dimension Value Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value that the analysis view is based on.';
                 }
-                field("New Dimension Value Code"; "New Dimension Value Code")
+                field("New Dimension Value Code"; Rec."New Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the new dimension value to that you are changing to.';
@@ -65,12 +65,11 @@ page 567 "Dimension Selection-Change"
         GLAcc: Record "G/L Account";
         BusinessUnit: Record "Business Unit";
     begin
-        if NewDescription = '' then begin
+        if NewDescription = '' then
             if Dim.Get(NewCode) then
                 NewDescription := Dim.Name;
-        end;
 
-        Init;
+        Init();
         Selected := NewSelected;
         Code := NewCode;
         Description := NewDescription;
@@ -84,7 +83,7 @@ page 567 "Dimension Selection-Change"
             BusinessUnit.TableCaption:
                 "Filter Lookup Table No." := DATABASE::"Business Unit";
         end;
-        Insert;
+        Insert();
     end;
 }
 

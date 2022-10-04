@@ -13,7 +13,7 @@ page 9197 "Profile Designer Diagnostics"
         {
             repeater(Control1)
             {
-                field("Profile ID"; "Profile ID")
+                field("Profile ID"; Rec."Profile ID")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -68,6 +68,7 @@ page 9197 "Profile Designer Diagnostics"
         DeleteAll();
         ProfileDesignerDiagnostic.SetRange("Import ID", ImportID);
         ProfileDesignerDiagnosticCounter.SetRange("Import ID", ImportID);
+        PreviousProfileId := '';
         if ProfileDesignerDiagnostic.FindSet() then
             repeat
                 if ((ProfileDesignerDiagnostic."Profile App ID" <> PreviousAppId) or (ProfileDesignerDiagnostic."Profile ID" <> PreviousProfileId)) then begin

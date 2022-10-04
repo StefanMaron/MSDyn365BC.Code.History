@@ -17,13 +17,13 @@ page 99000892 "Work Center Group Load Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view, for an overview of availability at the current work center group.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Period Name';
@@ -46,7 +46,7 @@ page 99000892 "Work Center Group Load Lines"
                         PAGE.Run(0, CalendarEntry);
                     end;
                 }
-                field("WorkCenterGroup.""Prod. Order Need (Qty.)"""; "Allocated Qty.")
+                field("WorkCenterGroup.""Prod. Order Need (Qty.)"""; Rec."Allocated Qty.")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Allocated Qty.';
@@ -156,42 +156,42 @@ page 99000892 "Work Center Group Load Lines"
             WorkCenterGroup.SetRange("Date Filter", 0D, "Period End");
     end;
 
-    local procedure CalculateCapacity(var CapacityEffective: Decimal; var ProdOrderNeed: Decimal)
+    local procedure CalculateCapacity(var WorkCenterGroup: Record "Work Center Group")
     var
         WorkCenter: Record "Work Center";
         CalendarMgt: Codeunit "Shop Calendar Management";
-        Capacity: Decimal;
-        PONeed: Decimal;
     begin
         if CapacityUoM = '' then
             CapacityUoM := MfgSetup."Show Capacity In";
+
+        OnBeforeCalculateCapacity(WorkCenterGroup, CapacityUoM);
+
         WorkCenter.SetCurrentKey("Work Center Group Code");
         WorkCenter.SetRange("Work Center Group Code", WorkCenterGroup.Code);
         if WorkCenter.FindSet() then
             repeat
                 WorkCenterGroup.CopyFilter("Date Filter", WorkCenter."Date Filter");
                 WorkCenter.CalcFields("Capacity (Effective)", "Prod. Order Need (Qty.)");
-                Capacity :=
-                  Capacity +
-                  WorkCenter."Capacity (Effective)" *
-                  CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") /
-                  CalendarMgt.TimeFactor(CapacityUoM);
+                WorkCenterGroup."Capacity (Effective)" +=
+                    WorkCenter."Capacity (Effective)" *
+                    CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") /
+                    CalendarMgt.TimeFactor(CapacityUoM);
 
-                PONeed :=
-                  PONeed +
-                  WorkCenter."Prod. Order Need (Qty.)" *
-                  CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") /
-                  CalendarMgt.TimeFactor(CapacityUoM);
+                WorkCenterGroup."Prod. Order Need (Qty.)" +=
+                    WorkCenter."Prod. Order Need (Qty.)" *
+                    CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") /
+                    CalendarMgt.TimeFactor(CapacityUoM);
+
+                OnAfterCalculateWorkCenterCapacity(WorkCenter, WorkCenterGroup, CapacityUoM);
             until WorkCenter.Next() = 0;
 
-        CapacityEffective := Capacity;
-        ProdOrderNeed := PONeed;
+        OnAfterCalculateCapacity(WorkCenterGroup, CapacityUoM);
     end;
 
     local procedure CalcLine()
     begin
         SetDateFilter();
-        CalculateCapacity(WorkCenterGroup."Capacity (Effective)", WorkCenterGroup."Prod. Order Need (Qty.)");
+        CalculateCapacity(WorkCenterGroup);
         Capacity := WorkCenterGroup."Capacity (Effective)";
         "Allocated Qty." := WorkCenterGroup."Prod. Order Need (Qty.)";
         "Availability After Orders" := WorkCenterGroup."Capacity (Effective)" - WorkCenterGroup."Prod. Order Need (Qty.)";
@@ -205,6 +205,21 @@ page 99000892 "Work Center Group Load Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLine(var WorkCenterGroup: Record "Work Center Group"; var LoadBuffer: Record "Load Buffer"; CapacityUoM: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateCapacity(var WorkCenterGroup: Record "Work Center Group"; var CapacityUoM: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateCapacity(var WorkCenterGroup: Record "Work Center Group"; var CapacityUoM: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateWorkCenterCapacity(var WorkCenter: Record "Work Center"; var WorkCenterGroup: Record "Work Center Group"; var CapacityUoM: Code[10])
     begin
     end;
 }

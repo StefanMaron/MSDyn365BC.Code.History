@@ -24,14 +24,14 @@ codeunit 99000768 "Production BOM-Copy"
         if (CurrentBOMHeader."No." = BOMHeaderNo) and
            (FromVersionCode = ToVersionCode)
         then
-            Error(Text000, CurrentBOMHeader.TableCaption);
+            Error(Text000, CurrentBOMHeader.TableCaption());
 
         if ToVersionCode = '' then begin
             if CurrentBOMHeader.Status = CurrentBOMHeader.Status::Certified then
                 Error(
                   Text001,
                   CurrentBOMHeader.FieldCaption(Status),
-                  CurrentBOMHeader.TableCaption,
+                  CurrentBOMHeader.TableCaption(),
                   CurrentBOMHeader."No.",
                   CurrentBOMHeader.Status);
         end else begin
@@ -41,7 +41,7 @@ codeunit 99000768 "Production BOM-Copy"
                 Error(
                   Text002,
                   ProdBOMVersion.FieldCaption(Status),
-                  ProdBOMVersion.TableCaption,
+                  ProdBOMVersion.TableCaption(),
                   ProdBOMVersion."Production BOM No.",
                   ProdBOMVersion."Version Code",
                   ProdBOMVersion.Status);
@@ -104,7 +104,7 @@ codeunit 99000768 "Production BOM-Copy"
                 Error(
                   Text002,
                   OldProdBOMVersionList.FieldCaption(Status),
-                  OldProdBOMVersionList.TableCaption,
+                  OldProdBOMVersionList.TableCaption(),
                   OldProdBOMVersionList."Production BOM No.",
                   OldProdBOMVersionList."Version Code",
                   OldProdBOMVersionList.Status);

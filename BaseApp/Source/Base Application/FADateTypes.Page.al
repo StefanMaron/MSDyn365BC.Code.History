@@ -12,7 +12,7 @@ page 5661 "FA Date Types"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FA Date Type Name"; "FA Date Type Name")
+                field("FA Date Type Name"; Rec."FA Date Type Name")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the fixed asset data type.';

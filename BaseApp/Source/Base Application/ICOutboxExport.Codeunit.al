@@ -17,13 +17,14 @@ codeunit 431 "IC Outbox Export"
     end;
 
     var
-        Text001: Label 'Intercompany transactions from %1.';
-        Text002: Label 'Attached to this mail is an xml file containing one or more intercompany transactions from %1 (%2 %3).';
-        Text003: Label 'Do you want to complete line actions?';
         CompanyInfo: Record "Company Information";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         FileMgt: Codeunit "File Management";
         ClientTypeManagement: Codeunit "Client Type Management";
+
+        Text001: Label 'Intercompany transactions from %1.';
+        Text002: Label 'Attached to this mail is an xml file containing one or more intercompany transactions from %1 (%2 %3).';
+        Text003: Label 'Do you want to complete line actions?';
         FolderPathMissingErr: Label 'Folder Path must have a value in IC Partner: Code=%1. It cannot be zero or empty.', Comment = '%1=Intercompany Code';
         EmailAddressMissingErr: Label 'Email Address must have a value in IC Partner: Code=%1. It cannot be zero or empty.', Comment = '%1=Intercompany Code';
 
@@ -49,7 +50,7 @@ codeunit 431 "IC Outbox Export"
         CopyICOutboxTransaction.SetRange("Line Action",
           CopyICOutboxTransaction."Line Action"::"Return to Inbox");
         ReturnToInbox(CopyICOutboxTransaction);
-        CancelTrans(CopyICOutboxTransaction);
+        CancelTransaction(CopyICOutboxTransaction);
     end;
 
     local procedure ModifyAndRunOutboxTransactionNo(ICOutboxTransactionNo: Integer)
@@ -80,7 +81,7 @@ codeunit 431 "IC Outbox Export"
             ModifyAndRunOutboxTransactionNo(ICOutboxTransactionNo);
     end;
 
-    local procedure SendToExternalPartner(var ICOutboxTrans: Record "IC Outbox Transaction")
+    procedure SendToExternalPartner(var ICOutboxTrans: Record "IC Outbox Transaction")
     var
         ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
@@ -130,9 +131,9 @@ codeunit 431 "IC Outbox Export"
                                 i := 0;
                         end;
                     end else begin
-                        OFile.CreateTempFile;
+                        OFile.CreateTempFile();
                         FileName := StrSubstNo('%1.%2.xml', OFile.Name, ICPartner.Code);
-                        OFile.Close;
+                        OFile.Close();
                     end;
 
                     ExportOutboxTransaction(ICOutboxTrans, FileName);
@@ -300,7 +301,7 @@ codeunit 431 "IC Outbox Export"
             until ICOutboxTrans.Next() = 0;
     end;
 
-    local procedure ReturnToInbox(var ICOutboxTrans: Record "IC Outbox Transaction")
+    procedure ReturnToInbox(var ICOutboxTrans: Record "IC Outbox Transaction")
     var
         ICPartner: Record "IC Partner";
         MoveICTransToPartnerCompany: Report "Move IC Trans. to Partner Comp";
@@ -320,7 +321,7 @@ codeunit 431 "IC Outbox Export"
             until ICOutboxTrans.Next() = 0;
     end;
 
-    local procedure CancelTrans(var ICOutboxTrans: Record "IC Outbox Transaction")
+    procedure CancelTransaction(var ICOutboxTrans: Record "IC Outbox Transaction")
     begin
         ICOutboxTrans.SetRange("Line Action", ICOutboxTrans."Line Action"::Cancel);
         if ICOutboxTrans.Find('-') then
@@ -329,7 +330,7 @@ codeunit 431 "IC Outbox Export"
             until ICOutboxTrans.Next() = 0;
     end;
 
-    local procedure UpdateICStatus(var ICOutboxTransaction: Record "IC Outbox Transaction")
+    procedure UpdateICStatus(var ICOutboxTransaction: Record "IC Outbox Transaction")
     var
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
@@ -383,16 +384,16 @@ codeunit 431 "IC Outbox Export"
 
         ICOutboxImpExpXML.SetICOutboxTrans(ICOutboxTransaction);
         ICOutboxImpExpXML.SetDestination(OStr);
-        ICOutboxImpExpXML.Export;
+        ICOutboxImpExpXML.Export();
 
-        OFile.Close;
+        OFile.Close();
         Clear(OStr);
         Clear(ICOutboxImpExpXML);
     end;
 
     local procedure IsWebClient(): Boolean
     begin
-        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]);
+        exit(ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]);
     end;
 
     [IntegrationEvent(false, false)]

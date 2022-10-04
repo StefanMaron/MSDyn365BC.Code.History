@@ -67,7 +67,7 @@ page 1816 "Job Creation Wizard"
                         InstructionalText = 'Fill in the following fields for the new job.';
                         ShowCaption = false;
                         Visible = CreationStepVisible;
-                        field("No."; "No.")
+                        field("No."; Rec."No.")
                         {
                             ApplicationArea = Jobs;
                             Caption = 'No.';
@@ -99,7 +99,7 @@ page 1816 "Job Creation Wizard"
                             end;
                         }
 #if not CLEAN20
-                        field("Bill-to Customer No."; "Bill-to Customer No.")
+                        field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Bill-to Customer No.';
@@ -177,7 +177,7 @@ page 1816 "Job Creation Wizard"
 
                 trigger OnAction()
                 begin
-                    FinishAction;
+                    FinishAction();
                 end;
             }
         }
@@ -185,15 +185,15 @@ page 1816 "Job Creation Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     begin
-        Init;
+        Init();
 
         Step := Step::Start;
-        EnableControls;
+        EnableControls();
     end;
 
     var
@@ -231,22 +231,22 @@ page 1816 "Job Creation Wizard"
             end;
         end;
 
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::Creation:
-                ShowCreationStep;
+                ShowCreationStep();
             Step::Finish:
-                ShowFinalStep;
+                ShowFinalStep();
         end;
     end;
 
     local procedure FinishAction()
     begin
         PAGE.Run(PAGE::"Job Card", Rec);
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure NextStep(Backwards: Boolean)
@@ -256,7 +256,7 @@ page 1816 "Job Creation Wizard"
         else
             Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowStartStep()
@@ -279,7 +279,7 @@ page 1816 "Job Creation Wizard"
         end;
 
         if not FromExistingJob then
-            FinishAction;
+            FinishAction();
     end;
 
     local procedure ShowFinalStep()
@@ -309,8 +309,8 @@ page 1816 "Job Creation Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")

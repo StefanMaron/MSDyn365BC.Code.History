@@ -47,7 +47,7 @@ codeunit 342 "Currency CaptionClass Mgmt"
             CurCaptionType := CopyStr(CaptionExpr, 1, CommaPosition - 1);
             CurCaptionRef := CopyStr(CaptionExpr, CommaPosition + 1);
             if not GLSetupRead then begin
-                if not GLSetup.Get then
+                if not GLSetup.Get() then
                     exit(CurCaptionRef);
                 GLSetupRead := true;
             end;

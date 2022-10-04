@@ -40,7 +40,7 @@ codeunit 132472 "Payment Service Extension Mock"
             PaymentServiceSetup."No." := CurrentNo;
             PaymentServiceSetup.Insert(true);
             CurrentNo := IncStr(CurrentNo);
-        until TempTemplatePaymentServiceSetup.Next = 0;
+        until TempTemplatePaymentServiceSetup.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Payment Service Setup", 'OnCreatePaymentService', '', false, false)]
@@ -79,7 +79,7 @@ codeunit 132472 "Payment Service Extension Mock"
         repeat
             PaymentServiceSetup.TransferFields(TempAccountPaymentServiceSetup);
             PaymentServiceSetup.Insert(true);
-        until TempAccountPaymentServiceSetup.Next = 0;
+        until TempAccountPaymentServiceSetup.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
@@ -95,7 +95,7 @@ codeunit 132472 "Payment Service Extension Mock"
                 ServiceConnection.InsertServiceConnection(
                   ServiceConnection, TempAccountPaymentServiceSetup."Setup Record ID", TempAccountPaymentServiceSetup.Description,
                   '', TempAccountPaymentServiceSetup."Setup Page ID");
-            until TempAccountPaymentServiceSetup.Next = 0;
+            until TempAccountPaymentServiceSetup.Next() = 0;
     end;
 
     procedure AssertQueuesEmpty()
@@ -133,7 +133,7 @@ codeunit 132472 "Payment Service Extension Mock"
         repeat
             TempBufferPaymentServiceSetup.TransferFields(TempPaymentServiceSetup);
             TempBufferPaymentServiceSetup.Insert(true);
-        until TempPaymentServiceSetup.Next = 0;
+        until TempPaymentServiceSetup.Next() = 0;
 
         TempPaymentServiceSetup.FindFirst();
     end;

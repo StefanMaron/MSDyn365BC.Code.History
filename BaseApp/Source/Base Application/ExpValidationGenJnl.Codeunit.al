@@ -6,8 +6,8 @@ codeunit 1272 "Exp. Validation Gen. Jnl."
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        DeletePaymentFileBatchErrors;
-        DeletePaymentFileErrors;
+        DeletePaymentFileBatchErrors();
+        DeletePaymentFileErrors();
 
         GenJnlLine.CopyFilters(Rec);
         if GenJnlLine.FindSet() then
@@ -15,7 +15,7 @@ codeunit 1272 "Exp. Validation Gen. Jnl."
                 CODEUNIT.Run(CODEUNIT::"Payment Export Gen. Jnl Check", GenJnlLine);
             until GenJnlLine.Next() = 0;
 
-        if GenJnlLine.HasPaymentFileErrorsInBatch then begin
+        if GenJnlLine.HasPaymentFileErrorsInBatch() then begin
             Commit();
             Error(HasErrorsErr);
         end;

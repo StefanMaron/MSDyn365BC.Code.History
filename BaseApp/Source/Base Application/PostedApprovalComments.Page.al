@@ -16,13 +16,13 @@ page 661 "Posted Approval Comments"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies the ID of the user who created this approval comment.';
@@ -40,12 +40,12 @@ page 661 "Posted Approval Comments"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the comment. You can enter a maximum of 250 characters, both numbers and letters.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the document number of the quote, order, invoice, credit memo, return order, or blanket order that the comment applies to.';
                 }
-                field("Date and Time"; "Date and Time")
+                field("Date and Time"; Rec."Date and Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time that the comment was made.';

@@ -34,19 +34,19 @@ page 1060 "Payment Services"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the payment service is enabled.';
                 }
-                field("Always Include on Documents"; "Always Include on Documents")
+                field("Always Include on Documents"; Rec."Always Include on Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the payment service is always available in the Payment Service field on outgoing sales documents.';
                 }
-                field("Terms of Service"; "Terms of Service")
+                field("Terms of Service"; Rec."Terms of Service")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a link to the Terms of Service page for the payment service.';
 
                     trigger OnDrillDown()
                     begin
-                        TermsOfServiceDrillDown;
+                        TermsOfServiceDrillDown();
                     end;
                 }
             }
@@ -62,15 +62,12 @@ page 1060 "Payment Services"
                 ApplicationArea = Basic, Suite;
                 Caption = 'New';
                 Image = NewDocument;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
                 ToolTip = 'Add a payment service (such as PayPal) on the application that lets customers make online payments for sales orders and invoices.';
 
                 trigger OnAction()
                 begin
-                    if NewPaymentService then begin
-                        Reset;
+                    if NewPaymentService() then begin
+                        Reset();
                         DeleteAll();
                         OnRegisterPaymentServices(Rec);
                     end;
@@ -82,25 +79,41 @@ page 1060 "Payment Services"
                 Caption = 'Setup';
                 Enabled = SetupEditable;
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Change the payment service setup.';
 
                 trigger OnAction()
                 begin
-                    OpenSetupCard;
-                    Reset;
+                    OpenSetupCard();
+                    Reset();
                     DeleteAll();
                     OnRegisterPaymentServices(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(NewAction_Promoted; NewAction)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateSetupEditable;
+        UpdateSetupEditable();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -124,7 +137,7 @@ page 1060 "Payment Services"
 
     local procedure UpdateSetupEditable()
     begin
-        SetupEditable := not IsEmpty;
+        SetupEditable := not IsEmpty();
     end;
 }
 

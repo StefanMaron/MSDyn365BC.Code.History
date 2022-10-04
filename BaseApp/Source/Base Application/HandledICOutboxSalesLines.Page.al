@@ -14,17 +14,17 @@ page 641 "Handled IC Outbox Sales Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("IC Partner Ref. Type"; "IC Partner Ref. Type")
+                field("IC Partner Ref. Type"; Rec."IC Partner Ref. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
                 }
-                field("IC Partner Reference"; "IC Partner Reference")
+                field("IC Partner Reference"; Rec."IC Partner Reference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                 }
-                field("IC Item Reference No."; "IC Item Reference No.")
+                field("IC Item Reference No."; Rec."IC Item Reference No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC item reference. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item reference in your partner''s company that corresponds to the line.';
@@ -39,46 +39,46 @@ page 641 "Handled IC Outbox Sales Lines"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies how many units of the item will be specified on the line.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the net amount, including VAT, for this line.';
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Drop Shipment"; "Drop Shipment")
+                field("Drop Shipment"; Rec."Drop Shipment")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
                     Visible = false;
                 }
-                field("VAT Base Amount"; "VAT Base Amount")
+                field("VAT Base Amount"; Rec."VAT Base Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the amount that serves as a base for calculating the Amount Including VAT field.';
                     Visible = false;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                     Visible = false;
                 }
-                field("Requested Delivery Date"; "Requested Delivery Date")
+                field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the date that your customer has asked the items on this order line to be delivered.';

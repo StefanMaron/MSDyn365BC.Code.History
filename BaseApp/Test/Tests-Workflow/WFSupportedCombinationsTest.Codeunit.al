@@ -41,10 +41,10 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHierarchies.MatrixEventSubpage.First;
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
-        WorkflowEventHierarchies.MatrixEventSubpage.Next;
+        WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent2.Description, true, false, true);
 
-        WorkflowEventHierarchies.MatrixEventSubpage.Next;
+        WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent3.Description, true, false, false);
 
         Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next, 'There should only be 3 events.');
@@ -135,7 +135,7 @@ codeunit 134207 "WF Supported Combinations Test"
         // Exercise
         WorkflowEventHierarchies.NextSet.Invoke;
         WorkflowEventHierarchies.MatrixEventSubpage.First;
-        WorkflowEventHierarchies.MatrixEventSubpage.Next;
+        WorkflowEventHierarchies.MatrixEventSubpage.Next();
         UpdateAllEventCells(WorkflowEventHierarchies);
 
         // Verify
@@ -182,10 +182,10 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHierarchies.MatrixEventSubpage.First;
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
-        WorkflowEventHierarchies.MatrixEventSubpage.Next;
+        WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent2.Description, true, true, true);
 
-        WorkflowEventHierarchies.MatrixEventSubpage.Next;
+        WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent3.Description, true, true, true);
 
         Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next, 'There should only be 3 events.');
@@ -225,7 +225,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowEventHierarchies.MatrixEventSubpage.First;
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent1.Description, true, true, false);
 
-        WorkflowEventHierarchies.MatrixEventSubpage.Next;
+        WorkflowEventHierarchies.MatrixEventSubpage.Next();
         VerifyEventMatrixRow(WorkflowEventHierarchies, WorkflowEvent2.Description, true, true, false);
 
         Assert.IsFalse(WorkflowEventHierarchies.MatrixEventSubpage.Next, 'There should only be 2 events.');
@@ -262,7 +262,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombinations.MatrixResponseSubpage.First;
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, false, true);
 
-        WFEventResponseCombinations.MatrixResponseSubpage.Next;
+        WFEventResponseCombinations.MatrixResponseSubpage.Next();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent2.Description, true, false);
 
         Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next, 'There should only be 2 events.');
@@ -296,7 +296,7 @@ codeunit 134207 "WF Supported Combinations Test"
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, true);
 
         // Exercise.
-        WFEventResponseCombinations.MatrixResponseSubpage.Next;
+        WFEventResponseCombinations.MatrixResponseSubpage.Next();
         WFEventResponseCombinations.MatrixResponseSubpage.Cell2.SetValue(true);
 
         // Verify
@@ -418,7 +418,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombinations.MatrixResponseSubpage.First;
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, false);
 
-        WFEventResponseCombinations.MatrixResponseSubpage.Next;
+        WFEventResponseCombinations.MatrixResponseSubpage.Next();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent2.Description, true, true);
 
         Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next, 'There should only be 2 events.');
@@ -460,7 +460,7 @@ codeunit 134207 "WF Supported Combinations Test"
         WFEventResponseCombinations.MatrixResponseSubpage.First;
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent1.Description, true, true);
 
-        WFEventResponseCombinations.MatrixResponseSubpage.Next;
+        WFEventResponseCombinations.MatrixResponseSubpage.Next();
         VerifyResponseMatrixRow(WFEventResponseCombinations, WorkflowEvent2.Description, true, true);
 
         Assert.IsFalse(WFEventResponseCombinations.MatrixResponseSubpage.Next, 'There should only be 2 events.');
@@ -595,7 +595,7 @@ codeunit 134207 "WF Supported Combinations Test"
                     WFEventResponseCombination."Predecessor Type"::"Event", WorkflowEvent."Function Name");
                 Assert.AssertRecordNotFound;
             end;
-        until WorkflowEvent.Next = 0;
+        until WorkflowEvent.Next() = 0;
     end;
 
     [Test]

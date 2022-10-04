@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2108 "O365 Outstanding Customer List"
 {
     Caption = 'Customers';
@@ -8,6 +9,9 @@ page 2108 "O365 Outstanding Customer List"
     PageType = List;
     SourceTable = Customer;
     SourceTableView = SORTING(Name);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,30 +20,30 @@ page 2108 "O365 Outstanding Customer List"
             repeater(Control1)
             {
                 Caption = '';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s name. This name will appear on all sales documents for the customer.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s telephone number.';
                 }
                 field(Contact; Contact)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
                 }
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
@@ -49,9 +53,9 @@ page 2108 "O365 Outstanding Customer List"
                         OpenCustomerLedgerEntries(false);
                     end;
                 }
-                field("Balance Due (LCY)"; "Balance Due (LCY)")
+                field("Balance Due (LCY)"; Rec."Balance Due (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = OverdueBalanceAutoFormatExpr;
                     AutoFormatType = 10;
                     BlankZero = true;
@@ -64,9 +68,9 @@ page 2108 "O365 Outstanding Customer List"
                         OpenCustomerLedgerEntries(true);
                     end;
                 }
-                field("Sales (LCY)"; "Sales (LCY)")
+                field("Sales (LCY)"; Rec."Sales (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     ToolTip = 'Specifies the total net amount of sales to the customer in LCY.';
@@ -81,7 +85,7 @@ page 2108 "O365 Outstanding Customer List"
         {
             action(View)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View';
                 Gesture = None;
                 Image = ViewDetails;
@@ -95,20 +99,17 @@ page 2108 "O365 Outstanding Customer List"
                     O365SalesDocument.SetRange(Posted, true);
                     O365SalesDocument.SetFilter("Outstanding Amount", '>0');
                     O365SalesDocument.SetFilter("Sell-to Customer No.", "No.");
-                    O365SalesDocument.SetSortByDocDate;
+                    O365SalesDocument.SetSortByDocDate();
 
                     PAGE.Run(PAGE::"O365 Customer Sales Documents", O365SalesDocument);
                 end;
             }
             action(NewSalesInvoice)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New Invoice';
                 Gesture = LeftSwipe;
                 Image = NewSalesInvoice;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Create a new invoice for the customer.';
 
@@ -126,24 +127,35 @@ page 2108 "O365 Outstanding Customer List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(NewSalesInvoice_Promoted; NewSalesInvoice)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate() - 1);
         CalcFields("Balance Due (LCY)");
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        BlockCustomerAndDeleteContact;
+        BlockCustomerAndDeleteContact();
         exit(false);
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
         OverdueBalanceAutoFormatExpr := StrSubstNo(AutoFormatExprWithPrefixTxt, OverdueTxt);
     end;
 
@@ -162,4 +174,4 @@ page 2108 "O365 Outstanding Customer List"
         CurrPage.Update();
     end;
 }
-
+#endif

@@ -155,11 +155,7 @@ page 2588 "Dimension Correction"
             action(UndoDimensionCorrection)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = UndoAndValidateAreEnabled;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = Undo;
                 Caption = 'Undo';
                 ToolTip = 'Undo the selected correction. The values of the related entries will be reverted to their previous state.';
@@ -186,10 +182,6 @@ page 2588 "Dimension Correction"
             action(CopyToDraft)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = CopyToTask;
                 Caption = 'Copy to Draft';
                 ToolTip = 'Create a draft of the selected dimension correction with the same selection criteria. For example, this is useful for making a correction when you cannot undo.';
@@ -213,11 +205,7 @@ page 2588 "Dimension Correction"
                 Caption = 'Validate Undo Dimension Correction';
                 Image = TestReport;
                 Enabled = UndoAndValidateAreEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Validates the dimension changes.';
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 var
@@ -243,12 +231,8 @@ page 2588 "Dimension Correction"
                 ApplicationArea = All;
                 Caption = 'Show Errors';
                 Image = ErrorLog;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the list of validation errors.';
                 Enabled = IsErrorActionEnabled;
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 var
@@ -269,10 +253,6 @@ page 2588 "Dimension Correction"
                     Image = AnalysisViewDimension;
                     Caption = 'Update Analysis Views';
                     ToolTip = 'Update the data shown in analysis views to include the results of the correction.';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
 
                     trigger OnAction()
                     var
@@ -291,10 +271,6 @@ page 2588 "Dimension Correction"
                     Image = CompleteLine;
                     Caption = 'Set Update Analysis Views Status to Completed';
                     ToolTip = 'Set the status of an analysis view update to Completed. Use this action after you have manually updated analysis views.';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
 
                     trigger OnAction()
                     var
@@ -302,6 +278,32 @@ page 2588 "Dimension Correction"
                     begin
                         DimensionCorrectionMgt.SetUpdateAnalysisViewsCompleted(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UndoDimensionCorrection_Promoted; UndoDimensionCorrection)
+                {
+                }
+                actionref(CopyToDraft_Promoted; CopyToDraft)
+                {
+                }
+                actionref(ValidateCorrection_Promoted; ValidateCorrection)
+                {
+                }
+                actionref(ShowErrors_Promoted; ShowErrors)
+                {
+                }
+                actionref(UpdateAnalysisViews_Promoted; UpdateAnalysisViews)
+                {
+                }
+                actionref(SetAnalysisViewCompleted_Promoted; SetAnalysisViewCompleted)
+                {
                 }
             }
         }

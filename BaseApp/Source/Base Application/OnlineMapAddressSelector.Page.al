@@ -17,7 +17,7 @@ page 802 "Online Map Address Selector"
 
                     trigger OnValidate()
                     begin
-                        LookupSelectionOnAfterValidate;
+                        LookupSelectionOnAfterValidate();
                     end;
                 }
                 field(LookupCode; LookupCode)
@@ -172,7 +172,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := BankAccount."No.";
-            exit(BankAccount.GetPosition);
+            exit(BankAccount.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::"Bank Account");
     end;
@@ -189,7 +189,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Contact."No.";
-            exit(Contact.GetPosition);
+            exit(Contact.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Contact);
     end;
@@ -206,7 +206,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Customer."No.";
-            exit(Customer.GetPosition);
+            exit(Customer.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Customer);
     end;
@@ -223,7 +223,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Employee."No.";
-            exit(Employee.GetPosition);
+            exit(Employee.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Employee);
     end;
@@ -240,7 +240,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Job."No.";
-            exit(Job.GetPosition);
+            exit(Job.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Job);
     end;
@@ -257,7 +257,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Location.Code;
-            exit(Location.GetPosition);
+            exit(Location.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Location);
     end;
@@ -274,7 +274,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Resource."No.";
-            exit(Resource.GetPosition);
+            exit(Resource.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Resource);
     end;
@@ -291,7 +291,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := Vendor."No.";
-            exit(Vendor.GetPosition);
+            exit(Vendor.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::Vendor);
     end;
@@ -308,7 +308,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookUpCode := ShipToAddress.Code;
-            exit(ShipToAddress.GetPosition);
+            exit(ShipToAddress.GetPosition());
         end;
         Error(Text003, LookUpCode, DATABASE::"Ship-to Address");
     end;
@@ -325,7 +325,7 @@ page 802 "Online Map Address Selector"
 
         if Response then begin
             LookupCode := OrderAddress.Code;
-            exit(OrderAddress.GetPosition);
+            exit(OrderAddress.GetPosition());
         end;
         Error(Text003, LookupCode, DATABASE::"Order Address");
     end;
@@ -338,7 +338,7 @@ page 802 "Online Map Address Selector"
 
     local procedure LookupSelectionOnAfterValidate()
     begin
-        SetTableNo;
+        SetTableNo();
     end;
 
     [IntegrationEvent(false, false)]

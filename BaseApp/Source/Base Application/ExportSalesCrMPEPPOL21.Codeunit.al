@@ -24,7 +24,7 @@ codeunit 1601 "Export Sales Cr.M. - PEPPOL2.1"
     begin
         SalesCreditMemoPEPPOL.Initialize(VariantRec);
         SalesCreditMemoPEPPOL.SetDestination(OutStr);
-        SalesCreditMemoPEPPOL.Export;
+        SalesCreditMemoPEPPOL.Export();
     end;
 
 #if not CLEAN20
@@ -41,7 +41,7 @@ codeunit 1601 "Export Sales Cr.M. - PEPPOL2.1"
 
         OutFile.CreateOutStream(OutStream);
         GenerateXMLFile(VariantRec, OutStream);
-        OutFile.Close;
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;

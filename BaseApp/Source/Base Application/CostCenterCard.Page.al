@@ -23,12 +23,12 @@ page 1111 "Cost Center Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the cost center card.';
                 }
-                field("Cost Subtype"; "Cost Subtype")
+                field("Cost Subtype"; Rec."Cost Subtype")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the subtype of the cost center. This is an information field and is not used for any other purposes. Choose the field to select the cost subtype.';
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the purpose of the cost object, such as Cost Object, Heading, or Begin-Total. Newly created cost objects are automatically assigned the Cost Object type, but you can change this.';
@@ -43,34 +43,34 @@ page 1111 "Cost Center Card"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a comment that applies to the cost center.';
                 }
-                field("Responsible Person"; "Responsible Person")
+                field("Responsible Person"; Rec."Responsible Person")
                 {
                     ApplicationArea = CostAccounting;
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the person who is responsible for the cost center.';
                 }
-                field("Balance at Date"; "Balance at Date")
+                field("Balance at Date"; Rec."Balance at Date")
                 {
                     ApplicationArea = CostAccounting;
                     Importance = Promoted;
                     ToolTip = 'Specifies the cost type balance on the last date that is included in the Date Filter field. The contents of the field are calculated by using the entries in the Amount field in the Cost Entry table.';
                 }
-                field("Balance to Allocate"; "Balance to Allocate")
+                field("Balance to Allocate"; Rec."Balance to Allocate")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the balance that has not yet been allocated. The entry in the Allocated field determines if the entry is included in the Balance to Allocate field. The value in the Allocated field is set automatically during the cost allocation.';
                 }
-                field("Sorting Order"; "Sorting Order")
+                field("Sorting Order"; Rec."Sorting Order")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the sorting order of the cost center.';
                 }
-                field("Blank Line"; "Blank Line")
+                field("Blank Line"; Rec."Blank Line")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies whether you want a blank line to appear immediately after this cost center when you print the chart of cost centers. The New Page, Blank Line, and Indentation fields define the layout of the chart of cost centers.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies if you want a new page to start immediately after this cost center when you print the chart of cash flow accounts.';
@@ -135,8 +135,6 @@ page 1111 "Cost Center Card"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimension Values';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the dimension values for the current dimension.';
 
                 trigger OnAction()
@@ -146,6 +144,17 @@ page 1111 "Cost Center Card"
                 begin
                     CostAccMgt.OpenDimValueListFiltered(CostAccSetup.FieldNo("Cost Center Dimension"));
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PageDimensionValues_Promoted; PageDimensionValues)
+                {
+                }
             }
         }
     }

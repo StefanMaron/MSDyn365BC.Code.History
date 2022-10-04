@@ -20,9 +20,10 @@ codeunit 99000793 "Calculate Low-Level Code"
     end;
 
     var
-        ProdBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
         Item: Record Item;
         ActualProdBOM: Record "Production BOM Header";
+
+        ProdBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
 
     procedure CalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; Level: Integer; LevelDepth: Integer): Integer
     var

@@ -503,7 +503,7 @@ codeunit 139027 "Test Background Posting"
         TaskId := TASKSCHEDULER.CreateTask(CODEUNIT::"Mail Management Concurrency", 0, true, CompanyName, CurrentDateTime, DummyRecordID);
         ScheduledTask.SetRange(ID, TaskId);
 
-        while not ScheduledTask.IsEmpty and not TimeOut do begin
+        while not ScheduledTask.IsEmpty() and not TimeOut do begin
             if not MailManagement.IsHandlingGetEmailBodyCustomer then begin
                 MailManagementConcurrency.InsertNameValueBuffer(NameValueBuffer);
                 InsertCounter += 1;
@@ -548,7 +548,7 @@ codeunit 139027 "Test Background Posting"
 
         // [THEN] Log with Status "Success" is inserted to Activity Log table.
         VerifyActivityLogExists(
-          ActivityLog.Status::Success, StrSubstNo('*%1*%2*', Customer.TableCaption, Customer."No."), 'Exporting data subject data');
+          ActivityLog.Status::Success, StrSubstNo('*%1*%2*', Customer.TableCaption(), Customer."No."), 'Exporting data subject data');
     end;
 
     local procedure CleanBackgroundSessionsForSalesHeader(SalesHeader: Record "Sales Header")

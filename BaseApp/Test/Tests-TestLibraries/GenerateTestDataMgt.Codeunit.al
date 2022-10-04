@@ -47,7 +47,7 @@ codeunit 130150 "Generate Test Data Mgt."
     begin
         with GenerateTestDataLine do
             if not Get(TableID) then begin
-                Init;
+                Init();
                 "Table ID" := TableID;
                 "Parent Table ID" := ParentTableID;
                 Enabled := IsEnabled("Table ID");
@@ -61,7 +61,7 @@ codeunit 130150 "Generate Test Data Mgt."
     begin
         RecRef.Open(TableID);
         TotalRecords := RecRef.Count();
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure IsEnabled(TableID: Integer): Boolean
@@ -81,7 +81,7 @@ codeunit 130150 "Generate Test Data Mgt."
             "Session ID" := SessionId;
             "Service Instance ID" := ServiceInstanceId;
             Validate("Added Records", 0);
-            Modify;
+            Modify();
             Commit();
 
             GenerateData(GenerateTestDataLine);
@@ -99,12 +99,12 @@ codeunit 130150 "Generate Test Data Mgt."
                 GenerateRecord(GenerateTestDataLine);
                 if CurrentRecNo >= ("Added Records" + RecNoToModify) then begin
                     Validate("Added Records", CurrentRecNo);
-                    Modify;
+                    Modify();
                     Commit();
                 end;
             end;
             Validate("Added Records", "Records To Add");
-            UpdateStatus;
+            UpdateStatus();
             "Total Records" := CountRecords("Table ID");
             if Status = Status::Completed then begin
                 Clear("Task ID");
@@ -114,7 +114,7 @@ codeunit 130150 "Generate Test Data Mgt."
                 Validate("Added Records", 0);
                 Status := Status::" ";
             end;
-            Modify;
+            Modify();
         end;
     end;
 

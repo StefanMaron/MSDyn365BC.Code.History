@@ -19,7 +19,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
                 "Period Length" := "Period Length"::Month;
                 "Value to Calculate" := "Value to Calculate"::"No. of Orders";
                 "Chart Type" := "Chart Type"::"Stacked Column";
-                Insert;
+                Insert();
             end;
     end;
 
@@ -35,7 +35,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
         TrailingSalesOrdersSetup.Get(UserId);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         if TrailingSalesOrdersSetup."Show Orders" = TrailingSalesOrdersSetup."Show Orders"::"Delayed Orders" then
-            SalesHeader.SetFilter("Shipment Date", '<%1', TrailingSalesOrdersSetup.GetStartDate);
+            SalesHeader.SetFilter("Shipment Date", '<%1', TrailingSalesOrdersSetup.GetStartDate());
         if Evaluate(SalesHeader.Status, BusChartBuf.GetMeasureValueString(Measure), 9) then
             SalesHeader.SetRange(Status, SalesHeader.Status);
 
@@ -58,7 +58,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
         with BusChartBuf do begin
             Initialize();
             "Period Length" := TrailingSalesOrdersSetup."Period Length";
-            SetPeriodXAxis;
+            SetPeriodXAxis();
 
             CreateMap(ChartToStatusMap);
             for SalesHeaderStatus := 1 to ArrayLen(ChartToStatusMap) do begin
@@ -90,16 +90,15 @@ codeunit 760 "Trailing Sales Orders Mgt."
         i: Integer;
     begin
         MaxPeriodNo := ArrayLen(ToDate);
-        ToDate[MaxPeriodNo] := TrailingSalesOrdersSetup.GetStartDate;
+        ToDate[MaxPeriodNo] := TrailingSalesOrdersSetup.GetStartDate();
         if ToDate[MaxPeriodNo] = 0D then
             exit(false);
-        for i := MaxPeriodNo downto 1 do begin
+        for i := MaxPeriodNo downto 1 do
             if i > 1 then begin
                 FromDate[i] := BusChartBuf.CalcFromDate(ToDate[i]);
                 ToDate[i - 1] := FromDate[i] - 1;
             end else
-                FromDate[i] := 0D
-        end;
+                FromDate[i] := 0D;
         exit(true);
     end;
 
@@ -118,12 +117,12 @@ codeunit 760 "Trailing Sales Orders Mgt."
         TotalAmount: Decimal;
     begin
         if TrailingSalesOrdersSetup."Show Orders" = TrailingSalesOrdersSetup."Show Orders"::"Delayed Orders" then
-            TrailingSalesOrderQry.SetFilter(ShipmentDate, '<%1', TrailingSalesOrdersSetup.GetStartDate);
+            TrailingSalesOrderQry.SetFilter(ShipmentDate, '<%1', TrailingSalesOrdersSetup.GetStartDate());
 
         TrailingSalesOrderQry.SetRange(Status, Status);
         TrailingSalesOrderQry.SetRange(DocumentDate, FromDate, ToDate);
-        TrailingSalesOrderQry.Open;
-        while TrailingSalesOrderQry.Read do begin
+        TrailingSalesOrderQry.Open();
+        while TrailingSalesOrderQry.Read() do begin
             if TrailingSalesOrderQry.CurrencyCode = '' then
                 Amount := TrailingSalesOrderQry.Amount
             else
@@ -137,7 +136,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         if TrailingSalesOrdersSetup."Show Orders" = TrailingSalesOrdersSetup."Show Orders"::"Delayed Orders" then
-            SalesHeader.SetFilter("Shipment Date", '<%1', TrailingSalesOrdersSetup.GetStartDate)
+            SalesHeader.SetFilter("Shipment Date", '<%1', TrailingSalesOrdersSetup.GetStartDate())
         else
             SalesHeader.SetRange("Shipment Date");
         SalesHeader.SetRange(Status, Status);

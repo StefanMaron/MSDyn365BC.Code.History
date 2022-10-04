@@ -89,7 +89,7 @@ table 752 "Standard Item Journal"
         OpenWindow(Text000, StdItemJnlLine.Count);
         if StdItemJnlLine.Find('-') then
             repeat
-                UpdateWindow;
+                UpdateWindow();
                 CopyItemJnlFromStdJnl(StdItemJnlLine);
             until StdItemJnlLine.Next() = 0;
     end;
@@ -107,7 +107,7 @@ table 752 "Standard Item Journal"
         ItemJnlLine.TransferFields(StdItemJnlLine, false);
 
         if (ItemJnlLine."Item No." <> '') and (ItemJnlLine."Unit Amount" = 0) then
-            ItemJnlLine.RecalculateUnitAmount;
+            ItemJnlLine.RecalculateUnitAmount();
 
         if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output) and
            (ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation)
@@ -117,7 +117,7 @@ table 752 "Standard Item Journal"
             ItemJnlLine."Invoiced Quantity" := ItemJnlLine.Quantity;
         ItemJnlLine.TestField("Qty. per Unit of Measure");
         ItemJnlLine."Invoiced Qty. (Base)" :=
-          Round(ItemJnlLine."Invoiced Quantity" * ItemJnlLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+          Round(ItemJnlLine."Invoiced Quantity" * ItemJnlLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
         ItemJnlLine."Dimension Set ID" := StdItemJnlLine."Dimension Set ID";
         ItemJnlLine.Insert(true);

@@ -98,7 +98,7 @@ table 832 "Workflows Entries Buffer"
     begin
         if not Get(WorkflowWebhookEntry."Workflow Step Instance ID") then begin
             WorkflowsCounter := WorkflowsCounter + 1;
-            Init;
+            Init();
             "Created by Application" := "Created by Application"::"Microsoft Flow";
             "Entry No." := WorkflowWebhookEntry."Entry No.";
             "Workflow Step Instance ID" := WorkflowWebhookEntry."Workflow Step Instance ID";
@@ -109,7 +109,7 @@ table 832 "Workflows Entries Buffer"
             "Last Modified By User ID" := WorkflowWebhookEntry."Last Modified By User ID";
             Response := WorkflowWebhookEntry.Response;
             Status := Status::" ";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -119,7 +119,7 @@ table 832 "Workflows Entries Buffer"
     begin
         if not Get(ApprovalEntry."Workflow Step Instance ID") then begin
             WorkflowsCounter := WorkflowsCounter + 1;
-            Init;
+            Init();
             if EnvironmentInfo.IsSaaS() then
                 "Created by Application" := "Created by Application"::"Dynamics 365"
             else
@@ -135,7 +135,7 @@ table 832 "Workflows Entries Buffer"
             Status := ApprovalEntry.Status;
             Response := Response::" ";
             "Due Date" := ApprovalEntry."Due Date";
-            Insert;
+            Insert();
         end;
     end;
 

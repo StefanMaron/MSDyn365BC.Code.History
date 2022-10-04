@@ -506,13 +506,13 @@ report 5902 "Service Quote"
                     TotGrossAmt := 0;
 
                     if Number > 1 then
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                     OutputNo += 1;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Service-Printed", "Service Header");
                 end;
 
@@ -601,7 +601,7 @@ report 5902 "Service Quote"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Service Header".FindSet() then
                 repeat
                     if "Service Header"."Contact No." <> '' then
@@ -614,8 +614,6 @@ report 5902 "Service Quote"
     end;
 
     var
-        Text001: Label 'Service Quote%1';
-        Text002: Label 'Page %1';
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -649,6 +647,9 @@ report 5902 "Service Quote"
         OutputNo: Integer;
         [InDataSet]
         LogInteractionEnable: Boolean;
+
+        Text001: Label 'Service Quote%1';
+        Text002: Label 'Page %1';
         SerHdrOrderDateCaptionLbl: Label 'Order Date';
         InvoicetoCaptionLbl: Label 'Invoice to';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
@@ -670,7 +671,7 @@ report 5902 "Service Quote"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ServiceHeader: Record "Service Header")

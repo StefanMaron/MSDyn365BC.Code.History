@@ -38,13 +38,21 @@ page 7501 "Item Attribute Values"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Translations';
                     Image = Translations;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Item Attr. Value Translations";
                     RunPageLink = "Attribute ID" = FIELD("Attribute ID"),
                                   ID = FIELD(ID);
                     ToolTip = 'Opens a window in which you can specify the translations of the selected item attribute value.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ItemAttributeValueTranslations_Promoted; ItemAttributeValueTranslations)
+                {
                 }
             }
         }

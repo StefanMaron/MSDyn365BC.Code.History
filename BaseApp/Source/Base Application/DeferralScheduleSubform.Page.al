@@ -10,7 +10,7 @@ page 1703 "Deferral Schedule Subform"
         {
             repeater(Group)
             {
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
@@ -51,7 +51,7 @@ page 1703 "Deferral Schedule Subform"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateTotal;
+        UpdateTotal();
     end;
 
     trigger OnDeleteRecord(): Boolean

@@ -12,7 +12,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
     var
         OSynchEntity: Record "Outlook Synch. Entity";
         OSynchField: Record "Outlook Synch. Field";
-        SortedEntitiesBuffer: Record "Outlook Synch. Lookup Name" temporary;
+        TempSortedEntitiesBuffer: Record "Outlook Synch. Lookup Name" temporary;
         OSynchSetupDetail: Record "Outlook Synch. Setup Detail";
         Base64Convert: Codeunit "Base64 Convert";
         OSynchTypeConversion: Codeunit "Outlook Synch. Type Conv";
@@ -27,7 +27,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
     var
         OsynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
     begin
-        OsynchNAVMgt.GetSortedEntities(UserID, SortedEntitiesBuffer, true);
+        OsynchNAVMgt.GetSortedEntities(UserID, TempSortedEntitiesBuffer, true);
         SendMappingScheme(UserID, XMLMessage);
     end;
 
@@ -39,31 +39,31 @@ codeunit 5306 "Outlook Synch. Export Schema"
         OutlookCheckSum: Text[250];
         CurrentCheckSum: Text[250];
     begin
-        if not SortedEntitiesBuffer.Find('-') then
+        if not TempSortedEntitiesBuffer.Find('-') then
             Error(Text002, UserID);
 
         Clear(XMLTextReader);
-        XMLTextReader := XMLTextReader.XmlTextReader;
+        XMLTextReader := XMLTextReader.XmlTextReader();
         TempDateTime := OSynchTypeConversion.LocalDT2UTC(CurrentDateTime);
 
         if not XMLTextReader.LoadXml(XMLMessage) then
             Error(Text003);
 
         if IsNull(XMLWriter) then
-            XMLWriter := XMLWriter.XmlTextWriter;
+            XMLWriter := XMLWriter.XmlTextWriter();
 
-        XMLWriter.WriteStartDocument;
+        XMLWriter.WriteStartDocument();
         XMLWriter.WriteStartElement('Schema');
         XMLWriter.WriteAttribute('StartSynchTime', Format(OSynchTypeConversion.SetDateTimeFormat(TempDateTime)));
 
         repeat
-            OSynchEntity.Get(SortedEntitiesBuffer.Name);
+            OSynchEntity.Get(TempSortedEntitiesBuffer.Name);
             if OSynchEntity."Outlook Item" <> '' then
                 ComposeSynchEntityNode(OSynchEntity, UserID);
-        until SortedEntitiesBuffer.Next() = 0;
+        until TempSortedEntitiesBuffer.Next() = 0;
 
-        XMLWriter.WriteEndElement;
-        XMLWriter.WriteEndDocument;
+        XMLWriter.WriteEndElement();
+        XMLWriter.WriteEndDocument();
 
         OutlookCheckSum := GetOutlookSchemaCheckSum(XMLTextReader);
         if OutlookCheckSum <> '' then
@@ -72,11 +72,11 @@ codeunit 5306 "Outlook Synch. Export Schema"
         if (OutlookCheckSum <> '') and (OutlookCheckSum = CurrentCheckSum) then
             PutCurrentSchemaCheckSum(XMLWriter, CurrentCheckSum, TempDateTime);
 
-        XMLMessage := XMLWriter.ToString;
+        XMLMessage := XMLWriter.ToString();
 
         if StrLen(XMLMessage) = 0 then begin
             Clear(XMLWriter);
-            Error(Text001, PRODUCTNAME.Full);
+            Error(Text001, PRODUCTNAME.Full());
         end;
 
         Clear(XMLWriter);
@@ -137,7 +137,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
                     ComposeCollectionNode(OSynchEntityElement);
             until OSynchSetupDetail.Next() = 0;
 
-        XMLWriter.WriteEndElement;
+        XMLWriter.WriteEndElement();
     end;
 
     local procedure ComposeFieldNode(OSynchFieldIn: Record "Outlook Synch. Field")
@@ -161,7 +161,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
             FldRef := RecRef.Field(OSynchFieldIn.FieldNo("Read-Only Status"));
 
             XMLWriter.WriteAttribute('Read-OnlyStatus', SelectStr(OSynchFieldIn."Read-Only Status" + 1, FldRef.OptionMembers));
-            RecRef.Close
+            RecRef.Close();
         end;
 
         if OSynchFieldIn."User-Defined" then
@@ -178,7 +178,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
         if Field.Type = Field.Type::BLOB then
             XMLWriter.WriteAttribute('Base64', OSynchTypeConversion.SetBoolFormat(true));
 
-        XMLWriter.WriteEndElement;
+        XMLWriter.WriteEndElement();
     end;
 
     local procedure ComposeCollectionNode(OSynchEntityElementIn: Record "Outlook Synch. Entity Element")
@@ -230,13 +230,13 @@ codeunit 5306 "Outlook Synch. Export Schema"
                 until TempOSynchField.Next() = 0;
         end;
 
-        XMLWriter.WriteEndElement;
+        XMLWriter.WriteEndElement();
     end;
 
     local procedure ComposeSearchFieldNode(OSynchFieldIn: Record "Outlook Synch. Field"; OSynchDependency: Record "Outlook Synch. Dependency")
     var
         OSynchField1: Record "Outlook Synch. Field";
-        SearchKeyBuffer: Record "Outlook Synch. Lookup Name" temporary;
+        TempSearchKeyBuffer: Record "Outlook Synch. Lookup Name" temporary;
     begin
         if IsNull(XMLWriter) then
             exit;
@@ -269,24 +269,24 @@ codeunit 5306 "Outlook Synch. Export Schema"
 
                         OSynchField1.SetRange("Field No.", OSynchField."Field No.");
                         if OSynchField1.FindFirst() then begin
-                            SearchKeyBuffer.Reset();
-                            SearchKeyBuffer.SetRange(Name, OSynchEntity.Code);
-                            if not SearchKeyBuffer.FindFirst() then begin
+                            TempSearchKeyBuffer.Reset();
+                            TempSearchKeyBuffer.SetRange(Name, OSynchEntity.Code);
+                            if not TempSearchKeyBuffer.FindFirst() then begin
                                 XMLWriter.WriteStartElement('Entity');
                                 XMLWriter.WriteAttribute('Name', OSynchEntity.Code);
                                 XMLWriter.WriteAttribute('Field', OSynchField1."Outlook Property");
-                                XMLWriter.WriteEndElement;
+                                XMLWriter.WriteEndElement();
 
-                                SearchKeyBuffer.Init();
-                                SearchKeyBuffer."Entry No." := SearchKeyBuffer."Entry No." + 1;
-                                SearchKeyBuffer.Name := OSynchEntity.Code;
-                                SearchKeyBuffer.Insert();
+                                TempSearchKeyBuffer.Init();
+                                TempSearchKeyBuffer."Entry No." := TempSearchKeyBuffer."Entry No." + 1;
+                                TempSearchKeyBuffer.Name := OSynchEntity.Code;
+                                TempSearchKeyBuffer.Insert();
                             end;
                         end;
                     until OSynchField.Next() = 0;
             until OSynchDependency.Next() = 0;
 
-        XMLWriter.WriteEndElement;
+        XMLWriter.WriteEndElement();
     end;
 
     local procedure GetOutlookSchemaCheckSum(XmlTextReader: DotNet "OLSync.Common.XmlTextReader") CheckSum: Text[250]
@@ -313,9 +313,9 @@ codeunit 5306 "Outlook Synch. Export Schema"
         CarriageChar: Char;
         ReturnChar: Char;
     begin
-        XmlTextReader := XmlTextReader.XmlTextReader;
+        XmlTextReader := XmlTextReader.XmlTextReader();
         XmlTextReader.Initialize(XMLTextWriter);
-        XmlTextReader.XPathNavigator.MoveToRoot;
+        XmlTextReader.XPathNavigator.MoveToRoot();
         Container := XmlTextReader.XPathNavigator.InnerXml;
         // Remove the first line of the container (contains timestamp)
         Container := Container.Substring(Container.IndexOf('<SynchEntity'));
@@ -336,9 +336,9 @@ codeunit 5306 "Outlook Synch. Export Schema"
         Clear(XMLTextWriter);
         Clear(EntryIDContainer);
 
-        XMLTextWriter := XMLTextWriter.XmlTextWriter;
+        XMLTextWriter := XMLTextWriter.XmlTextWriter();
 
-        XMLTextWriter.WriteStartDocument;
+        XMLTextWriter.WriteStartDocument();
         XMLTextWriter.WriteStartElement('Schema');
         XMLWriter.WriteAttribute('StartSynchTime', Format(OSynchTypeConversion.SetDateTimeFormat(StartDateTime)));
 
@@ -356,8 +356,8 @@ codeunit 5306 "Outlook Synch. Export Schema"
                     XMLTextWriter.WriteElementTextContent(Base64Convert.ToBase64(EntryIDContainer));
             end;
         end;
-        XMLTextWriter.WriteEndElement;
-        XMLTextWriter.WriteEndElement;
+        XMLTextWriter.WriteEndElement();
+        XMLTextWriter.WriteEndElement();
     end;
 }
 #endif

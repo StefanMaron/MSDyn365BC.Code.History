@@ -143,7 +143,7 @@ codeunit 82 "Sales-Post + Print"
                     end
                 else
                     if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(ConfirmationMessage, "Document Type"), true)
+                         StrSubstNo(ConfirmationMessage(), "Document Type"), true)
                     then
                         exit(false);
             end;
@@ -170,8 +170,8 @@ codeunit 82 "Sales-Post + Print"
             exit;
 
         ReturnRcptHeader."No." := SalesHeader."Last Return Receipt No.";
-        if ReturnRcptHeader.Find then;
-        ReturnRcptHeader.SetRecFilter;
+        if ReturnRcptHeader.Find() then;
+        ReturnRcptHeader.SetRecFilter();
 
         if SendReportAsEmail then
             ReturnRcptHeader.EmailRecords(true)
@@ -193,8 +193,8 @@ codeunit 82 "Sales-Post + Print"
             SalesInvHeader."No." := SalesHeader."No."
         else
             SalesInvHeader."No." := SalesHeader."Last Posting No.";
-        SalesInvHeader.Find;
-        SalesInvHeader.SetRecFilter;
+        SalesInvHeader.Find();
+        SalesInvHeader.SetRecFilter();
 
         if SendReportAsEmail then
             SalesInvHeader.EmailRecords(true)
@@ -213,8 +213,8 @@ codeunit 82 "Sales-Post + Print"
             exit;
 
         SalesShptHeader."No." := SalesHeader."Last Shipping No.";
-        if SalesShptHeader.Find then;
-        SalesShptHeader.SetRecFilter;
+        if SalesShptHeader.Find() then;
+        SalesShptHeader.SetRecFilter();
 
         if SendReportAsEmail then
             SalesShptHeader.EmailRecords(true)
@@ -236,8 +236,8 @@ codeunit 82 "Sales-Post + Print"
             SalesCrMemoHeader."No." := SalesHeader."No."
         else
             SalesCrMemoHeader."No." := SalesHeader."Last Posting No.";
-        SalesCrMemoHeader.Find;
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader.SetRecFilter();
 
         if SendReportAsEmail then
             SalesCrMemoHeader.EmailRecords(true)

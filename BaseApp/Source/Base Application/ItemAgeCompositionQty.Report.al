@@ -15,7 +15,7 @@ report 5807 "Item Age Composition - Qty."
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TblCptnItemFilter; TableCaption + ': ' + ItemFilter)
@@ -166,7 +166,7 @@ report 5807 "Item Age Composition - Qty."
         trigger OnOpenPage()
         begin
             if PeriodStartDate[5] = 0D then
-                PeriodStartDate[5] := CalcDate('<CM>', WorkDate);
+                PeriodStartDate[5] := CalcDate('<CM>', WorkDate());
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -180,7 +180,7 @@ report 5807 "Item Age Composition - Qty."
     var
         NegPeriodLength: DateFormula;
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
 
         PeriodStartDate[6] := DMY2Date(31, 12, 9999);
         Evaluate(NegPeriodLength, StrSubstNo('-%1', Format(PeriodLength)));
@@ -189,14 +189,15 @@ report 5807 "Item Age Composition - Qty."
     end;
 
     var
-        Text002: Label 'Enter the ending date';
+        PeriodLength: DateFormula;
         ItemFilter: Text;
         InvtQty: array[6] of Decimal;
         PeriodStartDate: array[7] of Date;
-        PeriodLength: DateFormula;
         i: Integer;
         TotalInvtQty: Decimal;
         PrintLine: Boolean;
+
+        Text002: Label 'Enter the ending date';
         ItemAgeCompositionQtyCaptionLbl: Label 'Item Age Composition - Quantity';
         PageNoCaptionLbl: Label 'Page';
         AfterCaptionLbl: Label 'After...';

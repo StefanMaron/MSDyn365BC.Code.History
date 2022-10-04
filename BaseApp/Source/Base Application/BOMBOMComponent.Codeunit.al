@@ -34,7 +34,7 @@ codeunit 52 "BOM-BOM Component"
         if BOMComponent.IsTemporary then
             exit;
         if Item.Get(BOMComponent."Parent Item No.") then
-            if Item.UpdateReplenishmentSystem then
+            if Item.UpdateReplenishmentSystem() then
                 Item.Modify(true);
     end;
 }

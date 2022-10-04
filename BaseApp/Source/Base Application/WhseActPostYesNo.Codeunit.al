@@ -5,19 +5,20 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
     trigger OnRun()
     begin
         WhseActivLine.Copy(Rec);
-        Code;
+        Code();
         Copy(WhseActivLine);
     end;
 
     var
-        Text000: Label '&Receive,Receive &and Invoice';
         WhseActivLine: Record "Warehouse Activity Line";
         WhseActivityPost: Codeunit "Whse.-Activity-Post";
         Selection: Integer;
-        Text001: Label '&Ship,Ship &and Invoice';
-        Text002: Label 'Do you want to post the %1 and %2?';
         PrintDoc: Boolean;
         DefaultOption: Integer;
+
+        Text000: Label '&Receive,Receive &and Invoice';
+        Text001: Label '&Ship,Ship &and Invoice';
+        Text002: Label 'Do you want to post the %1 and %2?';
 
     local procedure "Code"()
     var
@@ -38,10 +39,10 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
             if not HideDialog then
                 case "Activity Type" of
                     "Activity Type"::"Invt. Put-away":
-                        if not SelectForPutAway then
+                        if not SelectForPutAway() then
                             exit;
                     else
-                        if not SelectForOtherTypes then
+                        if not SelectForOtherTypes() then
                             exit;
                 end;
 

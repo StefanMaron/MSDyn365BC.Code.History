@@ -7,7 +7,6 @@ page 7324 "Whse. Item Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Item';
     SaveValues = true;
     SourceTable = "Warehouse Journal Line";
     UsageCategory = Tasks;
@@ -25,7 +24,7 @@ page 7324 "Whse. Item Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     LookupName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrPage.Update(false);
                 end;
@@ -33,7 +32,7 @@ page 7324 "Whse. Item Journal"
                 trigger OnValidate()
                 begin
                     CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -48,17 +47,17 @@ page 7324 "Whse. Item Journal"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Registering Date"; "Registering Date")
+                field("Registering Date"; Rec."Registering Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date the line is registered.';
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse document number of the journal line.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item on the journal line.';
@@ -68,7 +67,7 @@ page 7324 "Whse. Item Journal"
                         GetItem("Item No.", ItemDescription);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -79,12 +78,12 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item.';
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone code where the bin on this line is located.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -94,12 +93,12 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of units of the item in the adjustment (positive or negative) or the reclassification.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Reason Code';
@@ -154,8 +153,6 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
@@ -174,8 +171,6 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -199,8 +194,6 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -213,8 +206,6 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -259,8 +250,6 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     Caption = '&Register';
                     Image = Confirm;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Register the warehouse entry in question, such as a positive adjustment. ';
 
@@ -276,8 +265,6 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Register and &Print';
                     Image = ConfirmAndPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Register the warehouse entry adjustments and print an overview of the changes. ';
 
@@ -288,6 +275,64 @@ page 7324 "Whse. Item Journal"
                         CurrPage.Update(false);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Register_Promoted"; "&Register")
+                {
+                }
+                actionref("Register and &Print_Promoted"; "Register and &Print")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
             }
         }
     }
@@ -306,7 +351,7 @@ page 7324 "Whse. Item Journal"
     var
         JnlSelected: Boolean;
     begin
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             CurrentLocationCode := Rec."Location Code";
             Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
@@ -326,7 +371,7 @@ page 7324 "Whse. Item Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

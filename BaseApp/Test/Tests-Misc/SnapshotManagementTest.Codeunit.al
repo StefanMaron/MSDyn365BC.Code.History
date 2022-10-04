@@ -17,7 +17,7 @@ codeunit 132534 "Snapshot Management Test"
     local procedure Initialize()
     begin
         SnapshotManagement.SetEnabled(true);
-        SnapshotManagement.Clear;
+        SnapshotManagement.Clear();
 
         if isInitialized then
             exit;
@@ -29,7 +29,7 @@ codeunit 132534 "Snapshot Management Test"
     local procedure Teardown()
     begin
         SnapshotManagement.SetEnabled(false);
-        SnapshotManagement.Clear;
+        SnapshotManagement.Clear();
     end;
 
     [Normal]
@@ -110,7 +110,7 @@ codeunit 132534 "Snapshot Management Test"
         SnapshotManagement.InitSnapshot('S1', false);
         asserterror SnapshotManagement.InitSnapshot('S2', true);
 
-        SnapshotManagement.Clear;
+        SnapshotManagement.Clear();
 
         SnapshotManagement.InitSnapshot('S1', true);
         asserterror SnapshotManagement.InitSnapshot('S2', false);

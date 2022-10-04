@@ -141,7 +141,7 @@ codeunit 134235 "Record Set UT"
 
         // Verify
         Assert.IsFalse(TempCustomer.FindLast, 'No records should exist');
-        Assert.IsTrue(StrPos(RecRef.GetView, 'Descending') > 0, 'Record was not sorted descending');
+        Assert.IsTrue(StrPos(RecRef.GetView(), 'Descending') > 0, 'Record was not sorted descending');
     end;
 
     [Test]
@@ -495,8 +495,8 @@ codeunit 134235 "Record Set UT"
 
         // Execute
         TempNewCustomer.FindFirst();
-        TempNewCustomer.Next;
-        TempNewCustomer.Next;
+        TempNewCustomer.Next();
+        TempNewCustomer.Next();
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
@@ -923,8 +923,8 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         TempNewCustomer.FindFirst();
-        TempNewCustomer.Next;
-        TempNewCustomer.Next;
+        TempNewCustomer.Next();
+        TempNewCustomer.Next();
         TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, TotalSetTreeCount);
         FirstSetRecordTreeCount := TotalSetTreeCount - ItemSetRecordTreeCount;
@@ -1472,7 +1472,7 @@ codeunit 134235 "Record Set UT"
         TempRecordSetBuffer.Delete();
         Customer.Delete();
 
-        TempRecordSetBuffer.Next;
+        TempRecordSetBuffer.Next();
         Customer.Get(TempRecordSetBuffer."Value RecordID");
         TempRecordSetBuffer.Delete();
         Customer.Delete();
@@ -1607,7 +1607,7 @@ codeunit 134235 "Record Set UT"
         NumberOfCustomers := Customer.Count();
 
         TempRecordSetBuffer.FindFirst();
-        TempRecordSetBuffer.Next;
+        TempRecordSetBuffer.Next();
         Customer.Get(TempRecordSetBuffer."Value RecordID");
         TempCustomer.Copy(Customer);
         TempCustomer.Insert();
@@ -1645,14 +1645,14 @@ codeunit 134235 "Record Set UT"
         NumberOfCustomers := Customer.Count();
 
         TempCustomer.FindFirst();
-        TempCustomer.Next;
-        TempCustomer.Next;
+        TempCustomer.Next();
+        TempCustomer.Next();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
 
         // Execute
         RecordSetManagement.RenameRecord(RecRef, xRecRef);
 
-        TempCustomer.Next;
+        TempCustomer.Next();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
         RecordSetManagement.RenameRecord(RecRef, xRecRef);
         RecordSetManagement.GetSet(TempCustomerRecordSetBuffer, SetID);
@@ -1692,7 +1692,7 @@ codeunit 134235 "Record Set UT"
         RecordSetManagement.RenameRecord(RecRef, xRecRef);
 
         // Execute
-        xRecRef := RecRef.Duplicate;
+        xRecRef := RecRef.Duplicate();
         RecRef.Rename(ExistingNo);
         RecordSetManagement.RenameRecord(RecRef, xRecRef);
         RecordSetManagement.GetSet(TempCustomerRecordSetBuffer, SetID);
@@ -2719,7 +2719,7 @@ codeunit 134235 "Record Set UT"
         repeat
             NewTempCustomer := TempCustomer;
             NewTempCustomer.Insert();
-        until TempCustomer.Next = 0;
+        until TempCustomer.Next() = 0;
     end;
 
     local procedure DuplicateServiceConnectionSet(var TempRecordSetBuffer: Record "Record Set Buffer" temporary; var TempNewRecordSetBuffer: Record "Record Set Buffer" temporary)
@@ -2732,7 +2732,7 @@ codeunit 134235 "Record Set UT"
         repeat
             TempNewRecordSetBuffer := TempRecordSetBuffer;
             TempNewRecordSetBuffer.Insert();
-        until TempRecordSetBuffer.Next = 0;
+        until TempRecordSetBuffer.Next() = 0;
     end;
 
     local procedure DeleteCustomer(var TempCustomer: Record Customer temporary; DeleteIndex: Integer; var TempDeletedCustomerRecordSetBuffer: Record "Record Set Buffer" temporary)
@@ -2834,11 +2834,11 @@ codeunit 134235 "Record Set UT"
         Item: Record Item;
     begin
         with Item do begin
-            Init;
+            Init();
             "No." := NewNo;
             Description := NewDescription;
             "Base Unit of Measure" := BaseUnitOfMeasure;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2847,13 +2847,13 @@ codeunit 134235 "Record Set UT"
         GLAccount: Record "G/L Account";
     begin
         with GLAccount do begin
-            Init;
+            Init();
             "No." := NewNo;
             Name := NewName;
             "Direct Posting" := DirectPosting;
             "Account Type" := AccountType;
             Blocked := NewBlockedValue;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2862,10 +2862,10 @@ codeunit 134235 "Record Set UT"
         Resource: Record Resource;
     begin
         with Resource do begin
-            Init;
+            Init();
             "No." := NewNo;
             Name := NewName;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2874,10 +2874,10 @@ codeunit 134235 "Record Set UT"
         ItemCharge: Record "Item Charge";
     begin
         with ItemCharge do begin
-            Init;
+            Init();
             "No." := NewNo;
             Description := NewDescription;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2886,10 +2886,10 @@ codeunit 134235 "Record Set UT"
         FixedAsset: Record "Fixed Asset";
     begin
         with FixedAsset do begin
-            Init;
+            Init();
             "No." := NewNo;
             Description := NewDescription;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2898,10 +2898,10 @@ codeunit 134235 "Record Set UT"
         StandardText: Record "Standard Text";
     begin
         with StandardText do begin
-            Init;
+            Init();
             Code := NewCode;
             Description := NewDescription;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2933,7 +2933,7 @@ codeunit 134235 "Record Set UT"
             Assert.AreEqual(
               Format(RecordSetDefinition.Value), Format(TempRecordSetBuffer."Value RecordID"),
               'Wrong record was referenced from Record Set Definition Table');
-        until TempRecordSetBuffer.Next = 0;
+        until TempRecordSetBuffer.Next() = 0;
     end;
 
     local procedure VerifySetWasLoadedCorrectly(var TempActualRecordSetBuffer: Record "Record Set Buffer" temporary; ExpectedRecordSet: Variant)
@@ -2952,8 +2952,8 @@ codeunit 134235 "Record Set UT"
             Assert.AreEqual(
               Format(TempActualRecordSetBuffer."Value RecordID"), Format(TempExpectedRecordSetBuffer."Value RecordID"),
               'Wrong record was referenced');
-            TempActualRecordSetBuffer.Next;
-        until TempExpectedRecordSetBuffer.Next = 0;
+            TempActualRecordSetBuffer.Next();
+        until TempExpectedRecordSetBuffer.Next() = 0;
     end;
 
     local procedure VerifyFindRecordByDescription(Type: Option; SearchText: Text; ExpectedCount: Integer; ExpectedResult: Text)
@@ -3009,7 +3009,7 @@ codeunit 134235 "Record Set UT"
             TempRecordSetBuffer.No := CurrentKey + 1;
             TempRecordSetBuffer."Value RecordID" := SetRecordRef.RecordId;
             TempRecordSetBuffer.Insert();
-        until SetRecordRef.Next = 0;
+        until SetRecordRef.Next() = 0;
     end;
 
     local procedure SortAscending(var TempRecordSetBuffer: Record "Record Set Buffer" temporary)

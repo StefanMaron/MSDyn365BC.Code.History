@@ -192,7 +192,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [GIVEN] Post output from production order, splitting it in several entries, 1 item in each output entry
         for I := 1 to Qty do
-            LibraryPatterns.POSTOutput(ProdOrderLine[1], 1, WorkDate, Item."Unit Cost");
+            LibraryPatterns.POSTOutput(ProdOrderLine[1], 1, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Another production order "P2" consuming item "I"
         LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdOrder."Source Type"::Item, Item."No.", Qty);
@@ -201,7 +201,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [WHEN] Post consumption in production order "P2"
         CodeCoverageMgt.StartApplicationCoverage;
-        LibraryPatterns.POSTConsumption(ProdOrderLine[2], Item, '', '', Qty, WorkDate, Item."Unit Cost");
+        LibraryPatterns.POSTConsumption(ProdOrderLine[2], Item, '', '', Qty, WorkDate(), Item."Unit Cost");
         CodeCoverageMgt.StopApplicationCoverage;
         NoOfHits :=
           GetCodeCoverageForObject(
@@ -279,7 +279,7 @@ codeunit 137380 "SCM Performance Tests"
         CodeCoverageMgt.StartApplicationCoverage;
 
         // [WHEN] Calculate Regenerative Plan for Planning Worksheet for demand
-        CalcRegenPlanForPlanWkshWithItemFilterAndPeriod(Item."No.", WorkDate, ShipmentDate);
+        CalcRegenPlanForPlanWkshWithItemFilterAndPeriod(Item."No.", WorkDate(), ShipmentDate);
 
         CodeCoverageMgt.StopApplicationCoverage;
         NoOfHits :=
@@ -364,7 +364,7 @@ codeunit 137380 "SCM Performance Tests"
         // [GIVEN] Purchase order for the item "I" on a WMS location
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          Item."No.", 1, Location.Code, WorkDate);
+          Item."No.", 1, Location.Code, WorkDate());
 
         // [GIVEN] Create a warehouse receipt
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -566,7 +566,7 @@ codeunit 137380 "SCM Performance Tests"
         CodeCoverageMgt.StartApplicationCoverage;
 
         // [WHEN] Calculate requsition plan for the item
-        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] New requisition line is created, UpdateDescription was called once
         CodeCoverageMgt.StopApplicationCoverage;
@@ -604,9 +604,9 @@ codeunit 137380 "SCM Performance Tests"
         CreateTransferOrder(TransferHeader, Item."No.", NoOfSerialNos);
 
         // [GIVEN] Calculate regenerative plan and carry out action message for item "I".
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         Item.SetRange("Location Filter", TransferHeader."Transfer-from Code");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         CarryOutActionMsgOnPlanningWksh(Item."No.");
 
         // [GIVEN] The planning engine creates a purchase and establishes an order-to-order link to the transfer.
@@ -665,9 +665,9 @@ codeunit 137380 "SCM Performance Tests"
             CreateTransferOrder(TransferHeader, Item."No.", NoOfSerialNos[i]);
 
             // [GIVEN] Calculate regenerative plan and carry out action message for items "I" and "J".
-            Item.SetRecFilter;
+            Item.SetRecFilter();
             Item.SetRange("Location Filter", TransferHeader."Transfer-from Code");
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
             CarryOutActionMsgOnPlanningWksh(Item."No.");
 
             // [GIVEN] The planning engine creates a purchase order for each item and establishes an order-to-order link to the corresponding transfer.
@@ -802,7 +802,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [WHEN] Open item journal and run "Calculate Whse. Adjustment" with activated code coverage in order to count how many times the buffer is updated.
         CodeCoverageMgt.StartApplicationCoverage;
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, LibraryUtility.GenerateGUID());
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), LibraryUtility.GenerateGUID());
         CodeCoverageMgt.StopApplicationCoverage;
 
         // [THEN] "Qty. to Handle" is updated in the buffer 10 times that is equal to the number of serial nos.
@@ -891,7 +891,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [WHEN] Open item journal and run "Calculate Whse. Adjustment" with activated code coverage in order to count how many serial nos. are looked through to collect item tracking.
         CodeCoverageMgt.StartApplicationCoverage;
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, LibraryUtility.GenerateGUID());
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), LibraryUtility.GenerateGUID());
         CodeCoverageMgt.StopApplicationCoverage;
 
         // [THEN] Only warehouse entries with Serial no. = "S1" are looked through.
@@ -945,7 +945,7 @@ codeunit 137380 "SCM Performance Tests"
         for i := 1 to ArrayLen(NoOfSN) do begin
             // [GIVEN] Purchase order, assign serial nos.
             LibraryPurchase.CreatePurchaseDocumentWithItem(
-              PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", NoOfSN[i], Location.Code, WorkDate);
+              PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", NoOfSN[i], Location.Code, WorkDate());
             LibraryVariableStorage.Enqueue(DummyReservEntry."Item Tracking"::"Serial No.");
             PurchaseLine.OpenItemTrackingLines();
 
@@ -1372,7 +1372,7 @@ codeunit 137380 "SCM Performance Tests"
         ProductionOrder: Record "Production Order";
         ItemJnlLine: Record "Item Journal Line";
     begin
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, OutputItem, '', '', Quantity, WorkDate);
+        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, OutputItem, '', '', Quantity, WorkDate());
         PostProductionJournal(ProductionOrder, ItemJnlLine."Entry Type"::Output, SubasmItem."No.");
 
         NoOfLinesHit := GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Item Tracking Management", '');
@@ -1564,7 +1564,7 @@ codeunit 137380 "SCM Performance Tests"
         for i := 1 to NoOfSN do begin
             WhseItemTrackingLines."Serial No.".SetValue(Format(i));
             WhseItemTrackingLines.Quantity.SetValue(1);
-            WhseItemTrackingLines.Next;
+            WhseItemTrackingLines.Next();
         end;
     end;
 

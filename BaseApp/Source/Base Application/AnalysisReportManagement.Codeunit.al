@@ -8,12 +8,9 @@ codeunit 7110 "Analysis Report Management"
     end;
 
     var
-        Text001: Label 'DEFAULT';
-        Text002: Label 'Default Lines';
-        Text003: Label 'Default Columns';
         OriginalAnalysisLineFilters: Record "Analysis Line";
         AnalysisLineTemplate: Record "Analysis Line Template";
-        AnalysisFieldValue: Record "Analysis Field Value" temporary;
+        TempAnalysisFieldValue: Record "Analysis Field Value" temporary;
         GLSetup: Record "General Ledger Setup";
         InventorySetup: Record "Inventory Setup";
         SalesSetup: Record "Sales & Receivables Setup";
@@ -29,6 +26,13 @@ codeunit 7110 "Analysis Report Management"
         OldAnalysisLineFilters: Text;
         OldAnalysisColumnFilters: Text;
         OldAnalysisLineTemplate: Code[10];
+        SalesSetupRead: Boolean;
+        InventorySetupRead: Boolean;
+        TryExpression: Text[250];
+
+        Text001: Label 'DEFAULT';
+        Text002: Label 'Default Lines';
+        Text003: Label 'Default Columns';
         Text005Tok: Label 'M', Comment = 'Month';
         Text006Tok: Label 'Q', Comment = 'Quarter';
         Text007Tok: Label 'Y', Comment = 'Year';
@@ -36,20 +40,9 @@ codeunit 7110 "Analysis Report Management"
         Text022: Label 'You must specify an %1 on %2 %3 %4 that includes the %5 dimension.';
         Text023: Label 'Column formula: %1';
         Text024: Label 'Row formula: %1';
-        SalesSetupRead: Boolean;
-        InventorySetupRead: Boolean;
-        TryExpression: Text[250];
         ColumnFormulaMsg: Label 'Column formula: %1. \Error: %2.', Comment = '%1 - text of Column formula; %2 - text of Error';
         ShowError: Option "None","Division by Zero","Period Error","Invalid Formula","Cyclic Formula",All;
         SeparatorTok: Label ';', Locked = true;
-
-#if not CLEAN18
-    [Obsolete('Replaced by LookupAnalysisReportName().', '18.0')]
-    procedure LookupReportName(CurrentAnalysisArea: Option Sales,Purchase,Inventory; var CurrentReportName: Code[10]): Boolean
-    begin
-        exit(LookupAnalysisReportName("Analysis Area Type".FromInteger(CurrentAnalysisArea), CurrentReportName));
-    end;
-#endif
 
     procedure LookupAnalysisReportName(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentReportName: Code[10]): Boolean
     var
@@ -84,27 +77,27 @@ codeunit 7110 "Analysis Report Management"
 
     local procedure CheckAnalysisLineTemplName(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentAnalysisLineTempl: Code[10])
     var
-        AnalysisLineTemplate: Record "Analysis Line Template";
+        AnalysisLineTemplate2: Record "Analysis Line Template";
     begin
-        if not AnalysisLineTemplate.Get(CurrentAnalysisArea, CurrentAnalysisLineTempl) then begin
-            AnalysisLineTemplate.SetRange("Analysis Area", CurrentAnalysisArea);
-            if not AnalysisLineTemplate.FindFirst() then begin
-                AnalysisLineTemplate.Init();
-                AnalysisLineTemplate."Analysis Area" := CurrentAnalysisArea;
-                AnalysisLineTemplate.Name := Text001;
-                AnalysisLineTemplate.Description := Text002;
-                AnalysisLineTemplate.Insert(true);
+        if not AnalysisLineTemplate2.Get(CurrentAnalysisArea, CurrentAnalysisLineTempl) then begin
+            AnalysisLineTemplate2.SetRange("Analysis Area", CurrentAnalysisArea);
+            if not AnalysisLineTemplate2.FindFirst() then begin
+                AnalysisLineTemplate2.Init();
+                AnalysisLineTemplate2."Analysis Area" := CurrentAnalysisArea;
+                AnalysisLineTemplate2.Name := Text001;
+                AnalysisLineTemplate2.Description := Text002;
+                AnalysisLineTemplate2.Insert(true);
                 Commit();
             end;
-            CurrentAnalysisLineTempl := AnalysisLineTemplate.Name;
+            CurrentAnalysisLineTempl := AnalysisLineTemplate2.Name;
         end;
     end;
 
     procedure CheckAnalysisLineTemplName(CurrentAnalysisLineTempl: Code[10]; var AnalysisLine: Record "Analysis Line")
     var
-        AnalysisLineTemplate: Record "Analysis Line Template";
+        AnalysisLineTemplate2: Record "Analysis Line Template";
     begin
-        AnalysisLineTemplate.Get(AnalysisLine.GetRangeMax("Analysis Area"), CurrentAnalysisLineTempl);
+        AnalysisLineTemplate2.Get(AnalysisLine.GetRangeMax("Analysis Area"), CurrentAnalysisLineTempl);
     end;
 
     procedure SetAnalysisLineTemplName(CurrentAnalysisLineTempl: Code[10]; var AnalysisLine: Record "Analysis Line")
@@ -118,17 +111,17 @@ codeunit 7110 "Analysis Report Management"
 
     procedure LookupAnalysisLineTemplName(var CurrentAnalysisLineTempl: Code[10]; var AnalysisLine: Record "Analysis Line"): Boolean
     var
-        AnalysisLineTemplate: Record "Analysis Line Template";
+        AnalysisLineTemplate2: Record "Analysis Line Template";
     begin
         Commit();
-        AnalysisLineTemplate."Analysis Area" := AnalysisLine.GetRangeMax("Analysis Area");
-        AnalysisLineTemplate.Name := AnalysisLine.GetRangeMax("Analysis Line Template Name");
-        AnalysisLineTemplate.FilterGroup := 2;
-        AnalysisLineTemplate.SetRange("Analysis Area", AnalysisLine.GetRangeMax("Analysis Area"));
-        AnalysisLineTemplate.FilterGroup := 0;
-        if PAGE.RunModal(0, AnalysisLineTemplate) = ACTION::LookupOK then begin
-            CheckAnalysisLineTemplName(AnalysisLineTemplate.Name, AnalysisLine);
-            CurrentAnalysisLineTempl := AnalysisLineTemplate.Name;
+        AnalysisLineTemplate2."Analysis Area" := AnalysisLine.GetRangeMax("Analysis Area");
+        AnalysisLineTemplate2.Name := AnalysisLine.GetRangeMax("Analysis Line Template Name");
+        AnalysisLineTemplate2.FilterGroup := 2;
+        AnalysisLineTemplate2.SetRange("Analysis Area", AnalysisLine.GetRangeMax("Analysis Area"));
+        AnalysisLineTemplate2.FilterGroup := 0;
+        if PAGE.RunModal(0, AnalysisLineTemplate2) = ACTION::LookupOK then begin
+            CheckAnalysisLineTemplName(AnalysisLineTemplate2.Name, AnalysisLine);
+            CurrentAnalysisLineTempl := AnalysisLineTemplate2.Name;
             SetAnalysisLineTemplName(CurrentAnalysisLineTempl, AnalysisLine);
             exit(true);
         end;
@@ -248,14 +241,6 @@ codeunit 7110 "Analysis Report Management"
         end;
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by LookypAnalysisColumnName().', '18.0')]
-    procedure LookupColumnName(CurrentAnalysisArea: Option; var CurrentColumnName: Code[10]): Boolean
-    begin
-        exit(LookupAnalysisColumnName("Analysis Area Type".FromInteger(CurrentAnalysisArea), CurrentColumnName));
-    end;
-#endif
-
     procedure LookupAnalysisColumnName(CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentColumnName: Code[10]): Boolean
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
@@ -296,20 +281,20 @@ codeunit 7110 "Analysis Report Management"
             CurrentSourceTypeFilter::Customer:
                 begin
                     CustList.LookupMode := true;
-                    if CustList.RunModal = ACTION::LookupOK then
-                        CurrentSourceTypeNoFilter := CustList.GetSelectionFilter;
+                    if CustList.RunModal() = ACTION::LookupOK then
+                        CurrentSourceTypeNoFilter := CustList.GetSelectionFilter();
                 end;
             CurrentSourceTypeFilter::Vendor:
                 begin
                     VendList.LookupMode := true;
-                    if VendList.RunModal = ACTION::LookupOK then
-                        CurrentSourceTypeNoFilter := VendList.GetSelectionFilter;
+                    if VendList.RunModal() = ACTION::LookupOK then
+                        CurrentSourceTypeNoFilter := VendList.GetSelectionFilter();
                 end;
             CurrentSourceTypeFilter::Item:
                 begin
                     ItemList.LookupMode := true;
-                    if ItemList.RunModal = ACTION::LookupOK then
-                        CurrentSourceTypeNoFilter := ItemList.GetSelectionFilter;
+                    if ItemList.RunModal() = ACTION::LookupOK then
+                        CurrentSourceTypeNoFilter := ItemList.GetSelectionFilter();
                 end;
         end;
         SetSourceNo(AnalysisLine, CurrentSourceTypeNoFilter);
@@ -373,10 +358,10 @@ codeunit 7110 "Analysis Report Management"
            (OldAnalysisLineTemplate <> AnalysisLine."Analysis Line Template Name") or
            (OldAnalysisLineTemplate <> AnalysisColumn."Analysis Column Template")
         then begin
-            AnalysisFieldValue.Reset();
-            AnalysisFieldValue.DeleteAll();
-            OldAnalysisLineFilters := AnalysisLine.GetFilters;
-            OldAnalysisColumnFilters := AnalysisColumn.GetFilters;
+            TempAnalysisFieldValue.Reset();
+            TempAnalysisFieldValue.DeleteAll();
+            OldAnalysisLineFilters := AnalysisLine.GetFilters();
+            OldAnalysisColumnFilters := AnalysisColumn.GetFilters();
             OldAnalysisLineTemplate := AnalysisLine."Analysis Line Template Name";
             OldAnalysisLineTemplate := AnalysisColumn."Analysis Column Template";
         end;
@@ -407,13 +392,13 @@ codeunit 7110 "Analysis Report Management"
         Result := 0;
         if AnalysisLine.Range <> '' then begin
             case true of
-                AnalysisFieldValue.Get(AnalysisLine."Line No.", AnalysisColumn."Line No.") and not DrillDown:
+                TempAnalysisFieldValue.Get(AnalysisLine."Line No.", AnalysisColumn."Line No.") and not DrillDown:
                     begin
-                        Result := AnalysisFieldValue.Value;
-                        DivisionError := DivisionError or AnalysisFieldValue."Has Error";
-                        PeriodError := PeriodError or AnalysisFieldValue."Period Error";
-                        FormulaError := FormulaError or AnalysisFieldValue."Formula Error";
-                        CyclicError := CyclicError or AnalysisFieldValue."Cyclic Error";
+                        Result := TempAnalysisFieldValue.Value;
+                        DivisionError := DivisionError or TempAnalysisFieldValue."Has Error";
+                        PeriodError := PeriodError or TempAnalysisFieldValue."Period Error";
+                        FormulaError := FormulaError or TempAnalysisFieldValue."Formula Error";
+                        CyclicError := CyclicError or TempAnalysisFieldValue."Cyclic Error";
                         exit(Result);
                     end;
                 AnalysisColumn."Column Type" = AnalysisColumn."Column Type"::Formula:
@@ -442,14 +427,14 @@ codeunit 7110 "Analysis Report Management"
             end;
 
             if not DrillDown then begin
-                AnalysisFieldValue."Row Ref. No." := AnalysisLine."Line No.";
-                AnalysisFieldValue."Column No." := AnalysisColumn."Line No.";
-                AnalysisFieldValue.Value := Result;
-                AnalysisFieldValue."Has Error" := DivisionError;
-                AnalysisFieldValue."Period Error" := PeriodError;
-                AnalysisFieldValue."Formula Error" := FormulaError;
-                AnalysisFieldValue."Cyclic Error" := CyclicError;
-                if AnalysisFieldValue.Insert() then;
+                TempAnalysisFieldValue."Row Ref. No." := AnalysisLine."Line No.";
+                TempAnalysisFieldValue."Column No." := AnalysisColumn."Line No.";
+                TempAnalysisFieldValue.Value := Result;
+                TempAnalysisFieldValue."Has Error" := DivisionError;
+                TempAnalysisFieldValue."Period Error" := PeriodError;
+                TempAnalysisFieldValue."Formula Error" := FormulaError;
+                TempAnalysisFieldValue."Cyclic Error" := CyclicError;
+                if TempAnalysisFieldValue.Insert() then;
             end;
         end;
         exit(Result);
@@ -613,7 +598,7 @@ codeunit 7110 "Analysis Report Management"
                     end;
                 Type::"Item Group":
                     begin
-                        GetInventorySetup;
+                        GetInventorySetup();
                         SetGroupDimFilter(ItemStatisticsBuf, InventorySetup."Item Group Dimension Code", Range);
                     end;
             end;
@@ -780,7 +765,7 @@ codeunit 7110 "Analysis Report Management"
                             else
                                 AnalysisLine.SetFilter("Row Ref. No.", Expression);
                             AnalysisLineID := AnalysisLine."Line No.";
-                            if not FormulaError then begin
+                            if not FormulaError then
                                 if AnalysisLine.Find('-') then
                                     repeat
                                         if AnalysisLine."Line No." <> AnalysisLineID then
@@ -789,7 +774,6 @@ codeunit 7110 "Analysis Report Management"
                                 else
                                     if IsFilter or (not Evaluate(Result, Expression)) then
                                         FormulaError := true;
-                            end;
                         end else begin
                             AnalysisColumn.SetRange("Analysis Area", AnalysisColumn."Analysis Area");
                             AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumn."Analysis Column Template");
@@ -798,7 +782,7 @@ codeunit 7110 "Analysis Report Management"
                             else
                                 AnalysisColumn.SetFilter("Column No.", Expression);
                             AnalysisLineID := AnalysisColumn."Line No.";
-                            if not FormulaError then begin
+                            if not FormulaError then
                                 if AnalysisColumn.Find('-') then
                                     repeat
                                         if AnalysisColumn."Line No." <> AnalysisLineID then
@@ -807,7 +791,6 @@ codeunit 7110 "Analysis Report Management"
                                 else
                                     if IsFilter or (not Evaluate(Result, Expression)) then
                                         FormulaError := true;
-                            end;
                         end;
                 end;
         end;
@@ -1571,7 +1554,7 @@ codeunit 7110 "Analysis Report Management"
                 else
                     Error(Text022,
                       AnalysisLineTemplate.FieldCaption("Item Analysis View Code"),
-                      AnalysisLineTemplate.TableCaption,
+                      AnalysisLineTemplate.TableCaption(),
                       AnalysisLineTemplate."Analysis Area",
                       AnalysisLineTemplate.Name,
                       GroupDimCode);
@@ -1588,7 +1571,7 @@ codeunit 7110 "Analysis Report Management"
                 else
                     Error(Text022,
                       AnalysisLineTemplate.FieldCaption("Item Analysis View Code"),
-                      AnalysisLineTemplate.TableCaption,
+                      AnalysisLineTemplate.TableCaption(),
                       AnalysisLineTemplate."Analysis Area",
                       AnalysisLineTemplate.Name,
                       GroupDimCode);
@@ -1739,29 +1722,29 @@ codeunit 7110 "Analysis Report Management"
     var
         AllErrorType: Boolean;
     begin
-        AnalysisFieldValue.SetRange("Row Ref. No.", RowNo);
-        AnalysisFieldValue.SetRange("Column No.", ColumnNo);
-        if AnalysisFieldValue.FindFirst() then begin
+        TempAnalysisFieldValue.SetRange("Row Ref. No.", RowNo);
+        TempAnalysisFieldValue.SetRange("Column No.", ColumnNo);
+        if TempAnalysisFieldValue.FindFirst() then begin
             AllErrorType :=
-              AnalysisFieldValue."Has Error" and
-              AnalysisFieldValue."Period Error" and
-              AnalysisFieldValue."Formula Error" and
-              AnalysisFieldValue."Cyclic Error";
+              TempAnalysisFieldValue."Has Error" and
+              TempAnalysisFieldValue."Period Error" and
+              TempAnalysisFieldValue."Formula Error" and
+              TempAnalysisFieldValue."Cyclic Error";
             if AllErrorType then
                 exit(Format(ShowError::All));
-            if AnalysisFieldValue."Has Error" then
+            if TempAnalysisFieldValue."Has Error" then
                 ErrorText := Format(ShowError::"Division by Zero") + SeparatorTok;
-            if AnalysisFieldValue."Period Error" then
+            if TempAnalysisFieldValue."Period Error" then
                 ErrorText := Format(ShowError::"Period Error") + SeparatorTok;
-            if AnalysisFieldValue."Formula Error" then
+            if TempAnalysisFieldValue."Formula Error" then
                 ErrorText := Format(ShowError::"Invalid Formula") + SeparatorTok;
-            if AnalysisFieldValue."Cyclic Error" then
+            if TempAnalysisFieldValue."Cyclic Error" then
                 ErrorText := Format(ShowError::"Cyclic Formula") + SeparatorTok;
             ErrorText := DelChr(ErrorText, '>', SeparatorTok);
         end;
 
-        AnalysisFieldValue.SetRange("Row Ref. No.");
-        AnalysisFieldValue.SetRange("Column No.");
+        TempAnalysisFieldValue.SetRange("Row Ref. No.");
+        TempAnalysisFieldValue.SetRange("Column No.");
     end;
 
     [IntegrationEvent(false, false)]

@@ -156,7 +156,7 @@ table 5530 "Inventory Event Buffer"
         if SalesLine.Type <> SalesLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(SalesLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := SalesLine."No.";
@@ -186,7 +186,7 @@ table 5530 "Inventory Event Buffer"
         if SalesLine.Type <> SalesLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(SalesLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := SalesLine."No.";
@@ -210,7 +210,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromProdComp(ProdOrderComp: Record "Prod. Order Component")
     begin
-        Init;
+        Init();
         RecRef.GetTable(ProdOrderComp);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := ProdOrderComp."Item No.";
@@ -231,7 +231,7 @@ table 5530 "Inventory Event Buffer"
         if JobPlanningLine.Type <> JobPlanningLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(JobPlanningLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := JobPlanningLine."No.";
@@ -255,7 +255,7 @@ table 5530 "Inventory Event Buffer"
         if ServLine.Type <> ServLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(ServLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := ServLine."No.";
@@ -274,7 +274,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromOutboundTransOrder(TransLine: Record "Transfer Line")
     begin
-        Init;
+        Init();
         RecRef.GetTable(TransLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := TransLine."Item No.";
@@ -295,7 +295,7 @@ table 5530 "Inventory Event Buffer"
     var
         ReqLine: Record "Requisition Line";
     begin
-        Init;
+        Init();
         ReqLine.Get(PlngComp."Worksheet Template Name", PlngComp."Worksheet Batch Name", PlngComp."Worksheet Line No.");
         RecRef.GetTable(PlngComp);
         "Source Line ID" := RecRef.RecordId;
@@ -320,7 +320,7 @@ table 5530 "Inventory Event Buffer"
         if ReqLine.Type <> ReqLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(ReqLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := ReqLine."No.";
@@ -343,7 +343,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferInventoryQty(ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        Init;
+        Init();
         RecRef.GetTable(ItemLedgEntry);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := ItemLedgEntry."Item No.";
@@ -367,7 +367,7 @@ table 5530 "Inventory Event Buffer"
         if PurchLine.Type <> PurchLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(PurchLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := PurchLine."No.";
@@ -390,7 +390,7 @@ table 5530 "Inventory Event Buffer"
         if PurchLine.Type <> PurchLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(PurchLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := PurchLine."No.";
@@ -408,7 +408,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromProdOrder(ProdOrderLine: Record "Prod. Order Line")
     begin
-        Init;
+        Init();
         RecRef.GetTable(ProdOrderLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := ProdOrderLine."Item No.";
@@ -426,7 +426,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromInboundTransOrder(TransLine: Record "Transfer Line")
     begin
-        Init;
+        Init();
         RecRef.GetTable(TransLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := TransLine."Item No.";
@@ -448,7 +448,7 @@ table 5530 "Inventory Event Buffer"
         if ReqLine.Type <> ReqLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         "Source Line ID" := RecID;
         "Item No." := ReqLine."No.";
         "Variant Code" := ReqLine."Variant Code";
@@ -473,7 +473,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromForecast(ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean; ForecastOnVariant: Boolean)
     begin
-        Init;
+        Init();
         RecRef.GetTable(ProdForecastEntry);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := ProdForecastEntry."Item No.";
@@ -505,7 +505,7 @@ table 5530 "Inventory Event Buffer"
         if SalesLine.Type <> SalesLine.Type::Item then
             exit;
 
-        Init;
+        Init();
         RecRef.GetTable(SalesLine);
         "Source Line ID" := RecRef.RecordId;
         "Item No." := SalesLine."No.";
@@ -534,7 +534,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromAsmOrder(AssemblyHeader: Record "Assembly Header")
     begin
-        Init;
+        Init();
         Type := Type::"Assembly Order";
         RecRef.GetTable(AssemblyHeader);
         "Source Line ID" := RecRef.RecordId;
@@ -552,7 +552,7 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromAsmOrderLine(AssemblyLine: Record "Assembly Line")
     begin
-        Init;
+        Init();
         Type := Type::"Assembly Component";
         RecRef.GetTable(AssemblyLine);
         "Source Line ID" := RecRef.RecordId;

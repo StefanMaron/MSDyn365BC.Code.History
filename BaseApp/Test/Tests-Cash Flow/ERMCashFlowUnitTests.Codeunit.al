@@ -69,16 +69,16 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - yes
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
             ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -88,7 +88,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -121,7 +121,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - yes
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
@@ -129,10 +129,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
             Assert.AreEqual(
@@ -143,7 +143,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -179,17 +179,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
         PaymentTerms.Modify();
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := DocumentDate;
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -199,7 +199,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -232,17 +232,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - yes
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -252,7 +252,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -285,7 +285,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - yes
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
@@ -293,12 +293,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -308,7 +308,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -344,18 +344,18 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
         PaymentTerms.Modify();
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := "Document Date";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -365,7 +365,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -400,17 +400,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PaymentTerms.Modify();
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -420,7 +420,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -455,7 +455,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PaymentTerms.Modify();
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
@@ -463,12 +463,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -478,7 +478,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -516,18 +516,18 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
         PaymentTerms.Modify();
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := "Document Date";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -537,7 +537,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -572,17 +572,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PaymentTerms.Modify();
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -592,7 +592,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -627,7 +627,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PaymentTerms.Modify();
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
@@ -635,12 +635,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -650,7 +650,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -688,18 +688,18 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
         PaymentTerms.Modify();
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedAmount := "Amount (LCY)";
             ExpectedDate := "Document Date";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -709,7 +709,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -742,17 +742,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
             ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -762,7 +762,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -795,17 +795,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
             ExpectedAmount := "Amount (LCY)";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -815,7 +815,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -848,17 +848,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
             ExpectedAmount := "Amount (LCY)";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -868,7 +868,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -901,17 +901,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
             ExpectedAmount := "Amount (LCY)";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -921,7 +921,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -956,17 +956,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
             ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -976,7 +976,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -1009,17 +1009,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-3D>', WorkDate);
+        DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
             ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -1029,7 +1029,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -1062,17 +1062,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
             ExpectedAmount := "Amount (LCY)";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -1082,7 +1082,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -1117,17 +1117,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - *
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        DocumentDate := CalcDate('<-5D>', WorkDate);
+        DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
             ExpectedAmount := "Amount (LCY)";
 
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date", ExpectedDate,
@@ -1137,7 +1137,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               "Amount (LCY)", ExpectedAmount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -1161,10 +1161,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         with CFWorksheetLine do begin
             "Document Date" := 0D;
-            Insert;
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
-            Delete;
+            Insert();
+            CalculateCFAmountAndCFDate();
+            // Modify();
+            Delete();
         end;
     end;
 
@@ -1201,11 +1201,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
 
         with CFWorksheetLine do begin
-            "Document Date" := WorkDate;
-            Insert;
+            "Document Date" := WorkDate();
+            Insert();
             Amount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
-            CalculateCFAmountAndCFDate;
-            // MODIFY;
+            CalculateCFAmountAndCFDate();
+            // Modify();
 
             Assert.AreEqual(
               "Cash Flow Date",
@@ -1219,7 +1219,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
               Amount,
               StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), Amount, "Amount (LCY)"));
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -1283,9 +1283,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         for SourceType := 1 to ArrayLen(ConsiderSource) do
             if ConsiderSource[SourceType] then begin
-                InsertRndCFLedgEntries(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), CalcDate(MinusOneDayFormula, WorkDate), Amount);
+                InsertRndCFLedgEntries(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), CalcDate(MinusOneDayFormula, WorkDate()), Amount);
                 PostedAmount[SourceType, Period::Before] := Amount;
-                InsertRndCFLedgEntries(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), CalcDate(PlusOneDayFormula, WorkDate), Amount);
+                InsertRndCFLedgEntries(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), CalcDate(PlusOneDayFormula, WorkDate()), Amount);
                 PostedAmount[SourceType, Period::After] := Amount;
             end;
     end;
@@ -1295,7 +1295,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     procedure TestCalculateAmountsOnCFLedgEntryFromToDate()
     begin
         Initialize();
-        VerifyCalculatedAmountsForPeriod(WorkDate, WorkDate);
+        VerifyCalculatedAmountsForPeriod(WorkDate(), WorkDate());
     end;
 
     [Test]
@@ -1303,7 +1303,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     procedure TestCalculateAmountsOnCFLedgEntryFromDate()
     begin
         Initialize();
-        VerifyCalculatedAmountsForPeriod(WorkDate, 0D);
+        VerifyCalculatedAmountsForPeriod(WorkDate(), 0D);
     end;
 
     [Test]
@@ -1311,7 +1311,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     procedure TestCalculateAmountsOnCFLedgEntryToDate()
     begin
         Initialize();
-        VerifyCalculatedAmountsForPeriod(0D, WorkDate);
+        VerifyCalculatedAmountsForPeriod(0D, WorkDate());
     end;
 
     [Test]
@@ -1364,11 +1364,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         case true of
             (FromDate = 0D) and (ToDate = 0D):
                 exit(PostedAmount[1] + PostedAmount[2]);
-            (FromDate = 0D) and (ToDate = WorkDate):
+            (FromDate = 0D) and (ToDate = WorkDate()):
                 exit(PostedAmount[1]);
-            (FromDate = WorkDate) and (ToDate = 0D):
+            (FromDate = WorkDate()) and (ToDate = 0D):
                 exit(PostedAmount[2]);
-            (FromDate = WorkDate) and (ToDate = WorkDate):
+            (FromDate = WorkDate()) and (ToDate = WorkDate()):
                 exit(0);
         end;
     end;
@@ -1427,12 +1427,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         with CashFlowChartSetup do begin
             if Get(UserId) then
-                Delete;
+                Delete();
 
-            Init;
+            Init();
             "User ID" := UserId;
             "Period Length" := PeriodLength;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1473,7 +1473,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         with CashFlowChartSetup do begin
             if Get(UserId) then
-                Delete;
+                Delete();
             CFChartMgt.OnOpenPage(CashFlowChartSetup);
 
             TestField("Start Date", "Start Date"::"Working Date");
@@ -1640,16 +1640,16 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         with CashFlowChartSetup do begin
             if Get(UserId) then
-                Delete;
+                Delete();
 
-            Init;
+            Init();
             "User ID" := UserId;
             "Period Length" := "Period Length"::Day;
             "Start Date" := "Start Date"::"First Entry Date";
             Show := NewShow;
             "Group By" := GroupBy;
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1685,7 +1685,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
             if ExpectedSourceType <> ExpectedSourceType::" " then
                 CFForecastEntries."Source Type".AssertEquals(ExpectedSourceType);
             ActualTotalAmount += CFForecastEntries."Amount (LCY)".AsDEcimal;
-        until not CFForecastEntries.Next;
+        until not CFForecastEntries.Next();
 
         if ExpectedSourceType <> ExpectedSourceType::" " then
             ExpectedTotalAmount := PostedAmount[ExpectedSourceType.AsInteger(), Period::Before]
@@ -1844,10 +1844,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
             CFAccount.SetRange(Blocked, false);
             CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
             CFAccount.FindFirst();
-            Init;
+            Init();
             "Cash Flow Forecast No." := CashFlowForecast."No.";
             "Cash Flow Account No." := CFAccount."No.";
-            "Cash Flow Date" := WorkDate;
+            "Cash Flow Date" := WorkDate();
             "Amount (LCY)" := Amount;
 
             CFWkshRegisterLine.RunWithCheck(CashFlowWkshLine);
@@ -2346,7 +2346,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries.First;
         repeat
             TotalAmountOnPage += CFLedgerEntries."Amount (LCY)".AsDEcimal;
-        until not CFLedgerEntries.Next;
+        until not CFLedgerEntries.Next();
     end;
 
     [Test]
@@ -2409,8 +2409,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CreateCashFlowChartSetup;
         CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"Working Date";
         CashFlowChartSetup.Modify();
-        Actual := CashFlowChartSetup.GetStartDate;
-        Assert.AreEqual(WorkDate, Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Start Date")));
+        Actual := CashFlowChartSetup.GetStartDate();
+        Assert.AreEqual(WorkDate(), Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Start Date")));
     end;
 
     [Test]
@@ -2620,10 +2620,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         with CashFlowChartSetup do begin
             if Get(UserId) then
-                Delete;
-            Init;
+                Delete();
+            Init();
             "User ID" := UserId;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2648,7 +2648,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         with CFReportSelection do
             DeleteAll();
 
-        CashFlowForecast.PrintRecords; // Can't be completely tested since it has REPORT.RUNMODAL
+        CashFlowForecast.PrintRecords(); // Can't be completely tested since it has REPORT.RUNMODAL
     end;
 
     [Test]
@@ -2660,7 +2660,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         if OldCashFlowForecast.FindFirst() then;
         asserterror CashFlowForecast.AssistEdit(OldCashFlowForecast);
-        Assert.ExpectedError('Unhandled UI: ModalPage 571'); // Can't be completely tested since it's running modal page
+        Assert.ExpectedError('Unhandled UI: ModalPage 456'); // Can't be completely tested since it's running modal page
     end;
 
     [Test]
@@ -2812,7 +2812,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // [FEATURE] [UT]
         // [SCENARIO 269517] Reverse Charge VAT operations are excluded from VAT Entries for Taxes from VAT Entries
 
-        CashFlowManagement.SetViewOnVATEntryForTaxCalc(VATEntry, WorkDate);
+        CashFlowManagement.SetViewOnVATEntryForTaxCalc(VATEntry, WorkDate());
         Assert.AreEqual(
           StrSubstNo('<>%1', VATEntry."VAT Calculation Type"::"Reverse Charge VAT"),
           VATEntry.GetFilter("VAT Calculation Type"),
@@ -2876,6 +2876,30 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         CashFlowManualRevenue.TestField("Global Dimension 1 Code", DimensionValue1.Code);
         CashFlowManualRevenue.TestField("Global Dimension 2 Code", DimensionValue2.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowForecastCardGLBudgetToDateEarlierThanFromDate()
+    var
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+    begin
+        CashFlowCard.OpenNew();
+        CashFlowCard."G/L Budget From".SetValue(Today);
+        AssertError CashFlowCard."G/L Budget To".SetValue(Today - 1);
+        Assert.ExpectedError('The "G/L Budget To" date precedes the "G/L Budget From" date. Select an end date after the start date.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowForecastCardManualPaymentsToDateEarlierThanFromDate()
+    var
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+    begin
+        CashFlowCard.OpenNew();
+        CashFlowCard."Manual Payments From".SetValue(Today);
+        AssertError CashFlowCard."Manual Payments To".SetValue(Today - 1);
+        Assert.ExpectedError('The "Manual Payments To" date precedes the "Manual Payments From" date. Select an end date after the start date.');
     end;
 
     local procedure Initialize()

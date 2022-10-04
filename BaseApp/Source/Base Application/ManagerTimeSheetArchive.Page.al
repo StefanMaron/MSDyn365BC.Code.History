@@ -5,7 +5,6 @@ page 961 "Manager Time Sheet Archive"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Show';
     SaveValues = true;
     SourceTable = "Time Sheet Line Archive";
 
@@ -24,9 +23,9 @@ page 961 "Manager Time Sheet Archive"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TimeSheetMgt.LookupApproverTimeSheetArchive(CurrTimeSheetNo, Rec, TimeSheetHeaderArchive);
-                        UpdateControls;
+                        UpdateControls();
                     end;
 
                     trigger OnValidate()
@@ -34,9 +33,9 @@ page 961 "Manager Time Sheet Archive"
                         TimeSheetHeaderArchive.Reset();
                         TimeSheetMgt.FilterTimeSheetsArchive(TimeSheetHeaderArchive, TimeSheetHeaderArchive.FieldNo("Approver User ID"));
                         TimeSheetMgt.CheckTimeSheetArchiveNo(TimeSheetHeaderArchive, CurrTimeSheetNo);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TimeSheetMgt.SetTimeSheetArchiveNo(CurrTimeSheetNo, Rec);
-                        UpdateControls;
+                        UpdateControls();
                     end;
                 }
                 field("TimeSheetHeaderArchive.""Resource No."""; TimeSheetHeaderArchive."Resource No.")
@@ -79,16 +78,16 @@ page 961 "Manager Time Sheet Archive"
 
                     trigger OnValidate()
                     begin
-                        AfterGetCurrentRecord;
+                        AfterGetCurrentRecord();
                         CurrPage.Update(true);
                     end;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
@@ -98,7 +97,7 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the archived time sheet line.';
                 }
-                field("Cause of Absence Code"; "Cause of Absence Code")
+                field("Cause of Absence Code"; Rec."Cause of Absence Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the codes that you can use to describe the type of absence from work.';
@@ -108,17 +107,17 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether the time associated with an archived time sheet is chargeable.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
-                field("Service Order No."; "Service Order No.")
+                field("Service Order No."; Rec."Service Order No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the service order number that is associated with an archived time sheet line.';
                 }
-                field("Assembly Order No."; "Assembly Order No.")
+                field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the assembly order number that is associated with the time sheet line.';
@@ -177,7 +176,7 @@ page 961 "Manager Time Sheet Archive"
                     CaptionClass = '3,' + ColumnCaption[7];
                     Width = 6;
                 }
-                field("Total Quantity"; "Total Quantity")
+                field("Total Quantity"; Rec."Total Quantity")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Total';
@@ -209,9 +208,6 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Jobs;
                     Caption = '&Previous Period';
                     Image = PreviousSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                     trigger OnAction()
@@ -224,9 +220,6 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Jobs;
                     Caption = '&Next Period';
                     Image = NextSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View information for the next period.';
 
                     trigger OnAction()
@@ -244,8 +237,6 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Jobs;
                     Caption = 'Posting E&ntries';
                     Image = PostingEntries;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the resource ledger entries that have been posted in connection with the.';
 
@@ -264,8 +255,6 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Comments;
                     Caption = '&Time Sheet Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Arc. Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = CONST(0);
@@ -276,8 +265,6 @@ page 961 "Manager Time Sheet Archive"
                     ApplicationArea = Comments;
                     Caption = '&Line Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Arc. Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = FIELD("Line No.");
@@ -285,16 +272,48 @@ page 961 "Manager Time Sheet Archive"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Previous Period_Promoted"; "&Previous Period")
+                {
+                }
+                actionref("&Next Period_Promoted"; "&Next Period")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Posting E&ntries_Promoted"; "Posting E&ntries")
+                {
+                }
+                actionref(TimeSheetComments_Promoted; TimeSheetComments)
+                {
+                }
+                actionref(LineComments_Promoted; LineComments)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnOpenPage()
@@ -307,7 +326,7 @@ page 961 "Manager Time Sheet Archive"
                 TimeSheetHeaderArchive.FieldNo("Approver User ID"));
 
         TimeSheetMgt.SetTimeSheetArchiveNo(CurrTimeSheetNo, Rec);
-        UpdateControls;
+        UpdateControls();
     end;
 
     var
@@ -357,14 +376,14 @@ page 961 "Manager Time Sheet Archive"
             else
                 CellData[i] := 0;
         end;
-        UpdateFactBox;
+        UpdateFactBox();
     end;
 
     local procedure FindTimeSheet(Which: Option)
     begin
         CurrTimeSheetNo := TimeSheetMgt.FindTimeSheetArchive(TimeSheetHeaderArchive, Which);
         TimeSheetMgt.SetTimeSheetArchiveNo(CurrTimeSheetNo, Rec);
-        UpdateControls;
+        UpdateControls();
     end;
 
     local procedure UpdateFactBox()
@@ -374,8 +393,8 @@ page 961 "Manager Time Sheet Archive"
 
     local procedure UpdateControls()
     begin
-        SetColumns;
-        UpdateFactBox;
+        SetColumns();
+        UpdateFactBox();
         CurrPage.Update(false);
     end;
 }

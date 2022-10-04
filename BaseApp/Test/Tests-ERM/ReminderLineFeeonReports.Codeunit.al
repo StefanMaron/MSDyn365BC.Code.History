@@ -39,13 +39,13 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine := LibraryRandom.RandDec(100, 2);
         CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, '', AddFeePerLine); // WithLump = TRUE
-        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate);
+        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate());
 
         // [WHEN] The invoice is printed
         ExportServiceInvoice(CustomerNo);
 
         // [THEN] The Add. Fee per Line note on report with amount A is printed
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, '', Language.GetUserLanguageCode);
+        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, '', Language.GetUserLanguageCode());
     end;
 
     [Test]
@@ -65,13 +65,13 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, '', 0); // WithLump = TRUE, AddFeePerLine = 0
 
         // [GIVEN] A posted service invoice for customer with Reminder Term = X
-        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate);
+        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate());
 
         // [WHEN] The invoice is printed
         ExportServiceInvoice(CustomerNo);
 
         // [THEN] The Add. Fee per Line note is not shown on the report
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, 0, '', Language.GetUserLanguageCode);
+        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, 0, '', Language.GetUserLanguageCode());
     end;
 
     [Test]
@@ -105,14 +105,14 @@ codeunit 134993 "Reminder - Line Fee on Reports"
           2);    // Level
 
         // [GIVEN] A posted service invoice for customer with Reminder Term = X
-        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate);
+        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate());
 
         // [WHEN] The invoice is printed
         ExportServiceInvoice(CustomerNo);
 
         // [THEN] Multiple Add. Fee per Line notes are shown on the report
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine1, '', Language.GetUserLanguageCode);
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 2, InvoiceNo, AddFeePerLine2, '', Language.GetUserLanguageCode);
+        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine1, '', Language.GetUserLanguageCode());
+        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 2, InvoiceNo, AddFeePerLine2, '', Language.GetUserLanguageCode());
     end;
 
     [Test]
@@ -134,13 +134,13 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, FCYCode, AddFeePerLine); // WithLump = TRUE
 
         // [GIVEN] A posted service invoice for customer with Reminder Term = X
-        InvoiceNo := PostServiceInvoiceFCY(CustomerNo, WorkDate, FCYCode);
+        InvoiceNo := PostServiceInvoiceFCY(CustomerNo, WorkDate(), FCYCode);
 
         // [WHEN] The invoice is printed
         ExportServiceInvoice(CustomerNo);
 
         // [THEN] The Add. Fee per Line text on report is not shown on the report
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, FCYCode, Language.GetUserLanguageCode);
+        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, FCYCode, Language.GetUserLanguageCode());
     end;
 
     [Test]
@@ -163,13 +163,13 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CreateAdditionalFeeSetup(ReminderTermsCode, 1, '', 0, AddFeePerLine);
 
         // [GIVEN] A posted sales invoice for customer with Reminder Term = X
-        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate);
+        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate());
 
         // [WHEN] The invoice is printed
         ExportServiceInvoice(CustomerNo);
 
         // [THEN] The Add. Fee per Line note on report with Marginal Percentage shown
-        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, '', Language.GetUserLanguageCode);
+        ValidateInvoiceAddFeePerLine(ReminderTermsCode, 1, InvoiceNo, AddFeePerLine, '', Language.GetUserLanguageCode());
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         UpdateCustomerLangCode(CustomerNo, ReminderTermsTranslation."Language Code");
 
         // [GIVEN] A posted service invoice for customer with Reminder Term = X
-        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate);
+        InvoiceNo := PostServiceInvoice(CustomerNo, WorkDate());
 
         // [WHEN] The invoice is printed
         ExportServiceInvoice(CustomerNo);
@@ -247,7 +247,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CurrencyForReminderLevel: Record "Currency for Reminder Level";
     begin
         with CurrencyForReminderLevel do begin
-            Init;
+            Init();
             Validate("Reminder Terms Code", ReminderTermsCode);
             Validate("No.", Level);
             Validate("Currency Code", CurrencyCode);

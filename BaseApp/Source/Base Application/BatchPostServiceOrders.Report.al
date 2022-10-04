@@ -13,7 +13,7 @@ report 6001 "Batch Post Service Orders"
             trigger OnAfterGetRecord()
             begin
                 if CalcInvDisc then
-                    CalculateInvoiceDiscount;
+                    CalculateInvoiceDiscount();
 
                 Counter := Counter + 1;
                 Window.Update(1, "No.");
@@ -28,7 +28,7 @@ report 6001 "Batch Post Service Orders"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
                 Message(Text002, CounterOK, CounterTotal);
             end;
 
@@ -114,7 +114,7 @@ report 6001 "Batch Post Service Orders"
             ClientTypeManagement: Codeunit "Client Type Management";
         begin
             if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then
-                InitValues;
+                InitValues();
         end;
     }
 
@@ -129,14 +129,10 @@ report 6001 "Batch Post Service Orders"
 
     trigger OnPreReport()
     begin
-        OnBeforePreReport;
+        OnBeforePreReport();
     end;
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Posting orders  #1########## @2@@@@@@@@@@@@@';
-        Text002: Label '%1 orders out of a total of %2 have now been posted.';
-        Text003: Label 'The exchange rate associated with the new posting date on the service header will not apply to the service lines.';
         ServLine: Record "Service Line";
         SalesSetup: Record "Sales & Receivables Setup";
         ServCalcDisc: Codeunit "Service-Calc. Discount";
@@ -152,6 +148,11 @@ report 6001 "Batch Post Service Orders"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
 
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Posting orders  #1########## @2@@@@@@@@@@@@@';
+        Text002: Label '%1 orders out of a total of %2 have now been posted.';
+        Text003: Label 'The exchange rate associated with the new posting date on the service header will not apply to the service lines.';
+
     local procedure CalculateInvoiceDiscount()
     begin
         ServLine.Reset();
@@ -166,7 +167,7 @@ report 6001 "Batch Post Service Orders"
 
     procedure InitializeRequest(ShipReqFrom: Boolean; InvReqFrom: Boolean; PostingDateReqFrom: Date; ReplacePostingDateFrom: Boolean; ReplaceDocumentDateFrom: Boolean; CalcInvDiscFrom: Boolean)
     begin
-        InitValues;
+        InitValues();
         ShipReq := ShipReqFrom;
         InvReq := InvReqFrom;
         PostingDateReq := PostingDateReqFrom;

@@ -32,10 +32,10 @@ table 1800 "Data Migrator Registration"
 
     procedure RegisterDataMigrator(DataMigratorNo: Integer; DataMigratorDescription: Text[250]): Boolean
     begin
-        Init;
+        Init();
         "No." := DataMigratorNo;
         Description := DataMigratorDescription;
-        exit(Insert);
+        exit(Insert());
     end;
 
     [IntegrationEvent(TRUE, false)]

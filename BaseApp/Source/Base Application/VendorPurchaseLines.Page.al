@@ -15,13 +15,13 @@ page 352 "Vendor Purchase Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies purchase statistics for each vendor for a period of time, starting on the date that you specify.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -40,7 +40,7 @@ page 352 "Vendor Purchase Lines"
                         ShowVendEntriesDue();
                     end;
                 }
-                field("Vend.""Purchases (LCY)"""; "Purchases (LCY)")
+                field("Vend.""Purchases (LCY)"""; Rec."Purchases (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

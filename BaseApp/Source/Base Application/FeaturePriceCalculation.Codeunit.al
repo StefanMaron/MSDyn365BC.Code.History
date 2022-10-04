@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 /// <summary>
 /// Copies pricing data from old tables to "Price List Line" and "Price List Header" table.
 /// </summary>
@@ -99,7 +99,7 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";
         Description1Txt: Label 'Records from %1, %2, %3, %4, %5, %6, %7, %8, %9, and %10 tables',
-            Comment = '%1, %2, %3, %4, %5, %6, %7, %8, %9, %10 - table captions';
+        Comment = '%1, %2, %3, %4, %5, %6, %7, %8, %9, %10 - table captions';
         Description2Txt: Label 'will be copied to the Price List Header and Price List Line tables.';
         DescrTok: Label '%1 %2', Locked = true;
         XJPLTok: Label 'J-PL';
@@ -155,16 +155,16 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         TempDocumentEntry.DeleteAll();
 
         CRMIntegrationRecord.SetFilter("Table ID", '%1|%2', Database::"Customer Price Group", Database::"Sales Price");
-        InsertDocumentEntry(Database::"CRM Integration Record", CRMIntegrationRecord.TableCaption, CRMIntegrationRecord.Count());
-        InsertDocumentEntry(Database::"Sales Price", SalesPrice.TableCaption, SalesPrice.Count());
-        InsertDocumentEntry(Database::"Sales Line Discount", SalesLineDiscount.TableCaption, SalesLineDiscount.Count());
-        InsertDocumentEntry(Database::"Purchase Price", PurchasePrice.TableCaption, PurchasePrice.Count());
-        InsertDocumentEntry(Database::"Purchase Line Discount", PurchaseLineDiscount.TableCaption, PurchaseLineDiscount.Count());
-        InsertDocumentEntry(Database::"Job Item Price", JobItemPrice.TableCaption, JobItemPrice.Count());
-        InsertDocumentEntry(Database::"Job G/L Account Price", JobGLAccountPrice.TableCaption, JobGLAccountPrice.Count());
-        InsertDocumentEntry(Database::"Job Resource Price", JobResourcePrice.TableCaption, JobResourcePrice.Count());
-        InsertDocumentEntry(Database::"Resource Price", ResourcePrice.TableCaption, ResourcePrice.Count());
-        InsertDocumentEntry(Database::"Resource Cost", ResourceCost.TableCaption, ResourceCost.Count());
+        InsertDocumentEntry(Database::"CRM Integration Record", CRMIntegrationRecord.TableCaption(), CRMIntegrationRecord.Count());
+        InsertDocumentEntry(Database::"Sales Price", SalesPrice.TableCaption(), SalesPrice.Count());
+        InsertDocumentEntry(Database::"Sales Line Discount", SalesLineDiscount.TableCaption(), SalesLineDiscount.Count());
+        InsertDocumentEntry(Database::"Purchase Price", PurchasePrice.TableCaption(), PurchasePrice.Count());
+        InsertDocumentEntry(Database::"Purchase Line Discount", PurchaseLineDiscount.TableCaption(), PurchaseLineDiscount.Count());
+        InsertDocumentEntry(Database::"Job Item Price", JobItemPrice.TableCaption(), JobItemPrice.Count());
+        InsertDocumentEntry(Database::"Job G/L Account Price", JobGLAccountPrice.TableCaption(), JobGLAccountPrice.Count());
+        InsertDocumentEntry(Database::"Job Resource Price", JobResourcePrice.TableCaption(), JobResourcePrice.Count());
+        InsertDocumentEntry(Database::"Resource Price", ResourcePrice.TableCaption(), ResourcePrice.Count());
+        InsertDocumentEntry(Database::"Resource Cost", ResourceCost.TableCaption(), ResourceCost.Count());
 
         OnAfterCountRecords(TempDocumentEntry);
     end;

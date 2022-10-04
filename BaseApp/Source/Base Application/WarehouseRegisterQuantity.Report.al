@@ -17,7 +17,7 @@ report 7303 "Warehouse Register - Quantity"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(WhseRegisterCaptionWithFilter; TableCaption + ': ' + WhseRegFilter)
@@ -141,7 +141,7 @@ report 7303 "Warehouse Register - Quantity"
 
     trigger OnPreReport()
     begin
-        WhseRegFilter := "Warehouse Register".GetFilters;
+        WhseRegFilter := "Warehouse Register".GetFilters();
     end;
 
     var

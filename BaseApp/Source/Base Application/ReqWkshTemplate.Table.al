@@ -53,6 +53,10 @@ table 244 "Req. Wksh. Template"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(30; "Increment Batch Name"; Boolean)
+        {
+            Caption = 'Increment Batch Name';
+        }
         field(99000750; Type; Enum "Req. Worksheet Template Type")
         {
             Caption = 'Type';

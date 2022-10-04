@@ -1,7 +1,7 @@
 page 5906 "Service Item Worksheet"
 {
     Caption = 'Service Item Worksheet';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
@@ -14,86 +14,86 @@ page 5906 "Service Item Worksheet"
             group(General)
             {
                 Caption = 'General';
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service order linked to this service item line.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the service item number registered in the Service Item table.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the item number linked to this service item.';
                 }
-                field("Service Item Group Code"; "Service Item Group Code")
+                field("Service Item Group Code"; Rec."Service Item Group Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the code of the service item group for this item.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the serial number of this item.';
                 }
-                field("Fault Reason Code"; "Fault Reason Code")
+                field("Fault Reason Code"; Rec."Fault Reason Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the fault reason code for the item.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     Caption = 'Document Type';
                     Editable = false;
                     ToolTip = 'Specifies whether the service document is a service order or service quote.';
                 }
-                field("Loaner No."; "Loaner No.")
+                field("Loaner No."; Rec."Loaner No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the loaner that has been lent to the customer in the service order to replace this item.';
                 }
-                field("Service Shelf No."; "Service Shelf No.")
+                field("Service Shelf No."; Rec."Service Shelf No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service shelf this item is stored on.';
                 }
-                field("Service Price Group Code"; "Service Price Group Code")
+                field("Service Price Group Code"; Rec."Service Price Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service price group associated with the item.';
                 }
-                field("Fault Area Code"; "Fault Area Code")
+                field("Fault Area Code"; Rec."Fault Area Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault area code for this item.';
                 }
-                field("Symptom Code"; "Symptom Code")
+                field("Symptom Code"; Rec."Symptom Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the symptom code for this item.';
                 }
-                field("Fault Code"; "Fault Code")
+                field("Fault Code"; Rec."Fault Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault code for this item.';
                 }
-                field("Resolution Code"; "Resolution Code")
+                field("Resolution Code"; Rec."Resolution Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the resolution code for this item.';
                 }
-                field("Repair Status Code"; "Repair Status Code")
+                field("Repair Status Code"; Rec."Repair Status Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the repair status of this service item.';
@@ -110,7 +110,7 @@ page 5906 "Service Item Worksheet"
             group(Customer)
             {
                 Caption = 'Customer';
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     Caption = 'Customer No.';
@@ -188,7 +188,7 @@ page 5906 "Service Item Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies the phone number of the customer.';
                 }
-                field("Location of Service Item"; "Location of Service Item")
+                field("Location of Service Item"; Rec."Location of Service Item")
                 {
                     ApplicationArea = Location;
                     Editable = false;
@@ -198,7 +198,7 @@ page 5906 "Service Item Worksheet"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     Caption = 'Ship-to Code';
@@ -282,7 +282,7 @@ page 5906 "Service Item Worksheet"
             group(Details)
             {
                 Caption = 'Details';
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -294,13 +294,13 @@ page 5906 "Service Item Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies that warranty on either parts or labor exists for this item.';
                 }
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the estimated date when service should start on this service item line.';
                 }
-                field("Response Time"; "Response Time")
+                field("Response Time"; Rec."Response Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -312,31 +312,31 @@ page 5906 "Service Item Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies the service priority for this item.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date when service on this item began and when the repair status changed to In process.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the time when service on this item began and when the repair status changed to In process.';
                 }
-                field("Finishing Date"; "Finishing Date")
+                field("Finishing Date"; Rec."Finishing Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the finishing date of the service and when the repair status of this item changes to Finished.';
                 }
-                field("Finishing Time"; "Finishing Time")
+                field("Finishing Time"; Rec."Finishing Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the finishing time of the service and when the repair status of this item changes to Finished.';
                 }
-                field("No. of Previous Services"; "No. of Previous Services")
+                field("No. of Previous Services"; Rec."No. of Previous Services")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of services performed on service items with the same item and serial number as this service item.';
@@ -469,7 +469,7 @@ page 5906 "Service Item Worksheet"
 
                     trigger OnAction()
                     begin
-                        SelectFaultResolutionCode;
+                        SelectFaultResolutionCode();
                     end;
                 }
                 action("&Troubleshooting")
@@ -497,7 +497,7 @@ page 5906 "Service Item Worksheet"
                     begin
                         DemandOverview.SetCalculationParameter(true);
                         DemandOverview.Initialize(0D, 4, "Document No.", '', '');
-                        DemandOverview.RunModal
+                        DemandOverview.RunModal();
                     end;
                 }
             }
@@ -529,8 +529,6 @@ page 5906 "Service Item Worksheet"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -543,12 +541,23 @@ page 5906 "Service Item Worksheet"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
         ServHeader.Get("Document Type", "Document No.");
-        UpdateShiptoCode;
+        UpdateShiptoCode();
         if "Serial No." = '' then
             "No. of Previous Services" := 0;
 
@@ -566,7 +575,6 @@ page 5906 "Service Item Worksheet"
     end;
 
     var
-        CannotOpenWindowErr: Label 'You cannot open the window because %1 is %2 in the %3 table.';
         ServHeader: Record "Service Header";
         ShiptoAddr: Record "Ship-to Address";
         ServItemLine: Record "Service Item Line";
@@ -582,6 +590,8 @@ page 5906 "Service Item Worksheet"
         ShiptoCountryRegion: Code[10];
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+        CannotOpenWindowErr: Label 'You cannot open the window because %1 is %2 in the %3 table.';
 
     procedure Caption(): Text
     begin
@@ -602,7 +612,7 @@ page 5906 "Service Item Worksheet"
             ServSetup."Fault Reporting Level"::None:
                 Error(
                   CannotOpenWindowErr,
-                  ServSetup.FieldCaption("Fault Reporting Level"), ServSetup."Fault Reporting Level", ServSetup.TableCaption);
+                  ServSetup.FieldCaption("Fault Reporting Level"), ServSetup."Fault Reporting Level", ServSetup.TableCaption());
         end;
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.SetDocument(DATABASE::"Service Item Line", "Document Type".AsInteger(), "Document No.", "Line No.");

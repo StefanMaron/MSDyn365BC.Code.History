@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2321 "BC O365 Payment Method Card"
 {
     Caption = 'Payment Method';
     LinksAllowed = false;
     PageType = Card;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,13 +18,13 @@ page 2321 "BC O365 Payment Method Card"
                 ShowCaption = false;
                 field(PaymentMethodCode; PaymentMethodCode)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
                     ToolTip = 'Specifies the short name of the payment method.';
                 }
                 field(PaymentMethodDescription; PaymentMethodDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Description';
                     ToolTip = 'Specifies a description of the payment method.';
                 }
@@ -35,7 +39,7 @@ page 2321 "BC O365 Payment Method Card"
     trigger OnOpenPage()
     begin
         PaymentMethodCode := PaymentMethod.Code;
-        PaymentMethodDescription := CopyStr(PaymentMethod.GetDescriptionInCurrentLanguage, 1, MaxStrLen(PaymentMethodDescription));
+        PaymentMethodDescription := CopyStr(PaymentMethod.GetDescriptionInCurrentLanguage(), 1, MaxStrLen(PaymentMethodDescription));
         if PaymentMethodCode = '' then
             CurrPage.Caption := NewPaymentMethodTxt;
     end;
@@ -56,10 +60,9 @@ page 2321 "BC O365 Payment Method Card"
         // Clean up translation if description changed
         if (PaymentMethod.Description <> PaymentMethodDescription) and
            (PaymentMethod.Code <> '')
-        then begin
-            if PaymentMethodTranslation.Get(PaymentMethod.Code, Language.GetUserLanguageCode) then
+        then
+            if PaymentMethodTranslation.Get(PaymentMethod.Code, Language.GetUserLanguageCode()) then
                 PaymentMethodTranslation.Delete(true);
-        end;
 
         // Handle the code
         if not PaymentMethod.Get(PaymentMethod.Code) then begin
@@ -73,7 +76,7 @@ page 2321 "BC O365 Payment Method Card"
                 if LocalPaymentMethod.Get(PaymentMethodCode) then
                     Error(PaymentMethodAlreadyExistErr);
                 PaymentMethod.Rename(PaymentMethodCode);
-                if O365SalesInitialSetup.Get and (O365SalesInitialSetup."Default Payment Method Code" = PaymentMethodCode) then
+                if O365SalesInitialSetup.Get() and (O365SalesInitialSetup."Default Payment Method Code" = PaymentMethodCode) then
                     O365SalesInitialSetup.UpdateDefaultPaymentMethod(PaymentMethodCode);
             end;
 
@@ -99,4 +102,4 @@ page 2321 "BC O365 Payment Method Card"
         PaymentMethod := NewPaymentMethod;
     end;
 }
-
+#endif

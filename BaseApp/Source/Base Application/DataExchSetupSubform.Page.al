@@ -23,7 +23,7 @@ page 1265 "Data Exch. Setup Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        CaptionAssistEdit;
+                        CaptionAssistEdit();
                     end;
                 }
                 field(SourceField; Source)
@@ -38,13 +38,13 @@ page 1265 "Data Exch. Setup Subform"
                         SourceAssistEdit(TempXMLBuffer);
                     end;
                 }
-                field("Default Value"; "Default Value")
+                field("Default Value"; Rec."Default Value")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsRecordOfTypeField;
                     ToolTip = 'Specifies another value than the data in the field that will be exported, because you selected the Use Default Value check box. This field is only relevant for export.';
                 }
-                field("Transformation Rule"; "Transformation Rule")
+                field("Transformation Rule"; Rec."Transformation Rule")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a rule for transforming imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365. When you choose a value in this field, the same value is entered in the Transformation Rule field in the Data Exch. Field Mapping table and vice versa.';
@@ -75,7 +75,7 @@ page 1265 "Data Exch. Setup Subform"
                 begin
                     DataExchDef.Get(DataExchDefCode);
                     PAGE.RunModal(PAGE::"Data Exch Def Card", DataExchDef);
-                    UpdateData;
+                    UpdateData();
                 end;
             }
         }
@@ -84,17 +84,17 @@ page 1265 "Data Exch. Setup Subform"
     trigger OnAfterGetCurrRecord()
     begin
         IsRecordOfTypeField := Type = Type::Field;
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetStyle;
+        SetStyle();
         Depth := 1;
     end;
 

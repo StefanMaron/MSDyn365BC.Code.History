@@ -17,7 +17,7 @@ report 8613 "Create Item Journal Lines"
                 StdItemJnlLine: Record "Standard Item Journal Line";
             begin
                 ItemJnlLine.Init();
-                if GetStandardJournalLine then begin
+                if GetStandardJournalLine() then begin
                     Initialize(StdItemJnl, ItemJnlBatch.Name);
 
                     StdItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
@@ -66,9 +66,9 @@ report 8613 "Create Item Journal Lines"
 
             trigger OnPreDataItem()
             begin
-                CheckJournalTemplate;
-                CheckBatchName;
-                CheckPostingDate;
+                CheckJournalTemplate();
+                CheckBatchName();
+                CheckPostingDate();
 
                 ItemJnlLine.SetRange("Journal Template Name", JournalTemplate);
                 ItemJnlLine.SetRange("Journal Batch Name", BatchName);
@@ -116,7 +116,7 @@ report 8613 "Create Item Journal Lines"
 
                         trigger OnValidate()
                         begin
-                            CheckPostingDate;
+                            CheckPostingDate();
                         end;
                     }
                     field(DocumentDate; DocumentDate)
@@ -143,7 +143,7 @@ report 8613 "Create Item Journal Lines"
 
                             ItemJnlTemplates.LookupMode := true;
                             ItemJnlTemplates.Editable := false;
-                            if ItemJnlTemplates.RunModal = ACTION::LookupOK then begin
+                            if ItemJnlTemplates.RunModal() = ACTION::LookupOK then begin
                                 ItemJnlTemplates.GetRecord(ItemJnlTemplate);
                                 JournalTemplate := ItemJnlTemplate.Name;
                             end;
@@ -151,7 +151,7 @@ report 8613 "Create Item Journal Lines"
 
                         trigger OnValidate()
                         begin
-                            CheckJournalTemplate;
+                            CheckJournalTemplate();
                         end;
                     }
                     field(BatchName; BatchName)
@@ -171,7 +171,7 @@ report 8613 "Create Item Journal Lines"
 
                             ItemJnlBatches.LookupMode := true;
                             ItemJnlBatches.Editable := false;
-                            if ItemJnlBatches.RunModal = ACTION::LookupOK then begin
+                            if ItemJnlBatches.RunModal() = ACTION::LookupOK then begin
                                 ItemJnlBatches.GetRecord(ItemJnlBatch);
                                 BatchName := ItemJnlBatch.Name;
                             end;
@@ -179,7 +179,7 @@ report 8613 "Create Item Journal Lines"
 
                         trigger OnValidate()
                         begin
-                            CheckBatchName;
+                            CheckBatchName();
                         end;
                     }
                     field(TemplateCode; TemplateCode)
@@ -201,7 +201,7 @@ report 8613 "Create Item Journal Lines"
 
                             StdItemJnls.LookupMode := true;
                             StdItemJnls.Editable := false;
-                            if StdItemJnls.RunModal = ACTION::LookupOK then begin
+                            if StdItemJnls.RunModal() = ACTION::LookupOK then begin
                                 StdItemJnls.GetRecord(StdItemJnl1);
                                 TemplateCode := StdItemJnl1.Code;
                             end;
@@ -218,7 +218,7 @@ report 8613 "Create Item Journal Lines"
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
+                PostingDate := WorkDate();
         end;
     }
 
@@ -258,7 +258,7 @@ report 8613 "Create Item Journal Lines"
             exit;
         StdItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
         StdItemJnlLine.SetRange("Standard Journal Code", StdItemJnl.Code);
-        exit(StdItemJnlLine.FindFirst);
+        exit(not StdItemJnlLine.IsEmpty());
     end;
 
     procedure Initialize(StdItemJnl: Record "Standard Item Journal"; JnlBatchName: Code[10])
@@ -287,7 +287,7 @@ report 8613 "Create Item Journal Lines"
         ItemJnlLine.TransferFields(StdItemJnlLine, false);
 
         if (ItemJnlLine."Item No." <> '') and (ItemJnlLine."Unit Amount" = 0) then
-            ItemJnlLine.RecalculateUnitAmount;
+            ItemJnlLine.RecalculateUnitAmount();
 
         if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output) and
            (ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation)
@@ -297,7 +297,7 @@ report 8613 "Create Item Journal Lines"
             ItemJnlLine."Invoiced Quantity" := ItemJnlLine.Quantity;
         ItemJnlLine.TestField("Qty. per Unit of Measure");
         ItemJnlLine."Invoiced Qty. (Base)" :=
-          Round(ItemJnlLine."Invoiced Quantity" * ItemJnlLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+          Round(ItemJnlLine."Invoiced Quantity" * ItemJnlLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
         ItemJnlLine.Insert(true);
 

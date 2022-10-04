@@ -25,7 +25,7 @@ codeunit 5321 "Exchange Web Services Server"
             Service := ServiceFactory.CreateServiceWrapperForVersion(ExchangeVersion);
 
         if (ServiceUri = '') and not Rediscover then
-            ServiceUri := GetEndpoint;
+            ServiceUri := GetEndpoint();
         Service.ExchangeServiceUrl := ServiceUri;
 
         if not IsNull(Credentials) then begin
@@ -62,15 +62,15 @@ codeunit 5321 "Exchange Web Services Server"
         ExchangeVersion: DotNet ExchangeVersion;
     begin
         if ServiceUri = '' then
-            ServiceUri := GetEndpoint;
+            ServiceUri := GetEndpoint();
 
         if InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, false, ExchangeVersion.Exchange2013, false) then begin
-            Result := ValidCredentials;
+            Result := ValidCredentials();
 
             // If the email address was not found in the exchange server (404 error) then attempt to discover the exchange service endpoint.
             if not Result and (StrPos(GetLastErrorText, '404') > 0) then
                 if InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, true, ExchangeVersion.Exchange2013, false) and
-                   ValidCredentials
+                   ValidCredentials()
                 then begin
                     Result := true;
                     ServiceUri := Service.ExchangeServiceUrl;
@@ -110,7 +110,7 @@ codeunit 5321 "Exchange Web Services Server"
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
         if ExchangeEndpoint = '' then
-            ExchangeEndpoint := GetEndpoint;
+            ExchangeEndpoint := GetEndpoint();
 
         AzureADMgt.CreateExchangeServiceWrapperWithToken(Token, Service);
         Service.ExchangeServiceUrl := ExchangeEndpoint;
@@ -122,8 +122,8 @@ codeunit 5321 "Exchange Web Services Server"
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
-        if AzureADAuthFlow.CanHandle then
-            if not Service.ValidateCredentials then begin
+        if AzureADAuthFlow.CanHandle() then
+            if not Service.ValidateCredentials() then begin
                 Session.LogMessage('0000D8X', InvalidCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
                 LogLastError();
                 Error('');
@@ -145,7 +145,7 @@ codeunit 5321 "Exchange Web Services Server"
     [Scope('OnPrem')]
     procedure CreateAppointment(var Appointment: DotNet IAppointment)
     begin
-        Appointment := Service.CreateAppointment;
+        Appointment := Service.CreateAppointment();
     end;
 
     [TryFunction]
@@ -188,14 +188,13 @@ codeunit 5321 "Exchange Web Services Server"
         repeat
             FindResults := TargetFolder.FindEmailMessages(50, FolderOffset);
             if FindResults.TotalCount > 0 then begin
-                Enumerator := FindResults.GetEnumerator;
-                while Enumerator.MoveNext do begin
+                Enumerator := FindResults.GetEnumerator();
+                while Enumerator.MoveNext() do begin
                     TargetMessage := Enumerator.Current;
                     if SampleMessage.Subject = TargetMessage.Subject then
-                        if SampleMessage.Body = TargetMessage.Body then begin
+                        if SampleMessage.Body = TargetMessage.Body then
                             if CompareEmailAttachments(SampleMessage, TargetMessage) then
                                 exit(true);
-                        end;
                 end;
                 FolderOffset := FindResults.NextPageOffset;
             end;
@@ -214,19 +213,19 @@ codeunit 5321 "Exchange Web Services Server"
         LeftFlag: Boolean;
         RightFlag: Boolean;
     begin
-        LeftEnum := LeftMsg.Attachments.GetEnumerator;
-        RightEnum := RightMsg.Attachments.GetEnumerator;
+        LeftEnum := LeftMsg.Attachments.GetEnumerator();
+        RightEnum := RightMsg.Attachments.GetEnumerator();
 
-        LeftFlag := LeftEnum.MoveNext;
-        RightFlag := RightEnum.MoveNext;
+        LeftFlag := LeftEnum.MoveNext();
+        RightFlag := RightEnum.MoveNext();
         while LeftFlag and RightFlag do begin
             LeftAttrib := LeftEnum.Current;
             RightAttrib := RightEnum.Current;
             if (LeftAttrib.ContentId <> RightAttrib.ContentId) or (LeftAttrib.ContentType <> RightAttrib.ContentType) then
                 exit(false);
 
-            LeftFlag := LeftEnum.MoveNext;
-            RightFlag := RightEnum.MoveNext;
+            LeftFlag := LeftEnum.MoveNext();
+            RightFlag := RightEnum.MoveNext();
         end;
 
         exit(LeftFlag = RightFlag);
@@ -266,11 +265,11 @@ codeunit 5321 "Exchange Web Services Server"
         if TryGetEmailWithAttachments(EmailMessage, ItemID) then begin
             if not IsNull(EmailMessage) then
                 with TempExchangeObject do begin
-                    Init;
+                    Init();
                     Validate("Item ID", EmailMessage.Id);
                     Validate(Type, Type::Email);
                     Validate(Name, EmailMessage.Subject);
-                    Validate(Owner, UserSecurityId);
+                    Validate(Owner, UserSecurityId());
                     SetBody(EmailMessage.TextBody);
                     SetContent(EmailMessage.Content);
                     SetViewLink(EmailMessage.LinkUrl);
@@ -344,6 +343,11 @@ codeunit 5321 "Exchange Web Services Server"
     begin
         ProdEndpointText := ProdEndpointTxt;
         OnAfterGetProdEndpoint(ProdEndpointText);
+    end;
+
+    procedure IsDefaultProdEndpoint(Endpoint: Text): Boolean
+    begin
+        exit(Endpoint = ProdEndpointTxt);
     end;
 
     [Scope('OnPrem')]

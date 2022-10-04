@@ -68,12 +68,11 @@ table 2831 "Native - Payment"
 
                 "Applies-to Invoice No." := SalesInvoiceHeader."No.";
 
-                if "Customer No." = '' then begin
+                if "Customer No." = '' then
                     if SalesInvoiceHeader."Bill-to Customer No." <> '' then
                         "Customer No." := SalesInvoiceHeader."Bill-to Customer No."
                     else
                         "Customer No." := SalesInvoiceHeader."Sell-to Customer No.";
-                end;
             end;
         }
         field(8; "Applies-to Invoice No."; Code[20])

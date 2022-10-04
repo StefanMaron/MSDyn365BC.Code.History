@@ -134,7 +134,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ReservEntry.SetSourceFilter('', 0);
         if ReservEntry.FindSet() then
             repeat
-                if ReservEntry.TrackingExists then
+                if ReservEntry.TrackingExists() then
                     TrackingQtyToHandle := TrackingQtyToHandle + ReservEntry."Qty. to Handle (Base)";
             until ReservEntry.Next() = 0;
     end;
@@ -163,10 +163,10 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 TrackingSpecification := TempTrackingSpecification;
                 TrackingSpecification."Buffer Status" := 0;
                 TrackingSpecification.Correction := false;
-                TrackingSpecification.InitQtyToShip;
+                TrackingSpecification.InitQtyToShip();
                 TrackingSpecification."Quantity actual Handled (Base)" := 0;
                 if TempTrackingSpecification."Buffer Status" = TempTrackingSpecification."Buffer Status"::MODIFY then
-                    TrackingSpecification.Modify
+                    TrackingSpecification.Modify()
                 else
                     TrackingSpecification.Insert();
             until TempTrackingSpecification.Next() = 0;
@@ -178,7 +178,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 
     procedure InsertTempHandlngSpecification(SrcType: Integer; var ServLine: Record "Service Line"; var TempHandlingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecificationInv: Record "Tracking Specification"; QtyToInvoiceNonZero: Boolean)
     begin
-        with ServLine do begin
+        with ServLine do
             if TempHandlingSpecification.Find('-') then
                 repeat
                     TempTrackingSpecification := TempHandlingSpecification;
@@ -194,7 +194,6 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                         if TempTrackingSpecificationInv.Insert() then;
                     end;
                 until TempHandlingSpecification.Next() = 0;
-        end;
     end;
 
     procedure RetrieveInvoiceSpecification(var ServLine: Record "Service Line"; var TempInvoicingSpecification: Record "Tracking Specification"; Consume: Boolean) Ok: Boolean

@@ -10,7 +10,7 @@ report 1101 "Resource - List"
     {
         dataitem(Resource; Resource)
         {
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Resource_TABLECAPTION__________ResFilter; TableCaption + ': ' + ResFilter)
@@ -94,7 +94,7 @@ report 1101 "Resource - List"
         else
             GetShorDimCodeCaption2 := Text001;
 
-        ResFilter := Resource.GetFilters;
+        ResFilter := Resource.GetFilters();
     end;
 
     var

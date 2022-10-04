@@ -45,13 +45,13 @@ table 5886 "Exp. Phys. Invt. Tracking"
 
     procedure InsertLine(DocumentNo: Code[20]; LineNo: Integer; SerialNo: Code[50]; LotNo: Code[50]; Quantity: Decimal)
     begin
-        Init;
+        Init();
         "Order No" := DocumentNo;
         "Order Line No." := LineNo;
         "Serial No." := SerialNo;
         "Lot No." := LotNo;
         "Quantity (Base)" := Quantity;
-        Insert;
+        Insert();
     end;
 
     procedure DeleteLine(DocumentNo: Code[20]; LineNo: Integer; RemoveAll: Boolean)

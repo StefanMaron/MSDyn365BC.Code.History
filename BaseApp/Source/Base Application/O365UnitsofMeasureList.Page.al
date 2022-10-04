@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2194 "O365 Units of Measure List"
 {
     Caption = 'Select a unit';
@@ -10,6 +11,9 @@ page 2194 "O365 Units of Measure List"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "Unit of Measure";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -20,13 +24,13 @@ page 2194 "O365 Units of Measure List"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a code for the unit of measure, which you can select on item and resource cards from where it is copied to.';
                     Visible = false;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the unit of measure.';
                 }
             }
@@ -39,7 +43,7 @@ page 2194 "O365 Units of Measure List"
 
     trigger OnAfterGetRecord()
     begin
-        Description := GetDescriptionInCurrentLanguage;
+        Description := GetDescriptionInCurrentLanguage();
     end;
 }
-
+#endif

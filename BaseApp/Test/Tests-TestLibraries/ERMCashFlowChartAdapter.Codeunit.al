@@ -216,7 +216,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
 
         repeat
             ExpectedAmount += CFForecastEntry."Amount (LCY)";
-        until CFForecastEntry.Next = 0;
+        until CFForecastEntry.Next() = 0;
         exit(ExpectedAmount);
     end;
 
@@ -237,7 +237,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
 
         repeat
             ExpectedAmount += CFForecastEntry."Amount (LCY)";
-        until CFForecastEntry.Next = 0;
+        until CFForecastEntry.Next() = 0;
         exit(ExpectedAmount);
     end;
 
@@ -256,7 +256,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
 
         repeat
             ExpectedAmount += CFForecastEntry."Amount (LCY)";
-        until CFForecastEntry.Next = 0;
+        until CFForecastEntry.Next() = 0;
         exit(ExpectedAmount);
     end;
 
@@ -284,8 +284,8 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Date");
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         if CFForecastEntry.IsEmpty() then begin
-            FromDate := WorkDate;
-            ToDate := WorkDate;
+            FromDate := WorkDate();
+            ToDate := WorkDate();
         end else begin
             CFForecastEntry.FindFirst();
             FromDate := CFForecastEntry."Cash Flow Date";
@@ -298,7 +298,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     var
         ReferenceDate: Date;
     begin
-        ReferenceDate := WorkDate;
+        ReferenceDate := WorkDate();
         RangeFrom := ReferenceDate;
         RangeTo := ReferenceDate;
 
@@ -331,7 +331,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     var
         ReferenceDate: Date;
     begin
-        ReferenceDate := WorkDate;
+        ReferenceDate := WorkDate();
 
         case CashFlowChartSetup."Period Length" of
             CashFlowChartSetup."Period Length"::Day:
@@ -427,7 +427,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     begin
         CalcFromAndToDateFromLedgerEntries(FromDate, ToDate);
         if CashFlowChartSetup."Start Date" = CashFlowChartSetup."Start Date"::"Working Date" then
-            FromDate := WorkDate;
+            FromDate := WorkDate();
         if CurrSourceType <> CurrSourceType::" " then begin
             BusChartBuf."Period Length" := CashFlowChartSetup."Period Length";
             exit(BusChartBuf.CalcNumberOfPeriods(FromDate, ToDate));
@@ -460,14 +460,14 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     begin
         with CashFlowChartSetup do begin
             if Get(UserId) then
-                Delete;
+                Delete();
 
-            Init;
+            Init();
             "User ID" := UserId;
             "Start Date" := "Start Date"::"Working Date";
             "Period Length" := "Period Length"::Day;
             Show := ChartSetupShow;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -479,14 +479,14 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
             if FindLast() then
                 EntryNo := "Entry No.";
 
-            Init;
+            Init();
             "Entry No." := EntryNo + 1;
             "Cash Flow Forecast No." := CFNo;
             "Source Type" := SourceType;
             "Cash Flow Date" := CFDate;
             "Cash Flow Account No." := GetCFAccountFromSourceType(SourceType);
             Validate("Amount (LCY)", Amount);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -584,7 +584,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
                     ExpectedAmount := 0;
                     repeat
                         ExpectedAmount += CFForecastEntry."Amount (LCY)";
-                    until CFForecastEntry.Next = 0;
+                    until CFForecastEntry.Next() = 0;
 
                     ActualAmount := GetDecimalValueFromChartDataSource(BusChartBuf,
                         Format(CFForecastEntry."Source Type"), I - 1);
@@ -629,7 +629,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
                         // Loop through the cf ledger entries and sum up expected amounts
                         repeat
                             ExpectedAmount += CFForecastEntry."Amount (LCY)";
-                        until CFForecastEntry.Next = 0;
+                        until CFForecastEntry.Next() = 0;
                         // Get actual value from chart data buffer based on account and period
                         ActualAmount :=
                           GetDecimalValueFromChartDataSource(BusChartBuf, Format(CFAccount."No."), I - 1);
@@ -637,7 +637,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
                         Assert.AreEqual(ExpectedAmount, ActualAmount,
                           StrSubstNo(UnexpectedCFAmountPerAccountTypeInPeriod, Format(CFAccount."No."), I));
                     end;
-                until CFAccount.Next = 0;
+                until CFAccount.Next() = 0;
         end;
     end;
 }

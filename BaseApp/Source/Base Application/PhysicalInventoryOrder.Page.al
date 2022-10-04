@@ -11,7 +11,7 @@ page 5875 "Physical Inventory Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number for the physical inventory order.';
@@ -27,28 +27,28 @@ page 5875 "Physical Inventory Order"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a short description of the physical inventory order.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the location where items on this line should be counted.';
                 }
-                field("Person Responsible"; "Person Responsible")
+                field("Person Responsible"; Rec."Person Responsible")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the person who is responsible for performing this physical inventory order.';
                 }
-                field("No. Finished Recordings"; "No. Finished Recordings")
+                field("No. Finished Recordings"; Rec."No. Finished Recordings")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of entered physical inventory recording documents that have the status set to Finished.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the order date for the physical inventory order.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the posting date of the physical inventory order.';
@@ -59,12 +59,12 @@ page 5875 "Physical Inventory Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies if the physical inventory order is open or finished.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -100,8 +100,6 @@ page 5875 "Physical Inventory Order"
                     ApplicationArea = Warehouse;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Phys. Invt. Order Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -137,8 +135,8 @@ page 5875 "Physical Inventory Order"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Show &Duplicate Lines")
@@ -163,8 +161,6 @@ page 5875 "Physical Inventory Order"
                     Caption = '&Calculate Lines';
                     Ellipsis = true;
                     Image = CalculateLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Add physical inventory lines for items that are currently recorded in inventory.';
 
                     trigger OnAction()
@@ -242,14 +238,12 @@ page 5875 "Physical Inventory Order"
                     Caption = 'Make New &Recording';
                     Ellipsis = true;
                     Image = NewDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a physical inventory recording document for the lines on the order. On the request page that appears, you can select to only create recording lines for items that are not already on other recordings for the order.';
 
                     trigger OnAction()
                     begin
                         PhysInvtOrderHeader := Rec;
-                        PhysInvtOrderHeader.SetRecFilter;
+                        PhysInvtOrderHeader.SetRecFilter();
                         REPORT.RunModal(REPORT::"Make Phys. Invt. Recording", true, false, PhysInvtOrderHeader);
                     end;
                 }
@@ -259,8 +253,6 @@ page 5875 "Physical Inventory Order"
                     Caption = 'Fi&nish';
                     Ellipsis = true;
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Phys. Invt. Order-Finish (Y/N)";
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Indicate that the counting is completed. This is only possible if all related recordings are set to Finished.';
@@ -271,8 +263,6 @@ page 5875 "Physical Inventory Order"
                     Caption = 'Reo&pen';
                     Ellipsis = true;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Phys. Invt. Order-Reopen (Y/N)";
                     ToolTip = 'Change the status of the physical inventory order from Finished to Open.';
                 }
@@ -300,9 +290,6 @@ page 5875 "Physical Inventory Order"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = Post;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Update the involved item ledger entries with the counted inventory quantities.';
 
@@ -317,9 +304,6 @@ page 5875 "Physical Inventory Order"
                     Caption = 'Post and &Print';
                     Ellipsis = true;
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Update the involved item ledger entries with the counted inventory and print the Phys. Inventory Order Difference List report, which shows counted quantities compared to expected as negative or positive differences.';
 
@@ -335,8 +319,6 @@ page 5875 "Physical Inventory Order"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Print the Phys. Inventory Order Difference List report, which shows counted quantities compared to expected as negative or positive differences.';
 
                 trigger OnAction()
@@ -352,8 +334,6 @@ page 5875 "Physical Inventory Order"
                 ApplicationArea = Warehouse;
                 Caption = 'New Phys. Inventory Recording';
                 Image = PhysicalInventory;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "Phys. Inventory Recording";
                 ToolTip = 'Create new physical inventory recording.';
             }
@@ -365,11 +345,92 @@ page 5875 "Physical Inventory Order"
                 ApplicationArea = Warehouse;
                 Caption = 'Physical Inventory Recording';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Phys. Invt. Recording";
                 ToolTip = 'Print the first physical inventory recording that exists for the order. The printed document has an empty column in which to write the counted quantities.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+#if not CLEAN21
+                actionref("New Phys. Inventory Recording_Promoted"; "New Phys. Inventory Recording")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category6)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref(MakeNewRecording_Promoted; MakeNewRecording)
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref("Fi&nish_Promoted"; "Fi&nish")
+                {
+                }
+                actionref("Reo&pen_Promoted"; "Reo&pen")
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(CopyDocument_Promoted; CopyDocument)
+                {
+                }
+                group(Category_Calculate)
+                {
+                    Caption = 'Calculate';
+
+                    actionref(CalculateLines_Promoted; CalculateLines)
+                    {
+                    }
+                    actionref(CalculateCountingPeriod_Promoted; CalculateCountingPeriod)
+                    {
+                    }
+                    actionref(CalculateLinesBins_Promoted; CalculateLinesBins)
+                    {
+                    }
+                }
+            }
+            group(Category_Order)
+            {
+                Caption = 'Order';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
             }
         }
     }

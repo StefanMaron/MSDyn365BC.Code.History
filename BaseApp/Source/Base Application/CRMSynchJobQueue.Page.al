@@ -13,13 +13,13 @@ page 5373 "CRM Synch. Job Queue"
         {
             repeater(Group)
             {
-                field("Last Ready State"; "Last Ready State")
+                field("Last Ready State"; Rec."Last Ready State")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Date';
                     ToolTip = 'Specifies the date and time when the Dynamics 365 Sales synchronization job was set to Ready and sent to the job queue.';
                 }
-                field("Error Message"; "Error Message")
+                field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = Suite;
                     Style = Attention;

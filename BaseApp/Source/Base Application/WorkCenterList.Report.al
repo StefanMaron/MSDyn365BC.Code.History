@@ -15,7 +15,7 @@ report 99000759 "Work Center List"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Work_Center__TABLECAPTION_________WorkCenterFilter; TableCaption + ':' + WorkCenterFilter)
@@ -87,7 +87,7 @@ report 99000759 "Work Center List"
 
             trigger OnPreDataItem()
             begin
-                WorkCenterFilter := GetFilters;
+                WorkCenterFilter := GetFilters();
             end;
         }
     }

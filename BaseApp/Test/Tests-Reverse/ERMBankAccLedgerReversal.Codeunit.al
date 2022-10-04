@@ -132,7 +132,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Currency.Get(CreateCurrency);
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue values for BankAccountListReqPageHandler.
-        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate());
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Account - List");
@@ -176,7 +176,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Initialize();
         Currency.Get(CreateCurrency);
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
-        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate());
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Account Register");
@@ -326,7 +326,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         BankAccountLedgerEntry.FindSet();
         repeat
             BankAccountLedgerEntryAmt += BankAccountLedgerEntry.Amount;
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
         exit(BankAccountLedgerEntryAmt);
     end;
 

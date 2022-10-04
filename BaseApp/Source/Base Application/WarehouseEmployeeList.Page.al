@@ -13,7 +13,7 @@ page 7348 "Warehouse Employee List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -25,7 +25,7 @@ page 7348 "Warehouse Employee List"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location in which the employee works.';
@@ -35,7 +35,7 @@ page 7348 "Warehouse Employee List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the location code that is defined as the default location for this employee''s activities.';
                 }
-                field("ADCS User"; "ADCS User")
+                field("ADCS User"; Rec."ADCS User")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ADCS user name of a warehouse employee.';

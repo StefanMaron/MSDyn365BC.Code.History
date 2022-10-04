@@ -13,7 +13,7 @@ report 87 "Copy - General Posting Setup"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                GenPostingSetup.Find;
+                GenPostingSetup.Find();
                 if CopySales then begin
                     "Sales Account" := GenPostingSetup."Sales Account";
                     "Sales Credit Memo Account" := GenPostingSetup."Sales Credit Memo Account";
@@ -55,7 +55,7 @@ report 87 "Copy - General Posting Setup"
                 OnAfterCopyGenPostingSetup("General Posting Setup", GenPostingSetup, CopySales, CopyPurchases, CopyInventory, CopyManufacturing);
 
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    Modify;
+                    Modify();
             end;
 
             trigger OnPreDataItem()
@@ -101,7 +101,7 @@ report 87 "Copy - General Posting Setup"
                         trigger OnValidate()
                         begin
                             if Selection = Selection::"All fields" then
-                                AllFieldsSelectionOnValidate;
+                                AllFieldsSelectionOnValidate();
                         end;
                     }
                     field(SalesAccounts; CopySales)
@@ -172,13 +172,16 @@ report 87 "Copy - General Posting Setup"
     }
 
     var
-        Text000: Label 'Copy General Posting Setup?';
         UseGenPostingSetup: Record "General Posting Setup";
         GenPostingSetup: Record "General Posting Setup";
         CopySales: Boolean;
         CopyPurchases: Boolean;
         CopyInventory: Boolean;
         CopyManufacturing: Boolean;
+
+        Text000: Label 'Copy General Posting Setup?';
+
+    protected var
         Selection: Option "All fields","Selected fields";
 
     procedure SetGenPostingSetup(GenPostingSetup2: Record "General Posting Setup")
@@ -196,7 +199,7 @@ report 87 "Copy - General Posting Setup"
 
     local procedure AllFieldsSelectionOnValidate()
     begin
-        AllFieldsSelectionOnPush;
+        AllFieldsSelectionOnPush();
     end;
 
     [IntegrationEvent(TRUE, false)]

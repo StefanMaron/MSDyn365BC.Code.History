@@ -16,7 +16,7 @@ report 7301 "Movement List"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(WhseActivHeaderCaption; "Warehouse Activity Header".TableCaption + ': ' + MovementFilter)
@@ -281,7 +281,7 @@ report 7301 "Movement List"
                 else
                     BreakbulkFilter := "Breakbulk Filter";
 
-                if not IsReportInPreviewMode then
+                if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Whse.-Printed", "Warehouse Activity Header");
             end;
         }
@@ -348,7 +348,7 @@ report 7301 "Movement List"
 
     trigger OnPreReport()
     begin
-        MovementFilter := "Warehouse Activity Header".GetFilters;
+        MovementFilter := "Warehouse Activity Header".GetFilters();
     end;
 
     var
@@ -387,7 +387,7 @@ report 7301 "Movement List"
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
@@ -397,7 +397,7 @@ report 7301 "Movement List"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure SetBreakbulkFilter(BreakbulkFilter2: Boolean)

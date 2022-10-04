@@ -325,7 +325,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader."Posting Date" := WorkDate;
+        PhysInvtOrderHeader."Posting Date" := WorkDate();
         PhysInvtOrderHeader.Insert();
         exit(PhysInvtOrderHeader."No.");
     end;
@@ -350,7 +350,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         PhysInventoryLedgerEntry.FindLast();
         PhysInventoryLedgerEntry2."Entry No." := PhysInventoryLedgerEntry."Entry No." + 1;
         PhysInventoryLedgerEntry2."Document No." := DocumentNo;
-        PhysInventoryLedgerEntry2."Posting Date" := WorkDate;
+        PhysInventoryLedgerEntry2."Posting Date" := WorkDate();
         PhysInventoryLedgerEntry2.Insert();
     end;
 
@@ -397,7 +397,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         LibraryVariableStorage.Dequeue(DocumentNo);
         LibraryVariableStorage.Dequeue(ItemNo);
         PhysInventoryLedgerEntries."Document No.".AssertEquals(DocumentNo);
-        PhysInventoryLedgerEntries."Posting Date".AssertEquals(WorkDate);
+        PhysInventoryLedgerEntries."Posting Date".AssertEquals(WorkDate());
         PhysInventoryLedgerEntries."Item No.".AssertEquals(ItemNo);
         PhysInventoryLedgerEntries.OK.Invoke;
     end;

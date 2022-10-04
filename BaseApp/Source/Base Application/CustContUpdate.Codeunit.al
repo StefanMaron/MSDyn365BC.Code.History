@@ -110,7 +110,7 @@ codeunit 5056 "CustCont-Update"
             exit;
 
         with Cont do begin
-            Init;
+            Init();
             TransferFields(Cust);
             OnAfterTransferFieldsFromCustToCont(Cont, Cust);
             Validate(Name);
@@ -124,13 +124,13 @@ codeunit 5056 "CustCont-Update"
                 NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
             end;
             Type := Cust."Contact Type";
-            SetSkipDefault;
+            SetSkipDefault();
             OnBeforeContactInsert(Cont, Cust);
             Insert(true);
         end;
 
         with ContBusRel do begin
-            Init;
+            Init();
             "Contact No." := Cont."No.";
             "Business Relation Code" := RMSetup."Bus. Rel. Code for Customers";
             "Link to Table" := "Link to Table"::Customer;
@@ -157,7 +157,7 @@ codeunit 5056 "CustCont-Update"
         if ContBusRel.FindFirst() then
             if ContComp.Get(ContBusRel."Contact No.") then
                 with Cont do begin
-                    Init;
+                    Init();
                     "No." := '';
                     OnInsertNewContactPersonOnBeforeValidateType(Cont, Cust, ContComp);
                     Validate(Type, Type::Person);

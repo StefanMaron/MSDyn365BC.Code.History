@@ -88,7 +88,7 @@
         if (VATReportHeader.Status = VATReportHeader.Status::Released) and
            (not VATReportSetup."Modify Submitted Reports")
         then
-            Error(MissingSetupErr, VATReportSetup.TableCaption);
+            Error(MissingSetupErr, VATReportSetup.TableCaption());
     end;
 
     var

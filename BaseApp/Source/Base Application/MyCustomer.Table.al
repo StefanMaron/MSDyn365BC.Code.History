@@ -21,7 +21,7 @@ table 9150 "My Customer"
 
             trigger OnValidate()
             begin
-                SetCustomerFields;
+                SetCustomerFields();
             end;
         }
         field(3; Name; Text[100])
@@ -37,7 +37,7 @@ table 9150 "My Customer"
         field(5; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No.")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

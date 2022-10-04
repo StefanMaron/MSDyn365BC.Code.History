@@ -83,7 +83,7 @@ codeunit 56 "Sales - Calc Discount By Type"
 
             ResetRecalculateInvoiceDisc(SalesHeader);
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -171,7 +171,7 @@ codeunit 56 "Sales - Calc Discount By Type"
                 exit(true);
             SalesHeader."Invoice Discount Calculation"::None:
                 begin
-                    if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                    if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                         exit(true);
 
                     exit(not InvoiceDiscIsAllowed(SalesHeader."Invoice Disc. Code"));

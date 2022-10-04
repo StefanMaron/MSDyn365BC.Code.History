@@ -9,6 +9,7 @@ table 397 "XBRL G/L Map Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

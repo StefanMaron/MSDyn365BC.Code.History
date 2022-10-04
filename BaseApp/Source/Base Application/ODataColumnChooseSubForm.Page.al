@@ -21,25 +21,25 @@ page 6710 "OData Column Choose SubForm"
                     trigger OnValidate()
                     begin
                         if CalledForExcelExport then
-                            CheckFieldFilter;
+                            CheckFieldFilter();
                         IsModified := true;
                     end;
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Name';
                     Editable = false;
                     ToolTip = 'Specifies the field names in a data set.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Caption';
                     Editable = false;
                     ToolTip = 'Specifies the Field Captions in a data set.';
                 }
-                field("Data Item Caption"; "Data Item Caption")
+                field("Data Item Caption"; Rec."Data Item Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Table';
@@ -117,7 +117,7 @@ page 6710 "OData Column Choose SubForm"
                 TempTenantWebServiceColumns.Insert();
 
             until Next() = 0;
-        Reset;
+        Reset();
     end;
 
     local procedure InitColumnsForQuery(queryStream: InStream)
@@ -131,10 +131,11 @@ page 6710 "OData Column Choose SubForm"
         metaData := metaData.FromStream(queryStream);
         if metaData.Fields.Count = 0 then
             exit;
+        OldTableNo := 0;
         for i := 0 to metaData.Fields.Count - 1 do begin
             queryField := metaData.Fields.Item(i);
             if OldTableNo <> queryField.TableNo then
-                ColumnList := ColumnList.List;
+                ColumnList := ColumnList.List();
             OldTableNo := queryField.TableNo;
             Clear(Rec);
             if not queryField.IsFilterOnly then
@@ -150,7 +151,7 @@ page 6710 "OData Column Choose SubForm"
         FieldNameText: Text;
         ColumnVisible: Boolean;
     begin
-        ColumnList := ColumnList.List;
+        ColumnList := ColumnList.List();
         // Sort on sequence to maintain order
         PageControlField.SetCurrentKey(Sequence);
         PageControlField.SETRANGE(PageNo, ObjectID);
@@ -174,7 +175,7 @@ page 6710 "OData Column Choose SubForm"
         if ColumnList.Contains(FieldNo) then
             exit;
 
-        Init;
+        Init();
         Validate("Data Item", TableNo);
         Validate("Field Number", FieldNo);
         Validate("Field Name", CopyStr(FieldName, 1));

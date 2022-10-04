@@ -54,7 +54,7 @@ report 34 "Change Payment Tolerance"
                         trigger OnLookup(var Text: Text): Boolean
                         begin
                             Currencies.LookupMode := true;
-                            if Currencies.RunModal = ACTION::LookupOK then
+                            if Currencies.RunModal() = ACTION::LookupOK then
                                 Currencies.GetCurrency(CurrencyCode);
                             Clear(Currencies);
                             if CurrencyCode = '' then begin
@@ -192,19 +192,19 @@ report 34 "Change Payment Tolerance"
                     repeat
                         AmountRoundingPrecision := Currency."Amount Rounding Precision";
                         CurrencyCode := Currency.Code;
-                        ChangeCustLedgEntries;
-                        ChangeVendLedgEntries;
+                        ChangeCustLedgEntries();
+                        ChangeVendLedgEntries();
                     until Currency.Next() = 0;
                 CurrencyCode := '';
                 GLSetup.Get();
                 AmountRoundingPrecision := GLSetup."Amount Rounding Precision";
-                ChangeCustLedgEntries;
-                ChangeVendLedgEntries;
+                ChangeCustLedgEntries();
+                ChangeVendLedgEntries();
             end;
         end else
             if ConfirmManagement.GetResponseOrDefault(Text001, true) then begin
-                ChangeCustLedgEntries;
-                ChangeVendLedgEntries;
+                ChangeCustLedgEntries();
+                ChangeVendLedgEntries();
             end;
     end;
 
@@ -276,7 +276,7 @@ report 34 "Change Payment Tolerance"
                 NewMaxPmtToleranceAmount := MaxPmtToleranceAmount;
 
                 CustLedgEntry.LockTable();
-                if CustLedgEntry.Find('-') then begin
+                if CustLedgEntry.Find('-') then
                     repeat
                         CustLedgEntry.CalcFields("Remaining Amount");
                         CustLedgEntry."Max. Payment Tolerance" :=
@@ -286,19 +286,17 @@ report 34 "Change Payment Tolerance"
                            ((Abs(CustLedgEntry."Max. Payment Tolerance") > NewMaxPmtToleranceAmount) and
                             (CustLedgEntry."Max. Payment Tolerance" <> 0) and
                             (NewMaxPmtToleranceAmount <> 0))
-                        then begin
+                        then
                             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice then
                                 CustLedgEntry."Max. Payment Tolerance" :=
                                   Round(NewMaxPmtToleranceAmount, AmountRoundingPrecision)
                             else
                                 CustLedgEntry."Max. Payment Tolerance" :=
                                   Round(-NewMaxPmtToleranceAmount, AmountRoundingPrecision);
-                        end;
                         if Abs(CustLedgEntry."Remaining Amount") < Abs(CustLedgEntry."Max. Payment Tolerance") then
                             CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry."Remaining Amount";
                         CustLedgEntry.Modify();
                     until CustLedgEntry.Next() = 0;
-                end;
             end;
         until Customer.Next() = 0;
     end;
@@ -330,7 +328,7 @@ report 34 "Change Payment Tolerance"
                 NewMaxPmtToleranceAmount := MaxPmtToleranceAmount;
 
                 VendLedgEntry.LockTable();
-                if VendLedgEntry.Find('-') then begin
+                if VendLedgEntry.Find('-') then
                     repeat
                         VendLedgEntry.CalcFields("Remaining Amount");
                         VendLedgEntry."Max. Payment Tolerance" :=
@@ -340,19 +338,17 @@ report 34 "Change Payment Tolerance"
                            ((Abs(VendLedgEntry."Max. Payment Tolerance") > NewMaxPmtToleranceAmount) and
                             (VendLedgEntry."Max. Payment Tolerance" <> 0) and
                             (NewMaxPmtToleranceAmount <> 0))
-                        then begin
+                        then
                             if VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice then
                                 VendLedgEntry."Max. Payment Tolerance" :=
                                   Round(-NewMaxPmtToleranceAmount, AmountRoundingPrecision)
                             else
                                 VendLedgEntry."Max. Payment Tolerance" :=
                                   Round(NewMaxPmtToleranceAmount, AmountRoundingPrecision);
-                        end;
                         if Abs(VendLedgEntry."Remaining Amount") < Abs(VendLedgEntry."Max. Payment Tolerance") then
                             VendLedgEntry."Max. Payment Tolerance" := VendLedgEntry."Remaining Amount";
                         VendLedgEntry.Modify();
                     until VendLedgEntry.Next() = 0;
-                end;
             end;
         until Vendor.Next() = 0;
     end;

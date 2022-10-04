@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2117 "O365 Mark As Paid"
 {
     Caption = 'Register payment';
@@ -7,6 +8,9 @@ page 2117 "O365 Mark As Paid"
     ShowFilter = false;
     SourceTable = "Payment Registration Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,7 +22,7 @@ page 2117 "O365 Mark As Paid"
                 InstructionalText = 'What is the payment amount received?';
                 field(AmountReceived; TempPaymentRegistrationBuffer."Amount Received")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Amount Received';
                     ToolTip = 'Specifies the payment received.';
 
@@ -34,7 +38,7 @@ page 2117 "O365 Mark As Paid"
                 }
                 field(PaymentMethod; PaymentMethodCode)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment Method';
                     Editable = false;
                     TableRelation = "Payment Method";
@@ -45,7 +49,7 @@ page 2117 "O365 Mark As Paid"
                         TempO365PaymentMethod: Record "O365 Payment Method" temporary;
                         PaymentMethod: Record "Payment Method";
                     begin
-                        TempO365PaymentMethod.RefreshRecords;
+                        TempO365PaymentMethod.RefreshRecords();
                         if TempO365PaymentMethod.Get(PaymentMethodCode) then;
                         if PAGE.RunModal(PAGE::"O365 Payment Method List", TempO365PaymentMethod) = ACTION::LookupOK then
                             PaymentMethodCode := TempO365PaymentMethod.Code;
@@ -60,7 +64,7 @@ page 2117 "O365 Mark As Paid"
                 InstructionalText = 'When was the payment amount received?';
                 field(DateReceived; TempPaymentRegistrationBuffer."Date Received")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Date Received';
                     Importance = Additional;
                     ToolTip = 'Specifies the date the payment is received.';
@@ -83,7 +87,7 @@ page 2117 "O365 Mark As Paid"
                 Caption = 'Outstanding Amount';
                 field(AmountBefore; TempPaymentRegistrationBuffer."Rem. Amt. after Discount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Before Payment';
@@ -92,7 +96,7 @@ page 2117 "O365 Mark As Paid"
                 }
                 field(AmountAfter; TempPaymentRegistrationBuffer."Remaining Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'After Payment';
@@ -103,7 +107,7 @@ page 2117 "O365 Mark As Paid"
             }
             part(SalesHistoryListPart; "O365 Payment History ListPart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Visible = SalesHistoryHasEntries;
             }
         }
@@ -120,13 +124,13 @@ page 2117 "O365 Mark As Paid"
         RefreshPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         SetPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
-        if O365SalesInitialSetup.Get then
+        if O365SalesInitialSetup.Get() then
             PaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
     end;
 
     trigger OnOpenPage()
     begin
-        SetDefaultDate;
+        SetDefaultDate();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -193,4 +197,4 @@ page 2117 "O365 Mark As Paid"
                 TempPaymentRegistrationBuffer.Validate("Date Received", SalesInvoiceHeader."Posting Date");
     end;
 }
-
+#endif

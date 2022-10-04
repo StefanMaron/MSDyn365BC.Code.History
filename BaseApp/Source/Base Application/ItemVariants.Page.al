@@ -12,7 +12,7 @@ page 5401 "Item Variants"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the item card from which you opened the Item Variant Translations window.';
@@ -28,7 +28,7 @@ page 5401 "Item Variants"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies text that describes the item variant.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item variant in more detail than the Description field.';

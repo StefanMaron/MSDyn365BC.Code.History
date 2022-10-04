@@ -25,15 +25,15 @@ codeunit 1651 "Exchange PowerShell Runner"
     begin
         if not PSInitialized then begin
             // If there was an issue with credentials, send it up back to the calling function.
-            if not PromptForCredentials then begin
-                ResetInitialization;
+            if not PromptForCredentials() then begin
+                ResetInitialization();
                 Error(GetLastErrorText);
             end;
 
-            if UseKerberos then
+            if UseKerberos() then
                 TempOfficeAdminCredentials.Email := ConvertEmailToDomainUsername(TempOfficeAdminCredentials.Email);
 
-            if not CreateExchangePSRunner(PSRunner, TempOfficeAdminCredentials, UseKerberos) then
+            if not CreateExchangePSRunner(PSRunner, TempOfficeAdminCredentials, UseKerberos()) then
                 Error(GetLastErrorText);
         end;
         PSInitialized := true;
@@ -46,7 +46,7 @@ codeunit 1651 "Exchange PowerShell Runner"
 
         TempOfficeAdminCredentials.Email := UserName;
 
-        if not TempOfficeAdminCredentials.Modify then
+        if not TempOfficeAdminCredentials.Modify() then
             TempOfficeAdminCredentials.Insert(true);
 
         TempOfficeAdminCredentials.SavePassword(Password);
@@ -68,14 +68,14 @@ codeunit 1651 "Exchange PowerShell Runner"
         if not PSInitialized then
             Error(NotInitializedErr);
 
-        if not RunNullCommand then
-            if (TempOfficeAdminCredentials.Endpoint = O365PSEndpoint) and not ValidateO365CredentialsWithEWS then
+        if not RunNullCommand() then
+            if (TempOfficeAdminCredentials.Endpoint = O365PSEndpoint()) and not ValidateO365CredentialsWithEWS() then
                 ErrorMessage := GetLastErrorText
             else
                 ErrorMessage := StrSubstNo(ConnectionFailureErr, TempOfficeAdminCredentials.Endpoint);
 
         if ErrorMessage <> '' then begin
-            ResetInitialization;
+            ResetInitialization();
             Error(ErrorMessage);
         end
     end;
@@ -102,8 +102,8 @@ codeunit 1651 "Exchange PowerShell Runner"
             PAGE.RunModal(PAGE::"Office Admin. Credentials", TempOfficeAdminCredentials);
         end;
 
-        if (not TempOfficeAdminCredentials.FindFirst) or
-           (TempOfficeAdminCredentials.Email = '') or (TempOfficeAdminCredentials.GetPassword = '')
+        if (not TempOfficeAdminCredentials.FindFirst()) or
+           (TempOfficeAdminCredentials.Email = '') or (TempOfficeAdminCredentials.GetPassword() = '')
         then begin
             TempOfficeAdminCredentials.DeleteAll(true);
             Error('');
@@ -112,7 +112,7 @@ codeunit 1651 "Exchange PowerShell Runner"
 
     local procedure UseKerberos(): Boolean
     begin
-        exit(TempOfficeAdminCredentials.Endpoint <> DefaultPSEndpoint)
+        exit(TempOfficeAdminCredentials.Endpoint <> DefaultPSEndpoint())
     end;
 
     local procedure ConvertEmailToDomainUsername(User: Text[80]): Text[80]
@@ -132,12 +132,12 @@ codeunit 1651 "Exchange PowerShell Runner"
 
     procedure DefaultPSEndpoint(): Text[250]
     begin
-        exit(TempOfficeAdminCredentials.DefaultEndpoint);
+        exit(TempOfficeAdminCredentials.DefaultEndpoint());
     end;
 
     procedure O365PSEndpoint(): Text[250]
     begin
-        exit(TempOfficeAdminCredentials.DefaultEndpoint);
+        exit(TempOfficeAdminCredentials.DefaultEndpoint());
     end;
 
     [NonDebuggable]
@@ -148,9 +148,9 @@ codeunit 1651 "Exchange PowerShell Runner"
         Uri: DotNet Uri;
         PSCred: DotNet PSCredential;
     begin
-        PSRunnerObj := PSRunnerObj.CreateInSandbox;
+        PSRunnerObj := PSRunnerObj.CreateInSandbox();
         NetworkCredential :=
-          NetworkCredential.NetworkCredential(OfficeAdminCredentials.Email, OfficeAdminCredentials.GetPassword);
+          NetworkCredential.NetworkCredential(OfficeAdminCredentials.Email, OfficeAdminCredentials.GetPassword());
         PSCred := PSCred.PSCredential(Format(NetworkCredential.UserName), NetworkCredential.SecurePassword);
 
         PSRunnerObj.SetExchangeRemoteConnectionInformation(
@@ -177,11 +177,11 @@ codeunit 1651 "Exchange PowerShell Runner"
         AddCommand('Get-App', true);
         AddParameterFlag('OrganizationApp');
         AddParameter('Identity', Format(AppID));
-        Invoke;
+        Invoke();
         GetResultEnumerator(Enum);
 
-        if Enum.MoveNext then begin
-            ReturnObject := ReturnObject.PSObjectAdapter;
+        if Enum.MoveNext() then begin
+            ReturnObject := ReturnObject.PSObjectAdapter();
             ReturnObject.PSObject := Enum.Current;
         end
     end;
@@ -193,7 +193,7 @@ codeunit 1651 "Exchange PowerShell Runner"
             Error(NotInitializedErr);
 
         if not TryRemoveApp(AppID) then begin
-            ResetInitialization;
+            ResetInitialization();
             Error(GetLastErrorText);
         end;
     end;
@@ -218,10 +218,10 @@ codeunit 1651 "Exchange PowerShell Runner"
         AddParameter('Identity', AppId);
         AddParameterFlag('OrganizationApp');
         AddParameter('Confirm', true);
-        Invoke;
+        Invoke();
 
         // Force PSRunner's async call to complete
-        AwaitCompletion;
+        AwaitCompletion();
 
         // Validate that the app was removed, if not, display an error to the user
         GetApp(AppId, ValidationAppObject);
@@ -257,11 +257,11 @@ codeunit 1651 "Exchange PowerShell Runner"
         // Ensure this is an organization-wide app
         AddParameter('OrganizationApp', true);
 
-        Invoke;
+        Invoke();
 
         // If we have an object coming back, the app was successfully installed
         GetResultEnumerator(Enum);
-        if Enum.MoveNext then
+        if Enum.MoveNext() then
             exit(true);
 
         // If we did not get an object back, the app was not successfully installed
@@ -273,13 +273,13 @@ codeunit 1651 "Exchange PowerShell Runner"
             if IsNull(Enum) then
                 exit(false);
 
-            if Enum.MoveNext then begin
+            if Enum.MoveNext() then begin
                 ErrorRecord := Enum.Current;
 
                 if IsNull(ErrorRecord) then
                     exit(false);
 
-                Error(StrSubstNo(UnableToDeployErr, ErrorRecord.ToString));
+                Error(StrSubstNo(UnableToDeployErr, ErrorRecord.ToString()));
             end;
         end;
 
@@ -319,7 +319,7 @@ codeunit 1651 "Exchange PowerShell Runner"
         if not PSInitialized then
             Error(NotInitializedErr);
 
-        PSRunner.BeginInvoke;
+        PSRunner.BeginInvoke();
     end;
 
     [Scope('OnPrem')]
@@ -337,7 +337,7 @@ codeunit 1651 "Exchange PowerShell Runner"
         if not PSInitialized then
             Error(NotInitializedErr);
 
-        Enumerator := PSRunner.Results.GetEnumerator;
+        Enumerator := PSRunner.Results.GetEnumerator();
     end;
 
     [Scope('OnPrem')]
@@ -346,21 +346,21 @@ codeunit 1651 "Exchange PowerShell Runner"
         if not PSInitialized then
             Error(NotInitializedErr);
 
-        Enumerator := PSRunner.Errors.GetEnumerator;
+        Enumerator := PSRunner.Errors.GetEnumerator();
     end;
 
     [Scope('OnPrem')]
     procedure RemoveRemoteConnectionInformation()
     begin
         if PSInitialized then
-            PSRunner.RemoveRemoteConnectionInformation;
+            PSRunner.RemoveRemoteConnectionInformation();
     end;
 
     [TryFunction]
     local procedure RunNullCommand()
     begin
         AddCommand(';', true);
-        Invoke;
+        Invoke();
     end;
 
     [NonDebuggable]
@@ -370,7 +370,7 @@ codeunit 1651 "Exchange PowerShell Runner"
         ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
     begin
         if not ExchangeAddinSetup.InitializeServiceWithCredentials(TempOfficeAdminCredentials.Email,
-             TempOfficeAdminCredentials.GetPassword)
+             TempOfficeAdminCredentials.GetPassword())
         then
             Error(GetLastErrorText);
     end;
@@ -378,7 +378,7 @@ codeunit 1651 "Exchange PowerShell Runner"
     [Scope('OnPrem')]
     procedure ClearLog()
     begin
-        PSRunner.ClearLog;
+        PSRunner.ClearLog();
     end;
 }
 #endif

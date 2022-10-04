@@ -88,7 +88,7 @@ table 469 "Workflow Webhook Subscription"
 
     trigger OnInsert()
     begin
-        Id := CreateGuid;
+        Id := CreateGuid();
         "User Id" := UserId;
         "Created Date" := CurrentDateTime;
     end;
@@ -110,24 +110,24 @@ table 469 "Workflow Webhook Subscription"
                 DisableWorkflow(WorkflowWebhookSubscriptionPreviousRec."WF Definition Id")
             else begin
                 WorkflowWebhookSubBuffer.SetRange("Client Id", "Client Id");
-                if WorkflowWebhookSubBuffer.FindSet() then begin
+                if WorkflowWebhookSubBuffer.FindSet() then
                     repeat
                         DisableWorkflow(WorkflowWebhookSubBuffer."WF Definition Id");
                     until WorkflowWebhookSubBuffer.Next() = 0;
-                end;
             end;
 
-            CreateWorkflowDefinition;
+            CreateWorkflowDefinition();
             EnableSubscriptionAndWorkflow(Rec);
         end;
     end;
 
     var
+        JSONManagement: Codeunit "JSON Management";
+
         WorkflowWebhookSetup: Codeunit "Workflow Webhook Setup";
         UnableToParseEncodingErr: Label 'Unable to parse the Conditions. The provided Conditions were not in the correct Base64 encoded format.';
         UnableToParseInvalidJsonErr: Label 'Unable to parse the Conditions. The provided Conditions JSON was invalid.';
         NoControlOnPageErr: Label 'Unable to find a field with control name ''%1'' on page ''%2''.', Comment = '%1=control name;%2=page name';
-        JSONManagement: Codeunit "JSON Management";
         UnableToParseJsonArrayErr: Label 'Unable to parse ''%1'' because it was not a valid JSON array.', Comment = '%1=conditions property name';
 
     procedure SetConditions(ConditionsTxt: Text)
@@ -172,7 +172,7 @@ table 469 "Workflow Webhook Subscription"
     var
         EventConditions: Text;
     begin
-        EventConditions := CreateEventConditions(GetConditions, "Event Code");
+        EventConditions := CreateEventConditions(GetConditions(), "Event Code");
 
         // the second argument, Name, is empty at this point by design (hardcoded to be a text constant inside the function)
         "WF Definition Id" := WorkflowWebhookSetup.CreateWorkflowDefinition("Event Code", '', EventConditions, UserId);
@@ -237,7 +237,7 @@ table 469 "Workflow Webhook Subscription"
 
         ConditionsCount := 1;
         case EventCode of
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'HeaderConditions', ConditionsObject, PAGE::"Sales Document Entity", EventConditions, ConditionsCount);
@@ -245,9 +245,9 @@ table 469 "Workflow Webhook Subscription"
                       'LinesConditions', ConditionsObject, PAGE::"Sales Document Line Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetSalesDocCategoryTxt, DATABASE::"Sales Header"));
+                        EventConditions, WorkflowWebhookSetup.GetSalesDocCategoryTxt(), DATABASE::"Sales Header"));
                 end;
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'HeaderConditions', ConditionsObject, PAGE::"Purchase Document Entity", EventConditions, ConditionsCount);
@@ -255,52 +255,52 @@ table 469 "Workflow Webhook Subscription"
                       'LinesConditions', ConditionsObject, PAGE::"Purchase Document Line Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetPurchaseDocCategoryTxt, DATABASE::"Purchase Header"));
+                        EventConditions, WorkflowWebhookSetup.GetPurchaseDocCategoryTxt(), DATABASE::"Purchase Header"));
                 end;
-            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'Conditions', ConditionsObject, PAGE::"Gen. Journal Batch Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetFinCategoryTxt, DATABASE::"Gen. Journal Batch"));
+                        EventConditions, WorkflowWebhookSetup.GetFinCategoryTxt(), DATABASE::"Gen. Journal Batch"));
                 end;
-            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'Conditions', ConditionsObject, PAGE::"Gen. Journal Line Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetFinCategoryTxt, DATABASE::"Gen. Journal Line"));
+                        EventConditions, WorkflowWebhookSetup.GetFinCategoryTxt(), DATABASE::"Gen. Journal Line"));
                 end;
-            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'Conditions', ConditionsObject, PAGE::"Workflow - Customer Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetSalesMktCategoryTxt, DATABASE::Customer));
+                        EventConditions, WorkflowWebhookSetup.GetSalesMktCategoryTxt(), DATABASE::Customer));
                 end;
-            WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'Conditions', ConditionsObject, PAGE::"Workflow - Item Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetSalesMktCategoryTxt, DATABASE::Item));
+                        EventConditions, WorkflowWebhookSetup.GetSalesMktCategoryTxt(), DATABASE::Item));
                 end;
-            WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode:
+            WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode():
                 begin
                     AddEventConditionsWrapper(
                       'Conditions', ConditionsObject, PAGE::"Workflow - Vendor Entity", EventConditions, ConditionsCount);
                     exit(
                       RequestPageParametersHelper.GetViewFromDynamicRequestPage(
-                        EventConditions, WorkflowWebhookSetup.GetPurchPayCategoryTxt, DATABASE::Vendor));
+                        EventConditions, WorkflowWebhookSetup.GetPurchPayCategoryTxt(), DATABASE::Vendor));
                 end
             else
                 SendAndLogError(
-                  StrSubstNo(WorkflowWebhookSetup.GetUnsupportedWorkflowEventCodeErr, EventCode),
-                  StrSubstNo(WorkflowWebhookSetup.GetUnsupportedWorkflowEventCodeErr, EventCode));
+                  StrSubstNo(WorkflowWebhookSetup.GetUnsupportedWorkflowEventCodeErr(), EventCode),
+                  StrSubstNo(WorkflowWebhookSetup.GetUnsupportedWorkflowEventCodeErr(), EventCode));
         end;
     end;
 
@@ -321,7 +321,7 @@ table 469 "Workflow Webhook Subscription"
     begin
         JSONManagement.InitializeCollectionFromJArray(ConditionsCollection);
         // need to do some action on the collection to check if it is of Collection type
-        if JSONManagement.GetCollectionCount < 0 then
+        if JSONManagement.GetCollectionCount() < 0 then
             Error(GetLastErrorText);
     end;
 
@@ -349,22 +349,22 @@ table 469 "Workflow Webhook Subscription"
         foreach Condition in ConditionsArray do
             if Condition.TryGetValue('Name', ConditionName) and Condition.TryGetValue('Value', ConditionValue) then begin
                 // get id of the field from the page in the page's source table
-                PageControlField.SetFilter(ControlName, ConditionName.ToString);
+                PageControlField.SetFilter(ControlName, ConditionName.ToString());
                 if not PageControlField.FindFirst() then
-                    SendAndLogError(GetLastErrorText, StrSubstNo(NoControlOnPageErr, ConditionName.ToString, GetPageName(SourcePageNo)));
+                    SendAndLogError(GetLastErrorText, StrSubstNo(NoControlOnPageErr, ConditionName.ToString(), GetPageName(SourcePageNo)));
 
                 FieldId := PageControlField.FieldNo;
                 FieldRef := RecRef.Field(FieldId);
 
                 // filter Header/Lines Table
                 // throws an error message if can not convert types
-                FieldRef.SetFilter(ConditionValue.ToString);
+                FieldRef.SetFilter(ConditionValue.ToString());
             end;
 
         // create Filter Page Builder
         TableMetadata.Get(tableNo);
         EventConditions.AddTable(TableMetadata.Caption, tableNo);
-        EventConditions.SetView(EventConditions.Name(ConditionIndex), RecRef.GetView);
+        EventConditions.SetView(EventConditions.Name(ConditionIndex), RecRef.GetView());
     end;
 
     [TryFunction]

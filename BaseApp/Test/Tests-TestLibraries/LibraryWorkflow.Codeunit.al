@@ -113,7 +113,7 @@ codeunit 131101 "Library - Workflow"
         SentNotificationEntry.SetRange("Recipient User ID", UserId);
 
         Retries := 0;
-        while (not SentNotificationEntry.FindFirst) and (Retries < 120) do begin
+        while (not SentNotificationEntry.FindFirst()) and (Retries < 120) do begin
             Sleep(1000);
             Retries += 1;
         end;
@@ -150,7 +150,7 @@ codeunit 131101 "Library - Workflow"
         SentNotificationEntry.SetRange("Recipient User ID", UserCode);
 
         Retries := 0;
-        while (not SentNotificationEntry.FindFirst) and (Retries < 120) do begin
+        while (not SentNotificationEntry.FindFirst()) and (Retries < 120) do begin
             Sleep(1000);
             Retries += 1;
         end;
@@ -177,9 +177,9 @@ codeunit 131101 "Library - Workflow"
         PathHelper: DotNet Path;
         FilePath: Text;
     begin
-        TempFile.CreateTempFile;
+        TempFile.CreateTempFile();
         FilePath := PathHelper.GetDirectoryName(TempFile.Name) + '\' + UserEmail + '.txt';
-        TempFile.Close;
+        TempFile.Close();
         exit(FilePath);
     end;
 
@@ -640,11 +640,11 @@ codeunit 131101 "Library - Workflow"
 
                 ToWorkflowStep."Workflow Code" := Workflow.Code;
                 if FromWorkflowStepArgument.Get(FromWorkflowStep.Argument) then
-                    ToWorkflowStep.Argument := FromWorkflowStepArgument.Clone;
+                    ToWorkflowStep.Argument := FromWorkflowStepArgument.Clone();
                 ToWorkflowStep.Insert(true);
 
                 CopyWorkflowRules(FromWorkflowStep, ToWorkflowStep);
-            until FromWorkflowStep.Next = 0;
+            until FromWorkflowStep.Next() = 0;
     end;
 
     local procedure CopyWorkflowRules(FromWorkflowStep: Record "Workflow Step"; ToWorkflowStep: Record "Workflow Step")
@@ -660,7 +660,7 @@ codeunit 131101 "Library - Workflow"
                 ToWorkflowRule."Workflow Code" := ToWorkflowStep."Workflow Code";
                 ToWorkflowRule."Workflow Step ID" := ToWorkflowStep.ID;
                 ToWorkflowRule.Insert(true);
-            until FromWorkflowRule.Next = 0;
+            until FromWorkflowRule.Next() = 0;
     end;
 
     procedure CreatePredecessor(Type: Option; FunctionName: Code[128]; PredecessorType: Option; PredecessorFunctionName: Code[128])

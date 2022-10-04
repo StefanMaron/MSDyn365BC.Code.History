@@ -113,7 +113,7 @@ codeunit 134115 "ERM Employee Application"
         Assert.AreNearlyEqual(
           -GenJournalLine.Amount, EmployeeLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, EmployeeLedgerEntry.FieldCaption("Remaining Amount"), -GenJournalLine.Amount,
-            EmployeeLedgerEntry.TableCaption));
+            EmployeeLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -150,11 +150,11 @@ codeunit 134115 "ERM Employee Application"
         Assert.AreNearlyEqual(
           GenJournalLine.Amount, EmployeeLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, EmployeeLedgerEntry.FieldCaption(Amount), GenJournalLine.Amount,
-            EmployeeLedgerEntry.TableCaption));
+            EmployeeLedgerEntry.TableCaption()));
         Assert.AreNearlyEqual(
           0, EmployeeLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, EmployeeLedgerEntry.FieldCaption("Remaining Amount"), 0,
-            EmployeeLedgerEntry.TableCaption));
+            EmployeeLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -504,7 +504,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();

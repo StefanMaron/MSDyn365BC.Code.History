@@ -216,9 +216,9 @@ codeunit 134044 "ERM VAT on Jnl"
         GenJournalTemplate.Validate("Allow VAT Difference", false);
 
         // [THEN] "Allow VAT Difference" Field in General Journal Batchs is NO.
-        GenJournalBatch[1].Find;
+        GenJournalBatch[1].Find();
         GenJournalBatch[1].TestField("Allow VAT Difference", false);
-        GenJournalBatch[2].Find;
+        GenJournalBatch[2].Find();
         GenJournalBatch[2].TestField("Allow VAT Difference", false);
     end;
 
@@ -242,9 +242,9 @@ codeunit 134044 "ERM VAT on Jnl"
         GenJournalTemplate.Validate("Allow VAT Difference", true);
 
         // [THEN] "Allow VAT Difference" Field in General Journal Batchs is YES.
-        GenJournalBatch[1].Find;
+        GenJournalBatch[1].Find();
         GenJournalBatch[1].TestField("Allow VAT Difference", true);
-        GenJournalBatch[2].Find;
+        GenJournalBatch[2].Find();
         GenJournalBatch[2].TestField("Allow VAT Difference", true);
     end;
 
@@ -278,7 +278,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // [THEN] Error message "Cancelled"
         Assert.ExpectedError(CanceledErr);
         // [THEN] "Allow VAT Difference" is YES in General Journal Batch
-        GenJournalBatch.Find;
+        GenJournalBatch.Find();
         GenJournalBatch.TestField("Allow VAT Difference", true);
     end;
 
@@ -311,7 +311,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Exercise: Create a new General Journal Batch for the General Journal Template.
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.SetupNewBatch;
+        GenJournalBatch.SetupNewBatch();
 
         // Verify: Verify that Allow VAT Difference = No in new General Journal Batch.
         GenJournalBatch.TestField("Allow VAT Difference", AllowVATDifference);
@@ -338,7 +338,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Verify: Verify the error message.
         Assert.AreEqual(
-          StrSubstNo(AllowVATError, GenJournalTemplate.FieldCaption("Allow VAT Difference"), true, GenJournalTemplate.TableCaption,
+          StrSubstNo(AllowVATError, GenJournalTemplate.FieldCaption("Allow VAT Difference"), true, GenJournalTemplate.TableCaption(),
             GenJournalTemplate.FieldCaption(Name), GenJournalTemplate.Name, GenJournalTemplate."Allow VAT Difference"),
           GetLastErrorText, ErrorValidation);
     end;
@@ -388,7 +388,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Verify: Verify Error Message.
         Assert.AreEqual(
-          StrSubstNo(AllowVATJnlLineError, GenJournalBatch.FieldCaption("Allow VAT Difference"), true, GenJournalBatch.TableCaption,
+          StrSubstNo(AllowVATJnlLineError, GenJournalBatch.FieldCaption("Allow VAT Difference"), true, GenJournalBatch.TableCaption(),
             GenJournalBatch.FieldCaption("Journal Template Name"), GenJournalBatch."Journal Template Name",
             GenJournalBatch.FieldCaption(Name), GenJournalBatch.Name, GenJournalBatch."Allow VAT Difference"),
           GetLastErrorText, ErrorValidation);
@@ -476,7 +476,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Verify: Verify Bal. VAT Amount Error.
         Assert.AreEqual(
-          StrSubstNo(BalVATError, GenJournalLine.FieldCaption("Bal. VAT %"), GenJournalLine.TableCaption,
+          StrSubstNo(BalVATError, GenJournalLine.FieldCaption("Bal. VAT %"), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."),
@@ -547,10 +547,10 @@ codeunit 134044 "ERM VAT on Jnl"
         // Verify: Verify VAT Base, VAT Difference on General Journal Line.
         Assert.AreEqual(
           VATBaseAmount, GenJournalLine."VAT Base Amount", StrSubstNo(AmountError, GenJournalLine.FieldCaption("VAT Base Amount"),
-            VATBaseAmount, GenJournalLine.TableCaption));
+            VATBaseAmount, GenJournalLine.TableCaption()));
         Assert.AreEqual(
           -VATDifference, GenJournalLine."VAT Difference", StrSubstNo(AmountError, GenJournalLine.FieldCaption("VAT Difference"),
-            -VATDifference, GenJournalLine.TableCaption));
+            -VATDifference, GenJournalLine.TableCaption()));
 
         // Tear Down: Roll back General Ledger Setup. Delete Journal Template.
         ModifyGeneralLedgerSetup(VATDifferenceOld);
@@ -788,7 +788,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         GLAccount.Get(GLAccountNo);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.Next;
+        VATPostingSetup.Next();
         exit(
           CreateAndUpdateGLAccount(
             GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group", VATPostingSetup."VAT Bus. Posting Group",
@@ -859,8 +859,8 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         CurrencyExchangeRate.SetRange("Currency Code", GenJournalLine."Currency Code");
         CurrencyExchangeRate.FindFirst();
-        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyExchangeRate."Relational Currency Code", '', WorkDate);
-        Amount := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyExchangeRate."Relational Currency Code", '', WorkDate());
+        Amount := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate());
         exit(Amount);
     end;
 
@@ -973,10 +973,10 @@ codeunit 134044 "ERM VAT on Jnl"
         FindGLEntry(GLEntry, GLEntry."Document Type"::Payment, DocumentNo);
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal; Amount: Decimal; VATDifference: Decimal)
@@ -988,13 +988,13 @@ codeunit 134044 "ERM VAT on Jnl"
         FindVATEntry(VATEntry, VATEntry."Document Type"::Payment, DocumentNo);
         Assert.AreNearlyEqual(
           Base, VATEntry.Base, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATDifference, VATEntry."VAT Difference", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATEntry.FieldCaption("VAT Difference"), Amount, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption("VAT Difference"), Amount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyAmountAndVATInGLEntry(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; VATAmount: Decimal)
@@ -1003,15 +1003,15 @@ codeunit 134044 "ERM VAT on Jnl"
         GLEntry: Record "G/L Entry";
     begin
         Currency.Get(GenJournalLine."Currency Code");
-        Amount := Round(Amount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
-        VATAmount := Round(VATAmount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+        Amount := Round(Amount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+        VATAmount := Round(VATAmount, Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
         FindGLEntry(GLEntry, GLEntry."Document Type"::" ", GenJournalLine."Document No.");
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATAmountInGLEntry(DocumentNo: Code[20]; VATProdPostingGroup: Code[20]; VATAmount: Decimal)

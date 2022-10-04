@@ -1,7 +1,7 @@
 page 99000759 "Calendar Entries"
 {
     Caption = 'Calendar Entries';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Calendar Entry";
@@ -13,12 +13,12 @@ page 99000759 "Calendar Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Capacity Type"; "Capacity Type")
+                field("Capacity Type"; Rec."Capacity Type")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the type of capacity for the calendar entry.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -36,12 +36,12 @@ page 99000759 "Calendar Entries"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Work Shift Code"; "Work Shift Code")
+                field("Work Shift Code"; Rec."Work Shift Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies code for the work shift that the capacity refers to.';
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the starting time, which are combined in a format called "starting date-time".';
@@ -66,7 +66,7 @@ page 99000759 "Calendar Entries"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the ending time, which are combined in a format called "ending date-time".';
@@ -101,12 +101,12 @@ page 99000759 "Calendar Entries"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the capacity of this calendar entry.';
                 }
-                field("Capacity (Total)"; "Capacity (Total)")
+                field("Capacity (Total)"; Rec."Capacity (Total)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total capacity of this calendar entry.';
                 }
-                field("Capacity (Effective)"; "Capacity (Effective)")
+                field("Capacity (Effective)"; Rec."Capacity (Effective)")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the effective capacity of this calendar entry.';

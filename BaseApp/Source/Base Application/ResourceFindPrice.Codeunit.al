@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 221 "Resource-Find Price"
 {
     TableNo = "Resource Price";
@@ -10,10 +10,10 @@ codeunit 221 "Resource-Find Price"
     begin
         ResPrice.Copy(Rec);
         with ResPrice do
-            if FindResPrice then
+            if FindResPrice() then
                 ResPrice := ResPrice2
             else begin
-                Init;
+                Init();
                 Code := Res."No.";
                 "Currency Code" := '';
                 "Unit Price" := Res."Unit Price";

@@ -53,23 +53,23 @@ page 2850 "Native - Tax Area"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        PropagateDelete;
+        PropagateDelete();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        PropagateInsert;
+        PropagateInsert();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        PropagateModify;
+        PropagateModify();
     end;
 
     trigger OnOpenPage()
     begin
         BindSubscription(NativeAPILanguageHandler);
-        LoadRecords;
+        LoadRecords();
     end;
 
     var

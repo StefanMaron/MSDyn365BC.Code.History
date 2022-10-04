@@ -207,7 +207,7 @@
         asserterror CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
 
         // Verify: verify error message on Customer Ledger Entry.
-        Assert.ExpectedError(StrSubstNo(ApplicationEntryErr, CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+        Assert.ExpectedError(StrSubstNo(ApplicationEntryErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -281,7 +281,7 @@
         // Verify: verify error message on Detailed Customer Ledger Entry.
         Assert.ExpectedError(
           StrSubstNo(
-            UnapplyErr, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption,
+            UnapplyErr, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption(),
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
@@ -369,7 +369,7 @@
         asserterror CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
 
         // Verify: Verify Unapply Error on Customer Ledger Entry.
-        Assert.ExpectedError(StrSubstNo(ApplicationEntryErr, CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+        Assert.ExpectedError(StrSubstNo(ApplicationEntryErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -414,7 +414,7 @@
         // Verify: Verify Unapply Error on Detailed Customer Ledger Entry.
         Assert.ExpectedError(
           StrSubstNo(
-            UnapplyErrorDetailedEntryErr, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."),
+            UnapplyErrorDetailedEntryErr, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."),
             DetailedCustLedgEntry."Entry No."));
     end;
 
@@ -579,7 +579,7 @@
     begin
         // Setup: Update General Ledger Setup, Create and post General Journal Lines, Apply Payment/Refund from Customer Ledger Entry.
         LibraryERM.SetAddReportingCurrency(CreateCurrency);
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'M>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'M>', WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, 1, Amount);  // Using 1 to create single Payment/Refund line.
         ApplyAndPostCustomerEntry(
           GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
@@ -593,7 +593,7 @@
         asserterror CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify error on Unapply after Exchange Rate has been changed.
-        Assert.ExpectedError(StrSubstNo(UapplyExchangeRateErr, WorkDate));
+        Assert.ExpectedError(StrSubstNo(UapplyExchangeRateErr, WorkDate()));
     end;
 
     [Test]
@@ -749,7 +749,7 @@
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, 1, SalesHeader."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
         Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.Validate(Amount, GenJournalLine.Amount + Amount);
         GenJournalLine.Modify(true);
 
@@ -780,7 +780,7 @@
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithCurrency(CreateCurrency));
         ModifyCurrency(SalesHeader."Currency Code", LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         Amount := CreateAndModifySalesLine(SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
-        Amount := LibraryERM.ConvertCurrency(Amount, SalesHeader."Currency Code", '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Amount, SalesHeader."Currency Code", '', WorkDate());
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGeneralJournalLines(
@@ -820,7 +820,7 @@
         // Exercise: Create and post Sales Order with Random Quantity and Unit Price.
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate, Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
+            SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify GL, Customer and Detailed Customer ledger entries.
@@ -843,7 +843,7 @@
         // Exercise: Create and post Sales Order.
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate, Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
+            SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Try to modify Payment Method Code in Customer Ledger Entry.
@@ -874,13 +874,13 @@
         LibraryInventory.CreateItem(Item);
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate, Customer."No.", Item."No.", SalesHeader."Document Type"::Invoice,
+            SalesLine, WorkDate(), Customer."No.", Item."No.", SalesHeader."Document Type"::Invoice,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Exercise: Create and post Sales Credit Memo.
         DocumentNo2 :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate, Customer."No.", Item."No.", SalesHeader."Document Type"::"Credit Memo",
+            SalesLine, WorkDate(), Customer."No.", Item."No.", SalesHeader."Document Type"::"Credit Memo",
             SalesLine.Quantity, SalesLine."Unit Price");
 
         // Verify: Verify GL, Customer and Detailed Customer ledger entries.
@@ -953,19 +953,19 @@
         LibrarySales.CreateCustomer(Customer);
         SelectGenJournalBatch(GenJournalBatch, false);
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
         PaymentAmount := LibraryRandom.RandDecInRange(100, 1000, 2);
         InvoiceAmount := PaymentAmount * LibraryRandom.RandIntInRange(3, 5);
 
         // Exercise
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::Invoice,
           Customer."No.", '', InvoiceAmount);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::"Credit Memo",
+          GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::"Credit Memo",
           Customer."No.", '', -PaymentAmount);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::Payment,
+          GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::Payment,
           Customer."No.", CurrencyCode, -PaymentAmount);
 
         LibraryVariableStorage.Enqueue(PaymentAmount);
@@ -1075,7 +1075,7 @@
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Invoice Rounding Precision", 0.01);
         Currency.Modify(true);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, CurrencyFactor, CurrencyFactor);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), CurrencyFactor, CurrencyFactor);
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Currency Code", Currency.Code);
         Customer.Modify(true);
@@ -1083,7 +1083,7 @@
 
         // Excercise
         CreateAndPostSalesDocument(
-          SalesLine, WorkDate, Customer."No.", LibraryInventory.CreateItem(Item), SalesHeader."Document Type"::Invoice,
+          SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItem(Item), SalesHeader."Document Type"::Invoice,
           1, LineAmount);
         LineAmount := SalesLine."Amount Including VAT";
         CreateGeneralJournalLines(
@@ -1128,7 +1128,7 @@
         // Verify: Customer No. and "Applies To Doc. Type" are filled correctly.
         Assert.AreEqual(
           CustLedgEntry."Customer No.", GenJnlLine."Account No.",
-          StrSubstNo(WrongFieldErr, GenJnlLine.FieldCaption("Account No."), GenJnlLine.TableCaption));
+          StrSubstNo(WrongFieldErr, GenJnlLine.FieldCaption("Account No."), GenJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -1419,7 +1419,7 @@
         Initialize();
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
-        PostingDate[1] := WorkDate;
+        PostingDate[1] := WorkDate();
         PostingDate[2] := PostingDate[1] + 1;
         PostingDate[3] := PostingDate[2] + 1;
         Rate := LibraryRandom.RandDec(10, 2);
@@ -1481,7 +1481,7 @@
         BindSubscription(ERMApplyUnapplyCustomer);
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
-        PostingDate[1] := WorkDate;
+        PostingDate[1] := WorkDate();
         PostingDate[2] := PostingDate[1] + 1;
         PostingDate[3] := PostingDate[2] + 1;
         Rate := LibraryRandom.RandDec(10, 2);
@@ -1543,7 +1543,7 @@
 
         // [GIVEN] Currency with specific exchange rates on 01.01 and 02.01, set as Additional Reporting Currency
         PaymentDate := LibraryRandom.RandDate(3);
-        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate);
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate());
         CreateExchangeRate(CurrencyCode, 1, 1.1208, PaymentDate);
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
 
@@ -1596,14 +1596,14 @@
         Initialize();
 
         // [GIVEN] Create Currency Code with Exchange Rate "ER1" for 01.01
-        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate);
+        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate());
 
         // [GIVEN] Invoice "INV001" of 100 USD posted on 01.01
         LibrarySales.CreateCustomer(Customer);
         SelectGenJournalBatch(GenJournalBatch, false);
         Amount[1] := LibraryRandom.RandDecInRange(10000, 20000, 2);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[1], GenJournalBatch, WorkDate,
+          GenJournalLine[1], GenJournalBatch, WorkDate(),
           GenJournalLine[1]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[1]);
 
         // [GIVEN] Invoice "INV001" of 200 USD posted on 02.01
@@ -1665,14 +1665,14 @@
         BindSubscription(ERMApplyUnapplyCustomer);
 
         // [GIVEN] Create Currency Code with Exchange Rate "ER1" for 01.01
-        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate);
+        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate());
 
         // [GIVEN] Invoice "INV001" of 100 USD posted on 01.01
         LibrarySales.CreateCustomer(Customer);
         SelectGenJournalBatch(GenJournalBatch, false);
         Amount[1] := LibraryRandom.RandDecInRange(10000, 20000, 2);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[1], GenJournalBatch, WorkDate,
+          GenJournalLine[1], GenJournalBatch, WorkDate(),
           GenJournalLine[1]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[1]);
 
         // [GIVEN] Invoice "INV001" of 200 USD posted on 02.01
@@ -2089,7 +2089,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchRates()
     var
@@ -2255,7 +2254,7 @@
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -2279,7 +2278,7 @@
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -2364,7 +2363,7 @@
         SelectGenJournalBatch(GenJournalBatch, false);
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, DocumentType,
+            SalesLine, WorkDate(), LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, DocumentType,
             LibraryRandom.RandInt(100), Abs(UnitPrice));
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, SalesLine."Sell-to Customer No.", DocumentType2, -UnitPrice);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2557,7 +2556,7 @@
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
             Validate("Currency Code", CurrencyCode);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -2606,7 +2605,7 @@
     begin
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate,
+            SalesLine, WorkDate(),
             CustomerNo, LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Invoice,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         SelectGenJournalBatch(GenJournalBatch, false);
@@ -2731,10 +2730,10 @@
 
     local procedure SetupSpecificExchRates(var ForeignCurrencyCode: Code[10]; var AdditionalCurrencyCode: Code[10]; var DocumentDate: Date)
     begin
-        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate());
         ForeignCurrencyCode := CreateCurrencyAndExchangeRate(100, 46.0862, DocumentDate);
         AdditionalCurrencyCode := CreateCurrencyAndExchangeRate(100, 55.7551, DocumentDate);
-        CreateExchangeRate(AdditionalCurrencyCode, 100, 50, WorkDate);
+        CreateExchangeRate(AdditionalCurrencyCode, 100, 50, WorkDate());
     end;
 
     local procedure CreatePaymentTermCode(): Code[10]
@@ -2950,7 +2949,7 @@
         FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, EntryType);
         Assert.AreEqual(
           Amount, DetailedCustLedgEntry.Amount,
-          StrSubstNo(AmountErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption));
+          StrSubstNo(AmountErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -2961,11 +2960,11 @@
         FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
         repeat
             TotalAmount += DetailedCustLedgEntry.Amount;
-        until DetailedCustLedgEntry.Next = 0;
+        until DetailedCustLedgEntry.Next() = 0;
         Assert.AreEqual(
           0, TotalAmount,
           StrSubstNo(
-            TotalAmountErr, 0, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry Type"),
+            TotalAmountErr, 0, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry Type"),
             DetailedCustLedgEntry."Entry Type"));
     end;
 
@@ -2985,8 +2984,8 @@
         FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
         repeat
             Assert.IsTrue(
-              DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.Unapplied));
-        until DetailedCustLedgEntry.Next = 0;
+              DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.Unapplied));
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyCustLedgerEntryForRemAmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -2997,7 +2996,7 @@
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount", Amount);
             CustLedgerEntry.TestField("Remaining Amount", CustLedgerEntry.Amount);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyCustLedgerEntryRemAmtLCYisBalanced(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -3022,9 +3021,9 @@
         GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreEqual(
-          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
+          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption(), GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
     end;
 
     local procedure VerifyAddCurrencyAmount(DocumentNo: Code[20])
@@ -3034,15 +3033,15 @@
         AddCurrAmt: Decimal;
     begin
         Currency.Get(LibraryERM.GetAddReportingCurrency);
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindSet();
         repeat
-            AddCurrAmt := LibraryERM.ConvertCurrency(GLEntry.Amount, '', Currency.Code, WorkDate);
+            AddCurrAmt := LibraryERM.ConvertCurrency(GLEntry.Amount, '', Currency.Code, WorkDate());
             Assert.AreNearlyEqual(
               AddCurrAmt, GLEntry."Additional-Currency Amount", Currency."Amount Rounding Precision",
               StrSubstNo(AdditionalCurrencyErr, AddCurrAmt));
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifySourceCodeDtldCustLedger(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; SourceCode: Code[10])

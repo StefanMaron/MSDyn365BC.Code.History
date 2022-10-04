@@ -15,8 +15,8 @@ codeunit 952 "Time Sheet Chart Mgt."
         with TimeSheetChartSetup do
             if not Get(UserId) then begin
                 "User ID" := UserId;
-                "Starting Date" := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate);
-                Insert;
+                "Starting Date" := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate());
+                Insert();
             end;
     end;
 
@@ -70,7 +70,7 @@ codeunit 952 "Time Sheet Chart Mgt."
         CurrMeasureType := TimeSheetChartSetup.MeasureIndex2MeasureType(BusChartBuf."Drill-Down Measure Index");
         if CurrMeasureType = MeasureType::Scheduled then begin
             ResCapacityEntry.SetRange("Resource No.", ResourceNo);
-            ResCapacityEntry.SetRange(Date, TimeSheetChartSetup."Starting Date", TimeSheetChartSetup.GetEndingDate);
+            ResCapacityEntry.SetRange(Date, TimeSheetChartSetup."Starting Date", TimeSheetChartSetup.GetEndingDate());
             PAGE.Run(PAGE::"Res. Capacity Entries", ResCapacityEntry);
         end else begin
             TimeSheetHeader.SetRange("Starting Date", TimeSheetChartSetup."Starting Date");
@@ -149,7 +149,7 @@ codeunit 952 "Time Sheet Chart Mgt."
     begin
         if MType = MeasureType::Scheduled then begin
             Resource.Get(ResourceNo);
-            Resource.SetRange("Date Filter", TimeSheetChartSetup."Starting Date", TimeSheetChartSetup.GetEndingDate);
+            Resource.SetRange("Date Filter", TimeSheetChartSetup."Starting Date", TimeSheetChartSetup.GetEndingDate());
             Resource.CalcFields(Capacity);
             exit(Resource.Capacity);
         end;

@@ -10,7 +10,7 @@ codeunit 2161 "Calendar Event Execution"
         if IsHandled then
             exit;
 
-        RunCalendarEvents;
+        RunCalendarEvents();
     end;
 
     var
@@ -58,7 +58,7 @@ codeunit 2161 "Calendar Event Execution"
         // Execute
         Result := RunCodeunit(CalendarEvent);
         CalendarEvent.LockTable(true);
-        if not CalendarEvent.Find then begin // The event may have been removed while we executed it
+        if not CalendarEvent.Find() then begin // The event may have been removed while we executed it
             ActivityLog.LogActivity(CalendarEvent, ActivityLog.Status::Failed, ProcessCalendarTxt, CalendarEvent.Description, UnknownStateTxt);
             Commit();
             exit;

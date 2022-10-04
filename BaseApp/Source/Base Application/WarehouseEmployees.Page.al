@@ -15,13 +15,13 @@ page 7328 "Warehouse Employees"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the user ID of a warehouse employee. Each user who performs warehouse activities must be set up as a warehouse employee and assigned to at least one location.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location in which the employee works.';
@@ -31,7 +31,7 @@ page 7328 "Warehouse Employees"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the location code that is defined as the default location for this employee''s activities.';
                 }
-                field("ADCS User"; "ADCS User")
+                field("ADCS User"; Rec."ADCS User")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'ADCS User';

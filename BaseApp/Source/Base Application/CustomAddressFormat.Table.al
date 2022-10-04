@@ -128,7 +128,7 @@ table 725 "Custom Address Format"
         CustomAddressFormatLines.SetTableView(CustomAddressFormatLine);
         CustomAddressFormatLines.RunModal();
 
-        BuildAddressFormat;
+        BuildAddressFormat();
     end;
 
     local procedure CheckOtherCompositeParts()
@@ -165,7 +165,7 @@ table 725 "Custom Address Format"
             CustomAddressFormat."Line Position" -= MoveBy;
             CustomAddressFormat.Modify();
             "Line Position" += MoveBy;
-            Modify;
+            Modify();
         end;
     end;
 

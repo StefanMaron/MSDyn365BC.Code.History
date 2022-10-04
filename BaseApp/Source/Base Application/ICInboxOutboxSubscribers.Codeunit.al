@@ -4,11 +4,11 @@ codeunit 790 "IC Inbox Outbox Subscribers"
 
     trigger OnRun()
     begin
-        SetRecFilter;
+        SetRecFilter();
         "Line Action" := "Line Action"::Accept;
-        Modify;
+        Modify();
         REPORT.Run(REPORT::"Complete IC Inbox Action", false, false, Rec);
-        Reset;
+        Reset();
     end;
 
     var

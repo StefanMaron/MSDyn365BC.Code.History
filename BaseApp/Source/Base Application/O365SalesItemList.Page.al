@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2104 "O365 Sales Item List"
 {
     Caption = 'Price List';
@@ -9,6 +10,9 @@ page 2104 "O365 Sales Item List"
     RefreshOnActivate = true;
     SourceTable = Item;
     SourceTableView = SORTING(Description);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,12 +23,12 @@ page 2104 "O365 Sales Item List"
                 Caption = 'Price';
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies what you are selling. You can enter a maximum of 30 characters, both numbers and letters.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '2';
                     AutoFormatType = 10;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
@@ -39,7 +43,7 @@ page 2104 "O365 Sales Item List"
         {
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete Price';
                 Gesture = RightSwipe;
                 Image = Delete;
@@ -62,4 +66,4 @@ page 2104 "O365 Sales Item List"
     var
         DeleteQst: Label 'Are you sure?';
 }
-
+#endif

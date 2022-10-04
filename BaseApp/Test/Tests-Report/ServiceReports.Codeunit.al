@@ -350,7 +350,7 @@ codeunit 136900 "Service Reports"
         ServiceShipmentHeader.FindSet();
         VerifyServiceLedgerEntryAmount(ServiceShipmentHeader);
 
-        ServiceShipmentHeader.Next;
+        ServiceShipmentHeader.Next();
         VerifyServiceLedgerEntryAmount(ServiceShipmentHeader);
     end;
 
@@ -625,7 +625,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ContrServOrdersTest.SetTableView(ServiceContractHeader);
-        ContrServOrdersTest.InitVariables(WorkDate, WorkDate);
+        ContrServOrdersTest.InitVariables(WorkDate(), WorkDate());
         ContrServOrdersTest.Run();
 
         // 3. Verify: Check that the value of Contract No. in Contr. Serv. Orders - Test is equal to the value of Contract No. in
@@ -703,7 +703,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         MaintenancePerformance.SetTableView(ServiceContractHeader);
-        MaintenancePerformance.InitializeRequest(WorkDate);
+        MaintenancePerformance.InitializeRequest(WorkDate());
         MaintenancePerformance.Run();
 
         // 3. Verify: Test that value of Annual Amount in Maintenance Performance matches the value of Annual Amount in corresponding
@@ -952,7 +952,7 @@ codeunit 136900 "Service Reports"
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContractLine.FindFirst();
         ExpiredContractLinesTest.SetTableView(ServiceContractLine);
-        ExpiredContractLinesTest.InitVariables(WorkDate, CreateReasonCode);
+        ExpiredContractLinesTest.InitVariables(WorkDate(), CreateReasonCode);
         Commit();
         ExpiredContractLinesTest.Run();
 
@@ -981,7 +981,7 @@ codeunit 136900 "Service Reports"
     procedure ExpiredContractLinesReasonCode()
     begin
         // Test that System generates an error when Reason Code is not filled.
-        ExpiredContractLinesError(WorkDate, '', ReasonCodeError);
+        ExpiredContractLinesError(WorkDate(), '', ReasonCodeError);
     end;
 
     local procedure ExpiredContractLinesError(RemoveTo: Date; ReasonCode: Code[10]; Error: Text[50])
@@ -1192,7 +1192,7 @@ codeunit 136900 "Service Reports"
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         ServiceLedgerEntry.FindFirst();
         PrepaidContrEntriesTest.SetTableView(ServiceLedgerEntry);
-        PrepaidContrEntriesTest.InitVariables(WorkDate, WorkDate);
+        PrepaidContrEntriesTest.InitVariables(WorkDate(), WorkDate());
         PrepaidContrEntriesTest.Run();
 
         // [THEN] The value of Amount LCY in report results matches the value of Amount LCY Field in corresponding Service Ledger Entry.
@@ -1214,7 +1214,7 @@ codeunit 136900 "Service Reports"
         // [GIVEN] Post Until Date is not filled.
         // [WHEN] Run report "Prepaid Contr. Entries - Test".
         // [THEN] System generates an error.
-        PrepaidContractErrorTest(0D, WorkDate, PostUntilDateError);
+        PrepaidContractErrorTest(0D, WorkDate(), PostUntilDateError);
     end;
 
     [Test]
@@ -1228,7 +1228,7 @@ codeunit 136900 "Service Reports"
         // [GIVEN] Posting Date is not filled.
         // [WHEN] Run report "Prepaid Contr. Entries - Test".
         // [THEN] System generates an error.
-        PrepaidContractErrorTest(WorkDate, 0D, PostingDateError);
+        PrepaidContractErrorTest(WorkDate(), 0D, PostingDateError);
     end;
 
     local procedure PrepaidContractErrorTest(PostUntilDate: Date; PostingDate: Date; Error: Text[50])
@@ -1301,7 +1301,7 @@ codeunit 136900 "Service Reports"
         FilterServiceContractHeader(ServiceContractHeader);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         PrepaidContrEntriesTest.SetTableView(ServiceLedgerEntry);
-        PrepaidContrEntriesTest.InitVariables(WorkDate, WorkDate);
+        PrepaidContrEntriesTest.InitVariables(WorkDate(), WorkDate());
         PrepaidContrEntriesTest.Run();
 
         // 3. [THEN] Prepaid Contract Entries Test results contain warning.
@@ -1579,7 +1579,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Generate the Contract Invoicing.
-        RunContractInvoicingReport(ServiceContractHeader, WorkDate, ServiceContractHeader."Next Invoice Period End");
+        RunContractInvoicingReport(ServiceContractHeader, WorkDate(), ServiceContractHeader."Next Invoice Period End");
 
         // 3. Verify: Verify that values of Contract No.,Amount Per Period in Contract Invoicing matches the value of
         // Contract No.,Amount Per Period in corresponding Service Contract Header.
@@ -1608,7 +1608,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Generate the Contract Invoicing.
-        asserterror RunContractInvoicingReport(ServiceContractHeader, WorkDate, 0D);
+        asserterror RunContractInvoicingReport(ServiceContractHeader, WorkDate(), 0D);
 
         // 3. Verify: Verify the Invoice to Date Error message.
         Assert.AreEqual(StrSubstNo(InvoiceToDateError), GetLastErrorText, UnknownError);
@@ -1636,7 +1636,7 @@ codeunit 136900 "Service Reports"
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Generate the Contract Invoicing.
-        asserterror RunContractInvoicingReport(ServiceContractHeader, 0D, WorkDate);
+        asserterror RunContractInvoicingReport(ServiceContractHeader, 0D, WorkDate());
 
         // 3. Verify: Verify the Posting Date Error message.
         Assert.AreEqual(StrSubstNo(ErrorPostingDate), GetLastErrorText, UnknownError);
@@ -1662,7 +1662,7 @@ codeunit 136900 "Service Reports"
         AmountsInServiceContractHeader(ServiceContractHeader);
 
         // [GIVEN] "SC" Starting Date is set to the first date of the current mounth "D1" to match with the Next Invoice Date
-        ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate));
+        ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate()));
         ServiceContractHeader.Modify(true);
 
         // [GIVEN] "SC" Invoice Period is set
@@ -1684,7 +1684,7 @@ codeunit 136900 "Service Reports"
         ServiceContractHeader.Modify(true);
 
         // [WHEN] Run Contract Invoicing Report
-        RunContractInvoicingReport(ServiceContractHeader, WorkDate, CalcDate('<1Y>', WorkDate));
+        RunContractInvoicingReport(ServiceContractHeader, WorkDate(), CalcDate('<1Y>', WorkDate()));
 
         // [THEN] Contract Invoicing Report starts from "D2"
         VerifyContractInvoicingNextInvoicePeriod(ServiceContractHeader);
@@ -1716,7 +1716,7 @@ codeunit 136900 "Service Reports"
         // System generates an error when The Invoice-to Date is later than the work date.
         asserterror
           RunContractInvoicingReport(
-            ServiceContractHeader, WorkDate, CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate));
+            ServiceContractHeader, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate()));
 
         // 3. Verify: Verify that System generates an error when The Invoice-to Date is later than the work date.
         Assert.AreEqual(StrSubstNo(BatchJobError), GetLastErrorText, UnknownError);
@@ -1747,7 +1747,7 @@ codeunit 136900 "Service Reports"
         // System generates an error when posting date is later than the work date.
         asserterror
           RunContractInvoicingReport(
-            ServiceContractHeader, CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate), WorkDate);
+            ServiceContractHeader, CalcDate('<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate()), WorkDate());
 
         // 3. Verify: Verify that System generates an error when posting date is later than the work date.
         Assert.AreEqual(StrSubstNo(BatchJobError), GetLastErrorText, UnknownError);
@@ -2044,7 +2044,7 @@ codeunit 136900 "Service Reports"
         Commit();
 
         // [WHEN] Print "Service Document - Test" report with 'Show Dimensions'
-        ServiceHeader.SetRecFilter;
+        ServiceHeader.SetRecFilter();
         ServiceDocumentTest.SetTableView(ServiceHeader);
         ServiceDocumentTest.InitializeRequest(false, false, true);
         ServiceDocumentTest.Run();
@@ -2187,7 +2187,7 @@ codeunit 136900 "Service Reports"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;
@@ -2199,7 +2199,7 @@ codeunit 136900 "Service Reports"
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
         repeat
             AmountLCY += ServiceLedgerEntry."Amount (LCY)";
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure CalculateCostAmount(ServiceOrderNo: Code[20]) CostAmount: Decimal
@@ -2209,7 +2209,7 @@ codeunit 136900 "Service Reports"
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
         repeat
             CostAmount += ServiceLedgerEntry."Cost Amount";
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure CalculateDiscountAmount(ServiceOrderNo: Code[20]) DiscountAmount: Decimal
@@ -2219,7 +2219,7 @@ codeunit 136900 "Service Reports"
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
         repeat
             DiscountAmount += ServiceLedgerEntry."Discount Amount";
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateContractHeaderAccGroup(var ServiceContractHeader: Record "Service Contract Header"; ContractType: Option; CustomerNo: Code[20])
@@ -2239,7 +2239,7 @@ codeunit 136900 "Service Reports"
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CustomerNo);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
-        DatesInServiceContractLine(ServiceContractLine, WorkDate);
+        DatesInServiceContractLine(ServiceContractLine, WorkDate());
         AmountsInServiceContractHeader(ServiceContractHeader);
     end;
 
@@ -2369,7 +2369,7 @@ codeunit 136900 "Service Reports"
             CountryRegion.Validate(Name,
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion.Name)), MaxStrLen(CountryRegion.Name)));
             "Country/Region Code" := CountryRegion.Code;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2388,7 +2388,7 @@ codeunit 136900 "Service Reports"
             "Ship-to County" := CopyStr(County, 2);
             LibraryERM.CreateCountryRegion(CountryRegion);
             "Ship-to Country/Region Code" := CountryRegion.Code;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2491,7 +2491,7 @@ codeunit 136900 "Service Reports"
     local procedure CreateServiceQuoteComment(var ServiceCommentLine: Record "Service Comment Line"; ServiceContractLine: Record "Service Contract Line")
     begin
         LibraryService.CreateCommentLineForServCntrct(ServiceCommentLine, ServiceContractLine, ServiceCommentLine.Type::General);
-        ServiceCommentLine.Validate(Date, WorkDate);
+        ServiceCommentLine.Validate(Date, WorkDate());
         ServiceCommentLine.Modify(true);
     end;
 
@@ -2500,7 +2500,7 @@ codeunit 136900 "Service Reports"
         ServContractManagement: Codeunit ServContractManagement;
     begin
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
-        ServContractManagement.InitCodeUnit;
+        ServContractManagement.InitCodeUnit();
         ServContractManagement.CreateInvoice(ServiceContractHeader);
         PostServiceInvoice(ServiceContractHeader."Contract No.");
     end;
@@ -2607,7 +2607,7 @@ codeunit 136900 "Service Reports"
 
     local procedure ModifyHeaderForPrepaid(var ServiceContractHeader: Record "Service Contract Header")
     begin
-        ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate));  // Validate first date of month.
+        ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate()));  // Validate first date of month.
         ServiceContractHeader.Validate(Prepaid, true);
         ServiceContractHeader.Modify(true);
     end;
@@ -2634,7 +2634,7 @@ codeunit 136900 "Service Reports"
 
     local procedure UpdateExpirationDateOnHeader(var ServiceContractHeader: Record "Service Contract Header")
     begin
-        ServiceContractHeader.Validate("Expiration Date", WorkDate);
+        ServiceContractHeader.Validate("Expiration Date", WorkDate());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -2767,7 +2767,7 @@ codeunit 136900 "Service Reports"
 
     local procedure WarrantyEndingDatePartsItem(var ServiceItem: Record "Service Item")
     begin
-        ServiceItem.Validate("Warranty Ending Date (Parts)", WorkDate);
+        ServiceItem.Validate("Warranty Ending Date (Parts)", WorkDate());
         ServiceItem.Modify(true);
     end;
 

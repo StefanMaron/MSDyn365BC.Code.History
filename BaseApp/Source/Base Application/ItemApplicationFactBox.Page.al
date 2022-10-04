@@ -9,12 +9,12 @@ page 9125 "Item Application FactBox"
     {
         area(content)
         {
-            field("Entry No."; "Entry No.")
+            field("Entry No."; Rec."Entry No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
             }
-            field("Item No."; "Item No.")
+            field("Item No."; Rec."Item No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the number of the item in the entry.';
@@ -25,12 +25,12 @@ page 9125 "Item Application FactBox"
                 Caption = 'Costing Method';
                 ToolTip = 'Specifies which costing method applies to the item number.';
             }
-            field("Posting Date"; "Posting Date")
+            field("Posting Date"; Rec."Posting Date")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the entry''s posting date.';
             }
-            field("Entry Type"; "Entry Type")
+            field("Entry Type"; Rec."Entry Type")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies which type of transaction that the entry is created from.';
@@ -40,12 +40,12 @@ page 9125 "Item Application FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the number of units of the item in the item entry.';
             }
-            field("Reserved Quantity"; "Reserved Quantity")
+            field("Reserved Quantity"; Rec."Reserved Quantity")
             {
                 ApplicationArea = Reservation;
                 ToolTip = 'Specifies how many units of the item on the line have been reserved.';
             }
-            field("Remaining Quantity"; "Remaining Quantity")
+            field("Remaining Quantity"; Rec."Remaining Quantity")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';

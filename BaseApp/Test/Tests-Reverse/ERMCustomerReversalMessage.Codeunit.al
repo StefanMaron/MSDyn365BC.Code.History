@@ -291,7 +291,7 @@
         asserterror ReversalEntry.ReverseTransaction(CustLedgerEntry."Transaction No.");
 
         // Verify: Verify Reversal Error for Fully Applied Entries.
-        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -339,10 +339,10 @@
         UpdateExchangeRate(GenJournalLine."Currency Code");
 #if not CLEAN20
         LibraryERM.RunAdjustExchangeRates(
-          GenJournalLine."Currency Code", 0D, WorkDate, 'Test', WorkDate, GenJournalLine."Document No.", false);
+          GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
 #else
         LibraryERM.RunExchRateAdjustment(
-          GenJournalLine."Currency Code", 0D, WorkDate, 'Test', WorkDate, GenJournalLine."Document No.", false);
+          GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
 #endif
 
         // Exercise: Reverse Posted Entry from Customer Legder.
@@ -351,7 +351,7 @@
         asserterror ReversalEntry.ReverseTransaction(CustLedgerEntry."Transaction No.");
 
         // Verify: Verify Detailed Ledger Entry for Unrealized Loss/Gain entry.
-        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+        Assert.ExpectedError(ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -437,7 +437,7 @@
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();

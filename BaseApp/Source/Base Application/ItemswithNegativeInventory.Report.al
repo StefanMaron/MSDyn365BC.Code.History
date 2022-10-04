@@ -13,35 +13,35 @@ report 5757 "Items with Negative Inventory"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(LocationCode; StrSubstNo('%1: %2', ItemLedgEntry.FieldCaption("Location Code"), LocCode))
             {
             }
-            column(ItemLedgEntryBufferItemNo; ItemLedgEntryBuffer."Item No.")
+            column(ItemLedgEntryBufferItemNo; TempItemLedgEntry."Item No.")
             {
             }
-            column(ItemLedgEntryBufferRemainQty; ItemLedgEntryBuffer."Remaining Quantity")
+            column(ItemLedgEntryBufferRemainQty; TempItemLedgEntry."Remaining Quantity")
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(ItemLedgEntryBufferPackageNo; ItemLedgEntryBuffer."Package No.")
+            column(ItemLedgEntryBufferPackageNo; TempItemLedgEntry."Package No.")
             {
             }
-            column(ItemLedgEntryBufferLotNo; ItemLedgEntryBuffer."Lot No.")
+            column(ItemLedgEntryBufferLotNo; TempItemLedgEntry."Lot No.")
             {
             }
-            column(ItemLedgEntryBufferSerialNo; ItemLedgEntryBuffer."Serial No.")
+            column(ItemLedgEntryBufferSerialNo; TempItemLedgEntry."Serial No.")
             {
             }
-            column(ItemLedgEntryBufferUOMCode; ItemLedgEntryBuffer."Unit of Measure Code")
+            column(ItemLedgEntryBufferUOMCode; TempItemLedgEntry."Unit of Measure Code")
             {
             }
-            column(ItemLedgEntryBufferDesc; ItemLedgEntryBuffer.Description)
+            column(ItemLedgEntryBufferDesc; TempItemLedgEntry.Description)
             {
             }
-            column(ItemLedgEntryBufferVariantCode; ItemLedgEntryBuffer."Variant Code")
+            column(ItemLedgEntryBufferVariantCode; TempItemLedgEntry."Variant Code")
             {
             }
             column(Check_on_Negative_InventoryCaption; Items_with_Negative_InventoryLbl)
@@ -78,30 +78,30 @@ report 5757 "Items with Negative Inventory"
             trigger OnAfterGetRecord()
             begin
                 if ILECounter = 0 then
-                    ItemLedgEntryBuffer.Description := Text004
+                    TempItemLedgEntry.Description := Text004
                 else begin
                     if Number = 1 then
-                        ItemLedgEntryBuffer.Find('-')
+                        TempItemLedgEntry.Find('-')
                     else
-                        ItemLedgEntryBuffer.Next;
+                        TempItemLedgEntry.Next();
 
-                    if ItemLedgEntryBuffer.Description = '' then
-                        if ItemLedgEntryBuffer."Variant Code" <> '' then begin
-                            ItemVariant.Get(ItemLedgEntryBuffer."Item No.", ItemLedgEntryBuffer."Variant Code");
-                            ItemLedgEntryBuffer.Description := ItemVariant.Description;
+                    if TempItemLedgEntry.Description = '' then
+                        if TempItemLedgEntry."Variant Code" <> '' then begin
+                            ItemVariant.Get(TempItemLedgEntry."Item No.", TempItemLedgEntry."Variant Code");
+                            TempItemLedgEntry.Description := ItemVariant.Description;
                         end else begin
-                            Item.Get(ItemLedgEntryBuffer."Item No.");
-                            ItemLedgEntryBuffer.Description := Item.Description;
+                            Item.Get(TempItemLedgEntry."Item No.");
+                            TempItemLedgEntry.Description := Item.Description;
                         end
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                ItemLedgEntryBuffer.SetCurrentKey(
+                TempItemLedgEntry.SetCurrentKey(
                   "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
 
-                ILECounter := ItemLedgEntryBuffer.Count();
+                ILECounter := TempItemLedgEntry.Count();
                 if ILECounter = 0 then
                     SetRange(Number, 1)
                 else
@@ -221,7 +221,7 @@ report 5757 "Items with Negative Inventory"
                                                                 SetRange("Serial No.", "Serial No.");
                                                                 CalcSums("Remaining Quantity");
                                                                 if "Remaining Quantity" < 0 then
-                                                                    FillBuffer;
+                                                                    FillBuffer();
                                                                 Find('+');
                                                                 SetRange("Serial No.");
                                                             until Next() = 0;
@@ -247,7 +247,7 @@ report 5757 "Items with Negative Inventory"
                     SetRange("Item No.");
                 until Next() = 0;
 
-                Window.Close;
+                Window.Close();
             end;
         end;
 
@@ -258,7 +258,7 @@ report 5757 "Items with Negative Inventory"
             AddError(
               StrSubstNo(
                 Text005,
-                WhseRcptHeader.TableCaption,
+                WhseRcptHeader.TableCaption(),
                 WhseRcptHeader.FieldCaption("Location Code"),
                 LocCode));
 
@@ -268,7 +268,7 @@ report 5757 "Items with Negative Inventory"
             AddError(
               StrSubstNo(
                 Text005,
-                WhseShipHeader.TableCaption,
+                WhseShipHeader.TableCaption(),
                 WhseShipHeader.FieldCaption("Location Code"),
                 LocCode));
 
@@ -291,7 +291,7 @@ report 5757 "Items with Negative Inventory"
             AddError(
               StrSubstNo(
                 Text007,
-                WhseWkshLine.TableCaption,
+                WhseWkshLine.TableCaption(),
                 WhseWkshLine.FieldCaption("Location Code"),
                 LocCode));
     end;
@@ -299,7 +299,7 @@ report 5757 "Items with Negative Inventory"
     var
         Location: Record Location;
         ItemLedgEntry: Record "Item Ledger Entry";
-        ItemLedgEntryBuffer: Record "Item Ledger Entry" temporary;
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         WhseRcptHeader: Record "Warehouse Receipt Header";
@@ -333,8 +333,8 @@ report 5757 "Items with Negative Inventory"
 
     local procedure FillBuffer()
     begin
-        ItemLedgEntryBuffer := ItemLedgEntry;
-        ItemLedgEntryBuffer.Insert();
+        TempItemLedgEntry := ItemLedgEntry;
+        TempItemLedgEntry.Insert();
     end;
 
     local procedure AddError(Text: Text[250])

@@ -183,11 +183,11 @@ codeunit 1297 "Http Web Request Mgt."
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             OnOverrideUrl(URL);
 
         HttpWebRequest := HttpWebRequest.Create(URL);
-        SetDefaults;
+        SetDefaults();
     end;
 
     local procedure SetDefaults()
@@ -201,7 +201,7 @@ codeunit 1297 "Http Web Request Mgt."
         HttpWebRequest.Timeout := 60000;
         HttpWebRequest.Accept('application/xml');
         HttpWebRequest.ContentType('application/xml');
-        CookieContainer := CookieContainer.CookieContainer;
+        CookieContainer := CookieContainer.CookieContainer();
         HttpWebRequest.CookieContainer := CookieContainer;
 
         GlobalSkipCheckHttps := true;
@@ -231,12 +231,12 @@ codeunit 1297 "Http Web Request Mgt."
         RequestStr: DotNet Stream;
         StreamWriter: DotNet StreamWriter;
     begin
-        RequestStr := HttpWebRequest.GetRequestStream;
+        RequestStr := HttpWebRequest.GetRequestStream();
         StreamWriter := StreamWriter.StreamWriter(RequestStr, Encoding);
         StreamWriter.Write(BodyText);
-        StreamWriter.Flush;
-        StreamWriter.Close;
-        StreamWriter.Dispose;
+        StreamWriter.Flush();
+        StreamWriter.Close();
+        StreamWriter.Dispose();
     end;
 
     [Scope('OnPrem')]
@@ -342,7 +342,7 @@ codeunit 1297 "Http Web Request Mgt."
         FileManagement.IsAllowedPath(BodyFilePath, false);
 
         FileStream := FileStream.FileStream(BodyFilePath, FileMode.Open);
-        FileStream.CopyTo(HttpWebRequest.GetRequestStream);
+        FileStream.CopyTo(HttpWebRequest.GetRequestStream());
     end;
 
     [Scope('OnPrem')]
@@ -351,15 +351,15 @@ codeunit 1297 "Http Web Request Mgt."
         RequestStr: DotNet Stream;
         BlobStr: InStream;
     begin
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
 
-        RequestStr := HttpWebRequest.GetRequestStream;
+        RequestStr := HttpWebRequest.GetRequestStream();
         TempBlob.CreateInStream(BlobStr);
         CopyStream(RequestStr, BlobStr);
-        RequestStr.Flush;
-        RequestStr.Close;
-        RequestStr.Dispose;
+        RequestStr.Flush();
+        RequestStr.Close();
+        RequestStr.Dispose();
     end;
 
     procedure AddBasicAuthentication(BasicUserId: Text; BasicUserPassword: Text)
@@ -367,7 +367,7 @@ codeunit 1297 "Http Web Request Mgt."
         Credential: DotNet NetworkCredential;
     begin
         HttpWebRequest.UseDefaultCredentials(false);
-        Credential := Credential.NetworkCredential;
+        Credential := Credential.NetworkCredential();
         Credential.UserName := BasicUserId;
         Credential.Password := BasicUserPassword;
         HttpWebRequest.Credentials := Credential;
@@ -390,7 +390,7 @@ codeunit 1297 "Http Web Request Mgt."
     var
         CookieCollection: DotNet CookieCollection;
     begin
-        if not HasCookie then
+        if not HasCookie() then
             Error(NoCookieForYouErr);
         CookieCollection := HttpWebRequest.CookieContainer.GetCookies(HttpWebRequest.RequestUri);
         Cookie := CookieCollection.Item(0);
@@ -446,7 +446,7 @@ codeunit 1297 "Http Web Request Mgt."
     begin
         TempBlob.CreateInStream(ResponseInStream);
 
-        ClearLastError;
+        ClearLastError();
         if GetResponse(ResponseInStream, HttpStatusCode, ResponseHeaders) then
             exit(true);
 
@@ -459,7 +459,7 @@ codeunit 1297 "Http Web Request Mgt."
 
         HttpStatusCode := WebExceptionResponse.StatusCode;
         ResponseHeaders := WebExceptionResponse.Headers;
-        WebExceptionResponse.GetResponseStream.CopyTo(ResponseInStream);
+        WebExceptionResponse.GetResponseStream().CopyTo(ResponseInStream);
         while ResponseInStream.ReadText(TextLine) > 0 do
             WebExceptionResponseText += TextLine;
 
@@ -480,10 +480,10 @@ codeunit 1297 "Http Web Request Mgt."
         if not JSONMgt.InitializeFromString(Content) then
             exit(false);
 
-        ContentJson := JSONMgt.WriteObjectToString;
+        ContentJson := JSONMgt.WriteObjectToString();
         JSONMgt.InitializeObject(ResponseJson);
         JSONMgt.AddJson('Content', ContentJson);
-        ResponseJson := JSONMgt.WriteObjectToString;
+        ResponseJson := JSONMgt.WriteObjectToString();
         exit(true);
     end;
 
@@ -514,7 +514,7 @@ codeunit 1297 "Http Web Request Mgt."
                     WebExceptionResponse := true;
                     HttpWebResponse := WebException.Response;
                     StatusCode := Format(Convert.ToInt32(HttpWebResponse.StatusCode));
-                    StatusCodeString := HttpWebResponse.StatusCode.ToString;
+                    StatusCodeString := HttpWebResponse.StatusCode.ToString();
                     ErrorDescription := HttpWebResponse.StatusDescription;
                 end;
             else
@@ -525,13 +525,13 @@ codeunit 1297 "Http Web Request Mgt."
 
         // Try to get more details
         if WebExceptionResponse then begin
-            ResponseInputStream := HttpWebResponse.GetResponseStream;
+            ResponseInputStream := HttpWebResponse.GetResponseStream();
             if SetJSONContent(ResponseJson, ResponseInputStream) then
                 if JSONMgt.InitializeFromString(ResponseJson) then begin
                     ErrorDescription := JSONMgt.GetValue('Content.error_description');
                     if ErrorDescription <> '' then begin
                         JSONMgt.SetValue('Error.description', ErrorDescription);
-                        ResponseJson := JSONMgt.WriteObjectToString;
+                        ResponseJson := JSONMgt.WriteObjectToString();
                     end;
                 end;
         end;

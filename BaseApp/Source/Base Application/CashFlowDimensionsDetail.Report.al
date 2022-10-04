@@ -23,7 +23,7 @@ report 852 "Cash Flow Dimensions - Detail"
             column(DateFilter; DateFilter)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(HeaderText; HeaderText)
@@ -356,7 +356,7 @@ report 852 "Cash Flow Dimensions - Detail"
                                 StartDate := AccountingPeriod."Starting Date";
                             AccountingPeriod.SetRange("Starting Date", EndDate, DMY2Date(31, 12, 9999));
                             if AccountingPeriod.Find('-') then
-                                if AccountingPeriod.Next <> 0 then
+                                if AccountingPeriod.Next() <> 0 then
                                     EndDate := ClosingDate(AccountingPeriod."Starting Date" - 1);
                         end;
                 end;
@@ -428,13 +428,13 @@ report 852 "Cash Flow Dimensions - Detail"
                         begin
                             if PAGE.RunModal(PAGE::"Analysis View List", AnalysisView) = ACTION::LookupOK then begin
                                 AnalysisViewCode := AnalysisView.Code;
-                                UpdateColumnDim;
+                                UpdateColumnDim();
                             end;
                         end;
 
                         trigger OnValidate()
                         begin
-                            UpdateColumnDim;
+                            UpdateColumnDim();
                         end;
                     }
                     field(ColumnDim; ColumnDim)
@@ -460,8 +460,8 @@ report 852 "Cash Flow Dimensions - Detail"
                             CashFlowForecastList: Page "Cash Flow Forecast List";
                         begin
                             CashFlowForecastList.LookupMode(true);
-                            if CashFlowForecastList.RunModal = ACTION::LookupOK then begin
-                                Text := CashFlowForecastList.GetSelectionFilter;
+                            if CashFlowForecastList.RunModal() = ACTION::LookupOK then begin
+                                Text := CashFlowForecastList.GetSelectionFilter();
                                 exit(true);
                             end;
 
@@ -501,7 +501,7 @@ report 852 "Cash Flow Dimensions - Detail"
         trigger OnOpenPage()
         begin
             GLSetup.Get();
-            UpdateColumnDim;
+            UpdateColumnDim();
         end;
     }
 
@@ -524,7 +524,7 @@ report 852 "Cash Flow Dimensions - Detail"
 
         TempSelectedDim.Reset();
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
-        TempSelectedDim.SetFilter("Dimension Code", TempCFAccount.TableCaption);
+        TempSelectedDim.SetFilter("Dimension Code", TempCFAccount.TableCaption());
         if TempSelectedDim.Find('-') then
             CFAccount.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
@@ -537,7 +537,7 @@ report 852 "Cash Flow Dimensions - Detail"
 
         TempCashFlowForecast.Init();
         TempCashFlowForecast.Insert();
-        TempSelectedDim.SetFilter("Dimension Code", CashFlowForecast.TableCaption);
+        TempSelectedDim.SetFilter("Dimension Code", CashFlowForecast.TableCaption());
         if TempSelectedDim.Find('-') then
             CashFlowForecast.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
         if CashFlowForecast.Find('-') then
@@ -576,14 +576,6 @@ report 852 "Cash Flow Dimensions - Detail"
     end;
 
     var
-        Text000: Label 'Enter an analysis view code.';
-        Text001: Label 'Enter a date filter.';
-        Text002: Label 'Include Dimensions';
-        Text003: Label '(no dimension value)';
-        Text004: Label 'Not updated';
-        Text005: Label 'All amounts are in %1.';
-        Text006: Label '(no business unit)';
-        Text007: Label 'Cash Flow Forecast Filter';
         AnalysisViewEntry: Record "Analysis View Entry";
         TempSelectedDim: Record "Selected Dimension" temporary;
         CFAccount: Record "Cash Flow Account";
@@ -610,6 +602,15 @@ report 852 "Cash Flow Dimensions - Detail"
         Total: array[4] of Decimal;
         DimFilterText: Text[250];
         CFFilter: Text[250];
+
+        Text000: Label 'Enter an analysis view code.';
+        Text001: Label 'Enter a date filter.';
+        Text002: Label 'Include Dimensions';
+        Text003: Label '(no dimension value)';
+        Text004: Label 'Not updated';
+        Text005: Label 'All amounts are in %1.';
+        Text006: Label '(no business unit)';
+        Text007: Label 'Cash Flow Forecast Filter';
         PeriodCaptionLbl: Label 'Period';
         AnalysisViewCaptionLbl: Label 'Analysis View';
         LastUpdatedCaptionLbl: Label 'Last Date Updated';
@@ -649,11 +650,10 @@ report 852 "Cash Flow Dimensions - Detail"
             FindFirstCFLedgEntry[Level] := false;
             TempCFForecastEntry.Reset();
             TempCFForecastEntry.DeleteAll();
-            if AnalysisViewEntry.Find('-') then begin
+            if AnalysisViewEntry.Find('-') then
                 repeat
                     AnalysisViewEntryToGLEntries.GetCFLedgEntries(AnalysisViewEntry, TempCFForecastEntry);
                 until AnalysisViewEntry.Next() = 0;
-            end;
             TempCFForecastEntry.SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Account No.", "Source Type", "Cash Flow Date");
             TempCFForecastEntry.SetFilter("Cash Flow Date", DateFilter);
             if not TempCFForecastEntry.Find('-') then
@@ -713,7 +713,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         SearchResult := TempCFAccount.Find('-')
                     else
                         if TempCFAccount.Get(IterationDimValCode) then
-                            SearchResult := (TempCFAccount.Next <> 0);
+                            SearchResult := (TempCFAccount.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempCFAccount."No.";
                         IterationDimValName := TempCFAccount.Name;
@@ -727,7 +727,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         SearchResult := TempCashFlowForecast.Find('-')
                     else
                         if TempCashFlowForecast.Get(IterationDimValCode) then
-                            SearchResult := (TempCashFlowForecast.Next <> 0);
+                            SearchResult := (TempCashFlowForecast.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempCashFlowForecast."No.";
                         if TempCashFlowForecast."No." <> '' then
@@ -744,7 +744,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
-                            SearchResult := (TempDimVal.Next <> 0);
+                            SearchResult := (TempDimVal.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempDimVal.Code;
                         IterationDimValName := TempDimVal.Name;
@@ -813,7 +813,7 @@ report 852 "Cash Flow Dimensions - Detail"
     begin
         AnalysisViewCode := NewAnalysisViewCode;
         CFFilter := NewCashFlowFilter;
-        UpdateColumnDim;
+        UpdateColumnDim();
         DateFilter := NewDateFilter;
         PrintEmptyLines := NewPrintEmptyLines;
     end;

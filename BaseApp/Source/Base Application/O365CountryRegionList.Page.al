@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2152 "O365 Country/Region List"
 {
     Caption = 'Countries/Regions';
@@ -9,6 +10,9 @@ page 2152 "O365 Country/Region List"
     RefreshOnActivate = true;
     SourceTable = "O365 Country/Region";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,11 +22,11 @@ page 2152 "O365 Country/Region List"
             {
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name.';
                 }
             }
@@ -40,7 +44,7 @@ page 2152 "O365 Country/Region List"
         if CountryRegion.FindSet() then
             repeat
                 Code := CountryRegion.Code;
-                Name := CountryRegion.GetNameInCurrentLanguage;
+                Name := CountryRegion.GetNameInCurrentLanguage();
                 "VAT Scheme" := CountryRegion."VAT Scheme";
                 if Insert() then;
             until CountryRegion.Next() = 0;
@@ -53,4 +57,4 @@ page 2152 "O365 Country/Region List"
         DeleteAll();
     end;
 }
-
+#endif

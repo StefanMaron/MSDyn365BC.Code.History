@@ -35,7 +35,7 @@ table 7158 "Analysis Dim. Selection Buffer"
             ELSE
             IF (Code = CONST('Location')) Location.Code
             ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code),Blocked = CONST(false));
+            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -88,27 +88,28 @@ table 7158 "Analysis Dim. Selection Buffer"
     }
 
     var
+        AnalysisSelectedDim: Record "Analysis Selected Dimension";
+
         Text000: Label 'Another user has modified the selected dimensions for the %1 field after you retrieved it from the database.\';
         Text002: Label 'Enter your changes again in the Dimension Selection window by clicking the AssistButton in the %1 field. ';
-        AnalysisSelectedDim: Record "Analysis Selected Dimension";
 
     procedure CompareDimText(ObjectType: Integer; ObjectID: Integer; AnalysisArea: Integer; AnalysisViewCode: Code[10]; SelectedDimText: Text[250]; DimTextFieldName: Text[100])
     var
-        AnalysisSelectedDim: Record "Analysis Selected Dimension";
+        AnalysisSelectedDim2: Record "Analysis Selected Dimension";
         SelectedDimTextFromDb: Text[250];
     begin
         SelectedDimTextFromDb := '';
-        AnalysisSelectedDim.SetCurrentKey(
+        AnalysisSelectedDim2.SetCurrentKey(
           "User ID", "Object Type", "Object ID", "Analysis Area", "Analysis View Code", Level, "Dimension Code");
-        AnalysisSelectedDim.SetRange("User ID", UserId);
-        AnalysisSelectedDim.SetRange("Object Type", ObjectType);
-        AnalysisSelectedDim.SetRange("Object ID", ObjectID);
-        AnalysisSelectedDim.SetRange("Analysis Area", AnalysisArea);
-        AnalysisSelectedDim.SetRange("Analysis View Code", AnalysisViewCode);
-        if AnalysisSelectedDim.Find('-') then
+        AnalysisSelectedDim2.SetRange("User ID", UserId);
+        AnalysisSelectedDim2.SetRange("Object Type", ObjectType);
+        AnalysisSelectedDim2.SetRange("Object ID", ObjectID);
+        AnalysisSelectedDim2.SetRange("Analysis Area", AnalysisArea);
+        AnalysisSelectedDim2.SetRange("Analysis View Code", AnalysisViewCode);
+        if AnalysisSelectedDim2.Find('-') then
             repeat
-                AddDimCodeToText(AnalysisSelectedDim."Dimension Code", SelectedDimTextFromDb);
-            until AnalysisSelectedDim.Next() = 0;
+                AddDimCodeToText(AnalysisSelectedDim2."Dimension Code", SelectedDimTextFromDb);
+            until AnalysisSelectedDim2.Next() = 0;
         if SelectedDimTextFromDb <> SelectedDimText then
             Error(
               Text000 +
@@ -184,17 +185,17 @@ table 7158 "Analysis Dim. Selection Buffer"
                   AnalysisSelectedDim."Dimension Value Filter", AnalysisSelectedDim.Level);
 
             AnalysisDimSelectionLevel.InsertDimSelBuf(
-              AnalysisSelectedDim.Get(UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Item.TableCaption),
-              Item.TableCaption, Item.TableCaption,
+              AnalysisSelectedDim.Get(UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Item.TableCaption()),
+              Item.TableCaption(), Item.TableCaption(),
               AnalysisSelectedDim."Dimension Value Filter", AnalysisSelectedDim.Level);
             AnalysisDimSelectionLevel.InsertDimSelBuf(
-              AnalysisSelectedDim.Get(UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Location.TableCaption),
-              Location.TableCaption, Location.TableCaption,
+              AnalysisSelectedDim.Get(UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Location.TableCaption()),
+              Location.TableCaption(), Location.TableCaption(),
               AnalysisSelectedDim."Dimension Value Filter", AnalysisSelectedDim.Level);
         end;
 
         AnalysisDimSelectionLevel.LookupMode := true;
-        if AnalysisDimSelectionLevel.RunModal = ACTION::LookupOK then begin
+        if AnalysisDimSelectionLevel.RunModal() = ACTION::LookupOK then begin
             AnalysisDimSelectionLevel.GetDimSelBuf(TempAnalysisDimSelBuf);
             SetDimSelection(ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, SelectedDimText, TempAnalysisDimSelBuf);
         end;

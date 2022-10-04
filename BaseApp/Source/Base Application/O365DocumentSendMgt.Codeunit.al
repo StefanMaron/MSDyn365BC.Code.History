@@ -1,6 +1,10 @@
+#if not CLEAN21
 codeunit 2158 "O365 Document Send Mgt"
 {
     Permissions = TableData "O365 Document Sent History" = imd;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -147,7 +151,7 @@ codeunit 2158 "O365 Document Send Mgt"
         CustomerNo := EmailFailedNotification.GetData('CustNo');
 
         if Customer.Get(CustomerNo) then
-            if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+            if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
                 PAGE.Run(PAGE::"O365 Sales Customer Card", Customer)
             else
                 PAGE.Run(PAGE::"BC O365 Sales Customer Card", Customer)
@@ -179,7 +183,7 @@ codeunit 2158 "O365 Document Send Mgt"
             RoleCenterNotification.AddAction(
               IgnoreTheseFailuresActionLbl, CODEUNIT::"O365 Document Send Mgt", 'ClearNotificationsForAllDocumentsAction');
             NotificationLifecycleMgt.SendNotification(RoleCenterNotification, DummyO365SalesDocument.RecordId);
-            SetAllToNotified;
+            SetAllToNotified();
         end;
     end;
 
@@ -238,7 +242,7 @@ codeunit 2158 "O365 Document Send Mgt"
 
     procedure ClearNotificationsForAllDocumentsAction(TheNotification: Notification)
     begin
-        ClearNotificationsForAllDocuments;
+        ClearNotificationsForAllDocuments();
     end;
 
     procedure RecallEmailFailedNotification()
@@ -246,7 +250,7 @@ codeunit 2158 "O365 Document Send Mgt"
         LocalNotification: Notification;
     begin
         LocalNotification.Id(DocumentPageEmailErrorIDTxt);
-        if LocalNotification.Recall then;
+        if LocalNotification.Recall() then;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterFinalizeRun', '', false, false)]
@@ -265,9 +269,9 @@ codeunit 2158 "O365 Document Send Mgt"
                         exit;
 
                     if Status = Status::Error then
-                        O365DocumentSentHistory.SetStatusAsFailed
+                        O365DocumentSentHistory.SetStatusAsFailed()
                     else
-                        O365DocumentSentHistory.SetStatusAsSuccessfullyFinished;
+                        O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
                 end;
         end;
     end;
@@ -277,4 +281,4 @@ codeunit 2158 "O365 Document Send Mgt"
     begin
     end;
 }
-
+#endif

@@ -61,8 +61,6 @@ page 5346 "CRM Pricelevel List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Price Levels';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled price levels.';
 
                 trigger OnAction()
@@ -75,14 +73,26 @@ page 5346 "CRM Pricelevel List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Price Levels';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled price levels.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

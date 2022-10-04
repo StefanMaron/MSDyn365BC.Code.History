@@ -10,58 +10,6 @@ page 9068 "Project Manager Activities"
     {
         area(content)
         {
-#if not CLEAN18
-            cuegroup("Intelligent Cloud")
-            {
-                Caption = 'Intelligent Cloud';
-                Visible = false;
-                ObsoleteTag = '18.0';
-                ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                ObsoleteState = Pending;
-
-                actions
-                {
-                    action("Learn More")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Learn More';
-                        Image = TileInfo;
-                        RunPageMode = View;
-                        ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
-                        end;
-                    }
-                    action("Intelligent Cloud Insights")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Intelligent Cloud Insights';
-                        Image = TileCloud;
-                        RunPageMode = View;
-                        ToolTip = 'View your Intelligent Cloud insights.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
-                        end;
-                    }
-                }
-            }
-#endif
             cuegroup(Invoicing)
             {
                 Caption = 'Invoicing';
@@ -155,8 +103,8 @@ page 9068 "Project Manager Activities"
 
                         trigger OnAction()
                         begin
-                            if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then
-                                UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID);
+                            if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then
+                                UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID());
                         end;
                     }
                     action(ReplayGettingStarted)
@@ -170,7 +118,7 @@ page 9068 "Project Manager Activities"
                         var
                             O365GettingStarted: Record "O365 Getting Started";
                         begin
-                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then begin
+                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then begin
                                 O365GettingStarted."Tour in Progress" := false;
                                 O365GettingStarted."Current Page" := 1;
                                 O365GettingStarted.Modify();
@@ -241,12 +189,11 @@ page 9068 "Project Manager Activities"
 
         MyCompName := CompanyName;
 
-        if JobsSetup.FindFirst() then begin
+        if JobsSetup.FindFirst() then
             if MyCompName = MyCompanyTxt then
                 SetupIsComplete := JobsSetup."Default Job Posting Group" <> ''
             else
                 SetupIsComplete := JobsSetup."Job Nos." <> '';
-        end;
     end;
 
     trigger OnOpenPage()

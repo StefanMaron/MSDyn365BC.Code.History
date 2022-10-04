@@ -16,7 +16,7 @@ report 99000760 "Machine Center List"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Machine_Center__TABLECAPTION_________MachineCenterFilter; TableCaption + ':' + MachineCenterFilter)
@@ -64,7 +64,7 @@ report 99000760 "Machine Center List"
 
             trigger OnPreDataItem()
             begin
-                MachineCenterFilter := GetFilters;
+                MachineCenterFilter := GetFilters();
             end;
         }
     }

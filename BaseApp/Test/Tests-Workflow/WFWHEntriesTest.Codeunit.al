@@ -47,11 +47,11 @@ codeunit 134218 "WFWH Entries Test"
 
         // Verify
         Assert.AreEqual(true, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be enabled.');
-        WorkflowWebhookEntries.Next;
+        WorkflowWebhookEntries.Next();
         Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be disabled.');
 
         // Cleanup
-        WorkflowWebhookEntries.Close;
+        WorkflowWebhookEntries.Close();
     end;
 
     [Test]
@@ -78,7 +78,7 @@ codeunit 134218 "WFWH Entries Test"
         Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be disabled.');
 
         // Cleanup
-        WorkflowWebhookEntries.Close;
+        WorkflowWebhookEntries.Close();
     end;
 
     [Test]
@@ -90,8 +90,8 @@ codeunit 134218 "WFWH Entries Test"
         Guid2: Guid;
     begin
         // Setup
-        Guid1 := CreateGuid;
-        Guid2 := CreateGuid;
+        Guid1 := CreateGuid();
+        Guid2 := CreateGuid();
 
         WorkflowWebhookEntry.DeleteAll();
         WorkflowWebhookEntry.Init();
@@ -116,13 +116,13 @@ codeunit 134218 "WFWH Entries Test"
         WorkflowWebhookEntries.First;
         Assert.AreEqual('Sent',
           WorkflowWebhookEntries.NotificationStatusText.Value, 'Notification status must be sent.');
-        WorkflowWebhookEntries.Next;
+        WorkflowWebhookEntries.Next();
         // Verify
         Assert.AreEqual('',
           WorkflowWebhookEntries.NotificationStatusText.Value, 'Notification status must be blank.');
 
         // Cleanup
-        WorkflowWebhookEntries.Close;
+        WorkflowWebhookEntries.Close();
     end;
 
     [Normal]
@@ -133,7 +133,7 @@ codeunit 134218 "WFWH Entries Test"
         // Create Subscription that will create workflow definition
         WorkflowWebhookSubscription.Init();
         WorkflowWebhookSubscription."Client Type" := 'Flow';
-        WorkflowWebhookSubscription."Client Id" := CreateGuid;
+        WorkflowWebhookSubscription."Client Id" := CreateGuid();
         WorkflowWebhookSubscription."Event Code" := WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode;
         WorkflowWebhookSubscription.Insert(true);
         Clear(WorkflowWebhookSubscription.Conditions);
@@ -200,7 +200,7 @@ codeunit 134218 "WFWH Entries Test"
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SendApprovalRequest.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 }
 

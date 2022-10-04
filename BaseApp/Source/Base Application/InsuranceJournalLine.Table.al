@@ -98,7 +98,7 @@ table 5635 "Insurance Journal Line"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(16; "Shortcut Dimension 2 Code"; Code[20])
@@ -111,7 +111,7 @@ table 5635 "Insurance Journal Line"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
         field(17; "Reason Code"; Code[10])
@@ -198,7 +198,7 @@ table 5635 "Insurance Journal Line"
             "Posting Date" := LastInsuranceJnlLine."Posting Date";
             "Document No." := LastInsuranceJnlLine."Document No.";
         end else begin
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             if InsuranceJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
                 "Document No." := NoSeriesMgt.TryGetNextNo(InsuranceJnlBatch."No. Series", "Posting Date");

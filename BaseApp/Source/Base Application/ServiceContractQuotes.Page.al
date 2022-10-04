@@ -16,7 +16,7 @@ page 9322 "Service Contract Quotes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract or service contract quote.';
@@ -31,7 +31,7 @@ page 9322 "Service Contract Quotes"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the service items in the service contract/contract quote.';
@@ -42,23 +42,23 @@ page 9322 "Service Contract Quotes"
                     ToolTip = 'Specifies the name of the customer in the service contract.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service contract.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service contract expires.';
@@ -113,8 +113,8 @@ page 9322 "Service Contract Quotes"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Co&mments")
@@ -170,8 +170,6 @@ page 9322 "Service Contract Quotes"
                 ApplicationArea = Service;
                 Caption = '&Make Contract';
                 Image = MakeAgreement;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to create a service contract.';
 
                 trigger OnAction()
@@ -188,8 +186,6 @@ page 9322 "Service Contract Quotes"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -200,11 +196,25 @@ page 9322 "Service Contract Quotes"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Make Contract_Promoted"; "&Make Contract")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
     end;
 }
 

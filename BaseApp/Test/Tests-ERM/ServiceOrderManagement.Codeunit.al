@@ -364,7 +364,7 @@ codeunit 136135 "Service Order Management"
 
         ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItem."No.");
         Assert.AreEqual(
-          QuantityPer, ServiceItemComponent.Count, StrSubstNo(NoOfLinesError, QuantityPer, ServiceItemComponent.TableCaption));
+          QuantityPer, ServiceItemComponent.Count, StrSubstNo(NoOfLinesError, QuantityPer, ServiceItemComponent.TableCaption()));
 
         // 4. Teardown: Rollback Stockout Warning to default value on Sales & Receivables Setup.
         LibrarySales.SetStockoutWarning(SalesReceivablesSetup."Stockout Warning");
@@ -397,7 +397,7 @@ codeunit 136135 "Service Order Management"
         Assert.AreEqual(
           '', ServiceOrder.ServItemLines.ServiceItemNo.Value,
           StrSubstNo(
-            ExistanceError, ServiceItemLine.TableCaption, ServiceItem.TableCaption, ServiceItem.FieldCaption("No."), ServiceItem."No."));
+            ExistanceError, ServiceItemLine.TableCaption(), ServiceItem.TableCaption(), ServiceItem.FieldCaption("No."), ServiceItem."No."));
     end;
 
     [Test]
@@ -933,7 +933,7 @@ codeunit 136135 "Service Order Management"
     local procedure CreateExtendedTextForItem(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        ExtendedTextHeader.Validate("Starting Date", WorkDate);
+        ExtendedTextHeader.Validate("Starting Date", WorkDate());
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
     end;
@@ -1129,7 +1129,7 @@ codeunit 136135 "Service Order Management"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(100) + 100);  // Needed greater Quantity than Service Line and used random for Quantity.
         PurchaseLine.Validate("Location Code", LocationCode);
-        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Used Random to calculate the Expected Receipt Date.
+        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Used Random to calculate the Expected Receipt Date.
         PurchaseLine.Modify(true);
     end;
 
@@ -1155,7 +1155,7 @@ codeunit 136135 "Service Order Management"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         UpdateServiceLine(ServiceLine, ServiceItemLineNo, Quantity);
         ServiceLine.Validate("Location Code", LocationCode);
-        ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Used Random to calculate the Needed by Date.
+        ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Used Random to calculate the Needed by Date.
         ServiceLine.Modify(true);
     end;
 
@@ -1239,11 +1239,11 @@ codeunit 136135 "Service Order Management"
     local procedure InsertServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; ServiceItemNo: Code[20])
     begin
         with ServiceLine do begin
-            Init;
+            Init();
             Validate("Document Type", DocumentType);
             Validate("Document No.", DocumentNo);
             Validate("Line No.", LibraryUtility.GetNewRecNo(ServiceLine, FieldNo("Line No.")));
-            Insert;
+            Insert();
             Validate("Service Item No.", ServiceItemNo);
         end
     end;
@@ -1327,7 +1327,7 @@ codeunit 136135 "Service Order Management"
     begin
         ItemLedgerEntry.SetFilter("Serial No.", '<>''''');
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        Assert.AreEqual(NoOfLines, ItemLedgerEntry.Count, StrSubstNo(NoOfLinesError, NoOfLines, ItemLedgerEntry.TableCaption));
+        Assert.AreEqual(NoOfLines, ItemLedgerEntry.Count, StrSubstNo(NoOfLinesError, NoOfLines, ItemLedgerEntry.TableCaption()));
 
         // 1 is used as Quantity per Serial No. is 1.
         ItemLedgerEntry.FindSet();
@@ -1338,7 +1338,7 @@ codeunit 136135 "Service Order Management"
             ItemLedgerEntry.TestField("Remaining Quantity", 1);
             ItemLedgerEntry.TestField("Sales Amount (Actual)", 0);
             ItemLedgerEntry.TestField("Cost Amount (Actual)", 0);
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyPostedShipmentEntry(OrderNo: Code[20])

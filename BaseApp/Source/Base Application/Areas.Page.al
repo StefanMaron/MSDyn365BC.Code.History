@@ -1,6 +1,6 @@
 page 405 Areas
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = BasicEU, BasicNO;
     Caption = 'Areas';
     PageType = List;
     SourceTable = "Area";
@@ -15,12 +15,12 @@ page 405 Areas
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a code for the area.';
                 }
                 field(Text; Text)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a description of the area.';
                 }
             }
@@ -44,4 +44,3 @@ page 405 Areas
     {
     }
 }
-

@@ -13,17 +13,17 @@ page 5192 "Contact Duplicate Details"
         {
             repeater(Group)
             {
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the name of the field where the duplicate was found.';
                 }
-                field("Field Value"; "Field Value")
+                field("Field Value"; Rec."Field Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the value of the field where the duplicate was found.';
                 }
-                field("Duplicate Field Value"; "Duplicate Field Value")
+                field("Duplicate Field Value"; Rec."Duplicate Field Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the value of the duplicate that was found.';

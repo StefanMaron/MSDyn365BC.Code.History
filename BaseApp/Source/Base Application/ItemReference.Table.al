@@ -1,4 +1,4 @@
-﻿table 5777 "Item Reference"
+table 5777 "Item Reference"
 {
     Caption = 'Item Reference';
     LookupPageID = "Item Reference List";
@@ -50,13 +50,8 @@
         {
             Caption = 'Discontinue Bar Code';
             ObsoleteReason = 'Not used in base application.';
-#if CLEAN18
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
         }
         field(9; "Description 2"; Text[50])
         {

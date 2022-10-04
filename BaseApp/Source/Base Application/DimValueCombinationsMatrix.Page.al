@@ -433,7 +433,7 @@ page 9253 "Dim. Value Combinations Matrix"
 
     trigger OnOpenPage()
     begin
-        SetColumnVisibility;
+        SetColumnVisibility();
         FilterGroup(2);
         SetRange("Dimension Code", Row);
         FilterGroup(0);
@@ -528,7 +528,7 @@ page 9253 "Dim. Value Combinations Matrix"
         MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumn;
         Row := _Row;
 
-        SetColumnVisibility;
+        SetColumnVisibility();
     end;
 
     local procedure MatrixOnAssistEdit(ColumnID: Integer)

@@ -27,7 +27,7 @@ codeunit 139321 "Teams Centralized Depl. Tests"
         // [WHEN] The Teams Centralized Deployment is completed
         TeamsCentralizedDeployment.Trap;
         Page.Run(Page::"Teams Centralized Deployment");
-        TeamsCentralizedDeployment.Close;
+        TeamsCentralizedDeployment.Close();
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Teams Centralized Deployment"), 'Teams Centralized Deployment Setup status should be completed.');
     end;

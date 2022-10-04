@@ -96,7 +96,7 @@ codeunit 8610 "Questionnaire Management"
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 UpdateQuestions(ConfigQuestionArea);
             until ConfigQuestionArea.Next() = 0;
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
             exit(true);
         end;
         exit(false);
@@ -153,7 +153,7 @@ codeunit 8610 "Questionnaire Management"
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 ApplyAnswer(ConfigQuestionArea);
             until ConfigQuestionArea.Next() = 0;
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
             exit(true);
         end;
         exit(false);
@@ -188,16 +188,16 @@ codeunit 8610 "Questionnaire Management"
         for KeyFieldCount := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
             ConfigQuestion.SetRange("Field ID", FieldRef.Number);
-            if ConfigQuestion.FindFirst() then begin
-                ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigQuestion.Answer, false, GlobalLanguage);
-            end else
+            if ConfigQuestion.FindFirst() then
+                ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigQuestion.Answer, false, GlobalLanguage)
+            else
                 if KeyRef.FieldCount <> 1 then
                     Error(Text000, FieldRef.Name, ConfigQuestionArea.Code);
         end;
 
-        RecRef1 := RecRef.Duplicate;
+        RecRef1 := RecRef.Duplicate();
 
-        if RecRef1.Find then begin
+        if RecRef1.Find() then begin
             RecRef := RecRef1;
             exit
         end;
@@ -239,7 +239,7 @@ codeunit 8610 "Questionnaire Management"
         FileName: Text;
         Exported: Boolean;
     begin
-        QuestionnaireXML := QuestionnaireXML.XmlDocument;
+        QuestionnaireXML := QuestionnaireXML.XmlDocument();
 
         GenerateQuestionnaireXMLDocument(QuestionnaireXML, ConfigQuestionnaire);
 
@@ -283,7 +283,7 @@ codeunit 8610 "Questionnaire Management"
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
                 CreateQuestionNodes(QuestionnaireXML, ConfigQuestionArea);
             until ConfigQuestionArea.Next() = 0;
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
         end;
     end;
 
@@ -345,7 +345,7 @@ codeunit 8610 "Questionnaire Management"
             end;
         end;
 
-        ConfigProgressBar.Close;
+        ConfigProgressBar.Close();
         exit(true);
     end;
 
@@ -399,11 +399,11 @@ codeunit 8610 "Questionnaire Management"
         end;
         FillQuestionnaireHeader(WorksheetWriter, QuestionnaireNode);
 
-        WrkBkWriter.Workbook.Save;
-        WrkBkWriter.Close;
+        WrkBkWriter.Workbook.Save();
+        WrkBkWriter.Close();
         Clear(WrkBkWriter);
 
-        ConfigProgressBar.Close;
+        ConfigProgressBar.Close();
 
         if ExcelFile = '' then
             ExcelFile := ConfigQuestionnaire.Code;
@@ -468,7 +468,7 @@ codeunit 8610 "Questionnaire Management"
                 FieldNode := XmlDom.CreateElement(GetElementName(FieldRef.Name));
 
                 if FieldRef.Class = FieldClass::FlowField then
-                    FieldRef.CalcField;
+                    FieldRef.CalcField();
                 FieldNode.InnerText := Format(FieldRef.Value);
 
                 XMLDOMMgt.AddAttribute(FieldNode, 'fieldlength', Format(FieldRef.Length));
@@ -489,7 +489,7 @@ codeunit 8610 "Questionnaire Management"
             FieldRef := RecRef.FieldIndex(i);
             FieldNameCaptionList += StrSubstNo('[%1]%2;', GetElementName(FieldRef.Name), FieldRef.Caption);
         end;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetCaptionByXMLFieldName(XMLFieldName: Text) Caption: Text
@@ -651,8 +651,8 @@ codeunit 8610 "Questionnaire Management"
     begin
         ValidateKeyFields(RecRef, RecordNode);
 
-        RecRef1 := RecRef.Duplicate;
-        if not RecRef1.Find then
+        RecRef1 := RecRef.Duplicate();
+        if not RecRef1.Find() then
             RecRef.Insert(true);
 
         ValidateFields(RecRef, RecordNode);
@@ -660,14 +660,14 @@ codeunit 8610 "Questionnaire Management"
         RecRef.Modify(true);
     end;
 
-    procedure ModifyConfigQuestionAnswer(var ConfigQuestion: Record "Config. Question"; "Field": Record "Field")
+    procedure ModifyConfigQuestionAnswer(var ConfigQuestion: Record "Config. Question"; FieldRec: Record "Field")
     var
         DateFormula: DateFormula;
         OptionInt: Integer;
     begin
-        case Field.Type of
-            Field.Type::Option,
-            Field.Type::Boolean:
+        case FieldRec.Type of
+            FieldRec.Type::Option,
+            FieldRec.Type::Boolean:
                 begin
                     if ConfigQuestion.Answer <> '' then begin
                         OptionInt := TypeHelper.GetOptionNo(ConfigQuestion.Answer, ConfigQuestion."Answer Option");
@@ -682,7 +682,7 @@ codeunit 8610 "Questionnaire Management"
                     end;
                     ConfigQuestion.Modify();
                 end;
-            Field.Type::DateFormula:
+            FieldRec.Type::DateFormula:
                 begin
                     Evaluate(DateFormula, ConfigQuestion.Answer);
                     ConfigQuestion.Answer := Format(DateFormula);
@@ -701,14 +701,14 @@ codeunit 8610 "Questionnaire Management"
         TempSchemaFile.Create(FileName);
         TempSchemaFile.CreateOutStream(OStream);
 
-        ConfigQuestionnaire.SetRecFilter;
-        RootElementName := ConfigQuestionnaireSchema.GetRootElementName;
+        ConfigQuestionnaire.SetRecFilter();
+        RootElementName := ConfigQuestionnaireSchema.GetRootElementName();
         ConfigQuestionnaireSchema.SetTableView(ConfigQuestionnaire);
         ConfigQuestionnaireSchema.SetDestination(OStream);
-        if not ConfigQuestionnaireSchema.Export then
+        if not ConfigQuestionnaireSchema.Export() then
             Error(Text005);
 
-        TempSchemaFile.Close;
+        TempSchemaFile.Close();
     end;
 
     local procedure CreateConfigQuestionnaireXMLFile(ConfigQuestionnaire: Record "Config. Questionnaire") FileName: Text
@@ -818,8 +818,8 @@ codeunit 8610 "Questionnaire Management"
 
     local procedure AddSingleXMLCells(var WrkShtWriter: DotNet WorksheetWriter; var SingleXMLCells: DotNet SingleXmlCells)
     begin
-        WrkShtWriter.AddSingleCellTablePart;
-        SingleXMLCells := SingleXMLCells.SingleXmlCells;
+        WrkShtWriter.AddSingleCellTablePart();
+        SingleXMLCells := SingleXMLCells.SingleXmlCells();
         WrkShtWriter.Worksheet.WorksheetPart.SingleCellTablePart.SingleXmlCells := SingleXMLCells;
     end;
 

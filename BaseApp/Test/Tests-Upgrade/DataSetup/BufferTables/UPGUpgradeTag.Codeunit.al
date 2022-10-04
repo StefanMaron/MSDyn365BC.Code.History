@@ -1,6 +1,7 @@
 table 132801 "UPG - Upgrade Tag"
 {
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

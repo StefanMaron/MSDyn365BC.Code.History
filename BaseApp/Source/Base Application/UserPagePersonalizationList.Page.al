@@ -17,20 +17,20 @@ page 9191 "User Page Personalization List"
             repeater(Control1106000000)
             {
                 ShowCaption = false;
-                field("User SID"; "User SID")
+                field("User SID"; Rec."User SID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User SID';
                     ToolTip = 'Specifies the security identifier (SID) of the user who did the personalization.';
                     Visible = false;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User ID';
                     ToolTip = 'Specifies the user ID of the user who performed the personalization.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Page ID';
@@ -89,10 +89,6 @@ page 9191 "User Page Personalization List"
             {
                 Caption = 'Troubleshoot';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = Troubleshoot;
                 ToolTip = 'Runs a series of diagnostic tests on the list of personalizations.';
 
@@ -109,10 +105,6 @@ page 9191 "User Page Personalization List"
             {
                 Caption = 'Show only errors';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = ShowUserDiagnosticsListPart and (not ShowingOnlyErrors);
                 Image = Filter;
                 ToolTip = 'Filter on only page customizations with errors.';
@@ -123,15 +115,15 @@ page 9191 "User Page Personalization List"
                     OperationId: Guid;
                 begin
                     ShowingOnlyErrors := true;
-                    DesignerDiagnostics.Reset();
-                    DesignerDiagnostics.SetRange(Severity, Severity::Error);
+                    TempDesignerDiagnostics.Reset();
+                    TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
 
                     TempUserMetadata.Copy(Rec, true);
                     if TempUserMetadata.FindSet() then
                         repeat
                             if UserSidToOperationId.Get(Format(TempUserMetadata."User SID") + Format(TempUserMetadata."Page ID"), OperationId) then begin
-                                DesignerDiagnostics.SetRange("Operation ID", OperationId);
-                                if not DesignerDiagnostics.IsEmpty() then
+                                TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
+                                if not TempDesignerDiagnostics.IsEmpty() then
                                     TempUserMetadata.Mark(true);
                             end;
                         until TempUserMetadata.Next() = 0;
@@ -145,10 +137,6 @@ page 9191 "User Page Personalization List"
             {
                 Caption = 'Show all';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = ShowingOnlyErrors;
                 Image = Filter;
                 ToolTip = 'Show all page customizations within filter.';
@@ -161,6 +149,23 @@ page 9191 "User Page Personalization List"
                     if FindFirst() then;
                     UpdateUserDiagnosticsListPart();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(TroubleshootProblems_Promoted; TroubleshootProblems)
+                {
+                }
+                actionref(ShowErrorsAction_Promoted; ShowErrorsAction)
+                {
+                }
+                actionref(ShowAllPagesAction_Promoted; ShowAllPagesAction)
+                {
+                }
             }
         }
     }
@@ -211,7 +216,7 @@ page 9191 "User Page Personalization List"
         UserPageMetadata: Record "User Page Metadata";
         EmptyGuid: Guid;
     begin
-        Reset;
+        Reset();
 
         if not (FilterUserID = EmptyGuid) then begin
             UserMetadata.SetFilter("User SID", FilterUserID);
@@ -226,7 +231,7 @@ page 9191 "User Page Personalization List"
                 Date := UserMetadata.Date;
                 Time := UserMetadata.Time;
                 if IncludedUser("User SID") then
-                    Insert;
+                    Insert();
             until UserMetadata.Next() = 0;
 
         if UserPageMetadata.FindSet() then
@@ -235,7 +240,7 @@ page 9191 "User Page Personalization List"
                 "Page ID" := UserPageMetadata."Page ID";
                 "Personalization ID" := ExtensionMetadataTxt;
                 if IncludedUser("User SID") then
-                    Insert;
+                    Insert();
             until UserPageMetadata.Next() = 0;
     end;
 
@@ -243,9 +248,9 @@ page 9191 "User Page Personalization List"
     var
         Errors: Integer;
     begin
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.SetRange(Severity, Severity::Error);
-        Errors := DesignerDiagnostics.Count();
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+        Errors := TempDesignerDiagnostics.Count();
 
         if Errors > 0 then
             Message(ScanCompletedWithErrorsMsg, Errors)
@@ -282,32 +287,33 @@ page 9191 "User Page Personalization List"
 
     local procedure ValidatePages()
     var
-        UserMetadata: Record "User Metadata" temporary;
+        TempUserMetadata: Record "User Metadata" temporary;
         NavDesignerPersonalizationPageCustomizationValidation: DotNet NavDesignerPersonalizationPageCustomizationValidation;
         ValidationProgressDialog: Dialog;
         TotalUsers: Integer;
         CurrentUserNumber: Integer;
         CurrentUserId: Guid;
     begin
-        UserMetadata.Copy(Rec, true);
-        UserMetadata.CopyFilters(Rec);
-        UserMetadata.SetCurrentKey("User SID");
-        UserMetadata.SetAscending("User SID", true);
-        TotalUsers := CountNumberOfUsersWithinFilter(UserMetadata);
+        TempUserMetadata.Copy(Rec, true);
+        TempUserMetadata.CopyFilters(Rec);
+        TempUserMetadata.SetCurrentKey("User SID");
+        TempUserMetadata.SetAscending("User SID", true);
+        TotalUsers := CountNumberOfUsersWithinFilter(TempUserMetadata);
 
-        if UserMetadata.FindSet() then
+        CurrentUserNumber := 0;
+        if TempUserMetadata.FindSet() then
             repeat
                 // We may have multiple profiles in this query, every time we see a new profile, we need to re-create the NavDesignerConfigurationPageCustomizationValidation for that profile
-                if (CurrentUserId <> UserMetadata."User SID") or IsNull(NavDesignerPersonalizationPageCustomizationValidation) then begin
-                    NavDesignerPersonalizationPageCustomizationValidation := NavDesignerPersonalizationPageCustomizationValidation.Create(UserMetadata."User SID");
-                    CurrentUserId := UserMetadata."User SID";
-                    ValidationProgressDialog.Open(StrSubstNo(ValidatePageTxt, UserMetadata."User ID", CurrentUserNumber, TotalUsers));
+                if (CurrentUserId <> TempUserMetadata."User SID") or IsNull(NavDesignerPersonalizationPageCustomizationValidation) then begin
+                    NavDesignerPersonalizationPageCustomizationValidation := NavDesignerPersonalizationPageCustomizationValidation.Create(TempUserMetadata."User SID");
+                    CurrentUserId := TempUserMetadata."User SID";
+                    ValidationProgressDialog.Open(StrSubstNo(ValidatePageTxt, TempUserMetadata."User ID", CurrentUserNumber, TotalUsers));
                     CurrentUserNumber += 1;
                 end;
 
                 if "Personalization ID" = ExtensionMetadataTxt then
-                    ValidatePageForDesignerCustomizationBase(NavDesignerPersonalizationPageCustomizationValidation, UserMetadata);
-            until UserMetadata.Next() = 0;
+                    ValidatePageForDesignerCustomizationBase(NavDesignerPersonalizationPageCustomizationValidation, TempUserMetadata);
+            until TempUserMetadata.Next() = 0;
     end;
 
     local procedure ValidatePageForDesignerCustomizationBase(NavDesignerPageCustomizationValidationBase: dotnet NavDesignerPageCustomizationValidationBase; UserMetadata: Record "User Metadata")
@@ -320,12 +326,12 @@ page 9191 "User Page Personalization List"
         NavDesignerCompilationResult := NavDesignerPageCustomizationValidationBase.ValidatePageCustomization(UserMetadata."Page ID");
 
         OperationId := CreateGuid();
-        DesignerDiagnostics."Operation ID" := OperationId;
+        TempDesignerDiagnostics."Operation ID" := OperationId;
         foreach NavDesignerDiagnostic in NavDesignerCompilationResult.Diagnostics() do begin
-            DesignerDiagnostics."Diagnostics ID" += 1;
-            DesignerDiagnostics.Severity := DesignerDiagnostics.ConvertNavDesignerDiagnosticSeverityToEnum(NavDesignerDiagnostic.Severity());
-            DesignerDiagnostics.Message := CopyStr(NavDesignerDiagnostic.Message(), 1, MaxStrLen(DesignerDiagnostics.Message));
-            DesignerDiagnostics.Insert();
+            TempDesignerDiagnostics."Diagnostics ID" += 1;
+            TempDesignerDiagnostics.Severity := TempDesignerDiagnostics.ConvertNavDesignerDiagnosticSeverityToEnum(NavDesignerDiagnostic.Severity());
+            TempDesignerDiagnostics.Message := CopyStr(NavDesignerDiagnostic.Message(), 1, MaxStrLen(TempDesignerDiagnostics.Message));
+            TempDesignerDiagnostics.Insert();
         end;
 
         // Add mapping to page diagnostics
@@ -343,22 +349,22 @@ page 9191 "User Page Personalization List"
         if not UserSidToOperationId.Get(Format("User SID") + Format("Page ID"), OperationId) then
             exit;
 
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.SetRange("Operation ID", OperationId);
-        DesignerDiagnostics.SetRange(Severity, Severity::Error);
-        if DesignerDiagnostics.Count() > 0 then begin
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+        if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Unfavorable';
-            exit(StrSubstNo(PageValidationFailedWithErrorsTxt, DesignerDiagnostics.Count()));
+            exit(StrSubstNo(PageValidationFailedWithErrorsTxt, TempDesignerDiagnostics.Count()));
         end;
-        DesignerDiagnostics.SetRange(Severity, Severity::Warning);
-        if DesignerDiagnostics.Count() > 0 then begin
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Warning);
+        if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Ambiguous';
-            exit(StrSubstNo(PageSuccessfullyValidatedWithWarningsTxt, DesignerDiagnostics.Count()));
+            exit(StrSubstNo(PageSuccessfullyValidatedWithWarningsTxt, TempDesignerDiagnostics.Count()));
         end;
-        DesignerDiagnostics.SetRange(Severity, Severity::Information);
-        if DesignerDiagnostics.Count() > 0 then begin
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Information);
+        if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Favorable';
-            exit(StrSubstNo(PageSuccessfullyValidatedWithInformationalMessagesTxt, DesignerDiagnostics.Count()));
+            exit(StrSubstNo(PageSuccessfullyValidatedWithInformationalMessagesTxt, TempDesignerDiagnostics.Count()));
         end;
         exit(PageSuccessfullyValidatedTxt)
     end;
@@ -373,9 +379,9 @@ page 9191 "User Page Personalization List"
         OperationId: Guid;
     begin
         if UserSidToOperationId.Get(Format("User SID") + Format("Page ID"), OperationId) then;
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.SetRange("Operation ID", OperationId);
-        CurrPage.UserDiagnosticsListPart.Page.SetRecords(DesignerDiagnostics);
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
+        CurrPage.UserDiagnosticsListPart.Page.SetRecords(TempDesignerDiagnostics);
         CurrPage.UserDiagnosticsListPart.Page.Update(false);
     end;
 
@@ -385,7 +391,7 @@ page 9191 "User Page Personalization List"
     end;
 
     var
-        DesignerDiagnostics: record "Designer Diagnostic" temporary;
+        TempDesignerDiagnostics: record "Designer Diagnostic" temporary;
         ValidatePageTxt: Label 'Scanning page personalizations for %1\%2 of %3 users scanned', Comment = '%1 = user id, %2 and %3 are all whole numbers';
         PageValidationFailedWithErrorsTxt: Label '%1 error(s)', Comment = '%1 = a number from 1 and up';
         PageSuccessfullyValidatedWithWarningsTxt: Label '%1 warning(s)', Comment = '%1 = a number from 1 and up';

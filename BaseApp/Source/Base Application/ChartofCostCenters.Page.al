@@ -33,7 +33,7 @@ page 1122 "Chart of Cost Centers"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the cost center.';
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the purpose of the cost object, such as Cost Object, Heading, or Begin-Total. Newly created cost objects are automatically assigned the Cost Object type, but you can change this.';
@@ -43,19 +43,19 @@ page 1122 "Chart of Cost Centers"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
                 }
-                field("Sorting Order"; "Sorting Order")
+                field("Sorting Order"; Rec."Sorting Order")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the sorting order of the cost centers.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = CostAccounting;
                     Style = Strong;
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                 }
-                field("Balance at Date"; "Balance at Date")
+                field("Balance at Date"; Rec."Balance at Date")
                 {
                     ApplicationArea = CostAccounting;
                     Style = Strong;
@@ -63,19 +63,19 @@ page 1122 "Chart of Cost Centers"
                     ToolTip = 'Specifies the cost type balance on the last date that is included in the Date Filter field. The contents of the field are calculated by using the entries in the Amount field in the Cost Entry table.';
                     Visible = false;
                 }
-                field("Balance to Allocate"; "Balance to Allocate")
+                field("Balance to Allocate"; Rec."Balance to Allocate")
                 {
                     ApplicationArea = CostAccounting;
                     Style = Strong;
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the balance that has not yet been allocated. The entry in the Allocated field determines if the entry is included in the Balance to Allocate field. The value in the Allocated field is set automatically during the cost allocation.';
                 }
-                field("Cost Subtype"; "Cost Subtype")
+                field("Cost Subtype"; Rec."Cost Subtype")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the subtype of the cost center. This is an information field and is not used for any other purposes. Choose the field to select the cost subtype.';
                 }
-                field("Responsible Person"; "Responsible Person")
+                field("Responsible Person"; Rec."Responsible Person")
                 {
                     ApplicationArea = CostAccounting;
                     LookupPageID = "User Lookup";
@@ -86,13 +86,13 @@ page 1122 "Chart of Cost Centers"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies if you want a new page to start immediately after this cost center when you print the chart of cash flow accounts.';
                     Visible = false;
                 }
-                field("Blank Line"; "Blank Line")
+                field("Blank Line"; Rec."Blank Line")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies whether you want a blank line to appear immediately after this cost center when you print the chart of cost centers. The New Page, Blank Line, and Indentation fields define the layout of the chart of cost centers.';
@@ -161,13 +161,11 @@ page 1122 "Chart of Cost Centers"
                     ApplicationArea = CostAccounting;
                     Caption = 'I&ndent Cost Centers';
                     Image = IndentChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Indent the selected lines.';
 
                     trigger OnAction()
                     begin
-                        CostAccMgt.IndentCostCentersYN;
+                        CostAccMgt.IndentCostCentersYN();
                     end;
                 }
                 action("Get Cost Centers From Dimension")
@@ -175,13 +173,11 @@ page 1122 "Chart of Cost Centers"
                     ApplicationArea = Dimensions;
                     Caption = 'Get Cost Centers From Dimension';
                     Image = ChangeTo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Transfer dimension values to the chart of cost centers.';
 
                     trigger OnAction()
                     begin
-                        CostAccMgt.CreateCostCenters;
+                        CostAccMgt.CreateCostCenters();
                     end;
                 }
             }
@@ -190,8 +186,6 @@ page 1122 "Chart of Cost Centers"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimension Values';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the dimension values for the current dimension.';
 
                 trigger OnAction()
@@ -207,11 +201,27 @@ page 1122 "Chart of Cost Centers"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Center with Budget';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Cost Acctg. Balance/Budget";
                 ToolTip = 'View a comparison of the balance to the budget figures and calculates the variance and the percent variance in the current accounting period, the accumulated accounting period, and the fiscal year.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("I&ndent Cost Centers_Promoted"; "I&ndent Cost Centers")
+                {
+                }
+                actionref("Get Cost Centers From Dimension_Promoted"; "Get Cost Centers From Dimension")
+                {
+                }
+                actionref(PageDimensionValues_Promoted; PageDimensionValues)
+                {
+                }
             }
         }
     }
@@ -219,18 +229,18 @@ page 1122 "Chart of Cost Centers"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        CodeOnFormat;
-        NameOnFormat;
-        NetChangeOnFormat;
-        BalanceatDateC15OnFormat;
-        BalancetoAllocateOnFormat;
+        CodeOnFormat();
+        NameOnFormat();
+        NetChangeOnFormat();
+        BalanceatDateC15OnFormat();
+        BalancetoAllocateOnFormat();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
         CurrPage.SetSelectionFilter(Rec);
         ConfirmDeleteIfEntriesExist(Rec, false);
-        Reset;
+        Reset();
     end;
 
     var

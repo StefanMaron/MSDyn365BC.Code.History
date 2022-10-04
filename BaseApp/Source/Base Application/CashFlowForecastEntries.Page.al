@@ -4,7 +4,6 @@ page 850 "Cash Flow Forecast Entries"
     Caption = 'Cash Flow Ledger Entries';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Cash Flow Forecast Entry";
     UsageCategory = History;
 
@@ -15,7 +14,7 @@ page 850 "Cash Flow Forecast Entries"
             repeater(Control1000)
             {
                 ShowCaption = false;
-                field("Cash Flow Date"; "Cash Flow Date")
+                field("Cash Flow Date"; Rec."Cash Flow Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cash flow date that the entry is posted to.';
@@ -25,17 +24,17 @@ page 850 "Cash Flow Forecast Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry is related to an overdue payment. ';
                 }
-                field("Cash Flow Forecast No."; "Cash Flow Forecast No.")
+                field("Cash Flow Forecast No."; Rec."Cash Flow Forecast No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number for the cash flow forecast.';
                 }
-                field("Cash Flow Account No."; "Cash Flow Account No.")
+                field("Cash Flow Account No."; Rec."Cash Flow Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account that the forecast entry is posted to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document that represents the forecast entry.';
@@ -50,12 +49,12 @@ page 850 "Cash Flow Forecast Entries"
                         ShowSource(false);
                     end;
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
@@ -65,29 +64,29 @@ page 850 "Cash Flow Forecast Entries"
                         ShowSource(true);
                     end;
                 }
-                field("Payment Discount"; "Payment Discount")
+                field("Payment Discount"; Rec."Payment Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possible payment discount for the cash flow forecast.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the forecast line in LCY. Revenues are entered without a plus or minus sign. Expenses are entered with a minus sign.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -99,53 +98,53 @@ page 850 "Cash Flow Forecast Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -170,8 +169,6 @@ page 850 "Cash Flow Forecast Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -186,13 +183,11 @@ page 850 "Cash Flow Forecast Entries"
                     Caption = 'Set Dimension Filter';
                     Ellipsis = true;
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Limit the entries according to the dimension filters that you specify. NOTE: If you use a high number of dimension combinations, this function may not work and can result in a message that the SQL server only supports a maximum of 2100 parameters.';
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
                 action(GLDimensionOverview)
@@ -200,8 +195,6 @@ page 850 "Cash Flow Forecast Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'G/L Dimension Overview';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View an overview of general ledger entries and dimensions.';
 
                     trigger OnAction()
@@ -215,15 +208,41 @@ page 850 "Cash Flow Forecast Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the actual cash flow forecast entries.';
 
                 trigger OnAction()
                 begin
                     ShowSource(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ShowSource_Promoted; ShowSource)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(SetDimensionFilter_Promoted; SetDimensionFilter)
+                {
+                }
+                actionref(GLDimensionOverview_Promoted; GLDimensionOverview)
+                {
+                }
             }
         }
     }

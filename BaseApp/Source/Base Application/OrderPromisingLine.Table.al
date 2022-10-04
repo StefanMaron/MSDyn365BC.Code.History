@@ -136,8 +136,8 @@ table 99000880 "Order Promising Line"
                             begin
                                 SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
                                 SalesLine."Planned Delivery Date" := "Planned Delivery Date";
-                                SalesLine."Planned Shipment Date" := SalesLine.CalcPlannedDate;
-                                SalesLine."Shipment Date" := SalesLine.CalcShipmentDate;
+                                SalesLine."Planned Shipment Date" := SalesLine.CalcPlannedDate();
+                                SalesLine."Shipment Date" := SalesLine.CalcShipmentDate();
                                 "Planned Delivery Date" := SalesLine."Planned Delivery Date";
                                 "Earliest Shipment Date" := SalesLine."Shipment Date";
                                 if "Earliest Shipment Date" > "Planned Delivery Date" then
@@ -298,7 +298,7 @@ table 99000880 "Order Promising Line"
             if "Original Shipment Date" > 0D then
                 AvailabilityDate := "Original Shipment Date"
             else
-                AvailabilityDate := WorkDate;
+                AvailabilityDate := WorkDate();
 
             Item.Reset();
             Item.SetRange("Date Filter", 0D, AvailabilityDate);

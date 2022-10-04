@@ -42,7 +42,7 @@ page 9203 "Budget Matrix"
                 field(TotalBudgetedAmount; Amount)
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     Caption = 'Budgeted Amount';
@@ -55,13 +55,13 @@ page 9203 "Budget Matrix"
                     begin
                         SetCommonFilters(GLAccBudgetBuf);
                         SetDimFilters(GLAccBudgetBuf, 0);
-                        BudgetDrillDown;
+                        BudgetDrillDown();
                     end;
                 }
                 field(Field1; MATRIX_CellData[1])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[1];
@@ -81,7 +81,7 @@ page 9203 "Budget Matrix"
                 field(Field2; MATRIX_CellData[2])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[2];
@@ -101,7 +101,7 @@ page 9203 "Budget Matrix"
                 field(Field3; MATRIX_CellData[3])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[3];
@@ -121,7 +121,7 @@ page 9203 "Budget Matrix"
                 field(Field4; MATRIX_CellData[4])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[4];
@@ -141,7 +141,7 @@ page 9203 "Budget Matrix"
                 field(Field5; MATRIX_CellData[5])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[5];
@@ -161,7 +161,7 @@ page 9203 "Budget Matrix"
                 field(Field6; MATRIX_CellData[6])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[6];
@@ -181,7 +181,7 @@ page 9203 "Budget Matrix"
                 field(Field7; MATRIX_CellData[7])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[7];
@@ -201,7 +201,7 @@ page 9203 "Budget Matrix"
                 field(Field8; MATRIX_CellData[8])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[8];
@@ -221,7 +221,7 @@ page 9203 "Budget Matrix"
                 field(Field9; MATRIX_CellData[9])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[9];
@@ -241,7 +241,7 @@ page 9203 "Budget Matrix"
                 field(Field10; MATRIX_CellData[10])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[10];
@@ -261,7 +261,7 @@ page 9203 "Budget Matrix"
                 field(Field11; MATRIX_CellData[11])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[11];
@@ -281,7 +281,7 @@ page 9203 "Budget Matrix"
                 field(Field12; MATRIX_CellData[12])
                 {
                     ApplicationArea = Suite;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[12];
@@ -319,7 +319,7 @@ page 9203 "Budget Matrix"
 
                     trigger OnAction()
                     begin
-                        GLAccountBalanceBudget;
+                        GLAccountBalanceBudget();
                     end;
                 }
             }
@@ -334,7 +334,7 @@ page 9203 "Budget Matrix"
         for MATRIX_CurrentColumnOrdinal := 1 to MATRIX_CurrentNoOfMatrixColumn do
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
         Amount := MatrixMgt.RoundAmount(CalcAmount(false), RoundingFactor);
-        FormatLine;
+        FormatLine();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -358,8 +358,6 @@ page 9203 "Budget Matrix"
     end;
 
     var
-        Text001: Label 'Period';
-        Text002: Label 'You may only edit column 1 to %1.';
         GLSetup: Record "General Ledger Setup";
         GLAccBudgetBuf: Record "G/L Acc. Budget Buffer";
         GLBudgetName: Record "G/L Budget Name";
@@ -393,6 +391,9 @@ page 9203 "Budget Matrix"
         Emphasize: Boolean;
         [InDataSet]
         NameIndent: Integer;
+
+        Text001: Label 'Period';
+        Text002: Label 'You may only edit column 1 to %1.';
 
     local procedure DimCodeToOption(DimCode: Text[30]): Integer
     var
@@ -615,7 +616,7 @@ page 9203 "Budget Matrix"
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheGLAcc."No.";
             Name := TheGLAcc.Name;
             Totaling := TheGLAcc.Totaling;
@@ -629,7 +630,7 @@ page 9203 "Budget Matrix"
         Period2: Record Date;
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
             "Period End" := ThePeriod."Period End";
@@ -645,7 +646,7 @@ page 9203 "Budget Matrix"
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheBusUnit.Code;
             if TheBusUnit.Name <> '' then
                 Name := TheBusUnit.Name
@@ -657,7 +658,7 @@ page 9203 "Budget Matrix"
     local procedure CopyDimValToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheDimVal.Code;
             Name := TheDimVal.Name;
             Totaling := TheDimVal.Totaling;
@@ -702,7 +703,7 @@ page 9203 "Budget Matrix"
     local procedure SetCommonFilters(var TheGLAccBudgetBuf: Record "G/L Acc. Budget Buffer")
     begin
         with TheGLAccBudgetBuf do begin
-            Reset;
+            Reset();
             SetRange("Budget Filter", GLBudgetName.Name);
             if BusUnitFilter <> '' then
                 SetFilter("Business Unit Filter", BusUnitFilter);
@@ -917,7 +918,7 @@ page 9203 "Budget Matrix"
         SetCommonFilters(GLAccBudgetBuf);
         SetDimFilters(GLAccBudgetBuf, 0);
         SetDimFilters(GLAccBudgetBuf, 1);
-        BudgetDrillDown;
+        BudgetDrillDown();
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)

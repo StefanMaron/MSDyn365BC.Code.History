@@ -184,7 +184,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Verify: Verify GL Entry for Invoice Discount Amount.
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Verify: Verify GL Entry for Invoice Discount Amount.
         Assert.AreNearlyEqual(
           -Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption));
+          StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -519,7 +519,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         SalesLine.FindSet();
         repeat
             TotalInvDiscAmount += SalesLine."Inv. Discount Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure GetPurchaseInvDiscAmount(PurchaseLine: Record "Purchase Line") TotalInvDiscAmount: Decimal
@@ -529,7 +529,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         PurchaseLine.FindSet();
         repeat
             TotalInvDiscAmount += PurchaseLine."Inv. Discount Amount";
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure ModifySalesHeaderForPriceInclVAT(var SalesHeader: Record "Sales Header"; PriceInclVAT: Boolean)
@@ -588,7 +588,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         VendorInvoiceDisc.SetRange("Currency Code", PurchaseLine."Currency Code");
         VendorInvoiceDisc.FindFirst();
         Currency.Get(PurchaseLine."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         InvDiscountAmount := GetPurchaseInvDiscAmount(PurchaseLine);
         Assert.AreNearlyEqual(
           LineAmount * VendorInvoiceDisc."Discount %" / 100, InvDiscountAmount, Currency."Amount Rounding Precision",
@@ -606,7 +606,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         CustInvoiceDisc.SetRange("Currency Code", SalesLine."Currency Code");
         CustInvoiceDisc.FindFirst();
         Currency.Get(SalesLine."Currency Code");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         InvDiscountAmount := GetSalesInvDiscAmount(SalesLine);
         Assert.AreNearlyEqual(
           LineAmount * CustInvoiceDisc."Discount %" / 100, InvDiscountAmount, Currency."Amount Rounding Precision",

@@ -425,7 +425,7 @@ codeunit 134317 "Workflow Additional Scenarios"
 
         // [THEN] "SI" status changed according to the second Workflow response.
         // [THEN] A message invoked from the third response is verifyed with ExpectedMessageHandler.
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
     end;
 

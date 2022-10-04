@@ -118,11 +118,12 @@ table 374 "G/L Acc. Budget Buffer"
     }
 
     var
+        GLBudgetName: Record "G/L Budget Name";
+
         Text000: Label '1,6,,Budget Dimension 1 Filter';
         Text001: Label '1,6,,Budget Dimension 2 Filter';
         Text002: Label '1,6,,Budget Dimension 3 Filter';
         Text003: Label '1,6,,Budget Dimension 4 Filter';
-        GLBudgetName: Record "G/L Budget Name";
 
     procedure GetCaptionClass(BudgetDimType: Integer): Text[250]
     begin

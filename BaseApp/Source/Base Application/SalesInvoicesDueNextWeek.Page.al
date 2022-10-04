@@ -17,22 +17,22 @@ page 1163 "Sales Invoices Due Next Week"
         {
             repeater(Group)
             {
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies when the sales invoices must be paid.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount that remains to be paid on the sales invoices that are due next week.';
@@ -46,7 +46,7 @@ page 1163 "Sales Invoices Due Next Week"
                         HyperLink(HyperLinkUrl);
                     end;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the relevant currency code for the sales invoices.';
@@ -76,7 +76,7 @@ page 1163 "Sales Invoices Due Next Week"
     trigger OnOpenPage()
     begin
         SetRange(Closed, false);
-        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
+        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
         Ascending := false;
     end;
 

@@ -46,7 +46,7 @@ codeunit 9801 "Identity Management"
     [Scope('OnPrem')]
     procedure GetPuid(): Text
     begin
-        exit(UserAccountHelper.GetPuid);
+        exit(UserAccountHelper.GetPuid());
     end;
 
     [Scope('OnPrem')]
@@ -54,6 +54,7 @@ codeunit 9801 "Identity Management"
     var
         ExpiryDate: DateTime;
     begin
+        ExpiryDate := 0DT;
         if not UserAccountHelper.TryCreateWebServicesKey(UserSecurityID, ExpiryDate, Key) then
             Error(GetLastErrorText);
     end;
@@ -77,7 +78,7 @@ codeunit 9801 "Identity Management"
     [Scope('OnPrem')]
     procedure IsAzure() Ok: Boolean
     begin
-        Ok := UserAccountHelper.IsAzure;
+        Ok := UserAccountHelper.IsAzure();
     end;
 
     [Scope('OnPrem')]
@@ -134,19 +135,19 @@ codeunit 9801 "Identity Management"
     [Scope('OnPrem')]
     procedure IsWindowsAuthentication() Ok: Boolean
     begin
-        Ok := UserAccountHelper.IsWindowsAuthentication;
+        Ok := UserAccountHelper.IsWindowsAuthentication();
     end;
 
     [Scope('OnPrem')]
     procedure IsUserNamePasswordAuthentication() Ok: Boolean
     begin
-        Ok := UserAccountHelper.IsUserNamePasswordAuthentication;
+        Ok := UserAccountHelper.IsUserNamePasswordAuthentication();
     end;
 
     [Scope('OnPrem')]
     procedure IsAccessControlServiceAuthentication() Ok: Boolean
     begin
-        Ok := UserAccountHelper.IsAccessControlServiceAuthentication;
+        Ok := UserAccountHelper.IsAccessControlServiceAuthentication();
     end;
 
     [Scope('OnPrem')]
@@ -161,7 +162,7 @@ codeunit 9801 "Identity Management"
     [Scope('OnPrem')]
     procedure SetAuthenticationEmail(UserSecurityId: Guid; AuthenticationEmail: Text[250])
     begin
-        ClearLastError;
+        ClearLastError();
         if not UserAccountHelper.TrySetAuthenticationEmail(UserSecurityId, AuthenticationEmail) then
             Error(GetLastErrorText);
     end;

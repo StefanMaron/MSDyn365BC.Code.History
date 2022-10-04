@@ -71,13 +71,13 @@ codeunit 63 "Sales-Explode BOM"
                     ToSalesLine."Variant Code" := FromBOMComp."Variant Code";
                     ToSalesLine."Unit of Measure Code" := FromBOMComp."Unit of Measure Code";
                     ToSalesLine."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, FromBOMComp."Unit of Measure Code");
-                    ToSalesLine."Outstanding Quantity" := Round("Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision);
+                    ToSalesLine."Outstanding Quantity" := Round("Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision());
                     IsHandled := false;
                     OnRunOnBeforeItemCheckAvailSalesLineCheck(ToSalesLine, FromBOMComp, Rec, IsHandled, HideDialog);
                     if not IsHandled then
                         if ToSalesLine."Outstanding Quantity" > 0 then
                             if ItemCheckAvail.SalesLineCheck(ToSalesLine) then
-                                ItemCheckAvail.RaiseUpdateInterruptedError;
+                                ItemCheckAvail.RaiseUpdateInterruptedError();
                 until FromBOMComp.Next() = 0;
         end;
 
@@ -103,10 +103,6 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     var
-        Text000: Label 'The BOM cannot be exploded on the sales lines because it is associated with purchase order %1.';
-        Text001: Label 'Item %1 is not a BOM.';
-        Text003: Label 'There is not enough space to explode the BOM.';
-        Text004: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
         ToSalesLine: Record "Sales Line";
         FromBOMComp: Record "BOM Component";
         SalesHeader: Record "Sales Header";
@@ -122,6 +118,11 @@ codeunit 63 "Sales-Explode BOM"
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
         Selection: Integer;
+
+        Text000: Label 'The BOM cannot be exploded on the sales lines because it is associated with purchase order %1.';
+        Text001: Label 'Item %1 is not a BOM.';
+        Text003: Label 'There is not enough space to explode the BOM.';
+        Text004: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
 
     procedure CallExplodeBOMCompLines(SalesLine: Record "Sales Line")
     begin
@@ -191,7 +192,7 @@ codeunit 63 "Sales-Explode BOM"
                             "Quantity (Base)" * FromBOMComp."Quantity per" *
                             UOMMgt.GetQtyPerUnitOfMeasure(
                               Item, ToSalesLine."Unit of Measure Code") / ToSalesLine."Qty. per Unit of Measure",
-                            UOMMgt.QtyRndPrecision));
+                            UOMMgt.QtyRndPrecision()));
                     end else
                         if ToSalesLine.Type = ToSalesLine.Type::Resource then begin
                             Resource.Get(FromBOMComp."No.");
@@ -203,7 +204,7 @@ codeunit 63 "Sales-Explode BOM"
                                 "Quantity (Base)" * FromBOMComp."Quantity per" *
                                 UOMMgt.GetResQtyPerUnitOfMeasure(
                                   Resource, ToSalesLine."Unit of Measure Code") / ToSalesLine."Qty. per Unit of Measure",
-                                UOMMgt.QtyRndPrecision));
+                                UOMMgt.QtyRndPrecision()));
                         end else
                             ToSalesLine.Validate(Quantity, "Quantity (Base)" * FromBOMComp."Quantity per");
 

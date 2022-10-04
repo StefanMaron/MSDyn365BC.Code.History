@@ -26,7 +26,7 @@ codeunit 212 "Res. Jnl.-Post Line"
     procedure RunWithCheck(var ResJnlLine2: Record "Res. Journal Line")
     begin
         ResJnlLine.Copy(ResJnlLine2);
-        Code;
+        Code();
         ResJnlLine2 := ResJnlLine;
     end;
 
@@ -37,7 +37,7 @@ codeunit 212 "Res. Jnl.-Post Line"
         OnBeforePostResJnlLine(ResJnlLine);
 
         with ResJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             ResJnlCheckLine.RunCheck(ResJnlLine);
@@ -52,7 +52,7 @@ codeunit 212 "Res. Jnl.-Post Line"
 
             if ResReg."No." = 0 then begin
                 ResReg.LockTable();
-                if (not ResReg.FindLast) or (ResReg."To Entry No." <> 0) then begin
+                if (not ResReg.FindLast()) or (ResReg."To Entry No." <> 0) then begin
                     ResReg.Init();
                     ResReg."No." := ResReg."No." + 1;
                     ResReg."From Entry No." := NextEntryNo;

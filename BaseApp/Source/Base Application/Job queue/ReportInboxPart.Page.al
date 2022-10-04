@@ -17,7 +17,7 @@ page 681 "Report Inbox Part"
         {
             repeater(Group)
             {
-                field("Report Name"; "Report Name")
+                field("Report Name"; Rec."Report Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -27,7 +27,7 @@ page 681 "Report Inbox Part"
 
                     trigger OnDrillDown()
                     begin
-                        ShowReport;
+                        ShowReport();
                         CurrPage.Update();
                     end;
                 }
@@ -40,11 +40,11 @@ page 681 "Report Inbox Part"
 
                     trigger OnDrillDown()
                     begin
-                        ShowReport;
+                        ShowReport();
                         CurrPage.Update();
                     end;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -52,14 +52,14 @@ page 681 "Report Inbox Part"
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                     Visible = false;
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
                     StyleExpr = NOT Read;
                     ToolTip = 'Specifies the date and time that the scheduled report was processed from the job queue.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -67,7 +67,7 @@ page 681 "Report Inbox Part"
                     ToolTip = 'Specifies the object ID of the report.';
                     Visible = false;
                 }
-                field("Output Type"; "Output Type")
+                field("Output Type"; Rec."Output Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -75,32 +75,24 @@ page 681 "Report Inbox Part"
                     ToolTip = 'Specifies the output type of the scheduled report.';
                 }
             }
+#if not CLEAN21
             group(Control16)
             {
                 ShowCaption = false;
-                usercontrol(PingPong; "Microsoft.Dynamics.Nav.Client.PingPong")
+                ObsoleteState = Pending;
+                ObsoleteReason = 'PingPong control has been deprecated.';
+                ObsoleteTag = '21.0';
+                field(PingPong; DeprecatedFuncTxt)
                 {
-                    ApplicationArea = Basic, Suite;
-
-                    trigger AddInReady()
-                    begin
-                        AddInReady := true;
-                        PrevNumberOfRecords := Count;
-                        CurrPage.PingPong.Ping(10000);
-                    end;
-
-                    trigger Pong()
-                    var
-                        CurrNumberOfRecords: Integer;
-                    begin
-                        CurrNumberOfRecords := Count;
-                        if PrevNumberOfRecords <> CurrNumberOfRecords then
-                            CurrPage.Update(false);
-                        PrevNumberOfRecords := CurrNumberOfRecords;
-                        CurrPage.PingPong.Ping(10000);
-                    end;
+                    Visible = false;
+                    Caption = 'Deprecated';
+                    ToolTip = 'Deprecated';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'PingPong control has been deprecated.';
+                    ObsoleteTag = '21.0';
                 }
             }
+#endif
         }
     }
 
@@ -114,7 +106,7 @@ page 681 "Report Inbox Part"
                 Caption = 'Open in OneDrive';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
-                Enabled = ShareOptionsEnabled;
+                Visible = ShareOptionsEnabled;
                 Promoted = true;
                 PromotedCategory = Process;
                 Scope = Repeater;
@@ -129,7 +121,7 @@ page 681 "Report Inbox Part"
                 Caption = 'Share';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
-                Enabled = ShareOptionsEnabled;
+                Visible = ShareOptionsEnabled;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
@@ -150,7 +142,7 @@ page 681 "Report Inbox Part"
 
                 trigger OnAction()
                 begin
-                    ShowReport;
+                    ShowReport();
                     CurrPage.Update();
                 end;
             }
@@ -168,7 +160,7 @@ page 681 "Report Inbox Part"
                 trigger OnAction()
                 begin
                     ShowAll := false;
-                    UpdateVisibility;
+                    UpdateVisibility();
                 end;
             }
             action(All)
@@ -182,7 +174,7 @@ page 681 "Report Inbox Part"
                 trigger OnAction()
                 begin
                     ShowAll := true;
-                    UpdateVisibility;
+                    UpdateVisibility();
                 end;
             }
             separator(Action14)
@@ -202,7 +194,7 @@ page 681 "Report Inbox Part"
                 begin
                     CurrPage.SetSelectionFilter(ReportInbox);
                     ReportInbox.DeleteAll();
-                    UpdateVisibility;
+                    UpdateVisibility();
                 end;
             }
             separator(Action18)
@@ -228,9 +220,6 @@ page 681 "Report Inbox Part"
         }
     }
 
-    var
-        ShareOptionsEnabled: Boolean;
-
     trigger OnAfterGetCurrRecord()
     var
         DocumentSharing: Codeunit "Document Sharing";
@@ -240,31 +229,25 @@ page 681 "Report Inbox Part"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        ActionsEnabled := not IsEmpty;
+        ActionsEnabled := not IsEmpty();
         exit(Find(Which));
     end;
 
     trigger OnOpenPage()
     begin
         SetRange("User ID", UserId);
-        SetAutoCalcFields;
+        SetAutoCalcFields();
         ShowAll := true;
-        UpdateVisibility;
-        AddInReady := false;
-    end;
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if AddInReady then
-            CurrPage.PingPong.Stop;
-        exit(true);
+        UpdateVisibility();
     end;
 
     var
         ShowAll: Boolean;
-        PrevNumberOfRecords: Integer;
-        AddInReady: Boolean;
         ActionsEnabled: Boolean;
+        ShareOptionsEnabled: Boolean;
+#if not CLEAN21
+        DeprecatedFuncTxt: Label 'This function has been deprecated.';
+#endif        
 
     local procedure UpdateVisibility()
     begin

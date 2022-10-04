@@ -58,7 +58,7 @@ codeunit 134217 "WFWH Notifications Tests"
         TmpGuid: Guid;
     begin
         WorkflowWebhookNotification.Initialize(RetryCount, 1);
-        TmpGuid := CreateGuid;
+        TmpGuid := CreateGuid();
         Clear(TmpGuid);
         asserterror WorkflowWebhookNotification.SendNotification(TmpGuid, CreateGuid, 'dd', '');
         Assert.AreEqual(GetLastErrorText, 'DataID cannot be null.', 'Invalid error message.');
@@ -71,7 +71,7 @@ codeunit 134217 "WFWH Notifications Tests"
         TmpGuid: Guid;
     begin
         WorkflowWebhookNotification.Initialize(RetryCount, 1);
-        TmpGuid := CreateGuid;
+        TmpGuid := CreateGuid();
         Clear(TmpGuid);
         asserterror WorkflowWebhookNotification.SendNotification(CreateGuid, TmpGuid, 'dd', '');
         Assert.AreEqual(GetLastErrorText, 'WorkflowStepInstanceID cannot be null.', 'Invalid error message.');

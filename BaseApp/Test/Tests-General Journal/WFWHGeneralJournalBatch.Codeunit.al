@@ -45,7 +45,7 @@ codeunit 134219 "WFWH General Journal Batch"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -718,7 +718,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line should be disabled');
 
         // [THEN] Close the journal
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -751,7 +751,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line should be disabled');
 
         // [THEN] Close the journal
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -784,7 +784,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line should be disabled');
 
         // [THEN] Close the journal
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     [Test]
@@ -817,7 +817,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // [THEN] Close the journal
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -850,7 +850,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // [THEN] Close the journal
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -883,7 +883,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // [THEN] Close the journal
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     [Test]
@@ -923,7 +923,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
         Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
 
-        GeneralJournal.Close;
+        GeneralJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -962,7 +962,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
         Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
 
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1001,7 +1001,7 @@ codeunit 134219 "WFWH General Journal Batch"
         Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
         Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
 
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 

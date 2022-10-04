@@ -60,7 +60,7 @@ codeunit 136403 "Resource Journal"
 
         // 2. Exercise: Post Resource Journal Line and open the Navigate page.
         LibraryResource.PostResourceJournalLine(ResJournalLine);
-        Navigate.SetDoc(WorkDate, DocumentNo);
+        Navigate.SetDoc(WorkDate(), DocumentNo);
         Navigate.Run();
 
         // 3. Verify: Verify number of entries for Res. Ledger Entry table.
@@ -509,7 +509,7 @@ codeunit 136403 "Resource Journal"
     begin
         LibraryResource.CreateResJournalLine(ResJournalLine, JournalTemplateName, JournalBatchName);
         ResJournalLine.Validate("Resource No.", ResourceNo);
-        ResJournalLine.Validate("Posting Date", WorkDate);
+        ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Document No.", ResourceNo);
 
         // Use Random Quantity because value is not important.
@@ -721,7 +721,7 @@ codeunit 136403 "Resource Journal"
         ResJournalLine.TestField(Quantity, TempResJournalLine.Quantity);
         ResJournalLine.TestField("Unit Cost", TempResJournalLine."Unit Cost");
         ResJournalLine.TestField("Total Price", TempResJournalLine."Total Price");
-        ResJournalLine.TestField("Posting Date", CalcDate(TempResJournalLine."Recurring Frequency", WorkDate));
+        ResJournalLine.TestField("Posting Date", CalcDate(TempResJournalLine."Recurring Frequency", WorkDate()));
     end;
 
     local procedure VerifyValuesOnResource(Resource: Record Resource)

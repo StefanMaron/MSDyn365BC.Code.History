@@ -44,10 +44,10 @@ table 5901 "Service Item Line"
                 OnValidateServiceItemNoOnBeforeCheckXRecServiceItemNo(Rec, xRec, ServLine, ServItem, IsHandled);
                 if not IsHandled then
                     if "Service Item No." <> xRec."Service Item No." then begin
-                        if CheckServLineExist then
+                        if CheckServLineExist() then
                             Error(
                               Text011,
-                              FieldCaption("Service Item No."), TableCaption, ServLine.TableCaption);
+                              FieldCaption("Service Item No."), TableCaption(), ServLine.TableCaption());
                     end else begin
                         CreateDimFromDefaultDim(0);
 
@@ -107,13 +107,13 @@ table 5901 "Service Item Line"
                         ServContractLine.FilterGroup(0);
 
                         if ServContractLine.Find('-') then
-                            if ServContractLine.Next > 0 then begin
+                            if ServContractLine.Next() > 0 then begin
                                 if ConfirmManagement.GetResponse(
                                      StrSubstNo(Text047, "Service Item No."), true)
                                 then begin
                                     ServContractList.SetTableView(ServContractLine);
                                     ServContractList.LookupMode(true);
-                                    if ServContractList.RunModal = ACTION::LookupOK then begin
+                                    if ServContractList.RunModal() = ACTION::LookupOK then begin
                                         ServContractList.GetRecord(ServContractLine);
                                         ServContractExist := true;
                                     end;
@@ -130,8 +130,8 @@ table 5901 "Service Item Line"
                         if (ServItem."Ship-to Code" <> ServHeader."Ship-to Code") and not HideDialogBox then
                             if not ConfirmManagement.GetResponseOrDefault(
                                  StrSubstNo(
-                                   Text040, ServItem.TableCaption,
-                                   FieldCaption("Ship-to Code"), Cust.TableCaption), true)
+                                   Text040, ServItem.TableCaption(),
+                                   FieldCaption("Ship-to Code"), Cust.TableCaption()), true)
                             then begin
                                 "Service Item No." := xRec."Service Item No.";
                                 exit;
@@ -154,7 +154,7 @@ table 5901 "Service Item Line"
                     UseServItemLineAsxRec := true;
                     Modify(true);
                 end;
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
                 CreateDimFromDefaultDim(0);
             end;
         }
@@ -178,7 +178,7 @@ table 5901 "Service Item Line"
                                 Validate("Service Price Group Code", ServItemGr."Default Serv. Price Group Code");
                     end;
                 end;
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Service Item Group Code"));
             end;
@@ -196,8 +196,8 @@ table 5901 "Service Item Line"
                 if "Item No." <> '' then begin
                     Item.Get("Item No.");
                     Validate("Service Item Group Code", Item."Service Item Group");
-                    GetServHeader;
-                    if (ServHeader."Language Code" = '') or not GetItemTranslation then begin
+                    GetServHeader();
+                    if (ServHeader."Language Code" = '') or not GetItemTranslation() then begin
                         Description := Item.Description;
                         "Description 2" := Item."Description 2";
                     end;
@@ -206,7 +206,7 @@ table 5901 "Service Item Line"
                     Description := '';
                     "Description 2" := '';
                 end;
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
             end;
         }
         field(6; "Serial No."; Code[50])
@@ -227,12 +227,12 @@ table 5901 "Service Item Line"
                         Error(
                           Text016,
                           FieldCaption("Serial No."), FieldCaption("Service Item No."));
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
 
                 if "Serial No." = '' then
                     exit;
 
-                GetServHeader;
+                GetServHeader();
                 ServItem.Reset();
                 ServItem.SetCurrentKey("Customer No.", "Ship-to Code", "Item No.", "Serial No.");
                 ServItem.SetRange("Customer No.", ServHeader."Customer No.");
@@ -258,7 +258,7 @@ table 5901 "Service Item Line"
 
             trigger OnValidate()
             begin
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
                 Validate("Document No.");
             end;
         }
@@ -268,7 +268,7 @@ table 5901 "Service Item Line"
 
             trigger OnValidate()
             begin
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
             end;
         }
         field(9; "Repair Status Code"; Code[10])
@@ -280,7 +280,7 @@ table 5901 "Service Item Line"
             var
                 RepairStatusInProgress: Boolean;
             begin
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
                 if "Repair Status Code" <> '' then begin
                     RepairStatus.Get("Repair Status Code");
                     if RepairStatus2.Get(xRec."Repair Status Code") then
@@ -294,12 +294,12 @@ table 5901 "Service Item Line"
                     if ("Document Type" = "Document Type"::Order) and
                        RepairStatus."Quote Finished"
                     then
-                        Error(Text035, RepairStatus.TableCaption, RepairStatus.Code);
+                        Error(Text035, RepairStatus.TableCaption(), RepairStatus.Code);
 
                     if ("Document Type" = "Document Type"::Quote) and
                        RepairStatus.Finished
                     then
-                        Error(Text036, RepairStatus.TableCaption, RepairStatus.Code);
+                        Error(Text036, RepairStatus.TableCaption(), RepairStatus.Code);
                     if RepairStatus.Initial then begin
                         "Starting Date" := 0D;
                         "Starting Time" := 0T;
@@ -314,12 +314,12 @@ table 5901 "Service Item Line"
                     RepairStatusInProgress := RepairStatus."In Process";
                     OnRepairStatusCodeValidateOnAfterSetRepairStatusInProgress(Rec, RepairStatusInProgress);
                     if RepairStatusInProgress then begin
-                        GetServHeader;
-                        if ServHeader."Order Date" > WorkDate then begin
+                        GetServHeader();
+                        if ServHeader."Order Date" > WorkDate() then begin
                             "Starting Date" := ServHeader."Order Date";
                             Validate("Starting Time", ServHeader."Order Time");
                         end else begin
-                            "Starting Date" := WorkDate;
+                            "Starting Date" := WorkDate();
                             if (ServHeader."Order Date" = "Starting Date") and (ServHeader."Order Time" > Time) then
                                 Validate("Starting Time", ServHeader."Order Time")
                             else
@@ -333,15 +333,15 @@ table 5901 "Service Item Line"
                         ServMgtSetup.Get();
                         if ServMgtSetup."Fault Reason Code Mandatory" then
                             TestField("Fault Reason Code");
-                        GetServHeader;
-                        CalculateDates;
+                        GetServHeader();
+                        CalculateDates();
                         ServOrderAlloc.SetFilters(Rec);
                         ServOrderAlloc.ModifyAll(Status, ServOrderAlloc.Status::Finished, false);
                     end;
 
                     if RepairStatus."Quote Finished" then begin
-                        GetServHeader;
-                        CalculateDates;
+                        GetServHeader();
+                        CalculateDates();
                     end;
 
                     if RepairStatus."Partly Serviced" or RepairStatus.Referred then begin
@@ -412,10 +412,10 @@ table 5901 "Service Item Line"
             begin
                 if ("Response Time (Hours)" <> xRec."Response Time (Hours)") or ("Response Time (Hours)" = 0) then begin
                     SkipResponseTimeHrsUpdate := true;
-                    GetServHeader;
+                    GetServHeader();
                     CalculateResponseDateTime(ServHeader."Order Date", ServHeader."Order Time");
                 end else
-                    UpdateResponseTimeHours;
+                    UpdateResponseTimeHours();
             end;
         }
         field(12; "Response Date"; Date)
@@ -426,12 +426,12 @@ table 5901 "Service Item Line"
             begin
                 SkipResponseTimeHrsUpdate := true;
                 if "Response Date" <> xRec."Response Date" then begin
-                    GetServHeader;
+                    GetServHeader();
                     if "Response Date" <> 0D then begin
                         if "Response Date" < ServHeader."Order Date" then
                             Error(
                               Text022,
-                              FieldCaption("Response Date"), ServHeader.TableCaption,
+                              FieldCaption("Response Date"), ServHeader.TableCaption(),
                               ServHeader.FieldCaption("Order Date"));
                         if "Response Date" = ServHeader."Order Date" then
                             if Time < ServHeader."Order Time" then
@@ -453,13 +453,13 @@ table 5901 "Service Item Line"
             begin
                 SkipResponseTimeHrsUpdate := true;
                 if "Response Time" <> xRec."Response Time" then begin
-                    GetServHeader;
+                    GetServHeader();
                     if ("Response Date" = ServHeader."Order Date") and
                        ("Response Time" < ServHeader."Order Time")
                     then
                         Error(
                           Text022,
-                          FieldCaption("Response Time"), ServHeader.TableCaption,
+                          FieldCaption("Response Time"), ServHeader.TableCaption(),
                           ServHeader.FieldCaption("Order Time"));
 
                     "Response Time (Hours)" := 0;
@@ -473,12 +473,12 @@ table 5901 "Service Item Line"
             trigger OnValidate()
             begin
                 SkipResponseTimeHrsUpdate := true;
-                GetServHeader;
+                GetServHeader();
                 if "Starting Date" <> 0D then begin
                     if "Starting Date" < ServHeader."Order Date" then
                         Error(
                           Text022,
-                          FieldCaption("Starting Date"), ServHeader.TableCaption,
+                          FieldCaption("Starting Date"), ServHeader.TableCaption(),
                           ServHeader.FieldCaption("Order Date"));
 
                     if ("Starting Date" > ServHeader."Finishing Date") and
@@ -487,7 +487,7 @@ table 5901 "Service Item Line"
                         Error(
                           Text018,
                           FieldCaption("Starting Date"),
-                          ServHeader.TableCaption,
+                          ServHeader.TableCaption(),
                           ServHeader.FieldCaption("Finishing Date"));
 
                     if "Starting Date" <> xRec."Starting Date" then begin
@@ -516,7 +516,7 @@ table 5901 "Service Item Line"
                 SkipResponseTimeHrsUpdate := true;
                 TestField("Starting Date");
                 if "Starting Time" <> 0T then begin
-                    GetServHeader;
+                    GetServHeader();
                     EnsureCorrectStartingFinishingTimes();
 
                     UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date",
@@ -536,12 +536,12 @@ table 5901 "Service Item Line"
             trigger OnValidate()
             begin
                 SkipResponseTimeHrsUpdate := true;
-                GetServHeader;
+                GetServHeader();
                 if "Finishing Date" <> 0D then begin
                     if "Finishing Date" < ServHeader."Order Date" then
                         Error(
                           Text022,
-                          FieldCaption("Finishing Date"), ServHeader.TableCaption,
+                          FieldCaption("Finishing Date"), ServHeader.TableCaption(),
                           ServHeader.FieldCaption("Order Date"));
 
                     if "Finishing Date" < "Starting Date" then
@@ -569,7 +569,7 @@ table 5901 "Service Item Line"
             begin
                 SkipResponseTimeHrsUpdate := true;
                 TestField("Finishing Date");
-                GetServHeader;
+                GetServHeader();
                 if "Finishing Time" <> 0T then begin
                     if ("Finishing Date" = "Starting Date") and
                        ("Finishing Time" < "Starting Time")
@@ -597,7 +597,7 @@ table 5901 "Service Item Line"
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Starting Date (Parts)" <> ServItem."Warranty Starting Date (Parts)" then
-                        Error(Text023, ServItem.TableCaption);
+                        Error(Text023, ServItem.TableCaption());
                 end;
 
                 if "Warranty Starting Date (Parts)" <> 0D then begin
@@ -619,7 +619,7 @@ table 5901 "Service Item Line"
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Ending Date (Parts)" <> ServItem."Warranty Ending Date (Parts)" then
-                        Error(Text023, ServItem.TableCaption);
+                        Error(Text023, ServItem.TableCaption());
                 end;
             end;
         }
@@ -638,7 +638,7 @@ table 5901 "Service Item Line"
                     exit;
 
                 if "Service Item No." = '' then begin
-                    GetServHeader;
+                    GetServHeader();
                     if Warranty then begin
                         if ConfirmManagement.GetResponseOrDefault(Text024, true) then begin
                             Validate("Warranty Starting Date (Parts)", ServHeader."Order Date");
@@ -655,10 +655,10 @@ table 5901 "Service Item Line"
                             Warranty := true;
                     end;
                     if ServItemLine.Get("Document Type", "Document No.", "Line No.") then
-                        Modify;
+                        Modify();
                     CheckWarranty(ServHeader."Order Date");
                 end else
-                    Error(Text023, ServItem.TableCaption);
+                    Error(Text023, ServItem.TableCaption());
             end;
         }
         field(22; "Warranty % (Parts)"; Decimal)
@@ -678,7 +678,7 @@ table 5901 "Service Item Line"
                     exit;
 
                 if "Service Item No." <> '' then
-                    Error(Text023, ServItem.TableCaption);
+                    Error(Text023, ServItem.TableCaption());
 
                 if ("Service Item No." = '') and ("Warranty % (Parts)" <> xRec."Warranty % (Parts)") then begin
                     ServLine.Reset();
@@ -712,7 +712,7 @@ table 5901 "Service Item Line"
                     exit;
 
                 if "Service Item No." <> '' then
-                    Error(Text023, ServItem.TableCaption);
+                    Error(Text023, ServItem.TableCaption());
 
                 if ("Service Item No." = '') and ("Warranty % (Labor)" <> xRec."Warranty % (Labor)") then begin
                     ServLine.Reset();
@@ -738,7 +738,7 @@ table 5901 "Service Item Line"
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Starting Date (Labor)" <> ServItem."Warranty Starting Date (Labor)" then
-                        Error(Text023, ServItem.TableCaption);
+                        Error(Text023, ServItem.TableCaption());
                 end;
 
                 if "Warranty Starting Date (Labor)" <> 0D then begin
@@ -761,7 +761,7 @@ table 5901 "Service Item Line"
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Ending Date (Labor)" <> ServItem."Warranty Ending Date (Labor)" then
-                        Error(Text023, ServItem.TableCaption);
+                        Error(Text023, ServItem.TableCaption());
                 end;
             end;
         }
@@ -794,7 +794,7 @@ table 5901 "Service Item Line"
                 ServContractLine.FilterGroup(0);
                 ServContractList.SetTableView(ServContractLine);
                 ServContractList.LookupMode(true);
-                if ServContractList.RunModal = ACTION::LookupOK then begin
+                if ServContractList.RunModal() = ACTION::LookupOK then begin
                     ServContractList.GetRecord(ServContractLine);
                     Validate("Contract No.", ServContractLine."Contract No.");
                 end;
@@ -845,7 +845,7 @@ table 5901 "Service Item Line"
                 ServLine.SetRange("Quantity Invoiced", 0);
 
                 CheckRecreateServLines();
-                UpdateResponseTimeHours;
+                UpdateResponseTimeHours();
             end;
         }
         field(27; "Location of Service Item"; Text[30])
@@ -883,14 +883,14 @@ table 5901 "Service Item Line"
                     LoanerEntry.SetRange("Loaner No.", xRec."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
                     if not LoanerEntry.IsEmpty() then begin
-                        GetServHeader;
+                        GetServHeader();
                         Error(
                           Text028,
                           FieldCaption("Loaner No."), Format(ServHeader."Document Type"),
                           ServHeader.FieldCaption("No."), ServHeader."No.");
                     end;
 
-                    CheckIfLoanerOnServOrder;
+                    CheckIfLoanerOnServOrder();
                     if Rec."Line No." <> 0 then
                         LendLoanerWithConfirmation(false);
                 end;
@@ -936,7 +936,7 @@ table 5901 "Service Item Line"
                 ServPriceMgmt: Codeunit "Service Price Management";
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                GetServHeader;
+                GetServHeader();
                 if ("Service Price Group Code" <> '') and
                    (("Contract No." <> '') or (ServHeader."Contract No." <> ''))
                 then
@@ -955,11 +955,11 @@ table 5901 "Service Item Line"
                 end;
 
                 if CurrFieldNo = FieldNo("Service Price Group Code") then
-                    if CheckServLineExist then begin
+                    if CheckServLineExist() then begin
                         ServLine.SetRange("Price Adjmt. Status", ServLine."Price Adjmt. Status"::Adjusted);
                         if ServLine.Find('-') then begin
                             if not ConfirmManagement.GetResponseOrDefault(
-                                 StrSubstNo(Text038, ServLine.TableCaption), true)
+                                 StrSubstNo(Text038, ServLine.TableCaption()), true)
                             then
                                 Error(Text039);
                             ServPriceMgmt.ResetAdjustedLines(ServLine);
@@ -999,7 +999,7 @@ table 5901 "Service Item Line"
                 if (CurrFieldNo = FieldNo("Fault Area Code")) and
                    ("Fault Area Code" <> xRec."Fault Area Code")
                 then begin
-                    if CheckServLineExist and ("Service Price Group Code" <> '') then begin
+                    if CheckServLineExist() and ("Service Price Group Code" <> '') then begin
                         ServLine.Reset();
                         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
                         ServLine.SetRange("Document Type", "Document Type");
@@ -1008,7 +1008,7 @@ table 5901 "Service Item Line"
                         ServLine.SetRange("Price Adjmt. Status", ServLine."Price Adjmt. Status"::Adjusted);
                         if ServLine.Find('-') then begin
                             if not ConfirmManagement.GetResponseOrDefault(
-                                 StrSubstNo(Text038, ServLine.TableCaption), true)
+                                 StrSubstNo(Text038, ServLine.TableCaption()), true)
                             then
                                 Error(Text039);
                             ServPriceMgmt.ResetAdjustedLines(ServLine);
@@ -1335,7 +1335,7 @@ table 5901 "Service Item Line"
         if ServLine.Find('-') then
             Error(
               Text008,
-              TableCaption, "Document No.", "Line No.", ServLine.TableCaption);
+              TableCaption, "Document No.", "Line No.", ServLine.TableCaption());
 
         ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
@@ -1346,7 +1346,7 @@ table 5901 "Service Item Line"
         if ServOrderAlloc.Find('-') then
             Error(
               Text008,
-              TableCaption, "Document No.", "Line No.", ServOrderAlloc.TableCaption);
+              TableCaption, "Document No.", "Line No.", ServOrderAlloc.TableCaption());
         ServOrderAlloc.SetRange(Status);
         ServOrderAlloc.DeleteAll();
 
@@ -1361,7 +1361,7 @@ table 5901 "Service Item Line"
         ServLogMgt.ServItemOffServOrder(Rec);
 
         ServOrderMgt.UpdateResponseDateTime(Rec, true);
-        UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", CalcDate('<CY+1D-1Y>', WorkDate), 0T, 0D, 0T, true);
+        UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", CalcDate('<CY+1D-1Y>', WorkDate()), 0T, 0D, 0T, true);
         ServOrderMgt.UpdatePriority(Rec, true);
     end;
 
@@ -1374,9 +1374,9 @@ table 5901 "Service Item Line"
         FirstServItemLine := not ServItemLine.Find('-');
         if ServMgtSetup."One Service Item Line/Order" then
             if not FirstServItemLine then
-                Error(Text000, ServMgtSetup.TableCaption, ServItemLine.TableCaption, ServHeader.TableCaption);
+                Error(Text000, ServMgtSetup.TableCaption(), ServItemLine.TableCaption(), ServHeader.TableCaption());
 
-        GetServHeader;
+        GetServHeader();
         CheckCustomerNo();
 
         "Responsibility Center" := ServHeader."Responsibility Center";
@@ -1405,7 +1405,7 @@ table 5901 "Service Item Line"
         ServLogMgt.ServItemToServOrder(Rec);
 
         if (ServHeader."Quote No." = '') and ("Response Time (Hours)" = 0) then
-            UpdateResponseTimeHours;
+            UpdateResponseTimeHours();
         ServOrderMgt.UpdateResponseDateTime(Rec, false);
         ServOrderMgt.UpdatePriority(Rec, false);
 
@@ -1622,10 +1622,10 @@ table 5901 "Service Item Line"
             if (ServHeader.Name <> '') and (ServHeader.Address <> '') and (ServHeader.City <> '') then
                 Error(
                   Text001,
-                  TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption, ServHeader."No.");
+                  TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption(), ServHeader."No.");
             Error(
               Text002,
-              TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption, ServHeader."No.");
+              TableCaption, ServHeader.FieldCaption("Customer No."), ServHeader.TableCaption(), ServHeader."No.");
         end;
     end;
 
@@ -1711,7 +1711,7 @@ table 5901 "Service Item Line"
                 then
                     LoanerLent := true
                 else
-                    if ServItemLine.Next <> 0 then
+                    if ServItemLine.Next() <> 0 then
                         LoanerLent := true;
 
             if LoanerLent then begin
@@ -1891,7 +1891,7 @@ table 5901 "Service Item Line"
             TempDate := TempDate + 1;
         until (HoursLeft <= 0) or (TempDate > ErrorDate);
 
-        CheckTempDateErrorDate(TempDate, ErrorDate, ServItem.FieldCaption("Response Time (Hours)"), ServItem.TableCaption);
+        CheckTempDateErrorDate(TempDate, ErrorDate, ServItem.FieldCaption("Response Time (Hours)"), ServItem.TableCaption());
 
         if TotTime > 0 then begin
             "Response Date" := TempDate - 1;
@@ -1917,7 +1917,7 @@ table 5901 "Service Item Line"
         if ServiceHeader."Customer No." <> ServiceItem."Customer No." then
             Error(
               Text012,
-              ServiceItem.TableCaption, "Service Item No.", ServiceHeader.FieldCaption("Customer No."), ServiceHeader."Customer No.");
+              ServiceItem.TableCaption(), "Service Item No.", ServiceHeader.FieldCaption("Customer No."), ServiceHeader."Customer No.");
     END;
 
     procedure CheckServLineExist(): Boolean
@@ -1941,7 +1941,7 @@ table 5901 "Service Item Line"
         ServHour2.Reset();
         ServHour2.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
         ServHour2.SetRange("Service Contract No.", ContractNo);
-        exit(ServHour2.FindFirst);
+        exit(ServHour2.FindFirst())
     end;
 
     local procedure EnsureCorrectStartingFinishingTimes()
@@ -2073,7 +2073,7 @@ table 5901 "Service Item Line"
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         Clear(ItemLedgEntry);
-        GetServHeader;
+        GetServHeader();
         ItemLedgEntry.SetCurrentKey("Source Type", "Source No.", "Item No.", "Variant Code");
         ItemLedgEntry.SetRange("Source Type", ItemLedgEntry."Source Type"::Customer);
         ItemLedgEntry.SetRange("Source No.", ServHeader."Customer No.");
@@ -2110,7 +2110,7 @@ table 5901 "Service Item Line"
     var
         ItemTranslation: Record "Item Translation";
     begin
-        GetServHeader;
+        GetServHeader();
         if not ItemTranslation.Get("Item No.", "Variant Code", ServHeader."Language Code") then
             exit(false);
 
@@ -2220,7 +2220,7 @@ table 5901 "Service Item Line"
 
     local procedure CalculateDates()
     begin
-        if ServHeader."Order Date" > WorkDate then begin
+        if ServHeader."Order Date" > WorkDate() then begin
             if "Starting Date" = 0D then begin
                 "Starting Date" := ServHeader."Order Date";
                 "Starting Time" := ServHeader."Order Time";
@@ -2229,14 +2229,14 @@ table 5901 "Service Item Line"
             Validate("Finishing Time", "Starting Time");
         end else begin
             if "Starting Date" = 0D then begin
-                "Starting Date" := WorkDate;
+                "Starting Date" := WorkDate();
                 "Starting Time" := Time;
             end;
-            if WorkDate < "Starting Date" then begin
+            if WorkDate() < "Starting Date" then begin
                 "Finishing Date" := "Starting Date";
                 Validate("Finishing Time", "Starting Time");
             end else begin
-                "Finishing Date" := WorkDate;
+                "Finishing Date" := WorkDate();
                 if ("Starting Date" = "Finishing Date") and ("Starting Time" > Time) then
                     Validate("Finishing Time", "Starting Time")
                 else
@@ -2288,12 +2288,12 @@ table 5901 "Service Item Line"
 
         if not SkipResponseTimeHrsUpdate then begin
             if "Response Time (Hours)" <> xRec."Response Time (Hours)" then
-                Validate("Response Time (Hours)", CalculateResponseTimeHours)
+                Validate("Response Time (Hours)", CalculateResponseTimeHours())
             else
                 if "Response Date" = 0D then
-                    Validate("Response Time (Hours)", CalculateResponseTimeHours)
+                    Validate("Response Time (Hours)", CalculateResponseTimeHours())
                 else
-                    "Response Time (Hours)" := CalculateResponseTimeHours;
+                    "Response Time (Hours)" := CalculateResponseTimeHours();
             SkipResponseTimeHrsUpdate := false
         end;
     end;
@@ -2331,7 +2331,7 @@ table 5901 "Service Item Line"
         if "Document No." = '' then
             exit;
 
-        GetServHeader;
+        GetServHeader();
 
         TableID[1] := Type1;
         No[1] := No1;
@@ -2403,8 +2403,8 @@ table 5901 "Service Item Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if ServLineExists then
+            Modify();
+            if ServLineExists() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -2506,7 +2506,7 @@ table 5901 "Service Item Line"
     procedure CheckTempDateErrorDate(Tempdate: Date; ErrorDate: Date; Caption1: Text[30]; Caption2: Text[30])
     begin
         if Tempdate > ErrorDate then
-            Error(Text045, FieldCaption("Response Date"), TableCaption, Caption1, Caption2);
+            Error(Text045, FieldCaption("Response Date"), TableCaption(), Caption1, Caption2);
     end;
 
     local procedure CheckServHourStartingDate(ServiceHour: Record "Service Hour")
@@ -2534,7 +2534,7 @@ table 5901 "Service Item Line"
         if "Loaner No." = '' then
             exit;
         if ConfirmManagement.GetResponseOrDefault(
-             StrSubstNo(Text029, Loaner.TableCaption, "Loaner No."), true)
+             StrSubstNo(Text029, Loaner.TableCaption(), "Loaner No."), true)
         then
             ServLoanerMgt.LendLoaner(Rec)
         else

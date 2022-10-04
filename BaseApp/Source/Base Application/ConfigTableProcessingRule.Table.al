@@ -26,7 +26,7 @@ table 8631 "Config. Table Processing Rule"
 
             trigger OnValidate()
             begin
-                if not IsActionAllowed then
+                if not IsActionAllowed() then
                     FieldError(Action);
             end;
         }
@@ -70,12 +70,12 @@ table 8631 "Config. Table Processing Rule"
 
     trigger OnInsert()
     begin
-        CheckAction
+        CheckAction();
     end;
 
     trigger OnModify()
     begin
-        CheckAction
+        CheckAction();
     end;
 
     local procedure CheckAction()
@@ -96,10 +96,10 @@ table 8631 "Config. Table Processing Rule"
 
     procedure FindTableRules(ConfigPackageTable: Record "Config. Package Table"): Boolean
     begin
-        Reset;
+        Reset();
         SetRange("Package Code", ConfigPackageTable."Package Code");
         SetRange("Table ID", ConfigPackageTable."Table ID");
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure GetFilterInfo() FilterInfo: Text
@@ -152,7 +152,7 @@ table 8631 "Config. Table Processing Rule"
         RecRef: RecordRef;
     begin
         ConfigRecordForProcessing.FindConfigRule(Rec);
-        if (Action = Action::Custom) and not DoesTableHaveCustomRuleInRapidStart then begin
+        if (Action = Action::Custom) and not DoesTableHaveCustomRuleInRapidStart() then begin
             if ConfigRecordForProcessing.FindConfigRecord(ConfigPackageRecord) then
                 exit(CODEUNIT.Run("Custom Processing Codeunit ID", ConfigPackageRecord));
             exit(false);

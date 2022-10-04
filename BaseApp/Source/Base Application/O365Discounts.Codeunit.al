@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2155 "O365 Discounts"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -23,7 +27,8 @@ codeunit 2155 "O365 Discounts"
         CustInvoiceDisc."Discount %" := InvoiceDiscountPercentage;
         CustInvoiceDisc.Modify(true);
         SalesHeader.Modify(true);
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
     end;
 }
+#endif
 

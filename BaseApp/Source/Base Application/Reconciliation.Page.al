@@ -14,7 +14,7 @@ page 345 Reconciliation
             repeater(Control6)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Account';
@@ -25,12 +25,12 @@ page 345 Reconciliation
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field("Net Change in Jnl."; "Net Change in Jnl.")
+                field("Net Change in Jnl."; Rec."Net Change in Jnl.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net change that will occur on the bank when you post the journal.';
                 }
-                field("Balance after Posting"; "Balance after Posting")
+                field("Balance after Posting"; Rec."Balance after Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance after Posting';
@@ -49,6 +49,8 @@ page 345 Reconciliation
         GLAcc: Record "G/L Account";
         BankAccPostingGr: Record "Bank Account Posting Group";
         BankAcc: Record "Bank Account";
+
+    protected var
         Heading: Code[10];
 
     procedure SetGenJnlLine(var NewGenJnlLine: Record "Gen. Journal Line")
@@ -60,7 +62,7 @@ page 345 Reconciliation
         GLAcc.SetRange("Reconciliation Account", true);
         if GLAcc.Find('-') then
             repeat
-                InsertGLAccNetChange;
+                InsertGLAccNetChange();
             until GLAcc.Next() = 0;
 
         if GenJnlLine.Find('-') then
@@ -103,7 +105,7 @@ page 345 Reconciliation
                     AccNo := BankAccPostingGr."G/L Account No.";
                     if not Get(AccNo) then begin
                         GLAcc.Get(AccNo);
-                        InsertGLAccNetChange;
+                        InsertGLAccNetChange();
                     end;
                 end;
             else
@@ -113,18 +115,18 @@ page 345 Reconciliation
         "Net Change in Jnl." := "Net Change in Jnl." + NetChange;
         "Balance after Posting" := "Balance after Posting" + NetChange;
         OnSaveNetChangeOnBeforeModify(Rec, GenJnlLine, AccType, AccNo, NetChange);
-        Modify;
+        Modify();
     end;
 
     procedure InsertGLAccNetChange()
     begin
         GLAcc.CalcFields("Balance at Date");
-        Init;
+        Init();
         "No." := GLAcc."No.";
         Name := GLAcc.Name;
         "Balance after Posting" := GLAcc."Balance at Date";
         OnBeforeGLAccountNetChange(Rec, GLAcc);
-        Insert;
+        Insert();
 
         OnAfterInsertGLAccNetChange(Rec, GLAcc);
     end;

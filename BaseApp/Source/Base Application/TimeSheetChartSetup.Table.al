@@ -44,13 +44,13 @@ table 959 "Time Sheet Chart Setup"
 
     procedure GetCurrentSelectionText(): Text[250]
     begin
-        exit(StrSubstNo(Text001, "Starting Date", GetEndingDate, "Show by", Time));
+        exit(StrSubstNo(Text001, "Starting Date", GetEndingDate(), "Show by", Time));
     end;
 
     procedure SetStartingDate(StartingDate: Date)
     begin
         "Starting Date" := StartingDate;
-        Modify;
+        Modify();
     end;
 
     procedure GetEndingDate(): Date
@@ -66,13 +66,13 @@ table 959 "Time Sheet Chart Setup"
             Which::Next:
                 "Starting Date" := CalcDate('<+1W>', "Starting Date");
         end;
-        Modify;
+        Modify();
     end;
 
     procedure SetShowBy(ShowBy: Option)
     begin
         "Show by" := ShowBy;
-        Modify;
+        Modify();
     end;
 
     procedure MeasureIndex2MeasureType(MeasureIndex: Integer): Integer

@@ -255,7 +255,7 @@ codeunit 136110 "Service Management Setup"
 
         // Verify: Check that the application generates an error if the Resource is not qualified to carry the Service.
         Assert.AreEqual(
-          StrSubstNo(ResourceNotQualifiedError, Resource.TableCaption, Resource.FieldCaption("No."), Resource."No."),
+          StrSubstNo(ResourceNotQualifiedError, Resource.TableCaption(), Resource.FieldCaption("No."), Resource."No."),
           GetLastErrorText, UnknownError);
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
         ServiceHeader.CalcFields("No. of Allocations");
@@ -448,7 +448,7 @@ codeunit 136110 "Service Management Setup"
 
         // Verify: Check that the application generates an error if the Resource is not qualified to carry the Service.
         Assert.AreEqual(
-          StrSubstNo(ResourceNotQualifiedError, Resource.TableCaption, Resource.FieldCaption("No."), Resource."No."),
+          StrSubstNo(ResourceNotQualifiedError, Resource.TableCaption(), Resource.FieldCaption("No."), Resource."No."),
           GetLastErrorText, UnknownError);
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
         ServiceHeader.CalcFields("No. of Allocations");
@@ -575,8 +575,8 @@ codeunit 136110 "Service Management Setup"
 
         // Verify: Check that the application generates an error on insertion of Fault Code record if Fault Reporting Level is set to None.
         Assert.AreEqual(
-          StrSubstNo(FaultReportingLevelNoneError, FaultCode.TableCaption, ServiceMgtSetup.FieldCaption("Fault Reporting Level"),
-            ServiceMgtSetup.TableCaption, Format(ServiceMgtSetup."Fault Reporting Level")), GetLastErrorText, UnknownError);
+          StrSubstNo(FaultReportingLevelNoneError, FaultCode.TableCaption(), ServiceMgtSetup.FieldCaption("Fault Reporting Level"),
+            ServiceMgtSetup.TableCaption(), Format(ServiceMgtSetup."Fault Reporting Level")), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -617,7 +617,7 @@ codeunit 136110 "Service Management Setup"
 
         // Exercise: Post Service Order as Ship and insert Fault/Resolution relationships by calling codeunit FaultResolRelationCalculate.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-        FaultResolRelationCalculate.CopyResolutionRelationToTable(WorkDate, WorkDate, true, true);
+        FaultResolRelationCalculate.CopyResolutionRelationToTable(WorkDate(), WorkDate(), true, true);
 
         // Verify: Check that the values in the Fault Resolution Codes Relationship correspond to the values in the Fault Code record.
         FaultResolCodRelationship.SetRange("Fault Code", FaultCode.Code);
@@ -671,7 +671,7 @@ codeunit 136110 "Service Management Setup"
 
         // Exercise: Post Service Order as Ship and insert Fault/Resolution relationships by calling codeunit FaultResolRelationCalculate.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-        FaultResolRelationCalculate.CopyResolutionRelationToTable(WorkDate, WorkDate, true, true);
+        FaultResolRelationCalculate.CopyResolutionRelationToTable(WorkDate(), WorkDate(), true, true);
 
         // Verify: Check that the values in the Fault Resolution Codes Relationship correspond to the values in the Fault Code record.
         FaultResolCodRelationship.SetRange("Fault Code", FaultCode.Code);
@@ -709,7 +709,7 @@ codeunit 136110 "Service Management Setup"
 
         // Verify: Check that the application generates an error on Service Item line insertion if Base Calendar Code is blank.
         Assert.AreEqual(
-          StrSubstNo(BaseCalendarCodeBlankErrorServ, ServiceMgtSetup.FieldCaption("Base Calendar Code"), ServiceMgtSetup.TableCaption),
+          StrSubstNo(BaseCalendarCodeBlankErrorServ, ServiceMgtSetup.FieldCaption("Base Calendar Code"), ServiceMgtSetup.TableCaption()),
           GetLastErrorText, UnknownError);
 
         // Cleanup: Enter the original Base Calendar Code in Service Management Setup.
@@ -762,7 +762,7 @@ codeunit 136110 "Service Management Setup"
         // Setup: Create Service Order for a Working Day - Service Item, Service Header, Service Item Line.
         Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate()));
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // Exercise: Input Response Time (Hours) as boundary value 0.
@@ -793,7 +793,7 @@ codeunit 136110 "Service Management Setup"
         Initialize();
         DefaultResponseTime := SetupServiceMgtDefaultRespTime(ServiceMgtSetup, 0);  // Value 0 is important to test case.
         LibraryService.CreateServiceItem(ServiceItem, '');
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate()));
 
         // Exercise: Create Service item Line.
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -827,7 +827,7 @@ codeunit 136110 "Service Management Setup"
         Initialize();
         DefaultResponseTime := SetupServiceMgtDefaultRespTime(ServiceMgtSetup, LibraryRandom.RandInt(100));
         LibraryService.CreateServiceItem(ServiceItem, '');
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate()));
 
         // Exercise: Create Service item Line.
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -862,15 +862,15 @@ codeunit 136110 "Service Management Setup"
         Initialize();
         DefaultResponseTime := SetupServiceMgtDefaultRespTime(ServiceMgtSetup, (365 * 24) + LibraryRandom.RandInt(100));
         LibraryService.CreateServiceItem(ServiceItem, '');
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate));
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetFirstWorkingDay(WorkDate()));
 
         // Exercise: Create Service item Line.
         asserterror LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // Verify: Verify that the application generates an error if Default response Time (Hours) is greater than a year.
         Assert.AreEqual(
-          StrSubstNo(ResponseTimeMoreThanYearError, ServiceItemLine.FieldCaption("Response Date"), ServiceItemLine.TableCaption,
-            ServiceItem.FieldCaption("Response Time (Hours)"), ServiceItem.TableCaption), GetLastErrorText, UnknownError);
+          StrSubstNo(ResponseTimeMoreThanYearError, ServiceItemLine.FieldCaption("Response Date"), ServiceItemLine.TableCaption(),
+            ServiceItem.FieldCaption("Response Time (Hours)"), ServiceItem.TableCaption()), GetLastErrorText, UnknownError);
 
         // Cleanup: Enter the original Default Response Time (Hours) in Service Management Setup.
         ServiceMgtSetup.Validate("Default Response Time (Hours)", DefaultResponseTime);
@@ -1059,7 +1059,7 @@ codeunit 136110 "Service Management Setup"
         // Verify: Check that the Contract Change Log for the Service Contract created is empty.
         ContractChangeLog.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         Assert.AreEqual(
-          ContractChangeLog.Count, 0, StrSubstNo(ContractChangeLogError, ContractChangeLog.TableCaption,
+          ContractChangeLog.Count, 0, StrSubstNo(ContractChangeLogError, ContractChangeLog.TableCaption(),
             ServiceContractHeader.FieldCaption("Contract No."), ServiceContractHeader."Contract No."));
     end;
 
@@ -1116,12 +1116,12 @@ codeunit 136110 "Service Management Setup"
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
 
         // Exercise: Change the Status to Canceled.
-        asserterror ServiceContractHeader.Validate(Status, ServiceContractHeader.Status::Canceled);
+        asserterror ServiceContractHeader.Validate(Status, ServiceContractHeader.Status::Cancelled);
 
         // Verify: Check that the application generates an error if Contract is cancelled without inputting Cancel Reason Code.
         Assert.AreEqual(
           StrSubstNo(CancelReasonBlankErrorServTier, ServiceContractHeader.FieldCaption("Cancel Reason Code"),
-            ServiceContractHeader.TableCaption, ServiceContractHeader.FieldCaption("Contract Type"), ServiceContractHeader."Contract Type",
+            ServiceContractHeader.TableCaption(), ServiceContractHeader.FieldCaption("Contract Type"), ServiceContractHeader."Contract Type",
             ServiceContractHeader.FieldCaption("Contract No."), ServiceContractHeader."Contract No."), GetLastErrorText, UnknownError);
     end;
 
@@ -1151,7 +1151,7 @@ codeunit 136110 "Service Management Setup"
         ServiceContractHeader.Validate("Cancel Reason Code", ReasonCode.Code);
 
         // Exercise: Change the Status to Canceled.
-        ServiceContractHeader.Validate(Status, ServiceContractHeader.Status::Canceled);
+        ServiceContractHeader.Validate(Status, ServiceContractHeader.Status::Cancelled);
         ServiceContractHeader.Modify(true);
 
         // Verify: Check that the application allows the Contract to be cancelled if Cancel Reason Code is not blank.
@@ -1183,7 +1183,7 @@ codeunit 136110 "Service Management Setup"
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
 
         // Exercise: Change the Status to Canceled.
-        ServiceContractHeader.Validate(Status, ServiceContractHeader.Status::Canceled);
+        ServiceContractHeader.Validate(Status, ServiceContractHeader.Status::Cancelled);
         ServiceContractHeader.Modify(true);
 
         // Verify: Check that the application allows the Contract to be cancelled if Cancel Reason Code is blank and Use Contract Cancel
@@ -1230,12 +1230,12 @@ codeunit 136110 "Service Management Setup"
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         CreateContractServiceOrders.SetTableView(ServiceContractHeader);
         CreateContractServiceOrders.UseRequestPage(false);
-        CreateContractServiceOrders.InitializeRequest(WorkDate, WorkDate, 0);
+        CreateContractServiceOrders.InitializeRequest(WorkDate(), WorkDate(), 0);
         asserterror CreateContractServiceOrders.Run();
 
         // Verify: Check that the application generates an error if the date range entered is longer than the period allowed in Service
         // Management Setup.
-        Assert.AreEqual(StrSubstNo(DateRangeError, ServiceMgtSetup.TableCaption), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DateRangeError, ServiceMgtSetup.TableCaption()), GetLastErrorText, UnknownError);
 
         // Cleanup: Enter the original Contract Serv. Ord.  Max. Days in Service Management Setup.
         ServiceMgtSetup.Validate("Contract Serv. Ord.  Max. Days", ContractServOrdMaxDays);
@@ -1281,14 +1281,14 @@ codeunit 136110 "Service Management Setup"
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         CreateContractServiceOrders.SetTableView(ServiceContractHeader);
         CreateContractServiceOrders.UseRequestPage(false);
-        CreateContractServiceOrders.InitializeRequest(WorkDate, WorkDate, 0);
+        CreateContractServiceOrders.InitializeRequest(WorkDate(), WorkDate(), 0);
         CreateContractServiceOrders.Run();
 
         // Verify: Check that the application generates an error if the date range entered is invalid and no Service Order is created.
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         Assert.AreEqual(
-          0, ServiceHeader.Count, StrSubstNo(ServiceOrderError, ServiceHeader.TableCaption, ServiceContractHeader.TableCaption,
+          0, ServiceHeader.Count, StrSubstNo(ServiceOrderError, ServiceHeader.TableCaption(), ServiceContractHeader.TableCaption(),
             ServiceContractHeader.FieldCaption("Contract No."), ServiceContractHeader."Contract No."));
 
         // Cleanup: Enter the original Contract Serv. Ord.  Max. Days in Service Management Setup.
@@ -1580,7 +1580,7 @@ codeunit 136110 "Service Management Setup"
         ServiceContractLine.FindSet();
         repeat
             LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceContractLine."Service Item No.");
-        until ServiceContractLine.Next = 0;
+        until ServiceContractLine.Next() = 0;
     end;
 
     local procedure CreateServiceItemLineForFault(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; FaultCode: Record "Fault Code")
@@ -1620,7 +1620,7 @@ codeunit 136110 "Service Management Setup"
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure FindServiceItemLineForOrder(var ServiceItemLine: Record "Service Item Line"; DocumentNo: Code[20])
@@ -1665,7 +1665,7 @@ codeunit 136110 "Service Management Setup"
     begin
         InsertFaultResolRelations.UseRequestPage(false);
         // Using random values for To Date as value is not important.
-        InsertFaultResolRelations.InitializeRequest(WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), true, true);
+        InsertFaultResolRelations.InitializeRequest(WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), true, true);
         InsertFaultResolRelations.RunModal();
     end;
 
@@ -1673,7 +1673,7 @@ codeunit 136110 "Service Management Setup"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;
@@ -1856,7 +1856,7 @@ codeunit 136110 "Service Management Setup"
         repeat
             ServiceContractLine.TestField(
               "Next Planned Service Date", CalcDate(ServiceContractHeader."Service Period", ServiceContractHeader."Starting Date"));
-        until ServiceContractLine.Next = 0;
+        until ServiceContractLine.Next() = 0;
     end;
 
     local procedure VerifyActualNextServCalcMthod(ServiceContractLine: Record "Service Contract Line"; ContractHeaderServicePeriod: DateFormula)
@@ -1869,7 +1869,7 @@ codeunit 136110 "Service Management Setup"
         repeat
             ServiceContractLine.TestField(
               "Next Planned Service Date", CalcDate(ContractHeaderServicePeriod, ServiceContractLine."Last Service Date"));
-        until ServiceContractLine.Next = 0;
+        until ServiceContractLine.Next() = 0;
     end;
 
     local procedure VerifyFaultReasonCode(No: Code[20])
@@ -1958,7 +1958,7 @@ codeunit 136110 "Service Management Setup"
         // Call the ServAllocationManagement code unit to allocate Resource.
         ServAllocationManagement.AllocateDate(
           ServiceOrderAllocation."Document Type".AsInteger(), ServiceOrderAllocation."Document No.", ServiceOrderAllocation."Entry No.",
-          Resource."No.", '', WorkDate, 0);
+          Resource."No.", '', WorkDate(), 0);
     end;
 
     [PageHandler]
@@ -2033,7 +2033,7 @@ codeunit 136110 "Service Management Setup"
     end;
 
     [ModalPageHandler]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     var
         NoSeries: Record "No. Series";
     begin
@@ -2043,4 +2043,3 @@ codeunit 136110 "Service Management Setup"
         NoSeriesList.OK().Invoke();
     end;
 }
-

@@ -5,19 +5,20 @@ codeunit 5672 "Insurance Jnl.-Post+Print"
     trigger OnRun()
     begin
         InsuranceJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(InsuranceJnlLine);
     end;
 
     var
-        Text000: Label 'Do you want to post the journal lines and print the posting report?';
-        Text001: Label 'There is nothing to post.';
-        Text002: Label 'The journal lines were successfully posted.';
-        Text003: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlLine: Record "Insurance Journal Line";
         InsuranceReg: Record "Insurance Register";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         TempJnlBatchName: Code[10];
+
+        Text000: Label 'Do you want to post the journal lines and print the posting report?';
+        Text002: Label 'The journal lines were successfully posted.';
+        Text003: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
 
     local procedure "Code"()
     var
@@ -38,12 +39,12 @@ codeunit 5672 "Insurance Jnl.-Post+Print"
             CODEUNIT.Run(CODEUNIT::"Insurance Jnl.-Post Batch", InsuranceJnlLine);
 
             if InsuranceReg.Get("Line No.") then begin
-                InsuranceReg.SetRecFilter;
+                InsuranceReg.SetRecFilter();
                 REPORT.Run(InsuranceJnlTempl."Posting Report ID", false, false, InsuranceReg);
             end;
 
             if "Line No." = 0 then
-                Message(Text001)
+                Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
             else
                 if TempJnlBatchName = "Journal Batch Name" then
                     Message(Text002)
@@ -53,7 +54,7 @@ codeunit 5672 "Insurance Jnl.-Post+Print"
                       "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

@@ -45,7 +45,7 @@ table 5072 "Campaign Entry"
         }
         field(8; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Campaign No." = FIELD("Campaign No."),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Campaign No." = FIELD("Campaign No."),
                                                                "Campaign Entry No." = FIELD("Entry No."),
                                                                Canceled = FIELD(Canceled)));
             Caption = 'No. of Interactions';
@@ -55,7 +55,7 @@ table 5072 "Campaign Entry"
         field(10; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Interaction Log Entry"."Cost (LCY)" WHERE("Campaign No." = FIELD("Campaign No."),
+            CalcFormula = Sum("Interaction Log Entry"."Cost (LCY)" WHERE("Campaign No." = FIELD("Campaign No."),
                                                                           "Campaign Entry No." = FIELD("Entry No."),
                                                                           Canceled = FIELD(Canceled)));
             Caption = 'Cost (LCY)';
@@ -64,7 +64,7 @@ table 5072 "Campaign Entry"
         }
         field(11; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Interaction Log Entry"."Duration (Min.)" WHERE("Campaign No." = FIELD("Campaign No."),
+            CalcFormula = Sum("Interaction Log Entry"."Duration (Min.)" WHERE("Campaign No." = FIELD("Campaign No."),
                                                                                "Campaign Entry No." = FIELD("Entry No."),
                                                                                Canceled = FIELD(Canceled)));
             Caption = 'Duration (Min.)';
@@ -129,7 +129,7 @@ table 5072 "Campaign Entry"
         Date := SegLine.Date;
         "Segment No." := SegLine."Segment No.";
         "Salesperson Code" := SegLine."Salesperson Code";
-        "User ID" := UserId;
+        "User ID" := UserId();
         "Document Type" := SegLine."Document Type";
     end;
 
@@ -137,7 +137,7 @@ table 5072 "Campaign Entry"
     var
         MasterCanceledCheckmark: Boolean;
     begin
-        if ConfirmToggleCanceledCheckmark then begin
+        if ConfirmToggleCanceledCheckmark() then begin
             MasterCanceledCheckmark := not Canceled;
             SetCanceledCheckmark(MasterCanceledCheckmark);
         end;
@@ -148,7 +148,7 @@ table 5072 "Campaign Entry"
         InteractLogEntry: Record "Interaction Log Entry";
     begin
         Canceled := CanceledCheckmark;
-        Modify;
+        Modify();
 
         InteractLogEntry.SetCurrentKey("Campaign No.", "Campaign Entry No.");
         InteractLogEntry.SetRange("Campaign No.", "Campaign No.");
@@ -159,9 +159,9 @@ table 5072 "Campaign Entry"
     local procedure ConfirmToggleCanceledCheckmark(): Boolean
     begin
         if Canceled then
-            exit(Confirm(Text000, true, TableCaption, "Entry No.", FieldCaption(Canceled)));
+            exit(Confirm(Text000, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
 
-        exit(Confirm(Text002, true, TableCaption, "Entry No.", FieldCaption(Canceled)));
+        exit(Confirm(Text002, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
     end;
 }
 

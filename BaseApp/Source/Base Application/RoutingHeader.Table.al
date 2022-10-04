@@ -50,7 +50,7 @@ table 99000763 "Routing Header"
                 if (Status <> xRec.Status) and (Status = Status::Certified) then
                     CheckRouting.Calculate(Rec, '');
 
-                if Status = Status::Closed then begin
+                if Status = Status::Closed then
                     if Confirm(
                          Text001, false)
                     then begin
@@ -58,7 +58,6 @@ table 99000763 "Routing Header"
                         RtngVersion.ModifyAll(Status, RtngVersion.Status::Closed);
                     end else
                         Status := xRec.Status;
-                end;
             end;
         }
         field(21; Type; Option)
@@ -149,17 +148,18 @@ table 99000763 "Routing Header"
     trigger OnRename()
     begin
         if Status = Status::Certified then
-            Error(Text002, TableCaption, FieldCaption(Status), Format(Status));
+            Error(Text002, TableCaption(), FieldCaption(Status), Format(Status));
     end;
 
     var
-        Text000: Label 'This Routing is being used on Items.';
-        Text001: Label 'All versions attached to the routing will be closed. Close routing?';
         MfgSetup: Record "Manufacturing Setup";
         RoutingHeader: Record "Routing Header";
         RtngVersion: Record "Routing Version";
         CheckRouting: Codeunit "Check Routing Lines";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+
+        Text000: Label 'This Routing is being used on Items.';
+        Text001: Label 'All versions attached to the routing will be closed. Close routing?';
         Text002: Label 'You cannot rename the %1 when %2 is %3.';
 
     procedure AssistEdit(OldRtngHeader: Record "Routing Header"): Boolean

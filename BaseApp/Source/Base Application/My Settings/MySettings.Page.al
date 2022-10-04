@@ -17,7 +17,7 @@ page 9176 "My Settings"
             group(Control14)
             {
                 ShowCaption = false;
-                field(UserRoleCenter; GetProfileName)
+                field(UserRoleCenter; GetProfileName())
                 {
                     ApplicationArea = All;
                     AssistEdit = true;
@@ -33,10 +33,10 @@ page 9176 "My Settings"
                         RoleCenterOverview: Page "Role Center Overview";
                         UserPersonalizationCard: Page "User Personalization Card";
                     begin
-                        if RolecenterSelectorMgt.IsRolecenterSelectorEnabled(UserId) then begin
+                        if RolecenterSelectorMgt.IsRolecenterSelectorEnabled(UserId()) then begin
                             RoleCenterOverview.SetSelectedProfile(ProfileScope, ProfileAppID, ProfileID);
-                            RoleCenterOverview.DelaySessionUpdateRequest;
-                            if RoleCenterOverview.RunModal = ACTION::OK then
+                            RoleCenterOverview.DelaySessionUpdateRequest();
+                            if RoleCenterOverview.RunModal() = ACTION::OK then
                                 RoleCenterOverview.GetSelectedProfile(ProfileScope, ProfileAppID, ProfileID);
                         end else begin
                             if AllProfile.Get(ProfileScope, ProfileAppID, ProfileID) then;
@@ -71,15 +71,15 @@ page 9176 "My Settings"
 
                         AllowedCompanies.LookupMode(true);
 
-                        if AllowedCompanies.RunModal = ACTION::LookupOK then begin
+                        if AllowedCompanies.RunModal() = ACTION::LookupOK then begin
                             AllowedCompanies.GetRecord(SelectedCompany);
                             OnCompanyChange(SelectedCompany.Name, IsSetupInProgress);
                             if IsSetupInProgress then begin
                                 VarCompany := CompanyName;
-                                Message(StrSubstNo(CompanySetUpInProgressMsg, SelectedCompany.Name, PRODUCTNAME.Short));
+                                Message(StrSubstNo(CompanySetUpInProgressMsg, SelectedCompany.Name, PRODUCTNAME.Short()));
                             end else
                                 VarCompany := SelectedCompany.Name;
-                            SetCompanyDisplayName;
+                            SetCompanyDisplayName();
                         end;
                     end;
                 }
@@ -91,13 +91,13 @@ page 9176 "My Settings"
 
                     trigger OnValidate()
                     begin
-                        if NewWorkdate <> WorkDate then
-                            OnBeforeWorkdateChange(WorkDate, NewWorkdate);
+                        if NewWorkdate <> WorkDate() then
+                            OnBeforeWorkdateChange(WorkDate(), NewWorkdate);
 
                         WorkDate := NewWorkdate;
                     end;
                 }
-                field(Locale; GetLocale)
+                field(Locale; GetLocale())
                 {
                     ApplicationArea = All;
                     Caption = 'Region';
@@ -110,7 +110,7 @@ page 9176 "My Settings"
                         Language.LookupWindowsLanguageId(LocaleID);
                     end;
                 }
-                field(Language; GetLanguage)
+                field(Language; GetLanguage())
                 {
                     ApplicationArea = All;
                     Caption = 'Language';
@@ -125,7 +125,7 @@ page 9176 "My Settings"
                         Language.LookupApplicationLanguageId(LanguageID);
                     end;
                 }
-                field(TimeZone; GetTimeZone)
+                field(TimeZone; GetTimeZone())
                 {
                     ApplicationArea = All;
                     Caption = 'Time Zone';
@@ -175,7 +175,7 @@ page 9176 "My Settings"
                         UserCallouts.SwitchCalloutsEnabledValue(UserSecurityId());
                     end;
                 }
-                field(LastLoginInfo; GetLastLoginInfo)
+                field(LastLoginInfo; GetLastLoginInfo())
                 {
                     ApplicationArea = All;
                     Caption = 'LastLoginInfo';
@@ -192,7 +192,7 @@ page 9176 "My Settings"
 
     trigger OnInit()
     begin
-        IsNotOnMobile := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
+        IsNotOnMobile := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
         ShowRoleCenterOverviewEnabledField := false;
     end;
 
@@ -203,7 +203,7 @@ page 9176 "My Settings"
         RolecenterSelectorMgt: Codeunit "Rolecenter Selector Mgt.";
     begin
         with UserPersonalization do begin
-            Get(UserSecurityId);
+            Get(UserSecurityId());
             ProfileID := "Profile ID";
             ProfileAppID := "App ID";
             ProfileScope := Scope;
@@ -216,13 +216,13 @@ page 9176 "My Settings"
                 IsCompanyChanged := true
             end else
                 VarCompany := Company;
-            NewWorkdate := WorkDate;
-            SetCompanyDisplayName;
+            NewWorkdate := WorkDate();
+            SetCompanyDisplayName();
         end;
-        if RoleCenterNotificationMgt.IsEvaluationNotificationClicked then begin
+        if RoleCenterNotificationMgt.IsEvaluationNotificationClicked() then begin
             // change notification state from Clicked to Enabled in order to avoid appearing a new notification
             // on this page after decline of terms & conditions in the 30 days trial wizard
-            RoleCenterNotificationMgt.EnableEvaluationNotification;
+            RoleCenterNotificationMgt.EnableEvaluationNotification();
             Commit();
         end;
         RoleCenterOverviewEnabled := RolecenterSelectorMgt.GetShowStateFromUserPreference(UserId);
@@ -241,7 +241,7 @@ page 9176 "My Settings"
     begin
         if CloseAction <> ACTION::Cancel then begin
             with UserPersonalization do begin
-                Get(UserSecurityId);
+                Get(UserSecurityId());
 
                 if ("Language ID" <> LanguageID) or
                    ("Locale ID" <> LocaleID) or
@@ -282,7 +282,7 @@ page 9176 "My Settings"
             end;
 
             if WasEvaluation and TenantLicenseState.IsTrialMode() then
-                Message(StrSubstNo(TrialStartMsg, PRODUCTNAME.Marketing));
+                Message(StrSubstNo(TrialStartMsg, PRODUCTNAME.Marketing()));
 
             if AllProfile.Get(ProfileScope, ProfileAppID, ProfileID) then;
             OnAfterQueryClosePage(LanguageID, LocaleID, TimeZoneID, VarCompany, AllProfile);
@@ -358,7 +358,7 @@ page 9176 "My Settings"
         UserLoginTimeTracker: Codeunit "User Login Time Tracker";
         LastLoginDateTime: DateTime;
     begin
-        LastLoginDateTime := UserLoginTimeTracker.GetPenultimateLoginDateTime;
+        LastLoginDateTime := UserLoginTimeTracker.GetPenultimateLoginDateTime();
         if LastLoginDateTime <> 0DT then
             exit(StrSubstNo(MyLastLoginLbl, LastLoginDateTime));
 

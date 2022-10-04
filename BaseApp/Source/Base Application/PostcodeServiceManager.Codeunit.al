@@ -31,7 +31,7 @@ codeunit 9090 "Postcode Service Manager"
         ErrorMsg: Text;
     begin
         IsSuccessful := true;
-        if not TryGetAddressList(GetActiveService, TempEnteredAutocompleteAddress, TempAddressListNameValueBuffer, IsSuccessful, ErrorMsg) then begin
+        if not TryGetAddressList(GetActiveService(), TempEnteredAutocompleteAddress, TempAddressListNameValueBuffer, IsSuccessful, ErrorMsg) then begin
             IsSuccessful := false;
             if ErrorMsg = '' then
                 ErrorMsg := TechnicalErr;
@@ -47,7 +47,7 @@ codeunit 9090 "Postcode Service Manager"
         ErrorMsg: Text;
     begin
         IsSuccessful := true;
-        if not TryGetAddress(GetActiveService, TempEnteredAutocompleteAddress,
+        if not TryGetAddress(GetActiveService(), TempEnteredAutocompleteAddress,
              TempSelectedAddressNameValueBuffer, TempAutocompleteAddress, IsSuccessful, ErrorMsg)
         then begin
             IsSuccessful := false;
@@ -139,7 +139,7 @@ codeunit 9090 "Postcode Service Manager"
         if not PostcodeServiceConfig.FindFirst() then
             Error(ServiceNotConfiguredErr);
 
-        exit(PostcodeServiceConfig.GetServiceKey);
+        exit(PostcodeServiceConfig.GetServiceKey());
     end;
 
     [IntegrationEvent(false, false)]

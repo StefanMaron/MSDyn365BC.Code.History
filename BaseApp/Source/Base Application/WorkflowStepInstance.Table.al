@@ -138,14 +138,14 @@ table 1504 "Workflow Step Instance"
         WorkflowTableRelationValue.SetRange("Workflow Code", "Workflow Code");
         if not WorkflowTableRelationValue.IsEmpty() then
             WorkflowTableRelationValue.DeleteAll();
-        DeleteStepInstanceRules;
+        DeleteStepInstanceRules();
         RemoveRecordRestrictions();
     end;
 
     trigger OnInsert()
     begin
         "Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
-        "Created By User ID" := UserId;
+        "Created By User ID" := UserId();
     end;
 
     trigger OnModify()
@@ -205,9 +205,9 @@ table 1504 "Workflow Step Instance"
                 WorkflowInstance.SetRange(Code, "Workflow Code");
                 WorkflowInstance.SetRange(Instance_ID, ID);
                 WorkflowInstance.SetFilter(Status, '<>%1|%2', Status::Completed, Status::Ignored);
-                WorkflowInstance.Open;
+                WorkflowInstance.Open();
 
-                while WorkflowInstance.Read do
+                while WorkflowInstance.Read() do
                     WorkflowTableRelationValue.CreateNew(WorkflowInstance.Step_ID, Rec, WorkflowTableRelation, RecRef);
             until WorkflowTableRelation.Next() = 0;
     end;

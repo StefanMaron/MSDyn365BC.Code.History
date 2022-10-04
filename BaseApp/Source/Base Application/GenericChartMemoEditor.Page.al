@@ -19,13 +19,13 @@ page 9189 "Generic Chart Memo Editor"
                     ToolTip = 'Specifies a code. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                 }
-                field("Language Name"; "Language Name")
+                field("Language Name"; Rec."Language Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -59,7 +59,7 @@ page 9189 "Generic Chart Memo Editor"
 
     trigger OnAfterGetCurrRecord()
     begin
-        MemoText := GetMemoText
+        MemoText := GetMemoText();
     end;
 
     var
@@ -71,9 +71,9 @@ page 9189 "Generic Chart Memo Editor"
     begin
         Copy(TempGenericChartMemoBuf, true);
         SetRange(Code, MemoCode);
-        if Get(MemoCode, Language.GetUserLanguageCode) then;
+        if Get(MemoCode, Language.GetUserLanguageCode()) then;
         CurrPage.RunModal();
-        exit(GetMemo(MemoCode, Language.GetUserLanguageCode))
+        exit(GetMemo(MemoCode, Language.GetUserLanguageCode()))
     end;
 }
 

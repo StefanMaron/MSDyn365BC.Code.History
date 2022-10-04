@@ -5,7 +5,7 @@ codeunit 89 "Sales-Post + Email"
     trigger OnRun()
     begin
         SalesHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := SalesHeader;
     end;
 
@@ -61,8 +61,8 @@ codeunit 89 "Sales-Post + Email"
                             SalesInvHeader."No." := "No."
                         else
                             SalesInvHeader."No." := "Last Posting No.";
-                        SalesInvHeader.Find;
-                        SalesInvHeader.SetRecFilter;
+                        SalesInvHeader.Find();
+                        SalesInvHeader.SetRecFilter();
                         SalesInvHeader.EmailRecords(not HideMailDialog);
                     end;
                 "Document Type"::"Credit Memo":
@@ -71,8 +71,8 @@ codeunit 89 "Sales-Post + Email"
                             SalesCrMemoHeader."No." := "No."
                         else
                             SalesCrMemoHeader."No." := "Last Posting No.";
-                        SalesCrMemoHeader.Find;
-                        SalesCrMemoHeader.SetRecFilter;
+                        SalesCrMemoHeader.Find();
+                        SalesCrMemoHeader.SetRecFilter();
                         SalesCrMemoHeader.EmailRecords(not HideMailDialog);
                     end
             end

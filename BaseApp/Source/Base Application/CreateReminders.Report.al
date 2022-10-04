@@ -47,7 +47,7 @@ report 188 "Create Reminders"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                Window.Close;
+                Window.Close();
                 MarkedOnly := true;
                 Commit();
                 if FindFirst() then begin
@@ -150,8 +150,8 @@ report 188 "Create Reminders"
         trigger OnOpenPage()
         begin
             if ReminderHeaderReq."Document Date" = 0D then begin
-                ReminderHeaderReq."Document Date" := WorkDate;
-                ReminderHeaderReq."Posting Date" := WorkDate;
+                ReminderHeaderReq."Document Date" := WorkDate();
+                ReminderHeaderReq."Posting Date" := WorkDate();
             end;
         end;
     }
@@ -169,7 +169,7 @@ report 188 "Create Reminders"
     var
         ReminderLine: Record "Reminder Line";
     begin
-        OnBeforeOnPostReport;
+        OnBeforeOnPostReport();
         if FinishDateTime = 0DT then
             FinishDateTime := CurrentDateTime();
         NumberOfReminderLines := ReminderLine.Count() - NumberOfReminderLines;
@@ -181,7 +181,7 @@ report 188 "Create Reminders"
         ReminderLine: Record "Reminder Line";
     begin
         StartDateTime := CurrentDateTime();
-        OnBeforeOnPreReport;
+        OnBeforeOnPreReport();
 
         CustLedgEntry.Copy(CustLedgEntry2);
         if CustLedgEntryLineFeeOnFilters.GetFilters <> '' then
@@ -192,10 +192,6 @@ report 188 "Create Reminders"
     end;
 
     var
-        Text000: Label '%1 must be specified.';
-        Text001: Label 'Making reminders...';
-        Text002: Label 'Making reminders @1@@@@@@@@@@@@@';
-        Text003: Label 'It was not possible to create reminders for some of the selected customers.\Do you want to see these customers?';
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntryLineFeeOnFilters: Record "Cust. Ledger Entry";
         MakeReminder: Codeunit "Reminder-Make";
@@ -206,9 +202,11 @@ report 188 "Create Reminders"
         OldProgress: Integer;
         NewDateTime: DateTime;
         OldDateTime: DateTime;
-        OverdueEntriesOnly: Boolean;
-        UseHeaderLevel: Boolean;
-        IncludeEntriesOnHold: Boolean;
+
+        Text000: Label '%1 must be specified.';
+        Text001: Label 'Making reminders...';
+        Text002: Label 'Making reminders @1@@@@@@@@@@@@@';
+        Text003: Label 'It was not possible to create reminders for some of the selected customers.\Do you want to see these customers?';
         TelemetryCategoryTxt: Label 'Report', Locked = true;
         CreateRemindersReportGeneratedTxt: Label 'Create Reminders report generated.', Locked = true;
 
@@ -217,6 +215,9 @@ report 188 "Create Reminders"
         NumberOfReminderLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;
+        OverdueEntriesOnly: Boolean;
+        UseHeaderLevel: Boolean;
+        IncludeEntriesOnHold: Boolean;
 
     procedure InitializeRequest(DocumentDate: Date; PostingDate: Date; OverdueEntries: Boolean; NewUseHeaderLevel: Boolean; IncludeEntries: Boolean)
     begin

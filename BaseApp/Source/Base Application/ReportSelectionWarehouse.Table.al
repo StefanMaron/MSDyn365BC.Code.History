@@ -57,7 +57,7 @@ table 7355 "Report Selection Warehouse"
         ReportSelectionWhse2: Record "Report Selection Warehouse";
     begin
         ReportSelectionWhse2.SetRange(Usage, Usage);
-        if ReportSelectionWhse2.FindLast and (ReportSelectionWhse2.Sequence <> '') then
+        if ReportSelectionWhse2.FindLast() and (ReportSelectionWhse2.Sequence <> '') then
             Sequence := IncStr(ReportSelectionWhse2.Sequence)
         else
             Sequence := '1';

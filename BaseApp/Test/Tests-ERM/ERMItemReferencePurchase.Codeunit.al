@@ -1297,7 +1297,7 @@ codeunit 134464 "ERM Item Reference Purchase"
         ItemVendor.Modify(true);
 
         // [THEN] Item Reference description is not changed
-        ItemReference.Find;
+        ItemReference.Find();
         ItemReference.TestField(Description, SavedItemReferenceDescription);
     end;
 
@@ -1581,7 +1581,7 @@ codeunit 134464 "ERM Item Reference Purchase"
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30])
     begin
         with ItemReference do begin
-            Init;
+            Init();
             Validate("Item No.", ItemNo);
             Validate("Variant Code", ItemVariantNo);
             Validate("Reference Type", ReferenceType);
@@ -1628,7 +1628,7 @@ codeunit 134464 "ERM Item Reference Purchase"
             ItemReferenceList."Reference Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
             ItemReferenceList."Reference Type No.".AssertEquals(LibraryVariableStorage.DequeueText);
             ItemReferenceList."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        until ItemReferenceList.Next = false;
+        until ItemReferenceList.Next() = false;
         ItemReferenceList.OK.Invoke;
     end;
 

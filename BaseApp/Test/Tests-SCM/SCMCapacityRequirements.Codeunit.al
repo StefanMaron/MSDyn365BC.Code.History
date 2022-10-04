@@ -52,7 +52,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // Setup: Create Production Item with Routing.
         Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
-        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
 
         // Calculate Capacity values for verifying Capacity on Page - Work Center Load.
         FindWorkCenter(WorkCenter, Item."Routing No.");
@@ -117,7 +117,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", 0);  // Capacity as 0 required.
 
         // Exercise: Calculate Machine Center Calendar.
-        asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Machine Center Capacity zero.
         Assert.ExpectedError(StrSubstNo(MachineCenterCapacityError, MachineCenter."No."));
@@ -137,7 +137,7 @@ codeunit 137074 "SCM Capacity Requirements"
         UpdateMachineCenterWithZeroEfficiency(MachineCenter);
 
         // Exercise: Calculate Machine Center Calendar.
-        asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Machine Center Efficiency zero.
         Assert.ExpectedError(StrSubstNo(MachineCenterEfficiencyError, MachineCenter."No."));
@@ -155,7 +155,7 @@ codeunit 137074 "SCM Capacity Requirements"
         UpdateWorkCenterWithZeroCapacity(WorkCenter);
 
         // Exercise: Calculate Work Center Calendar.
-        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Work Center Capacity zero.
         Assert.ExpectedError(StrSubstNo(WorkCenterCapacityError, WorkCenter."No."));
@@ -173,7 +173,7 @@ codeunit 137074 "SCM Capacity Requirements"
         UpdateWorkCenterWithZeroEfficiency(WorkCenter);
 
         // Exercise: Calculate Work Center Calendar.
-        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // Verify: Verify Error message for Work Center Efficiency zero.
         Assert.ExpectedError(StrSubstNo(WorkCenterEfficiencyError, WorkCenter."No."));
@@ -353,7 +353,7 @@ codeunit 137074 "SCM Capacity Requirements"
             CreateSalesOrder(SalesHeader, Item."No.");
             CreateFirmPlannedProductionOrderFromSalesOrder(SalesHeader);
         end else
-            CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+            CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         FindFirmPlannedProdOrderLine(ProdOrderLine, Item."No.");
 
         // Exercise: Update Starting Date and Starting Time on Production Order Line different from previous value.
@@ -374,7 +374,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // Setup: Create Production Item with Routing and Sales Order.
         Initialize();
         CreateProductionItemWithRoutingSetup(Item, false);
-        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate());
 
         // Update Quantity as Zero on Production Order Line.
         FindFirmPlannedProdOrderLine(ProdOrderLine, Item."No.");
@@ -501,7 +501,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateSalesOrder(SalesHeader, Item."No.");
 
         // Exercise: Calculate Plan for Planning Worksheet.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify Move Time and Wait Time on Planning Routing Line.
         VerifyOperationsTimeOnPlanningRoutingLine(Item."Routing No.", RoutingLine.Type::"Work Center");
@@ -525,7 +525,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateSalesOrder(SalesHeader, Item."No.");
 
         // Exercise: Calculate Plan for Planning Worksheet.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify Send Ahead Quantity on Planning Routing Line.
         VerifySendAheadQuantityOnPlanningRoutingLine(Item."Routing No.", PlanningRoutingLine.Type::"Work Center");
@@ -594,7 +594,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         // Setup: Create Production Item with Routing, create and refresh Firm Planned Production Order.
         CreateProductionItemWithRoutingSetup(Item, false);
-        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProdOrder, Item."No.", LibraryRandom.RandIntInRange(5, 100), WorkDate);
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProdOrder, Item."No.", LibraryRandom.RandIntInRange(5, 100), WorkDate());
         FindRoutingLine(RoutingLine, ProdOrder."Routing No.", RoutingLine.Type::"Machine Center");
         MachineCenter.Get(RoutingLine."No.");
 
@@ -729,7 +729,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithRoutingSetup(Item, false);
 
         // [GIVEN] Create and refresh Production Order
-        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProdOrder, Item."No.", LibraryRandom.RandIntInRange(5, 100), WorkDate);
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProdOrder, Item."No.", LibraryRandom.RandIntInRange(5, 100), WorkDate());
 
         // [WHEN] Set "Routing No." to "M" on Prod. Order Routing Line
         FindRoutingLine(RoutingLine, ProdOrder."Routing No.", RoutingLine.Type::"Machine Center");
@@ -779,10 +779,10 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 100, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 100, '', WorkDate());
 
         // [WHEN] Calculate regenerative plan backward for "I" Production Order
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] "Prod. Order Capacity Need" hasn't time gaps for single routing line
         VerifyProdOrderCapacityNeedTime(WorkCenterCode, 2);
@@ -825,7 +825,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Fixed Reorder Qty.", 100);
 
         // [WHEN] Calculate regenerative plan forward for "I" Production Order
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] "Prod. Order Capacity Need" hasn't time gaps for single routing line
         VerifyProdOrderCapacityNeedTime(WorkCenterCode, 2);
@@ -870,10 +870,10 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 100, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 100, '', WorkDate());
 
         // [WHEN] Calculate regenerative plan backward for "I" Production Order
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] "Prod. Order Capacity Need" hasn't time gaps for single routing line
         VerifyProdOrderCapacityNeedTime(WorkCenterCode, 4);
@@ -916,7 +916,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Fixed Reorder Qty.", 100);
 
         // [WHEN] Calculate regenerative plan forward for "I" Production Order
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] "Prod. Order Capacity Need" hasn't time gaps for single routing line
         VerifyProdOrderCapacityNeedTime(WorkCenterCode, 4);
@@ -4694,8 +4694,8 @@ codeunit 137074 "SCM Capacity Requirements"
         ShopCalendarCode: Code[10];
     begin
         ShopCalendarCode := CreateThreeShiftsShopCalendar;
-        WorkCenterCode[1] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate);
-        WorkCenterCode[2] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate);
+        WorkCenterCode[1] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate());
+        WorkCenterCode[2] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate());
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLineWithSendAhead(
           RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenterCode[1], 0, 0.12121, 0, 0, 6, 1, '10', '', '');
@@ -4735,7 +4735,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         ShopCalendarCode := CreateThreeShiftsShopCalendar;
         for i := 1 to ArrayLen(WorkCenterCode) do
-            WorkCenterCode[i] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate);
+            WorkCenterCode[i] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate());
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
         CreateRoutingLineWithSendAhead(
           RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenterCode[1], 0, 2.5, 0, 0, 0, 1, '10', '', '20|30');
@@ -4815,7 +4815,7 @@ codeunit 137074 "SCM Capacity Requirements"
             Validate(Capacity, LibraryRandom.RandIntInRange(3, 5)); // Any value except 1.
             Modify(true);
         end;
-        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; Type: Enum "Capacity Type Routing"; No: Code[20]; IsMultipleUOM: Boolean)
@@ -4865,7 +4865,7 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
     begin
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CreateWorkCenterWithShopCalendar(UOMType: Enum "Capacity Unit of Measure"; ShopCalendarCode: Code[10]; Efficiency: Decimal; Capacity: Decimal; DueDate: Date): Code[20]
@@ -5325,7 +5325,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
     local procedure UpdateStartingDateAndTimeOnProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     begin
-        ProdOrderLine.Validate("Starting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        ProdOrderLine.Validate("Starting Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         ProdOrderLine.Validate("Starting Time", Time);
         ProdOrderLine.Modify(true);
     end;
@@ -5342,7 +5342,7 @@ codeunit 137074 "SCM Capacity Requirements"
         with ProdOrderRoutingLine do begin
             Validate("Send-Ahead Quantity", SendAheadQuantity);
             Validate("Concurrent Capacities", ConcurrentCapacities);
-            Validate("Starting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+            Validate("Starting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
             Validate("Starting Time", 080000T); // To make sure the Starting Time of the next Operation won't exceed the ending time of current working day.
             Modify(true);
         end;
@@ -5462,7 +5462,7 @@ codeunit 137074 "SCM Capacity Requirements"
         repeat
             ProdOrderCapacityNeedPage.FILTER.SetFilter("Time Type", Format(ProdOrderCapacityNeed."Time Type"));
             ProdOrderCapacityNeedPage."Allocated Time".AssertEquals(ProdOrderCapacityNeed."Allocated Time");
-        until ProdOrderCapacityNeed.Next = 0;
+        until ProdOrderCapacityNeed.Next() = 0;
     end;
 
     local procedure VerifyStartingDateTimeOnProdOrderRoutingLine(RoutingNo: Code[20]; ProdOrderNo: Code[20]; Type: Enum "Capacity Type Routing"; StartingDateTime: DateTime)
@@ -5498,7 +5498,7 @@ codeunit 137074 "SCM Capacity Requirements"
                 ZeroEndingDateTime := 0DT;
                 if DT2Time(EndingDateTime) - 235959T < 1000 then
                     ZeroEndingDateTime := CreateDateTime(DT2Date(EndingDateTime) + 1, 0T);
-            until ProdOrderCapacityNeed.Next = 0;
+            until ProdOrderCapacityNeed.Next() = 0;
         end;
     end;
 

@@ -12,14 +12,14 @@ page 5758 "Posted Transfer Shipment Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Location;
                     HideValue = DocumentNoHideValue;
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the document number associated with this transfer line.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the item that will be transferred.';
@@ -34,12 +34,12 @@ page 5758 "Posted Transfer Shipment Lines"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the quantity of the item specified on the line.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
@@ -106,7 +106,7 @@ page 5758 "Posted Transfer Shipment Lines"
     trigger OnAfterGetRecord()
     begin
         DocumentNoHideValue := false;
-        DocumentNoOnFormat;
+        DocumentNoOnFormat();
     end;
 
     var

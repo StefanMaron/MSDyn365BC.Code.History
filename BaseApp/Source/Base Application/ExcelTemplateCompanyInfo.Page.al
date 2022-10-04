@@ -40,7 +40,7 @@ page 1320 ExcelTemplateCompanyInfo
 
     trigger OnAfterGetRecord()
     begin
-        GetCompanyInformation;
+        GetCompanyInformation();
     end;
 
     var
@@ -55,7 +55,7 @@ page 1320 ExcelTemplateCompanyInfo
         if Company.Get(CompanyName) then
             DisplayName := Company."Display Name";
 
-        if GeneralLedgerSetup.Get then
+        if GeneralLedgerSetup.Get() then
             CurrencyCode := GeneralLedgerSetup."LCY Code";
     end;
 }

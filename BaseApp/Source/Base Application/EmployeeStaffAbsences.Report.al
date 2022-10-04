@@ -15,7 +15,7 @@ report 5204 "Employee - Staff Absences"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_Absence__TABLECAPTION__________AbsenceFilter; TableCaption + ': ' + AbsenceFilter)
@@ -27,7 +27,7 @@ report 5204 "Employee - Staff Absences"
             column(Employee_Absence__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Employee.FullName)
+            column(Employee_FullName; Employee.FullName())
             {
             }
             column(Employee_Absence__From_Date_; Format("From Date"))
@@ -98,7 +98,7 @@ report 5204 "Employee - Staff Absences"
 
     trigger OnPreReport()
     begin
-        AbsenceFilter := "Employee Absence".GetFilters;
+        AbsenceFilter := "Employee Absence".GetFilters();
     end;
 
     var

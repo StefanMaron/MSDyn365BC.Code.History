@@ -222,10 +222,6 @@ codeunit 136210 "Contact Employee"
 
         // [THEN] "Business Relation" is 'Employee'
         ContactCard."Contact Business Relation".AssertEquals("Contact Business Relation"::Employee);
-#if not CLEAN18
-        // [THEN] C&ustomer/Vendor/Bank Acc. action is not visible
-        Assert.IsFalse(ContactCard."C&ustomer/Vendor/Bank Acc.".Visible(), 'C&ustomer/Vendor/Bank Acc. visible');
-#endif
         // [THEN] Linked employee card is opened
         Assert.IsTrue(EmployeeCard."First Name".Value.Contains(Contact."First Name"), ShownEmployeeCardErr);
     end;
@@ -285,10 +281,6 @@ codeunit 136210 "Contact Employee"
         Assert.IsTrue(ContactList.RelatedEmployee.Enabled(), 'RelatedEmployee. not Enabled');
         ContactList.RelatedEmployee.Invoke();
 
-#if not CLEAN18
-        // [THEN] C&ustomer/Vendor/Bank Acc. action is not visible
-        Assert.IsFalse(ContactList."C&ustomer/Vendor/Bank Acc.".Visible(), 'C&ustomer/Vendor/Bank Acc. visible');
-#endif
         // [THEN] Linked employee card is opened
         Assert.IsTrue(EmployeeCard."First Name".Value.Contains(Contact."First Name"), ShownEmployeeCardErr);
     end;

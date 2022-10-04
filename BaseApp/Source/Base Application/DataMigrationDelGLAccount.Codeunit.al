@@ -3,18 +3,18 @@ codeunit 1812 "Data Migration Del G/L Account"
 
     trigger OnRun()
     begin
-        RemoveAccountsFromAccountScheduleLine;
-        RemoveAccountsFromCustomerPostingGroup;
-        RemoveAccountsFromVendorPostingGroup;
-        RemoveAccountsFromBankAccountPostingGroup;
-        RemoveAccountsFromGenJournalBatch;
-        RemoveAccountsFromGenPostingSetup;
-        RemoveAccountsFromPaymentMethod;
-        RemoveAccountsFromInventoryPostingSetup;
-        RemoveAccountsFromTaxSetup;
-        RemoveAccountsFromCurrency;
-        DeleteGLAccounts;
-        RemoveGLAccountsFromVATPostingSetup;
+        RemoveAccountsFromAccountScheduleLine();
+        RemoveAccountsFromCustomerPostingGroup();
+        RemoveAccountsFromVendorPostingGroup();
+        RemoveAccountsFromBankAccountPostingGroup();
+        RemoveAccountsFromGenJournalBatch();
+        RemoveAccountsFromGenPostingSetup();
+        RemoveAccountsFromPaymentMethod();
+        RemoveAccountsFromInventoryPostingSetup();
+        RemoveAccountsFromTaxSetup();
+        RemoveAccountsFromCurrency();
+        DeleteGLAccounts();
+        RemoveGLAccountsFromVATPostingSetup();
     end;
 
     local procedure DeleteGLAccounts()

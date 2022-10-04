@@ -9,7 +9,7 @@ codeunit 881 "OCR - Receive from Service"
         EnvironmentInfo: Codeunit "Environment Information";
         JobQueueEntryFound: Boolean;
     begin
-        GetDocuments;
+        GetDocuments();
         JobQueueEntryFound :=
           JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, CODEUNIT::"OCR - Receive from Service");
         if JobQueueEntryFound then begin
@@ -18,11 +18,11 @@ codeunit 881 "OCR - Receive from Service"
               "OCR Status", '%1|%2',
               IncomingDocument."OCR Status"::Sent,
               IncomingDocument."OCR Status"::"Awaiting Verification");
-            if IncomingDocument.IsEmpty and EnvironmentInfo.IsSaaS and CompanyInformation."Demo Company" then
+            if IncomingDocument.IsEmpty() and EnvironmentInfo.IsSaaS() and CompanyInformation."Demo Company" then
                 JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold")
             else
                 if JobQueueEntry.Status = JobQueueEntry.Status::"On Hold" then
-                    JobQueueEntry.Restart;
+                    JobQueueEntry.Restart();
         end;
     end;
 

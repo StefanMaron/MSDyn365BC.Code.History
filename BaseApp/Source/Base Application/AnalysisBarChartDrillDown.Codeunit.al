@@ -14,11 +14,11 @@ codeunit 7112 "Analysis BarChart DrillDown"
             3:
                 Evaluate(AnalysisLine."Line No.", DelChr(CopyStr(Tag, 28, 8), '>'));
         end;
-        AnalysisLine.Find;
+        AnalysisLine.Find();
         AnalysisColumn."Analysis Area" := AnalysisLine."Analysis Area";
         AnalysisColumn."Analysis Column Template" := DelChr(CopyStr(Tag, 36, 10), '>');
         Evaluate(AnalysisColumn."Line No.", DelChr(CopyStr(Tag, 46, 8), '>'));
-        AnalysisColumn.Find;
+        AnalysisColumn.Find();
         s := DelChr(CopyStr(Tag, 54, 1), '>');
         Evaluate(CurrSourceTypeFilter, s);
         if CurrSourceTypeFilter <> 0 then

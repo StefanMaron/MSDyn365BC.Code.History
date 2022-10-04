@@ -13,7 +13,7 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
         TempSalesCycleStage: Record "Sales Cycle Stage" temporary;
         SalesCycle: Record "Sales Cycle";
     begin
-        if SalesCycle.FindSet() then begin
+        if SalesCycle.FindSet() then
             repeat
                 SalesPipelineChartMgt.InsertTempSalesCycleStage(TempSalesCycleStage, SalesCycle);
                 if TempSalesCycleStage.FindSet() then
@@ -21,7 +21,6 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
                         InsertToBuffer(TempPowerBIChartBuffer, TempSalesCycleStage);
                     until TempSalesCycleStage.Next() = 0;
             until SalesCycle.Next() = 0;
-        end;
     end;
 
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; TempSalesCycleStage: Record "Sales Cycle Stage" temporary)
@@ -35,7 +34,7 @@ codeunit 6309 "PBI Sales Pipeline Chart Calc."
             Value := SalesPipelineChartMgt.GetOppEntryCount(TempSalesCycleStage."Sales Cycle Code", TempSalesCycleStage.Stage);
             "Measure Name" := TempSalesCycleStage.Description;
             "Measure No." := TempSalesCycleStage."Sales Cycle Code";
-            Insert;
+            Insert();
         end;
     end;
 }

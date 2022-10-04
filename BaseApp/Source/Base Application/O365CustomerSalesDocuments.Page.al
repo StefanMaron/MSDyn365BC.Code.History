@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2109 "O365 Customer Sales Documents"
 {
     Caption = 'Invoices for Customer';
@@ -7,6 +8,9 @@ page 2109 "O365 Customer Sales Documents"
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Sell-to Customer Name");
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,70 +19,70 @@ page 2109 "O365 Customer Sales Documents"
             repeater(Control15)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the type of the document.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the customer.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Sell-to Contact"; "Sell-to Contact")
+                field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the sales document.';
                 }
-                field("Currency Symbol"; "Currency Symbol")
+                field("Currency Symbol"; Rec."Currency Symbol")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the currency with its symbol, such as $ for Dollar. ';
                 }
                 field(Posted; Posted)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the document is posted.';
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the status of the document, such as Released or Open.';
                 }
-                field("Total Invoiced Amount"; "Total Invoiced Amount")
+                field("Total Invoiced Amount"; Rec."Total Invoiced Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the total invoices amount, displayed in Brick view.';
                 }
-                field("Outstanding Status"; "Outstanding Status")
+                field("Outstanding Status"; Rec."Outstanding Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     StyleExpr = OutStandingStatusStyle;
                     ToolTip = 'Specifies the outstanding amount, meaning the amount not paid, displayed in Brick view.';
                 }
-                field("Display No."; "Display No.")
+                field("Display No."; Rec."Display No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
         }
@@ -90,7 +94,7 @@ page 2109 "O365 Customer Sales Documents"
         {
             action(View)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -99,19 +103,15 @@ page 2109 "O365 Customer Sales Documents"
 
                 trigger OnAction()
                 begin
-                    OpenDocument;
+                    OpenDocument();
                 end;
             }
             action(Post)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Send';
                 Gesture = LeftSwipe;
                 Image = PostSendTo;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 //The property 'ToolTip' cannot be empty.
                 //ToolTip = '';
@@ -125,11 +125,9 @@ page 2109 "O365 Customer Sales Documents"
             }
             action(_NEW_TEMP_ESTIMATE)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = New;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "O365 Sales Quote";
                 RunPageMode = Create;
                 ToolTip = 'Create a new estimate.';
@@ -137,11 +135,9 @@ page 2109 "O365 Customer Sales Documents"
             }
             action(_NEW_TEMP_DRAFT)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = New;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "O365 Sales Invoice";
                 RunPageMode = Create;
                 ToolTip = 'Create a new Invoice';
@@ -149,13 +145,9 @@ page 2109 "O365 Customer Sales Documents"
             }
             action(Clear)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Clear';
                 Gesture = RightSwipe;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 Visible = DisplayFailedMode;
 
@@ -169,12 +161,8 @@ page 2109 "O365 Customer Sales Documents"
             }
             action(ClearAll)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Clear all';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Page;
                 Visible = DisplayFailedMode;
 
@@ -182,9 +170,37 @@ page 2109 "O365 Customer Sales Documents"
                 var
                     O365DocumentSendMgt: Codeunit "O365 Document Send Mgt";
                 begin
-                    O365DocumentSendMgt.ClearNotificationsForAllDocuments;
+                    O365DocumentSendMgt.ClearNotificationsForAllDocuments();
                     CurrPage.Update(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(_NEW_TEMP_ESTIMATE_Promoted; _NEW_TEMP_ESTIMATE)
+                {
+                }
+                actionref(_NEW_TEMP_DRAFT_Promoted; _NEW_TEMP_DRAFT)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(Clear_Promoted; Clear)
+                {
+                }
+                actionref(ClearAll_Promoted; ClearAll)
+                {
+                }
             }
         }
     }
@@ -222,4 +238,4 @@ page 2109 "O365 Customer Sales Documents"
         DisplayFailedMode := NewDisplayFailedMode;
     end;
 }
-
+#endif

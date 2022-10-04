@@ -23,10 +23,11 @@ codeunit 7 "GLBudget-Open"
     end;
 
     var
-        Text000: Label 'DEFAULT';
-        Text001: Label 'Default Budget';
         GLBudgetName: Record "G/L Budget Name";
         SearchForName: Boolean;
+
+        Text000: Label 'DEFAULT';
+        Text001: Label 'Default Budget';
 
     procedure SetupFiltersOnGLAccBudgetPage(var GlobalDim1Filter: Text; var GlobalDim2Filter: Text; var GlobalDim1FilterEnable: Boolean; var GlobalDim2FilterEnable: Boolean; var PeriodType: Enum "Analysis Period Type"; var DateFilter: Text; var GLAccount: Record "G/L Account")
     var

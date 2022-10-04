@@ -94,9 +94,9 @@ table 1007 "Job WIP Warning"
             DeleteAll(true);
     end;
 
-    local procedure InsertWarning(JobWIPTotal: Record "Job WIP Total"; Message: Text[250])
+    procedure InsertWarning(JobWIPTotal: Record "Job WIP Total"; Message: Text[250])
     begin
-        Reset;
+        Reset();
         if FindLast() then
             "Entry No." += 1
         else
@@ -106,7 +106,7 @@ table 1007 "Job WIP Warning"
         "Job Task No." := JobWIPTotal."Job Task No.";
         "Warning Message" := Message;
         OnInsertWarningOnBeforeInsert(Rec);
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

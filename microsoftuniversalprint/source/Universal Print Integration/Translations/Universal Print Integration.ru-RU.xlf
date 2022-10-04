@@ -671,13 +671,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Control PaperTray - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
-          <target state="translated">Новый, Процесс, Отчет, Управление, Печать по электронной почте, Универсальная печать</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
-        </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>universal printers,universalprint</source>
           <target state="translated">принтеры универсальной печати,универсальная печать</target>
@@ -724,6 +717,48 @@
           <source>Universal Print portal</source>
           <target state="translated">Портал универсальной печати</target>
           <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 1587086413 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Manage</source>
+          <target state="translated"> Управление</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 3.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 2224783030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Email Print</source>
+          <target state="translated"> Печать по электронной почте</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 4.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 311693179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Universal Print</source>
+          <target state="translated"> Универсальная печать</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 5.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 278110413 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New</source>
+          <target state="translated">Новый</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 0.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Process</source>
+          <target state="translated"> Процесс</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 2234406979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Report</source>
+          <target state="translated"> Отчет</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 2.</note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>

@@ -85,7 +85,7 @@ table 1107 "Cost Allocation Target"
 
             trigger OnValidate()
             begin
-                CalcPercent;
+                CalcPercent();
             end;
         }
         field(11; Percent; Decimal)
@@ -316,7 +316,7 @@ table 1107 "Cost Allocation Target"
                 repeat
                     Percent := Round(100 * Share / TotalShare, 0.00001);
                     "Share Updated on" := Today;
-                    Modify;
+                    Modify();
                 until Next() = 0;
             Rec.Percent := Round(100 * Rec.Share / TotalShare, 0.00001);
             Rec."Share Updated on" := Today;
@@ -324,13 +324,12 @@ table 1107 "Cost Allocation Target"
             // distribute rounding error:
             CalcSums(Percent);
             PctTotal := Percent + Rec.Percent;
-            if PctTotal <> 100 then begin
-                if (Rec."Line No." <> 0) and FindLast and ("Line No." > Rec."Line No.") then begin
+            if PctTotal <> 100 then
+                if (Rec."Line No." <> 0) and FindLast() and ("Line No." > Rec."Line No.") then begin
                     Percent := Percent + (100 - PctTotal);
-                    Modify;
+                    Modify();
                 end else
                     Rec.Percent := Rec.Percent + (100 - PctTotal);
-            end;
         end;
     end;
 
@@ -358,8 +357,8 @@ table 1107 "Cost Allocation Target"
         ItemList: Page "Item List";
     begin
         ItemList.LookupMode(true);
-        if ItemList.RunModal = ACTION::LookupOK then begin
-            SelectionFilter := ItemList.GetSelectionFilter;
+        if ItemList.RunModal() = ACTION::LookupOK then begin
+            SelectionFilter := ItemList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -392,8 +391,8 @@ table 1107 "Cost Allocation Target"
         GLBudgetNames: Page "G/L Budget Names";
     begin
         GLBudgetNames.LookupMode(true);
-        if GLBudgetNames.RunModal = ACTION::LookupOK then begin
-            SelectionFilter := GLBudgetNames.GetSelectionFilter;
+        if GLBudgetNames.RunModal() = ACTION::LookupOK then begin
+            SelectionFilter := GLBudgetNames.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -404,8 +403,8 @@ table 1107 "Cost Allocation Target"
         CostBudgetNames: Page "Cost Budget Names";
     begin
         CostBudgetNames.LookupMode(true);
-        if CostBudgetNames.RunModal = ACTION::LookupOK then begin
-            SelectionFilter := CostBudgetNames.GetSelectionFilter;
+        if CostBudgetNames.RunModal() = ACTION::LookupOK then begin
+            SelectionFilter := CostBudgetNames.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -416,8 +415,8 @@ table 1107 "Cost Allocation Target"
         InvtPostingGroups: Page "Inventory Posting Groups";
     begin
         InvtPostingGroups.LookupMode(true);
-        if InvtPostingGroups.RunModal = ACTION::LookupOK then begin
-            SelectionFilter := InvtPostingGroups.GetSelectionFilter;
+        if InvtPostingGroups.RunModal() = ACTION::LookupOK then begin
+            SelectionFilter := InvtPostingGroups.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

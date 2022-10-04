@@ -87,10 +87,10 @@ codeunit 134277 "Country/Region UT"
         // [WHEN] set "ISO Code" is 'ZZ', "ISO Numeric Code" is '999' on the page
         CountriesRegions."ISO Code".SetValue('ZZ');
         CountriesRegions."ISO Numeric Code".SetValue('999');
-        CountriesRegions.Close;
+        CountriesRegions.Close();
 
         // [THEN] Country 'XX', where "ISO Code" is 'ZZ', "ISO Numeric Code" is '999'
-        CountryRegion.Find;
+        CountryRegion.Find();
         CountryRegion.TestField("ISO Code", 'ZZ');
         CountryRegion.TestField("ISO Numeric Code", '999');
     end;

@@ -23,7 +23,7 @@ page 621 "IC Setup"
                     Caption = 'Intercompany Partner Code';
                     ToolTip = 'Specifies the IC partner code of your company. This is the IC partner code that your IC partners will use to send their transactions to.';
                 }
-                field("Auto. Send Transactions"; "Auto. Send Transactions")
+                field("Auto. Send Transactions"; Rec."Auto. Send Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Auto. Send Transactions';

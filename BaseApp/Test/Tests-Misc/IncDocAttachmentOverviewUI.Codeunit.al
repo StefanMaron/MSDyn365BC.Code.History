@@ -38,7 +38,7 @@ codeunit 139001 "Inc Doc Attachment Overview UI"
 
         repeat
             IncomingDocuments.IncomingDocAttachFactBox.Name.DrillDown;
-        until IncomingDocuments.IncomingDocAttachFactBox.Next;
+        until IncomingDocuments.IncomingDocAttachFactBox.Next();
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 139001 "Inc Doc Attachment Overview UI"
 
         repeat
             IncomingDocuments.IncomingDocAttachFactBox.Export.Invoke;
-        until IncomingDocuments.IncomingDocAttachFactBox.Next;
+        until IncomingDocuments.IncomingDocAttachFactBox.Next();
     end;
 
     local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document"; AttachmentURL: Text)

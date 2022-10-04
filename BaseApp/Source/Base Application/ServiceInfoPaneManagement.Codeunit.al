@@ -11,17 +11,17 @@ codeunit 5972 "Service Info-Pane Management"
     procedure CalcAvailability(var ServLine: Record "Service Line") Result: Decimal
     var
         AvailableToPromise: Codeunit "Available to Promise";
+        LookaheadDateformula: DateFormula;
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
         PeriodType: Enum "Analysis Period Type";
         AvailabilityDate: Date;
-        LookaheadDateformula: DateFormula;
     begin
         if GetItem(ServLine) then begin
             if ServLine."Needed by Date" <> 0D then
                 AvailabilityDate := ServLine."Needed by Date"
             else
-                AvailabilityDate := WorkDate;
+                AvailabilityDate := WorkDate();
 
             Item.Reset();
             Item.SetRange("Date Filter", 0D, AvailabilityDate);

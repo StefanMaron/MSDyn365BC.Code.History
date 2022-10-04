@@ -19,7 +19,7 @@ page 6633 "Sales Return Orders"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -29,27 +29,27 @@ page 6633 "Sales Return Orders"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the customer.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the currency that is used on the entry.';
@@ -59,12 +59,12 @@ page 6633 "Sales Return Orders"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how many units are being sold.';
                 }
-                field("Outstanding Quantity"; "Outstanding Quantity")
+                field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how many units on the order line have not yet been shipped.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -74,12 +74,12 @@ page 6633 "Sales Return Orders"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the sum of amounts in the Line Amount field on the sales return order lines.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';

@@ -35,7 +35,7 @@ codeunit 132910 "System Information Test"
         Assert.IsTrue(SystemInformationTestPage.ErrorText.Visible, 'Expected Error Text to be visible');
         Assert.IsTrue(SystemInformationTestPage.ErrorCode.Visible, 'Expected Error Code to be visible');
 
-        SystemInformationTestPage.Close;
+        SystemInformationTestPage.Close();
     end;
 
     [Test]
@@ -58,7 +58,7 @@ codeunit 132910 "System Information Test"
         // [THEN] Error text field contains the error text
         Assert.AreEqual(ErrorOccurredErr, SystemInformationTestPage.ErrorText.Value, 'Invalid error text.');
 
-        SystemInformationTestPage.Close;
+        SystemInformationTestPage.Close();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 132910 "System Information Test"
         // [THEN]  Error text field contains the latest error text
         Assert.AreEqual(ErrorTwoOccurredErr, SystemInformationTestPage.ErrorText.Value, 'Invalid error text.');
 
-        SystemInformationTestPage.Close;
+        SystemInformationTestPage.Close();
     end;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 132910 "System Information Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // [GIVEN] No error occurred
-        ClearLastError;
+        ClearLastError();
 
         // [WHEN] The page is opened
         SystemInformationTestPage.OpenView;
@@ -106,7 +106,7 @@ codeunit 132910 "System Information Test"
         Assert.IsFalse(SystemInformationTestPage.ErrorText.Visible, 'Expected Error Text to not be visible');
         Assert.IsFalse(SystemInformationTestPage.ErrorCode.Visible, 'Expected Error Code to not be visible');
 
-        SystemInformationTestPage.Close;
+        SystemInformationTestPage.Close();
     end;
 }
 

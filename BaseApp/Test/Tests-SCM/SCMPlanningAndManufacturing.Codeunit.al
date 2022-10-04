@@ -61,10 +61,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", LocationBlue.Code, 0D);  // Use 0D for Expected Receipt Date.
 
         // Verify.
-        PlannedReceiptDate := CalcDate(Vendor."Lead Time Calculation", WorkDate);  // Value required for test.
+        PlannedReceiptDate := CalcDate(Vendor."Lead Time Calculation", WorkDate());  // Value required for test.
         ExpectedReceiptDate :=
           CalcDate('<' + GetDefaultSafetyLeadTime + '>', CalcDate(LocationBlue."Inbound Whse. Handling Time", PlannedReceiptDate));  // Value required for test.
-        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate, PlannedReceiptDate, ExpectedReceiptDate);
+        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate(), PlannedReceiptDate, ExpectedReceiptDate);
     end;
 
     [Test]
@@ -87,12 +87,12 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", Location.Code, 0D);  // Use 0D for Expected Receipt Date.
 
         // Verify.
-        PlannedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate + 1, CalcDate(Vendor."Lead Time Calculation", WorkDate), 1);  // Use 1 for Forward Planning.
+        PlannedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate + 1, CalcDate(Vendor."Lead Time Calculation", WorkDate()), 1);  // Use 1 for Forward Planning.
         ExpectedReceiptDate :=
           CalculateDateWithNonWorkingDays(
             PlannedReceiptDate,
             CalcDate('<' + GetDefaultSafetyLeadTime + '>', CalcDate(Location."Inbound Whse. Handling Time", PlannedReceiptDate)), 1);  // Use 1 for Forward Planning.
-        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate, PlannedReceiptDate, ExpectedReceiptDate);
+        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate(), PlannedReceiptDate, ExpectedReceiptDate);
     end;
 
     [Test]
@@ -113,10 +113,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CarryOutRequisitionLine(PurchaseLine, Item."No.", LocationBlue.Code, 0D);  // Use 0D for Expected Receipt Date.
 
         // Verify.
-        PlannedReceiptDate := CalcDate(Vendor."Lead Time Calculation", WorkDate);  // Value required for test.
+        PlannedReceiptDate := CalcDate(Vendor."Lead Time Calculation", WorkDate());  // Value required for test.
         ExpectedReceiptDate :=
           CalcDate('<' + GetDefaultSafetyLeadTime + '>', CalcDate(LocationBlue."Inbound Whse. Handling Time", PlannedReceiptDate));  // Value required for test.
-        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate, PlannedReceiptDate, ExpectedReceiptDate);
+        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate(), PlannedReceiptDate, ExpectedReceiptDate);
     end;
 
     [Test]
@@ -139,12 +139,12 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CarryOutRequisitionLine(PurchaseLine, Item."No.", Location.Code, 0D);  // Use 0D for Expected Receipt Date.
 
         // Verify.
-        PlannedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate + 1, CalcDate(Vendor."Lead Time Calculation", WorkDate), 1);  // Use 1 for Forward Planning.
+        PlannedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate + 1, CalcDate(Vendor."Lead Time Calculation", WorkDate()), 1);  // Use 1 for Forward Planning.
         ExpectedReceiptDate :=
           CalculateDateWithNonWorkingDays(
             PlannedReceiptDate,
             CalcDate('<' + GetDefaultSafetyLeadTime + '>', CalcDate(Location."Inbound Whse. Handling Time", PlannedReceiptDate)), 1);  // Use 1 for Forward Planning.
-        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate, PlannedReceiptDate, ExpectedReceiptDate);
+        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, WorkDate(), PlannedReceiptDate, ExpectedReceiptDate);
     end;
 
     [Test]
@@ -162,14 +162,14 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateInitialSetupForPlanning(LocationBlue, Vendor, Item, '');  // Use Blank for Base Calendar.
 
         // Exercise.
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", LocationBlue.Code, WorkDate);
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", LocationBlue.Code, WorkDate());
 
         // Verify.
         PlannedReceiptDate :=
           CalcDate(
-            '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(LocationBlue."Inbound Whse. Handling Time") + '>', WorkDate));  // Value required for test.
+            '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(LocationBlue."Inbound Whse. Handling Time") + '>', WorkDate()));  // Value required for test.
         OrderDate := CalcDate('<-' + Format(Vendor."Lead Time Calculation") + '>', PlannedReceiptDate);  // Value required for test.
-        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, OrderDate, PlannedReceiptDate, WorkDate);
+        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, OrderDate, PlannedReceiptDate, WorkDate());
     end;
 
     [Test]
@@ -190,18 +190,18 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateInitialSetupForPlanningWithBaseCalendar(Location, Vendor, Item);
 
         // Exercise.
-        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", Location.Code, WorkDate);
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", Location.Code, WorkDate());
 
         // Verify.
         PlannedReceiptDate :=
           CalculateDateWithNonWorkingDays(
             CalcDate(
-              '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(Location."Inbound Whse. Handling Time") + '>', WorkDate)),
-            WorkDate - 1, -1);  // Use -1 for Backward Planning.
+              '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(Location."Inbound Whse. Handling Time") + '>', WorkDate())),
+            WorkDate() - 1, -1);  // Use -1 for Backward Planning.
         OrderDate :=
           CalculateDateWithNonWorkingDays(
             CalcDate('<-' + Format(Vendor."Lead Time Calculation") + '>', PlannedReceiptDate), PlannedReceiptDate, -1);  // Use -1 for Backward Planning.
-        ExpectedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate, WorkDate, 1);
+        ExpectedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate(), WorkDate(), 1);
         VerifyPlanningDatesOnPurchaseLine(PurchaseLine, OrderDate, PlannedReceiptDate, ExpectedReceiptDate);
     end;
 
@@ -220,14 +220,14 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateInitialSetupForPlanning(LocationBlue, Vendor, Item, '');  // Use Blank for Base Calendar.
 
         // Exercise.
-        CarryOutRequisitionLine(PurchaseLine, Item."No.", LocationBlue.Code, WorkDate);
+        CarryOutRequisitionLine(PurchaseLine, Item."No.", LocationBlue.Code, WorkDate());
 
         // Verify.
         PlannedReceiptDate :=
           CalcDate(
-            '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(LocationBlue."Inbound Whse. Handling Time") + '>', WorkDate));  // Value required for test.
+            '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(LocationBlue."Inbound Whse. Handling Time") + '>', WorkDate()));  // Value required for test.
         OrderDate := CalcDate('<-' + Format(Vendor."Lead Time Calculation") + '>', PlannedReceiptDate);  // Value required for test.
-        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, OrderDate, PlannedReceiptDate, WorkDate);
+        VerifyPlanningDatesOnPurchaseLine(PurchaseLine, OrderDate, PlannedReceiptDate, WorkDate());
     end;
 
     [Test]
@@ -248,18 +248,18 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateInitialSetupForPlanningWithBaseCalendar(Location, Vendor, Item);
 
         // Exercise.
-        CarryOutRequisitionLine(PurchaseLine, Item."No.", Location.Code, WorkDate);
+        CarryOutRequisitionLine(PurchaseLine, Item."No.", Location.Code, WorkDate());
 
         // Verify.
         PlannedReceiptDate :=
           CalculateDateWithNonWorkingDays(
             CalcDate(
-              '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(Location."Inbound Whse. Handling Time") + '>', WorkDate)),
-            WorkDate - 1, -1);  // Use -1 for Backward Planning.
+              '<-' + GetDefaultSafetyLeadTime + '>', CalcDate('<-' + Format(Location."Inbound Whse. Handling Time") + '>', WorkDate())),
+            WorkDate() - 1, -1);  // Use -1 for Backward Planning.
         OrderDate :=
           CalculateDateWithNonWorkingDays(
             CalcDate('<-' + Format(Vendor."Lead Time Calculation") + '>', PlannedReceiptDate), PlannedReceiptDate, -1);  // Use -1 for Backward Planning.
-        ExpectedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate, WorkDate, 1);
+        ExpectedReceiptDate := CalculateDateWithNonWorkingDays(WorkDate(), WorkDate(), 1);
         VerifyPlanningDatesOnPurchaseLine(PurchaseLine, OrderDate, PlannedReceiptDate, ExpectedReceiptDate);
     end;
 
@@ -321,7 +321,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateSalesOrder(SalesLine, Item."No.", LocationBlue.Code);
 
         // Exercise.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify.
         VerifyRequisitionLine(SalesLine, RequisitionLine."Action Message"::New, false, RequisitionLine."Ref. Order Type"::Purchase);  // Use AcceptActionMessage as False.
@@ -390,7 +390,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateSalesOrder(SalesLine, Item."No.", LocationBlue.Code);
 
         // Exercise.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify.
         VerifyRequisitionLine(SalesLine, RequisitionLine."Action Message"::New, false, RequisitionLine."Ref. Order Type"::"Prod. Order");  // Use AcceptActionMessage as False.
@@ -622,7 +622,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.");
 
         // Verify.
-        ProductionOrder.Find;
+        ProductionOrder.Find();
         VerifyProdOrderCapacityNeedWithStartingTime(
           RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Input, ProdOrderCapacityNeed."Time Type"::"Run Time",
           ProductionOrder."Starting Time", RoutingLine."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
@@ -1256,7 +1256,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CalculateProductionOrder(TempProdOrderRoutingLine, Item, Qty);
 
         // [WHEN] Calculate Regenerative Plan for "I"
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
 
         // [THEN] Corresponding data in "Planning Routing Line" table contains 4 Lines;
@@ -1269,7 +1269,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
             PlanningRoutingLine.FindFirst();
             PlanningRoutingLine.TestField("Starting Date-Time", TempProdOrderRoutingLine."Starting Date-Time");
             PlanningRoutingLine.TestField("Ending Date-Time", TempProdOrderRoutingLine."Ending Date-Time");
-        until TempProdOrderRoutingLine.Next = 0;
+        until TempProdOrderRoutingLine.Next() = 0;
     end;
 
     [Test]
@@ -1396,10 +1396,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Sales Order "S" for "I" at "L"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", 1, WorkCenter[1]."Location Code", WorkDate);
+          Item."No.", 1, WorkCenter[1]."Location Code", WorkDate());
 
         // [WHEN] calculate regenerative plan for "I" and carry out messages
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         CarryOutActionMessageOnPlanningWorksheet(Item."No.");
 
         // [THEN] Production order for "I" has "Bin Code" = "W2"."From-Production Bin Code",
@@ -1431,10 +1431,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [GIVEN] Sales Order "S" for "I" with blank location
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 1, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 1, '', WorkDate());
 
         // [WHEN] calculate regenerative plan for "I" and carry out messages
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         CarryOutActionMessageOnPlanningWorksheet(Item."No.");
 
         // [THEN] Production order for "I" has "Bin Code" = "W2"."From-Production Bin Code",
@@ -1463,7 +1463,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateFixedReorderQtyItemWithRoutingNo(Item, RoutingLine."Routing No.");
 
         // [WHEN] calculate regenerative plan for "I" and carry out messages
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         CarryOutActionMessageOnPlanningWorksheet(Item."No.");
 
         // [THEN] Production order for "I" has "Bin Code" = "W2"."From-Production Bin Code",
@@ -1499,7 +1499,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [GIVEN] Create sales order for 100 pcs.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(100, 200), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(100, 200), '', WorkDate());
 
         // [GIVEN] Create firm planned production order out of the sales order using "Planning" functionality to cover the demand.
         // [GIVEN] The new production order has quantity = 100 pcs.
@@ -1508,13 +1508,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // [GIVEN] Reduce the quantity on the sales line to 60.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(30, 60));
         SalesLine.Modify(true);
 
         // [WHEN] Calculate regenerative plan for the item in order to replan the production order.
-        Item.SetRecFilter;
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] The planning engine suggests reducing quantity on the production order to 60 so it matches the sales.
         FindRequisitionLine(RequisitionLine, SalesLine."No.");
@@ -1549,7 +1549,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [GIVEN] Create sales order for 100 pcs.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(100, 200), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(100, 200), '', WorkDate());
 
         // [GIVEN] Create firm planned production order out of the sales order using "Planning" functionality to cover the demand.
         // [GIVEN] The new production order has quantity = 100 pcs.
@@ -1558,13 +1558,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // [GIVEN] Reduce the quantity on the sales line to 60.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(30, 60));
         SalesLine.Modify(true);
 
         // [WHEN] Calculate regenerative plan with respect planning parameters setting turned on in order to replan the production order.
-        Item.SetRecFilter;
-        LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, WorkDate, WorkDate, true);
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, WorkDate(), WorkDate, true);
 
         // [THEN] The planning engine suggests reducing quantity on the production order to 60 so it matches the sales.
         FindRequisitionLine(RequisitionLine, SalesLine."No.");
@@ -1604,7 +1604,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Two sales blanket orders "S1" for "I1" and "S2" for "I2" with quantities "Q1" and "Q2".
         for i := 1 to 2 do
             LibrarySales.CreateSalesDocumentWithItem(
-              SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", '', Item[i]."No.", Quantity[i], '', WorkDate);
+              SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", '', Item[i]."No.", Quantity[i], '', WorkDate());
 
         // [WHEN] Calculate regenerative plan for "I1" and "I2".
         Item[1].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
@@ -1612,7 +1612,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryVariableStorage.Enqueue(Item[1]."No."); // Enqueue for PlanningErrorLogModalPageHandler
         LibraryVariableStorage.Enqueue(StatusMustBeCertifiedErr);
         LibraryVariableStorage.Enqueue(RoutingHeader."No."); // Enqueue for PlanningErrorLogModalPageHandler
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate(), WorkDate());
 
         // [THEN] The message "Not all items were planned." occurs.
         // [THEN] The page "Planning Error Log" opens, it has one line for "I1" with "Error Description" "Status must be equal to 'Certified'  in Routing Header: No.="R". Current value is 'New'."
@@ -1668,8 +1668,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         end;
 
         // [WHEN] Calculate regenerative plan for item "C".
-        CompItem.SetRecFilter;
-        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate, WorkDate);
+        CompItem.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate(), WorkDate());
 
         // [THEN] 4 planning lines are created.
         FindRequisitionLine(RequisitionLine, CompItem."No.");
@@ -1686,7 +1686,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         repeat
             ProdOrderComponent.CalcFields("Reserved Quantity");
             ProdOrderComponent.TestField("Reserved Quantity", ProdOrderComponent.Quantity);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     [Test]
@@ -1767,7 +1767,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateSalesOrderWithQuantity(Item."No.", 10);
 
         // [WHEN] Calculate Regenerative Plan for "I"
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Corresponding data in "Planning Routing Line" table contains 4 Lines;
         PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
@@ -1859,11 +1859,11 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [GIVEN] Calculated regenerative plan for items "C" and "P" from 27.01.2022 to 03.03.2022
         ProdItem.SetFilter("No.", '%1|%2', CompItem."No.", ProdItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate, SalesLine."Shipment Date");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate(), SalesLine."Shipment Date");
 
         // [WHEN] Calculate regenerative plan for item "C" from 27.01.2022 to 03.03.2022
         CompItem.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate, SalesLine."Shipment Date");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate(), SalesLine."Shipment Date");
 
         // [THEN] Planning line for Item "C" has quantity = 8
         FindRequisitionLine(RequisitionLine, CompItem."No.");
@@ -1971,7 +1971,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [GIVEN] Calculate regenerative plan and carry out action message for items "F" and "C".
         DummyItem.SetFilter("No.", '%1|%2', ParentItem."No.", ChildItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(DummyItem, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(DummyItem, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
         CarryOutActionMessageOnPlanningWorksheet(ParentItem."No.");
         CarryOutActionMessageOnPlanningWorksheet(ChildItem."No.");
 
@@ -1981,7 +1981,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         SalesLine.Modify(true);
 
         // [WHEN] Calculate regenerative plan for items "F" and "C" again.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(DummyItem, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(DummyItem, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Two planning lines for both final and intermediate items are created.
         FindRequisitionLine(RequisitionLine, ParentItem."No.");
@@ -2151,7 +2151,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         IncreaseItemInventoryAtLocation(Location.Code, Item."No.");
 
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(
-          Item, WorkDate, CalcDate('<CY>', ProductionForecastEntry."Forecast Date"), true);
+          Item, WorkDate(), CalcDate('<CY>', ProductionForecastEntry."Forecast Date"), true);
 
         FindRequisitionLine(RequisitionLine, Item."No.");
         Assert.RecordCount(RequisitionLine, 1);
@@ -2179,7 +2179,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ItemInventory := IncreaseItemInventoryAtLocation(Location.Code, Item."No.");
 
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(
-          Item, WorkDate, CalcDate('<CY>', ProductionForecastEntry."Forecast Date"), true);
+          Item, WorkDate(), CalcDate('<CY>', ProductionForecastEntry."Forecast Date"), true);
 
         FindRequisitionLine(RequisitionLine, Item."No.");
         Assert.RecordCount(RequisitionLine, 1);
@@ -2228,7 +2228,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     var
         CMDateFormula: DateFormula;
     begin
-        PlanningFromDate := WorkDate;
+        PlanningFromDate := WorkDate();
         AbsenceDate := LibraryRandom.RandDateFrom(PlanningFromDate, LibraryRandom.RandInt(10));
         ShipmentDate := AbsenceDate + 1;
         Evaluate(CMDateFormula, '<CM>');
@@ -2239,7 +2239,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     var
         CMDateFormula: DateFormula;
     begin
-        PlanningFromDate := WorkDate;
+        PlanningFromDate := WorkDate();
         ShipmentDate := PlanningFromDate + LibraryRandom.RandInt(10);
         Evaluate(CMDateFormula, '<CM>');
         PlanningToDate := CalcDate(CMDateFormula, ShipmentDate);
@@ -2383,13 +2383,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         RequisitionLine.Validate("No.", ItemNo);
-        RequisitionLine.Validate("Order Date", WorkDate);
+        RequisitionLine.Validate("Order Date", WorkDate());
         RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
         RequisitionLine.Validate("Accept Action Message", true);
         RequisitionLine.Validate("Location Code", LocationCode);
         RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         RequisitionLine.Modify(true);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, ExpectedReceiptDate, '');  // Use Blank for YourRef.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), ExpectedReceiptDate, '');  // Use Blank for YourRef.
         FindPurchaseLine(PurchaseLine, ItemNo);
     end;
 
@@ -2406,7 +2406,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         repeat
             TempProdOrderRoutingLine := ProdOrderRoutingLine;
             TempProdOrderRoutingLine.Insert();
-        until ProdOrderRoutingLine.Next = 0;
+        until ProdOrderRoutingLine.Next() = 0;
 
         ProdOrderLine.SetRange("Item No.", Item."No.");
         ProdOrderLine.FindFirst();

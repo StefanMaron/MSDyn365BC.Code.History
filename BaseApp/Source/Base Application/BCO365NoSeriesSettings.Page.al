@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2339 "BC O365 No. Series Settings"
 {
     Caption = ' ';
     PageType = CardPart;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,7 +21,7 @@ page 2339 "BC O365 No. Series Settings"
                 ShowCaption = false;
                 field(NextInvoiceNo; NextInvoiceNo)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Next invoice number';
                     Editable = false;
                     Importance = Promoted;
@@ -41,7 +45,7 @@ page 2339 "BC O365 No. Series Settings"
                 ShowCaption = false;
                 field(NextEstimateNo; NextEstimateNo)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Next estimate number';
                     Editable = false;
                     Importance = Promoted;
@@ -80,7 +84,7 @@ page 2339 "BC O365 No. Series Settings"
 
     local procedure Initialize()
     begin
-        if not SalesReceivablesSetup.Get then
+        if not SalesReceivablesSetup.Get() then
             exit;
 
         if SalesReceivablesSetup."Posted Invoice Nos." <> '' then
@@ -89,4 +93,4 @@ page 2339 "BC O365 No. Series Settings"
             NextEstimateNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Quote Nos.");
     end;
 }
-
+#endif

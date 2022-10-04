@@ -81,22 +81,22 @@ table 5489 "Dimension Set Entry Buffer"
 
     trigger OnDelete()
     begin
-        UpdateIntegrationIds;
+        UpdateIntegrationIds();
     end;
 
     trigger OnInsert()
     begin
-        UpdateIntegrationIds;
+        UpdateIntegrationIds();
     end;
 
     trigger OnModify()
     begin
-        UpdateIntegrationIds;
+        UpdateIntegrationIds();
     end;
 
     trigger OnRename()
     begin
-        UpdateIntegrationIds;
+        UpdateIntegrationIds();
     end;
 
     var

@@ -15,7 +15,7 @@ page 5089 "Campaign Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -35,17 +35,17 @@ page 5089 "Campaign Entries"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the description of the campaign entry.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the cost of the campaign entry. The field is not editable.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the duration of the action linked to the campaign entry. The field is not editable.';
                 }
-                field("No. of Interactions"; "No. of Interactions")
+                field("No. of Interactions"; Rec."No. of Interactions")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of interactions created as part of the campaign entry. The field is not editable.';
@@ -104,7 +104,7 @@ page 5089 "Campaign Entries"
 
                     trigger OnAction()
                     begin
-                        ToggleCanceledCheckmark;
+                        ToggleCanceledCheckmark();
                     end;
                 }
                 action("Delete Canceled Entries")

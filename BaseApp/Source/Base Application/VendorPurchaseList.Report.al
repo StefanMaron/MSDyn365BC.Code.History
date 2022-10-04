@@ -11,7 +11,7 @@ report 309 "Vendor - Purchase List"
         dataitem(Vendor; Vendor)
         {
             RequestFilterFields = "No.", "Date Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(MinAmtLCY; MinAmtLCY)
@@ -84,7 +84,7 @@ report 309 "Vendor - Purchase List"
             var
                 FormatAddr: Codeunit "Format Address";
             begin
-                AmtPurchLCY := CalculateAmtOfPurchaseLCY;
+                AmtPurchLCY := CalculateAmtOfPurchaseLCY();
                 if AmtPurchLCY < MinAmtLCY then
                     CurrReport.Skip();
 

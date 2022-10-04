@@ -358,8 +358,8 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         // [GIVEN] Calculate expected quantity
         FinishPhysInvtRecording(PhysInvtRecordHeader);
 
-        PhysInvtOrderLine.Find;
-        PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+        PhysInvtOrderLine.Find();
+        PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
         PhysInvtOrderLine.Modify(true);
 
         // [GIVEN] Finish the physical inventory order
@@ -371,6 +371,115 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         // [THEN] Total quantity of lot "L1" on inventory is "Y1", expiration date is "D1" for all entries. Quantity of "L2" is "Y2", expiration date "D2".
         VerifyItemPhysicalInventory(Item."No.", LotNos[1], WorkDate + 1);
         VerifyItemPhysicalInventory(Item."No.", LotNos[2], WorkDate + 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksPhysInvtRec()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalLine: Record "Item Journal Line";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize();
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Item.Modify();
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+
+        // [GIVEN] Post the item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 100);
+        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Physical inventory order is created and remaining quantity calculated
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
+        PhysInvtOrderLine.Modify();
+
+        // [GIVEN] A recording for the physical inventory is created and finished
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
+        LibraryInventory.CreatePhysInvtRecordLine(
+          PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", 1);
+        Codeunit.Run(CODEUNIT::"Phys. Invt. Rec.-Finish", PhysInvtRecordHeader);
+
+        // [WHEN] Order status is "finished"
+        Codeunit.Run(CODEUNIT::"Phys. Invt. Order-Finish", PhysInvtOrderHeader);
+        PhysInvtOrderHeader.Get(PhysInvtOrderHeader."No.");
+
+        // [WHEN] Header is posted
+        asserterror Codeunit.Run(Codeunit::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing
+        Assert.ExpectedError(PhysInvtRecordLine.FieldCaption(PhysInvtRecordLine."Variant Code"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryAllowsPhysInvtRec()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalLine: Record "Item Journal Line";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize();
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Item.Modify();
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+
+        // [GIVEN] Post the item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 100);
+        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Physical inventory order is created with variant 
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        PhysInvtOrderLine.Validate("Variant Code", ItemVariant.Code);
+        PhysInvtOrderLine.Modify();
+
+        // [GIVEN] A recording for the physical inventory is created with variant code and finished
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
+        LibraryInventory.CreatePhysInvtRecordLine(
+          PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", 1);
+        PhysInvtRecordLine.Validate("Variant Code", ItemVariant.Code);
+        PhysInvtRecordLine.Modify();
+        Codeunit.Run(CODEUNIT::"Phys. Invt. Rec.-Finish", PhysInvtRecordHeader);
+        PhysInvtOrderLine.Get(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
+
+        // Calculated remaining quantity
+        PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
+        PhysInvtOrderLine.Modify();
+
+        // [GIVEN] Order status is "finished"
+        Codeunit.Run(CODEUNIT::"Phys. Invt. Order-Finish", PhysInvtOrderHeader);
+        PhysInvtOrderHeader.Get(PhysInvtOrderHeader."No.");
+        PhysInvtOrderLine.Get(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
+
+        // [WHEN] Order is posted
+        Codeunit.Run(Codeunit::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
+
+        // [THEN] No error is thrown 
     end;
 
     [Test]
@@ -565,7 +674,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         PhysInventoryLedgerEntry."Entry No." := SelectPhysInventoryLedgerEntryNo;
         PhysInventoryLedgerEntry."Document No." := DocumentNo;
-        PhysInventoryLedgerEntry."Posting Date" := WorkDate;
+        PhysInventoryLedgerEntry."Posting Date" := WorkDate();
         PhysInventoryLedgerEntry.Insert();
     end;
 
@@ -573,14 +682,14 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
     begin
         ItemLedgerEntry."Entry No." := SelectItemLedgerEntryNo;
         ItemLedgerEntry."Document No." := DocumentNo;
-        ItemLedgerEntry."Posting Date" := WorkDate;
+        ItemLedgerEntry."Posting Date" := WorkDate();
         ItemLedgerEntry.Insert();
     end;
 
     local procedure CreatePhysInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader."Posting Date" := WorkDate;
+        PhysInvtOrderHeader."Posting Date" := WorkDate();
         PhysInvtOrderHeader.Insert();
 
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
@@ -825,7 +934,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Expiration Date", ExpirationDate);
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     [ModalPageHandler]

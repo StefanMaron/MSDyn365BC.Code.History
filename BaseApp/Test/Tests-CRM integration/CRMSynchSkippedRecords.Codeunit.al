@@ -40,7 +40,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer: Record Customer;
     begin
         // [SCENARIO] After synch of a coupled record has failed 1 time the job continues to sync the record
-        Init;
+        Init();
         // [GIVEN] The Job runs sync for Customer '10000'
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         DecoupleSalesperson(Customer."Salesperson Code", CRMIntegrationRecord);
@@ -72,7 +72,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer: Record Customer;
     begin
         // [SCENARIO] After synch of a coupled record has failed 2 times in a row for different reason, the record is not skipped
-        Init;
+        Init();
         // [GIVEN] The Customer '10000' synchronization has failed, because the Salesperson "PS" is not coupled.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         DecoupleSalesperson(Customer."Salesperson Code", CRMIntegrationRecord);
@@ -106,7 +106,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [SCENARIO] After synch of a coupled record has failed 2 times in a row for the same reason:
         // [SCENARIO] the coupled record is added to skipped records list
-        Init;
+        Init();
         // [GIVEN] The Job runs sync for Customer '10000' twice:
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         DecoupleSalesperson(Customer."Salesperson Code", CRMIntegrationRecord);
@@ -136,7 +136,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer: Record Customer;
     begin
         // [SCENARIO] The skipped record is not handled by a synch job if ran normally
-        Init;
+        Init();
         // [GIVEN] The Customer '10000' is coupled, but is in the skipped record list.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
@@ -168,7 +168,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         JobQueueEntryID: Guid;
     begin
         // [SCENARIO] The record failed once, even unchanged after the first sync, should be picked up for the second sync, making it "Skipped"
-        Init;
+        Init();
         // [GIVEN] The Customers '10000', '20000' are coupled
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount[1]);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[2], CRMAccount[2]);
@@ -266,7 +266,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         i: Integer;
     begin
         // [SCENARIO] Action "Restore" should remove "Skipped" marker from one selected skipped record
-        Init;
+        Init();
         // [GIVEN] The Customers '10000' and '20000' are coupled, but are in the skipped records list.
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[i], CRMAccount[i]);
@@ -300,7 +300,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Action "Restore" should remove "Skipped" marker from multiple selected skipped records
-        Init;
+        Init();
         // [GIVEN] Three Customers 'A', 'B', and 'C' are in the list
         for i := 1 to 3 do begin
             LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[i], CRMAccount[i]);
@@ -332,7 +332,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Actions should become disabled after "Restore" removes the last skipped record
-        Init;
+        Init();
         // [GIVEN] The Customer '10000' is coupled, but is in the skipped records list.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
@@ -362,7 +362,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer: Record Customer;
     begin
         // [SCENARIO] The restored skipped record should not get skipped if synchronized successfully
-        Init;
+        Init();
         // [GIVEN] The Customer '10000' is coupled, but is in the skipped records list.
         // [GIVEN] The Salesperson "PS" is coupled
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -400,7 +400,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Action "Retry all" should remove "Skipped" marker from all skipped records
-        Init;
+        Init();
         // [GIVEN] Three Customers 'A', 'B', and 'C' are in the list
         for i := 1 to 3 do begin
             LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[i], CRMAccount[i]);
@@ -431,7 +431,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Synchronize" action schedules synch. jobs for a selected record.
-        Init;
+        Init();
         // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
         MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Open "CRM Skipped Records" page on Salesperson 'X'
@@ -443,7 +443,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // execute the job
         CRMSystemuser[1].SetRange(SystemUserId, CRMSystemuser[1].SystemUserId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::"CRM Systemuser", CRMSystemuser[1].GetView, IntegrationTableMapping);
+          DATABASE::"CRM Systemuser", CRMSystemuser[1].GetView(), IntegrationTableMapping);
 
         // [THEN] Confirmation asked: "Do you want to synchronize?"
         Assert.ExpectedMessage(WantToSynchronizeQst, LibraryVariableStorage.DequeueText);
@@ -467,7 +467,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Synchronize" action requests direction and schedules synch. job for the selected record.
-        Init;
+        Init();
         // [GIVEN] Coupled Customers '10000' and '20000' are skipped for synchronization.
         MockSkippedCustomers(Customer, CRMAccount, 2);
         // [GIVEN] Open "CRM Skipped Records" page
@@ -479,7 +479,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // execute the job
         Customer[1].SetRange(SystemId, Customer[1].SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Customer, Customer[1].GetView, IntegrationTableMapping);
+          DATABASE::Customer, Customer[1].GetView(), IntegrationTableMapping);
 
         // [THEN] Message is shown: "data... will be lost and replaced..."
         Assert.ExpectedMessage(DataWillBeOverriddenMsg, LibraryVariableStorage.DequeueText); // by MessageHandler
@@ -488,7 +488,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [THEN] Notification "Synchronization has been scheduled"
         VerifyNotificationMessage(SyncStartedMsg);
         // [THEN] CRM Account '10000' gets overridden by Customer '10000'
-        CRMAccount[1].Find;
+        CRMAccount[1].Find();
         CRMAccount[1].TestField(Name, Customer[1].Name);
         // [THEN] Customer '10000' is not skipped
         CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId);
@@ -515,7 +515,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] "Synchronize" action requests direction once and schedules synch. job for the selected records.
-        Init;
+        Init();
         // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
         MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Coupled Customers '10000' and '20000' are skipped for synchronization.
@@ -578,7 +578,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT] [Deleted Couplings]
         // [SCENARIO] SetSelectionFilter() should skip buffer records with broken couples.
-        Init;
+        Init();
         // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
         MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Coupled Customers '10000' and '20000' are skipped for synchronization
@@ -609,7 +609,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Couple" action opens "CRM Coupling Record" page.
-        Init;
+        Init();
         // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
         MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Open "CRM Skipped Records" page, where Salesperson 'Y' is selected
@@ -633,7 +633,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Delete Coupling" action removes coupling of the selected record
-        Init;
+        Init();
         // [GIVEN] Coupled Items 'X' and 'Y' are skipped for synchronization.
         MockSkippedItem(Item[1], CRMProduct[1]);
         MockSkippedItem(Item[2], CRMProduct[2]);
@@ -665,7 +665,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [Deleted Couplings]
         // [SCENARIO] "Delete Coupling" action removes coupling of the deleted NAV record
-        Init;
+        Init();
         // [GIVEN] Coupled Items 'X' and 'Y' are skipped for synchronization.
         MockSkippedItem(Item[1], CRMProduct[1]);
         MockSkippedItem(Item[2], CRMProduct[2]);
@@ -701,7 +701,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] User can open the list of "CRM Skipped Records" by clicking on action on CRM Connection Setup page
-        Init;
+        Init();
 
         // [GIVEN] Customer 'Cannon' is skipped with Error message 'Y', failed on 'T1'
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -726,13 +726,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [THEN] The modal "CRM Skipped Records" list page is open, where are two records:
         // [THEN] Salesperson 'RS' has error message 'X', "Failed On" is 'T2'
         CRMSkippedRecords.First;
-        CRMSkippedRecords."Table Name".AssertEquals(SalespersonPurchaser.TableCaption);
+        CRMSkippedRecords."Table Name".AssertEquals(SalespersonPurchaser.TableCaption());
         CRMSkippedRecords.Description.AssertEquals(Customer."Salesperson Code");
         CRMSkippedRecords."Error Message".AssertEquals(NotFoundErr);
         CRMSkippedRecords."Failed On".AssertEquals(FailedOn[2]);
-        CRMSkippedRecords.Next;
+        CRMSkippedRecords.Next();
         // [THEN]  Customer 'Canon' has error message 'Y', "Failed On" is 'T1'
-        CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption);
+        CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption());
         CRMSkippedRecords.Description.AssertEquals(Customer."No.");
         CRMSkippedRecords."Error Message".AssertEquals(StrSubstNo(MustBeCoupledErr, Customer."Salesperson Code"));
         CRMSkippedRecords."Failed On".AssertEquals(FailedOn[1]);
@@ -755,7 +755,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Action "Show Synchronization Log" should open the log page for the current skipped record
-        Init;
+        Init();
         // [GIVEN] Three Customers 'A', 'B', and 'C' are in the list
         for i := 1 to 3 do begin
             LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[i], CRMAccount[i]);
@@ -789,7 +789,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 261734] ShowLog() should not open the log page if the record is not initialized
-        Init;
+        Init();
         Clear(DummyRecID);
         // [WHEN] ShowLog() for RecordID, where TableNo = 0
         asserterror CRMIntegrationManagement.ShowLog(DummyRecID);
@@ -809,7 +809,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Drill down on skipped Item "Description" opens Item Card page.
-        Init;
+        Init();
         // [GIVEN] Item 'A' coupled to CRM Product, skipped for synchronization
         MockSkippedItem(Item, CRMProduct);
         // [GIVEN] Open "CRM Skipped Records" page
@@ -834,7 +834,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Drill down on skipped Item "Int. Description" opens Product's hyperlink.
-        Init;
+        Init();
         // [GIVEN] Item 'A' coupled to CRM Product, skipped for synchronization
         MockSkippedItem(Item, CRMProduct);
         // [GIVEN] Open "CRM Skipped Records" page
@@ -859,7 +859,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 278479] "Error Message" is blank in "CRM Skipped Records" page, if the failed job is removed.
-        Init;
+        Init();
         // [GIVEN] Item 'A' coupled to CRM Product, skipped for synchronization
         MockSkippedItem(Item, CRMProduct);
         IntegrationSynchJob.Get(
@@ -886,10 +886,10 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 278479] referenced Integration Synch. Job Entry cannot be removed
-        Init;
+        Init();
         // [GIVEN] CRM Integration record, where "Last Synch. Job ID" = 'A', "Last Synch. CRM Job ID" = 'B'
-        CRMIntegrationRecord."Last Synch. Job ID" := CreateGuid;
-        CRMIntegrationRecord."Last Synch. CRM Job ID" := CreateGuid;
+        CRMIntegrationRecord."Last Synch. Job ID" := CreateGuid();
+        CRMIntegrationRecord."Last Synch. CRM Job ID" := CreateGuid();
         CRMIntegrationRecord.Skipped := true;
         CRMIntegrationRecord.Insert();
 
@@ -908,7 +908,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         IntegrationSynchJobErrors."Integration Synch. Job ID" := IntegrationSynchJob.ID;
         IntegrationSynchJobErrors.Insert();
 
-        JobID := CreateGuid;
+        JobID := CreateGuid();
         IntegrationSynchJob.ID := JobID;
         IntegrationSynchJob.Failed := 1;
         IntegrationSynchJob.Insert();
@@ -950,7 +950,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [FEATURE] [UI] [Notification]
         // [SCENARIO] User should get a notification that the record is skipped
         // [SCENARIO] with the "Details" action opening "CRM Skipped Records" page
-        Init;
+        Init();
         // [GIVEN] The Customer '10000' and Currency "EUR" are in the skipped record list.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
@@ -971,7 +971,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // Handled by SkippedRecNotificationHandler
 
         // [THEN] "CRM Skipped Records" list is open with one record, Customer '10000'
-        CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption);
+        CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption());
         Assert.IsFalse(CRMSkippedRecords.Next, 'Should be one skipped record shown.');
     end;
 
@@ -1010,7 +1010,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] "Delete Coupled Record" action should remove the CRM record coupled to the deleted NAV Record.
-        Init;
+        Init();
         // [GIVEN] Customer, coupled to CRM Account, is deleted
         MockSkippedCouplingByDeletedNAVRec(Customer, CRMAccount);
         // [GIVEN] Open CRM Skipped Records page
@@ -1045,7 +1045,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] "Delete Coupled Record" action should remove the NAV record coupled to the deleted CRM Record.
-        Init;
+        Init();
         // [GIVEN] CRMAccount, coupled to Customer, is deleted
         MockSkippedCouplingByDeletedCRMRec(Customer, CRMAccount);
         // [GIVEN] Open CRM Skipped Records page
@@ -1080,7 +1080,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT] [Deleted Couplings]
         // [SCENARIO] "Delete Coupled Records" action should remove the records coupled to the deleted record.
-        Init;
+        Init();
         // [GIVEN] Customer 'B', coupled to CRM Account 'B', is skipped, both exist
         MockSkippedCustomers(Customer, CRMAccount, 3);
         // [GIVEN] CRMAccount 'A', coupled to Customer 'A', is deleted
@@ -1091,7 +1091,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         MockSelectingAllSkippedLines(TempCRMSynchConflictBuffer, 3);
 
         // [WHEN] Run action "Delete Coupled Records"
-        TempCRMSynchConflictBuffer.DeleteCoupledRecords;
+        TempCRMSynchConflictBuffer.DeleteCoupledRecords();
 
         // [THEN] There is one line for Customer 'B', where both coupled records exist
         VerifyLineSkippedRecordInBuffer(TempCRMSynchConflictBuffer, Customer[2].RecordId);
@@ -1115,7 +1115,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT] [Deleted Couplings] [Permission]
         // [SCENARIO] "Delete Coupled Records" action should throw and error if there is no permission to delete CRM record.
-        Init;
+        Init();
         // [GIVEN] Sync user has no permission to delete entities
         BindSubscription(CRMSynchSkippedRecords); // will call OnBeforeDeleteCRMAccount
 
@@ -1127,7 +1127,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         MockSelectingAllSkippedLines(TempCRMSynchConflictBuffer, 1);
 
         // [WHEN] Run action "Delete Coupled Records"
-        asserterror TempCRMSynchConflictBuffer.DeleteCoupledRecords;
+        asserterror TempCRMSynchConflictBuffer.DeleteCoupledRecords();
 
         // [THEN] Error message: "You do not have permission to delete entities..."
         Assert.ExpectedError(NoPermissionToDeleteInCRMErr);
@@ -1160,7 +1160,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] "Restore Coupled Record" action should restore the deleted NAV record by synchronization from CRM.
-        Init;
+        Init();
         // [GIVEN] Customer, coupled to CRM Account, is deleted
         MockSkippedCouplingByDeletedNAVRec(Customer[1], CRMAccount);
         // [GIVEN] Open CRM Skipped Records page
@@ -1176,7 +1176,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         JobID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
+            DATABASE::"CRM Account", CRMAccount.GetView(), IntegrationTableMapping);
         VerifyNotificationMessage(SyncStartedMsg);
 
         // [THEN] There is no lines on the page
@@ -1205,7 +1205,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] "Restore Coupled Record" action should restore the deleted CRM record by synchronization from NAV.
-        Init;
+        Init();
         // [GIVEN] CRMAccount, coupled to Customer, is deleted
         MockSkippedCouplingByDeletedCRMRec(Customer, CRMAccount[1]);
         // [GIVEN] Open CRM Skipped Records page
@@ -1217,7 +1217,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [THEN] the synchronization job is scheduled and executed
         Customer.SetRange(Systemid, Customer.SystemId);
         JobID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
+          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
         VerifyNotificationMessage(SyncStartedMsg);
         // [THEN] There is no lines on the page
         Assert.IsFalse(CRMSkippedRecords.First, 'The list should be empty');
@@ -1247,7 +1247,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UT] [Deleted Couplings]
         // [SCENARIO] "Restore Coupled Records" action should restore the deleted records by synchronization from existing couple.
-        Init;
+        Init();
         // [GIVEN] Customer 'B', coupled to CRM Account 'B', is skipped, both exist
         MockSkippedCustomers(Customer, CRMAccount, 3);
         // [GIVEN] CRMAccount 'A', coupled to Customer 'A', is deleted
@@ -1312,7 +1312,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] Action "Delete Coupling" is only that is enabled if the coupled NAV record is deleted
-        Init;
+        Init();
         // [GIVEN] Customer, coupled to CRM Account, is skipped, customer is deleted
         MockSkippedCustomer(Customer, CRMAccount);
         CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
@@ -1340,7 +1340,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] Actions "Restore", "Synchronize" are disabled if coupled CRM record is deleted
-        Init;
+        Init();
         // [GIVEN] The Customer '10000' is coupled, but CRM Account was deleted.
         MockSkippedCouplingByDeletedCRMRec(Customer, CRMAccount);
 
@@ -1408,13 +1408,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] Skipped record due to deleted CRM couple should dissapear from the page after new coupling is set
-        Init;
+        Init();
         // [GIVEN] Item 'A' coupled to deleted CRM Product 'A', skipped for synchronization
         MockSkippedItem(Item, CRMProduct[1]);
         CRMProduct[1].Delete();
         // [GIVEN] CRM Product 'B', not coupled
         CRMProduct[2].Init();
-        CRMProduct[2].ProductId := CreateGuid;
+        CRMProduct[2].ProductId := CreateGuid();
         CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID();
         CRMProduct[2].Insert(true);
         // [GIVEN] Open CRM Skipped Records page
@@ -1449,13 +1449,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] Skipped record due to deleted CRM couple should left on the page after new coupling is cancelled
-        Init;
+        Init();
         // [GIVEN] Item 'A' coupled to deleted CRM Product 'A', skipped for synchronization
         MockSkippedItem(Item, CRMProduct[1]);
         CRMProduct[1].Delete();
         // [GIVEN] CRM Product 'B', not coupled
         CRMProduct[2].Init();
-        CRMProduct[2].ProductId := CreateGuid;
+        CRMProduct[2].ProductId := CreateGuid();
         CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID();
         CRMProduct[2].Insert(true);
         // [GIVEN] Open CRM Skipped Records page
@@ -1487,7 +1487,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] "Delete Coupled Record" and "Restore Deleted Records" actions should be disabled if both coupled records were deleted.
-        Init;
+        Init();
         CRMIntegrationRecord.DeleteAll();
         // [GIVEN] Customer, coupled to CRM Account, is skipped, both deleted
         MockSkippedCustomer(Customer, CRMAccount);
@@ -1512,7 +1512,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMID: Guid;
     begin
         // [FEATURE] [UT]
-        Init;
+        Init();
         // [GIVEN] Two skipped couplings are in SynchConflictBuffer
         MockTempSkippedCouplings(TempCRMIntegrationRecord);
         Assert.AreEqual(2, TempCRMSynchConflictBuffer.Fill(TempCRMIntegrationRecord), 'initial number of records');
@@ -1540,7 +1540,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMID: Guid;
     begin
         // [FEATURE] [UT]
-        Init;
+        Init();
         // [GIVEN] Two skipped couplings are in SynchConflictBuffer
         MockTempSkippedCouplings(TempCRMIntegrationRecord);
         Assert.AreEqual(2, TempCRMSynchConflictBuffer.Fill(TempCRMIntegrationRecord), 'initial number of records');
@@ -1713,7 +1713,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMSkippedRecords.OpenEdit;
         CRMSkippedRecords.FindFirstField(Description, Customer."No.");
-        CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption);
+        CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption());
         CRMSkippedRecords.Restore.Invoke;
     end;
 
@@ -1778,7 +1778,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         TempCRMSynchConflictBuffer.FindSet();
         repeat
             TempCRMSynchConflictBuffer.Mark(true);
-        until TempCRMSynchConflictBuffer.Next = 0;
+        until TempCRMSynchConflictBuffer.Next() = 0;
         TempCRMSynchConflictBuffer.MarkedOnly(true);
         Assert.AreEqual(Counter, TempCRMSynchConflictBuffer.Count, 'number of selected couplings');
     end;

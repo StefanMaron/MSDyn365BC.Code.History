@@ -22,7 +22,7 @@ page 1119 "Cost Budget by Cost Object"
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(BudgetFilter; BudgetFilter)
@@ -34,7 +34,7 @@ page 1119 "Cost Budget by Cost Object"
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -46,7 +46,7 @@ page 1119 "Cost Budget by Cost Object"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -58,7 +58,7 @@ page 1119 "Cost Budget by Cost Object"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
             }
@@ -116,15 +116,12 @@ page 1119 "Cost Budget by Cost Object"
                 ApplicationArea = CostAccounting;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Previous);
-                    UpdateMatrixSubform;
+                    UpdateMatrixSubform();
                 end;
             }
             action(PreviousColumn)
@@ -132,15 +129,12 @@ page 1119 "Cost Budget by Cost Object"
                 ApplicationArea = CostAccounting;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::PreviousColumn);
-                    UpdateMatrixSubform;
+                    UpdateMatrixSubform();
                 end;
             }
             action(NextColumn)
@@ -148,15 +142,12 @@ page 1119 "Cost Budget by Cost Object"
                 ApplicationArea = CostAccounting;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::NextColumn);
-                    UpdateMatrixSubform;
+                    UpdateMatrixSubform();
                 end;
             }
             action(NextSet)
@@ -164,16 +155,33 @@ page 1119 "Cost Budget by Cost Object"
                 ApplicationArea = CostAccounting;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
-                    UpdateMatrixSubform;
+                    UpdateMatrixSubform();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousSet_Promoted; PreviousSet)
+                {
+                }
+                actionref(PreviousColumn_Promoted; PreviousColumn)
+                {
+                }
+                actionref(NextColumn_Promoted; NextColumn)
+                {
+                }
+                actionref(NextSet_Promoted; NextSet)
+                {
+                }
             }
         }
     }
@@ -185,7 +193,7 @@ page 1119 "Cost Budget by Cost Object"
         MATRIX_CaptionFieldNo := 1;
         BudgetFilter := GetFilter("Budget Filter");
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-        UpdateMatrixSubform;
+        UpdateMatrixSubform();
     end;
 
     var
@@ -225,7 +233,7 @@ page 1119 "Cost Budget by Cost Object"
             repeat
                 CostObjectMatrixRecords[CurrentMatrixRecordOrdinal].Copy(CostObjectMatrixRecord);
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-            until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (CostObjectMatrixRecord.Next <> 1);
+            until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (CostObjectMatrixRecord.Next() <> 1);
         end;
     end;
 

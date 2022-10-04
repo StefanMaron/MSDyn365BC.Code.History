@@ -35,14 +35,14 @@ page 9852 "Effective Permissions"
                         if ChosenUser.FindFirst() then
                             Users.SetRecord(ChosenUser);
                         Users.LookupMode(true);
-                        if Users.RunModal = ACTION::LookupOK then begin
+                        if Users.RunModal() = ACTION::LookupOK then begin
                             Users.GetRecord(User);
 
                             if Text <> User."User Name" then begin
                                 Text := User."User Name";
                                 ChosenUserName := Text;
                                 CurrentUserID := User."User Security ID";
-                                FillByObject;
+                                FillByObject();
                             end;
                         end;
                     end;
@@ -54,7 +54,7 @@ page 9852 "Effective Permissions"
                         User.SetRange("User Name", ChosenUserName);
                         User.FindFirst();
                         CurrentUserID := User."User Security ID";
-                        FillByObject;
+                        FillByObject();
                     end;
                 }
                 field(ChooseCompany; CurrentCompanyName)
@@ -71,13 +71,13 @@ page 9852 "Effective Permissions"
                         if Company.Get(CurrentCompanyName) then
                             Companies.SetRecord(Company);
                         Companies.LookupMode(true);
-                        if Companies.RunModal = ACTION::LookupOK then begin
+                        if Companies.RunModal() = ACTION::LookupOK then begin
                             Companies.GetRecord(Company);
 
                             if Text <> Company.Name then begin
                                 Text := Company.Name;
                                 CurrentCompanyName := Text;
-                                FillByObject;
+                                FillByObject();
                             end;
                         end;
                     end;
@@ -87,7 +87,7 @@ page 9852 "Effective Permissions"
                         Company: Record Company;
                     begin
                         Company.Get(CurrentCompanyName);
-                        FillByObject;
+                        FillByObject();
                     end;
                 }
                 field(ShowAllObjects; ShowAllObjects)
@@ -99,7 +99,7 @@ page 9852 "Effective Permissions"
                     trigger OnValidate()
                     begin
                         CurrentObjectId := 0;
-                        FillByObject;
+                        FillByObject();
                     end;
                 }
             }
@@ -108,45 +108,45 @@ page 9852 "Effective Permissions"
                 Caption = 'Permissions';
                 repeater(EffectivePermissions)
                 {
-                    field("Object Type"; "Object Type")
+                    field("Object Type"; Rec."Object Type")
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies the type of object that the permissions apply to in the current database.';
                     }
-                    field("Object ID"; "Object ID")
+                    field("Object ID"; Rec."Object ID")
                     {
                         ApplicationArea = All;
                         Editable = false;
                         ToolTip = 'Specifies the ID of the object to which the permissions apply.';
                         Visible = false;
                     }
-                    field("Object Name"; "AL Object Name")
+                    field("Object Name"; Rec."AL Object Name")
                     {
                         ApplicationArea = All;
                         Caption = 'Object Name';
                         Editable = false;
                     }
-                    field("Read Permission"; "Read Permission")
+                    field("Read Permission"; Rec."Read Permission")
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies information about whether the permission set has read permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have read permission.';
                     }
-                    field("Insert Permission"; "Insert Permission")
+                    field("Insert Permission"; Rec."Insert Permission")
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies information about whether the permission set has insert permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have insert permission.';
                     }
-                    field("Modify Permission"; "Modify Permission")
+                    field("Modify Permission"; Rec."Modify Permission")
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies information about whether the permission set has modify permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have modify permission.';
                     }
-                    field("Delete Permission"; "Delete Permission")
+                    field("Delete Permission"; Rec."Delete Permission")
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies information about whether the permission set has delete permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have delete permission.';
                     }
-                    field("Execute Permission"; "Execute Permission")
+                    field("Execute Permission"; Rec."Execute Permission")
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies information about whether the permission set has execute permission to this object. The values for the field are blank, Yes, and Indirect. Indirect means permission only through another object. If the field is empty, the permission set does not have execute permission.';
@@ -177,8 +177,6 @@ page 9852 "Effective Permissions"
                 ApplicationArea = All;
                 Caption = 'Permission Sets';
                 Image = Permission;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Permission Sets";
                 ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
             }
@@ -187,10 +185,22 @@ page 9852 "Effective Permissions"
                 ApplicationArea = All;
                 Caption = 'Permission Set by User';
                 Image = Permission;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Permission Set by User";
                 ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Permission Sets_Promoted"; "Permission Sets")
+                {
+                }
+                actionref("Permission Set by User_Promoted"; "Permission Set by User")
+                {
+                }
             }
         }
     }
@@ -203,7 +213,7 @@ page 9852 "Effective Permissions"
         if "Object ID" <> 0 then begin // handle case when there are no records at all
             EffectivePermissionsMgt.PopulatePermissionRecordWithEffectivePermissionsForObject(Rec, CurrentUserID, CurrentCompanyName,
               "Object Type", "Object ID");
-            Modify;
+            Modify();
         end;
 
         CurrPage.ByPermissionSet.PAGE.SetRecordAndRefresh(CurrentUserID, CurrentCompanyName, "Object Type", "Object ID");
@@ -219,19 +229,19 @@ page 9852 "Effective Permissions"
         TenantPermission.SetRange("App ID", ZeroGuid); // does not come from an extension
         TenantPermission.SetRange("Object Type", "Object Type");
         TenantPermission.SetRange("Object ID", "Object ID");
-        ContainedInCustomPermissionSet := not TenantPermission.IsEmpty;
+        ContainedInCustomPermissionSet := not TenantPermission.IsEmpty();
     end;
 
     trigger OnInit()
     begin
-        CurrentUserID := UserSecurityId;
-        ChosenUserName := UserId;
-        CurrentCompanyName := CompanyName;
+        CurrentUserID := UserSecurityId();
+        ChosenUserName := UserId();
+        CurrentCompanyName := CompanyName();
     end;
 
     trigger OnOpenPage()
     begin
-        FillByObject;
+        FillByObject();
     end;
 
     var
@@ -251,9 +261,9 @@ page 9852 "Effective Permissions"
 
     local procedure FillByObject()
     var
+        UserProperty: Record "User Property";
         EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
-        UserProperty: Record "User Property";
     begin
         if (LastUsedUserID = CurrentUserID) and
            (LastUsedCompanyName = CurrentCompanyName) and

@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138910 "O365 E2E Page Tests"
 {
     EventSubscriberInstance = Manual;
@@ -54,7 +55,7 @@ codeunit 138910 "O365 E2E Page Tests"
         InvoiceNo: Code[20];
     begin
         // [GIVEN] A clean Invoicing App
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] User creates an invoice with total negative amount
@@ -72,7 +73,7 @@ codeunit 138910 "O365 E2E Page Tests"
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoKey(DummySalesHeader."Document Type"::Invoice, InvoiceNo);
         BCO365SalesInvoice.Lines."Unit Price".Value := Format(LibraryRandom.RandDecInRange(0, 100, 2));
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [THEN] Sending succeeds
         LibraryInvoicingApp.SendInvoice(InvoiceNo);
@@ -85,7 +86,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         Customer: Record Customer;
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -102,7 +103,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         Item: Record Item;
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -117,7 +118,7 @@ codeunit 138910 "O365 E2E Page Tests"
     [Scope('OnPrem')]
     procedure TestSendInvoice()
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -134,7 +135,7 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesHeader: Record "Sales Header";
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -149,7 +150,7 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
         SalesHeader.FindFirst();
 
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         Assert.AreNotEqual(LibraryInvoicingApp.SendInvoice(SalesHeader."No."), '', 'Invoice could not be sent');
     end;
@@ -162,7 +163,7 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesHeader: Record "Sales Header";
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -178,7 +179,7 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
         SalesHeader.FindFirst();
 
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         Assert.AreNotEqual(LibraryInvoicingApp.SendInvoice(SalesHeader."No."), '', 'Invoice could not be sent');
     end;
@@ -190,7 +191,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -226,7 +227,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -266,7 +267,7 @@ codeunit 138910 "O365 E2E Page Tests"
         InvoiceNo: Code[20];
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -305,7 +306,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A sent invoice
@@ -328,7 +329,7 @@ codeunit 138910 "O365 E2E Page Tests"
     [Scope('OnPrem')]
     procedure TestSetupEmailFromAdvancedSettings()
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -349,7 +350,7 @@ codeunit 138910 "O365 E2E Page Tests"
         O365ServiceConfiguration: TestPage "O365 Service Configuration";
         ServiceStatus: Boolean;
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -379,7 +380,7 @@ codeunit 138910 "O365 E2E Page Tests"
         InvoiceNo: Code[20];
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -418,7 +419,7 @@ codeunit 138910 "O365 E2E Page Tests"
         InvoiceNo: Code[20];
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -455,7 +456,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         PostedInvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -480,7 +481,7 @@ codeunit 138910 "O365 E2E Page Tests"
         PostedInvoiceNo: Code[20];
         InvoiceNo: Code[20];
     begin
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A clean Invoicing App
@@ -515,7 +516,7 @@ codeunit 138910 "O365 E2E Page Tests"
         PaymentTermsPage: TestPage "O365 Payment Terms List";
     begin
         // The correct payment terms should be shown to the user on the payment term list
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] Payment Terms List page is run.
@@ -538,7 +539,7 @@ codeunit 138910 "O365 E2E Page Tests"
         BCO365SalesCustomerCard: TestPage "BC O365 Sales Customer Card";
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
-        Init;
+        Init();
 
         // [GIVEN] Invoicing app user creates a new invoice
         LibraryLowerPermissions.SetInvoiceApp;
@@ -566,7 +567,7 @@ codeunit 138910 "O365 E2E Page Tests"
         Assert.AreEqual(BCO365SalesInvoice."Sell-to Customer Name".Value, CustomerName, 'Customer name is not kept.');
         LibraryVariableStorage.Enqueue(ProcessDraftInvoiceInstructionTxt);
         LibraryVariableStorage.Enqueue(true);
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         // [WHEN] The customer has open invoices and the customer is deleted
         Customer.SetRange(Name, CustomerName);
@@ -691,7 +692,7 @@ codeunit 138910 "O365 E2E Page Tests"
         O365VATPostingSetupList.OpenView;
         O365VATPostingSetupList.GotoKey(VATProductPostingGroupCode);
         O365VATPostingSetupList.Open.Invoke;
-        O365VATPostingSetupList.Close;
+        O365VATPostingSetupList.Close();
     end;
 
     local procedure RecallPostedInvoiceNotification(InvoiceNo: Code[20])
@@ -740,7 +741,7 @@ codeunit 138910 "O365 E2E Page Tests"
           Round(ItemPrice + ItemPrice * FindVATPercentage(O365SalesInvoiceLineCard.VATProductPostingGroupDescription.Value), 0.01),
           PriceTextToDecimal(O365SalesInvoice."Amount Including VAT".Value), 'The amount of the unsent invoice is incorrect.');
 
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
     end;
 
     local procedure VerifyInvoiceCustomerAndItem(InvoiceNo: Code[20])
@@ -812,14 +813,14 @@ codeunit 138910 "O365 E2E Page Tests"
         Clear(HasEmailSetupBeenCalled);
         Clear(SetRecipientEmailAddress);
         Clear(VATRate);
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
 
         if IsInitialized then
             exit;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -923,7 +924,7 @@ codeunit 138910 "O365 E2E Page Tests"
         CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard."E-Mail".Value('test@microsoft.com');
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
         Contact.SetRange(Name, CustomerName);
         Contact.FindFirst();
         BCO365ContactLookup.GotoRecord(Contact);
@@ -980,4 +981,4 @@ codeunit 138910 "O365 E2E Page Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

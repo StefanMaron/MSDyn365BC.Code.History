@@ -15,7 +15,7 @@ page 703 "Merge Duplicate Subform"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -24,7 +24,7 @@ page 703 "Merge Duplicate Subform"
                     ToolTip = 'Specifies the ID of the table.';
                     Visible = IsTableLine;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -48,26 +48,26 @@ page 703 "Merge Duplicate Subform"
                     StyleExpr = StyleExpr;
                     ToolTip = 'Specifies the name of the field.';
                 }
-                field("Data Type"; "Data Type")
+                field("Data Type"; Rec."Data Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data type of the field.';
                     Visible = NOT IsTableLine;
                 }
-                field("In Primary Key"; "In Primary Key")
+                field("In Primary Key"; Rec."In Primary Key")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the field is part of the primary key.';
                 }
-                field("Current Value"; "Current Value")
+                field("Current Value"; Rec."Current Value")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the value of the field in the current record.';
                     Visible = NOT IsTableLine;
                 }
-                field("Current Count"; "Current Count")
+                field("Current Count"; Rec."Current Count")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -83,11 +83,11 @@ page 703 "Merge Duplicate Subform"
 
                     trigger OnValidate()
                     begin
-                        SetStyle;
+                        SetStyle();
                         CurrPage.Update();
                     end;
                 }
-                field("Duplicate Value"; "Duplicate Value")
+                field("Duplicate Value"; Rec."Duplicate Value")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Alternate Value';
@@ -99,11 +99,11 @@ page 703 "Merge Duplicate Subform"
 
                     trigger OnValidate()
                     begin
-                        SetStyle;
+                        SetStyle();
                         CurrPage.Update();
                     end;
                 }
-                field("Duplicate Count"; "Duplicate Count")
+                field("Duplicate Count"; Rec."Duplicate Count")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -131,10 +131,10 @@ page 703 "Merge Duplicate Subform"
     trigger OnAfterGetCurrRecord()
     begin
         if "Can Be Renamed" then begin
-            IsFieldEditable := not HasFieldToOverride;
+            IsFieldEditable := not HasFieldToOverride();
             IsOverrideEnabled := false;
         end else begin
-            IsOverrideEnabled := not HasModifiedField;
+            IsOverrideEnabled := not HasModifiedField();
             IsFieldEditable := false;
         end;
     end;
@@ -142,7 +142,7 @@ page 703 "Merge Duplicate Subform"
     trigger OnAfterGetRecord()
     begin
         IsTableLine := Type = Type::Table;
-        SetStyle;
+        SetStyle();
     end;
 
     var

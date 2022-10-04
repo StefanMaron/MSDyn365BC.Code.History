@@ -63,7 +63,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if GenJnlLine.IsApplied then begin
+        if GenJnlLine.IsApplied() then begin
             VendLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
 
             if GenJnlLine."Applies-to Doc. No." <> '' then begin
@@ -96,7 +96,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        if GenJnlLine.IsApplied then begin
+        if GenJnlLine.IsApplied() then begin
             CustLedgerEntry.SetRange("Customer No.", GenJnlLine."Account No.");
 
             if GenJnlLine."Applies-to Doc. No." <> '' then begin

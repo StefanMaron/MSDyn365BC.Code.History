@@ -147,7 +147,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
         end;
     end;
 
-    local procedure DimEntryOK(DimSetID: Integer; Dim: Code[20]; DimValue: Code[20]): Boolean
+    procedure DimEntryOK(DimSetID: Integer; Dim: Code[20]; DimValue: Code[20]): Boolean
     begin
         if Dim = '' then
             exit(true);
@@ -175,7 +175,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
             AnalysisView2."Date Compression"::Period:
                 begin
                     AccountingPeriod."Starting Date" := AnalysisViewEntry."Posting Date";
-                    if AccountingPeriod.Next <> 0 then
+                    if AccountingPeriod.Next() <> 0 then
                         exit(CalcDate('<-1D>', AccountingPeriod."Starting Date"));
 
                     exit(DMY2Date(31, 12, 9999));
@@ -183,7 +183,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
         end;
     end;
 
-    local procedure GetGlobalDimValue(GlobalDim: Code[20]; var AnalysisViewEntry: Record "Analysis View Entry"; var GlobalDimValue: Code[20]): Boolean
+    procedure GetGlobalDimValue(GlobalDim: Code[20]; var AnalysisViewEntry: Record "Analysis View Entry"; var GlobalDimValue: Code[20]): Boolean
     var
         IsGlobalDim: Boolean;
     begin

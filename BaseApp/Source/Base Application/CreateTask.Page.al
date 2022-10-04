@@ -1,7 +1,7 @@
 page 5097 "Create Task"
 {
     Caption = 'Create Task';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -24,7 +24,7 @@ page 5097 "Create Task"
 
                     trigger OnValidate()
                     begin
-                        ValidateTypeField;
+                        ValidateTypeField();
                     end;
                 }
                 field(TypeOnPrem; Type)
@@ -36,7 +36,7 @@ page 5097 "Create Task"
 
                     trigger OnValidate()
                     begin
-                        ValidateTypeField;
+                        ValidateTypeField();
                     end;
                 }
                 field(Description; Description)
@@ -53,7 +53,7 @@ page 5097 "Create Task"
 
                     trigger OnValidate()
                     begin
-                        AllDayEventOnAfterValidate;
+                        AllDayEventOnAfterValidate();
                     end;
                 }
                 field(Date; Date)
@@ -62,7 +62,7 @@ page 5097 "Create Task"
                     Caption = 'Start Date';
                     ToolTip = 'Specifies the date when the Task should be started. There are certain rules for how dates should be entered found in How to: Enter Dates and Times.';
                 }
-                field("Start Time"; "Start Time")
+                field("Start Time"; Rec."Start Time")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Start Time';
@@ -76,13 +76,13 @@ page 5097 "Create Task"
                     Enabled = DurationEnable;
                     ToolTip = 'Specifies the duration of the Task of the Meeting type.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the date of when the Task should end. There are certain rules for how dates should be entered. For more information, see How to: Enter Dates and Times.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Ending Time';
@@ -101,8 +101,8 @@ page 5097 "Create Task"
                             "Team Code" := '';
                             SalespersonCodeEnable := true;
                             if Type = Type::Meeting then begin
-                                ClearDefaultAttendeeInfo;
-                                AssignDefaultAttendeeInfo;
+                                ClearDefaultAttendeeInfo();
+                                AssignDefaultAttendeeInfo();
                             end;
                         end else begin
                             SalespersonCodeEnable := false;
@@ -110,7 +110,7 @@ page 5097 "Create Task"
                         end;
                     end;
                 }
-                field("Wizard Contact Name"; "Wizard Contact Name")
+                field("Wizard Contact Name"; Rec."Wizard Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact';
@@ -133,14 +133,14 @@ page 5097 "Create Task"
                         end;
                     end;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Salesperson';
                     Enabled = SalespersonCodeEnable;
                     ToolTip = 'Specifies the code of the Salesperson assigned to the Task.';
                 }
-                field("Team Code"; "Team Code")
+                field("Team Code"; Rec."Team Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Team';
@@ -154,12 +154,12 @@ page 5097 "Create Task"
                            ("Team Code" <> '') and
                            (Type = Type::Meeting)
                         then begin
-                            ClearDefaultAttendeeInfo;
-                            AssignDefaultAttendeeInfo
+                            ClearDefaultAttendeeInfo();
+                            AssignDefaultAttendeeInfo();
                         end
                     end;
                 }
-                field("Wizard Campaign Description"; "Wizard Campaign Description")
+                field("Wizard Campaign Description"; Rec."Wizard Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaign';
@@ -182,7 +182,7 @@ page 5097 "Create Task"
                         end;
                     end;
                 }
-                field("Wizard Opportunity Description"; "Wizard Opportunity Description")
+                field("Wizard Opportunity Description"; Rec."Wizard Opportunity Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Opportunity';
@@ -256,13 +256,13 @@ page 5097 "Create Task"
                 group(MeetingInteraction)
                 {
                     Caption = 'Interaction';
-                    field("Send on finish"; "Send on finish")
+                    field("Send on finish"; Rec."Send on finish")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Send Invitation(s) on Finish';
                         ToolTip = 'Specifies if the meeting invitation task will be sent when the Create Task wizard is finished.';
                     }
-                    field("Interaction Template Code"; "Interaction Template Code")
+                    field("Interaction Template Code"; Rec."Interaction Template Code")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Interaction Template';
@@ -271,11 +271,11 @@ page 5097 "Create Task"
 
                         trigger OnValidate()
                         begin
-                            ValidateInteractionTemplCode;
-                            InteractionTemplateCodeOnAfter;
+                            ValidateInteractionTemplCode();
+                            InteractionTemplateCodeOnAfter();
                         end;
                     }
-                    field("Language Code"; "Language Code")
+                    field("Language Code"; Rec."Language Code")
                     {
                         ApplicationArea = RelationshipMgmt;
                         Enabled = LanguageCodeEnable;
@@ -283,12 +283,12 @@ page 5097 "Create Task"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupLanguageCode;
+                            LookupLanguageCode();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateLanguageCode;
+                            ValidateLanguageCode();
                         end;
                     }
                     field(Attachment; "Attachment No." > 0)
@@ -302,7 +302,7 @@ page 5097 "Create Task"
 
                         trigger OnAssistEdit()
                         begin
-                            AssistEditAttachment;
+                            AssistEditAttachment();
                         end;
                     }
                 }
@@ -318,17 +318,17 @@ page 5097 "Create Task"
 
                     trigger OnValidate()
                     begin
-                        RecurringOnAfterValidate;
+                        RecurringOnAfterValidate();
                     end;
                 }
-                field("Recurring Date Interval"; "Recurring Date Interval")
+                field("Recurring Date Interval"; Rec."Recurring Date Interval")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Recurring Date Interval';
                     Enabled = RecurringDateIntervalEnable;
                     ToolTip = 'Specifies the date formula to assign automatically a recurring Task to a Salesperson or Team.';
                 }
-                field("Calc. Due Date From"; "Calc. Due Date From")
+                field("Calc. Due Date From"; Rec."Calc. Due Date From")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Calculate from Date';
@@ -349,15 +349,25 @@ page 5097 "Create Task"
                 Caption = '&Finish';
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Finish the task.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    FinishPage;
-                    CurrPage.Close;
+                    FinishPage();
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(Finish_Promoted; Finish)
+                {
+                }
             }
         }
     }
@@ -386,12 +396,12 @@ page 5097 "Create Task"
         WizardOpportunityDescriptionEd := true;
         WizardCampaignDescriptionEdita := true;
         WizardContactNameEditable := true;
-        IsSoftwareAsAService := EnvironmentInfo.IsSaaS;
+        IsSoftwareAsAService := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnOpenPage()
     begin
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
 
         WizardContactNameEditable := false;
         WizardCampaignDescriptionEdita := false;
@@ -406,7 +416,7 @@ page 5097 "Create Task"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            FinishPage;
+            FinishPage();
     end;
 
     var
@@ -517,9 +527,9 @@ page 5097 "Create Task"
     begin
         if Type <> xRec.Type then
             if Type = Type::Meeting then begin
-                ClearDefaultAttendeeInfo;
-                AssignDefaultAttendeeInfo;
-                LoadTempAttachment;
+                ClearDefaultAttendeeInfo();
+                AssignDefaultAttendeeInfo();
+                LoadTempAttachment();
                 if not "Team To-do" then
                     if "Salesperson Code" = '' then begin
                         if Cont.Get("Contact No.") then
@@ -533,21 +543,21 @@ page 5097 "Create Task"
                             Validate("Salesperson Code", Opp."Salesperson Code");
                         if SegHeader.Get(GetFilter("Segment No.")) then
                             Validate("Salesperson Code", SegHeader."Salesperson Code");
-                        Modify;
+                        Modify();
                     end;
                 GetAttendee(AttendeeTemp);
                 CurrPage.AttendeeSubform.PAGE.SetAttendee(AttendeeTemp);
                 CurrPage.AttendeeSubform.PAGE.SetTaskFilter(SalespersonFilter, ContactFilter);
-                CurrPage.AttendeeSubform.PAGE.UpdateForm;
+                CurrPage.AttendeeSubform.PAGE.UpdateForm();
             end else begin
-                ClearDefaultAttendeeInfo;
+                ClearDefaultAttendeeInfo();
                 CurrPage.AttendeeSubform.PAGE.GetAttendee(AttendeeTemp);
                 SetAttendee(AttendeeTemp);
                 SalespersonCodeEnable := not "Team To-do";
                 WizardContactNameEnable := true;
             end;
         IsMeeting := (Type = Type::Meeting);
-        TypeOnAfterValidate;
+        TypeOnAfterValidate();
         CurrPage.Update();
     end;
 
@@ -582,7 +592,7 @@ page 5097 "Create Task"
         CurrPage.AttendeeSubform.PAGE.GetAttendee(AttendeeTemp);
         SetAttendee(AttendeeTemp);
 
-        CheckStatus;
+        CheckStatus();
         FinishWizard(false);
         OnAfterFinishPage(Rec);
     end;

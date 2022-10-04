@@ -44,7 +44,7 @@ table 459 "Sales Prepayment %"
 
             trigger OnValidate()
             begin
-                CheckDate;
+                CheckDate();
             end;
         }
         field(5; "Ending Date"; Date)
@@ -53,7 +53,7 @@ table 459 "Sales Prepayment %"
 
             trigger OnValidate()
             begin
-                CheckDate;
+                CheckDate();
             end;
         }
         field(6; "Prepayment %"; Decimal)

@@ -120,7 +120,7 @@ page 9053 "WMS Ship & Receive Activities"
                     DrillDownPageID = "Warehouse Put-aways";
                     ToolTip = 'Specifies the number of put-always that are displayed in the Warehouse WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Unassigned Put-aways"; "Unassigned Put-aways")
+                field("Unassigned Put-aways"; Rec."Unassigned Put-aways")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Put-aways";

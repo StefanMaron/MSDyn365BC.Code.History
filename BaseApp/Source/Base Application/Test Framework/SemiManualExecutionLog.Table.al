@@ -47,14 +47,14 @@ table 130416 "Semi-Manual Execution Log"
     [Scope('OnPrem')]
     procedure Log(Message: Text[1000])
     begin
-        Init;
+        Init();
         Id := 0;
         "Time stamp" := CurrentDateTime;
         "Step description 1" := CopyStr(Message, 1, 250);
         "Step description 2" := CopyStr(Message, 251, 250);
         "Step description 3" := CopyStr(Message, 501, 250);
         "Step description 4" := CopyStr(Message, 751, 250);
-        Insert;
+        Insert();
         Commit();
     end;
 

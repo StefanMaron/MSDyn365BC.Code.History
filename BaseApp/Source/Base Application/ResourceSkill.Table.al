@@ -35,10 +35,9 @@ table 5956 "Resource Skill"
                 if ("Skill Code" <> xRec."Skill Code") and
                    (xRec."Skill Code" <> '') and
                    (not ResSkill.Get(Type, "No.", "Skill Code"))
-                then begin
+                then
                     if not ResSkillMgt.ChangeResSkill(Rec, xRec."Skill Code") then
                         Error('');
-                end
             end;
         }
         field(4; "Assigned From"; Enum "Resource Skill Assigned From")

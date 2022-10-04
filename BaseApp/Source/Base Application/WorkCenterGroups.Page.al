@@ -76,8 +76,6 @@ page 99000758 "Work Center Groups"
                 ApplicationArea = Manufacturing;
                 Caption = 'Work Center Load';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Work Center Load";
                 ToolTip = 'Get an overview of availability at the work center, such as the capacity, the allocated quantity, availability after order, and the load in percent.';
             }
@@ -86,11 +84,21 @@ page 99000758 "Work Center Groups"
                 ApplicationArea = Manufacturing;
                 Caption = 'Work Center Load/Bar';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Work Center Load/Bar";
                 ToolTip = 'View a list of work centers that are overloaded according to the plan. The efficiency or overloading is shown by efficiency bars.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Work Center Load_Promoted"; "Work Center Load")
+                {
+                }
             }
         }
     }

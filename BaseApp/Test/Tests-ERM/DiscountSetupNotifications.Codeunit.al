@@ -55,7 +55,7 @@ codeunit 132523 "Discount Setup Notifications"
         GeneralPostingSetupPage."Gen. Bus. Posting Group".AssertEquals(GeneralPostingSetup[2]."Gen. Bus. Posting Group");
         GeneralPostingSetupPage."Gen. Prod. Posting Group".AssertEquals(GeneralPostingSetup[2]."Gen. Prod. Posting Group");
         Assert.IsTrue(GeneralPostingSetupPage.Next, 'not expected the 3rd line');
-        GeneralPostingSetupPage.Close;
+        GeneralPostingSetupPage.Close();
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
         LibraryVariableStorage.AssertEmpty();
@@ -598,7 +598,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [THEN] Found both Gen. Posting Setup 'A' and 'B'
         Assert.RecordCount(GeneralPostingSetup, 2);
         Assert.AreEqual(ExpectedRecID[1], Format(GeneralPostingSetup.RecordId), 'wrong record #1 found');
-        GeneralPostingSetup.Next;
+        GeneralPostingSetup.Next();
         Assert.AreEqual(ExpectedRecID[2], Format(GeneralPostingSetup.RecordId), 'wrong record #2 found');
         // [THEN] FieldNumber is "Sales Inv. Disc. Account"
         Assert.AreEqual(GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"), FieldNumber, 'wrong FieldNumer');
@@ -667,7 +667,7 @@ codeunit 132523 "Discount Setup Notifications"
         GeneralPostingSetupPage."Gen. Bus. Posting Group".AssertEquals(GeneralPostingSetup[2]."Gen. Bus. Posting Group");
         GeneralPostingSetupPage."Gen. Prod. Posting Group".AssertEquals(GeneralPostingSetup[2]."Gen. Prod. Posting Group");
         Assert.IsTrue(GeneralPostingSetupPage.Next, 'not expected the 3rd line');
-        GeneralPostingSetupPage.Close;
+        GeneralPostingSetupPage.Close();
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
         LibraryVariableStorage.AssertEmpty();
@@ -1209,7 +1209,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [THEN] Found both Gen. Posting Setup 'A' and 'B'
         Assert.RecordCount(GeneralPostingSetup, 2);
         Assert.AreEqual(ExpectedRecID[1], Format(GeneralPostingSetup.RecordId), 'wrong record #1 found');
-        GeneralPostingSetup.Next;
+        GeneralPostingSetup.Next();
         Assert.AreEqual(ExpectedRecID[2], Format(GeneralPostingSetup.RecordId), 'wrong record #2 found');
         // [THEN] FieldNumber is "Purch. Inv. Disc. Account"
         Assert.AreEqual(GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"), FieldNumber, 'wrong FieldNumer');
@@ -1361,7 +1361,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup);
         // [THEN] "Invoice Discount Amount" is not 0
-        ServiceLine.Find;
+        ServiceLine.Find();
         Assert.AreNotEqual(0, ServiceLine."Inv. Discount Amount", 'Invoice Discount Amount');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
@@ -1742,7 +1742,7 @@ codeunit 132523 "Discount Setup Notifications"
         Assert.IsTrue(GeneralPostingSetupPage.Last, 'missing the last line');
         GeneralPostingSetupPage."Gen. Bus. Posting Group".AssertEquals(GeneralPostingSetup."Gen. Bus. Posting Group");
         GeneralPostingSetupPage."Gen. Prod. Posting Group".AssertEquals(GeneralPostingSetup."Gen. Prod. Posting Group");
-        GeneralPostingSetupPage.Close;
+        GeneralPostingSetupPage.Close();
     end;
 
     [SendNotificationHandler]

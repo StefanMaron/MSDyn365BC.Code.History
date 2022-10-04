@@ -27,7 +27,7 @@ codeunit 1611 "Exp. Sales CrM. PEPPOL BIS3.0"
     begin
         SalesCrMemoPEPPOLBIS30.Initialize(VariantRec);
         SalesCrMemoPEPPOLBIS30.SetDestination(OutStr);
-        SalesCrMemoPEPPOLBIS30.Export;
+        SalesCrMemoPEPPOLBIS30.Export();
     end;
 
 #if not CLEAN20
@@ -44,7 +44,7 @@ codeunit 1611 "Exp. Sales CrM. PEPPOL BIS3.0"
 
         OutFile.CreateOutStream(OutStream);
         GenerateXMLFile(VariantRec, OutStream);
-        OutFile.Close;
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;

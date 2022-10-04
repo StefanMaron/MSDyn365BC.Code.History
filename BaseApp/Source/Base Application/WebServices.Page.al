@@ -16,14 +16,14 @@ page 810 "Web Services"
             repeater(Control1102601000)
             {
                 ShowCaption = false;
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the ID of the object.';
                     ValuesAllowed = Codeunit, Page, Query;
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
@@ -37,12 +37,12 @@ page 810 "Web Services"
                     Editable = false;
                     ToolTip = 'Specifies the name of the object that will be exposed to the web service.';
                 }
-                field("Service Name"; "Service Name")
+                field("Service Name"; Rec."Service Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the service.';
                 }
-                field("All Tenants"; "All Tenants")
+                field("All Tenants"; Rec."All Tenants")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsWebServiceWriteable;
@@ -74,20 +74,6 @@ page 810 "Web Services"
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the URL that is generated for the web service. You can test the web service immediately by choosing the link in the field.';
                 }
-#if not CLEAN18
-                field(ODataUrl; WebServiceManagement.GetWebServiceUrl(Rec, ClientType::ODataV3))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'OData URL';
-                    Editable = false;
-                    Visible = false;
-                    ExtendedDatatype = URL;
-                    ToolTip = 'Specifies the URL that is generated for the web service. You can test the web service immediately by choosing the link in the field.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'ODataV3 deprecation.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 field(SOAPUrl; WebServiceManagement.GetWebServiceUrl(Rec, ClientType::SOAP))
                 {
                     ApplicationArea = Basic, Suite;
@@ -109,9 +95,6 @@ page 810 "Web Services"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reload';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Update the window with the latest information.';
 
                 trigger OnAction()
@@ -136,7 +119,6 @@ page 810 "Web Services"
                 Caption = 'Download Metadata Document';
                 Image = ElectronicDoc;
                 ToolTip = 'Downloads the OData V4 metadata document for the Business Central Web Services (does not include the metadata for API pages).';
-                Promoted = false;
                 Visible = IsSaas;
 
                 trigger OnAction()
@@ -145,6 +127,17 @@ page 810 "Web Services"
                 begin
                     ODataUtility.DownloadODataMetadataDocument();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("<Reload>_Promoted"; "<Reload>")
+                {
+                }
             }
         }
     }

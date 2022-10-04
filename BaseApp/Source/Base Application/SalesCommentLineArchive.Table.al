@@ -67,10 +67,10 @@ table 5126 "Sales Comment Line Archive"
         SalesCommentLine.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         SalesCommentLine.SetRange("Version No.", "Version No.");
         SalesCommentLine.SetRange("Document Line No.", "Line No.");
-        SalesCommentLine.SetRange(Date, WorkDate);
+        SalesCommentLine.SetRange(Date, WorkDate());
         OnSetUpNewLineOnAfterSetFilters(SalesCommentLine, Rec);
         if not SalesCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
     end;
 
     [IntegrationEvent(false, false)]

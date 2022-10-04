@@ -5,7 +5,7 @@ codeunit 901 "Assembly-Post (Yes/No)"
     trigger OnRun()
     begin
         AssemblyHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := AssemblyHeader;
     end;
 

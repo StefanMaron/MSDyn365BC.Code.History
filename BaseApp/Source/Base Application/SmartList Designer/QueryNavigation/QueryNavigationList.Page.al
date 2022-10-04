@@ -68,10 +68,6 @@ page 988 "Query Navigation List"
                 Caption = 'Create';
                 ToolTip = 'Create a new Navigation';
                 Image = Add;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -89,10 +85,6 @@ page 988 "Query Navigation List"
                 Image = Edit;
                 Enabled = RecordsExist;
                 Scope = Repeater;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -110,10 +102,6 @@ page 988 "Query Navigation List"
                 Image = Delete;
                 Scope = Repeater;
                 Enabled = RecordsExist;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
                 trigger OnAction()
                 begin
                     if Confirm(DeleteItemConfirmTxt, false, Rec.Id, Rec.Name) then
@@ -132,10 +120,6 @@ page 988 "Query Navigation List"
                 Image = Default;
                 Enabled = RecordsExist;
                 Scope = Repeater;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -156,6 +140,26 @@ page 988 "Query Navigation List"
 
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Create_Promoted; Create)
+                {
+                }
+                actionref(Edit_Promoted; Edit)
+                {
+                }
+                actionref(Delete_Promoted; Delete)
+                {
+                }
+                actionref(SetDefault_Promoted; SetDefault)
+                {
+                }
             }
         }
     }

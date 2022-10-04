@@ -6,7 +6,6 @@ page 9838 "User by User Group"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Browse';
     SourceTable = User;
 
     layout
@@ -37,12 +36,12 @@ page 9838 "User by User Group"
             repeater(Group)
             {
                 Caption = 'Permission Set';
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user''s name. If the user is required to present credentials when starting the client, this is the name that the user must present.';
                 }
-                field("Full Name"; "Full Name")
+                field("Full Name"; Rec."Full Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the full name of the user.';
@@ -200,14 +199,11 @@ page 9838 "User by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Columns Left';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump to the left-most column.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.AllColumnsLeft;
+                    PermissionPagesMgt.AllColumnsLeft();
                 end;
             }
             action(ColumnLeft)
@@ -215,14 +211,11 @@ page 9838 "User by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Column Left';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump one column to the left.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.ColumnLeft;
+                    PermissionPagesMgt.ColumnLeft();
                 end;
             }
             action(ColumnRight)
@@ -230,14 +223,11 @@ page 9838 "User by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Column Right';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump one column to the right.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.ColumnRight;
+                    PermissionPagesMgt.ColumnRight();
                 end;
             }
             action(AllColumnsRight)
@@ -245,27 +235,48 @@ page 9838 "User by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Columns Right';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump to the right-most column.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.AllColumnsRight;
+                    PermissionPagesMgt.AllColumnsRight();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Browse', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(AllColumnsLeft_Promoted; AllColumnsLeft)
+                {
+                }
+                actionref(ColumnLeft_Promoted; ColumnLeft)
+                {
+                }
+                actionref(ColumnRight_Promoted; ColumnRight)
+                {
+                }
+                actionref(AllColumnsRight_Promoted; AllColumnsRight)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        FindUserGroups;
+        FindUserGroups();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        FindUserGroups;
+        FindUserGroups();
     end;
 
     trigger OnOpenPage()
@@ -275,7 +286,7 @@ page 9838 "User by User Group"
         NoOfRecords := UserGroup.Count();
         PermissionPagesMgt.Init(NoOfRecords, ArrayLen(UserGroupCodeArr));
         SelectedCompany := CompanyName;
-        HideExternalUsers;
+        HideExternalUsers();
     end;
 
     var
@@ -299,9 +310,9 @@ page 9838 "User by User Group"
             repeat
                 i += 1;
                 if PermissionPagesMgt.IsInColumnsRange(i) then begin
-                    UserGroupCodeArr[i - PermissionPagesMgt.GetOffset] := UserGroup.Code;
-                    IsMemberOfUserGroup[i - PermissionPagesMgt.GetOffset] := UserGroup.IsUserMember(Rec, SelectedCompany);
-                    MemberOfAllGroups := MemberOfAllGroups and IsMemberOfUserGroup[i - PermissionPagesMgt.GetOffset];
+                    UserGroupCodeArr[i - PermissionPagesMgt.GetOffset()] := UserGroup.Code;
+                    IsMemberOfUserGroup[i - PermissionPagesMgt.GetOffset()] := UserGroup.IsUserMember(Rec, SelectedCompany);
+                    MemberOfAllGroups := MemberOfAllGroups and IsMemberOfUserGroup[i - PermissionPagesMgt.GetOffset()];
                 end else
                     if MemberOfAllGroups then
                         MemberOfAllGroups := UserGroup.IsUserMember(Rec, SelectedCompany);
@@ -328,7 +339,7 @@ page 9838 "User by User Group"
         EnvironmentInfo: Codeunit "Environment Information";
         OriginalFilterGroup: Integer;
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
         OriginalFilterGroup := FilterGroup;

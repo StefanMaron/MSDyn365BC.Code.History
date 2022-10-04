@@ -56,7 +56,7 @@ page 786 "Vendor Picture"
                     TestField("No.");
                     TestField(Name);
 
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then
                             exit;
 
@@ -121,7 +121,7 @@ page 786 "Vendor Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()

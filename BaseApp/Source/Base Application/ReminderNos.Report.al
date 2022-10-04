@@ -14,7 +14,7 @@ report 126 "Reminder Nos."
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'Issued Reminder';
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_ReminderHeaderFilter_; StrSubstNo(Text004, ReminderHeaderFilter))
@@ -178,7 +178,7 @@ report 126 "Reminder Nos."
 
     trigger OnPreReport()
     begin
-        ReminderHeaderFilter := "Issued Reminder Header".GetFilters;
+        ReminderHeaderFilter := "Issued Reminder Header".GetFilters();
     end;
 
     var

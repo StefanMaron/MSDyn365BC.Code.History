@@ -172,7 +172,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
         ManufacturingSetup.Modify(true);
 
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     local procedure SetupSalesAndReceivablesSetup()
@@ -246,7 +246,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     begin
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
-        ItemJournalLine.Validate("Posting Date", CalcDate('<-1D>', WorkDate));
+        ItemJournalLine.Validate("Posting Date", CalcDate('<-1D>', WorkDate()));
         ItemJournalLine.Validate("Document Date", CalcDate('<-1D>', ItemJournalLine."Posting Date"));
         ItemJournalLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
         ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(50, 2));
@@ -330,7 +330,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
             repeat
                 AssemblyLine.Validate("Bin Code", 'ToBin');
                 AssemblyLine.Modify(true);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
     end;
@@ -391,7 +391,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         EntrySummary.Init();
         ReservationPage.First;
         if ReservationPage."Summary Type".Value =
-           CopyStr(ItemLedgEntry.TableCaption, 1, MaxStrLen(EntrySummary."Summary Type"))
+           CopyStr(ItemLedgEntry.TableCaption(), 1, MaxStrLen(EntrySummary."Summary Type"))
         then
             ReservationPage."Reserve from Current Line".Invoke;
     end;
@@ -535,7 +535,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
             repeat
                 VerifyBinContent(
                   AssemblyLine."Location Code", AssemblyLine."Bin Code", AssemblyLine."No.", CompQty * AssemblyLine."Quantity per");
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
         end;
     end;
 
@@ -1557,7 +1557,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         asserterror
         begin
             Commit();
-            SalesLine.Find; // To retrieve the latest record.
+            SalesLine.Find(); // To retrieve the latest record.
             SalesLine.Validate("Qty. to Assemble to Order", 10);
         end;
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_UPDATE_INTERRUPTED) > 0, PadStr('Actual: ' + GetLastErrorText + ';Expected: ' + ERR_UPDATE_INTERRUPTED, 1024));

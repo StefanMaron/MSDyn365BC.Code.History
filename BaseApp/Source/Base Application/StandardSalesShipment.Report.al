@@ -829,8 +829,6 @@ report 1308 "Standard Sales - Shipment"
 
     var
         GLSetup: Record "General Ledger Setup";
-        ShipmentMethod: Record "Shipment Method";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         DummyCompanyInfo: Record "Company Information";
@@ -866,7 +864,6 @@ report 1308 "Standard Sales - Shipment"
         ShowLotSN: Boolean;
         CompanyLogoPosition: Integer;
         TrackingSpecCount: Integer;
-        FirstLineHasBeenOutput: Boolean;
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
@@ -919,7 +916,10 @@ report 1308 "Standard Sales - Shipment"
         UnitsperParcelLbl: Label 'Units per Parcel';
 
     protected var
+        ShipmentMethod: Record "Shipment Method";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+        FirstLineHasBeenOutput: Boolean;
 
     local procedure InitLogInteraction()
     begin

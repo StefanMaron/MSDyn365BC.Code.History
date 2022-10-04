@@ -4,7 +4,6 @@ page 577 "Change Global Dimensions"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Process,Report,Sequential,Parallel';
     ShowFilter = false;
     SourceTable = "Change Global Dim. Header";
 
@@ -15,7 +14,7 @@ page 577 "Change Global Dimensions"
             group(Options)
             {
                 Caption = 'Options';
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = IsGlobalDimCodeEnabled;
@@ -26,11 +25,11 @@ page 577 "Change Global Dimensions"
                     trigger OnValidate()
                     begin
                         IsPrepareEnabledFlag := ChangeGlobalDimensions.IsPrepareEnabled(Rec);
-                        SetStyle;
+                        SetStyle();
                         CurrPage.Update(true);
                     end;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = IsGlobalDimCodeEnabled;
@@ -41,11 +40,11 @@ page 577 "Change Global Dimensions"
                     trigger OnValidate()
                     begin
                         IsPrepareEnabledFlag := ChangeGlobalDimensions.IsPrepareEnabled(Rec);
-                        SetStyle;
+                        SetStyle();
                         CurrPage.Update(true);
                     end;
                 }
-                field("Parallel Processing"; "Parallel Processing")
+                field("Parallel Processing"; Rec."Parallel Processing")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = IsGlobalDimCodeEnabled AND IsParallelProcessingAllowed;
@@ -56,7 +55,7 @@ page 577 "Change Global Dimensions"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Old Global Dimension 1 Code"; "Old Global Dimension 1 Code")
+                field("Old Global Dimension 1 Code"; Rec."Old Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = false;
@@ -64,7 +63,7 @@ page 577 "Change Global Dimensions"
                     StyleExpr = CurrGlobalDimCodeStyle1;
                     ToolTip = 'Specifies the dimension that is currently defined as Global Dimension 1.';
                 }
-                field("Old Global Dimension 2 Code"; "Old Global Dimension 2 Code")
+                field("Old Global Dimension 2 Code"; Rec."Old Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = false;
@@ -101,15 +100,11 @@ page 577 "Change Global Dimensions"
                     Caption = 'Start';
                     Enabled = IsPrepareEnabledFlag AND NOT "Parallel Processing";
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Start the process that implements the specified dimension change(s) in the affected tables within the current session. Other users cannot change the affected tables while the process is running.';
 
                     trigger OnAction()
                     begin
-                        ChangeGlobalDimensions.StartSequential;
+                        ChangeGlobalDimensions.StartSequential();
                     end;
                 }
             }
@@ -123,15 +118,11 @@ page 577 "Change Global Dimensions"
                     Caption = 'Prepare';
                     Enabled = IsPrepareEnabledFlag AND "Parallel Processing";
                     Image = ChangeBatch;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Fill the Log Entries FastTab with the list of tables that will be affected by the specified dimension change. Here you can also follow the progress of the background job that performs the change. Note: Before you can start the job, you must sign out and in to ensure that the current user cannot modify the tables that are being updated.';
 
                     trigger OnAction()
                     begin
-                        ChangeGlobalDimensions.Prepare;
+                        ChangeGlobalDimensions.Prepare();
                     end;
                 }
                 action(Reset)
@@ -141,15 +132,11 @@ page 577 "Change Global Dimensions"
                     Caption = 'Reset';
                     Enabled = IsStartEnabled AND "Parallel Processing";
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Cancel the change.';
 
                     trigger OnAction()
                     begin
-                        ChangeGlobalDimensions.ResetState;
+                        ChangeGlobalDimensions.ResetState();
                     end;
                 }
                 action(Start)
@@ -159,16 +146,41 @@ page 577 "Change Global Dimensions"
                     Caption = 'Start';
                     Enabled = IsStartEnabled AND "Parallel Processing";
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Start a background job that implements the specified dimension change(s) in the affected tables. Other users cannot change the affected global dimensions while the job is running. Note: Before you can start the job, you must choose the Prepare action, and then sign out and in.';
 
                     trigger OnAction()
                     begin
-                        ChangeGlobalDimensions.Start;
+                        ChangeGlobalDimensions.Start();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Sequential', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(StartSequential_Promoted; StartSequential)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Parallel', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Prepare_Promoted; Prepare)
+                {
+                }
+                actionref(Reset_Promoted; Reset)
+                {
+                }
+                actionref(Start_Promoted; Start)
+                {
                 }
             }
         }
@@ -176,23 +188,23 @@ page 577 "Change Global Dimensions"
 
     trigger OnAfterGetCurrRecord()
     begin
-        RefreshCurrentDimCodes;
-        ChangeGlobalDimensions.FillBuffer;
-        IsGlobalDimCodeEnabled := ChangeGlobalDimensions.IsDimCodeEnabled;
+        RefreshCurrentDimCodes();
+        ChangeGlobalDimensions.FillBuffer();
+        IsGlobalDimCodeEnabled := ChangeGlobalDimensions.IsDimCodeEnabled();
         IsPrepareEnabledFlag := ChangeGlobalDimensions.IsPrepareEnabled(Rec);
-        IsStartEnabled := ChangeGlobalDimensions.IsStartEnabled;
-        IsParallelProcessingAllowed := TASKSCHEDULER.CanCreateTask;
-        SetStyle;
+        IsStartEnabled := ChangeGlobalDimensions.IsStartEnabled();
+        IsParallelProcessingAllowed := TASKSCHEDULER.CanCreateTask();
+        SetStyle();
     end;
 
     trigger OnClosePage()
     begin
-        ChangeGlobalDimensions.RemoveHeader;
+        ChangeGlobalDimensions.RemoveHeader();
     end;
 
     trigger OnOpenPage()
     begin
-        ChangeGlobalDimensions.ResetIfAllCompleted;
+        ChangeGlobalDimensions.ResetIfAllCompleted();
     end;
 
     var

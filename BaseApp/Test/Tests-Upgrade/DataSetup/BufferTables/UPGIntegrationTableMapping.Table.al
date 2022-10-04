@@ -1,5 +1,7 @@
 table 132803 "UPG-Integration Table Mapping"
 {
+    ReplicateData = false;
+
     fields
     {
         field(1; Name; Code[20])

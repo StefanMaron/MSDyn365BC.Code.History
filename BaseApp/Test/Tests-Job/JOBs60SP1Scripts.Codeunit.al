@@ -351,7 +351,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         VerifyJobPlanForNoLines(TempPurchLine);
 
         // Post the Purchase Order with Option 'Invoice'.
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // Verify Job Planning Lines if there are entries created for the PO Invoice.
@@ -368,7 +368,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Post the Purchase Order with Option 'Receive & Invoice' for the Remaining Quantities.
         // The Vendor Invoice No. should be a different one, for creating an Invoice again.
         // So Modify the Purchase Header by passing a different Vendor Invoice Number.
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.Validate("Vendor Invoice No.", JobTask."Job No.");
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -462,7 +462,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        PurchaseHeader.Validate("Due Date", WorkDate);
+        PurchaseHeader.Validate("Due Date", WorkDate());
         PurchaseHeader.Modify(true);
     end;
 
@@ -558,7 +558,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         Assert.IsTrue(
           StrPos(
             GetLastErrorText,
-            StrSubstNo(JobTaskTypeErr, JobTask.FieldCaption("Job Task Type"), JobTask."Job Task Type"::Posting, JobTask.TableCaption)) >
+            StrSubstNo(JobTaskTypeErr, JobTask.FieldCaption("Job Task Type"), JobTask."Job Task Type"::Posting, JobTask.TableCaption())) >
           0, 'Error message must be same.');
     end;
 
@@ -655,7 +655,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                         Error(Text009);
                 end;
 
-            until TempPurchLine.Next = 0;
+            until TempPurchLine.Next() = 0;
 
         // Check if the number of 'Schedule','Contract' Line Type in PurchLine is matching the Job Planning Lines.
         // For e.g. now we have 3 Lines of type 'Schedule', 'Contract', 'Both Schedule and Contract'.
@@ -685,7 +685,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                 else
                     Error(Text012);
 
-            until TempPurchLine.Next = 0;
+            until TempPurchLine.Next() = 0;
     end;
 
     local procedure CopyHeaderLines(PurchOrderNo: Code[20]; var TempPurchHeader: Record "Purchase Header" temporary; var TempPurchLine: Record "Purchase Line" temporary)
@@ -705,7 +705,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
             repeat
                 TempPurchLine := PurchLine;
                 TempPurchLine.Insert();
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
     end;
 
     local procedure CompareLines(TempPurchHeader: Record "Purchase Header" temporary; TempPurchLine: Record "Purchase Line" temporary; JobPlanLine: Record "Job Planning Line")
@@ -788,7 +788,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                 JobPlanLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
                 if JobPlanLine.FindFirst() then
                     Error(Text030);
-            until TempPurchLine.Next = 0;
+            until TempPurchLine.Next() = 0;
     end;
 }
 

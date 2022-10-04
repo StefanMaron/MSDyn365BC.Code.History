@@ -34,7 +34,7 @@ codeunit 1707 "Exp. Mapping Foot Pos. Pay"
                 end;
             end;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     var

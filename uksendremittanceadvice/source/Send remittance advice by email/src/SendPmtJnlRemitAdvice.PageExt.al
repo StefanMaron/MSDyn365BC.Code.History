@@ -33,7 +33,7 @@ pageextension 4022 SendPmtJnlRemitAdvice extends "Payment Journal"
             }
         }
     }
-    internal procedure SendVendorRecords(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure SendVendorRecords(var GenJournalLine: Record "Gen. Journal Line")
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";

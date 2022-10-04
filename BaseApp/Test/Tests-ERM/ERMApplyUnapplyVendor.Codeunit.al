@@ -318,8 +318,8 @@
     begin
         // Setup: Update General Ledger Setup, Create and post General Journal Lines.
         LibraryERM.SetAddReportingCurrency(CreateCurrency(0));
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'M>', WorkDate);
-        CreatePostApplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount, WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'M>', WorkDate());
+        CreatePostApplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount, WorkDate());
         CreateNewExchangeRate(PostingDate);
         FindDetailedLedgerEntry(
           DetailedVendorLedgEntry, DetailedVendorLedgEntry."Entry Type"::Application, GenJournalLine."Document No.",
@@ -331,7 +331,7 @@
         asserterror VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify error on Unapply after Exchange Rate has been changed.
-        Assert.AreEqual(StrSubstNo(UnapplyExchangeRateErr, WorkDate), GetLastErrorText, MessageDoNotMatchErr);
+        Assert.AreEqual(StrSubstNo(UnapplyExchangeRateErr, WorkDate()), GetLastErrorText, MessageDoNotMatchErr);
     end;
 
     [Test]
@@ -369,7 +369,7 @@
         DocumentNo: Code[20];
     begin
         // Setup: Create and post General Journal Lines.
-        CreatePostApplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount, WorkDate);
+        CreatePostApplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount, WorkDate());
         FindDetailedLedgerEntry(
           DetailedVendorLedgEntry, DetailedVendorLedgEntry."Entry Type"::Application, GenJournalLine."Document No.",
           GenJournalLine."Account No.");
@@ -415,7 +415,7 @@
         asserterror VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify error when Unapplying Vendor Ledger entry which have been Date Compress.
-        Assert.AreEqual(StrSubstNo(DateCompressUnapplyErr, VendorLedgerEntry.TableCaption), GetLastErrorText, MessageDoNotMatchErr);
+        Assert.AreEqual(StrSubstNo(DateCompressUnapplyErr, VendorLedgerEntry.TableCaption()), GetLastErrorText, MessageDoNotMatchErr);
     end;
 
     [Test]
@@ -476,7 +476,7 @@
     begin
         // Setup: Create Vendor, Create and post General Journal  Line.
         LibraryPurchase.CreateVendor(Vendor);
-        CreateAndPostGenJournalLine(GenJournalLine, Vendor."No.", DocumentType, Amount, '', WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Vendor."No.", DocumentType, Amount, '', WorkDate());
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, GenJournalLine."Document No.");
 
         // Exercise: Unapply Document from Vendor Ledger Entry.
@@ -545,7 +545,7 @@
     begin
         // Setup: Create Vendor, Create and post General Journal  Line.
         LibraryPurchase.CreateVendor(Vendor);
-        CreateAndPostGenJournalLine(GenJournalLine, Vendor."No.", DocumentType, Amount, '', WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Vendor."No.", DocumentType, Amount, '', WorkDate());
         FindDetailedLedgerEntry(
           DetailedVendorLedgEntry, DetailedVendorLedgEntry."Entry Type"::"Initial Entry", GenJournalLine."Document No.",
           GenJournalLine."Account No.");
@@ -556,7 +556,7 @@
         // Verify: Verify error when Unapplying Document from Detailed Vendor Ledger Entry.
         Assert.AreEqual(
           StrSubstNo(
-            UnapplyErr, DetailedVendorLedgEntry.FieldCaption("Entry Type"), DetailedVendorLedgEntry.TableCaption,
+            UnapplyErr, DetailedVendorLedgEntry.FieldCaption("Entry Type"), DetailedVendorLedgEntry.TableCaption(),
             DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."), GetLastErrorText,
           MessageDoNotMatchErr);
     end;
@@ -624,7 +624,7 @@
         Vendor.Modify(true);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         Amount := CreateAndModifyPurchaseLine(PurchaseHeader);
-        Amount := LibraryERM.ConvertCurrency(Amount, PurchaseHeader."Currency Code", '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Amount, PurchaseHeader."Currency Code", '', WorkDate());
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
         UpdateGenJournalLine(GenJournalLine, '', PostedDocumentNo, Amount);
@@ -663,7 +663,7 @@
         LibraryLowerPermissions.AddAccountPayables;
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, WorkDate, Vendor."No.", LibraryInventory.CreateItemNo, PurchaseHeader."Document Type"::Order,
+            PurchaseLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItemNo, PurchaseHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify GL, Vendor and Detailed Vendor ledger entries.
@@ -688,7 +688,7 @@
         // Exercise: Create and post Sales Order.
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchLine, WorkDate, Vendor."No.", LibraryInventory.CreateItemNo, PurchHeader."Document Type"::Order,
+            PurchLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItemNo, PurchHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Try to modify Payment Method Code in Vendor Ledger Entry.
@@ -719,13 +719,13 @@
         LibraryInventory.CreateItem(Item);
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, WorkDate, Vendor."No.", Item."No.", PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2),
+            PurchaseLine, WorkDate(), Vendor."No.", Item."No.", PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2),
             LibraryRandom.RandDec(100, 2));
 
         // Exercise: Create and post Purchase Credit Memo.
         DocumentNo2 :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, WorkDate, Vendor."No.", Item."No.", PurchaseHeader."Document Type"::"Credit Memo", PurchaseLine.Quantity,
+            PurchaseLine, WorkDate(), Vendor."No.", Item."No.", PurchaseHeader."Document Type"::"Credit Memo", PurchaseLine.Quantity,
             PurchaseLine."Direct Unit Cost");
 
         // Verify: Verify GL, Vendor and Detailed Vendor ledger entries.
@@ -908,7 +908,7 @@
         // Verify: Vendor No. and "Applies To Doc. Type" are filled correctly.
         Assert.AreEqual(
           VendLedgEntry."Vendor No.", GenJnlLine."Account No.",
-          StrSubstNo(WrongFieldErr, GenJnlLine.FieldCaption("Account No."), GenJnlLine.TableCaption));
+          StrSubstNo(WrongFieldErr, GenJnlLine.FieldCaption("Account No."), GenJnlLine.TableCaption()));
     end;
 
     [Test]
@@ -931,20 +931,20 @@
         LibraryPurchase.CreateVendor(Vendor);
         SelectGenJournalBatch(GenJournalBatch);
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
         PaymentAmount := LibraryRandom.RandDecInRange(100, 1000, 2);
         InvoiceAmount := PaymentAmount * LibraryRandom.RandIntInRange(3, 5);
 
         // Exercise
         LibraryLowerPermissions.SetAccountPayables;
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::Invoice,
           Vendor."No.", '', -InvoiceAmount);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::"Credit Memo",
+          GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::"Credit Memo",
           Vendor."No.", '', PaymentAmount);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::Payment,
+          GenJournalLine, GenJournalBatch, WorkDate(), GenJournalLine."Document Type"::Payment,
           Vendor."No.", CurrencyCode, PaymentAmount);
 
         LibraryVariableStorage.Enqueue(PaymentAmount);
@@ -1154,7 +1154,7 @@
 
         // [GIVEN] Credit memo with Amount = 100 LCY is posted in the purchase journal.
         CreateAndPostGenJournalLine(
-          GenJournalLine, VendorNo, GenJournalLine."Document Type"::"Credit Memo", Amount[1], '', WorkDate);
+          GenJournalLine, VendorNo, GenJournalLine."Document Type"::"Credit Memo", Amount[1], '', WorkDate());
         DocumentNo[1] := GenJournalLine."Document No.";
 
         // [WHEN] Payment with negative Amount = -10 LCY is set applied to the credit-memo and posted in the payment journal.
@@ -1192,7 +1192,7 @@
         Initialize();
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
-        PostingDate[1] := WorkDate;
+        PostingDate[1] := WorkDate();
         PostingDate[2] := PostingDate[1] + 1;
         PostingDate[3] := PostingDate[2] + 1;
         Rate := LibraryRandom.RandDec(10, 2);
@@ -1253,7 +1253,7 @@
         BindSubscription(ERMApplyUnapplyVendor);
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
-        PostingDate[1] := WorkDate;
+        PostingDate[1] := WorkDate();
         PostingDate[2] := PostingDate[1] + 1;
         PostingDate[3] := PostingDate[2] + 1;
         Rate := LibraryRandom.RandDec(10, 2);
@@ -1315,7 +1315,7 @@
 
         // [GIVEN] Currency with specific exchange rates on 01.01 and 02.01, set as Additional Reporting Currency
         PaymentDate := LibraryRandom.RandDate(3);
-        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate);
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate());
         CreateExchangeRate(CurrencyCode, 1, 1.1208, PaymentDate);
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
 
@@ -1444,7 +1444,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchRates()
     var
@@ -1562,7 +1561,7 @@
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -1576,10 +1575,10 @@
 
     local procedure SetupSpecificExchRates(var ForeignCurrencyCode: Code[10]; var AdditionalCurrencyCode: Code[10]; var DocumentDate: Date)
     begin
-        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate());
         ForeignCurrencyCode := CreateCurrencyAndExchangeRate(100, 46.0862, DocumentDate);
         AdditionalCurrencyCode := CreateCurrencyAndExchangeRate(100, 55.7551, DocumentDate);
-        CreateExchangeRate(AdditionalCurrencyCode, 100, 50, WorkDate);
+        CreateExchangeRate(AdditionalCurrencyCode, 100, 50, WorkDate());
     end;
 
     local procedure PostApplyPaymentForeignCurrency(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal; AppliedDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentNo: Code[20])
@@ -1620,14 +1619,14 @@
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Invoice Rounding Precision", 0.01);
         Currency.Modify(true);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, CurrencyFactor, CurrencyFactor);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), CurrencyFactor, CurrencyFactor);
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", Currency.Code);
         Vendor.Modify(true);
 
         // Excercise
         CreateAndPostPurchaseDocument(
-          PurchaseLine, WorkDate, Vendor."No.", LibraryInventory.CreateItem(Item), PurchaseHeader."Document Type"::Invoice,
+          PurchaseLine, WorkDate(), Vendor."No.", LibraryInventory.CreateItem(Item), PurchaseHeader."Document Type"::Invoice,
           1, LineAmount);
         LineAmount := PurchaseLine."Amount Including VAT";
 
@@ -1689,7 +1688,7 @@
             VendorLedgerEntry2.CalcFields("Remaining Amount");
             VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
             VendorLedgerEntry2.Modify(true);
-        until VendorLedgerEntry2.Next = 0;
+        until VendorLedgerEntry2.Next() = 0;
         SetAppliesToIDAndPostEntry(VendorLedgerEntry2, VendorLedgerEntry);
     end;
 
@@ -1707,7 +1706,7 @@
             VendorLedgerEntry2.CalcFields("Remaining Amount");
             VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
             VendorLedgerEntry2.Modify(true);
-        until VendorLedgerEntry2.Next = 0;
+        until VendorLedgerEntry2.Next() = 0;
         SetAppliesToIDAndPostEntry(VendorLedgerEntry2, VendorLedgerEntry);
     end;
 
@@ -1822,10 +1821,10 @@
         // Setup: Create Invoice and Payment General Line with Different Currency without Rounding Precision.
         UpdatePurchaseAndPayableSetup(PurchasesPayablesSetup."Appln. between Currencies"::All);
         LibraryPurchase.CreateVendor(Vendor);
-        CreateAndPostGenJournalLine(GenJournalLine, Vendor."No.", DocumentType, Amount, CreateCurrency(0), WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Vendor."No.", DocumentType, Amount, CreateCurrency(0), WorkDate());
         DocumentNo := GenJournalLine."Document No.";
         CreateAndPostGenJournalLine(
-          GenJournalLine, Vendor."No.", DocumentType2, -GenJournalLine.Amount - AppRounding, CreateCurrency(AppRounding), WorkDate);
+          GenJournalLine, Vendor."No.", DocumentType2, -GenJournalLine.Amount - AppRounding, CreateCurrency(AppRounding), WorkDate());
 
         // Exericse.
         ApplyVendorLedgerEntry(DocumentType2, DocumentType, GenJournalLine."Document No.", DocumentNo);
@@ -2031,7 +2030,7 @@
     begin
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, WorkDate, VendorNo, LibraryInventory.CreateItemNo, DocType,
+            PurchaseLine, WorkDate(), VendorNo, LibraryInventory.CreateItemNo, DocType,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(1000, 2));
         CreateGeneralJournalLine(GenJournalLine, 1, VendorNo, GenJournalLine."Document Type"::Payment,
           LibraryRandom.RandDec(100, 2));
@@ -2218,7 +2217,7 @@
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
             Validate("Currency Code", CurrencyCode);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -2381,7 +2380,7 @@
         with GenJournalLine do begin
             Validate("Document No.", IncStr("Document No."));
             Validate("External Document No.", "Document No.");
-            Validate("Posting Date", CalcDate('<1Y>', WorkDate));
+            Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
             Modify(true);
         end;
     end;
@@ -2480,7 +2479,7 @@
         Vendor.SetRange("No.", GenJournalLine."Account No.");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate, GenJournalLine."Account No.", true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo,
+          WorkDate, false, 0, false, WorkDate(), GenJournalLine."Account No.", true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo,
           GenJournalLine."Bank Payment Type"::"Manual Check");
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.RunModal();
@@ -2555,11 +2554,11 @@
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
         FindGLEntries(GLEntry, DocumentNo);
         repeat
-            AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GLEntry.Amount, '', Currency.Code, WorkDate);
+            AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GLEntry.Amount, '', Currency.Code, WorkDate());
             Assert.AreNearlyEqual(
               AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", Currency."Amount Rounding Precision",
               StrSubstNo(AdditionalCurrencyErr, AdditionalCurrencyAmount));
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyEntriesAfterPostingPurchaseDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20]; VendorNo: Code[20])
@@ -2592,7 +2591,7 @@
         repeat
             VendorLedgerEntry.CalcFields("Remaining Amount", Amount);
             VendorLedgerEntry.TestField("Remaining Amount", VendorLedgerEntry.Amount);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; VendorNo: Code[20])
@@ -2603,11 +2602,11 @@
         FindDetailedLedgerEntry(DetailedVendorLedgEntry, DetailedVendorLedgEntry."Entry Type"::Application, DocumentNo, VendorNo);
         repeat
             TotalAmount += DetailedVendorLedgEntry.Amount;
-        until DetailedVendorLedgEntry.Next = 0;
+        until DetailedVendorLedgEntry.Next() = 0;
         Assert.AreEqual(
           0, TotalAmount,
           StrSubstNo(
-            TotalAmountErr, 0, DetailedVendorLedgEntry.TableCaption, DetailedVendorLedgEntry.FieldCaption("Entry Type"),
+            TotalAmountErr, 0, DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.FieldCaption("Entry Type"),
             DetailedVendorLedgEntry."Entry Type"));
     end;
 
@@ -2618,7 +2617,7 @@
         FindDetailedLedgerEntry(DetailedVendorLedgEntry, EntryType, DocumentNo, VendorNo);
         Assert.AreEqual(
           Amount, DetailedVendorLedgEntry.Amount,
-          StrSubstNo(AmountErr, DetailedVendorLedgEntry.FieldCaption(Amount), Amount, DetailedVendorLedgEntry.TableCaption));
+          StrSubstNo(AmountErr, DetailedVendorLedgEntry.FieldCaption(Amount), Amount, DetailedVendorLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyUnappliedEntries(DocumentNo: Code[20]; VendorNo: Code[20])
@@ -2631,8 +2630,8 @@
               DetailedVendorLedgEntry.Unapplied,
               StrSubstNo(
                 UnappliedErr, DetailedVendorLedgEntry.FieldCaption(Unapplied), DetailedVendorLedgEntry.Unapplied,
-                DetailedVendorLedgEntry.TableCaption));
-        until DetailedVendorLedgEntry.Next = 0;
+                DetailedVendorLedgEntry.TableCaption()));
+        until DetailedVendorLedgEntry.Next() = 0;
     end;
 
     local procedure VerifySourceCodeDtldCustLedger(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; SourceCode: Code[10])
@@ -2663,9 +2662,9 @@
         FindGLEntries(GLEntry, DocumentNo);
         repeat
             TotalAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreEqual(
-          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
+          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption(), GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
     end;
 
     local procedure VerifyVATAmountOnGLEntry(GenJournalLine: Record "Gen. Journal Line")

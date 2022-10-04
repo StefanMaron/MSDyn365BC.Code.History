@@ -394,7 +394,7 @@ codeunit 99000778 OrderTrackingManagement
             if DateWarning and not SuppressMessages then
                 Message(Text009);
             if not SuppressMessages then
-                Window.Close;
+                Window.Close();
         end;
         exit(TrackingExists);
     end;
@@ -647,7 +647,7 @@ codeunit 99000778 OrderTrackingManagement
             DateWarning := true;
         end;
 
-        if OrderTrackingEntryExists then begin
+        if OrderTrackingEntryExists() then begin
             TempOrderTrackingEntry.Quantity += ReservEntry."Quantity (Base)";
             TempOrderTrackingEntry.Modify();
             exit;
@@ -705,8 +705,8 @@ codeunit 99000778 OrderTrackingManagement
                 end;
             DATABASE::"Item Ledger Entry":
                 if ItemLedgEntry.Get(RefNo) then begin
-                    TempOrderTrackingEntry."Starting Date" := WorkDate;
-                    TempOrderTrackingEntry."Ending Date" := WorkDate;
+                    TempOrderTrackingEntry."Starting Date" := WorkDate();
+                    TempOrderTrackingEntry."Ending Date" := WorkDate();
                 end;
             DATABASE::"Prod. Order Line":
                 if ProdOrderLine.Get(Subtype, ID, ProdOrderLineNo) then begin
@@ -780,17 +780,17 @@ codeunit 99000778 OrderTrackingManagement
         if SearchUp then begin
             TempOrderTrackingEntry."Demanded by" :=
               StrSubstNo(
-                '%1 %2', FromItemLedgEntry.TableCaption, FromItemLedgEntry."Entry No.");
+                '%1 %2', FromItemLedgEntry.TableCaption(), FromItemLedgEntry."Entry No.");
             TempOrderTrackingEntry."Supplied by" :=
               StrSubstNo(
-                '%1 %2', ToItemLedgEntry.TableCaption, ToItemLedgEntry."Entry No.");
+                '%1 %2', ToItemLedgEntry.TableCaption(), ToItemLedgEntry."Entry No.");
         end else begin
             TempOrderTrackingEntry."Supplied by" :=
               StrSubstNo(
-                '%1 %2', FromItemLedgEntry.TableCaption, FromItemLedgEntry."Entry No.");
+                '%1 %2', FromItemLedgEntry.TableCaption(), FromItemLedgEntry."Entry No.");
             TempOrderTrackingEntry."Demanded by" :=
               StrSubstNo(
-                '%1 %2', ToItemLedgEntry.TableCaption, ToItemLedgEntry."Entry No.");
+                '%1 %2', ToItemLedgEntry.TableCaption(), ToItemLedgEntry."Entry No.");
         end;
 
         if Level = 1 then begin

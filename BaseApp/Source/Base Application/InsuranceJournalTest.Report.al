@@ -23,7 +23,7 @@ report 5622 "Insurance Journal - Test"
                 column(Insurance_Journal_Batch___Journal_Template_Name_; "Insurance Journal Batch"."Journal Template Name")
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -136,18 +136,18 @@ report 5622 "Insurance Journal - Test"
                                 if not FA.Get("FA No.") then
                                     AddError(
                                       StrSubstNo(
-                                        Text001, FA.TableCaption, FA.FieldCaption("No.")));
+                                        Text001, FA.TableCaption(), FA.FieldCaption("No.")));
                             if "Document No." = '' then
                                 AddError(StrSubstNo(Text000, FieldCaption("Document No.")));
                         end;
 
                         if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                            AddError(DimMgt.GetDimCombErr);
+                            AddError(DimMgt.GetDimCombErr());
 
                         TableID[1] := DATABASE::Insurance;
                         No[1] := "Insurance No.";
                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                            AddError(DimMgt.GetDimValuePostingErr);
+                            AddError(DimMgt.GetDimValuePostingErr());
                     end;
 
                     trigger OnPreDataItem()
@@ -178,14 +178,12 @@ report 5622 "Insurance Journal - Test"
 
     trigger OnPreReport()
     begin
-        InsuranceJnlLineFilter := "Insurance Journal Line".GetFilters;
+        InsuranceJnlLineFilter := "Insurance Journal Line".GetFilters();
         FASetup.Get();
         FASetup.TestField("Automatic Insurance Posting", true);
     end;
 
     var
-        Text000: Label '%1 must be specified.';
-        Text001: Label '%1 %2 does not exist.';
         InsuranceJnlTempl: Record "Insurance Journal Template";
         FA: Record "Fixed Asset";
         FASetup: Record "FA Setup";
@@ -195,6 +193,9 @@ report 5622 "Insurance Journal - Test"
         InsuranceJnlLineFilter: Text;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+
+        Text000: Label '%1 must be specified.';
+        Text001: Label '%1 %2 does not exist.';
         Insurance_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
         Insurance_Journal___TestCaptionLbl: Label 'Insurance Journal - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

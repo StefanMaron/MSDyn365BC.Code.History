@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138917 "O365 Language Settings Test"
 {
     Subtype = Test;
@@ -28,7 +29,7 @@ codeunit 138917 "O365 Language Settings Test"
         Assert.AreEqual('Maltese (Malta)',
           O365LanguageSettings.Language.Value,
           'Language Settings did not load correct language from User Personalization.');
-        O365LanguageSettings.Close;
+        O365LanguageSettings.Close();
     end;
 
     [Test]
@@ -48,7 +49,7 @@ codeunit 138917 "O365 Language Settings Test"
         Assert.AreEqual(WindowsLanguage.Name,
           O365LanguageSettings.Language.Value,
           'The Language field should change after selecting in the Lookup.');
-        O365LanguageSettings.Close;
+        O365LanguageSettings.Close();
         Assert.AreEqual(WindowsLanguage.Name,
           GetLanguageFromUserPersonalization,
           'The user''s Language should be updated in the User Personalization table after closing Language settings.');
@@ -88,7 +89,7 @@ codeunit 138917 "O365 Language Settings Test"
         Assert.AreEqual(WindowsLanguage.Name,
           GetLanguageFromUserPersonalization,
           'The user''s Language should be updated in the User Personalization table after closing Language settings.');
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
 
         // [THEN] The language is correctly updated even when reopening the page
         LibraryVariableStorage.Enqueue(WindowsLanguage.Name);
@@ -152,4 +153,4 @@ codeunit 138917 "O365 Language Settings Test"
           'Unexpected language shown in settings.');
     end;
 }
-
+#endif

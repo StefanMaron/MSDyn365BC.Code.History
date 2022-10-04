@@ -48,17 +48,17 @@ table 5414 "Prod. Order Comment Line"
 
     trigger OnDelete()
     begin
-        CheckFinishedOrder;
+        CheckFinishedOrder();
     end;
 
     trigger OnInsert()
     begin
-        CheckFinishedOrder;
+        CheckFinishedOrder();
     end;
 
     trigger OnModify()
     begin
-        CheckFinishedOrder;
+        CheckFinishedOrder();
     end;
 
     var
@@ -70,9 +70,9 @@ table 5414 "Prod. Order Comment Line"
     begin
         ProdOrderCommentLine.SetRange(Status, Status);
         ProdOrderCommentLine.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderCommentLine.SetRange(Date, WorkDate);
+        ProdOrderCommentLine.SetRange(Date, WorkDate());
         if not ProdOrderCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, ProdOrderCommentLine);
     end;

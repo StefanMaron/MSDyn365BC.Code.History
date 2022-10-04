@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2160 "O365 Sales Graph"
 {
     Caption = 'O365 Sales Graph';
     SourceTable = "O365 Sales Graph";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -10,15 +14,15 @@ page 2160 "O365 Sales Graph"
         {
             field(Component; Component)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             field(Type; Type)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
             field("Schema"; Schema)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
         }
     }
@@ -29,7 +33,7 @@ page 2160 "O365 Sales Graph"
 
     trigger OnModifyRecord(): Boolean
     begin
-        ParseRefresh;
+        ParseRefresh();
     end;
 }
-
+#endif

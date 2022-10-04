@@ -42,17 +42,17 @@ table 355 "Dimension Set ID Filter Line"
         if "Dimension Code" = '' then
             exit;
         ChunkLength := MaxStrLen("Dimension Value Filter Part");
-        Reset;
+        Reset();
         SetRange(Code, Code);
         SetRange("Dimension Code", "Dimension Code");
         DeleteAll();
-        Init;
+        Init();
         Code := Code;
         "Dimension Code" := "Dimension Code";
         for i := 1 to ((StrLen(DimensionValueFilter) div ChunkLength) + 1) do begin
             "Line No." := i;
             "Dimension Value Filter Part" := CopyStr(DimensionValueFilter, (i - 1) * ChunkLength + 1, i * ChunkLength);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -62,12 +62,12 @@ table 355 "Dimension Set ID Filter Line"
     begin
         DimensionSetIDFilterLine := Rec;
         DimensionSetIDFilterLine.CopyFilters(Rec);
-        Reset;
+        Reset();
         SetRange(Code, NewCode);
         SetRange("Dimension Code", NewDimensionCode);
         if FindSet() then begin
             DimensionValueFilter := "Dimension Value Filter Part";
-            if DimensionSetIDFilterLine.Next <> 0 then
+            if DimensionSetIDFilterLine.Next() <> 0 then
                 repeat
                     DimensionValueFilter += "Dimension Value Filter Part";
                 until Next() = 0;

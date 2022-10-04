@@ -256,7 +256,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         GLRegister[2].TestField(Reversed, true);
 
         // [THEN] G/L Register "1" for original transaction has Reversed = TRUE
-        GLRegister[1].Find;
+        GLRegister[1].Find();
         GLRegister[1].TestField(Reversed, true);
     end;
 
@@ -538,7 +538,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
 
         ReverseEntries.First;
         ReverseEntries.Description.SetValue(NewDescription);
-        while ReverseEntries.Next do
+        while ReverseEntries.Next() do
             ReverseEntries.Description.SetValue(NewDescription);
         ReverseEntries.Reverse.Invoke;
     end;

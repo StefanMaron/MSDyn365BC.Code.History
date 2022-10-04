@@ -23,7 +23,7 @@ codeunit 5432 "Automation - Import RSPackage"
         ConfigXMLExchange.ImportPackageXMLWithCodeFromStream(InStream, Code);
 
         // refreshing the record as ImportPackageXMLWithCodeFromStream updated the Configuration package with the number of records in the package, etc.
-        Find;
+        Find();
         Validate("Import Status", "Import Status"::Completed);
         Modify(true);
         Commit();

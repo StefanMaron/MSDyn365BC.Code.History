@@ -1,5 +1,6 @@
 table 132590 "Comparison Type"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -88,7 +89,7 @@ table 132590 "Comparison Type"
         OutStream.WriteText(BlobValue);
         "GUID Field" := GuidValue;
         "Record ID Field" := RecordIdValue;
-        Insert;
+        Insert();
     end;
 
     [Scope('OnPrem')]
@@ -110,7 +111,7 @@ table 132590 "Comparison Type"
         "Blob Field" := ComparisonType."Blob Field";
         "GUID Field" := ComparisonType."GUID Field";
         "Record ID Field" := ComparisonType."Record ID Field";
-        Insert;
+        Insert();
     end;
 }
 

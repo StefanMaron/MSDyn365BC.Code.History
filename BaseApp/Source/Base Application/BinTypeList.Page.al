@@ -32,7 +32,7 @@ page 7307 "Bin Type List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies to use the bin for items that are about to be shipped out of the warehouse.';
                 }
-                field("Put Away"; "Put Away")
+                field("Put Away"; Rec."Put Away")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies to use the bin for items that are being put away, such as receipts and internal put-always.';

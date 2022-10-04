@@ -46,7 +46,7 @@ codeunit 1312 "Vendor Mgt."
     begin
         with PurchInvHeader do begin
             SetRange("Buy-from Vendor No.", VendNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
 
             PAGE.Run(PAGE::"Posted Purchase Invoices", PurchInvHeader);
         end;
@@ -58,7 +58,7 @@ codeunit 1312 "Vendor Mgt."
     begin
         with PurchCrMemoHdr do begin
             SetRange("Buy-from Vendor No.", VendNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
 
             PAGE.Run(PAGE::"Posted Purchase Credit Memos", PurchCrMemoHdr);
         end;
@@ -71,7 +71,7 @@ codeunit 1312 "Vendor Mgt."
         with PurchaseLine do begin
             SetRange("Buy-from Vendor No.", VendNo);
             SetRange("Document Type", "Document Type"::Order);
-            SetFilter("Order Date", GetCurrentYearFilter);
+            SetFilter("Order Date", GetCurrentYearFilter());
 
             PAGE.Run(PAGE::"Purchase Orders", PurchaseLine);
         end;
@@ -151,7 +151,7 @@ codeunit 1312 "Vendor Mgt."
     begin
         with VendLedgEntry do begin
             SetRange("Buy-from Vendor No.", VendNo);
-            SetFilter("Posting Date", GetCurrentYearFilter);
+            SetFilter("Posting Date", GetCurrentYearFilter());
             SetRange("Document Type", DocumentType);
         end;
     end;
@@ -171,7 +171,7 @@ codeunit 1312 "Vendor Mgt."
         CustDateFilter: Text[30];
         CustDateName: Text[30];
     begin
-        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter, CustDateName, WorkDate, 0);
+        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter, CustDateName, WorkDate(), 0);
         exit(CustDateFilter);
     end;
 

@@ -26,7 +26,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
     begin
         if Rec.IsTemporary then
             exit;
-        ResetAccSchedKPIWevSrvSetup;
+        ResetAccSchedKPIWevSrvSetup();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Sched. KPI Web Srv. Line", 'OnAfterModifyEvent', '', false, false)]
@@ -34,7 +34,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
     begin
         if Rec.IsTemporary then
             exit;
-        ResetAccSchedKPIWevSrvSetup;
+        ResetAccSchedKPIWevSrvSetup();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Acc. Sched. KPI Web Srv. Line", 'OnAfterDeleteEvent', '', false, false)]
@@ -42,7 +42,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
     begin
         if Rec.IsTemporary then
             exit;
-        ResetAccSchedKPIWevSrvSetup;
+        ResetAccSchedKPIWevSrvSetup();
         if TempAccSchedKPIWebSrvLine.Get(Rec."Acc. Schedule Name") then
             TempAccSchedKPIWebSrvLine.Delete();
     end;
@@ -97,7 +97,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
 
     local procedure ResetAccSchedKPIWevSrvSetup()
     begin
-        if not AccSchedKPIWebSrvSetup.Get then
+        if not AccSchedKPIWebSrvSetup.Get() then
             exit;
         if AccSchedKPIWebSrvSetup."Last G/L Entry Included" = 0 then
             exit;
@@ -118,14 +118,14 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         if not AccSchedKPIWebSrvSetup.WritePermission then
             exit;
         if TempAccSchedKPIWebSrvLine.Get(AccSchedName) then begin
-            ResetAccSchedKPIWevSrvSetup;
+            ResetAccSchedKPIWevSrvSetup();
             exit;
         end;
 
         if AccSchedKPIWebSrvLine.Get(AccSchedName) then begin
             TempAccSchedKPIWebSrvLine := AccSchedKPIWebSrvLine;
             TempAccSchedKPIWebSrvLine.Insert();
-            ResetAccSchedKPIWevSrvSetup;
+            ResetAccSchedKPIWevSrvSetup();
         end;
     end;
 
@@ -136,12 +136,12 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         PrevGlBudgetName := GlBudgetName;
         if not AccSchedKPIWebSrvSetup.WritePermission then
             exit;
-        if not AccSchedKPIWebSrvSetup.Get then
+        if not AccSchedKPIWebSrvSetup.Get() then
             exit;
         if AccSchedKPIWebSrvSetup."G/L Budget Name" = '' then
             exit;
         if AccSchedKPIWebSrvSetup."G/L Budget Name" = GlBudgetName then
-            ResetAccSchedKPIWevSrvSetup;
+            ResetAccSchedKPIWevSrvSetup();
     end;
 }
 

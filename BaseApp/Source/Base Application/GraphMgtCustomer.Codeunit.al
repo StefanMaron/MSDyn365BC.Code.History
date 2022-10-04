@@ -44,7 +44,7 @@ codeunit 5471 "Graph Mgt - Customer"
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);
-        UpdateIds;
+        UpdateIds();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnUpdateRelatedRecordIdFields', '', false, false)]
@@ -62,7 +62,7 @@ codeunit 5471 "Graph Mgt - Customer"
             exit;
 
         RecRef.SetTable(Customer);
-        Customer.UpdateReferencedIds;
+        Customer.UpdateReferencedIds();
 
         UpdatedRecRef.GetTable(Customer);
         Customer.GetReferencedIds(TempField);
@@ -84,7 +84,7 @@ codeunit 5471 "Graph Mgt - Customer"
             exit;
 
         repeat
-            Customer.UpdateReferencedIds;
+            Customer.UpdateReferencedIds();
             Customer.Modify(false);
             if WithCommit then
                 APIDataUpgrade.CountRecordsAndCommit(RecordCount);

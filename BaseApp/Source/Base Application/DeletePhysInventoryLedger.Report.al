@@ -32,7 +32,7 @@ report 789 "Delete Phys. Inventory Ledger"
                     Window.Update(1);
                     Window.Update(2);
 
-                    Delete;
+                    Delete();
 
                     InvtPeriodEntry.RemoveItemRegNo("Entry No.", true);
 
@@ -120,12 +120,6 @@ report 789 "Delete Phys. Inventory Ledger"
     }
 
     var
-        DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Deleting phys. inventory ledger entries...\\';
-        Text005: Label 'Item No.             #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of entries del.  #3######';
         EntrdDateComprReg: Record "Date Compr. Register";
         PhysInvtLedgEntry2: Record "Phys. Inventory Ledger Entry";
         DateComprMgt: Codeunit DateComprMgt;
@@ -133,5 +127,12 @@ report 789 "Delete Phys. Inventory Ledger"
         LastEntryNo: Integer;
         NoOfDeleted: Integer;
         LastNoOfDeleted: Integer;
+
+        DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Deleting phys. inventory ledger entries...\\';
+        Text005: Label 'Item No.             #1##########\';
+        Text006: Label 'Date                 #2######\\';
+        Text007: Label 'No. of entries del.  #3######';
 }
 

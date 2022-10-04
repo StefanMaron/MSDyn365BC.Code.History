@@ -60,10 +60,6 @@ page 5730 "Item Categories"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Recalculate';
                 Image = Hierarchy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Update the tree of item categories based on recent changes.';
 
                 trigger OnAction()
@@ -72,27 +68,38 @@ page 5730 "Item Categories"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Recalculate_Promoted; Recalculate)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        StyleTxt := GetStyleText;
+        StyleTxt := GetStyleText();
         CurrPage.ItemAttributesFactbox.PAGE.LoadCategoryAttributesData(Code);
     end;
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := GetStyleText;
+        StyleTxt := GetStyleText();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        StyleTxt := GetStyleText;
+        StyleTxt := GetStyleText();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        StyleTxt := GetStyleText;
+        StyleTxt := GetStyleText();
     end;
 
     trigger OnOpenPage()

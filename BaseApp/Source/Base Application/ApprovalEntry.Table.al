@@ -247,7 +247,7 @@ table 454 "Approval Entry"
 
         if not RecRef.Get("Record ID to Approve") then
             exit;
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
         PageManagement.PageRun(RecRef);
     end;
 
@@ -288,7 +288,7 @@ table 454 "Approval Entry"
         if not GetRecordToApprove(RecRef) then
             exit(RecNotExistTxt);
 
-        ChangeRecordDetails := GetChangeRecordDetails;
+        ChangeRecordDetails := GetChangeRecordDetails();
 
         case RecRef.Number of
             DATABASE::"Sales Header":

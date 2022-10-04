@@ -14,37 +14,37 @@ page 1402 "Purchase No. Series Setup"
             {
                 Caption = 'Numbering';
                 InstructionalText = 'To fill the Document No. field automatically, you must set up a number series.';
-                field("Quote Nos."; "Quote Nos.")
+                field("Quote Nos."; Rec."Quote Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase quotes. To see the number series that have been set up in the No. Series table, click the field.';
                     Visible = QuoteNosVisible;
                 }
-                field("Blanket Order Nos."; "Blanket Order Nos.")
+                field("Blanket Order Nos."; Rec."Blanket Order Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to blanket purchase orders. To see the number series that have been set up in the No. Series table, click the field.';
                     Visible = BlanketOrderNosVisible;
                 }
-                field("Order Nos."; "Order Nos.")
+                field("Order Nos."; Rec."Order Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase orders. To see the number series that have been set up in the No. Series table, click the field.';
                     Visible = OrderNosVisible;
                 }
-                field("Return Order Nos."; "Return Order Nos.")
+                field("Return Order Nos."; Rec."Return Order Nos.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number series that is used to assign numbers to new purchase return orders.';
                     Visible = ReturnOrderNosVisible;
                 }
-                field("Invoice Nos."; "Invoice Nos.")
+                field("Invoice Nos."; Rec."Invoice Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase invoices. To see the number series that have been set up in the No. Series table, click the field.';
                     Visible = InvoiceNosVisible;
                 }
-                field("Credit Memo Nos."; "Credit Memo Nos.")
+                field("Credit Memo Nos."; Rec."Credit Memo Nos.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase credit memos. To see the number series that have been set up in the No. Series table, click the field.';
@@ -63,11 +63,19 @@ page 1402 "Purchase No. Series Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchases & Payables Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Purchases & Payables Setup";
                 ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
             }
         }
     }

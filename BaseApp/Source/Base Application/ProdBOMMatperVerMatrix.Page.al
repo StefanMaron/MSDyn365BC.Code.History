@@ -1,7 +1,7 @@
 page 9287 "Prod. BOM Mat. per Ver. Matrix"
 {
     Caption = 'Prod. BOM Matrix per Version Matrix';
-    DataCaptionExpression = SetCaption;
+    DataCaptionExpression = SetCaption();
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -18,12 +18,12 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the item included in one ore more of the production BOM versions.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -349,7 +349,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                         ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                     begin
                         Item.Get("Item No.");
-                        ProdBOMWhereUsed.SetItem(Item, WorkDate);
+                        ProdBOMWhereUsed.SetItem(Item, WorkDate());
                         ProdBOMWhereUsed.Run();
                     end;
                 }
@@ -417,7 +417,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
     trigger OnOpenPage()
     begin
         BOMMatrixMgt.BOMMatrixFromBOM(ProdBOM, ShowLevel = ShowLevel::Multi);
-        SetColumnVisibility;
+        SetColumnVisibility();
     end;
 
     var

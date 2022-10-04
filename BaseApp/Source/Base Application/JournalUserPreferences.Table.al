@@ -31,7 +31,7 @@ table 1182 "Journal User Preferences"
         }
         field(5; User; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("User ID"),
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("User ID"),
                                                          "License Type" = CONST("Full User")));
             Caption = 'User';
             FieldClass = FlowField;
@@ -56,7 +56,7 @@ table 1182 "Journal User Preferences"
 
     trigger OnInsert()
     begin
-        "User ID" := UserSecurityId;
+        "User ID" := UserSecurityId();
     end;
 }
 

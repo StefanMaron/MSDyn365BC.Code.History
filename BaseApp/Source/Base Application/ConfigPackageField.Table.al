@@ -60,8 +60,8 @@ table 8616 "Config. Package Field"
                 OnValidateFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
                 if ShouldRunCheck then begin
                     if "Validate Field" then
-                        ThrowErrorIfFieldRemoved;
-                    UpdateFieldErrors;
+                        ThrowErrorIfFieldRemoved();
+                    UpdateFieldErrors();
                 end;
             end;
         }
@@ -85,9 +85,9 @@ table 8616 "Config. Package Field"
                     if xRec."Include Field" and not "Include Field" and "Primary Key" then
                         Error(Text000, "Field Caption");
                     if "Include Field" then
-                        ThrowErrorIfFieldRemoved;
+                        ThrowErrorIfFieldRemoved();
                     "Validate Field" := "Include Field";
-                    UpdateFieldErrors;
+                    UpdateFieldErrors();
                 end;
             end;
         }
@@ -152,7 +152,7 @@ table 8616 "Config. Package Field"
             trigger OnValidate()
             begin
                 TestField("Primary Key", false);
-                TestFieldIsInteger;
+                TestFieldIsInteger();
             end;
         }
         field(20; "XML Field Name"; Text[30])
@@ -242,7 +242,7 @@ table 8616 "Config. Package Field"
                         end;
                     end;
                 until ConfigPackageData.Next() = 0;
-                ConfigProgressBar.Close;
+                ConfigProgressBar.Close();
             end;
         end;
     end;

@@ -29,8 +29,8 @@ table 5790 "Shipping Agent Services"
             var
                 DateTest: Date;
             begin
-                DateTest := CalcDate("Shipping Time", WorkDate);
-                if DateTest < WorkDate then
+                DateTest := CalcDate("Shipping Time", WorkDate());
+                if DateTest < WorkDate() then
                     Error(Text000, FieldCaption("Shipping Time"));
             end;
         }

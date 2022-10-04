@@ -25,7 +25,7 @@ codeunit 1637 "Office Document Handler"
     begin
         Separator := '|';
         DocNos := TempOfficeAddinContext."Regular Expression Match";
-        foreach DocNo in DocNos.Split(Separator.ToCharArray) do begin
+        foreach DocNo in DocNos.Split(Separator.ToCharArray()) do begin
             TempOfficeAddinContext."Regular Expression Match" := DocNo;
             CollectDocumentMatches(TempOfficeDocumentSelection, DocNo, TempOfficeAddinContext);
         end;
@@ -70,14 +70,14 @@ codeunit 1637 "Office Document Handler"
     begin
         case TempOfficeAddinContext.Command of
             OutlookCommand.NewSalesCreditMemo:
-                Customer.CreateAndShowNewCreditMemo;
+                Customer.CreateAndShowNewCreditMemo();
             OutlookCommand.NewSalesInvoice:
                 if not OfficeMgt.CheckForExistingInvoice(Customer."No.") then
-                    Customer.CreateAndShowNewInvoice;
+                    Customer.CreateAndShowNewInvoice();
             OutlookCommand.NewSalesQuote:
-                Customer.CreateAndShowNewQuote;
+                Customer.CreateAndShowNewQuote();
             OutlookCommand.NewSalesOrder:
-                Customer.CreateAndShowNewOrder;
+                Customer.CreateAndShowNewOrder();
         end;
     end;
 
@@ -87,11 +87,11 @@ codeunit 1637 "Office Document Handler"
     begin
         case TempOfficeAddinContext.Command of
             OutlookCommand.NewPurchaseCreditMemo:
-                Vendor.CreateAndShowNewCreditMemo;
+                Vendor.CreateAndShowNewCreditMemo();
             OutlookCommand.NewPurchaseInvoice:
-                Vendor.CreateAndShowNewInvoice;
+                Vendor.CreateAndShowNewInvoice();
             OutlookCommand.NewPurchaseOrder:
-                Vendor.CreateAndShowNewPurchaseOrder;
+                Vendor.CreateAndShowNewPurchaseOrder();
         end;
     end;
 
@@ -121,7 +121,7 @@ codeunit 1637 "Office Document Handler"
             if TempOfficeAddinContext."Document No." <> '' then begin
                 DocNos := TempOfficeAddinContext."Document No.";
                 Separator := '|';
-                foreach DocNo in DocNos.Split(Separator.ToCharArray) do
+                foreach DocNo in DocNos.Split(Separator.ToCharArray()) do
                     with TempOfficeDocumentSelection do begin
                         SetSalesDocumentMatchRecord(DocNo, "Document Type"::Order, TempOfficeDocumentSelection);
                         SetSalesDocumentMatchRecord(DocNo, "Document Type"::Quote, TempOfficeDocumentSelection);
@@ -175,7 +175,7 @@ codeunit 1637 "Office Document Handler"
                         SetSalesDocumentMatchRecord(DocNo, "Document Type"::"Credit Memo", TempOfficeDocumentSelection);
                         SetPurchDocumentMatchRecord(DocNo, "Document Type"::"Credit Memo", TempOfficeDocumentSelection);
                     end;
-                GetDocumentNumber(Expression, HyperlinkManifest.GetAcronymForPurchaseOrder, DocNo):
+                GetDocumentNumber(Expression, HyperlinkManifest.GetAcronymForPurchaseOrder(), DocNo):
                     SetPurchDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::Order, TempOfficeDocumentSelection);
                 else
                     exit(false);
@@ -189,19 +189,19 @@ codeunit 1637 "Office Document Handler"
     begin
         with HyperlinkManifest do
             case true of
-                GetDocumentNumber(Expression, GetNameForPurchaseCrMemo, DocNo):
+                GetDocumentNumber(Expression, GetNameForPurchaseCrMemo(), DocNo):
                     SetPurchDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::"Credit Memo", TempOfficeDocumentSelection);
-                GetDocumentNumber(Expression, GetNameForPurchaseInvoice, DocNo):
+                GetDocumentNumber(Expression, GetNameForPurchaseInvoice(), DocNo):
                     SetPurchDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::Invoice, TempOfficeDocumentSelection);
-                GetDocumentNumber(Expression, GetNameForPurchaseOrder, DocNo):
+                GetDocumentNumber(Expression, GetNameForPurchaseOrder(), DocNo):
                     SetPurchDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::Order, TempOfficeDocumentSelection);
-                GetDocumentNumber(Expression, GetNameForSalesCrMemo, DocNo):
+                GetDocumentNumber(Expression, GetNameForSalesCrMemo(), DocNo):
                     SetSalesDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::"Credit Memo", TempOfficeDocumentSelection);
-                GetDocumentNumber(Expression, GetNameForSalesInvoice, DocNo):
+                GetDocumentNumber(Expression, GetNameForSalesInvoice(), DocNo):
                     SetSalesDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::Invoice, TempOfficeDocumentSelection);
-                GetDocumentNumber(Expression, GetNameForSalesOrder, DocNo):
+                GetDocumentNumber(Expression, GetNameForSalesOrder(), DocNo):
                     SetSalesDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::Order, TempOfficeDocumentSelection);
-                GetDocumentNumber(Expression, GetNameForSalesQuote, DocNo):
+                GetDocumentNumber(Expression, GetNameForSalesQuote(), DocNo):
                     SetSalesDocumentMatchRecord(DocNo, TempOfficeDocumentSelection."Document Type"::Quote, TempOfficeDocumentSelection);
                 else
                     exit(false);
@@ -214,7 +214,7 @@ codeunit 1637 "Office Document Handler"
         HyperlinkManifest: Codeunit "Hyperlink Manifest";
         DocNoRegEx: DotNet Regex;
     begin
-        DocNoRegEx := DocNoRegEx.Regex(StrSubstNo('(?i)(%1)[\#:\s]*(%2)', Keyword, HyperlinkManifest.GetNumberSeriesRegex));
+        DocNoRegEx := DocNoRegEx.Regex(StrSubstNo('(?i)(%1)[\#:\s]*(%2)', Keyword, HyperlinkManifest.GetNumberSeriesRegex()));
         IsMatch := DocNoRegEx.IsMatch(Expression);
         if IsMatch then
             DocNo := DocNoRegEx.Replace(Expression, '$2');
@@ -381,9 +381,9 @@ codeunit 1637 "Office Document Handler"
         if Rec.IsTemporary() then
             exit;
 
-        if OfficeMgt.IsAvailable and (Rec."Document Type" = Rec."Document Type"::Invoice) then begin
+        if OfficeMgt.IsAvailable() and (Rec."Document Type" = Rec."Document Type"::Invoice) then begin
             OfficeMgt.GetContext(TempOfficeAddinContext);
-            if TempOfficeAddinContext.IsAppointment then
+            if TempOfficeAddinContext.IsAppointment() then
                 CreateOfficeInvoiceRecord(TempOfficeAddinContext."Item ID", Rec."No.", false);
         end;
     end;
@@ -397,9 +397,9 @@ codeunit 1637 "Office Document Handler"
         if Rec.IsTemporary() then
             exit;
 
-        if OfficeMgt.IsAvailable then begin
+        if OfficeMgt.IsAvailable() then begin
             OfficeMgt.GetContext(TempOfficeAddinContext);
-            if TempOfficeAddinContext.IsAppointment then
+            if TempOfficeAddinContext.IsAppointment() then
                 CreateOfficeInvoiceRecord(TempOfficeAddinContext."Item ID", Rec."No.", true);
         end;
     end;
@@ -411,13 +411,12 @@ codeunit 1637 "Office Document Handler"
         OfficeInvoice: Record "Office Invoice";
         OfficeMgt: Codeunit "Office Management";
     begin
-        if Rec.IsTemporary or (not OfficeMgt.IsAvailable) or (Rec."Document Type" <> Rec."Document Type"::Invoice) then
+        if Rec.IsTemporary or (not OfficeMgt.IsAvailable()) or (Rec."Document Type" <> Rec."Document Type"::Invoice) then
             exit;
         OfficeMgt.GetContext(TempOfficeAddinContext);
-        if TempOfficeAddinContext.IsAppointment then begin
+        if TempOfficeAddinContext.IsAppointment() then
             if OfficeInvoice.Get(TempOfficeAddinContext."Item ID", Rec."No.", false) then
                 OfficeInvoice.Delete();
-        end;
     end;
 
     local procedure CreateOfficeInvoiceRecord(ItemID: Text[250]; DocNo: Code[20]; Posted: Boolean)
@@ -441,7 +440,7 @@ codeunit 1637 "Office Document Handler"
         InstructionMgt: Codeunit "Instruction Mgt.";
         OfficeMgt: Codeunit "Office Management";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.AutomaticLineItemsDialogCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.AutomaticLineItemsDialogCode());
         Session.LogMessage('00001KG', SuggestedItemsDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
@@ -454,7 +453,7 @@ codeunit 1637 "Office Document Handler"
         if Rec.IsTemporary then
             exit;
 
-        if not OfficeMgt.IsAvailable then
+        if not OfficeMgt.IsAvailable() then
             exit;
 
         Session.LogMessage('0000ACY', StrSubstNo(CreatePurchDocTelemetryTxt, Format(Rec."Document Type")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
@@ -472,7 +471,7 @@ codeunit 1637 "Office Document Handler"
         if Rec.IsTemporary() then
             exit;
 
-        if not OfficeMgt.IsAvailable then
+        if not OfficeMgt.IsAvailable() then
             exit;
 
         Session.LogMessage('0000ACZ', StrSubstNo(CreateSalesDocTelemetryTxt, Format(Rec."Document Type")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
@@ -513,7 +512,7 @@ codeunit 1637 "Office Document Handler"
         OfficeMgt: Codeunit "Office Management";
         EmailBody: Text;
     begin
-        if InstructionMgt.IsEnabled(InstructionMgt.AutomaticLineItemsDialogCode) then begin
+        if InstructionMgt.IsEnabled(InstructionMgt.AutomaticLineItemsDialogCode()) then begin
             OfficeMgt.GetContext(TempOfficeAddinContext);
             EmailBody := OfficeMgt.GetEmailBody(TempOfficeAddinContext);
             OnGenerateLinesFromText(HeaderRecRef, TempOfficeSuggestedLineItem, EmailBody);

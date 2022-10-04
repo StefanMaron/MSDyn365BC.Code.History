@@ -39,7 +39,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         IsInitialized := true;
         Commit();
 
@@ -64,7 +64,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         CurrencyCode := CreateCurrency;
         CreateReminderTerms(ReminderLevel, CurrencyCode);
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomer(ReminderLevel."Reminder Terms Code", CurrencyCode));
-        Amount := LibraryERM.ConvertCurrency(ReminderLevel."Additional Fee (LCY)", '', CurrencyCode, WorkDate);
+        Amount := LibraryERM.ConvertCurrency(ReminderLevel."Additional Fee (LCY)", '', CurrencyCode, WorkDate());
 
         // Exercise: Create and Suggest Reminder Lines.
         ReminderNo :=
@@ -95,7 +95,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         ReminderNo :=
           CreateAndSuggestReminder(
             GenJournalLine."Account No.",
-            CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'D>', CalcDate(ReminderLevel."Grace Period", WorkDate)));
+            CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'D>', CalcDate(ReminderLevel."Grace Period", WorkDate())));
 
         // 3. Verify: Verify Reminder Lines.
         VerifyReminderLine(ReminderNo, ReminderLevel."Additional Fee (LCY)");
@@ -123,7 +123,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         ReminderHeader.Get(
           CreateAndSuggestReminder(
             GenJournalLine."Account No.",
-            CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'D>', CalcDate(ReminderLevel."Grace Period", WorkDate))));
+            CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'D>', CalcDate(ReminderLevel."Grace Period", WorkDate()))));
 
         // 2. Exercise: Issue Reminder.
         IssueReminder(ReminderHeader);
@@ -330,7 +330,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         // [WHEN] Print issued "RM"
         Commit();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         Reminder.SetTableView(IssuedReminderHeader);
         Reminder.SaveAsExcel(LibraryReportValidation.GetFileName);
 
@@ -583,7 +583,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
+        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
         IssueReminder(ReminderHeader);
     end;
 

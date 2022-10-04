@@ -7,7 +7,7 @@ codeunit 5771 "Whse.-Sales Release"
     end;
 
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
         SalesLine: Record "Sales Line";
         Location: Record Location;
         OldLocationCode: Code[10];
@@ -25,13 +25,13 @@ codeunit 5771 "Whse.-Sales Release"
             exit;
 
         IsHandled := false;
-        OnBeforeReleaseSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
+        OnBeforeReleaseSetWhseRequestSourceDocument(SalesHeader, WarehouseRequest, IsHandled);
         if not IsHandled then
             case SalesHeader."Document Type" of
                 "Sales Document Type"::Order:
-                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Sales Order";
+                    WarehouseRequest."Source Document" := "Warehouse Request Source Document"::"Sales Order";
                 "Sales Document Type"::"Return Order":
-                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Sales Return Order";
+                    WarehouseRequest."Source Document" := "Warehouse Request Source Document"::"Sales Return Order";
                 else
                     exit;
             end;
@@ -56,7 +56,7 @@ codeunit 5771 "Whse.-Sales Release"
                 OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
 
                 if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WhseRqst);
+                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WarehouseRequest);
 
                 OnAfterReleaseOnAfterCreateWhseRequest(
                     SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
@@ -69,20 +69,20 @@ codeunit 5771 "Whse.-Sales Release"
 
         OnReleaseOnAfterCreateWhseRequest(SalesHeader, SalesLine);
 
-        WhseRqst.Reset();
-        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRqst.SetRange(Type, WhseRqst.Type);
-        WhseRqst.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
-        WhseRqst.SetRange("Document Status", SalesHeader.Status::Open);
-        if not WhseRqst.IsEmpty() then
-            WhseRqst.DeleteAll(true);
+        WarehouseRequest.Reset();
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
+        WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+        WarehouseRequest.SetRange("Document Status", SalesHeader.Status::Open);
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
 
         OnAfterRelease(SalesHeader);
     end;
 
     procedure Reopen(SalesHeader: Record "Sales Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest2: Record "Warehouse Request";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -92,16 +92,16 @@ codeunit 5771 "Whse.-Sales Release"
 
         with SalesHeader do begin
             IsHandled := false;
-            OnBeforeReopenSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
+            OnBeforeReopenSetWhseRequestSourceDocument(SalesHeader, WarehouseRequest2, IsHandled);
 
-            WhseRqst.Reset();
-            WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+            WarehouseRequest2.Reset();
+            WarehouseRequest2.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             if IsHandled then
-                WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
-            WhseRqst.SetRange("Document Status", Status::Released);
-            if not WhseRqst.IsEmpty() then
-                WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
+                WarehouseRequest2.SetRange(Type, WarehouseRequest2.Type);
+            WarehouseRequest2.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
+            WarehouseRequest2.SetRange("Document Status", Status::Released);
+            if not WarehouseRequest2.IsEmpty() then
+                WarehouseRequest2.ModifyAll("Document Status", WarehouseRequest2."Document Status"::Open);
         end;
 
         OnAfterReopen(SalesHeader);
@@ -111,12 +111,12 @@ codeunit 5771 "Whse.-Sales Release"
     procedure UpdateExternalDocNoForReleasedOrder(SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            WhseRqst.Reset();
-            WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
-            WhseRqst.SetRange("Document Status", Status::Released);
-            if not WhseRqst.IsEmpty() then
-                WhseRqst.ModifyAll("External Document No.", "External Document No.");
+            WarehouseRequest.Reset();
+            WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+            WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
+            WarehouseRequest.SetRange("Document Status", Status::Released);
+            if not WarehouseRequest.IsEmpty() then
+                WarehouseRequest.ModifyAll("External Document No.", "External Document No.");
         end;
     end;
 
@@ -151,10 +151,10 @@ codeunit 5771 "Whse.-Sales Release"
             SalesHeader.SetRange("Location Filter", SalesLine."Location Code");
             SalesHeader.CalcFields("Completely Shipped");
             WarehouseRequest."Completely Handled" := SalesHeader."Completely Shipped";
-            OnBeforeCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType.AsInteger());
+            OnBeforeCreateWhseRequest(WarehouseRequest, SalesHeader, SalesLine, WhseType.AsInteger());
             if not WarehouseRequest.Insert() then
                 WarehouseRequest.Modify();
-            OnAfterCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType.AsInteger());
+            OnAfterCreateWhseRequest(WarehouseRequest, SalesHeader, SalesLine, WhseType.AsInteger());
         end;
     end;
 

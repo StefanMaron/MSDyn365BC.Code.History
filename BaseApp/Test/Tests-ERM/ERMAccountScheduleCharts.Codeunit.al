@@ -19,8 +19,8 @@ codeunit 134561 "ERM Account Schedule Charts"
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         ColumnFormulaMessage: Label 'Column formula: %1.';
-        DuplicateDescriptionError: Label 'Account Schedule %1 has duplicate Description values.', Comment = '%1:Field Value;';
-        DuplicateColumnHeaderError: Label 'Column Layout %1 has duplicate Column Header values.', Comment = '%1:Field Value;';
+        DuplicateDescriptionError: Label 'Row Definition %1 has duplicate Description values.', Comment = '%1:Field Value;';
+        DuplicateColumnHeaderError: Label 'Column Definition %1 has duplicate Column Header values.', Comment = '%1:Field Value;';
 
     [Test]
     [Scope('OnPrem')]
@@ -245,31 +245,6 @@ codeunit 134561 "ERM Account Schedule Charts"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestColumnLayoutNameOnAccScheduleChartSetup()
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
-        ColumnLayoutName: Record "Column Layout Name";
-        AccountSchedulesChartSetup: TestPage "Account Schedules Chart Setup";
-    begin
-        // To verify that Default Column Layout, corresponding to Account Schedule Name, is set automatically as Column Layout Name on Acc. Schedule Chart Setup Page.
-
-        // Setup: To create Account Schedule Name with Default Column Layout.
-        Initialize();
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-        LibraryERM.CreateAccScheduleName(AccScheduleName);
-        AccScheduleName."Default Column Layout" := ColumnLayoutName.Name;
-        AccScheduleName.Modify();
-
-        // Exercise: To set Acc. Schedule Name on Account Schedule Chart Setup.
-        AccountSchedulesChartSetup.OpenEdit;
-        AccountSchedulesChartSetup."Account Schedule Name".SetValue(AccScheduleName.Name);
-
-        // Verify: To check that Column Layout corresponding to Acc. Schedule Name is automatically set on Acc. Schedule Chart Setup.
-        AccScheduleName.TestField("Default Column Layout", AccountSchedulesChartSetup."Column Layout Name".Value);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure GetChartByNameForCurrentUser()
     var
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
@@ -482,17 +457,17 @@ codeunit 134561 "ERM Account Schedule Charts"
             DeleteAll();
 
             for i := 1 to 3 do begin
-                Init;
+                Init();
                 "User ID" := SetUserId;
                 Name := Format(i);
                 "Last Viewed" := false;
-                Insert;
+                Insert();
             end;
 
-            Init;
+            Init();
             "User ID" := 'other user';
             Name := Format(2);
-            Insert;
+            Insert();
 
             exit(Format(2));
         end;
@@ -508,7 +483,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetup.Name :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(AccountSchedulesChartSetup.FieldNo(Name), DATABASE::"Account Schedules Chart Setup"), 1, 30);
-        AccountSchedulesChartSetup."Start Date" := WorkDate;
+        AccountSchedulesChartSetup."Start Date" := WorkDate();
         AccountSchedulesChartSetup.Insert(true);
         AccountSchedulesChartSetup.Validate("Base X-Axis on", AccountSchedulesChartSetup."Base X-Axis on"::Period);
         AccountSchedulesChartSetup.Validate("Account Schedule Name", AccountSchName);
@@ -678,7 +653,7 @@ codeunit 134561 "ERM Account Schedule Charts"
           AccScheduleOverview.PeriodType.AsInteger,
           'Unexpected account schedule period selected in the overview page.');
 
-        AccScheduleOverview.Close;
+        AccScheduleOverview.Close();
     end;
 }
 

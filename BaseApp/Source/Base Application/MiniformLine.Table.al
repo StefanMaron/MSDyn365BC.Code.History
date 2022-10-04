@@ -29,7 +29,7 @@ table 7701 "Miniform Line"
             trigger OnValidate()
             begin
                 if "Field Type" = "Field Type"::Input then begin
-                    GetMiniFormHeader;
+                    GetMiniFormHeader();
                     if ((MiniFormHeader."Form Type" = MiniFormHeader."Form Type"::"Selection List") or
                         (MiniFormHeader."Form Type" = MiniFormHeader."Form Type"::"Data List"))
                     then
@@ -111,7 +111,7 @@ table 7701 "Miniform Line"
 
             trigger OnValidate()
             begin
-                GetMiniFormHeader;
+                GetMiniFormHeader();
             end;
         }
     }

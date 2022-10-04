@@ -5,7 +5,7 @@ codeunit 1016 "Jobs-Send"
     trigger OnRun()
     begin
         Job.Copy(Rec);
-        Code;
+        Code();
         Rec := Job;
     end;
 
@@ -23,7 +23,7 @@ codeunit 1016 "Jobs-Send"
 
         with Job do begin
             Get("No.");
-            SetRecFilter;
+            SetRecFilter();
             SendProfile(TempDocumentSendingProfile);
         end;
     end;
@@ -35,8 +35,8 @@ codeunit 1016 "Jobs-Send"
         OfficeMgt: Codeunit "Office Management";
     begin
         Customer.Get(Job."Bill-to Customer No.");
-        if OfficeMgt.IsAvailable then
-            DocumentSendingProfile.GetOfficeAddinDefault(TempDocumentSendingProfile, OfficeMgt.AttachAvailable)
+        if OfficeMgt.IsAvailable() then
+            DocumentSendingProfile.GetOfficeAddinDefault(TempDocumentSendingProfile, OfficeMgt.AttachAvailable())
         else begin
             if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
                 DocumentSendingProfile.GetDefault(DocumentSendingProfile);
@@ -45,7 +45,7 @@ codeunit 1016 "Jobs-Send"
             with TempDocumentSendingProfile do begin
                 Copy(DocumentSendingProfile);
                 SetDocumentUsage(Job);
-                Insert;
+                Insert();
             end;
             if PAGE.RunModal(PAGE::"Post and Send Confirmation", TempDocumentSendingProfile) <> ACTION::Yes then
                 exit(false);

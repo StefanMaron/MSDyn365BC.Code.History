@@ -5,7 +5,7 @@ codeunit 131338 "ERM PE Empty Source Test mock"
 
     trigger OnRun()
     begin
-        Init;
+        Init();
     end;
 }
 

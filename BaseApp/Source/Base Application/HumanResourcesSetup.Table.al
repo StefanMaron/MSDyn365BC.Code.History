@@ -23,10 +23,9 @@ table 5218 "Human Resources Setup"
                 EmployeeAbsence: Record "Employee Absence";
                 HumanResUnitOfMeasure: Record "Human Resource Unit of Measure";
             begin
-                if "Base Unit of Measure" <> xRec."Base Unit of Measure" then begin
+                if "Base Unit of Measure" <> xRec."Base Unit of Measure" then
                     if not EmployeeAbsence.IsEmpty() then
-                        Error(Text001, FieldCaption("Base Unit of Measure"), EmployeeAbsence.TableCaption);
-                end;
+                        Error(Text001, FieldCaption("Base Unit of Measure"), EmployeeAbsence.TableCaption());
 
                 HumanResUnitOfMeasure.Get("Base Unit of Measure");
                 HumanResUnitOfMeasure.TestField("Qty. per Unit of Measure", 1);

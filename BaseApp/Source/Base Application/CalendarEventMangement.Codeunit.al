@@ -100,7 +100,7 @@ codeunit 2160 "Calendar Event Mangement"
     procedure SetJobQueueOnHold(var JobQueueEntry: Record "Job Queue Entry")
     begin
         JobQueueEntry.LockTable(true);
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
 
         if JobQueueEntry.Status <> JobQueueEntry.Status::"On Hold" then begin
             Clear(JobQueueEntry."User ID");
@@ -122,7 +122,7 @@ codeunit 2160 "Calendar Event Mangement"
         OtherCalendarEvent: Record "Calendar Event";
     begin
         JobQueueEntry.LockTable();
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
 
         if CalendarEvent."Scheduled Date" > GetNextJobQueueRunDate(JobQueueEntry) then begin
             if not OtherCalendarEvent.Get(CalendarEvent."No.") then // Check if this is an existing event
@@ -204,12 +204,12 @@ codeunit 2160 "Calendar Event Mangement"
     local procedure SetNextJobQueueRunDate(var JobQueueEntry: Record "Job Queue Entry"; NewDate: Date)
     begin
         JobQueueEntry.LockTable(true);
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
 
         if NewDate <= Today then
             JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Today, Time + (5 * 1000))
         else
-            JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(NewDate, GetJobQueueRunTime);
+            JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(NewDate, GetJobQueueRunTime());
 
         Clear(JobQueueEntry."User ID");
 

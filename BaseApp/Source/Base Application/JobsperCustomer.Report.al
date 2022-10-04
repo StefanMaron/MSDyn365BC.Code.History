@@ -16,7 +16,7 @@ report 1012 "Jobs per Customer"
             column(TodayFormatted; Format(Today))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CustCustFilter; TableCaption + ': ' + CustFilter)
@@ -155,7 +155,7 @@ report 1012 "Jobs per Customer"
         FormatDocument: Codeunit "Format Document";
     begin
         CustFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
-        JobFilter := Job.GetFilters;
+        JobFilter := Job.GetFilters();
     end;
 
     var

@@ -148,7 +148,7 @@ table 472 "Job Queue Entry"
                             Error(CustomLayoutReportCanHaveLimitedOutputTypeErr);
                 end;
                 if "Report Output Type" = "Report Output Type"::Print then begin
-                    if EnvironmentInfo.IsSaaS then begin
+                    if EnvironmentInfo.IsSaaS() then begin
                         "Report Output Type" := "Report Output Type"::PDF;
                         Message(NoPrintOnSaaSMsg);
                     end else
@@ -591,12 +591,11 @@ table 472 "Job Queue Entry"
         if ErrorMessage.FindSet() then begin
             ErrorMessages.SetRecords(ErrorMessage);
             ErrorMessages.Run();
-        end else begin
+        end else
             if "Error Message" = '' then
                 Message(NoErrMsg)
             else
                 Message("Error Message");
-        end;
     end;
 
     procedure SetError(ErrorText: Text)
@@ -918,7 +917,7 @@ table 472 "Job Queue Entry"
         Language: Codeunit Language;
     begin
         "Last Ready State" := CurrentDateTime();
-        "User Language ID" := Language.GetLanguageIdOrDefault(Language.GetUserLanguageCode);
+        "User Language ID" := Language.GetLanguageIdOrDefault(Language.GetUserLanguageCode());
         if SetupUserId then
             "User ID" := UserId();
         "No. of Attempts to Run" := 0;
@@ -1225,7 +1224,7 @@ table 472 "Job Queue Entry"
 
     procedure ScheduleJobQueueEntryForLater(CodeunitID: Integer; StartDateTime: DateTime; JobQueueCategoryCode: Code[10]; JobParameter: Text)
     begin
-        Init;
+        Init();
         "Earliest Start Date/Time" := StartDateTime;
         "Object Type to Run" := "Object Type to Run"::Codeunit;
         "Object ID to Run" := CodeunitID;

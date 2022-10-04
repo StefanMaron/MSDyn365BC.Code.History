@@ -1972,7 +1972,7 @@ codeunit 136130 "Service Statistics"
         repeat
             ServiceLine.Validate("Allow Invoice Disc.", false);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure PostServiceInvoice(ServiceInvoice: TestPage "Service Invoice")
@@ -2146,7 +2146,7 @@ codeunit 136130 "Service Statistics"
             AmountIncludingVAT += ServiceLine."Amount Including VAT";
             Amount += ServiceLine.Amount;
             InvDiscountAmount += ServiceLine."Inv. Discount Amount";
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
 
         Evaluate(AmountCosts, ServiceOrderStatistics.Amount_Costs.Value);
         Evaluate(VATAmountCosts, ServiceOrderStatistics."VAT Amount_Costs".Value);
@@ -2347,7 +2347,7 @@ codeunit 136130 "Service Statistics"
             VATBase2 += VATBase;
             VATAmount2 += VATAmount;
             AmountIncludingVAT2 += AmountIncludingVAT;
-        until not VATAmountLines.Next;
+        until not VATAmountLines.Next();
 
         QuantityPer := ServiceLine."Qty. to Ship" / ServiceLine.Quantity;
         VATBase3 := Round(ServiceLine."VAT Base Amount" * QuantityPer, AmountRoundingPrecision);
@@ -2458,7 +2458,7 @@ codeunit 136130 "Service Statistics"
             AmountIncludingVAT += ServiceLine."Amount Including VAT";
             Amount += ServiceLine.Amount;
             InvDiscountAmount += ServiceLine."Inv. Discount Amount";
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
 
         Evaluate(AmountCosts, ServiceStatistics.Amount_Costs.Value);
         Evaluate(VATAmountCosts, ServiceStatistics."VAT Amount_Costs".Value);
@@ -2561,7 +2561,7 @@ codeunit 136130 "Service Statistics"
             StatisticsVATBase2 += StatisticsVATBase;
             StatisticsVATAmount2 += StatisticsVATAmount;
             StatisticsAmountIncludingVAT2 += StatisticsAmountIncludingVAT;
-        until not ServiceStatistics.SubForm.Next;
+        until not ServiceStatistics.SubForm.Next();
 
         Assert.AreNearlyEqual(
           ServiceLine."VAT Base Amount", StatisticsVATBase2, AmountRoundingPrecision,

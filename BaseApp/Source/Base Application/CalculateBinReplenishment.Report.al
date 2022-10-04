@@ -17,7 +17,7 @@ report 7300 "Calculate Bin Replenishment"
 
             trigger OnPostDataItem()
             begin
-                if not Replenishmt.InsertWhseWkshLine then
+                if not Replenishmt.InsertWhseWkshLine() then
                     if not HideDialog then
                         Message(Text000);
             end;

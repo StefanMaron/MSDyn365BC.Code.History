@@ -12,7 +12,7 @@ page 7502 "Item Attribute Translations"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Languages;

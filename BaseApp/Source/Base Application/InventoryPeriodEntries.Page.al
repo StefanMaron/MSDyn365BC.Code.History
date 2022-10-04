@@ -13,19 +13,19 @@ page 5829 "Inventory Period Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type for an inventory period entry, such as closed or re-opened.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the ending date that uniquely identifies an inventory period.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -38,25 +38,25 @@ page 5829 "Inventory Period Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date when the inventory period entry was created.';
                 }
-                field("Creation Time"; "Creation Time")
+                field("Creation Time"; Rec."Creation Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the time when the inventory period entry was created.';
                 }
-                field("Closing Item Register No."; "Closing Item Register No.")
+                field("Closing Item Register No."; Rec."Closing Item Register No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the last item register in a closed inventory period.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

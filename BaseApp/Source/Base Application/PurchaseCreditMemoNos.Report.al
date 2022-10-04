@@ -14,7 +14,7 @@ report 325 "Purchase Credit Memo Nos."
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'Posted Purchase Credit Memo';
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_PurchCrMemoHeaderFilter_; StrSubstNo(Text004, PurchCrMemoHeaderFilter))
@@ -171,7 +171,7 @@ report 325 "Purchase Credit Memo Nos."
 
     trigger OnPreReport()
     begin
-        PurchCrMemoHeaderFilter := "Purch. Cr. Memo Hdr.".GetFilters;
+        PurchCrMemoHeaderFilter := "Purch. Cr. Memo Hdr.".GetFilters();
     end;
 
     var

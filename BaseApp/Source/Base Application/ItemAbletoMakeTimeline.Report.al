@@ -14,7 +14,7 @@ report 5871 "Item - Able to Make (Timeline)"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Location Filter", "Variant Filter";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Item__No__; "No.")
@@ -78,7 +78,7 @@ report 5871 "Item - Able to Make (Timeline)"
 
             trigger OnPreDataItem()
             begin
-                Evaluate(DateFormula, GetDateFormulaInterval);
+                Evaluate(DateFormula, GetDateFormulaInterval());
             end;
         }
     }
@@ -154,7 +154,7 @@ report 5871 "Item - Able to Make (Timeline)"
 
     trigger OnInitReport()
     begin
-        StartDate := WorkDate;
+        StartDate := WorkDate();
     end;
 
     var
@@ -162,6 +162,7 @@ report 5871 "Item - Able to Make (Timeline)"
         ProdOrderLine: Record "Prod. Order Line";
         TempBOMBuffer: Record "BOM Buffer" temporary;
         CalcBOMTree: Codeunit "Calculate BOM Tree";
+        DateFormula: DateFormula;
         DateInterval: Option Day,Week,Month,Quarter,Year;
         NoOfIntervals: Integer;
         StartDate: Date;
@@ -171,11 +172,11 @@ report 5871 "Item - Able to Make (Timeline)"
         GrossReqQty: Decimal;
         TotalQty: Decimal;
         AsOfPeriod: Date;
-        Text000: Label 'The number of intervals cannot be greater than 31.';
-        DateFormula: DateFormula;
         CurrDate: Date;
         ShowDetails: Boolean;
-        ShowBy: Option Item,Assembly,Production;
+        ShowBy: Enum "BOM Structure Show By";
+
+        Text000: Label 'The number of intervals cannot be greater than 31.';
 
     local procedure GenerateAvailTrend(CurrDate: Date): Boolean
     var

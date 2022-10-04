@@ -194,6 +194,16 @@
     begin
     end;
 
+    procedure RunOnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+        OnBeforeRunGenJnlPostLine(GenJnlLine, GenJnlPostLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
     procedure RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup);

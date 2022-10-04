@@ -22,9 +22,9 @@ codeunit 5887 "Phys. Invt.-Calc. Qty. All"
                     if (Selection = 1) or
                        ((Selection = 2) and not PhysInvtOrderLine."Qty. Exp. Calculated")
                     then
-                        if not PhysInvtOrderLine.EmptyLine then begin
+                        if not PhysInvtOrderLine.EmptyLine() then begin
                             PhysInvtOrderLine.TestField("Item No.");
-                            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+                            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
                             PhysInvtOrderLine.Modify();
                         end;
                 until PhysInvtOrderLine.Next() = 0;

@@ -2,6 +2,14 @@ table 2156 "O365 Payment Instr. Transl."
 {
     Caption = 'O365 Payment Instr. Transl.';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -40,19 +48,21 @@ table 2156 "O365 Payment Instr. Transl."
     fieldgroups
     {
     }
-
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetTransPaymentInstructions(): Text
     var
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
         CalcFields("Transl. Payment Instr. Blob");
-        if not "Transl. Payment Instr. Blob".HasValue then
+        if not "Transl. Payment Instr. Blob".HasValue() then
             exit("Transl. Payment Instructions");
         "Transl. Payment Instr. Blob".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetTranslPaymentInstructions(NewParameter: Text)
     var
         OutStream: OutStream;
@@ -66,7 +76,8 @@ table 2156 "O365 Payment Instr. Transl."
 
         "Transl. Payment Instr. Blob".CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(NewParameter);
-        Modify;
+        Modify();
     end;
+#endif
 }
 

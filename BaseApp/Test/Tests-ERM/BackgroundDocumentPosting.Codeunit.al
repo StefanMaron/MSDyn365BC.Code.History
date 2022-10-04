@@ -496,7 +496,7 @@ codeunit 134893 "Background Document Posting"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
         SalesHeader.Invoice := true;
         SalesHeader.Receive := true;
         SalesHeader.Modify();

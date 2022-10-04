@@ -21,17 +21,17 @@ page 555 "Analysis View Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name.';
                 }
-                field("Account Source"; "Account Source")
+                field("Account Source"; Rec."Account Source")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies an account that you can use as a filter to define what is displayed in the Analysis by Dimensions window. ';
 
                     trigger OnValidate()
                     begin
-                        SetGLAccountSource;
+                        SetGLAccountSource();
                     end;
                 }
-                field("Account Filter"; "Account Filter")
+                field("Account Filter"; Rec."Account Filter")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies which accounts are shown in the analysis view.';
@@ -43,55 +43,55 @@ page 555 "Analysis View Card"
                     begin
                         if "Account Source" = "Account Source"::"G/L Account" then begin
                             GLAccList.LookupMode(true);
-                            if not (GLAccList.RunModal = ACTION::LookupOK) then
+                            if not (GLAccList.RunModal() = ACTION::LookupOK) then
                                 exit(false);
 
-                            Text := GLAccList.GetSelectionFilter;
+                            Text := GLAccList.GetSelectionFilter();
                         end else begin
                             CFAccList.LookupMode(true);
-                            if not (CFAccList.RunModal = ACTION::LookupOK) then
+                            if not (CFAccList.RunModal() = ACTION::LookupOK) then
                                 exit(false);
 
-                            Text := CFAccList.GetSelectionFilter;
+                            Text := CFAccList.GetSelectionFilter();
                         end;
 
                         exit(true);
                     end;
                 }
-                field("Date Compression"; "Date Compression")
+                field("Date Compression"; Rec."Date Compression")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the period that the program will combine entries for, in order to create a single entry for that time period.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the starting date of the campaign analysis.';
                 }
-                field("Last Date Updated"; "Last Date Updated")
+                field("Last Date Updated"; Rec."Last Date Updated")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the analysis view was last updated.';
                 }
-                field("Last Entry No."; "Last Entry No.")
+                field("Last Entry No."; Rec."Last Entry No.")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the last general ledger entry you posted, prior to updating the analysis view.';
                 }
-                field("Last Budget Entry No."; "Last Budget Entry No.")
+                field("Last Budget Entry No."; Rec."Last Budget Entry No.")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the last item budget entry you entered prior to updating the analysis view.';
                 }
-                field("Update on Posting"; "Update on Posting")
+                field("Update on Posting"; Rec."Update on Posting")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the analysis view is updated every time that you post a general ledger entry.';
                 }
-                field("Include Budgets"; "Include Budgets")
+                field("Include Budgets"; Rec."Include Budgets")
                 {
                     ApplicationArea = Suite;
                     Editable = GLAccountSource;
@@ -106,22 +106,22 @@ page 555 "Analysis View Card"
             group(Dimensions)
             {
                 Caption = 'Dimensions';
-                field("Dimension 1 Code"; "Dimension 1 Code")
+                field("Dimension 1 Code"; Rec."Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 2 Code"; "Dimension 2 Code")
+                field("Dimension 2 Code"; Rec."Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 3 Code"; "Dimension 3 Code")
+                field("Dimension 3 Code"; Rec."Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 4 Code"; "Dimension 4 Code")
+                field("Dimension 4 Code"; Rec."Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
@@ -156,9 +156,6 @@ page 555 "Analysis View Card"
                     ApplicationArea = Suite;
                     Caption = 'Filter';
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Analysis View Filter";
                     RunPageLink = "Analysis View Code" = FIELD(Code);
                     ToolTip = 'Apply the filter.';
@@ -172,9 +169,6 @@ page 555 "Analysis View Card"
                 ApplicationArea = Suite;
                 Caption = '&Update';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Codeunit "Update Analysis View";
                 ToolTip = 'Get the latest entries into the analysis view.';
             }
@@ -183,8 +177,6 @@ page 555 "Analysis View Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Enable Update on Posting';
                 Image = Apply;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Ensure that the analysis view is updated when new ledger entries are posted.';
 
                 trigger OnAction()
@@ -197,8 +189,6 @@ page 555 "Analysis View Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Disable Update on Posting';
                 Image = UnApply;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Ensure that the analysis view is not updated when new ledger entries are posted.';
 
                 trigger OnAction()
@@ -211,8 +201,6 @@ page 555 "Analysis View Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reset';
                 Image = DeleteRow;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Delete existing entries so you can recreate them. Use this action after a dimension correction was done or if entries are missing. To recreate the entries, choose Update or run the Update Analysis View report.';
 
                 trigger OnAction()
@@ -220,6 +208,29 @@ page 555 "Analysis View Card"
                     if Confirm(ResetAnalysisViewQst) then
                         Rec.AnalysisViewReset();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Update_Promoted"; "&Update")
+                {
+                }
+                actionref(Filter_Promoted; Filter)
+                {
+                }
+                actionref("Enable Update on Posting_Promoted"; "Enable Update on Posting")
+                {
+                }
+                actionref("Disable Update on Posting_Promoted"; "Disable Update on Posting")
+                {
+                }
+                actionref("ResetAnalysisView_Promoted"; ResetAnalysisView)
+                {
+                }
             }
         }
     }

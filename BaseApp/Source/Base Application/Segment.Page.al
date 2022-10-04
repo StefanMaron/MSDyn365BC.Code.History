@@ -12,7 +12,7 @@ page 5091 Segment
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -31,17 +31,17 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        DescriptionOnAfterValidate;
+                        DescriptionOnAfterValidate();
                     end;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the salesperson responsible for this segment and/or interaction.';
 
                     trigger OnValidate()
                     begin
-                        SalespersonCodeOnAfterValidate;
+                        SalespersonCodeOnAfterValidate();
                     end;
                 }
                 field(Date; Date)
@@ -51,16 +51,16 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        DateOnAfterValidate;
+                        DateOnAfterValidate();
                     end;
                 }
-                field("No. of Lines"; "No. of Lines")
+                field("No. of Lines"; Rec."No. of Lines")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the number of lines within the segment.';
                 }
-                field("No. of Criteria Actions"; "No. of Criteria Actions")
+                field("No. of Criteria Actions"; Rec."No. of Criteria Actions")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of actions you have taken when modifying the segmentation criteria, that is, when adding contacts to the segment, refining, or reducing it.';
@@ -74,17 +74,17 @@ page 5091 Segment
             group(Interaction)
             {
                 Caption = 'Interaction';
-                field("Interaction Template Code"; "Interaction Template Code")
+                field("Interaction Template Code"; Rec."Interaction Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the interaction template code of the interaction involving the segment.';
 
                     trigger OnValidate()
                     begin
-                        InteractionTemplateCodeOnAfter;
+                        InteractionTemplateCodeOnAfter();
                     end;
                 }
-                field("Language Code (Default)"; "Language Code (Default)")
+                field("Language Code (Default)"; Rec."Language Code (Default)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = LanguageCodeDefaultEnable;
@@ -92,10 +92,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        LanguageCodeDefaultOnAfterVali;
+                        LanguageCodeDefaultOnAfterVali();
                     end;
                 }
-                field("Subject (Default)"; "Subject (Default)")
+                field("Subject (Default)"; Rec."Subject (Default)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = SubjectDefaultEnable;
@@ -103,7 +103,7 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        SubjectDefaultOnAfterValidate;
+                        SubjectDefaultOnAfterValidate();
                     end;
                 }
                 field(Attachment; "Attachment No." > 0)
@@ -117,19 +117,19 @@ page 5091 Segment
 
                     trigger OnAssistEdit()
                     begin
-                        MaintainAttachment;
-                        UpdateEditable;
-                        CurrPage.SegLines.PAGE.UpdateForm;
+                        MaintainAttachment();
+                        UpdateEditable();
+                        CurrPage.SegLines.PAGE.UpdateForm();
                     end;
                 }
-                field("Word Template Code"; "Word Template Code")
+                field("Word Template Code"; Rec."Word Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Word Template Code';
                     ToolTip = 'Specifies the Word Template code to use for merging.';
                 }
 
-                field("Ignore Contact Corres. Type"; "Ignore Contact Corres. Type")
+                field("Ignore Contact Corres. Type"; Rec."Ignore Contact Corres. Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = IgnoreContactCorresTypeEnable;
@@ -137,10 +137,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        IgnoreContactCorresTypeOnAfter;
+                        IgnoreContactCorresTypeOnAfter();
                     end;
                 }
-                field("Correspondence Type (Default)"; "Correspondence Type (Default)")
+                field("Correspondence Type (Default)"; Rec."Correspondence Type (Default)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = CorrespondenceTypeDefaultEnabl;
@@ -148,10 +148,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        CorrespondenceTypeDefaultOnAft;
+                        CorrespondenceTypeDefaultOnAft();
                     end;
                 }
-                field("Information Flow"; "Information Flow")
+                field("Information Flow"; Rec."Information Flow")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = InformationFlowEnable;
@@ -159,10 +159,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        InformationFlowOnAfterValidate;
+                        InformationFlowOnAfterValidate();
                     end;
                 }
-                field("Initiated By"; "Initiated By")
+                field("Initiated By"; Rec."Initiated By")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = InitiatedByEnable;
@@ -170,10 +170,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        InitiatedByOnAfterValidate;
+                        InitiatedByOnAfterValidate();
                     end;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = UnitCostLCYEnable;
@@ -181,10 +181,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        UnitCostLCYOnAfterValidate;
+                        UnitCostLCYOnAfterValidate();
                     end;
                 }
-                field("Unit Duration (Min.)"; "Unit Duration (Min.)")
+                field("Unit Duration (Min.)"; Rec."Unit Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = UnitDurationMinEnable;
@@ -192,24 +192,24 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        UnitDurationMinOnAfterValidate;
+                        UnitDurationMinOnAfterValidate();
                     end;
                 }
-                field("Send Word Docs. as Attmt."; "Send Word Docs. as Attmt.")
+                field("Send Word Docs. as Attmt."; Rec."Send Word Docs. as Attmt.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the Microsoft Word document should be sent as an attachment in the e-mail message.';
 
                     trigger OnValidate()
                     begin
-                        SendWordDocsasAttmtOnAfterVali;
+                        SendWordDocsasAttmtOnAfterVali();
                     end;
                 }
             }
             group(Campaign)
             {
                 Caption = 'Campaign';
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign for which the segment has been created.';
@@ -219,13 +219,13 @@ page 5091 Segment
                         CampaignNoOnAfterValidate();
                     end;
                 }
-                field("Campaign Description"; "Campaign Description")
+                field("Campaign Description"; Rec."Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
                     ToolTip = 'Specifies a description of the campaign to which the segment is related. The description is copied from the campaign card.';
                 }
-                field("Campaign Target"; "Campaign Target")
+                field("Campaign Target"; Rec."Campaign Target")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = CampaignTargetEnable;
@@ -233,10 +233,10 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        CampaignTargetOnAfterValidate;
+                        CampaignTargetOnAfterValidate();
                     end;
                 }
-                field("Campaign Response"; "Campaign Response")
+                field("Campaign Response"; Rec."Campaign Response")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = CampaignResponseEnable;
@@ -244,7 +244,7 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        CampaignResponseOnAfterValidat;
+                        CampaignResponseOnAfterValidat();
                     end;
                 }
             }
@@ -309,7 +309,7 @@ page 5091 Segment
 
                     trigger OnAction()
                     begin
-                        CreateOpportunitiesForAllContacts;
+                        CreateOpportunitiesForAllContacts();
                     end;
                 }
                 action("T&asks")
@@ -332,8 +332,6 @@ page 5091 Segment
                 ApplicationArea = RelationshipMgmt;
                 Caption = '&Log';
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Log segments and interactions that are assigned to your segments and delivery attachments that you have sent.';
 
                 trigger OnAction()
@@ -362,8 +360,6 @@ page 5091 Segment
                         Caption = 'Add Contacts';
                         Ellipsis = true;
                         Image = AddContacts;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         ToolTip = 'Select which contacts to add to the segment.';
 
                         trigger OnAction()
@@ -371,7 +367,7 @@ page 5091 Segment
                             SegHeader: Record "Segment Header";
                         begin
                             SegHeader := Rec;
-                            SegHeader.SetRecFilter;
+                            SegHeader.SetRecFilter();
                             REPORT.RunModal(REPORT::"Add Contacts", true, false, SegHeader);
                         end;
                     }
@@ -388,7 +384,7 @@ page 5091 Segment
                             SegHeader: Record "Segment Header";
                         begin
                             SegHeader := Rec;
-                            SegHeader.SetRecFilter;
+                            SegHeader.SetRecFilter();
                             REPORT.RunModal(REPORT::"Remove Contacts - Reduce", true, false, SegHeader);
                         end;
                     }
@@ -405,7 +401,7 @@ page 5091 Segment
                             SegHeader: Record "Segment Header";
                         begin
                             SegHeader := Rec;
-                            SegHeader.SetRecFilter;
+                            SegHeader.SetRecFilter();
                             REPORT.RunModal(REPORT::"Remove Contacts - Refine", true, false, SegHeader);
                         end;
                     }
@@ -445,7 +441,7 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            ReuseCriteria;
+                            ReuseCriteria();
                         end;
                     }
                     action("Reuse Segment")
@@ -471,7 +467,7 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            SaveCriteria;
+                            SaveCriteria();
                         end;
                     }
                 }
@@ -494,7 +490,7 @@ page 5091 Segment
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            OpenAttachment;
+                            OpenAttachment();
                         end;
                     }
                     action(Create)
@@ -507,7 +503,7 @@ page 5091 Segment
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            CreateAttachment;
+                            CreateAttachment();
                         end;
                     }
                     action(Import)
@@ -520,7 +516,7 @@ page 5091 Segment
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            ImportAttachment;
+                            ImportAttachment();
                         end;
                     }
                     action(Export)
@@ -533,7 +529,7 @@ page 5091 Segment
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            ExportAttachment;
+                            ExportAttachment();
                         end;
                     }
                     action(Remove)
@@ -563,8 +559,8 @@ page 5091 Segment
                         EnvironmentInfo: Codeunit "Environment Information";
                     begin
                         SegLineLocal.SetRange("Segment No.", "No.");
-                        if EnvironmentInfo.IsSaaS then
-                            SegLineLocal.ExportODataFields
+                        if EnvironmentInfo.IsSaaS() then
+                            SegLineLocal.ExportODataFields()
                         else
                             XMLPORT.Run(XMLPORT::"Export Segment Contact", false, false, SegLineLocal);
                     end;
@@ -581,7 +577,7 @@ page 5091 Segment
                         SegHeader: Record "Segment Header";
                     begin
                         SegHeader := Rec;
-                        SegHeader.SetRecFilter;
+                        SegHeader.SetRecFilter();
                         REPORT.Run(REPORT::"Apply Mailing Group", true, true, SegHeader);
                     end;
                 }
@@ -595,8 +591,6 @@ page 5091 Segment
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Print Cover &Sheets';
                     Image = PrintCover;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View cover sheets to send to your contact.';
 
                     trigger OnAction()
@@ -605,8 +599,8 @@ page 5091 Segment
                         ContactCoverSheet: Report "Contact Cover Sheet";
                     begin
                         SegHeader := Rec;
-                        SegHeader.SetRecFilter;
-                        ContactCoverSheet.SetRunFromSegment;
+                        SegHeader.SetRecFilter();
+                        ContactCoverSheet.SetRunFromSegment();
                         ContactCoverSheet.SetTableView(SegHeader);
                         ContactCoverSheet.RunModal();
                     end;
@@ -623,9 +617,26 @@ page 5091 Segment
                         SegHeader: Record "Segment Header";
                     begin
                         SegHeader := Rec;
-                        SegHeader.SetRecFilter;
+                        SegHeader.SetRecFilter();
                         REPORT.Run(REPORT::"Segment - Labels", true, false, SegHeader);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(LogSegment_Promoted; LogSegment)
+                {
+                }
+                actionref(AddContacts_Promoted; AddContacts)
+                {
+                }
+                actionref(CoverSheet_Promoted; CoverSheet)
+                {
                 }
             }
         }
@@ -633,7 +644,7 @@ page 5091 Segment
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateEditable;
+        UpdateEditable();
     end;
 
     trigger OnAfterGetRecord()
@@ -705,17 +716,17 @@ page 5091 Segment
 
     local procedure DateOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure SalespersonCodeOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure DescriptionOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure InteractionTemplateCodeOnAfter()
@@ -727,60 +738,60 @@ page 5091 Segment
 
     local procedure InformationFlowOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure InitiatedByOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure UnitCostLCYOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure UnitDurationMinOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure CorrespondenceTypeDefaultOnAft()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure SendWordDocsasAttmtOnAfterVali()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure LanguageCodeDefaultOnAfterVali()
     begin
-        UpdateEditable;
-        CurrPage.SegLines.PAGE.UpdateForm;
+        UpdateEditable();
+        CurrPage.SegLines.PAGE.UpdateForm();
         CurrPage.Update();
     end;
 
     local procedure IgnoreContactCorresTypeOnAfter()
     begin
-        UpdateEditable;
-        CurrPage.SegLines.PAGE.UpdateForm;
+        UpdateEditable();
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure SubjectDefaultOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure CampaignResponseOnAfterValidat()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure CampaignTargetOnAfterValidate()
     begin
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure CampaignNoOnAfterValidate()
@@ -793,13 +804,13 @@ page 5091 Segment
         CalcFields("Campaign Description");
         CampaignTargetEnable := "Campaign No." <> '';
         CampaignResponseEnable := "Campaign No." <> '';
-        CurrPage.SegLines.PAGE.UpdateForm;
+        CurrPage.SegLines.PAGE.UpdateForm();
     end;
 
     local procedure CreateOpportunitiesForAllContacts()
     begin
         if Confirm(CreateOppQst) then
-            CreateOpportunities;
+            CreateOpportunities();
     end;
 
     [IntegrationEvent(TRUE, false)]

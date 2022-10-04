@@ -2,6 +2,14 @@ table 2105 "O365 Payment History Buffer"
 {
     Caption = 'O365 Payment History Buffer';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -49,7 +57,7 @@ table 2105 "O365 Payment History Buffer"
         {
         }
     }
-
+#if not CLEAN21
     var
         CanOnlyCancelPaymentsErr: Label 'Only payment registrations can be canceled.';
         CanOnlyCancelLastPaymentErr: Label 'Only the last payment registration can be canceled.';
@@ -57,6 +65,7 @@ table 2105 "O365 Payment History Buffer"
         O365SalesInvoicePayment: Codeunit "O365 Sales Invoice Payment";
         MarkAsUnpaidConfirmQst: Label 'Cancel this payment registration?';
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure FillPaymentHistory(SalesInvoiceDocumentNo: Code[20])
     var
         InvoiceCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -65,7 +74,7 @@ table 2105 "O365 Payment History Buffer"
         if not IsTemporary then
             Error(DevMsgNotTemporaryErr);
 
-        Reset;
+        Reset();
         DeleteAll();
         InvoiceCustLedgerEntry.SetRange("Document Type", InvoiceCustLedgerEntry."Document Type"::Invoice);
         InvoiceCustLedgerEntry.SetRange("Document No.", SalesInvoiceDocumentNo);
@@ -86,7 +95,7 @@ table 2105 "O365 Payment History Buffer"
     local procedure CopyFromCustomerLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         CustLedgerEntry.CalcFields("Amount (LCY)");
-        Init;
+        Init();
         "Ledger Entry No." := CustLedgerEntry."Entry No.";
         Type := CustLedgerEntry."Document Type";
         Amount := CustLedgerEntry."Amount (LCY)";
@@ -97,6 +106,7 @@ table 2105 "O365 Payment History Buffer"
         Insert(true);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CancelPayment(): Boolean
     var
         TempO365PaymentHistoryBuffer: Record "O365 Payment History Buffer" temporary;
@@ -113,5 +123,6 @@ table 2105 "O365 Payment History Buffer"
         O365SalesInvoicePayment.CancelCustLedgerEntry("Ledger Entry No.");
         exit(true);
     end;
+#endif
 }
 

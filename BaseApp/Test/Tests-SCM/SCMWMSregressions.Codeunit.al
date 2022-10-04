@@ -424,7 +424,7 @@ codeunit 137005 "SCM WMS regressions"
         repeat
             ProdOrderLine.Validate("Unit of Measure Code", UOMCode);
             ProdOrderLine.Modify(true);
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
     end;
 
     local procedure ChangeUOMOnComponentLines(ProductionOrder: Record "Production Order"; UOMCode: Code[10])
@@ -438,7 +438,7 @@ codeunit 137005 "SCM WMS regressions"
         repeat
             ProdOrderComponent.Validate("Unit of Measure Code", UOMCode);
             ProdOrderComponent.Modify(true);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure CreateAndPostPutAwayFromProdOrder(ProductionOrder: Record "Production Order")
@@ -538,7 +538,7 @@ codeunit 137005 "SCM WMS regressions"
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
         WarehouseActivityHeader.SetRange("Source Document", ActivitySourceType);
         WarehouseActivityHeader.SetRange("Source No.", ActivitySourceNo);
-        exit(WarehouseActivityHeader.FindFirst);
+        exit(WarehouseActivityHeader.FindFirst())
     end;
 
     local procedure FindAndSelPostPAwOnSrcNoAndLoc(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
@@ -547,7 +547,7 @@ codeunit 137005 "SCM WMS regressions"
         PostedInvtPutAwayHeader.SetRange("Location Code", LocationCode);
         PostedInvtPutAwayHeader.SetRange("Source Document", SourceDoc);
         PostedInvtPutAwayHeader.SetRange("Source No.", SourceNo);
-        exit(PostedInvtPutAwayHeader.FindFirst);
+        exit(PostedInvtPutAwayHeader.FindFirst())
     end;
 
     local procedure FindAndSelPstPickOnSrcNoAndLoc(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
@@ -556,7 +556,7 @@ codeunit 137005 "SCM WMS regressions"
         PostedInvtPickHeader.SetRange("Location Code", LocationCode);
         PostedInvtPickHeader.SetRange("Source Document", SourceDoc);
         PostedInvtPickHeader.SetRange("Source No.", SourceNo);
-        exit(PostedInvtPickHeader.FindFirst);
+        exit(PostedInvtPickHeader.FindFirst())
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])

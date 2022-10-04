@@ -18,8 +18,8 @@ codeunit 132565 "Read Master Data from Cache"
     var
         MasterDataSetupSample: Record "Master Data Setup Sample";
     begin
-        if not MasterDataSetupSample.Get then
-            Error(SetupTableMissingErr, MasterDataSetupSample.TableCaption);
+        if not MasterDataSetupSample.Get() then
+            Error(SetupTableMissingErr, MasterDataSetupSample.TableCaption());
 
         exit(MasterDataSetupSample.Path + '\' + MasterDataSetupSample.Name);
     end;

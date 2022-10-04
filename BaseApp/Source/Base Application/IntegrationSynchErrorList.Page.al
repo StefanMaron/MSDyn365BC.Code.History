@@ -18,12 +18,12 @@ page 5339 "Integration Synch. Error List"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Date/Time"; "Date/Time")
+                field("Date/Time"; Rec."Date/Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time that the error in the integration synchronization job occurred.';
@@ -50,7 +50,7 @@ page 5339 "Integration Synch. Error List"
                             HyperLink(HelpLinkUrl);
                     end;
                 }
-                field("Exception Detail"; "Exception Detail")
+                field("Exception Detail"; Rec."Exception Detail")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the exception that occurred in the integration synchronization job.';
@@ -96,8 +96,6 @@ page 5339 "Integration Synch. Error List"
                 Caption = 'Delete Entries Older Than 7 Days';
                 Enabled = HasRecords;
                 Image = ClearLog;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Delete error log information for job queue entries that are older than seven days.';
 
                 trigger OnAction()
@@ -111,8 +109,6 @@ page 5339 "Integration Synch. Error List"
                 Caption = 'Delete All Entries';
                 Enabled = HasRecords;
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Delete all error log information for job queue entries.';
 
                 trigger OnAction()
@@ -185,7 +181,7 @@ page 5339 "Integration Synch. Error List"
 
                         CalcFields("Exception Detail");
                         "Exception Detail".CreateInStream(CallStackInStream, TEXTENCODING::Windows);
-                        Message(TypeHelper.ReadAsTextWithSeparator(CallStackInStream, TypeHelper.LFSeparator));
+                        Message(TypeHelper.ReadAsTextWithSeparator(CallStackInStream, TypeHelper.LFSeparator()));
                     end;
                 }
                 group(Coupling)
@@ -231,6 +227,20 @@ page 5339 "Integration Synch. Error List"
                             IntegrationSynchJobErrors.DeleteCouplings();
                         end;
                     }
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Delete7days_Promoted; Delete7days)
+                {
+                }
+                actionref(Delete0days_Promoted; Delete0days)
+                {
                 }
             }
         }
@@ -317,7 +327,7 @@ page 5339 "Integration Synch. Error List"
         if TableMetadata.FindFirst() then begin
             if TableMetadata.TableType = TableMetadata.TableType::MicrosoftGraph then
                 exit('');
-            if (TableMetadata.TableType = TableMetadata.TableType::CRM) and not CRMConnectionSetup.IsEnabled then
+            if (TableMetadata.TableType = TableMetadata.TableType::CRM) and not CRMConnectionSetup.IsEnabled() then
                 exit('');
         end;
 

@@ -15,7 +15,7 @@ report 5209 "Employee - Birthdays"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_TABLECAPTION__________EmployeeFilter; TableCaption + ': ' + EmployeeFilter)
@@ -27,7 +27,7 @@ report 5209 "Employee - Birthdays"
             column(Employee__No__; "No.")
             {
             }
-            column(FullName; FullName)
+            column(FullName; FullName())
             {
             }
             column(Employee__Birth_Date_; Format("Birth Date"))
@@ -70,7 +70,7 @@ report 5209 "Employee - Birthdays"
 
     trigger OnPreReport()
     begin
-        EmployeeFilter := Employee.GetFilters;
+        EmployeeFilter := Employee.GetFilters();
     end;
 
     var

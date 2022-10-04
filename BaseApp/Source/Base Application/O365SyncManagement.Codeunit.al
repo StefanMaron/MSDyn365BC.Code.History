@@ -1,3 +1,4 @@
+
 codeunit 6700 "O365 Sync. Management"
 {
     trigger OnRun()
@@ -73,18 +74,17 @@ codeunit 6700 "O365 Sync. Management"
         Token: Text;
     begin
         with LocalExchangeSync do begin
-            if GetUser(User, UserId) then
+            if GetUser(User, UserId()) then
                 AuthenticationEmail := User."Authentication Email";
 
             if not Get(UserId) or
                (AuthenticationEmail = '') or ("Folder ID" = '') or not GetPasswordOrToken(LocalExchangeSync, Password, Token)
-            then begin
+            then
                 if AddOnTheFly then begin
-                    if not OpenSetupWindow then
+                    if not OpenSetupWindow() then
                         Error(O365RecordMissingErr)
                 end else
                     Error(O365RecordMissingErr);
-            end;
         end;
 
         exit(true);
@@ -95,7 +95,7 @@ codeunit 6700 "O365 Sync. Management"
         ExchangeSyncSetup: Page "Exchange Sync. Setup";
     begin
         if Confirm(SetupO365Qst, true) then
-            exit(ExchangeSyncSetup.RunModal = ACTION::OK);
+            exit(ExchangeSyncSetup.RunModal() = ACTION::OK);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
@@ -104,7 +104,7 @@ codeunit 6700 "O365 Sync. Management"
         JobQueueEntry: Record "Job Queue Entry";
         TwentyFourHours: Integer;
     begin
-        if TASKSCHEDULER.CanCreateTask then
+        if TASKSCHEDULER.CanCreateTask() then
             with JobQueueEntry do begin
                 SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
                 SetRange("Object ID to Run", CODEUNIT::"O365 Sync. Management");
@@ -129,7 +129,7 @@ codeunit 6700 "O365 Sync. Management"
         CheckUserAccess(BookingSync);
         ShowProgress(GettingBookingCustomersTxt);
         RegisterBookingsConnection(BookingSync);
-        CloseProgress;
+        CloseProgress();
         BookingCustomerSync.SyncRecords(BookingSync);
     end;
 
@@ -142,7 +142,7 @@ codeunit 6700 "O365 Sync. Management"
         CheckUserAccess(BookingSync);
         ShowProgress(GettingBookingServicesTxt);
         RegisterBookingsConnection(BookingSync);
-        CloseProgress;
+        CloseProgress();
         BookingServiceSync.SyncRecords(BookingSync);
     end;
 
@@ -154,7 +154,7 @@ codeunit 6700 "O365 Sync. Management"
         Session.LogMessage('0000ACR', 'Syncing Exchange Contacts', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TraceCategory());
         ShowProgress(GettingContactsTxt);
         RegisterExchangeConnection(ExchangeSync);
-        CloseProgress;
+        CloseProgress();
         ExchangeContactSync.SyncRecords(ExchangeSync, FullSync);
     end;
 
@@ -163,7 +163,7 @@ codeunit 6700 "O365 Sync. Management"
         ActivityLog: Record "Activity Log";
     begin
         ActivityMessage := GetLastErrorText + ' ' + ActivityMessage;
-        ClearLastError;
+        ClearLastError();
 
         ActivityLog.LogActivityForUser(RecordID, ActivityLog.Status::Failed, CopyStr(LoggingConstTxt, 1, 30),
           ActivityDescription, ActivityMessage, UserID);
@@ -196,7 +196,7 @@ codeunit 6700 "O365 Sync. Management"
             BookingSync."Booking Mailbox Address");
 
         if Token <> '' then
-            ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint);
+            ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint());
     end;
 
     [NonDebuggable]
@@ -224,9 +224,10 @@ codeunit 6700 "O365 Sync. Management"
             ExchangeSync."Folder ID");
 
         if Token <> '' then
-            ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint);
+            ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint());
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure RegisterBookingsConnection(BookingSync: Record "Booking Sync")
     var
@@ -242,7 +243,7 @@ codeunit 6700 "O365 Sync. Management"
             UnregisterConnection(BookingsConnectionID);
 
         ExchangeSync.Get(BookingSync."User ID");
-        BookingsConnectionID := CreateGuid;
+        BookingsConnectionID := CreateGuid();
 
         if RegisterConnection(ExchangeSync, BookingsConnectionID, BookingsConnectionString) then
             SetConnection(ExchangeSync, BookingsConnectionID);
@@ -260,7 +261,7 @@ codeunit 6700 "O365 Sync. Management"
         if ExchangeConnectionID <> '' then
             UnregisterConnection(ExchangeConnectionID);
 
-        ExchangeConnectionID := CreateGuid;
+        ExchangeConnectionID := CreateGuid();
         if RegisterConnection(ExchangeSync, ExchangeConnectionID, ExchangeConnectionString) then
             SetConnection(ExchangeSync, ExchangeConnectionID);
     end;
@@ -277,6 +278,7 @@ codeunit 6700 "O365 Sync. Management"
         RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, ConnectionID, ConnectionString);
     end;
 
+    [NonDebuggable]
     local procedure RegisterConnection(ExchangeSync: Record "Exchange Sync"; ConnectionID: Guid; ConnectionString: Text) Success: Boolean
     begin
         Success := TryRegisterConnection(ConnectionID, ConnectionString);
@@ -310,7 +312,7 @@ codeunit 6700 "O365 Sync. Management"
         with ExchangeSync do begin
             LogActivityFailed(RecordId, RegisterConnectionTxt, StrSubstNo(ConnectionErr, "User ID"), "User ID");
             if GuiAllowed then begin
-                CloseProgress;
+                CloseProgress();
                 Error(ConnectionErr, "User ID");
             end;
         end;
@@ -360,13 +362,13 @@ codeunit 6700 "O365 Sync. Management"
     local procedure GetUser(var User: Record User; UserID: Text[50]): Boolean
     begin
         User.SetRange("User Name", UserID);
-        exit(User.FindFirst);
+        exit(User.FindFirst());
     end;
 
     procedure ShowProgress(Message: Text)
     begin
         if GuiAllowed then begin
-            CloseProgress;
+            CloseProgress();
             ProgressWindow.Open(Message);
         end;
     end;
@@ -374,15 +376,16 @@ codeunit 6700 "O365 Sync. Management"
     procedure CloseProgress()
     begin
         if GuiAllowed then
-            if TryCloseProgress then;
+            if TryCloseProgress() then;
     end;
 
     [TryFunction]
     local procedure TryCloseProgress()
     begin
-        ProgressWindow.Close;
+        ProgressWindow.Close();
     end;
 
+    [NonDebuggable]
     local procedure BookingsConnectionReady(BookingSync: Record "Booking Sync") Ready: Boolean
     var
         NewConnectionString: Text;
@@ -392,6 +395,7 @@ codeunit 6700 "O365 Sync. Management"
         BookingsConnectionString := NewConnectionString;
     end;
 
+    [NonDebuggable]
     local procedure ExchangeConnectionReady(ExchangeSync: Record "Exchange Sync") Ready: Boolean
     var
         NewConnectionString: Text;
@@ -408,7 +412,7 @@ codeunit 6700 "O365 Sync. Management"
         AzureADMgt: Codeunit "Azure AD Mgt.";
         Value: Text;
     begin
-        Token := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);
+        Token := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
         if (Token = '') and not IsNullGuid(ExchangeSync."Exchange Account Password Key") then
             if IsolatedStorageManagement.Get(ExchangeSync."Exchange Account Password Key", DATASCOPE::Company, Value) then
                 Password := Value;
@@ -424,10 +428,10 @@ codeunit 6700 "O365 Sync. Management"
         ExchangeService: DotNet ExchangeServiceWrapper;
     begin
         ExchangeSync.Get(BookingSync."User ID");
-        ExchangeService := ExchangeServiceFactory.CreateServiceWrapper2013;
+        ExchangeService := ExchangeServiceFactory.CreateServiceWrapper2013();
         CreateExchangeAccountCredentials(ExchangeSync, Credentials);
         ExchangeService.SetNetworkCredential(Credentials);
-        ExchangeService.ExchangeServiceUrl := ExchangeSync.GetExchangeEndpoint;
+        ExchangeService.ExchangeServiceUrl := ExchangeSync.GetExchangeEndpoint();
 
         if not ExchangeService.CanAccessBookingMailbox(BookingSync."Booking Mailbox Address") then
             Error(NoUserAccessErr, BookingSync."Booking Mailbox Name", BookingSync."User ID");

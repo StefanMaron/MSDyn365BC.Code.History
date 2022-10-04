@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138959 "O365 Sales Pulse Tests"
 {
     Permissions = TableData "Calendar Event" = rimd;
@@ -293,7 +294,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
         if IsInitialized then
             exit;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(true);
@@ -305,7 +306,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
         WorkDate(Today);
         IsInitialized := true;
 
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             O365SalesInitialSetup.Insert();
 
         O365SalesInitialSetup."C2Graph Endpoint" := '127.0.0.1:8081/c2graph/status200/;{USER}=test;{PASSWORD}=test';
@@ -338,4 +339,4 @@ codeunit 138959 "O365 Sales Pulse Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

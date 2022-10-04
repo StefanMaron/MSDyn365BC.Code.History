@@ -127,7 +127,7 @@ codeunit 73 "Purch.-Explode BOM"
                                     "Quantity (Base)" * FromBOMComp."Quantity per" *
                                     UOMMgt.GetQtyPerUnitOfMeasure(
                                       Item, ToPurchLine."Unit of Measure Code") / ToPurchLine."Qty. per Unit of Measure",
-                                    UOMMgt.QtyRndPrecision));
+                                    UOMMgt.QtyRndPrecision()));
                             end;
                         FromBOMComp.Type::Resource:
                             begin

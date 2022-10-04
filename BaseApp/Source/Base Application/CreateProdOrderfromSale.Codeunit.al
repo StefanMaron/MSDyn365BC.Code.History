@@ -6,17 +6,10 @@ codeunit 99000792 "Create Prod. Order from Sale"
     end;
 
     var
-        Text000: Label '%1 Prod. Order %2 has been created.';
         UOMMgt: Codeunit "Unit of Measure Management";
         HideValidationDialog: Boolean;
 
-#if not CLEAN18
-    [Obsolete('Replaced by CreateProductionOrder().', '18.0')]
-    procedure CreateProdOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Option ItemOrder,ProjectOrder)
-    begin
-        CreateProductionOrder(SalesLine, ProdOrderStatus, "Create Production Order Type".FromInteger(OrderType));
-    end;
-#endif
+        Text000: Label '%1 Prod. Order %2 has been created.';
 
     procedure CreateProductionOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Enum "Create Production Order Type")
     var
@@ -39,8 +32,8 @@ codeunit 99000792 "Create Prod. Order from Sale"
         ProdOrder.Insert(true);
         OnCreateProdOrderOnAfterProdOrderInsert(ProdOrder, SalesLine);
 
-        ProdOrder."Starting Date" := WorkDate;
-        ProdOrder."Creation Date" := WorkDate;
+        ProdOrder."Starting Date" := WorkDate();
+        ProdOrder."Creation Date" := WorkDate();
         ProdOrder."Low-Level Code" := 0;
         if OrderType = OrderType::ProjectOrder then begin
             ProdOrder."Source Type" := ProdOrder."Source Type"::"Sales Header";
@@ -83,7 +76,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
                       ItemTrackingMgt.ComposeRowID(
                         DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(),
                         ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0);
-                    ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, ProdOrderRowID, true, true);
+                    ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ProdOrderRowID, true, true);
 
                     SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
                     if ProdOrderLine."Remaining Qty. (Base)" > (SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)")
@@ -91,7 +84,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
                         ReservQty := (SalesLine."Outstanding Quantity" - SalesLine."Reserved Quantity");
                         ReservQtyBase := (SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)");
                     end else begin
-                        ReservQty := Round(ProdOrderLine."Remaining Qty. (Base)" / SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        ReservQty := Round(ProdOrderLine."Remaining Qty. (Base)" / SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)";
                     end;
                     SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
@@ -102,7 +95,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
             end;
 
         if ProdOrder.Status = ProdOrder.Status::Released then
-            ProdOrderStatusMgt.FlushProdOrder(ProdOrder, ProdOrder.Status, WorkDate);
+            ProdOrderStatusMgt.FlushProdOrder(ProdOrder, ProdOrder.Status, WorkDate());
 
         OnAfterCreateProdOrder(ProdOrder, SalesLine);
 

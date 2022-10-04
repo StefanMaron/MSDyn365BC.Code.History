@@ -1,6 +1,6 @@
 page 394 "Entry/Exit Points"
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = BasicEU, BasicNO;
     Caption = 'Entry/Exit Points';
     PageType = List;
     SourceTable = "Entry/Exit Point";
@@ -15,12 +15,12 @@ page 394 "Entry/Exit Points"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the code for the shipping location (Entry/Exit Point).';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a description of the shipping location (Entry/Exit Point).';
                 }
             }
@@ -44,4 +44,3 @@ page 394 "Entry/Exit Points"
     {
     }
 }
-

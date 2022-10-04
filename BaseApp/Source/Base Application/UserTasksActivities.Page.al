@@ -12,7 +12,7 @@ page 9078 "User Tasks Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
+                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
@@ -23,7 +23,7 @@ page 9078 "User Tasks Activities"
                     var
                         UserTaskList: Page "User Task List";
                     begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
+                        UserTaskList.SetPageToShowMyPendingUserTasks();
                         UserTaskList.Run();
                     end;
                 }

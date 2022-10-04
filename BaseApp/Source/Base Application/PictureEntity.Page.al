@@ -56,7 +56,7 @@ page 5468 "Picture Entity"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        DeletePicture;
+        DeletePicture();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -72,12 +72,12 @@ page 5468 "Picture Entity"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        SavePicture;
+        SavePicture();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        SavePicture;
+        SavePicture();
     end;
 
     var

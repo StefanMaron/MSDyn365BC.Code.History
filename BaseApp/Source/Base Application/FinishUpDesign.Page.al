@@ -70,29 +70,34 @@ page 9623 "Finish Up Design"
                     Designer: DotNet NavDesignerALFunctions;
                     FileName: Text;
                     CleanFileName: Text;
+                    TrimmedAppName: Text;
+                    TrimmedAppPublisher: Text;
                 begin
-                    if StrLen(AppName) = 0 then
+                    TrimmedAppName := AppName.Trim();
+                    TrimmedAppPublisher := Publisher.Trim();
+
+                    if StrLen(TrimmedAppName) = 0 then
                         Error(BlankNameErr);
 
-                    if StrLen(Publisher) = 0 then
+                    if StrLen(TrimmedAppPublisher) = 0 then
                         Error(BlankPublisherErr);
 
-                    if not Designer.ExtensionNameAndPublisherIsValid(AppName, Publisher) then
+                    if not Designer.ExtensionNameAndPublisherIsValid(TrimmedAppName, TrimmedAppPublisher) then
                         Error(DuplicateNameAndPublisherErr);
 
                     SaveVisible := false;
 
-                    Designer.SaveDesignerExtension(AppName, Publisher);
+                    Designer.SaveDesignerExtension(TrimmedAppName, TrimmedAppPublisher);
 
                     if DownloadCode and DownloadCodeEnabled then begin
                         TempBlob.CreateOutStream(NvOutStream);
-                        Designer.GenerateDesignerPackageZipStream(NvOutStream, Publisher, AppName);
-                        FileName := StrSubstNo(ExtensionFileNameTxt, AppName, Publisher);
+                        Designer.GenerateDesignerPackageZipStream(NvOutStream, TrimmedAppPublisher, TrimmedAppName);
+                        FileName := StrSubstNo(ExtensionFileNameTxt, TrimmedAppName, TrimmedAppPublisher);
                         CleanFileName := Designer.SanitizeDesignerFileName(FileName, '_');
                         FileManagement.BLOBExport(TempBlob, CleanFileName, true);
                     end;
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -104,9 +109,9 @@ page 9623 "Finish Up Design"
     begin
         SaveVisible := true;
         DownloadCode := true;
-        AppName := Designer.GetDesignerExtensionName;
-        Publisher := Designer.GetDesignerExtensionPublisher;
-        DownloadCodeEnabled := Designer.GetDesignerExtensionShowMyCode;
+        AppName := Designer.GetDesignerExtensionName();
+        Publisher := Designer.GetDesignerExtensionPublisher();
+        DownloadCodeEnabled := Designer.GetDesignerExtensionShowMyCode();
         if AppName = '' then
             NameAndPublisherEnabled := true
         else

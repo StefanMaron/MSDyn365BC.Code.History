@@ -12,12 +12,12 @@ page 5152 "Salutation Formulas"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                 }
-                field("Salutation Type"; "Salutation Type")
+                field("Salutation Type"; Rec."Salutation Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether the salutation is formal or informal. Make your selection by clicking the field.';
@@ -27,27 +27,27 @@ page 5152 "Salutation Formulas"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the salutation itself.';
                 }
-                field("Name 1"; "Name 1")
+                field("Name 1"; Rec."Name 1")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies a salutation. The options are: Job Title, First Name, Middle Name, Surname, Initials and Company Name.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies a salutation. The options are: Job Title, First Name, Middle Name, Surname, Initials and Company Name.';
                 }
-                field("Name 3"; "Name 3")
+                field("Name 3"; Rec."Name 3")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies a salutation. The options are: Job Title, First Name, Middle Name, Surname, Initials and Company Name.';
                 }
-                field("Name 4"; "Name 4")
+                field("Name 4"; Rec."Name 4")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies a salutation. The options are: Job Title, First Name, Middle Name, Surname, Initials and Company Name.';
                 }
-                field("Name 5"; "Name 5")
+                field("Name 5"; Rec."Name 5")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies a salutation.';

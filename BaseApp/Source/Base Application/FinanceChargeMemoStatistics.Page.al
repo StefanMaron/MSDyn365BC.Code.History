@@ -20,7 +20,7 @@ page 449 "Finance Charge Memo Statistics"
                     DrillDown = false;
                     ToolTip = 'Specifies the interest amount that has been calculated on the finance charge memo.';
                 }
-                field("Additional Fee"; "Additional Fee")
+                field("Additional Fee"; Rec."Additional Fee")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -92,11 +92,11 @@ page 449 "Finance Charge Memo Statistics"
         InvoiceRoundingAmount := GetInvoiceRoundingAmount();
         if "Customer No." <> '' then begin
             CustPostingGr.Get("Customer Posting Group");
-            GLAcc.Get(CustPostingGr.GetInterestAccount);
+            GLAcc.Get(CustPostingGr.GetInterestAccount());
             VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
             OnAfterGetVATPostingSetup(VATPostingSetup);
             VATInterest := VATPostingSetup."VAT %";
-            GLAcc.Get(CustPostingGr.GetAdditionalFeeAccount);
+            GLAcc.Get(CustPostingGr.GetAdditionalFeeAccount());
             VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
             OnAfterGetVATPostingSetup(VATPostingSetup);
             Interest := (FinChrgMemoTotal - "Additional Fee" * (VATPostingSetup."VAT %" / 100 + 1)) /

@@ -106,14 +106,14 @@ page 1881 "Sandbox Environment"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not EnvironmentInfo.IsSaaS or EnvironmentInfo.IsSandbox then
+        if not EnvironmentInfo.IsSaaS() or EnvironmentInfo.IsSandbox() then
             Error(EnvironmentErr);
     end;
 
@@ -129,8 +129,8 @@ page 1881 "Sandbox Environment"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -143,7 +143,7 @@ page 1881 "Sandbox Environment"
         UrlHelper: Codeunit "Url Helper";
         Prefix: Text;
     begin
-        Prefix := UrlHelper.GetTenantUrl;
+        Prefix := UrlHelper.GetTenantUrl();
         if Prefix <> '' then
             exit(Prefix + SandboxFunctionUrl);
 

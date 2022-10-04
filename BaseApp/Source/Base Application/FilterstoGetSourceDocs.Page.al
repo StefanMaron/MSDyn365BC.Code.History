@@ -18,7 +18,7 @@ page 5784 "Filters to Get Source Docs."
                     Caption = 'Show Filter Request';
                     ToolTip = 'Specifies if the Filters to Get Source Docs. window appears when you choose Use Filters to Get Source Docs on a warehouse shipment or warehouse receipt document.';
                 }
-                field("Do Not Fill Qty. to Handle"; "Do Not Fill Qty. to Handle")
+                field("Do Not Fill Qty. to Handle"; Rec."Do Not Fill Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that inventory quantities are assigned when you get outbound source document lines for shipment.';
@@ -64,9 +64,6 @@ page 5784 "Filters to Get Source Docs."
                 ApplicationArea = Warehouse;
                 Caption = '&Run';
                 Image = Start;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Get the specified source documents.';
 
                 trigger OnAction()
@@ -90,8 +87,8 @@ page 5784 "Filters to Get Source Docs."
                     GetSourceBatch.SetSkipBlockedItem(true);
                     GetSourceBatch.UseRequestPage(ShowRequestForm);
                     GetSourceBatch.RunModal();
-                    if GetSourceBatch.NotCancelled then
-                        CurrPage.Close;
+                    if GetSourceBatch.NotCancelled() then
+                        CurrPage.Close();
                 end;
             }
             action(Modify)
@@ -99,8 +96,6 @@ page 5784 "Filters to Get Source Docs."
                 ApplicationArea = Warehouse;
                 Caption = '&Modify';
                 Image = EditFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Change the type of source documents that the function looks in.';
 
                 trigger OnAction()
@@ -117,8 +112,22 @@ page 5784 "Filters to Get Source Docs."
                     SourceDocFilterCard.SetRecord(Rec);
                     SourceDocFilterCard.SetTableView(Rec);
                     SourceDocFilterCard.RunModal();
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Run_Promoted; Run)
+                {
+                }
+                actionref(Modify_Promoted; Modify)
+                {
+                }
             }
         }
     }

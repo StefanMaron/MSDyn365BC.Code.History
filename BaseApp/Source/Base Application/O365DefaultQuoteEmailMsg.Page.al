@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2171 "O365 Default Quote Email Msg"
 {
     Caption = 'Default message for estimates';
@@ -7,6 +8,9 @@ page 2171 "O365 Default Quote Email Msg"
     SourceTable = "O365 Default Email Message";
     SourceTableView = SORTING("Document Type")
                       WHERE("Document Type" = FILTER(Quote));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +18,7 @@ page 2171 "O365 Default Quote Email Msg"
         {
             field(DefaultQuoteMessage; EmailMessage)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Email message';
                 MultiLine = true;
                 ToolTip = 'Specifies your default email message when sending an estimate.';
@@ -43,4 +47,4 @@ page 2171 "O365 Default Quote Email Msg"
     var
         EmailMessage: Text;
 }
-
+#endif

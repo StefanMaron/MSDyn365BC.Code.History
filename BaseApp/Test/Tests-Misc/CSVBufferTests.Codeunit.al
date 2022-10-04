@@ -137,10 +137,10 @@ codeunit 135100 "CSV Buffer Tests"
 
         Assert.AreEqual('Test 2', TempResultCSVBuffer.GetValueOfLineAt(2), 'The value does not match in line 1, field 2.');
         Assert.AreEqual('5678', TempResultCSVBuffer.GetValueOfLineAt(3), 'The value does not match in line 1, field 3.');
-        TempResultCSVBuffer.Next;
+        TempResultCSVBuffer.Next();
         Assert.AreEqual('Test 1', TempResultCSVBuffer.GetValueOfLineAt(2), 'The value does not match in line 2, field 2.');
         Assert.AreEqual('9012', TempResultCSVBuffer.GetValueOfLineAt(3), 'The value does not match in line 2, field 3.');
-        Assert.IsTrue(TempResultCSVBuffer.Next = 0, 'The filter did not work as expected.')
+        Assert.IsTrue(TempResultCSVBuffer.Next() = 0, 'The filter did not work as expected.')
     end;
 
     [Test]
@@ -181,8 +181,8 @@ codeunit 135100 "CSV Buffer Tests"
             Assert.AreEqual(SourceText, TargetText, 'The source text differs from the target text. Save failed.');
         end;
 
-        TestFileSource.Close;
-        TestFileTarget.Close;
+        TestFileSource.Close();
+        TestFileTarget.Close();
     end;
 
     [Test]
@@ -205,7 +205,7 @@ codeunit 135100 "CSV Buffer Tests"
         TestFileSource.Open(ServerTempFileNameSource);
         TestFileSource.CreateInStream(TestInStreamSource);
         TempCSVBuffer.LoadDataFromStream(TestInStreamSource, ';');
-        TestFileSource.Close;
+        TestFileSource.Close();
 
         Assert.AreEqual(12, TempCSVBuffer.Count, 'The number of records do not match.');
 
@@ -224,7 +224,7 @@ codeunit 135100 "CSV Buffer Tests"
             Assert.AreEqual(SourceText, TargetText, 'The source text differs from the target text. Save failed.');
         end;
 
-        TestFileSource.Close;
+        TestFileSource.Close();
     end;
 
     [Test]
@@ -271,7 +271,7 @@ codeunit 135100 "CSV Buffer Tests"
         OutStream.WriteText('02;Test 1;9012');
         OutStream.WriteText;
         OutStream.WriteText('03;Test 2;3456');
-        File.Close;
+        File.Close();
     end;
 
     local procedure CreateSampleCSVFileWithSpecialEncoding(EncodingCode: Text; EncodedText: Text) ServerTempFileName: Text
@@ -304,7 +304,7 @@ codeunit 135100 "CSV Buffer Tests"
         File.Create(ServerTempFileName);
         File.CreateOutStream(OutStream);
         OutStream.WriteText;
-        File.Close;
+        File.Close();
     end;
 }
 

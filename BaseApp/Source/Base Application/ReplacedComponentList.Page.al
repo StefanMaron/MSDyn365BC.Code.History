@@ -19,12 +19,12 @@ page 5987 "Replaced Component List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the component is in use.';
                 }
-                field("Parent Service Item No."; "Parent Service Item No.")
+                field("Parent Service Item No."; Rec."Parent Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item in which the component is included.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -39,22 +39,22 @@ page 5987 "Replaced Component List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the component.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the component.';
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEditSerialNo;
+                        AssistEditSerialNo();
                     end;
                 }
-                field("Date Installed"; "Date Installed")
+                field("Date Installed"; Rec."Date Installed")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the component was installed.';
                 }
-                field("Service Order No."; "Service Order No.")
+                field("Service Order No."; Rec."Service Order No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service order under which this component was replaced.';

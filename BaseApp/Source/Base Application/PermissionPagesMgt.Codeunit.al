@@ -76,6 +76,8 @@ codeunit 9001 "Permission Pages Mgt."
         exit(i >= OffSet + NoOfColumns);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure OpenPermissionSetPage in the Permission Set Relation codeunit', '21.0')]
     procedure ShowPermissions(AggregatePermissionSetScope: Option; AppId: Guid; PermissionSetId: Code[20]; RunAsModal: Boolean)
     var
         AggregatePermissionSet: Record "Aggregate Permission Set";
@@ -97,6 +99,7 @@ codeunit 9001 "Permission Pages Mgt."
         end;
     end;
 
+    [Obsolete('Replaced by procedure OpenPermissionSetPage in the Permission Set Relation codeunit.', '21.0')]
     procedure ShowPermissions(var AggregatePermissionSet: Record "Aggregate Permission Set"; RunAsModal: Boolean)
     var
         Permission: Record Permission;
@@ -131,7 +134,7 @@ codeunit 9001 "Permission Pages Mgt."
         Permissions.SetTableView(Permission);
         Permissions.Editable := false;
         if RunAsModal then
-            Permissions.RunModal
+            Permissions.RunModal()
         else
             Permissions.Run();
     end;
@@ -145,17 +148,18 @@ codeunit 9001 "Permission Pages Mgt."
         TenantPermissions.SetTableView(TenantPermission);
 
         if IsPermissionsInGivenScopeAndAppIdEditable(AggregatePermissionSetScope, AppId) and
-           UserPermissions.CanManageUsersOnTenant(UserSecurityId)
+           UserPermissions.CanManageUsersOnTenant(UserSecurityId())
         then
-            TenantPermissions.SetControlsAsEditable
+            TenantPermissions.SetControlsAsEditable()
         else
-            TenantPermissions.SetControlsAsReadOnly;
+            TenantPermissions.SetControlsAsReadOnly();
 
         if RunAsModal then
-            TenantPermissions.RunModal
+            TenantPermissions.RunModal()
         else
             TenantPermissions.Run();
     end;
+#endif
 
     procedure IsPermissionSetEditable(AggregatePermissionSet: Record "Aggregate Permission Set"): Boolean
     begin
@@ -186,23 +190,23 @@ codeunit 9001 "Permission Pages Mgt."
         UserPermissions: Codeunit "User Permissions";
         Notification: Notification;
     begin
-        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId) then
+        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId()) then
             exit;
 
-        if not AppDbPermissionChangedNotificationEnabled then
+        if not AppDbPermissionChangedNotificationEnabled() then
             exit;
 
-        if not PermissionSetLink.SourceHashHasChanged then
+        if not PermissionSetLink.SourceHashHasChanged() then
             exit;
 
-        Notification.Id(GetAppDbPermissionSetChangedNotificationId);
+        Notification.Id(GetAppDbPermissionSetChangedNotificationId());
         Notification.Message(MSPermSetChangedMsg);
         Notification.Scope(NOTIFICATIONSCOPE::LocalScope);
         Notification.AddAction(MSPermSetChangedShowDetailsTxt, CODEUNIT::"Permission Pages Mgt.",
           'AppDbPermissionSetChangedShowDetails');
         Notification.AddAction(MSPermSetChangedNeverShowAgainTxt, CODEUNIT::"Permission Pages Mgt.",
           'AppDbPermissionSetChangedDisableNotification');
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure IsTenantPermissionSetEditable(TenantPermissionSet: Record "Tenant Permission Set"): Boolean
@@ -245,7 +249,7 @@ codeunit 9001 "Permission Pages Mgt."
         TableFilterPage.SetSourceTable(InputSecurityFilter, InputObjectID, InputObjectName);
         TableFilterPage.Editable := UserCanEditSecurityFilters;
 
-        if ACTION::OK = TableFilterPage.RunModal then begin
+        if ACTION::OK = TableFilterPage.RunModal() then begin
             OutputSecurityFilter := TableFilterPage.CreateTextTableFilter(false);
             exit(true);
         end;
@@ -255,16 +259,16 @@ codeunit 9001 "Permission Pages Mgt."
     var
         PermissionSetLink: Record "Permission Set Link";
     begin
-        PermissionSetLink.MarkWithChangedSource;
+        PermissionSetLink.MarkWithChangedSource();
         PAGE.RunModal(PAGE::"Changed Permission Set List", PermissionSetLink);
-        PermissionSetLink.UpdateSourceHashesOnAllLinks;
+        PermissionSetLink.UpdateSourceHashesOnAllLinks();
     end;
 
     procedure AppDbPermissionSetChangedDisableNotification(Notification: Notification)
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.Disable(GetAppDbPermissionSetChangedNotificationId);
+        MyNotifications.Disable(GetAppDbPermissionSetChangedNotificationId());
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
@@ -272,12 +276,12 @@ codeunit 9001 "Permission Pages Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefault(GetAppDbPermissionSetChangedNotificationId,
+        MyNotifications.InsertDefault(GetAppDbPermissionSetChangedNotificationId(),
           MSPermSetChangedTxt,
           MSPermSetChangedDescTxt,
           true);
 
-        MyNotifications.InsertDefault(GetCannotEditPermissionSetsNotificationId,
+        MyNotifications.InsertDefault(GetCannotEditPermissionSetsNotificationId(),
           CannotEditPermissionSetTxt,
           CannotEditPermissionSetDescTxt,
           true);
@@ -292,14 +296,14 @@ codeunit 9001 "Permission Pages Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetAppDbPermissionSetChangedNotificationId));
+        exit(MyNotifications.IsEnabled(GetAppDbPermissionSetChangedNotificationId()));
     end;
 
     procedure DisallowEditingPermissionSetsForNonAdminUsers()
     var
         UserPermissions: Codeunit "User Permissions";
     begin
-        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId) then
+        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId()) then
             Error(CannotManagePermissionsErr);
     end;
 
@@ -307,22 +311,22 @@ codeunit 9001 "Permission Pages Mgt."
     var
         Notification: Notification;
     begin
-        if not CannotEditPermissionSetsNotificationEnabled then
+        if not CannotEditPermissionSetsNotificationEnabled() then
             exit;
 
-        Notification.Id(GetCannotEditPermissionSetsNotificationId);
+        Notification.Id(GetCannotEditPermissionSetsNotificationId());
         Notification.Message(CannotEditPermissionSetMsg);
         Notification.Scope(NOTIFICATIONSCOPE::LocalScope);
         Notification.AddAction(MSPermSetChangedNeverShowAgainTxt, CODEUNIT::"Permission Pages Mgt.",
           'CannotEditPermissionSetsDisableNotification');
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure CannotEditPermissionSetsNotificationEnabled(): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetCannotEditPermissionSetsNotificationId));
+        exit(MyNotifications.IsEnabled(GetCannotEditPermissionSetsNotificationId()));
     end;
 
     local procedure GetCannotEditPermissionSetsNotificationId(): Guid
@@ -334,7 +338,7 @@ codeunit 9001 "Permission Pages Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.Disable(GetCannotEditPermissionSetsNotificationId);
+        MyNotifications.Disable(GetCannotEditPermissionSetsNotificationId());
     end;
 
     internal procedure CreateAndSendResolvePermissionNotification()
@@ -367,6 +371,13 @@ codeunit 9001 "Permission Pages Mgt."
 
         AccessControl.MarkedOnly(true);
         AccessControl.DeleteAll();
+    end;
+
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Permission Set Relation", 'OnShowSecurityFilterForTenantPermission', '', false, false)]
+    local procedure ShowSecurityFilterForTenantPermissionSystem(var OutputSecurityFilter: Text; TenantPermission: Record "Tenant Permission")
+    begin
+        ShowSecurityFilterForTenantPermission(OutputSecurityFilter, TenantPermission, true);
     end;
 }
 

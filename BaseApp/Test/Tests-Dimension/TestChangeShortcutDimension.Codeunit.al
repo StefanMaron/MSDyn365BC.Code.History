@@ -42,7 +42,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
         ClearShortCutDims;
         DimNo := 2;
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             if Dimension.FindSet() then
                 repeat
                     if not (Dimension.Code in ["Global Dimension 1 Code", "Global Dimension 2 Code"]) then begin
@@ -63,7 +63,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
                         end;
                         VerifyDimValueGlobalDimNo(Dimension.Code, DimNo);
                     end;
-                until (DimNo = 8) or (Dimension.Next = 0);
+                until (DimNo = 8) or (Dimension.Next() = 0);
         end;
     end;
 
@@ -227,14 +227,14 @@ codeunit 134482 "Test Change Shortcut Dimension"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Shortcut Dimension 3 Code", '');
             Validate("Shortcut Dimension 4 Code", '');
             Validate("Shortcut Dimension 5 Code", '');
             Validate("Shortcut Dimension 6 Code", '');
             Validate("Shortcut Dimension 7 Code", '');
             Validate("Shortcut Dimension 8 Code", '');
-            Modify;
+            Modify();
         end;
     end;
 
@@ -249,13 +249,13 @@ codeunit 134482 "Test Change Shortcut Dimension"
         if DimensionValue.FindSet() then
             repeat
                 Assert.AreEqual(DimNo, DimensionValue."Global Dimension No.", '');
-            until DimensionValue.Next = 0;
+            until DimensionValue.Next() = 0;
 
         DimensionSetEntry.SetRange("Dimension Code", DimCode);
         if DimensionSetEntry.FindSet() then
             repeat
                 Assert.AreEqual(DimNo, DimensionSetEntry."Global Dimension No.", '');
-            until DimensionSetEntry.Next = 0;
+            until DimensionSetEntry.Next() = 0;
     end;
 }
 

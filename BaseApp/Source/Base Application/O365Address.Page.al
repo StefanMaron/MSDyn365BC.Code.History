@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2148 "O365 Address"
 {
     Caption = 'Address';
@@ -6,6 +7,9 @@ page 2148 "O365 Address"
     PageType = Card;
     SourceTable = "Standard Address";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,39 +17,39 @@ page 2148 "O365 Address"
         {
             field(Address; Address)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = IsPageEditable;
                 ToolTip = 'Specifies the address.';
             }
-            field("Address 2"; "Address 2")
+            field("Address 2"; Rec."Address 2")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = IsPageEditable;
                 ToolTip = 'Specifies additional address information.';
             }
-            field("Post Code"; "Post Code")
+            field("Post Code"; Rec."Post Code")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = IsPageEditable;
                 Lookup = false;
                 ToolTip = 'Specifies the postal code.';
             }
             field(City; City)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = IsPageEditable;
                 Lookup = false;
                 ToolTip = 'Specifies the address city.';
             }
             field(County; County)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = IsPageEditable;
                 ToolTip = 'Specifies the address county.';
             }
             field(CountryRegionCode; CountryRegionCode)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Country/Region Code';
                 Editable = IsPageEditable;
                 QuickEntry = false;
@@ -55,7 +59,7 @@ page 2148 "O365 Address"
                 var
                     O365SalesManagement: Codeunit "O365 Sales Management";
                 begin
-                    CountryRegionCode := O365SalesManagement.LookupCountryCodePhone;
+                    CountryRegionCode := O365SalesManagement.LookupCountryCodePhone();
 
                     // Do not VALIDATE("Country/Region Code",CountryRegionCode), as it wipes city, post code and county
                     "Country/Region Code" := CountryRegionCode;
@@ -94,7 +98,7 @@ page 2148 "O365 Address"
     begin
         if CloseAction = ACTION::LookupOK then begin
             PostCode.UpdateFromStandardAddress(Rec, "Post Code" <> xRec."Post Code");
-            SaveToRecord;
+            SaveToRecord();
         end;
     end;
 
@@ -106,4 +110,4 @@ page 2148 "O365 Address"
         AddressPageCaptionLbl: Label 'Address';
         CountryRegionCode: Code[10];
 }
-
+#endif

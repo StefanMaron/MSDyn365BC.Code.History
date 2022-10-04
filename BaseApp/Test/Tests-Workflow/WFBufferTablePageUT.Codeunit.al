@@ -151,7 +151,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer.InitBufferForWorkflows(TempWorkflowBuffer);
 
         // Exercise
-        ClearLastError;
+        ClearLastError();
         TempWorkflowBuffer.Get(Workflow.Category, '');
         asserterror TempWorkflowBuffer.Delete(true);
 
@@ -194,7 +194,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         TempWorkflowBuffer.InitBufferForTemplates(TempWorkflowBuffer);
 
         // Exercise
-        ClearLastError;
+        ClearLastError();
         TempWorkflowBuffer.Get(Workflow.Category, Workflow.Code);
         asserterror TempWorkflowBuffer.Delete(true);
 
@@ -328,7 +328,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
 
         // Exercise
-        ClearLastError;
+        ClearLastError();
         Clear(Workflow);
         WorkflowTemplateLookup(Workflow);
 
@@ -366,7 +366,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
 
         // Exercise
-        ClearLastError;
+        ClearLastError();
         Clear(Workflow);
         WorkflowTemplateLookup(Workflow);
 

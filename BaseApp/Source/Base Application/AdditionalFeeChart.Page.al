@@ -20,7 +20,7 @@ page 1051 "Additional Fee Chart"
 
                     trigger OnValidate()
                     begin
-                        UpdateData;
+                        UpdateData();
                     end;
                 }
                 field(Currency; Currency)
@@ -33,7 +33,7 @@ page 1051 "Additional Fee Chart"
 
                     trigger OnValidate()
                     begin
-                        UpdateData;
+                        UpdateData();
                     end;
                 }
                 field("Max. Remaining Amount"; MaxRemAmount)
@@ -45,7 +45,7 @@ page 1051 "Additional Fee Chart"
 
                     trigger OnValidate()
                     begin
-                        UpdateData;
+                        UpdateData();
                     end;
                 }
             }
@@ -59,12 +59,12 @@ page 1051 "Additional Fee Chart"
                     trigger AddInReady()
                     begin
                         AddInIsReady := true;
-                        UpdateData;
+                        UpdateData();
                     end;
 
                     trigger Refresh()
                     begin
-                        UpdateData;
+                        UpdateData();
                     end;
                 }
             }

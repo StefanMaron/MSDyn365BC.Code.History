@@ -23,7 +23,7 @@ table 5304 "Outlook Synch. Field"
 
             trigger OnValidate()
             begin
-                GetMasterInformation;
+                GetMasterInformation();
             end;
 #endif
         }
@@ -86,7 +86,7 @@ table 5304 "Outlook Synch. Field"
 
             trigger OnValidate()
             begin
-                CheckReadOnlyStatus;
+                CheckReadOnlyStatus();
 
                 if "Outlook Property" = xRec."Outlook Property" then
                     exit;
@@ -103,7 +103,7 @@ table 5304 "Outlook Synch. Field"
                       OSynchEntityElement.FieldCaption("Outlook Collection"));
                 end;
                 if SetOSynchOptionCorrelFilter(OSynchOptionCorrel) then begin
-                    if not Confirm(StrSubstNo(Text008, OSynchOptionCorrel.TableCaption, OSynchFilter.TableCaption)) then begin
+                    if not Confirm(StrSubstNo(Text008, OSynchOptionCorrel.TableCaption(), OSynchFilter.TableCaption())) then begin
                         "Outlook Property" := xRec."Outlook Property";
                         "User-Defined" := xRec."User-Defined";
                         exit;
@@ -150,7 +150,7 @@ table 5304 "Outlook Synch. Field"
             var
                 TableNo: Integer;
             begin
-                TableNo := OSynchSetupMgt.ShowTablesList;
+                TableNo := OSynchSetupMgt.ShowTablesList();
 
                 if TableNo <> 0 then
                     Validate("Table No.", TableNo);
@@ -167,7 +167,7 @@ table 5304 "Outlook Synch. Field"
                     exit;
 
                 if ("Table Relation" <> '') or SetOSynchOptionCorrelFilter(OSynchOptionCorrel) then begin
-                    if not Confirm(StrSubstNo(Text008, OSynchOptionCorrel.TableCaption, OSynchFilter.TableCaption)) then begin
+                    if not Confirm(StrSubstNo(Text008, OSynchOptionCorrel.TableCaption(), OSynchFilter.TableCaption())) then begin
                         "Table No." := xRec."Table No.";
                         exit;
                     end;
@@ -204,7 +204,7 @@ table 5304 "Outlook Synch. Field"
             trigger OnValidate()
             begin
                 TestField("Table Relation");
-                CheckReadOnlyStatus;
+                CheckReadOnlyStatus();
             end;
 #endif
         }
@@ -230,7 +230,7 @@ table 5304 "Outlook Synch. Field"
             trigger OnValidate()
             begin
                 TestField("Field No.");
-                CheckReadOnlyStatus;
+                CheckReadOnlyStatus();
 
                 if "Field No." = xRec."Field No." then
                     exit;
@@ -252,7 +252,7 @@ table 5304 "Outlook Synch. Field"
                     Validate("Outlook Property", Field."Field Caption");
 
                 if SetOSynchOptionCorrelFilter(OSynchOptionCorrel) then begin
-                    if not Confirm(StrSubstNo(Text008, OSynchOptionCorrel.TableCaption, OSynchFilter.TableCaption)) then begin
+                    if not Confirm(StrSubstNo(Text008, OSynchOptionCorrel.TableCaption(), OSynchFilter.TableCaption())) then begin
                         "Field No." := xRec."Field No.";
                         exit;
                     end;
@@ -274,7 +274,7 @@ table 5304 "Outlook Synch. Field"
 #if not CLEAN19
             trigger OnValidate()
             begin
-                CheckReadOnlyStatus;
+                CheckReadOnlyStatus();
             end;
 #endif
         }
@@ -333,7 +333,7 @@ table 5304 "Outlook Synch. Field"
                     end;
                 end;
 
-                RecRef.Close;
+                RecRef.Close();
             end;
 #endif
         }
@@ -388,16 +388,16 @@ table 5304 "Outlook Synch. Field"
         if "Table No." <> 0 then
             TestField("Table Relation");
 
-        CheckDuplicatedRecords;
+        CheckDuplicatedRecords();
 
         if IsNullGuid("Record GUID") then
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
     end;
 
     trigger OnModify()
     begin
         TestField("Field No.");
-        CheckDuplicatedRecords;
+        CheckDuplicatedRecords();
 
         if "Table No." <> 0 then
             TestField("Table Relation");
@@ -446,7 +446,7 @@ table 5304 "Outlook Synch. Field"
         IsReadOnlyOutlook: Boolean;
         IsReadOnlyNavision: Boolean;
     begin
-        IsReadOnlyOutlook := CheckOtlookPropertyName;
+        IsReadOnlyOutlook := CheckOtlookPropertyName();
 
         if ("Outlook Property" <> '') and ("Field No." <> 0) then begin
             if "Table No." = 0 then begin
@@ -472,7 +472,7 @@ table 5304 "Outlook Synch. Field"
 
             if IsReadOnlyOutlook then begin
                 if IsReadOnlyNavision then
-                    Error(Text007, "Outlook Property", GetFieldCaption);
+                    Error(Text007, "Outlook Property", GetFieldCaption());
                 "Read-Only Status" := "Read-Only Status"::"Read-Only in Outlook";
             end else begin
                 if IsReadOnlyNavision then
@@ -550,7 +550,7 @@ table 5304 "Outlook Synch. Field"
     begin
         if ("Field No." = 0) or ("Outlook Property" = '') then
             Error(Text011,
-              OSynchOptionCorrel.TableCaption,
+              OSynchOptionCorrel.TableCaption(),
               FieldCaption("Field No."),
               FieldCaption("Outlook Property"));
         OSynchSetupMgt.ShowOOptionCorrelForm(Rec);

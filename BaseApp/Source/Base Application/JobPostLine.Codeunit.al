@@ -179,7 +179,7 @@ codeunit 1001 "Job Post-Line"
 
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         Txt := StrSubstNo(Text000,
-            JobTask.TableCaption, JobTask.FieldCaption("Job No."), JobTask."Job No.",
+            JobTask.TableCaption(), JobTask.FieldCaption("Job No."), JobTask."Job No.",
             JobTask.FieldCaption("Job Task No."), JobTask."Job Task No.");
 
         if JobPlanningLine.Type = JobPlanningLine.Type::Text then
@@ -215,14 +215,12 @@ codeunit 1001 "Job Post-Line"
                 SalesLine.FieldError("Line Discount %", Txt);
         if SalesLine."Unit Cost (LCY)" <> JobPlanningLine."Unit Cost (LCY)" then
             SalesLine.FieldError("Unit Cost (LCY)", Txt);
-        if SalesLine.Type = SalesLine.Type::" " then begin
+        if SalesLine.Type = SalesLine.Type::" " then
             if SalesLine."Line Amount" <> 0 then
                 SalesLine.FieldError("Line Amount", Txt);
-        end;
-        if SalesHeader."Prices Including VAT" then begin
+        if SalesHeader."Prices Including VAT" then
             if JobPlanningLine."VAT %" <> SalesLine."VAT %" then
                 SalesLine.FieldError("VAT %", Txt);
-        end;
     end;
 
     procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Enum "Job Journal Line Entry Type")
@@ -352,7 +350,7 @@ codeunit 1001 "Job Post-Line"
         if JobPlanningLine.FindFirst() then begin
             JT.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
             Txt := Text003 + StrSubstNo(Text004,
-                JT.TableCaption, JT.FieldCaption("Job No."), JT."Job No.",
+                JT.TableCaption(), JT.FieldCaption("Job No."), JT."Job No.",
                 JT.FieldCaption("Job Task No."), JT."Job Task No.");
             Error(Txt);
         end;
@@ -412,7 +410,7 @@ codeunit 1001 "Job Post-Line"
            -PurchaseLine."Return Qty. to Ship (Base)"
         then
             Error(
-              Text005, Item.TableCaption, PurchaseLine."No.", Job.TableCaption,
+              Text005, Item.TableCaption(), PurchaseLine."No.", Job.TableCaption(),
               PurchaseLine."Job No.", PurchaseHeader."No.",
               PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No.");
     end;

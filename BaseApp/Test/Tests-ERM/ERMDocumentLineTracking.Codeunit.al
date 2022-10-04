@@ -1037,7 +1037,7 @@ codeunit 134347 "ERM Document Line Tracking"
           VerifyDocumentRef::SalesCreditMemo:
                 VerifyDocumentLineTrackingForSalesReturnOrder(DocumentLineTracking);
         end;
-        DocumentLineTracking.Close;
+        DocumentLineTracking.Close();
     end;
 
     [PageHandler]
@@ -1050,7 +1050,7 @@ codeunit 134347 "ERM Document Line Tracking"
         DocumentLineTracking.DocLineDescription.AssertEquals('');
         DocumentLineTracking.DocLineUnit.AssertEquals('');
         Assert.IsFalse(DocumentLineTracking.First, 'Expecting blank Document Line Tracking page');
-        DocumentLineTracking.Close;
+        DocumentLineTracking.Close();
     end;
 }
 

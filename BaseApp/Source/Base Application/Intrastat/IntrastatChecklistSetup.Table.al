@@ -9,7 +9,8 @@ table 8451 "Intrastat Checklist Setup"
     ObsoleteTag = '19.0';
 #endif
     ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "Field No."; Integer)

@@ -114,7 +114,7 @@ page 1817 "CRM Connection Setup Wizard"
 
                         trigger OnValidate()
                         begin
-                            OnImportSolutionChange;
+                            OnImportSolutionChange();
                         end;
                     }
                     field(EnableItemAvailability; EnableItemAvailability)
@@ -170,9 +170,32 @@ page 1817 "CRM Connection Setup Wizard"
                     field(EnableSalesOrderIntegration; EnableSalesOrderIntegration)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Enable Sales Order Integration';
+                        Caption = 'Enable Legacy Sales Order Integration';
                         Enabled = EnableSalesOrderIntegrationEnabled;
                         ToolTip = 'Specifies that it is possible for Dynamics 365 Sales users to submit sales orders that can then be viewed and imported in Dynamics 365.';
+
+                        trigger OnValidate()
+                        begin
+                            if EnableSalesOrderIntegration then
+                                EnableBidirectionalSalesOrderIntegrationEnabled := false
+                            else
+                                EnableBidirectionalSalesOrderIntegrationEnabled := true;
+                        end;
+                    }
+                    field(EnableBidirectionalSalesOrderIntegration; EnableBidirectionalSalesOrderIntegration)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Enable Bidirectional Sales Order Integration';
+                        Enabled = EnableBidirectionalSalesOrderIntegrationEnabled;
+                        ToolTip = 'Specifies that it is possible to synchronize Sales Order bidirectionally. This feature will also enable Archiving Orders.';
+
+                        trigger OnValidate()
+                        begin
+                            if EnableBidirectionalSalesOrderIntegration then
+                                EnableSalesOrderIntegrationEnabled := false
+                            else
+                                EnableSalesOrderIntegrationEnabled := true;
+                        end;
                     }
                     field(EnableCRMConnection; EnableCRMConnection)
                     {
@@ -302,7 +325,7 @@ page 1817 "CRM Connection Setup Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
         SetVisibilityFlags();
     end;
 
@@ -316,8 +339,8 @@ page 1817 "CRM Connection Setup Wizard"
         FeatureTelemetry.LogUptake('0000H78', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         FeatureTelemetry.LogUptake('0000H79', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Discovered);
 
-        Init;
-        if CRMConnectionSetup.Get then begin
+        Init();
+        if CRMConnectionSetup.Get() then begin
             "Proxy Version" := CRMConnectionSetup."Proxy Version";
             "Authentication Type" := CRMConnectionSetup."Authentication Type";
             "Server Address" := CRMConnectionSetup."Server Address";
@@ -329,9 +352,9 @@ page 1817 "CRM Connection Setup Wizard"
             InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion();
         end;
-        Insert;
+        Insert();
         Step := Step::Start;
-        EnableControls;
+        EnableControls();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -365,6 +388,8 @@ page 1817 "CRM Connection Setup Wizard"
         EnableCRMConnectionEnabled: Boolean;
         ImportCRMSolutionEnabled: Boolean;
         PublishItemAvailabilityServiceEnabled: Boolean;
+        EnableBidirectionalSalesOrderIntegration: Boolean;
+        EnableBidirectionalSalesOrderIntegrationEnabled: Boolean;
         EnableSalesOrderIntegration: Boolean;
         EnableSalesOrderIntegrationEnabled: Boolean;
         EnableItemAvailability: Boolean;
@@ -381,8 +406,8 @@ page 1817 "CRM Connection Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -409,7 +434,7 @@ page 1817 "CRM Connection Setup Wizard"
         else
             Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ResetControls()
@@ -424,19 +449,19 @@ page 1817 "CRM Connection Setup Wizard"
 
         ImportCRMSolutionEnabled := true;
         PublishItemAvailabilityServiceEnabled := true;
-        EnableSalesOrderIntegrationEnabled := true;
-        EnableSalesOrderIntegration := true;
+        EnableBidirectionalSalesOrderIntegration := true;
+        EnableBidirectionalSalesOrderIntegrationEnabled := true;
     end;
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::Credentials:
-                ShowFinishStep;
+                ShowFinishStep();
         end;
     end;
 
@@ -461,14 +486,17 @@ page 1817 "CRM Connection Setup Wizard"
         CredentialsStepVisible := true;
         FinishActionEnabled := true;
 
+        EnableBidirectionalSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
         EnableSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
         EnableCRMConnectionEnabled := "Server Address" <> '';
         "Authentication Type" := "Authentication Type"::Office365;
-        if CRMConnectionSetup.Get then begin
+        if CRMConnectionSetup.Get() then begin
             EnableCRMConnection := true;
             EnableCRMConnectionEnabled := not CRMConnectionSetup."Is Enabled";
-            EnableSalesOrderIntegration := true;
-            EnableSalesOrderIntegrationEnabled := not CRMConnectionSetup."Is S.Order Integration Enabled";
+            EnableBidirectionalSalesOrderIntegration := CRMConnectionSetup."Bidirectional Sales Order Int.";
+            EnableSalesOrderIntegration := CRMConnectionSetup."Is S.Order Integration Enabled";
+            EnableBidirectionalSalesOrderIntegrationEnabled := not CRMConnectionSetup."Bidirectional Sales Order Int." and not CRMConnectionSetup."Is S.Order Integration Enabled";
+            EnableSalesOrderIntegrationEnabled := not CRMConnectionSetup."Bidirectional Sales Order Int." and not CRMConnectionSetup."Is S.Order Integration Enabled";
             ImportSolution := true;
             if CRMConnectionSetup."Is CRM Solution Installed" then
                 ImportCRMSolutionEnabled := false;
@@ -504,6 +532,8 @@ page 1817 "CRM Connection Setup Wizard"
             end;
             CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, "Proxy Version", true);
         end;
+        if EnableBidirectionalSalesOrderIntegration then
+            Validate("Bidirectional Sales Order Int.", true);
         if EnableSalesOrderIntegration then
             "Is S.Order Integration Enabled" := true;
         if EnableItemAvailability then
@@ -512,7 +542,7 @@ page 1817 "CRM Connection Setup Wizard"
         CRMIntegrationManagement.InitializeCRMSynchStatus();
         CRMConnectionSetup.UpdateFromWizard(Rec, Password);
         if EnableCRMConnection then
-            CRMConnectionSetup.EnableCRMConnectionFromWizard;
+            CRMConnectionSetup.EnableCRMConnectionFromWizard();
         if EnableSalesOrderIntegration and EnableSalesOrderIntegrationEnabled then
             CRMConnectionSetup.SetCRMSOPEnabledWithCredentials(AdminEmail, AdminPassword, true);
         exit(true);
@@ -532,7 +562,7 @@ page 1817 "CRM Connection Setup Wizard"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem);
+        Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem());
     end;
 }
 

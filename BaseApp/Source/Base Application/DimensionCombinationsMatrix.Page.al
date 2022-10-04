@@ -394,7 +394,7 @@ page 9251 "Dimension Combinations Matrix"
             MATRIX_CurrentColumnOrdinal := 1;
             repeat
                 MATRIX_ColumnOrdinal := MATRIX_CurrentColumnOrdinal;
-                MATRIX_OnAfterGetRecord;
+                MATRIX_OnAfterGetRecord();
                 MATRIX_Steps := MATRIX_OnNextRecord(1);
                 MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + MATRIX_Steps;
             until (MATRIX_CurrentColumnOrdinal - MATRIX_Steps = MATRIX_NoOfMatrixColumns) or (MATRIX_Steps = 0);
@@ -587,12 +587,12 @@ page 9251 "Dimension Combinations Matrix"
 
     local procedure MATRIX_OnAfterGetRecord()
     begin
-        ShowCombRestriction;
+        ShowCombRestriction();
         if CombRestriction = CombRestriction::" " then
             MATRIX_CellData[MATRIX_ColumnOrdinal] := ''
         else
             MATRIX_CellData[MATRIX_ColumnOrdinal] := SelectStr(CombRestriction + 1, Text001);
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MATRIX_OnFindRecord(Which: Text[1024]): Boolean

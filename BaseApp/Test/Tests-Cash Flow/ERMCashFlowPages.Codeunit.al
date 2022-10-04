@@ -56,7 +56,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowCard.ShowInChart.SetValue(false);
         VerifyCashFlowOnRoleCenter('');
 
-        CashFlowCard.Close;
+        CashFlowCard.Close();
 
         // Select the card for RoleCenter then delete it
         CashFlowSetup.Get();
@@ -121,7 +121,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Verification by handler CashFlowWorksheetPageHandler catching opened worksheet page
         Assert.IsTrue(CashFlowForcastCard.CashFlowWorksheet.Visible, 'Expected visible action');
         Assert.IsTrue(CashFlowForcastCard.CashFlowWorksheet.Enabled, 'Expected enabled action');
-        CashFlowForcastCard.Close;
+        CashFlowForcastCard.Close();
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Verification by handler CashFlowWorksheetPageHandler catching opened worksheet page
         Assert.IsTrue(CashFlowForcastList.CashFlowWorksheet.Visible, 'Expected visible action');
         Assert.IsTrue(CashFlowForcastList.CashFlowWorksheet.Enabled, 'Expected enabled action');
-        CashFlowForcastList.Close;
+        CashFlowForcastList.Close();
     end;
 
     [PageHandler]
@@ -176,7 +176,7 @@ codeunit 134558 "ERM Cash Flow Pages"
 
         Assert.AreEqual(ExpectedFilter, ChartofCashFlowAccounts.Totaling.Value, 'Incorrect totalling filter generated');
 
-        ChartofCashFlowAccounts.Close;
+        ChartofCashFlowAccounts.Close();
     end;
 
     [Test]
@@ -207,12 +207,12 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowCard.OpenNew();
         CashFlowCard.Description.Activate; // Will auto-fill "No."
         CashFlowNo := CashFlowCard."No.".Value;
-        CashFlowCard.Close;
+        CashFlowCard.Close();
 
         // Check that the new card is found in the list
         CashFlowList.OpenView;
         Assert.IsTrue(CashFlowList.GotoKey(CashFlowNo), 'Cash flow card: ' + CashFlowNo + ' was not found in list');
-        CashFlowList.Close;
+        CashFlowList.Close();
 
         // Open the cash flow journal and enter a manual line
         CashFlowJournal.OpenEdit;
@@ -225,7 +225,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowAccount.SetRange("Account Type", CashFlowAccount."Account Type"::Entry);
         CashFlowAccount.FindFirst();
 
-        CashFlowJournal."Cash Flow Date".SetValue(WorkDate);
+        CashFlowJournal."Cash Flow Date".SetValue(WorkDate());
         CashFlowJournal."Cash Flow Forecast No.".SetValue(CashFlowNo);
         CashFlowJournal."Source Type".SetValue(CashFlowWorksheetLine."Source Type"::"Liquid Funds");
         CashFlowJournal."Source No.".SetValue(GLAccount."No.");
@@ -234,7 +234,7 @@ codeunit 134558 "ERM Cash Flow Pages"
 
         // Post journal
         CashFlowJournal.Register.Invoke;
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
 
         // Verify ledger entries for new cash flow card
         CashFlowCard.OpenView;
@@ -244,8 +244,8 @@ codeunit 134558 "ERM Cash Flow Pages"
 
         Assert.AreEqual(Amount, CashFlowLedgerEntries."Amount (LCY)".AsDEcimal, 'Incorrect amount on CF ledger entry');
 
-        CashFlowLedgerEntries.Close;
-        CashFlowCard.Close;
+        CashFlowLedgerEntries.Close();
+        CashFlowCard.Close();
     end;
 
     [Test]
@@ -265,11 +265,11 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowJournalPage.Last;
         ValidateCashFlowJournalStatusLine(CashFlowJournalPage, CashFlowForecast.Description, CFAccount.Name);
 
-        CashFlowJournalPage.Next;
+        CashFlowJournalPage.Next();
         ValidateCashFlowJournalStatusLine(CashFlowJournalPage, '', '');
 
         // Clean-up:
-        CashFlowJournalPage.Close;
+        CashFlowJournalPage.Close();
         CleanUpJournal(CashFlowForecast, CFAccount);
     end;
 
@@ -294,7 +294,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         ValidateCashFlowJournalStatusLine(CashFlowJournalPage, CashFlowForecast.Description, CFAccount.Name);
 
         // Clean-up:
-        CashFlowJournalPage.Close;
+        CashFlowJournalPage.Close();
         CleanUpJournal(CashFlowForecast, CFAccount);
     end;
 
@@ -373,7 +373,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CFWorksheetLine.FindSet();
         repeat
             TotalAmount += CFWorksheetLine."Amount (LCY)";
-        until CFWorksheetLine.Next = 0;
+        until CFWorksheetLine.Next() = 0;
         LibraryCashFlowForecast.PostJournalLines(CFWorksheetLine);
 
         // Exercise
@@ -417,7 +417,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CFWorksheetLine.FindSet();
         repeat
             TotalAmount += CFWorksheetLine."Amount (LCY)";
-        until CFWorksheetLine.Next = 0;
+        until CFWorksheetLine.Next() = 0;
         LibraryCashFlowForecast.PostJournalLines(CFWorksheetLine);
 
         // Exercise
@@ -542,7 +542,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         Assert.AreEqual(CashFlowForecast."No.", CashFlowSetup."CF No. on Chart in Role Center", UnexpectedChartCFNoTxt);
 
         // Tear down
-        CashFlowCard.Close;
+        CashFlowCard.Close();
     end;
 
     [Test]
@@ -574,7 +574,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         Assert.AreEqual(CashFlowForecast."No.", CashFlowSetup."CF No. on Chart in Role Center", UnexpectedChartCFNoTxt);
 
         // Tear down
-        CashFlowCard.Close;
+        CashFlowCard.Close();
     end;
 
     [Test]
@@ -659,8 +659,8 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Setup
         Initialize();
         LibraryCashFlowForecast.CreateCashFlowCard(CashFlowForecast);
-        CashFlowForecast.Validate("G/L Budget From", WorkDate);
-        CashFlowForecast.Validate("G/L Budget To", WorkDate);
+        CashFlowForecast.Validate("G/L Budget From", WorkDate());
+        CashFlowForecast.Validate("G/L Budget To", WorkDate());
         CashFlowForecast.Modify(true);
         CashFlowSetupReply := true; // set global handler reply to TRUE
         CashFlowForecast.ValidateShowInChart(true);
@@ -690,7 +690,7 @@ codeunit 134558 "ERM Cash Flow Pages"
     local procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; AccountType: Option)
     begin
         with CashFlowAccount do begin
-            Init;
+            Init();
             Evaluate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Cash Flow Account"));
             "Account Type" := AccountType;
             Insert(true);
@@ -721,15 +721,15 @@ codeunit 134558 "ERM Cash Flow Pages"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Flow Pages");
         with CashFlowChartSetup do begin
             if Get(UserId) then
-                Delete;
+                Delete();
 
-            Init;
+            Init();
             "User ID" := UserId;
             "Start Date" := StartDate;
             "Period Length" := PeriodLength;
             Show := NewShow;
             "Group By" := GroupBy;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -845,7 +845,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         LibraryVariableStorage.Enqueue(CashFlowWorksheetLine."Shortcut Dimension 1 Code");
         CashFlowJournal.OpenEdit;
         CashFlowJournal.Dimensions.Invoke;
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     [Test]
@@ -859,7 +859,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowJournal.OpenView;
         asserterror CashFlowJournal.SuggestWorksheetLines.Invoke; // Report is ran with default request page in SuggestWorksheetLinesHandler
         Assert.ExpectedError(CashFlowForeCastErrorTxt);
-        CashFlowJournal.Close;
+        CashFlowJournal.Close();
     end;
 
     local procedure FillCashFlowWorkSheetWithSalesOrder(): Code[10]

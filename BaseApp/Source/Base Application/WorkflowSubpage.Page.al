@@ -25,7 +25,7 @@ page 1502 "Workflow Subpage"
                     Visible = false;
                     Width = 1;
                 }
-                field("Event Description"; "Event Description")
+                field("Event Description"; Rec."Event Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'When Event';
@@ -50,19 +50,19 @@ page 1502 "Workflow Subpage"
                     trigger OnAssistEdit()
                     begin
                         if CurrPage.Editable then begin
-                            OpenEventConditions;
+                            OpenEventConditions();
                             CurrPage.Update(true);
                         end;
                     end;
                 }
-                field("Entry Point"; "Entry Point")
+                field("Entry Point"; Rec."Entry Point")
                 {
                     ApplicationArea = Suite;
                     Editable = IsNotTemplate;
                     ToolTip = 'Specifies the workflow step that starts the workflow. The first workflow step is always of type Entry Point.';
                     Visible = false;
                 }
-                field("Response Description"; "Response Description")
+                field("Response Description"; Rec."Response Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Then Response';
@@ -75,7 +75,7 @@ page 1502 "Workflow Subpage"
                     trigger OnAssistEdit()
                     begin
                         if CurrPage.Editable then begin
-                            OpenEventResponses;
+                            OpenEventResponses();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -99,7 +99,7 @@ page 1502 "Workflow Subpage"
 
                 trigger OnAction()
                 begin
-                    MoveLeft;
+                    MoveLeft();
                 end;
             }
             action(IncreaseIndent)
@@ -113,7 +113,7 @@ page 1502 "Workflow Subpage"
 
                 trigger OnAction()
                 begin
-                    MoveRight;
+                    MoveRight();
                 end;
             }
             action(DeleteEventConditions)
@@ -128,7 +128,7 @@ page 1502 "Workflow Subpage"
 
                 trigger OnAction()
                 begin
-                    DeleteEventConditions;
+                    DeleteEventConditions();
                 end;
             }
         }
@@ -139,8 +139,8 @@ page 1502 "Workflow Subpage"
         Workflow: Record Workflow;
     begin
         if Workflow.Get(WorkflowCode) then;
-        SetActionVisibility;
-        UpdateResponseDescriptionStyle;
+        SetActionVisibility();
+        UpdateResponseDescriptionStyle();
         IsNotTemplate := not Workflow.Template;
     end;
 
@@ -149,7 +149,7 @@ page 1502 "Workflow Subpage"
         Workflow: Record Workflow;
     begin
         Workflow.Get(WorkflowCode);
-        SetActionVisibility;
+        SetActionVisibility();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -157,7 +157,7 @@ page 1502 "Workflow Subpage"
         FilterGroup(4);
         if WorkflowCode <> GetRangeMax("Workflow Code") then begin
             WorkflowCode := GetRangeMax("Workflow Code");
-            ClearBuffer;
+            ClearBuffer();
         end;
 
         if IsEmpty() then
@@ -175,7 +175,7 @@ page 1502 "Workflow Subpage"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        if ApplicationAreaMgmtFacade.IsBasicOnlyEnabled then
+        if ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then
             CurrPage.Editable := false;
     end;
 
@@ -202,7 +202,7 @@ page 1502 "Workflow Subpage"
 
     procedure RefreshBuffer()
     begin
-        ClearBuffer;
+        ClearBuffer();
         PopulateTable(WorkflowCode);
     end;
 }

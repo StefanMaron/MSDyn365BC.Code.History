@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2344 "BC O365 Payment Instr Settings"
 {
     Caption = ' ';
@@ -8,6 +9,9 @@ page 2344 "BC O365 Payment Instr Settings"
     PageType = ListPart;
     PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "O365 Payment Instructions";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -22,32 +26,32 @@ page 2344 "BC O365 Payment Instr Settings"
             {
                 field(NameText; NameText)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
                     Width = 2;
                 }
-                field(GetPaymentInstructionsInCurrentLanguage; GetPaymentInstructionsInCurrentLanguage)
+                field(GetPaymentInstructionsInCurrentLanguage; GetPaymentInstructionsInCurrentLanguage())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment instructions';
                 }
                 field(DeleteLineControl; DeleteLbl)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Enabled = false;
                     ShowCaption = false;
 
                     trigger OnDrillDown()
                     begin
                         if Confirm(DeleteConfirmQst) then
-                            if Find then
+                            if Find() then
                                 Delete(true);
                     end;
                 }
             }
             field(AddNewPaymentInstructions; NewPaymentInstructionsLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
                 Style = StandardAccent;
@@ -55,7 +59,7 @@ page 2344 "BC O365 Payment Instr Settings"
 
                 trigger OnDrillDown()
                 begin
-                    O365SalesInvoiceMgmt.OpenNewPaymentInstructionsCard;
+                    O365SalesInvoiceMgmt.OpenNewPaymentInstructionsCard();
                 end;
             }
         }
@@ -67,7 +71,7 @@ page 2344 "BC O365 Payment Instr Settings"
         {
             action(Edit)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Edit';
                 Image = Edit;
                 Promoted = true;
@@ -83,7 +87,7 @@ page 2344 "BC O365 Payment Instr Settings"
                 begin
                     BCO365PaymentInstrCard.SetPaymentInstructionsOnPage(Rec);
                     BCO365PaymentInstrCard.LookupMode(true);
-                    if BCO365PaymentInstrCard.RunModal = ACTION::OK then;
+                    if BCO365PaymentInstrCard.RunModal() = ACTION::OK then;
                 end;
             }
         }
@@ -92,9 +96,9 @@ page 2344 "BC O365 Payment Instr Settings"
     trigger OnAfterGetRecord()
     begin
         if Default then
-            NameText := StrSubstNo(DefaultTxt, GetNameInCurrentLanguage)
+            NameText := StrSubstNo(DefaultTxt, GetNameInCurrentLanguage())
         else
-            NameText := GetNameInCurrentLanguage;
+            NameText := GetNameInCurrentLanguage();
     end;
 
     var
@@ -105,4 +109,4 @@ page 2344 "BC O365 Payment Instr Settings"
         DeleteLbl: Label 'Delete';
         DeleteConfirmQst: Label 'Do you want to delete the payment instructions?';
 }
-
+#endif

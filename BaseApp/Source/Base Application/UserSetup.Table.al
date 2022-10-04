@@ -313,12 +313,13 @@ table 91 "User Setup"
     end;
 
     var
+        SalesPersonPurchaser: Record "Salesperson/Purchaser";
+        UserSetupManagement: Codeunit "User Setup Management";
+
         Text001: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
         Text003: Label 'You cannot have both a %1 and %2. ';
         Text005: Label 'You cannot have approval limits less than zero.';
-        SalesPersonPurchaser: Record "Salesperson/Purchaser";
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
-        UserSetupManagement: Codeunit "User Setup Management";
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
     procedure CreateApprovalUserSetup(User: Record User)
@@ -328,10 +329,10 @@ table 91 "User Setup"
     begin
         ApprovalUserSetup.Init();
         ApprovalUserSetup.Validate("User ID", User."User Name");
-        ApprovalUserSetup.Validate("Sales Amount Approval Limit", GetDefaultSalesAmountApprovalLimit);
-        ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit);
+        ApprovalUserSetup.Validate("Sales Amount Approval Limit", GetDefaultSalesAmountApprovalLimit());
+        ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit());
         ApprovalUserSetup.Validate("E-Mail", User."Contact Email");
-        UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit);
+        UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit());
         if UserSetup.FindFirst() then
             ApprovalUserSetup.Validate("Approver ID", UserSetup."Approver ID");
         if ApprovalUserSetup.Insert() then;
@@ -398,7 +399,7 @@ table 91 "User Setup"
         EnvironmentInfo: Codeunit "Environment Information";
         OriginalFilterGroup: Integer;
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
         OriginalFilterGroup := FilterGroup;

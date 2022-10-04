@@ -722,7 +722,7 @@ codeunit 136211 "Marketing Matrix Management"
         OpportunityEntry.FindSet();
         repeat
             CurrentValue += OpportunityEntry."Calcd. Current Value (LCY)";
-        until OpportunityEntry.Next = 0;
+        until OpportunityEntry.Next() = 0;
     end;
 
     local procedure CalculateEstimatedValue(ContactNo: Code[20]) EstimatedValue: Decimal
@@ -733,7 +733,7 @@ codeunit 136211 "Marketing Matrix Management"
         OpportunityEntry.FindSet();
         repeat
             EstimatedValue += OpportunityEntry."Estimated Value (LCY)";
-        until OpportunityEntry.Next = 0;
+        until OpportunityEntry.Next() = 0;
     end;
 
     local procedure ChangeStatusOfTask(Task: Record "To-do"; Status: Option)
@@ -942,7 +942,7 @@ codeunit 136211 "Marketing Matrix Management"
           CopyStr(
             LibraryUtility.GenerateRandomCode(TempTask.FieldNo(Description), DATABASE::"To-do"),
             1, LibraryUtility.GetFieldLength(DATABASE::"To-do", TempTask.FieldNo(Description))));
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
 
         TempTask.Modify();
         TempTask.CheckStatus;
@@ -979,7 +979,7 @@ codeunit 136211 "Marketing Matrix Management"
           CopyStr(
             LibraryUtility.GenerateRandomCode(TempTask.FieldNo(Description), DATABASE::"To-do"),
             1, LibraryUtility.GetFieldLength(DATABASE::"To-do", TempTask.FieldNo(Description))));
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
         TempTask.Modify();
     end;
 
@@ -999,7 +999,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Use Random for Estimated Value (LCY) and Chances of Success %.
         TempOpportunityEntry.Validate("Estimated Value (LCY)", LibraryRandom.RandDec(100, 2));
         TempOpportunityEntry.Validate("Chances of Success %", LibraryRandom.RandDec(99, 2));
-        TempOpportunityEntry.Validate("Estimated Close Date", WorkDate);
+        TempOpportunityEntry.Validate("Estimated Close Date", WorkDate());
         TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;

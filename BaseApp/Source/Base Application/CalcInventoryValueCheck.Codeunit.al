@@ -7,29 +7,30 @@ codeunit 5899 "Calc. Inventory Value-Check"
     end;
 
     var
-        Text004: Label 'Checking items #1##########';
         InvtSetup: Record "Inventory Setup";
         TempErrorBuf: Record "Error Buffer" temporary;
         PostingDate: Date;
         CalculatePer: Option "Item Ledger Entry",Item;
         ByLocation: Boolean;
         ByVariant: Boolean;
+        ShowDialog: Boolean;
+        TestMode: Boolean;
+        ErrorCounter: Integer;
+
+        Text004: Label 'Checking items #1##########';
         Text007: Label 'You have to run the Adjust Cost - Item Entries batch job, before you can revalue item %1.';
         Text009: Label 'You must not revalue items with Costing Method %1, if Calculate Per is Item Ledger Entry.';
         Text011: Label 'You must not enter a %1 if you revalue items with Costing Method %2 and if Average Cost Calc. Type is %3 in Inventory Setup.';
         Text012: Label 'The By Location field must not be filled in if you revalue items with Costing Method %1 and if Average Cost Calc. Type is %2 in Inventory Setup.';
         Text014: Label 'The By Variant field must not be filled in if you revalue items with Costing Method %1 and if Average Cost Calc. Type is %2 in Inventory Setup.';
         Text015: Label 'You must fill in a Location filter and a Variant filter or select the By Location field and the By Variant field, if you revalue items with Costing Method %1, and if Average Cost Calc. Type is %2 in Inventory Setup.';
-        ShowDialog: Boolean;
         Text018: Label 'The Item %1 cannot be revalued because there is at least one open outbound item ledger entry.';
-        TestMode: Boolean;
-        ErrorCounter: Integer;
         Text020: Label 'Open Outbound Entry %1 found.';
 
     procedure SetProperties(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewShowDialog: Boolean; NewTestMode: Boolean)
     begin
         TempErrorBuf.DeleteAll();
-        ClearAll;
+        ClearAll();
 
         PostingDate := NewPostingDate;
         CalculatePer := NewCalculatePer;
@@ -67,7 +68,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
                           StrSubstNo(Text007, "No."), DATABASE::Item, "No.", 0);
                 until Next() = 0;
                 if ShowDialog then
-                    Window.Close;
+                    Window.Close();
             end;
         end;
 
@@ -115,31 +116,29 @@ codeunit 5899 "Calc. Inventory Value-Check"
                         AddError(
                           StrSubstNo(Text009, "Costing Method"), DATABASE::Item, "No.", 0);
                     CalculatePer::Item:
-                        begin
-                            if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::Item then begin
-                                if GetFilter("Location Filter") <> '' then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text011,
-                                        FieldCaption("Location Filter"), "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                                if GetFilter("Variant Filter") <> '' then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text011,
-                                        FieldCaption("Variant Filter"), "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                                if ByLocation then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text012,
-                                        "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                                if ByVariant then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text014,
-                                        "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                            end else
-                                CheckItemLocationVariantFilters(Item2);
-                        end;
+                        if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::Item then begin
+                            if GetFilter("Location Filter") <> '' then
+                                AddError(
+                                    StrSubstNo(
+                                    Text011,
+                                    FieldCaption("Location Filter"), "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
+                            if GetFilter("Variant Filter") <> '' then
+                                AddError(
+                                    StrSubstNo(
+                                    Text011,
+                                    FieldCaption("Variant Filter"), "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
+                            if ByLocation then
+                                AddError(
+                                    StrSubstNo(
+                                    Text012,
+                                    "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
+                            if ByVariant then
+                                AddError(
+                                    StrSubstNo(
+                                    Text014,
+                                    "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
+                        end else
+                            CheckItemLocationVariantFilters(Item2);
                 end;
         end;
 

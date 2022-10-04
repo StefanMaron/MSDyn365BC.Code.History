@@ -76,7 +76,7 @@ page 7605 "Customized Cal. Entries Subfm"
 
                     trigger OnValidate()
                     begin
-                        UpdateCusomizedCalendarChanges;
+                        UpdateCusomizedCalendarChanges();
                     end;
                 }
                 field(Description; Description)
@@ -87,7 +87,7 @@ page 7605 "Customized Cal. Entries Subfm"
 
                     trigger OnValidate()
                     begin
-                        UpdateCusomizedCalendarChanges;
+                        UpdateCusomizedCalendarChanges();
                     end;
                 }
             }
@@ -137,17 +137,19 @@ page 7605 "Customized Cal. Entries Subfm"
     end;
 
     var
-        CurrCalendarChange: Record "Customized Calendar Change";
+        DateRec: Record Date;
         CalendarMgmt: Codeunit "Calendar Management";
         PeriodPageMgt: Codeunit PeriodPageManagement;
-        DateRec: Record Date;
+
+    protected var
+        CurrCalendarChange: Record "Customized Calendar Change";
 
     local procedure FindLine(TargetDate: Date) FoundLine: Boolean;
     begin
-        Reset;
+        Reset();
         SetRange(Date, TargetDate);
         FoundLine := FindFirst();
-        Reset;
+        Reset();
     end;
 
     local procedure InsertLine(): Boolean;
@@ -166,7 +168,7 @@ page 7605 "Customized Cal. Entries Subfm"
         CurrPage.Update();
     end;
 
-    local procedure UpdateCusomizedCalendarChanges()
+    protected procedure UpdateCusomizedCalendarChanges()
     var
         CustomizedCalendarChange: Record "Customized Calendar Change";
     begin
@@ -180,7 +182,7 @@ page 7605 "Customized Cal. Entries Subfm"
         if CustomizedCalendarChange.FindFirst() then
             CustomizedCalendarChange.Delete();
 
-        if not IsInBaseCalendar then begin
+        if not IsInBaseCalendar() then begin
             CustomizedCalendarChange := Rec;
             OnUpdateCusomizedCalendarChanges(CustomizedCalendarChange);
             CustomizedCalendarChange.Insert();

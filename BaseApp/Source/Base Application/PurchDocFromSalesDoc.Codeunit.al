@@ -66,7 +66,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
         PurchOrderFromSalesOrder.LookupMode(true);
         PurchOrderFromSalesOrder.SetSalesOrderNo(SalesHeader."No.");
-        if PurchOrderFromSalesOrder.RunModal <> ACTION::LookupOK then begin
+        if PurchOrderFromSalesOrder.RunModal() <> ACTION::LookupOK then begin
             OrderPlanningMgt.PrepareRequisitionRecord(RequisitionLine);
             exit;
         end;
@@ -114,7 +114,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
             Error(TypeNotSupportedErr, Format(SalesHeader."Document Type"));
 
         OnBeforeInitRecord(PurchaseHeader, SalesHeader, Vendor);
-        PurchaseHeader.InitRecord;
+        PurchaseHeader.InitRecord();
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
         OnCreatePurchaseHeaderOnBeforeInsert(PurchaseHeader, SalesHeader, Vendor);
         PurchaseHeader.Insert(true);
@@ -183,7 +183,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
             VendorNo := Item."Vendor No.";
             DefaultVendorFound := (VendorNo <> '');
 
-            while DefaultVendorFound and (SalesLine.Next <> 0) do begin
+            while DefaultVendorFound and (SalesLine.Next() <> 0) do begin
                 Item.Get(SalesLine."No.");
                 DefaultVendorFound := (VendorNo = Item."Vendor No.");
             end;
@@ -196,7 +196,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
         VendorList.LookupMode(true);
         VendorList.Caption(SelectVentorTxt);
-        if VendorList.RunModal = ACTION::LookupOK then begin
+        if VendorList.RunModal() = ACTION::LookupOK then begin
             VendorList.GetRecord(Vendor);
             exit(true);
         end;
@@ -224,7 +224,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
             exit;
 
         MakeSupplyOrdersYesNo.SetManufUserTemplate(TempManufacturingUserTemplate);
-        MakeSupplyOrdersYesNo.SetBlockForm;
+        MakeSupplyOrdersYesNo.SetBlockForm();
 
         MakeSupplyOrdersYesNo.SetCreatedDocumentBuffer(TempDocumentEntry);
         MakeSupplyOrdersYesNo.Run(RequisitionLine);

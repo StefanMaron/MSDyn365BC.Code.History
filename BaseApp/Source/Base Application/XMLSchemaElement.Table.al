@@ -67,7 +67,7 @@ table 9610 "XML Schema Element"
             begin
                 xID := ID;
 
-                Modify;
+                Modify();
                 if Selected then begin
                     XSDParser.ExtendSelectedElement(Rec);
 
@@ -75,11 +75,11 @@ table 9610 "XML Schema Element"
                         Get("XML Schema Code", "Parent ID");
                         if not Selected then begin
                             Selected := true;
-                            Modify;
+                            Modify();
                         end;
                     end;
                     Get("XML Schema Code", xID);
-                    SelectMandatoryNodes;
+                    SelectMandatoryNodes();
                 end;
             end;
         }
@@ -154,7 +154,7 @@ table 9610 "XML Schema Element"
         end;
 
         if ParentXMLSchemaElement.Get("XML Schema Code", "Parent ID") then
-            exit(ParentXMLSchemaElement.GetFullPath + Prefix + "Node Name" + Suffix);
+            exit(ParentXMLSchemaElement.GetFullPath() + Prefix + "Node Name" + Suffix);
         exit(Prefix + "Node Name" + Suffix);
     end;
 
@@ -168,7 +168,7 @@ table 9610 "XML Schema Element"
             repeat
                 XMLSchemaElement.Selected := XMLSchemaElement.Selected or (XMLSchemaElement.MinOccurs > 0);
                 XMLSchemaElement.Modify();
-                XMLSchemaElement.SelectMandatoryNodes;
+                XMLSchemaElement.SelectMandatoryNodes();
             until XMLSchemaElement.Next() = 0;
     end;
 }

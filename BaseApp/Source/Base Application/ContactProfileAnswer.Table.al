@@ -125,10 +125,10 @@ table 5089 "Contact Profile Answer"
         Contact: Record Contact;
         ProfileQuestnLine: Record "Profile Questionnaire Line";
     begin
-        ProfileQuestnLine.Get("Profile Questionnaire Code", QuestionLineNo);
+        ProfileQuestnLine.Get("Profile Questionnaire Code", QuestionLineNo());
         ProfileQuestnLine.TestField("Auto Contact Classification", false);
 
-        if PartOfRating then begin
+        if PartOfRating() then begin
             Delete();
             UpdateContactClassification.UpdateRating("Contact No.");
             Insert();
@@ -148,7 +148,7 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine.Get("Profile Questionnaire Code", "Line No.");
         ProfileQuestnLine.TestField(Type, ProfileQuestnLine.Type::Answer);
 
-        ProfileQuestnLine2.Get("Profile Questionnaire Code", QuestionLineNo);
+        ProfileQuestnLine2.Get("Profile Questionnaire Code", QuestionLineNo());
         ProfileQuestnLine2.TestField("Auto Contact Classification", false);
 
         if not ProfileQuestnLine2."Multiple Answers" then begin
@@ -168,7 +168,7 @@ table 5089 "Contact Profile Answer"
                 Error(Text000, ProfileQuestnLine2.FieldCaption("Multiple Answers"));
         end;
 
-        if PartOfRating then begin
+        if PartOfRating() then begin
             Insert();
             UpdateContactClassification.UpdateRating("Contact No.");
             Delete();
@@ -197,14 +197,15 @@ table 5089 "Contact Profile Answer"
     end;
 
     var
-        Text000: Label 'This Question does not allow %1.';
         UpdateContactClassification: Report "Update Contact Classification";
+
+        Text000: Label 'This Question does not allow %1.';
 
     procedure Question(): Text[250]
     var
         ProfileQuestnLine: Record "Profile Questionnaire Line";
     begin
-        if ProfileQuestnLine.Get("Profile Questionnaire Code", QuestionLineNo) then
+        if ProfileQuestnLine.Get("Profile Questionnaire Code", QuestionLineNo()) then
             exit(ProfileQuestnLine.Description)
     end;
 
@@ -237,12 +238,12 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine2 := ProfileQuestnLine;
         ProfileQuestnLine2.SetRange(Type, ProfileQuestnLine2.Type::Question);
         ProfileQuestnLine2.SetRange("Profile Questionnaire Code", ProfileQuestnLine2."Profile Questionnaire Code");
-        if ProfileQuestnLine2.Next <> 0 then
+        if ProfileQuestnLine2.Next() <> 0 then
             Rating.SetRange("Rating Profile Quest. Line No.", ProfileQuestnLine."Line No.", ProfileQuestnLine2."Line No.")
         else
             Rating.SetFilter("Rating Profile Quest. Line No.", '%1..', ProfileQuestnLine."Line No.");
 
-        exit(Rating.FindFirst());
+        exit(not Rating.IsEmpty());
     end;
 }
 

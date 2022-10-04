@@ -43,7 +43,7 @@ codeunit 5309 "Outlook Synch. Process Links"
         RecordIDTextValue: Text[250];
         StartSynchTimeText: Text[30];
     begin
-        OResponseXMLTextReader := OResponseXMLTextReader.XmlTextReader;
+        OResponseXMLTextReader := OResponseXMLTextReader.XmlTextReader();
 
         if not OResponseXMLTextReader.LoadXml(XMLMessage) then
             Error(Text001);
@@ -70,8 +70,8 @@ codeunit 5309 "Outlook Synch. Process Links"
             Error(Text001);
 
         if IsNull(ErrorXMLWriter) then begin
-            ErrorXMLWriter := ErrorXMLWriter.XmlTextWriter;
-            ErrorXMLWriter.WriteStartDocument;
+            ErrorXMLWriter := ErrorXMLWriter.XmlTextWriter();
+            ErrorXMLWriter.WriteStartDocument();
             ErrorXMLWriter.WriteStartElement('PostUpdate');
         end;
 
@@ -120,7 +120,7 @@ codeunit 5309 "Outlook Synch. Process Links"
                                       StrSubstNo(Text004, SynchEntityCode),
                                       StartDateTime,
                                       NewEntryIDContainer);
-                                EntityRecRef.Close;
+                                EntityRecRef.Close();
                             end else
                                 if RecordIDTextValue = '' then
                                     WriteErrorLog(
@@ -145,7 +145,7 @@ codeunit 5309 "Outlook Synch. Process Links"
                                           StrSubstNo(Text002, SynchEntityCode),
                                           StartDateTime,
                                           EntryIDContainer);
-                                    EntityRecRef.Close;
+                                    EntityRecRef.Close();
                                 end;
                         end else
                             WriteErrorLog(
@@ -169,14 +169,14 @@ codeunit 5309 "Outlook Synch. Process Links"
         OResponseXMLTextReader.RemoveIterator(RootIterator);
         Clear(OResponseXMLTextReader);
 
-        ErrorXMLWriter.WriteEndElement;
-        ErrorXMLWriter.WriteEndDocument;
+        ErrorXMLWriter.WriteEndElement();
+        ErrorXMLWriter.WriteEndDocument();
 
-        XMLMessage := ErrorXMLWriter.ToString;
+        XMLMessage := ErrorXMLWriter.ToString();
         Clear(ErrorXMLWriter);
 
         if StrLen(XMLMessage) = 0 then
-            Error(Text006, PRODUCTNAME.Full);
+            Error(Text006, PRODUCTNAME.Full());
     end;
 
     [Scope('OnPrem')]
@@ -206,9 +206,9 @@ codeunit 5309 "Outlook Synch. Process Links"
         ErrorXMLWriter.WriteAttribute('RecordID', Format(ErrorRecordID));
         ErrorXMLWriter.WriteStartElement('EntryID');
         ErrorXMLWriter.WriteElementTextContent(Base64Convert.ToBase64(Container));
-        ErrorXMLWriter.WriteEndElement;
+        ErrorXMLWriter.WriteEndElement();
 
-        ErrorXMLWriter.WriteEndElement;
+        ErrorXMLWriter.WriteEndElement();
     end;
 }
 #endif

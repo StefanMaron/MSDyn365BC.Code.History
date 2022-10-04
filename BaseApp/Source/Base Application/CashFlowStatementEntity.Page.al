@@ -6,19 +6,8 @@ page 5493 "Cash Flow Statement Entity"
     InsertAllowed = false;
     ModifyAllowed = false;
     SourceTable = "Acc. Schedule Line Entity";
-#if not CLEAN18
-    PageType = API;
-    EntityName = 'cashFlowStatement';
-    EntitySetName = 'cashFlowStatement';
-    DelayedInsert = true;
-#else
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
-    ObsoleteTag = '18.0';
     PageType = List;
-#endif    
     SourceTableTemporary = true;
-
 
     layout
     {

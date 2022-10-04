@@ -7,6 +7,11 @@ codeunit 8616 "Config. Management"
     end;
 
     var
+        TempFieldRec: Record "Field" temporary;
+        ConfigProgressBar: Codeunit "Config. Progress Bar";
+        ConfigPackageMgt: Codeunit "Config. Package Management";
+        HideDialog: Boolean;
+
         Text000: Label 'You must specify a company name.';
         Text001: Label 'Do you want to copy the data from the %1 table in %2?';
         Text002: Label 'Data from the %1 table in %2 has been copied successfully.';
@@ -15,10 +20,6 @@ codeunit 8616 "Config. Management"
         Text006: Label 'The base company must not be the same as the current company.';
         Text007: Label 'The %1 table in %2 already contains data.\\You must delete the data from the table before you can use this function.';
         Text009: Label 'There is no data in the %1 table in %2.\\You must set up the table in %3 manually.';
-        TempFieldRec: Record "Field" temporary;
-        ConfigProgressBar: Codeunit "Config. Progress Bar";
-        ConfigPackageMgt: Codeunit "Config. Package Management";
-        HideDialog: Boolean;
         Text023: Label 'Processing tables';
 
     procedure CopyDataDialog(NewCompanyName: Text[30]; var ConfigLine: Record "Config. Line")
@@ -62,7 +63,7 @@ codeunit 8616 "Config. Management"
         BaseCompanyName: Text[30];
     begin
         with ConfigLine do begin
-            CheckBlocked;
+            CheckBlocked();
             FilterGroup := 2;
             BaseCompanyName := GetRangeMax("Company Filter (Source Table)");
             FilterGroup := 0;
@@ -103,7 +104,7 @@ codeunit 8616 "Config. Management"
             exit;
         FromCompanyRecRef.Open(TableNumber, false, NewCompanyName);
         if FromCompanyRecRef.IsEmpty() then begin
-            FromCompanyRecRef.Close;
+            FromCompanyRecRef.Close();
             exit;
         end;
         FromCompanyRecRef.Find('-');
@@ -129,7 +130,7 @@ codeunit 8616 "Config. Management"
         if TempFieldRec.FindSet() then begin
             FromCompanyRecRef.Find('-');
             repeat
-                ToCompanyRecRef.SetPosition(FromCompanyRecRef.GetPosition);
+                ToCompanyRecRef.SetPosition(FromCompanyRecRef.GetPosition());
                 ToCompanyRecRef.Find('=');
                 TempFieldRec.FindSet();
                 repeat
@@ -141,8 +142,8 @@ codeunit 8616 "Config. Management"
             until FromCompanyRecRef.Next() = 0;
         end;
 
-        FromCompanyRecRef.Close;
-        ToCompanyRecRef.Close;
+        FromCompanyRecRef.Close();
+        ToCompanyRecRef.Close();
     end;
 
     local procedure MarkPostValidationData(TableNo: Integer; FieldNo: Integer)
@@ -310,10 +311,6 @@ codeunit 8616 "Config. Management"
                 exit(PAGE::"Sales Cycles");
             DATABASE::"Close Opportunity Code":
                 exit(PAGE::"Close Opportunity Codes");
-#if not CLEAN18
-            DATABASE::"Customer Template":
-                exit(PAGE::"Customer Template List");
-#endif
             DATABASE::"Service Mgt. Setup":
                 exit(PAGE::"Service Mgt. Setup");
             DATABASE::"Service Item":
@@ -610,7 +607,7 @@ codeunit 8616 "Config. Management"
                 exit(PAGE::"Posted Purchase Invoices");
             DATABASE::"Purch. Cr. Memo Hdr.":
                 exit(PAGE::"Posted Purchase Credit Memos");
-#if not CLEAN19
+#if not CLEAN21
             DATABASE::"Sales Price":
                 exit(PAGE::"Sales Prices");
             DATABASE::"Purchase Price":
@@ -696,7 +693,7 @@ codeunit 8616 "Config. Management"
             until TempInt.Next() = 0;
 
         if not HideDialog then
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
     end;
 
     local procedure InsertConfigLine(TableID: Integer; var NextLineNo: Integer; var NextVertNo: Integer)
@@ -760,9 +757,6 @@ codeunit 8616 "Config. Management"
           DATABASE::"Work Center",
           DATABASE::"Salesperson/Purchaser",
           DATABASE::Campaign,
-#if not CLEAN18
-          DATABASE::"Customer Template",
-#endif
           DATABASE::"Cash Flow Manual Expense",
           DATABASE::"Cash Flow Manual Revenue":
                 exit(true);
@@ -825,7 +819,7 @@ codeunit 8616 "Config. Management"
         LastGroupLineNo: Integer;
     begin
         with ConfigLine do begin
-            Reset;
+            Reset();
             SetCurrentKey("Vertical Sorting");
             if FindSet() then
                 repeat
@@ -842,14 +836,12 @@ codeunit 8616 "Config. Management"
                                 LastGroupLineNo := "Line No.";
                             end;
                         "Line Type"::Table:
-                            begin
-                                if LastGroupLineNo <> 0 then
-                                    "Parent Line No." := LastGroupLineNo
-                                else
-                                    "Parent Line No." := LastAreaLineNo;
-                            end;
+                            if LastGroupLineNo <> 0 then
+                                "Parent Line No." := LastGroupLineNo
+                            else
+                                "Parent Line No." := LastAreaLineNo;
                     end;
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -861,7 +853,7 @@ codeunit 8616 "Config. Management"
         Filter := '';
         if ConfigLine.FindSet() then
             repeat
-                ConfigLine.CheckBlocked;
+                ConfigLine.CheckBlocked();
                 if (ConfigLine."Table ID" > 0) and (ConfigLine.Status <= ConfigLine.Status::Completed) then
                     Filter += Format(ConfigLine."Table ID") + '|';
                 AddDimTables := AddDimTables or ConfigLine."Dimensions as Columns";

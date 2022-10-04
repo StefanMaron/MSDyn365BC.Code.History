@@ -13,7 +13,9 @@ codeunit 9520 "Mail Management"
     var
         TempEmailModuleAccount: Record "Email Account" temporary;
         TempEmailItem: Record "Email Item" temporary;
+#if not CLEAN21
         GraphMail: Codeunit "Graph Mail";
+#endif
         ClientTypeManagement: Codeunit "Client Type Management";
         InvalidEmailAddressErr: Label 'The email address "%1" is not valid.', Comment = '%1 - Recipient email address';
         HideMailDialog: Boolean;
@@ -112,10 +114,13 @@ codeunit 9520 "Mail Management"
         Recipients := DelimitedRecipients.Split(Seperators.Split());
     end;
 
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetLastGraphError(): Text
     begin
         exit(GraphMail.GetGraphError());
     end;
+#endif
 
     procedure InitializeFrom(NewHideMailDialog: Boolean; NewHideEmailSendingError: Boolean)
     begin
@@ -194,13 +199,16 @@ codeunit 9520 "Mail Management"
         CheckValidEmailAddress(EmailAddress);
     end;
 
+#if not CLEAN21
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure IsGraphEnabled(): Boolean
     begin
         if GraphMail.IsEnabled() then
             exit(GraphMail.HasConfiguration());
         exit(false);
     end;
+#endif
 
     procedure IsEnabled() Result: Boolean
     var
@@ -379,7 +387,7 @@ codeunit 9520 "Mail Management"
             MimeType := Regex.Replace(BodyText, '$2', 1);
             MemoryStream := MemoryStream.MemoryStream(Convert.FromBase64String(Base64));
             // 20160 =  14days * 24/hours/day * 60min/hour
-            MediaId := ImportStreamWithUrlAccess(MemoryStream, Format(CreateGuid) + MimeType, 20160);
+            MediaId := ImportStreamWithUrlAccess(MemoryStream, Format(CreateGuid()) + MimeType, 20160);
 
             BodyText := Regex.Replace(BodyText, '$1' + GetDocumentUrl(MediaId) + '$4', 1);
         end;
@@ -413,15 +421,15 @@ codeunit 9520 "Mail Management"
 
     local procedure IsBackground(): Boolean
     begin
-        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Background]);
+        exit(ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Background]);
     end;
 
     procedure IsHandlingGetEmailBody(): Boolean
     begin
-        if IsHandlingGetEmailBodyCustomer then
+        if IsHandlingGetEmailBodyCustomer() then
             exit(true);
 
-        exit(IsHandlingGetEmailBodyVendor);
+        exit(IsHandlingGetEmailBodyVendor());
     end;
 
     procedure IsHandlingGetEmailBodyCustomer(): Boolean

@@ -9,6 +9,7 @@ permissionset 2393 "Dynamics CRM - Admin"
                   tabledata "CDS Teamroles" = RIMD,
                   tabledata "Coupling Field Buffer" = RIMD,
                   tabledata "Coupling Record Buffer" = RIMD,
+                  tabledata "Dataverse Entity Change" = RID,
                   tabledata "CRM Account" = RIMD,
                   tabledata "CRM Account Statistics" = RIMD,
                   tabledata "CRM Annotation" = RIMD,

@@ -14,7 +14,7 @@ report 5061 "Opportunity - List"
             //The property 'DataItemTableView' shouldn't have an empty value.
             //DataItemTableView = '';
             RequestFilterFields = "No.", "Salesperson Code", "Campaign No.", "Contact No.", "Sales Cycle Code", "Creation Date", Closed;
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -113,7 +113,7 @@ report 5061 "Opportunity - List"
 
     trigger OnPreReport()
     begin
-        OpportunityFilter := Opportunity.GetFilters;
+        OpportunityFilter := Opportunity.GetFilters();
     end;
 
     var

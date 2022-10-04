@@ -18,7 +18,7 @@ page 5402 "Unit of Measure Translation"
                     ToolTip = 'Specifies the unit of measure code for which you want to enter a translation.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';

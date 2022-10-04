@@ -14,22 +14,22 @@ page 5716 "Item Substitution Entry"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Substitute Type"; "Substitute Type")
+                field("Substitute Type"; Rec."Substitute Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of the item that can be used as a substitute.';
                 }
-                field("Substitute No."; "Substitute No.")
+                field("Substitute No."; Rec."Substitute No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item that can be used as a substitute in case the original item is unavailable.';
                 }
-                field("Substitute Variant Code"; "Substitute Variant Code")
+                field("Substitute Variant Code"; Rec."Substitute Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code of the variant that can be used as a substitute.';
@@ -76,8 +76,6 @@ page 5716 "Item Substitution Entry"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Condition';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Condition Entry";
                 RunPageLink = Type = FIELD(Type),
                               "No." = FIELD("No."),
@@ -86,6 +84,17 @@ page 5716 "Item Substitution Entry"
                               "Substitute No." = FIELD("Substitute No."),
                               "Substitute Variant Code" = FIELD("Substitute Variant Code");
                 ToolTip = 'Specify a condition for the item substitution, which is for information only and does not affect the item substitution.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Condition_Promoted"; "&Condition")
+                {
+                }
             }
         }
     }

@@ -43,7 +43,7 @@ table 7332 "Whse. Internal Put-away Line"
             var
                 BinContent: Record "Bin Content";
             begin
-                TestReleased;
+                TestReleased();
                 if xRec."From Bin Code" <> "From Bin Code" then
                     if "From Bin Code" <> '' then begin
                         GetLocation("Location Code");
@@ -53,7 +53,7 @@ table 7332 "Whse. Internal Put-away Line"
                               "From Bin Code",
                               StrSubstNo(
                                 Text000, Location.FieldCaption("Adjustment Bin Code"),
-                                Location.TableCaption));
+                                Location.TableCaption()));
                         if Location."Directed Put-away and Pick" then
                             CheckBlocking(BinContent);
                     end;
@@ -71,7 +71,7 @@ table 7332 "Whse. Internal Put-away Line"
 
             trigger OnValidate()
             begin
-                TestReleased;
+                TestReleased();
                 if "From Zone Code" <> xRec."From Zone Code" then begin
                     GetLocation("Location Code");
                     Location.TestField("Directed Put-away and Pick");
@@ -90,7 +90,7 @@ table 7332 "Whse. Internal Put-away Line"
 
             trigger OnValidate()
             begin
-                TestReleased;
+                TestReleased();
                 TestField("Qty. Put Away", 0);
                 if "Item No." <> xRec."Item No." then
                     "Variant Code" := '';
@@ -117,7 +117,7 @@ table 7332 "Whse. Internal Put-away Line"
             var
                 DocStatus: Option;
             begin
-                TestReleased;
+                TestReleased();
                 TestField("Qty. Put Away", 0);
                 CalcFields("Put-away Qty.");
                 if Quantity < "Qty. Put Away" + "Put-away Qty." then
@@ -129,7 +129,7 @@ table 7332 "Whse. Internal Put-away Line"
                     CheckBinContentQty();
 
                 Validate("Qty. Outstanding", (Quantity - "Qty. Put Away"));
-                Status := CalcStatusPutAwayLine;
+                Status := CalcStatusPutAwayLine();
                 if Status <> xRec.Status then begin
                     GetInternalPutAwayHeader("No.");
                     DocStatus := WhseInternalPutAwayHeader.GetDocumentStatus(0);
@@ -229,7 +229,7 @@ table 7332 "Whse. Internal Put-away Line"
             trigger OnValidate()
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
                 end else
                     "Qty. per Unit of Measure" := 1;
@@ -338,7 +338,7 @@ table 7332 "Whse. Internal Put-away Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         DocStatus: Option;
     begin
-        TestReleased;
+        TestReleased();
 
         if ("Qty. Put Away" > 0) and (Quantity > "Qty. Put Away") then
             if not HideValidationDialog then
@@ -364,14 +364,14 @@ table 7332 "Whse. Internal Put-away Line"
     trigger OnInsert()
     begin
         TestField("Item No.");
-        "Sorting Sequence No." := GetSortSeqNo;
+        "Sorting Sequence No." := GetSortSeqNo();
     end;
 
     trigger OnModify()
     begin
         TestField("Item No.");
         xRec.TestField("Qty. Put Away", 0);
-        "Sorting Sequence No." := GetSortSeqNo;
+        "Sorting Sequence No." := GetSortSeqNo();
     end;
 
     trigger OnRename()
@@ -407,7 +407,7 @@ table 7332 "Whse. Internal Put-away Line"
             LastLineNo := LastWhseInternalPutAwayLine."Line No."
         else
             LastLineNo := 0;
-        "Line No." := GetNextLineNo;
+        "Line No." := GetNextLineNo();
         Validate("Location Code", WhseInternalPutAwayHeader."Location Code");
         "From Zone Code" := WhseInternalPutAwayHeader."From Zone Code";
         "From Bin Code" := WhseInternalPutAwayHeader."From Bin Code";
@@ -431,7 +431,7 @@ table 7332 "Whse. Internal Put-away Line"
             exit;
 
         if "Item No." <> '' then begin
-            GetItemUnitOfMeasure;
+            GetItemUnitOfMeasure();
             Description := Item.Description;
             "Description 2" := Item."Description 2";
             "Shelf No." := Item."Shelf No.";
@@ -527,7 +527,7 @@ table 7332 "Whse. Internal Put-away Line"
 
     local procedure GetItemUnitOfMeasure()
     begin
-        GetItem;
+        GetItem();
         Item.TestField("No.");
         if (Item."No." <> ItemUnitOfMeasure."Item No.") or
            ("Unit of Measure Code" <> ItemUnitOfMeasure.Code)
@@ -633,7 +633,7 @@ table 7332 "Whse. Internal Put-away Line"
     begin
         GetLocation("Location Code");
         if Location."Bin Mandatory" then
-            LookUpBinContent
+            LookUpBinContent()
         else begin
             if CurrentFieldNo = FieldNo("From Zone Code") then
                 Location.TestField("Bin Mandatory");
@@ -695,7 +695,7 @@ table 7332 "Whse. Internal Put-away Line"
     begin
         WhseInternalPutAwayLine.SetRange("No.", WhseInternalPutAwayHeader."No.");
         if WhseInternalPutAwayHeader."Sorting Method" <> WhseInternalPutAwayHeader."Sorting Method"::None then
-            exit(GetLastLineNo + 10000);
+            exit(GetLastLineNo() + 10000);
 
         WhseInternalPutAwayLine."No." := WhseInternalPutAwayHeader."No.";
         WhseInternalPutAwayLine."Line No." := LastLineNo;
@@ -778,7 +778,7 @@ table 7332 "Whse. Internal Put-away Line"
 
     local procedure GetLastSeqNo(WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"): Integer
     begin
-        WhseInternalPutAwayLine.SetRecFilter;
+        WhseInternalPutAwayLine.SetRecFilter();
         WhseInternalPutAwayLine.SetRange("Line No.");
         WhseInternalPutAwayLine.SetCurrentKey("No.", "Sorting Sequence No.");
         if WhseInternalPutAwayLine.FindLast() then

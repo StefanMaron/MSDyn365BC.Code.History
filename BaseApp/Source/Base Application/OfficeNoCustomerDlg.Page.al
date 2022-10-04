@@ -28,7 +28,7 @@ page 1627 "Office No Customer Dlg"
                     trigger OnDrillDown()
                     begin
                         CreateCustomerFromTemplate(ChooseNewCustomerTemplate());
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 }
                 field(ViewCustList; ViewCustListLbl)

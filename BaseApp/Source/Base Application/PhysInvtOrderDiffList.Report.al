@@ -20,7 +20,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                 column(USERID; UserId)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -480,7 +480,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                             if LineCount = 1 then
                                 TempPhysInvtCountBuffer.Find('-')
                             else
-                                TempPhysInvtCountBuffer.Next;
+                                TempPhysInvtCountBuffer.Next();
                         end;
 
                         trigger OnPreDataItem()
@@ -552,7 +552,7 @@ report 5875 "Phys. Invt. Order Diff. List"
 
                     trigger OnAfterGetRecord()
                     begin
-                        LineIsEmpty := EmptyLine;
+                        LineIsEmpty := EmptyLine();
 
                         QtyPos := 0;
                         QtyNeg := 0;
@@ -747,7 +747,7 @@ report 5875 "Phys. Invt. Order Diff. List"
             if NextLineNo = 1 then
                 TempPhysInvtCountBuffer.Find('-')
             else
-                TempPhysInvtCountBuffer.Next;
+                TempPhysInvtCountBuffer.Next();
 
         NextLineNo := NextLineNo + 1;
     end;

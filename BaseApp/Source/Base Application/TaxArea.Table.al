@@ -43,23 +43,23 @@ table 318 "Tax Area"
 
     trigger OnDelete()
     begin
-        if IsTaxAreaInUse then
+        if IsTaxAreaInUse() then
             Error(TaxAreaInUseErr);
     end;
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var
@@ -67,7 +67,7 @@ table 318 "Tax Area"
 
     procedure CreateTaxArea(NewTaxAreaCode: Code[20]; City: Text[50]; State: Text[50])
     begin
-        Init;
+        Init();
         Code := NewTaxAreaCode;
         Description := NewTaxAreaCode;
         if Insert() then;
@@ -101,7 +101,7 @@ table 318 "Tax Area"
         TaxAreaTranslation: Record "Tax Area Translation";
         Language: Codeunit Language;
     begin
-        if TaxAreaTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if TaxAreaTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(CopyStr(TaxAreaTranslation.Description, 1, 50));
 
         exit(CopyStr(Description, 1, 50));

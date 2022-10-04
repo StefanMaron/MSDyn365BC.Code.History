@@ -418,11 +418,11 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions3.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
-        EventConditions3.SetView(EventConditions3.Name(1), SalesHeader.GetView);
+        EventConditions3.SetView(EventConditions3.Name(1), SalesHeader.GetView());
 
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions3.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
-        EventConditions3.SetView(EventConditions3.Name(2), SalesLine.GetView);
+        EventConditions3.SetView(EventConditions3.Name(2), SalesLine.GetView());
 
         ConditionsExpected3Txt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -464,7 +464,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesHeader.SetFilter("Quote No.", '%1', '100');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
-        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
+        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -504,7 +504,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesLine.SetFilter(Amount, '%1', 1000);
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
-        EventConditions.SetView(EventConditions.Name(1), SalesLine.GetView);
+        EventConditions.SetView(EventConditions.Name(1), SalesLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -553,13 +553,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesHeader.SetFilter("Quote No.", '%1', '100');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
-        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
+        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView());
 
         SalesLine.Reset();
         SalesLine.SetFilter(Amount, '%1', 1000);
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
-        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView);
+        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -605,11 +605,11 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
-        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
+        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView());
 
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
-        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView);
+        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -823,13 +823,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesHeader.SetFilter("Shipping Time", '1W');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
-        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
+        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView());
 
         SalesLine.Reset();
         SalesLine.SetFilter("Price description", '%1', 'sample text');
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
-        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView);
+        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1065,13 +1065,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesHeader.SetFilter("Bill-to City", '%1', 'City Name');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
-        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
+        EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView());
 
         SalesLine.Reset();
         SalesLine.SetFilter("Shipment Date", '010116');
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
-        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView);
+        EventConditions.SetView(EventConditions.Name(2), SalesLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1111,13 +1111,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         PurchaseHeader.SetFilter("Creditor No.", '%1', '001');
         TableMetadata.Get(DATABASE::"Purchase Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Purchase Header");
-        EventConditions.SetView(EventConditions.Name(1), PurchaseHeader.GetView);
+        EventConditions.SetView(EventConditions.Name(1), PurchaseHeader.GetView());
 
         PurchaseLine.Reset();
         PurchaseLine.SetFilter("A. Rcd. Not Inv. Ex. VAT (LCY)", '%1', 100);
         TableMetadata.Get(DATABASE::"Purchase Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Purchase Line");
-        EventConditions.SetView(EventConditions.Name(2), PurchaseLine.GetView);
+        EventConditions.SetView(EventConditions.Name(2), PurchaseLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1156,7 +1156,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         GenJournalBatch.SetFilter("Template Type", 'General');
         TableMetadata.Get(DATABASE::"Gen. Journal Batch");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Gen. Journal Batch");
-        EventConditions.SetView(EventConditions.Name(1), GenJournalBatch.GetView);
+        EventConditions.SetView(EventConditions.Name(1), GenJournalBatch.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1196,7 +1196,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         GenJournalLine.SetFilter("Data Exch. Line No.", '1000');
         TableMetadata.Get(DATABASE::"Gen. Journal Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Gen. Journal Line");
-        EventConditions.SetView(EventConditions.Name(1), GenJournalLine.GetView);
+        EventConditions.SetView(EventConditions.Name(1), GenJournalLine.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1236,7 +1236,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         Customer.SetFilter("Search Name", 'name to search');
         TableMetadata.Get(DATABASE::Customer);
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::Customer);
-        EventConditions.SetView(EventConditions.Name(1), Customer.GetView);
+        EventConditions.SetView(EventConditions.Name(1), Customer.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1276,7 +1276,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         Item.SetFilter("Assembly BOM", 'TRUE');
         TableMetadata.Get(DATABASE::Item);
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::Item);
-        EventConditions.SetView(EventConditions.Name(1), Item.GetView);
+        EventConditions.SetView(EventConditions.Name(1), Item.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1316,7 +1316,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         Vendor.SetFilter("No. of Pstd. Receipts", '%1', 75);
         TableMetadata.Get(DATABASE::Vendor);
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::Vendor);
-        EventConditions.SetView(EventConditions.Name(1), Vendor.GetView);
+        EventConditions.SetView(EventConditions.Name(1), Vendor.GetView());
 
         ConditionsExpectedTxt :=
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(
@@ -1368,10 +1368,10 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SendApprovalRequest.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // Verify that sales order is pending approval
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
         Commit();
@@ -1385,7 +1385,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'clientType', WorkflowWebhookSubscriptionRec."Client Type");
         VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'eventCode', WorkflowWebhookSubscriptionRec."Event Code");
         VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'conditions', WorkflowWebhookSubscriptionRec.GetConditions);
-        VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'notificationUrl', WorkflowWebhookSubscriptionRec.GetNotificationUrl);
+        VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'notificationUrl', WorkflowWebhookSubscriptionRec.GetNotificationUrl());
     end;
 
     local procedure VerifyPropertyInJSON(JSON: Text; PropertyName: Text; ExpectedValue: Text)
@@ -1426,16 +1426,16 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.AddJPropertyToJObject(
           JsonObject, 'clientId', TypeHelper.GetGuidAsString(WorkflowWebhookSubscriptionRec."Client Id"));
         JSONManagement.AddJPropertyToJObject(JsonObject, 'clientType', WorkflowWebhookSubscriptionRec."Client Type");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'eventCode', WorkflowWebhookSubscriptionRec."Event Code");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'conditions', WorkflowWebhookSubscriptionRec.GetConditions);
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'notificationUrl', WorkflowWebhookSubscriptionRec.GetNotificationUrl);
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'notificationUrl', WorkflowWebhookSubscriptionRec.GetNotificationUrl());
 
-        WorkflowWebhookSubscriptionJSON := JSONManagement.WriteObjectToString;
+        WorkflowWebhookSubscriptionJSON := JSONManagement.WriteObjectToString();
     end;
 
     local procedure MockDeleteFromWebService(var WorkflowWebhookSubscriptionRec: Record "Workflow Webhook Subscription"): Text

@@ -38,7 +38,7 @@ report 7131 "Import Item Budget from Excel"
             trigger OnPostDataItem()
             begin
                 if RecNo > 0 then
-                    Message(Text004, ItemBudgetEntry.TableCaption, RecNo);
+                    Message(Text004, ItemBudgetEntry.TableCaption(), RecNo);
             end;
 
             trigger OnPreDataItem()
@@ -137,7 +137,7 @@ report 7131 "Import Item Budget from Excel"
         var
             ItemBudgetName: Record "Item Budget Name";
         begin
-            Description := Text005 + Format(WorkDate);
+            Description := Text005 + Format(WorkDate());
             if not ItemBudgetName.Get(AnalysisArea, ToItemBudgetName) then
                 ToItemBudgetName := '';
 
@@ -199,26 +199,12 @@ report 7131 "Import Item Budget from Excel"
         ItemBudgetBuf.LockTable();
 
         ExcelBuf.OpenBook(ServerFileName, SheetName);
-        ExcelBuf.ReadSheet;
+        ExcelBuf.ReadSheet();
 
-        AnalyseData;
+        AnalyseData();
     end;
 
     var
-        Text000: Label 'You must specify a budget name to import to.';
-        Text001: Label 'Do you want to create Item Budget Name %1?';
-        Text002: Label '%1 %2 is blocked. You cannot import entries.';
-        Text003: Label 'Are you sure you want to %1 for Budget Name %2?';
-        Text004: Label '%1 table has been successfully updated with %2 entries.';
-        Text005: Label 'Imported from Excel ';
-        Text006: Label 'Import Excel File';
-        Text007: Label 'Table Data';
-        Text008: Label 'Show as Lines';
-        Text009: Label 'Show as Columns';
-        Text010: Label 'Replace Entries,Add Entries';
-        Text011: Label 'The text %1 can only be specified once in the Excel worksheet.';
-        Text012: Label 'The filters specified by worksheet must be placed in the lines before the table.';
-        Text013: Label 'Date Filter';
         ExcelBuf: Record "Excel Buffer";
         GLSetup: Record "General Ledger Setup";
         ItemBudgetName: Record "Item Budget Name";
@@ -236,6 +222,25 @@ report 7131 "Import Item Budget from Excel"
         ValueType: Option "Sales Amount","COGS / Cost Amount",Quantity;
         ValueTypeHidden: Option "Sales Amount","COGS / Cost Amount",Quantity;
         GlSetupRead: Boolean;
+        [InDataSet]
+        SalesValueTypeVisible: Boolean;
+        [InDataSet]
+        PurchValueTypeVisible: Boolean;
+
+        Text000: Label 'You must specify a budget name to import to.';
+        Text001: Label 'Do you want to create Item Budget Name %1?';
+        Text002: Label '%1 %2 is blocked. You cannot import entries.';
+        Text003: Label 'Are you sure you want to %1 for Budget Name %2?';
+        Text004: Label '%1 table has been successfully updated with %2 entries.';
+        Text005: Label 'Imported from Excel ';
+        Text006: Label 'Import Excel File';
+        Text007: Label 'Table Data';
+        Text008: Label 'Show as Lines';
+        Text009: Label 'Show as Columns';
+        Text010: Label 'Replace Entries,Add Entries';
+        Text011: Label 'The text %1 can only be specified once in the Excel worksheet.';
+        Text012: Label 'The filters specified by worksheet must be placed in the lines before the table.';
+        Text013: Label 'Date Filter';
         Text014: Label 'Customer Filter';
         Text015: Label 'Vendor Filter';
         Text016: Label 'Analyzing Data...\\';
@@ -244,10 +249,6 @@ report 7131 "Import Item Budget from Excel"
         Text019: Label '%1 is not a valid line definition.';
         Text020: Label '%1 is not a valid column definition.';
         Text021: Label 'You must specify a dimension value in row %1, column %2.';
-        [InDataSet]
-        SalesValueTypeVisible: Boolean;
-        [InDataSet]
-        PurchValueTypeVisible: Boolean;
         ExcelExtensionTok: Label '.xlsx', Locked = true;
 
     local procedure AnalyseData()
@@ -316,7 +317,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 GlobalDim1Filter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(GlobalDim1Filter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -324,7 +325,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 GlobalDim2Filter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(GlobalDim2Filter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -332,7 +333,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 BudgetDim1Filter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(BudgetDim1Filter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -340,7 +341,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 BudgetDim2Filter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(BudgetDim2Filter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -348,7 +349,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 BudgetDim3Filter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(BudgetDim3Filter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -356,7 +357,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 ItemFilter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(ItemFilter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -364,7 +365,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 DateFilter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(DateFilter));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -372,7 +373,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then begin
+                            if ExcelBuf.Next() <> 0 then begin
                                 SourceTypeFilter := SourceTypeFilter::Customer;
                                 SourceNoFilter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(SourceNoFilter));
                             end;
@@ -382,7 +383,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then begin
+                            if ExcelBuf.Next() <> 0 then begin
                                 SourceTypeFilter := SourceTypeFilter::Vendor;
                                 SourceNoFilter := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(SourceNoFilter));
                             end;
@@ -392,7 +393,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 LineDimCode := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(LineDimCode));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -400,7 +401,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CheckFilterRowNo(HeaderRowNo);
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            if ExcelBuf.Next <> 0 then
+                            if ExcelBuf.Next() <> 0 then
                                 ColumnDimCode := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(ColumnDimCode));
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -408,7 +409,7 @@ report 7131 "Import Item Budget from Excel"
                         begin
                             CurrLineDimValue := CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(CurrLineDimValue));
                             ExcelBuf.SetRange("Row No.", ExcelBuf."Row No.");
-                            while ExcelBuf.Next <> 0 do begin
+                            while ExcelBuf.Next() <> 0 do begin
                                 CurrColumnDimValue := GetCurrColumnDimValue(ExcelBuf."Column No.", HeaderRowNo);
                                 ExchangeFiltersWithDimValue(
                                   CurrLineDimValue,
@@ -455,7 +456,7 @@ report 7131 "Import Item Budget from Excel"
                 end;
             until ExcelBuf.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure ExchangeFiltersWithDimValue(CurrLineDimValue: Code[20]; CurrColumnDimValue: Code[20]; LineDimOption: Enum "Item Budget Dimension Type"; ColumnDimOption: Enum "Item Budget Dimension Type"; var DateFilter: Text[30]; var ItemFilter: Code[20]; var LocationFilter: Code[10]; var GlobalDim1Filter: Code[20]; var GlobalDim2Filter: Code[20]; var BudgetDim1Filter: Code[20]; var BudgetDim2Filter: Code[20]; var BudgetDim3Filter: Code[20]; var SourceNoFilter: Code[20]; var SourceTypeFilter: Enum "Analysis Source Type")

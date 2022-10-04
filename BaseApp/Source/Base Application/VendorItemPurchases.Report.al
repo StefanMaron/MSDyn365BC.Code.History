@@ -16,16 +16,16 @@ report 313 "Vendor/Item Purchases"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(STRSUBSTNO___1___2__Vendor_TABLECAPTION_VendFilter_; StrSubstNo('%1: %2', TableCaption, VendFilter))
+            column(STRSUBSTNO___1___2__Vendor_TABLECAPTION_VendFilter_; StrSubstNo('%1: %2', TableCaption(), VendFilter))
             {
             }
             column(VendFilter; VendFilter)
             {
             }
-            column(STRSUBSTNO___1___2___Value_Entry__TABLECAPTION_ItemLedgEntryFilter_; StrSubstNo('%1: %2', "Value Entry".TableCaption, ItemLedgEntryFilter))
+            column(STRSUBSTNO___1___2___Value_Entry__TABLECAPTION_ItemLedgEntryFilter_; StrSubstNo('%1: %2', "Value Entry".TableCaption(), ItemLedgEntryFilter))
             {
             }
             column(ItemLedgEntryFilter; ItemLedgEntryFilter)
@@ -169,12 +169,11 @@ report 313 "Vendor/Item Purchases"
         FormatDocument: Codeunit "Format Document";
     begin
         VendFilter := FormatDocument.GetRecordFiltersWithCaptions(Vendor);
-        ItemLedgEntryFilter := "Value Entry".GetFilters;
+        ItemLedgEntryFilter := "Value Entry".GetFilters();
         PeriodText := "Value Entry".GetFilter("Posting Date");
     end;
 
     var
-        Text000: Label 'Period: %1';
         Item: Record Item;
         ValueEntry: Record "Value Entry";
         VendFilter: Text;
@@ -186,6 +185,8 @@ report 313 "Vendor/Item Purchases"
         InvoicedQuantity: Decimal;
         CostAmountActual: Decimal;
         DiscountAmount: Decimal;
+
+        Text000: Label 'Period: %1';
 
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean)
     begin

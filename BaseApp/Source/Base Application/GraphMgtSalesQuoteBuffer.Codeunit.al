@@ -17,7 +17,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -29,7 +29,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesHeader(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -43,7 +43,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     var
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -58,7 +58,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales - Calc Discount By Type", 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
     local procedure OnAfterResetRecalculateInvoiceDisc(var SalesHeader: Record "Sales Header")
     begin
-        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(SalesHeader.SystemId) then
@@ -120,7 +120,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnAfterCalcSalesDiscount', '', false, false)]
     local procedure OnAfterCalculateSalesDiscountOnSalesHeader(var SalesHeader: Record "Sales Header")
     begin
-        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(SalesHeader.SystemId) then
@@ -136,7 +136,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         TargetRecordRef: RecordRef;
         DocTypeFieldRef: FieldRef;
     begin
-        if SalesQuoteEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesQuoteEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         TargetRecordRef.Open(DATABASE::"Sales Header");
@@ -151,8 +151,8 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         TargetRecordRef.Insert(true);
 
         SalesHeader.Get(TargetRecordRef.RecordId());
-        SalesHeader.CopySellToAddressToBillToAddress;
-        SalesHeader.SetDefaultPaymentServices;
+        SalesHeader.CopySellToAddressToBillToAddress();
+        SalesHeader.SetDefaultPaymentServices();
         SalesHeader.Modify(true);
 
         SalesQuoteEntityBuffer."No." := SalesHeader."No.";
@@ -166,7 +166,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         TargetRecordRef: RecordRef;
         Exists: Boolean;
     begin
-        if SalesQuoteEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesQuoteEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         Exists := SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteEntityBuffer."No.");
@@ -179,12 +179,12 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SetStatusOptionToSalesHeader(TempFieldBuffer, SalesQuoteEntityBuffer, TargetRecordRef);
 
         TargetRecordRef.SetTable(SalesHeader);
-        SalesHeader.CopySellToAddressToBillToAddress;
+        SalesHeader.CopySellToAddressToBillToAddress();
 
         if Exists then
             SalesHeader.Modify(true)
         else begin
-            SalesHeader.SetDefaultPaymentServices;
+            SalesHeader.SetDefaultPaymentServices();
             SalesHeader.Insert(true);
         end;
     end;
@@ -193,7 +193,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
     var
         SalesHeader: Record "Sales Header";
     begin
-        if SalesQuoteEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesQuoteEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if not SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteEntityBuffer."No.") then begin
@@ -239,7 +239,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesQuoteEntityBuffer.Id := SalesHeader.SystemId;
         SetStatusOptionFromSalesHeader(SalesHeader, SalesQuoteEntityBuffer);
         AssignTotalsFromSalesHeader(SalesHeader, SalesQuoteEntityBuffer);
-        SalesQuoteEntityBuffer.UpdateReferencedRecordIds;
+        SalesQuoteEntityBuffer.UpdateReferencedRecordIds();
 
         if RecordExists then
             SalesQuoteEntityBuffer.Modify(true)
@@ -368,7 +368,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
 
     local procedure CheckValidLineRecord(var SalesLine: Record "Sales Line"): Boolean
     begin
-        if SalesLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit(false);
 
         if SalesLine."Document Type" <> SalesLine."Document Type"::Quote then
@@ -469,8 +469,8 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
           SalesLine."VAT Identifier");
         SalesInvoiceLineAggregate."VAT %" := SalesLine."VAT %";
         SalesInvoiceLineAggregate."Tax Amount" := SalesLine."Amount Including VAT" - SalesLine."VAT Base Amount";
-        SalesInvoiceLineAggregate.SetDiscountValue;
-        SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
+        SalesInvoiceLineAggregate.SetDiscountValue();
+        SalesInvoiceLineAggregate.UpdateReferencedRecordIds();
         UpdateLineAmountsFromSalesLine(SalesInvoiceLineAggregate, SalesLine);
         SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesLine."No.", SalesLine."Variant Code");
     end;
@@ -505,7 +505,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         if not SkipUpdateDiscounts then
             RedistributeInvoiceDiscounts(SalesQuoteEntityBuffer);
 
-        SalesLine.Find;
+        SalesLine.Find();
         TransferFromSalesLine(SalesInvoiceLineAggregate, SalesQuoteEntityBuffer, SalesLine);
     end;
 
@@ -526,7 +526,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         if not SkipUpdateDiscounts then
             RedistributeInvoiceDiscounts(SalesQuoteEntityBuffer);
 
-        SalesLine.Find;
+        SalesLine.Find();
         TransferFromSalesLine(SalesInvoiceLineAggregate, SalesQuoteEntityBuffer, SalesLine);
     end;
 
@@ -599,7 +599,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo(Description), TempFieldBuffer);
         RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Tax Id"), TempFieldBuffer);
 
-        if GeneralLedgerSetup.UseVat then
+        if GeneralLedgerSetup.UseVat() then
             RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("VAT Prod. Posting Group"), TempFieldBuffer)
         else
             RegisterFieldSet(DummySalesInvoiceLineAggregate.FieldNo("Tax Group Code"), TempFieldBuffer);
@@ -618,7 +618,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -647,14 +647,14 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         end;
 
         SearchSalesQuoteEntityBuffer.Copy(SalesQuoteEntityBuffer);
-        if SearchSalesQuoteEntityBuffer.Next <> 0 then
+        if SearchSalesQuoteEntityBuffer.Next() <> 0 then
             Error(MultipleDocumentsFoundForIdErr);
     end;
 
     local procedure UpdateLineAmountsFromSalesLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesLine: Record "Sales Line")
     begin
-        SalesInvoiceLineAggregate."Line Amount Excluding Tax" := SalesLine.GetLineAmountExclVAT;
-        SalesInvoiceLineAggregate."Line Amount Including Tax" := SalesLine.GetLineAmountInclVAT;
+        SalesInvoiceLineAggregate."Line Amount Excluding Tax" := SalesLine.GetLineAmountExclVAT();
+        SalesInvoiceLineAggregate."Line Amount Including Tax" := SalesLine.GetLineAmountInclVAT();
         SalesInvoiceLineAggregate."Line Tax Amount" :=
           SalesInvoiceLineAggregate."Line Amount Including Tax" - SalesInvoiceLineAggregate."Line Amount Excluding Tax";
         UpdateInvoiceDiscountAmount(SalesInvoiceLineAggregate);

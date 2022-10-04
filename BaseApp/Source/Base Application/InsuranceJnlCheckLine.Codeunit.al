@@ -9,12 +9,13 @@ codeunit 5651 "Insurance Jnl.-Check Line"
     end;
 
     var
-        Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
-        Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         GLSetup: Record "General Ledger Setup";
         FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
         CallNo: Integer;
+
+        Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
+        Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
 
     procedure RunCheck(var InsuranceJnlLine: Record "Insurance Journal Line")
     var
@@ -39,7 +40,7 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                 Error(
                   Text000,
                   TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr);
+                  DimMgt.GetDimCombErr());
 
             TableID[1] := DATABASE::Insurance;
             No[1] := "Insurance No.";
@@ -48,9 +49,9 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                     Error(
                       Text001,
                       TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                      DimMgt.GetDimValuePostingErr)
+                      DimMgt.GetDimValuePostingErr())
                 else
-                    Error(DimMgt.GetDimValuePostingErr);
+                    Error(DimMgt.GetDimValuePostingErr());
         end;
     end;
 

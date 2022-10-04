@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 7052 "Suggest Sales Price on Wksh."
 {
     Caption = 'Suggest Sales Price on Wksh.';
@@ -84,20 +84,20 @@ report 7052 "Suggest Sales Price on Wksh."
                         FromCurrency.TestField(Code);
                         SalesPriceWksh."New Unit Price" :=
                           CurrExchRate.ExchangeAmtFCYToLCY(
-                            WorkDate, "Currency Code", SalesPriceWksh."New Unit Price",
+                            WorkDate(), "Currency Code", SalesPriceWksh."New Unit Price",
                             CurrExchRate.ExchangeRate(
-                              WorkDate, "Currency Code"));
+                              WorkDate(), "Currency Code"));
                     end;
                     if SalesPriceWksh."Currency Code" <> '' then
                         SalesPriceWksh."New Unit Price" :=
                           CurrExchRate.ExchangeAmtLCYToFCY(
-                            WorkDate, SalesPriceWksh."Currency Code",
+                            WorkDate(), SalesPriceWksh."Currency Code",
                             SalesPriceWksh."New Unit Price", CurrExchRate.ExchangeRate(
-                              WorkDate, SalesPriceWksh."Currency Code"));
+                              WorkDate(), SalesPriceWksh."Currency Code"));
                 end;
 
                 if SalesPriceWksh."Currency Code" = '' then
-                    Currency2.InitRoundingPrecision
+                    Currency2.InitRoundingPrecision()
                 else begin
                     Currency2.Get(SalesPriceWksh."Currency Code");
                     Currency2.TestField("Unit-Amount Rounding Precision");
@@ -126,7 +126,7 @@ report 7052 "Suggest Sales Price on Wksh."
                     end;
                 end;
 
-                If  ToSalesType = ToSalesType::"Customer Price Group" then begin
+                If ToSalesType = ToSalesType::"Customer Price Group" then begin
                     SalesPriceWksh."Price Includes VAT" := ToCustPriceGr."Price Includes VAT";
                     SalesPriceWksh."VAT Bus. Posting Gr. (Price)" := ToCustPriceGr."VAT Bus. Posting Gr. (Price)";
                     SalesPriceWksh."Allow Invoice Disc." := ToCustPriceGr."Allow Invoice Disc.";
@@ -211,7 +211,7 @@ report 7052 "Suggest Sales Price on Wksh."
                                         begin
                                             CustList.LookupMode := true;
                                             CustList.SetRecord(ToCust);
-                                            if CustList.RunModal = ACTION::LookupOK then begin
+                                            if CustList.RunModal() = ACTION::LookupOK then begin
                                                 CustList.GetRecord(ToCust);
                                                 ToSalesCode := ToCust."No.";
                                             end;
@@ -220,7 +220,7 @@ report 7052 "Suggest Sales Price on Wksh."
                                         begin
                                             CustPriceGrList.LookupMode := true;
                                             CustPriceGrList.SetRecord(ToCustPriceGr);
-                                            if CustPriceGrList.RunModal = ACTION::LookupOK then begin
+                                            if CustPriceGrList.RunModal() = ACTION::LookupOK then begin
                                                 CustPriceGrList.GetRecord(ToCustPriceGr);
                                                 ToSalesCode := ToCustPriceGr.Code;
                                             end;
@@ -229,7 +229,7 @@ report 7052 "Suggest Sales Price on Wksh."
                                         begin
                                             CampaignList.LookupMode := true;
                                             CampaignList.SetRecord(ToCampaign);
-                                            if CampaignList.RunModal = ACTION::LookupOK then begin
+                                            if CampaignList.RunModal() = ACTION::LookupOK then begin
                                                 CampaignList.GetRecord(ToCampaign);
                                                 ToSalesCode := ToCampaign."No.";
                                                 ToStartDate := ToCampaign."Starting Date";
@@ -272,7 +272,7 @@ report 7052 "Suggest Sales Price on Wksh."
                             trigger OnValidate()
                             begin
                                 if ToUnitOfMeasure.Code <> '' then
-                                    ToUnitOfMeasure.Find;
+                                    ToUnitOfMeasure.Find();
                             end;
                         }
                         field(CurrencyCode; ToCurrency.Code)
@@ -285,7 +285,7 @@ report 7052 "Suggest Sales Price on Wksh."
                             trigger OnValidate()
                             begin
                                 if ToCurrency.Code <> '' then
-                                    ToCurrency.Find;
+                                    ToCurrency.Find();
                             end;
                         }
                         field(ToStartDateCtrl; ToStartDate)
@@ -376,9 +376,9 @@ report 7052 "Suggest Sales Price on Wksh."
                 begin
                     ToCust."No." := ToSalesCode;
                     if ToCust."No." <> '' then
-                        ToCust.Find
+                        ToCust.Find()
                     else begin
-                        if not ToCust.Find then
+                        if not ToCust.Find() then
                             ToCust.Init();
                         ToSalesCode := ToCust."No.";
                     end;
@@ -387,9 +387,9 @@ report 7052 "Suggest Sales Price on Wksh."
                 begin
                     ToCustPriceGr.Code := ToSalesCode;
                     if ToCustPriceGr.Code <> '' then
-                        ToCustPriceGr.Find
+                        ToCustPriceGr.Find()
                     else begin
-                        if not ToCustPriceGr.Find then
+                        if not ToCustPriceGr.Find() then
                             ToCustPriceGr.Init();
                         ToSalesCode := ToCustPriceGr.Code;
                     end;
@@ -398,9 +398,9 @@ report 7052 "Suggest Sales Price on Wksh."
                 begin
                     ToCampaign."No." := ToSalesCode;
                     if ToCampaign."No." <> '' then
-                        ToCampaign.Find
+                        ToCampaign.Find()
                     else begin
-                        if not ToCampaign.Find then
+                        if not ToCampaign.Find() then
                             ToCampaign.Init();
                         ToSalesCode := ToCampaign."No.";
                     end;
@@ -415,7 +415,7 @@ report 7052 "Suggest Sales Price on Wksh."
         ReplaceEndingDate := ToEndDate <> 0D;
 
         if ReplaceUnitOfMeasure and (ToUnitOfMeasure.Code <> '') then
-            ToUnitOfMeasure.Find;
+            ToUnitOfMeasure.Find();
 
         RoundingMethod.SetRange(Code, RoundingMethod.Code);
     end;
@@ -426,7 +426,6 @@ report 7052 "Suggest Sales Price on Wksh."
     end;
 
     var
-        Text001: Label 'Processing items  #1##########';
         SalesPriceWksh2: Record "Sales Price Worksheet";
         SalesPriceWksh: Record "Sales Price Worksheet";
         TempSalesPriceWksh: Record "Sales Price Worksheet" temporary;
@@ -456,13 +455,15 @@ report 7052 "Suggest Sales Price on Wksh."
         ReplaceCurrency: Boolean;
         ReplaceStartingDate: Boolean;
         ReplaceEndingDate: Boolean;
-        Text002: Label 'Sales Code must be specified when copying from %1 to All Customers.';
         [InDataSet]
         SalesCodeCtrlEnable: Boolean;
         [InDataSet]
         ToStartDateCtrlEnable: Boolean;
         [InDataSet]
         ToEndDateCtrlEnable: Boolean;
+
+        Text001: Label 'Processing items  #1##########';
+        Text002: Label 'Sales Code must be specified when copying from %1 to All Customers.';
         SalesPriceWkshLineExistsErr: Label 'There are multiple source lines for the record: %1.', Comment = '%1 = RecordId';
 
     procedure InitializeRequest(NewToSalesType: Option Customer,"Customer Price Group",Campaign,"All CUstomers"; NewToSalesCode: Code[20]; NewToStartDate: Date; NewToEndDate: Date; NewToCurrCode: Code[10]; NewToUOMCode: Code[10]; NewCreateNewPrices: Boolean)

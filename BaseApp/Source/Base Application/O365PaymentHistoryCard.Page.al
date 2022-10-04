@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2125 "O365 Payment History Card"
 {
     Caption = 'Payment History';
@@ -7,10 +8,12 @@ page 2125 "O365 Payment History Card"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     ShowFilter = false;
     SourceTable = "O365 Payment History Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -20,17 +23,17 @@ page 2125 "O365 Payment History Card"
             {
                 field(Type; Type)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the type of the entry.';
                 }
                 field(Amount; Amount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the payment received.';
                 }
-                field("Date Received"; "Date Received")
+                field("Date Received"; Rec."Date Received")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the date the payment is received.';
                 }
             }
@@ -43,26 +46,38 @@ page 2125 "O365 Payment History Card"
         {
             action(MarkAsUnpaid)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Cancel payment registration';
                 Image = Cancel;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Cancel this payment registration.';
 
                 trigger OnAction()
                 begin
-                    MarkPaymentAsUnpaid;
+                    MarkPaymentAsUnpaid();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(MarkAsUnpaid_Promoted; MarkAsUnpaid)
+                {
+                }
             }
         }
     }
 
     local procedure MarkPaymentAsUnpaid()
     begin
-        if CancelPayment then
-            CurrPage.Close;
+        if CancelPayment() then
+            CurrPage.Close();
     end;
 }
-
+#endif

@@ -5,6 +5,7 @@ table 7860 "MS- PayPal Standard Account"
     ObsoleteState = Removed;
     Permissions = TableData "Webhook Subscription" = rimd;
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {
@@ -66,7 +67,7 @@ table 7860 "MS- PayPal Standard Account"
     begin
         TargetURL := '';
         CalcFields("Target URL");
-        if "Target URL".HasValue then begin
+        if "Target URL".HasValue() then begin
             "Target URL".CreateInStream(InStream);
             InStream.Read(TargetURL);
         end;
@@ -84,7 +85,7 @@ table 7860 "MS- PayPal Standard Account"
 
         "Target URL".CreateOutStream(OutStream);
         OutStream.Write(TargetURL);
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]

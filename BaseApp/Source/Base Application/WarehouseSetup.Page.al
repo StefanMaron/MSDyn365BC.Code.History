@@ -15,22 +15,22 @@ page 5775 "Warehouse Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Require Receive"; "Require Receive")
+                field("Require Receive"; Rec."Require Receive")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether you require users to use the receive activity.';
                 }
-                field("Require Put-away"; "Require Put-away")
+                field("Require Put-away"; Rec."Require Put-away")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether you require users to use the put-away activity.';
                 }
-                field("Require Shipment"; "Require Shipment")
+                field("Require Shipment"; Rec."Require Shipment")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if warehouse shipments are required in warehouse work flows.';
                 }
-                field("Require Pick"; "Require Pick")
+                field("Require Pick"; Rec."Require Pick")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether you require users to use the pick activity.';
@@ -41,12 +41,12 @@ page 5775 "Warehouse Setup"
                     Caption = 'Last Whse. Posting Ref. No.';
                     ToolTip = 'Specifies that the document reference of the last warehouse posting will be shown.';
                 }
-                field("Receipt Posting Policy"; "Receipt Posting Policy")
+                field("Receipt Posting Policy"; Rec."Receipt Posting Policy")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies what should happen if errors occur when warehouse receipts are posted.';
                 }
-                field("Shipment Posting Policy"; "Shipment Posting Policy")
+                field("Shipment Posting Policy"; Rec."Shipment Posting Policy")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies what should happen if errors occur when warehouse shipments are posted.';
@@ -55,62 +55,62 @@ page 5775 "Warehouse Setup"
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("Whse. Receipt Nos."; "Whse. Receipt Nos.")
+                field("Whse. Receipt Nos."; Rec."Whse. Receipt Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code to use when you assign numbers to warehouse receipt journals.';
                 }
-                field("Whse. Ship Nos."; "Whse. Ship Nos.")
+                field("Whse. Ship Nos."; Rec."Whse. Ship Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code you want used when you assign numbers to warehouse shipment journals.';
                 }
-                field("Whse. Internal Put-away Nos."; "Whse. Internal Put-away Nos.")
+                field("Whse. Internal Put-away Nos."; Rec."Whse. Internal Put-away Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign numbers to internal put-always.';
                 }
-                field("Whse. Internal Pick Nos."; "Whse. Internal Pick Nos.")
+                field("Whse. Internal Pick Nos."; Rec."Whse. Internal Pick Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign numbers to internal picks.';
                 }
-                field("Whse. Put-away Nos."; "Whse. Put-away Nos.")
+                field("Whse. Put-away Nos."; Rec."Whse. Put-away Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code you want used when you assign numbers to warehouse put-away documents.';
                 }
-                field("Whse. Pick Nos."; "Whse. Pick Nos.")
+                field("Whse. Pick Nos."; Rec."Whse. Pick Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code you want used when you assign numbers to warehouse pick documents.';
                 }
-                field("Posted Whse. Receipt Nos."; "Posted Whse. Receipt Nos.")
+                field("Posted Whse. Receipt Nos."; Rec."Posted Whse. Receipt Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign numbers to posted warehouse receipts.';
                 }
-                field("Posted Whse. Shipment Nos."; "Posted Whse. Shipment Nos.")
+                field("Posted Whse. Shipment Nos."; Rec."Posted Whse. Shipment Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign numbers to posted warehouse shipments.';
                 }
-                field("Registered Whse. Put-away Nos."; "Registered Whse. Put-away Nos.")
+                field("Registered Whse. Put-away Nos."; Rec."Registered Whse. Put-away Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used when numbers are assigned to registered put-away documents.';
                 }
-                field("Registered Whse. Pick Nos."; "Registered Whse. Pick Nos.")
+                field("Registered Whse. Pick Nos."; Rec."Registered Whse. Pick Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code you want to be used to assign numbers to registered pick documents.';
                 }
-                field("Whse. Movement Nos."; "Whse. Movement Nos.")
+                field("Whse. Movement Nos."; Rec."Whse. Movement Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign numbers to warehouse movements.';
                 }
-                field("Registered Whse. Movement Nos."; "Registered Whse. Movement Nos.")
+                field("Registered Whse. Movement Nos."; Rec."Registered Whse. Movement Nos.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series code used to assign numbers to registered warehouse movements.';
@@ -138,10 +138,10 @@ page 5775 "Warehouse Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

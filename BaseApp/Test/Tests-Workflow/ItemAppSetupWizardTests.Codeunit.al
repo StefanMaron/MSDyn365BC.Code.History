@@ -56,7 +56,7 @@ codeunit 139308 "Item App. Setup Wizard Tests"
 
         PAGE.Run(PAGE::"Item Approval WF Setup Wizard");
 
-        ItemApprovalWFSetupWizard.Close;
+        ItemApprovalWFSetupWizard.Close();
     end;
 
     [Test]

@@ -1,7 +1,7 @@
 page 99000810 "Routing Version"
 {
     Caption = 'Routing Version';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     PageType = ListPlus;
     SourceTable = "Routing Version";
 
@@ -12,7 +12,7 @@ page 99000810 "Routing Version"
             group(General)
             {
                 Caption = 'General';
-                field("Version Code"; "Version Code")
+                field("Version Code"; Rec."Version Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version code of the routing.';
@@ -38,7 +38,7 @@ page 99000810 "Routing Version"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of this routing version.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date for this routing version.';
@@ -79,8 +79,6 @@ page 99000810 "Routing Version"
                     ApplicationArea = Manufacturing;
                     Caption = 'Copy &Routing';
                     Image = CopyRouteHeader;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy an existing routing to quickly create a similar BOM.';
 
                     trigger OnAction()
@@ -98,8 +96,6 @@ page 99000810 "Routing Version"
                     Caption = 'Copy Routing &Version';
                     Ellipsis = true;
                     Image = CopyRouteVersion;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy an existing routing version to quickly create a similar routing.';
 
                     trigger OnAction()
@@ -109,11 +105,26 @@ page 99000810 "Routing Version"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CopyRouting_Promoted; CopyRouting)
+                {
+                }
+                actionref("Copy Routing &Version_Promoted"; "Copy Routing &Version")
+                {
+                }
+            }
+        }
     }
 
     var
-        Text000: Label 'Copy from routing header?';
         RtngHeader: Record "Routing Header";
         CopyRouting: Codeunit "Routing Line-Copy Lines";
+
+        Text000: Label 'Copy from routing header?';
 }
 

@@ -7,7 +7,6 @@ page 1505 "Workflow Templates"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "Workflow Buffer";
     SourceTableTemporary = true;
     UsageCategory = Lists;
@@ -53,9 +52,6 @@ page 1505 "Workflow Templates"
                 ApplicationArea = Suite;
                 Caption = 'View';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunPageMode = View;
                 ShortCutKey = 'Return';
                 ToolTip = 'View an existing workflow template.';
@@ -74,15 +70,35 @@ page 1505 "Workflow Templates"
                 Caption = 'New Workflow from Template';
                 Enabled = NOT IsLookupMode;
                 Image = NewDocument;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
                 ToolTip = 'Create a new workflow template using an existing workflow template.';
 
                 trigger OnAction()
                 begin
                     CopyWorkflow(Rec)
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref("New Workflow from Template_Promoted"; "New Workflow from Template")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ViewAction_Promoted; ViewAction)
+                {
+                }
             }
         }
     }
@@ -97,7 +113,7 @@ page 1505 "Workflow Templates"
 
     trigger OnOpenPage()
     begin
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
         InitBufferForTemplates(Rec);
         IsLookupMode := CurrPage.LookupMode;
         if FindFirst() then;

@@ -1,6 +1,6 @@
 page 488 "Column Layout Names"
 {
-    Caption = 'Column Layout Names';
+    Caption = 'Column Definitions';
     PageType = List;
     SourceTable = "Column Layout Name";
 
@@ -14,14 +14,14 @@ page 488 "Column Layout Names"
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the account schedule column layout.';
+                    ToolTip = 'Specifies the name of the financial report columns definition.';
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the account schedule column layout.';
+                    ToolTip = 'Specifies a description of the financial report columns definition.';
                 }
-                field("Analysis View Name"; "Analysis View Name")
+                field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the analysis view you want the column layout to be based on.';
@@ -50,12 +50,10 @@ page 488 "Column Layout Names"
             action(EditColumnLayoutSetup)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Column Layout Setup';
+                Caption = 'Edit Column Definition';
                 Ellipsis = true;
                 Image = SetupColumns;
-                Promoted = true;
-                PromotedCategory = Process;
-                ToolTip = 'Create or change the column layout for the current account schedule name.';
+                ToolTip = 'Create or change the column definition for the current financial report name.';
 
                 trigger OnAction()
                 var
@@ -64,6 +62,36 @@ page 488 "Column Layout Names"
                     ColumnLayout.SetColumnLayoutName(Name);
                     ColumnLayout.Run();
                 end;
+            }
+            action(CopyColumnLayout)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Copy Column Definition';
+                Image = Copy;
+                Scope = Repeater;
+                ToolTip = 'Create a copy of the current column definition.';
+
+                trigger OnAction()
+                var
+                    ColumnLayoutName: Record "Column Layout Name";
+                begin
+                    CurrPage.SetSelectionFilter(ColumnLayoutName);
+                    Report.RunModal(Report::"Copy Column Layout", true, true, ColumnLayoutName);
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
+                {
+                }
+                actionref(CopyColumnLayout_Promoted; CopyColumnLayout)
+                {
+                }
             }
         }
     }

@@ -40,7 +40,7 @@
             cuegroup("Time Sheets")
             {
                 Caption = 'Time Sheets';
-                field("Open Time Sheets"; "Open Time Sheets")
+                field("Open Time Sheets"; Rec."Open Time Sheets")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Time Sheet List";
@@ -50,19 +50,19 @@
             cuegroup("Pending Time Sheets")
             {
                 Caption = 'Pending Time Sheets';
-                field("Submitted Time Sheets"; "Submitted Time Sheets")
+                field("Submitted Time Sheets"; Rec."Submitted Time Sheets")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Time Sheet List";
                     ToolTip = 'Specifies the number of time sheets that you have submitted for approval but are not yet approved.';
                 }
-                field("Rejected Time Sheets"; "Rejected Time Sheets")
+                field("Rejected Time Sheets"; Rec."Rejected Time Sheets")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Time Sheet List";
                     ToolTip = 'Specifies the number of time sheets that you submitted for approval but were rejected.';
                 }
-                field("Approved Time Sheets"; "Approved Time Sheets")
+                field("Approved Time Sheets"; Rec."Approved Time Sheets")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Time Sheet List";
@@ -72,7 +72,7 @@
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
-                field("Time Sheets to Approve"; "Time Sheets to Approve")
+                field("Time Sheets to Approve"; Rec."Time Sheets to Approve")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Manager Time Sheet List";
@@ -91,10 +91,10 @@
     var
         TimeSheetHeader: Record "Time Sheet Header";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
 
         TimeSheetHeader.SetRange("Approver User ID", UserId);

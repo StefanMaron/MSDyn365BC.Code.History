@@ -1,4 +1,4 @@
-﻿codeunit 137158 "SCM Orders V"
+codeunit 137158 "SCM Orders V"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -86,9 +86,9 @@
         LibraryInventory.CreateItem(Item);
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, '', Item."No.", LibraryRandom.RandDec(10, 2), '', false);
-        UpdateExpectedReceiptDateOnPurchaseLine(PurchaseLine, WorkDate);  // Updating Expected Receipt Date on Purchase Line for Reservation on Sales Line.
+        UpdateExpectedReceiptDateOnPurchaseLine(PurchaseLine, WorkDate());  // Updating Expected Receipt Date on Purchase Line for Reservation on Sales Line.
         CreateSalesOrder(SalesHeader, '', Item."No.", PurchaseLine.Quantity, '', true);  // Reserve as TRUE
-        NewExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);  // Must be less than WorkDate.
+        NewExpectedReceiptDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());  // Must be less than WorkDate.
 
         // [WHEN] Update Expected Receipt Date on Purchase Line.
         UpdateExpectedReceiptDateOnPurchaseLine(PurchaseLine, NewExpectedReceiptDate);
@@ -245,15 +245,15 @@
         CreateSalesOrder(SalesHeader, Customer."No.", Item."No.", LibraryRandom.RandInt(100), LocationBlue.Code, false);
 
         LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(
-          RequisitionLine, Item, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate),
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+          RequisitionLine, Item, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate()),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
 
         // Verify.
         RequisitionLine.TestField("Currency Factor", CurrencyFactor);
 
         if CarryOutActionMessage then begin
             // Exercise.
-            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
             VendorPostingGroup.Get(Vendor."Vendor Posting Group");
             GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
             UpdateUnitCostOnPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.");
@@ -668,7 +668,7 @@
         // Setup: Create Item. Create Assembly Header.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', LibraryRandom.RandDec(10, 2), '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', LibraryRandom.RandDec(10, 2), '');
 
         // Exercise.
         asserterror AssemblyHeader.Validate("Quantity to Assemble", AssemblyHeader.Quantity + LibraryRandom.RandDec(10, 2));  // Greater value is required to generate the error.
@@ -930,7 +930,7 @@
             // Exercise.
             LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');
             LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
-            LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+            LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
             // Verify.
             VerifyGLEntry(DocumentNo, GeneralPostingSetup."Direct Cost Applied Account", -PurchaseLine."Line Amount");
@@ -1516,7 +1516,7 @@
 
         // [WHEN] In sales order line, set an item that is not on inventory
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.Previous();
 
         // [THEN] "Item Availability" in "Sales Line Details" factbox is -1
@@ -1550,7 +1550,7 @@
         // [WHEN] Set Quantity = 1 on the sales line.
         SalesOrder.SalesLines.Quantity.SetValue(1);
 
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.Previous();
 
         // [THEN] Item Availability in Sales Line Details Factbox is equal to 0.55556 (rounded to the 5th digit).
@@ -1622,7 +1622,7 @@
         CreateAndPostSalesInvoiceFromShipment(SalesHeaderOrder);
 
         // [WHEN] Delete "SO"
-        SalesHeaderOrder.Find;
+        SalesHeaderOrder.Find();
         SalesHeaderOrder.Delete(true);
 
         // [THEN] "SO" deleted without any error and "PL" updated
@@ -1665,7 +1665,7 @@
         CreateAndPostSalesInvoiceFromShipment(SalesHeaderOrder);
 
         // [WHEN] Delete "SO"
-        SalesHeaderOrder.Find;
+        SalesHeaderOrder.Find();
         SalesHeaderOrder.Delete(true);
 
         // [THEN] "SO" deleted without any error
@@ -2361,7 +2361,7 @@
         LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, true);
 
         // [WHEN] Delete the sales order "SO"
-        SalesHeaderOrder.Find;
+        SalesHeaderOrder.Find();
         SalesHeaderOrder.Delete(true);
 
         // [THEN] Sales order is deleted
@@ -2412,7 +2412,7 @@
         // [GIVEN] Blanket sales order with customer "C", item "I" and unit price "X".
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeaderBlanketOrder, SalesLineBlanketOrder, SalesHeaderBlanketOrder."Document Type"::"Blanket Order",
-          LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate);
+          LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
         SalesLineBlanketOrder.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLineBlanketOrder.Modify(true);
 
@@ -2456,7 +2456,7 @@
         // [GIVEN] Blanket purchase order with vendor "V", item "I" and direct unit cost "X".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchHeaderBlanketOrder, PurchLineBlanketOrder, PurchHeaderBlanketOrder."Document Type"::"Blanket Order",
-          PurchLineOrder."Buy-from Vendor No.", PurchLineOrder."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          PurchLineOrder."Buy-from Vendor No.", PurchLineOrder."No.", LibraryRandom.RandInt(10), '', WorkDate());
         PurchLineBlanketOrder.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchLineBlanketOrder.Modify(true);
 
@@ -2490,7 +2490,7 @@
         // [GIVEN] Sales return order "SRO" with a lot-tracked line.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo,
-          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(1);
@@ -2530,7 +2530,7 @@
         // [GIVEN] Purchase order "PO" with a lot-tracked line.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
         LibraryVariableStorage.Enqueue(1);
@@ -2851,7 +2851,7 @@
 
         // [WHEN] Set "Qty. to Invoice" = 20 in the purchase line, set "Qty. to Invoice" = 0 on the first lot in item tracking lines, and post the purchase invoice.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::UpdateQtyOnFirstLine);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.OpenItemTrackingLines();
         PostPartialPurchaseInvoice(PurchaseHeader, PurchaseLine, 20);
 
@@ -2944,7 +2944,7 @@
 
         // [WHEN] Set "Qty. to Invoice" = 20 in the sales line, set "Qty. to Invoice" = 0 on the first lot in item tracking lines, and post the sales invoice.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::UpdateQtyOnFirstLine);
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.OpenItemTrackingLines();
         PostPartialSalesInvoice(SalesHeader, SalesLine, 20);
 
@@ -3481,7 +3481,7 @@
 
         // [WHEN] Change "Receipt Date" on Transfer Line to 09-01-2022
         LibraryWarehouse.ReopenTransferOrder(TransferHeader);
-        NewDate := LibraryRandom.RandDateFrom(WorkDate, 14);
+        NewDate := LibraryRandom.RandDateFrom(WorkDate(), 14);
         TransferLine.Validate("Receipt Date", NewDate);
         TransferLine.Modify(true);
 
@@ -3658,7 +3658,7 @@
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -3767,7 +3767,7 @@
         MfgSetup.Get();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
-        SalesLine.Validate("Shipment Date", CalcDate(MfgSetup."Default Safety Lead Time", WorkDate)); // To avoid Due Date Before Work Date message.
+        SalesLine.Validate("Shipment Date", CalcDate(MfgSetup."Default Safety Lead Time", WorkDate())); // To avoid Due Date Before Work Date message.
         SalesLine.Validate("Qty. to Assemble to Order", Quantity2);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3853,7 +3853,7 @@
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, DocumentType, '', ItemNo, Quantity, '', WorkDate);
+          PurchaseHeader, PurchaseLine, DocumentType, '', ItemNo, Quantity, '', WorkDate());
         UpdateBinCodeJobNoAndJobTaskNoOnPurchaseLine(PurchaseLine, JobTask, '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         exit(PurchaseHeader."No.");
@@ -3879,7 +3879,7 @@
     local procedure CreateAndUpdateTask(var Task: Record "To-do"; Contact: Record Contact)
     begin
         LibraryMarketing.CreateTask(Task);
-        Task.Validate(Date, WorkDate);
+        Task.Validate(Date, WorkDate());
         Task.Validate("Contact No.", Contact."No.");
         Task.Validate("Salesperson Code", Contact."Salesperson Code");
         Task.Modify(true);
@@ -3905,8 +3905,8 @@
         Currency.Modify();
 
         CreateCurrencyExchangeRate(
-          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
-        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate());
     end;
 
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
@@ -4099,8 +4099,8 @@
         NoSeries: Record "No. Series";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);  // Use True for Default and Manual.
-        CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, WorkDate);
-        CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+        CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, WorkDate());
+        CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
     end;
 
     local procedure CreatePurchaseHeaderWithLeadTimeCalculation(var PurchaseHeader: Record "Purchase Header")
@@ -4273,7 +4273,7 @@
         end;
         with PurchaseHeader do begin
             Validate("Ship-to Code", ShipToAddress.Code);
-            Modify;
+            Modify();
             PurchaseShipToCode := "Ship-to Code";
         end;
     end;
@@ -4579,7 +4579,7 @@
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             Type := Type::Item;
@@ -4591,12 +4591,12 @@
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
             "Item No." := ItemNo;
             Quantity := Qty;
             "Remaining Quantity" := Quantity;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -4638,7 +4638,7 @@
         TransferHeader.FindSet();
         repeat
             LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);  // Post as SHIP and RECEIVE.
-        until TransferHeader.Next = 0;
+        until TransferHeader.Next() = 0;
     end;
 
     local procedure PostPartialPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal)
@@ -4699,12 +4699,12 @@
     begin
         FindSalesLine(SalesLine, SalesLine."Document Type"::Order, SalesHeader."No.");
         LibraryVariableStorage.Enqueue(OrderDateOnSalesHeaderMsg);  // Enqueue for MessageHandler.
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
         SalesHeader.Validate("Document Date", PostingDate);
         UpdateExternalDocumentNoOnSalesOrder(SalesHeader, SalesHeader."No.");
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := PostingDate;  // Fix for GB.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post Ship and Invoice.
         WorkDate := OldWorkDate;
@@ -4852,7 +4852,7 @@
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Stockout Warning", NewStockoutWarning);
             Modify(true);
         end;
@@ -4863,7 +4863,7 @@
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             OldDefQtyToShip := "Default Quantity to Ship";
             Validate("Default Quantity to Ship", NewDefQtyToShip);
             Modify(true);
@@ -4956,7 +4956,7 @@
 
     local procedure UpdateQtysToPostOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal; QtyToInvoice: Decimal)
     begin
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
         PurchaseLine.Validate("Qty. to Invoice", QtyToInvoice);
         PurchaseLine.Modify(true);
@@ -4964,7 +4964,7 @@
 
     local procedure UpdateQuantityToInvoiceOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; QuantityToInvoice: Decimal)
     begin
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Qty. to Invoice", QuantityToInvoice);
         PurchaseLine.Modify(true);
     end;
@@ -4982,7 +4982,7 @@
 
     local procedure UpdateQtysToPostOnSalesLine(var SalesLine: Record "Sales Line"; QtyToShip: Decimal; QtyToInvoice: Decimal)
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", QtyToShip);
         SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
         SalesLine.Modify(true);
@@ -4990,7 +4990,7 @@
 
     local procedure UpdateQuantityToInvoiceOnSalesLine(var SalesLine: Record "Sales Line"; QuantityToInvoice: Decimal)
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Invoice", QuantityToInvoice);
         SalesLine.Modify(true);
     end;
@@ -5046,7 +5046,7 @@
         Task.SetRange("Contact No.", ContactNo);
         Task.FindSet();
         Task.TestField(Description, Description);
-        Task.Next;
+        Task.Next();
         Task.TestField(Description, Description);
     end;
 
@@ -5094,7 +5094,7 @@
     begin
         FindItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
         if MoveNext then
-            ItemLedgerEntry.Next;
+            ItemLedgerEntry.Next();
         ItemLedgerEntry.TestField("Lot No.", LotNo);
         ItemLedgerEntry.TestField(Quantity, Quantity)
     end;
@@ -5153,7 +5153,7 @@
         FilterPurchRcptLine(PurchRcptLine, OrderNo, ItemNo, ItemNo2);
         PurchRcptLine.FindSet();
         Assert.AreEqual(Quantity, PurchRcptLine.Quantity, QuantityMustBeSameErr);
-        PurchRcptLine.Next;
+        PurchRcptLine.Next();
         Assert.AreEqual(-Quantity, PurchRcptLine.Quantity, QuantityMustBeSameErr);
     end;
 
@@ -5163,7 +5163,7 @@
     begin
         FilterReturnShipmentLine(ReturnShipmentLine, OrderNo, ItemNo, ItemNo2);
         Assert.AreEqual(Quantity, ReturnShipmentLine.Quantity, QuantityMustBeSameErr);
-        ReturnShipmentLine.Next;
+        ReturnShipmentLine.Next();
         Assert.AreEqual(-Quantity, ReturnShipmentLine.Quantity, QuantityMustBeSameErr);
     end;
 
@@ -5214,7 +5214,7 @@
 
     local procedure VerifyInvoiceQtyOnSalesLine(SalesLine: Record "Sales Line"; QtyToInvoice: Decimal; QtyInvoiced: Decimal)
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Qty. to Invoice", QtyToInvoice);
         SalesLine.TestField("Quantity Invoiced", QtyInvoiced);
     end;
@@ -5224,10 +5224,10 @@
         SalesLine: Record "Sales Line";
     begin
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
-        SalesLine.Next; // the first line is description of Assembly BOM, just skip
+        SalesLine.Next(); // the first line is description of Assembly BOM, just skip
         SalesLine.TestField(Type, 0);
         SalesLine.TestField(Description, ExtendedText);
-        SalesLine.Next;
+        SalesLine.Next();
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.TestField("No.", CompItemNo);
     end;
@@ -5252,7 +5252,7 @@
         VerifyItemTrackingInItemLedgerEntry(ItemLedgerEntry."Entry Type"::Sale, ItemNo, LotNos, -Qty);
         VerifySalesShipmentLine(ItemNo, Qty);
 
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Assert.RecordIsEmpty(SalesHeader);
     end;
 
@@ -5309,7 +5309,7 @@
 
     local procedure VerifyInvoiceQtyOnPurchaseLine(PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal; QtyInvoiced: Decimal)
     begin
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Qty. to Invoice", QtyToInvoice);
         PurchaseLine.TestField("Quantity Invoiced", QtyInvoiced);
     end;
@@ -5331,10 +5331,10 @@
         PurchLine: Record "Purchase Line";
     begin
         FindPurchaseLineByHeader(PurchLine, PurchHeader);
-        PurchLine.Next; // the first line is description of Assembly BOM, just skip
+        PurchLine.Next(); // the first line is description of Assembly BOM, just skip
         PurchLine.TestField(Type, 0);
         PurchLine.TestField(Description, ExtendedText);
-        PurchLine.Next;
+        PurchLine.Next();
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.TestField("No.", CompItemNo);
     end;
@@ -5346,7 +5346,7 @@
         VerifyItemTrackingInItemLedgerEntry(ItemLedgerEntry."Entry Type"::Purchase, ItemNo, LotNos, Qty);
         VerifyPurchReceiptLine(ItemNo, Qty);
 
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
 
@@ -5489,7 +5489,7 @@
                     for i := 1 to NoOfLots do begin
                         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
                         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                     end;
                 end;
             ItemTrackingMode::SelectEntries:
@@ -5606,7 +5606,7 @@
 
         PostedSalesDocumentLines.PostedShpts.First;
         PostedSalesDocumentLines.PostedShpts."Document No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PostedSalesDocumentLines.PostedShpts.Next;
+        PostedSalesDocumentLines.PostedShpts.Next();
         PostedSalesDocumentLines.PostedShpts."Document No.".AssertEquals(LibraryVariableStorage.DequeueText);
         Assert.IsFalse(PostedSalesDocumentLines.Next, StrSubstNo(WrongNoOfDocumentsListErr, 2));
     end;

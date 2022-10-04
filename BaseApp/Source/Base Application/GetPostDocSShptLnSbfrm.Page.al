@@ -13,7 +13,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     HideValue = DocumentNoHideValue;
@@ -21,18 +21,18 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the customer.';
@@ -43,18 +43,18 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Item Reference No."; "Item Reference No.")
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -71,44 +71,44 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies either the name of or the description of the item, general ledger account or item charge.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the location in which the invoice line was registered.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -118,7 +118,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of units of the item, general ledger account, or item charge on the line.';
                 }
-                field("Qty. Shipped Not Invoiced"; "Qty. Shipped Not Invoiced")
+                field("Qty. Shipped Not Invoiced"; Rec."Qty. Shipped Not Invoiced")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the quantity of the shipped item that has been posted as shipped but that has not yet been posted as invoiced.';
@@ -130,20 +130,20 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity from the posted document line that has been shipped to the customer and not returned by the customer.';
                 }
-                field(QtyReturned; GetQtyReturned)
+                field(QtyReturned; GetQtyReturned())
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Qty. Returned';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity that was returned.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
@@ -157,31 +157,31 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ToolTip = 'Specifies the unit cost that will appear on the new document lines.';
                     Visible = false;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Blanket Order No."; "Blanket Order No.")
+                field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
-                field("Blanket Order Line No."; "Blanket Order Line No.")
+                field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
-                field("Appl.-from Item Entry"; "Appl.-from Item Entry")
+                field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
@@ -208,7 +208,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ShowPostedShipment;
+                        ShowPostedShipment();
                     end;
                 }
                 action(Dimensions)
@@ -235,7 +235,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ShowShptItemTrackingLines;
+                        ShowShptItemTrackingLines();
                     end;
                 }
             }
@@ -245,7 +245,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
     trigger OnAfterGetRecord()
     begin
         DocumentNoHideValue := false;
-        DocumentNoOnFormat;
+        DocumentNoOnFormat();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -293,7 +293,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := SalesShptLine;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 
@@ -405,12 +405,12 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
         FromSalesShptLine: Record "Sales Shipment Line";
     begin
         GetSelectedLine(FromSalesShptLine);
-        FromSalesShptLine.ShowItemTrackingLines;
+        FromSalesShptLine.ShowItemTrackingLines();
     end;
 
     local procedure DocumentNoOnFormat()
     begin
-        if not IsFirstDocLine then
+        if not IsFirstDocLine() then
             DocumentNoHideValue := true;
     end;
 

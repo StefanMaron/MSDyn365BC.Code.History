@@ -9,7 +9,7 @@ codeunit 6227 "Signed XML Mgt."
     var
         XmlDocument: DotNet XmlDocument;
     begin
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
         XmlDocument.Load(XmlStream);
         exit(CheckXmlSignature(XmlDocument, PublicKey));
     end;
@@ -18,7 +18,7 @@ codeunit 6227 "Signed XML Mgt."
     var
         XmlDocument: DotNet XmlDocument;
     begin
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
         XmlDocument.LoadXml(XmlText);
         exit(CheckXmlSignature(XmlDocument, PublicKey));
     end;
@@ -40,7 +40,7 @@ codeunit 6227 "Signed XML Mgt."
             exit(false);
 
         // Import key
-        RSAKey := RSAKey.RSACryptoServiceProvider;
+        RSAKey := RSAKey.RSACryptoServiceProvider();
         RSAKey.ImportCspBlob(Convert.FromBase64String(PublicKey));
 
         SignedXml := SignedXml.SignedXml(XmlDocument);
@@ -54,15 +54,15 @@ codeunit 6227 "Signed XML Mgt."
         StringWiter: DotNet StringWriter;
         XmlWriter: DotNet XmlTextWriter;
     begin
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
         XmlDocument.LoadXml(XmlText);
         SignXmlDocument(XmlDocument, PrivateKey);
 
-        StringWiter := StringWiter.StringWriter;
+        StringWiter := StringWiter.StringWriter();
         XmlWriter := XmlWriter.XmlTextWriter(StringWiter);
         XmlDocument.WriteTo(XmlWriter);
 
-        exit(StringWiter.ToString);
+        exit(StringWiter.ToString());
     end;
 
     [Scope('OnPrem')]
@@ -75,17 +75,17 @@ codeunit 6227 "Signed XML Mgt."
         Env: DotNet XmlDsigEnvelopedSignatureTransform;
     begin
         // Import key
-        RSAKey := RSAKey.RSACryptoServiceProvider;
+        RSAKey := RSAKey.RSACryptoServiceProvider();
         RSAKey.ImportCspBlob(Convert.FromBase64String(PrivateKey));
 
         SignedXml := SignedXml.SignedXml(XmlDocument);
         SignedXml.SigningKey := RSAKey;
 
         DocReference := DocReference.Reference('');
-        DocReference.AddTransform(Env.XmlDsigEnvelopedSignatureTransform);
+        DocReference.AddTransform(Env.XmlDsigEnvelopedSignatureTransform());
         SignedXml.AddReference(DocReference);
-        SignedXml.ComputeSignature;
-        XmlDocument.DocumentElement.AppendChild(XmlDocument.ImportNode(SignedXml.GetXml, true));
+        SignedXml.ComputeSignature();
+        XmlDocument.DocumentElement.AppendChild(XmlDocument.ImportNode(SignedXml.GetXml(), true));
     end;
 }
 

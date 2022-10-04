@@ -17,13 +17,13 @@ page 362 "Res. Gr. Availability Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the start date of the period defined on the line for the resource group. ';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -36,14 +36,14 @@ page 362 "Res. Gr. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the total capacity for the corresponding time period.';
                 }
-                field("ResGr.""Qty. on Order (Job)"""; "Qty. on Order (Job)")
+                field("ResGr.""Qty. on Order (Job)"""; Rec."Qty. on Order (Job)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Order';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the amount of measuring units allocated to jobs with the status order.';
                 }
-                field("ResGr.""Qty. on Service Order"""; "Qty. on Service Order")
+                field("ResGr.""Qty. on Service Order"""; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. Allocated on Service Order';
@@ -57,7 +57,7 @@ page 362 "Res. Gr. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the capacity minus the quantity on order.';
                 }
-                field("ResGr.""Qty. Quoted (Job)"""; "Qty. Quoted (Job)")
+                field("ResGr.""Qty. Quoted (Job)"""; Rec."Qty. Quoted (Job)")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Job Quotes Allocation';

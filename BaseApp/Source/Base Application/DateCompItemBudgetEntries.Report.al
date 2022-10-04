@@ -58,7 +58,7 @@ report 7139 "Date Comp. Item Budget Entries"
                       TempSelectedDim, "Dimension Set ID", "Entry No.", 0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewItemBudgetEntry, ItemBudgetEntry2);
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         DimBufMgt.CollectDimEntryNo(
                           TempSelectedDim, "Dimension Set ID", "Entry No.", ComprDimEntryNo, true, DimEntryNo);
                         if DimEntryNo = ComprDimEntryNo then
@@ -67,7 +67,7 @@ report 7139 "Date Comp. Item Budget Entries"
 
                     InsertNewEntry(NewItemBudgetEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -111,7 +111,7 @@ report 7139 "Date Comp. Item Budget Entries"
                 if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Comp. Item Budget Entries", true);
                     if not SkipAnalysisViewUpdateCheck then
-                        AnalysisView.CheckViewsAreUpdated;
+                        AnalysisView.CheckViewsAreUpdated();
                     Commit();
                 end;
 
@@ -144,7 +144,7 @@ report 7139 "Date Comp. Item Budget Entries"
                 SetRange(Date, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                 SetRange("Analysis Area", AnalysisAreaSelection);
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Comp. Item Budget Entries"));
@@ -242,7 +242,7 @@ report 7139 "Date Comp. Item Budget Entries"
 
         trigger OnOpenPage()
         begin
-            InitializeVariables;
+            InitializeVariables();
         end;
 
         trigger OnInit()
@@ -261,7 +261,7 @@ report 7139 "Date Comp. Item Budget Entries"
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Date Comp. Item Budget Entries", '', RetainDimText, Text009);
-        ItemBudgetEntryFilter := "Item Budget Entry".GetFilters;
+        ItemBudgetEntryFilter := "Item Budget Entry".GetFilters();
 
         DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
         LogStartTelemetryMessage();
@@ -273,15 +273,6 @@ report 7139 "Date Comp. Item Budget Entries"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text002: Label '%1 must be specified.';
-        Text003: Label 'Date compressing Item budget entries...\\';
-        Text004: Label 'Budget Name          #1##########\';
-        Text005: Label 'Item No.             #2##########\';
-        Text006: Label 'Date                 #3######\\';
-        Text007: Label 'No. of new entries   #4######\';
-        Text008: Label 'No. of entries del.  #5######';
-        Text009: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -314,6 +305,16 @@ report 7139 "Date Comp. Item Budget Entries"
         AnalysisAreaSelection: Enum "Analysis Area Type";
         ItemBudgetEntryFilter: Text;
         SkipAnalysisViewUpdateCheck: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text002: Label '%1 must be specified.';
+        Text003: Label 'Date compressing Item budget entries...\\';
+        Text004: Label 'Budget Name          #1##########\';
+        Text005: Label 'Item No.             #2##########\';
+        Text006: Label 'Date                 #3######\\';
+        Text007: Label 'No. of new entries   #4######\';
+        Text008: Label 'No. of entries del.  #5######';
+        Text009: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -354,7 +355,7 @@ report 7139 "Date Comp. Item Budget Entries"
         CurrLastEntryNo := ItemBudgetEntry2.GetLastEntryNo();
         if LastEntryNo <> CurrLastEntryNo then begin
             LastEntryNo := CurrLastEntryNo;
-            InitRegisters;
+            InitRegisters();
         end;
     end;
 
@@ -383,7 +384,7 @@ report 7139 "Date Comp. Item Budget Entries"
             NewItemBudgetEntry.Quantity := NewItemBudgetEntry.Quantity + Quantity;
             NewItemBudgetEntry."Cost Amount" := NewItemBudgetEntry."Cost Amount" + "Cost Amount";
             NewItemBudgetEntry."Sales Amount" := NewItemBudgetEntry."Sales Amount" + "Sales Amount";
-            Delete;
+            Delete();
             if "Entry No." < LowestEntryNo then
                 LowestEntryNo := "Entry No.";
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
@@ -416,7 +417,7 @@ report 7139 "Date Comp. Item Budget Entries"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewItemBudgetEntry: Record "Item Budget Entry")
@@ -480,7 +481,7 @@ report 7139 "Date Comp. Item Budget Entries"
 
     procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[100]; RetainDimensions: Text[250]; DoUseDataArchive: Boolean)
     begin
-        InitializeVariables;
+        InitializeVariables();
         AnalysisAreaSelection := "Analysis Area Type".FromInteger(AnalAreaSelection);
         EntrdDateComprReg."Starting Date" := StartDate;
         EntrdDateComprReg."Ending Date" := EndDate;

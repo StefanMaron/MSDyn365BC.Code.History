@@ -29,7 +29,7 @@ table 7501 "Item Attribute Value"
                     exit;
 
                 TestField(Value);
-                if HasBeenUsed then
+                if HasBeenUsed() then
                     if not Confirm(RenameUsedAttributeValueQst) then
                         Error('');
 
@@ -114,7 +114,7 @@ table 7501 "Item Attribute Value"
         ItemAttrValueTranslation: Record "Item Attr. Value Translation";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
-        if HasBeenUsed then
+        if HasBeenUsed() then
             if not Confirm(DeleteUsedAttributeValueQst) then
                 Error('');
         ItemAttributeValueMapping.SetRange("Item Attribute ID", "Attribute ID");
@@ -127,11 +127,12 @@ table 7501 "Item Attribute Value"
     end;
 
     var
+        TransformationRule: Record "Transformation Rule";
+
         NameAlreadyExistsErr: Label 'The item attribute value with value ''%1'' already exists.', Comment = '%1 - arbitrary name';
         ReuseValueTranslationsQst: Label 'There are translations for item attribute value ''%1''.\\Do you want to reuse these translations for the new value ''%2''?', Comment = '%1 - arbitrary name,%2 - arbitrary name';
         DeleteUsedAttributeValueQst: Label 'This item attribute value has been assigned to at least one item.\\Are you sure you want to delete it?';
         RenameUsedAttributeValueQst: Label 'This item attribute value has been assigned to at least one item.\\Are you sure you want to rename it?';
-        TransformationRule: Record "Transformation Rule";
 
     procedure LookupAttributeValue(AttributeID: Integer; var AttributeValueID: Integer)
     var
@@ -143,7 +144,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValues.SetTableView(ItemAttributeValue);
         if ItemAttributeValue.Get(AttributeID, AttributeValueID) then
             ItemAttributeValues.SetRecord(ItemAttributeValue);
-        if ItemAttributeValues.RunModal = ACTION::LookupOK then begin
+        if ItemAttributeValues.RunModal() = ACTION::LookupOK then begin
             ItemAttributeValues.GetRecord(ItemAttributeValue);
             AttributeValueID := ItemAttributeValue.ID;
         end;
@@ -154,7 +155,7 @@ table 7501 "Item Attribute Value"
         ItemAttribute: Record "Item Attribute";
     begin
         if ItemAttribute.Get("Attribute ID") then
-            exit(ItemAttribute.GetNameInCurrentLanguage);
+            exit(ItemAttribute.GetNameInCurrentLanguage());
         exit('');
     end;
 
@@ -162,7 +163,7 @@ table 7501 "Item Attribute Value"
     var
         ItemAttribute: Record "Item Attribute";
     begin
-        ValueTxt := GetValueInCurrentLanguageWithoutUnitOfMeasure;
+        ValueTxt := GetValueInCurrentLanguageWithoutUnitOfMeasure();
 
         if ItemAttribute.Get("Attribute ID") then
             case ItemAttribute.Type of
@@ -257,7 +258,7 @@ table 7501 "Item Attribute Value"
     begin
         ItemAttributeValueMapping.SetRange("Item Attribute ID", "Attribute ID");
         ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ID);
-        AttributeHasBeenUsed := not ItemAttributeValueMapping.IsEmpty;
+        AttributeHasBeenUsed := not ItemAttributeValueMapping.IsEmpty();
         OnAfterHasBeenUsed(Rec, AttributeHasBeenUsed);
         exit(AttributeHasBeenUsed);
     end;
@@ -312,7 +313,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         ItemAttributeValue: Record "Item Attribute Value";
     begin
-        Reset;
+        Reset();
         DeleteAll();
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", KeyValue);
@@ -321,7 +322,7 @@ table 7501 "Item Attribute Value"
                 if ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID") then begin
                     TransferFields(ItemAttributeValue);
                     OnLoadItemAttributesFactBoxDataOnBeforeInsert(ItemAttributeValueMapping, Rec);
-                    Insert;
+                    Insert();
                 end
             until ItemAttributeValueMapping.Next() = 0;
     end;
@@ -332,7 +333,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValue: Record "Item Attribute Value";
         ItemCategory: Record "Item Category";
     begin
-        Reset;
+        Reset();
         DeleteAll();
         if CategoryCode = '' then
             exit;
@@ -345,7 +346,7 @@ table 7501 "Item Attribute Value"
                         if not AttributeExists(ItemAttributeValue."Attribute ID") then begin
                             TransferFields(ItemAttributeValue);
                             OnLoadItemAttributesFactBoxDataOnBeforeInsert(ItemAttributeValueMapping, Rec);
-                            Insert;
+                            Insert();
                         end;
                 until ItemAttributeValueMapping.Next() = 0;
             if ItemCategory.Get(CategoryCode) then
@@ -358,8 +359,8 @@ table 7501 "Item Attribute Value"
     local procedure AttributeExists(AttributeID: Integer) AttribExist: Boolean
     begin
         SetRange("Attribute ID", AttributeID);
-        AttribExist := not IsEmpty;
-        Reset;
+        AttribExist := not IsEmpty();
+        Reset();
     end;
 
     [IntegrationEvent(false, false)]

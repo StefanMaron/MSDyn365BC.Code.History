@@ -72,9 +72,9 @@ codeunit 137009 "SCM Availability by Event"
         Evaluate(Item."Rescheduling Period", '<5D>');
         Item.Modify(true);
 
-        CreatePurchaseOrder(PurchaseLine, Item."No.", 8, CalcDate('<+5D>', WorkDate));
-        CreateSalesOrder(SalesLine, Item."No.", 7, CalcDate('<+11D>', WorkDate));
-        LibraryManufacturing.CalculateWorksheetPlan(Item, CalcDate('<+2D>', WorkDate), CalcDate('<+16D>', WorkDate));
+        CreatePurchaseOrder(PurchaseLine, Item."No.", 8, CalcDate('<+5D>', WorkDate()));
+        CreateSalesOrder(SalesLine, Item."No.", 7, CalcDate('<+11D>', WorkDate()));
+        LibraryManufacturing.CalculateWorksheetPlan(Item, CalcDate('<+2D>', WorkDate()), CalcDate('<+16D>', WorkDate()));
 
         // Should give 2 lines + Cancel + New from Planning plus one per Period Type, no excess inventory
         RunPage(Item, '', false, true, 0, 6, 0);
@@ -106,13 +106,13 @@ codeunit 137009 "SCM Availability by Event"
         UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
 
         // Create forecasted demand for the first item variant 
-        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate), false);
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate()), false);
         ProductionForecastEntry.Validate("Variant Code", ItemVariant.Code);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", 3);
         ProductionForecastEntry.Modify(true);
 
         // Create forecasted demand for the second item variant 
-        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry2, ProductionForecastName.Name, Item."No.", '', CalcDate('<+10D>', WorkDate), false);
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry2, ProductionForecastName.Name, Item."No.", '', CalcDate('<+10D>', WorkDate()), false);
         ProductionForecastEntry2.Validate("Variant Code", ItemVariant2.Code);
         ProductionForecastEntry2.Validate("Forecast Quantity (Base)", 9);
         ProductionForecastEntry2.Modify(true);
@@ -148,13 +148,13 @@ codeunit 137009 "SCM Availability by Event"
 
 
         // Create forecasted demand for the first item variant 
-        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate), false);
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate()), false);
         ProductionForecastEntry.Validate("Variant Code", ItemVariant.Code);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", 3);
         ProductionForecastEntry.Modify(true);
 
         // Create forecasted demand for the second item variant 
-        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry2, ProductionForecastName.Name, Item."No.", '', CalcDate('<+10D>', WorkDate), false);
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry2, ProductionForecastName.Name, Item."No.", '', CalcDate('<+10D>', WorkDate()), false);
         ProductionForecastEntry2.Validate("Variant Code", ItemVariant2.Code);
         ProductionForecastEntry2.Validate("Forecast Quantity (Base)", 9);
         ProductionForecastEntry2.Modify(true);
@@ -194,11 +194,11 @@ codeunit 137009 "SCM Availability by Event"
 
         // [GIVEN] Purchase order for item "X", quantity = "Q"
         LibraryPatterns.MAKEPurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, Location.Code, '', LibraryRandom.RandInt(100), WorkDate, Item."Unit Cost");
+          PurchaseHeader, PurchaseLine, Item, Location.Code, '', LibraryRandom.RandInt(100), WorkDate(), Item."Unit Cost");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Sales order with reservation against purchase order, reserved quantity = "Q"
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, Location.Code, '', PurchaseLine.Quantity, WorkDate, Item."Unit Price");
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, Location.Code, '', PurchaseLine.Quantity, WorkDate(), Item."Unit Price");
 
         SalesLine.Validate("Shipment Date", PurchaseLine."Expected Receipt Date");
         SalesLine.Modify(true);
@@ -230,10 +230,10 @@ codeunit 137009 "SCM Availability by Event"
 
         // [GIVEN] "Q" units of item "X" on inventory
         Quantity := LibraryRandom.RandInt(100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Quantity, WorkDate, Item."Unit Cost");
+        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Quantity, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Purchase return order with "Q" units of item "X" reserved on inventory
-        LibraryPatterns.MAKEPurchaseReturnOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '', Quantity, WorkDate, Item."Unit Cost");
+        LibraryPatterns.MAKEPurchaseReturnOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '', Quantity, WorkDate(), Item."Unit Cost");
         AutoReservePurchaseLine(PurchaseLine);
 
         // [WHEN] Item availability by event is calculated
@@ -269,16 +269,16 @@ codeunit 137009 "SCM Availability by Event"
         // [GIVEN] "Q" pcs of item "I" is is stock on "L1".
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
         Qty := LibraryRandom.RandIntInRange(50, 100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, FromLocation.Code, '', '', Qty, WorkDate, Item."Unit Cost");
+        LibraryPatterns.POSTPositiveAdjustment(Item, FromLocation.Code, '', '', Qty, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Transfer Order from "L1" to "L2". Quantity = "Q", "Qty. to Ship" = "q" < "Q".
         LibraryPatterns.MAKETransferOrder(
-          TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate, WorkDate);
+          TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate(), WorkDate());
         TransferLine.Validate("Qty. to Ship", LibraryRandom.RandInt(20));
         TransferLine.Modify(true);
 
         // [GIVEN] Sales Order for "Q" pcs is reserved from Transfer Order.
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, ToLocation.Code, '', Qty, WorkDate, Item."Unit Price");
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, ToLocation.Code, '', Qty, WorkDate(), Item."Unit Price");
         SalesLine.Validate("Shipment Date", LibraryRandom.RandDate(10));
         SalesLine.Modify(true);
         AutoReserveSalesLine(SalesLine);
@@ -286,7 +286,7 @@ codeunit 137009 "SCM Availability by Event"
         // [GIVEN] Transfer Order is shipped.
         // [GIVEN] Reserved Qty. Inbnd. (Base) becomes equal to "Q" - "q", Reserved Qty. Shipped (Base) = "q".
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.CalcFields("Reserved Qty. Inbnd. (Base)", "Reserved Qty. Shipped (Base)");
 
         // [WHEN] Calculate item availability by event.
@@ -321,7 +321,7 @@ codeunit 137009 "SCM Availability by Event"
         LibraryWarehouse.CreateLocation(Location);
 
         // [GIVEN] Create a Sales Order with single Sales Line, Location Code left empty
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate, LibraryRandom.RandInt(10));
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Open created Sales Order on test page
         SalesOrder.OpenEdit;
@@ -358,7 +358,7 @@ codeunit 137009 "SCM Availability by Event"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
         // [GIVEN] Create a Sales Order with single Sales Line, Variant Code left empty
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate, LibraryRandom.RandInt(10));
+        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Open created Sales Order on test page
         SalesOrder.OpenEdit;
@@ -399,11 +399,11 @@ codeunit 137009 "SCM Availability by Event"
         ItemCard.Period.Invoke;
 
         // [WHEN] Drill down Gross Requirement value on Item Availability by Periods page.
-        LibraryVariableStorage.Enqueue(ProdOrderComponent.TableCaption);
+        LibraryVariableStorage.Enqueue(ProdOrderComponent.TableCaption());
         LibraryVariableStorage.Enqueue(Qty);
         LibraryVariableStorage.Enqueue(Item."No.");
         LibraryVariableStorage.Enqueue(Qty);
-        ItemAvailabilityByPeriod.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemAvailabilityByPeriod.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ItemAvailabilityByPeriod.ItemAvailLines.GrossRequirement.DrillDown;
 
         // [THEN] Gross Requirement for "I" shows "X" units in prod. order components.
@@ -440,12 +440,12 @@ codeunit 137009 "SCM Availability by Event"
         LibraryAssembly.CreateAssemblyListComponent(BOMComponent.Type::Item, CompItem."No.", AsmItem."No.", '', 0, 1, true);
 
         // [GIVEN] Assembly order for item "A". Demand of component "C" = 10 pcs.
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AsmItem."No.", '', QtyAsm, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AsmItem."No.", '', QtyAsm, '');
 
         // [GIVEN] Add a demand forecast entry with item "C" and "Forecast Quantity" = 100 pcs.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         LibraryManufacturing.CreateProductionForecastEntry(
-          ProductionForecastEntry, ProductionForecastName.Name, CompItem."No.", '', CalcDate('<-CM>', WorkDate), true);
+          ProductionForecastEntry, ProductionForecastName.Name, CompItem."No.", '', CalcDate('<-CM>', WorkDate()), true);
         ProductionForecastEntry.Validate("Qty. per Unit of Measure", 1);
         ProductionForecastEntry.Validate("Forecast Quantity", QtyForecast);
         ProductionForecastEntry.Modify(true);
@@ -464,7 +464,7 @@ codeunit 137009 "SCM Availability by Event"
         FullAutoReservation: Boolean;
     begin
         ReservMgt.SetReservSource(PurchaseLine);
-        ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate, PurchaseLine.Quantity, PurchaseLine."Quantity (Base)");
+        ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate(), PurchaseLine.Quantity, PurchaseLine."Quantity (Base)");
     end;
 
     local procedure AutoReserveSalesLine(SalesLine: Record "Sales Line")
@@ -502,7 +502,7 @@ codeunit 137009 "SCM Availability by Event"
                 // get one entry per involved period in tempinv
                 CalcInvtPageData.DetailsForPeriodEntry(TempInvtPageData, true);
                 CalcInvtPageData.DetailsForPeriodEntry(TempInvtPageData, false);
-            until TempInvtPageData.Next = 0;
+            until TempInvtPageData.Next() = 0;
         TempInvtPageData.SetRange(Level);
 
         // Populate the view table likedon on expandall in the page
@@ -514,7 +514,7 @@ codeunit 137009 "SCM Availability by Event"
                 PageTempInvtPageData := TempInvtPageData;
                 PageTempInvtPageData.UpdateInventorys(RunningBalance, RunningBalanceForecast, RunningBalancePlan);
                 PageTempInvtPageData.Insert();
-            until TempInvtPageData.Next = 0;
+            until TempInvtPageData.Next() = 0;
 
         Assert.AreEqual(ExpectedNoOfLines, PageTempInvtPageData.Count,
           'Asserting that the no. of lines match');
@@ -548,7 +548,7 @@ codeunit 137009 "SCM Availability by Event"
         repeat
             CalcInventoryPageData.DetailsForPeriodEntry(TempInvtPageData, true);
             CalcInventoryPageData.DetailsForPeriodEntry(TempInvtPageData, false);
-        until TempInvtPageData.Next = 0;
+        until TempInvtPageData.Next() = 0;
     end;
 
     local procedure CreateLocationsForTransfer(var FromLocation: Record Location; var ToLocation: Record Location; var InTransitLocation: Record Location)
@@ -590,13 +590,13 @@ codeunit 137009 "SCM Availability by Event"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         with ProdOrderComponent do begin
-            Init;
+            Init();
             Status := Status::"Firm Planned";
             "Item No." := ItemNo;
-            "Due Date" := WorkDate;
+            "Due Date" := WorkDate();
             "Remaining Quantity" := Qty;
             "Remaining Qty. (Base)" := Qty;
-            Insert;
+            Insert();
         end;
     end;
 

@@ -158,10 +158,6 @@ page 2591 "Dimension Correction Draft"
             action(RunDimensionChange)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = ExecuteBatch;
                 Caption = 'Run';
                 ToolTip = 'Schedule a job to update the selected dimensions.';
@@ -185,10 +181,6 @@ page 2591 "Dimension Correction Draft"
             action(Reset)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = ReOpen;
                 Enabled = Rec."Started Correction";
                 Caption = 'Reopen';
@@ -208,11 +200,7 @@ page 2591 "Dimension Correction Draft"
                 ApplicationArea = All;
                 Caption = 'Validate Dimension Changes';
                 Image = TestReport;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Validates the dimension changes.';
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 var
@@ -235,12 +223,8 @@ page 2591 "Dimension Correction Draft"
                 ApplicationArea = All;
                 Caption = 'Show Errors';
                 Image = ErrorLog;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the list of validation errors.';
                 Enabled = IsErrorActionEnabled;
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 var
@@ -248,6 +232,26 @@ page 2591 "Dimension Correction Draft"
                 begin
                     ErrorMessageManagement.ShowErrors(Rec."Validation Errors Register ID");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(RunDimensionChange_Promoted; RunDimensionChange)
+                {
+                }
+                actionref(Reset_Promoted; Reset)
+                {
+                }
+                actionref(ValidateCorrection_Promoted; ValidateCorrection)
+                {
+                }
+                actionref(ShowErrors_Promoted; ShowErrors)
+                {
+                }
             }
         }
     }

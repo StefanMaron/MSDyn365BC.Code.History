@@ -183,7 +183,7 @@ codeunit 134212 "WF Demo Item Approval"
         Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
 
         // Cleanup
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [GIVEN] Item approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
@@ -198,7 +198,7 @@ codeunit 134212 "WF Demo Item Approval"
         Assert.IsFalse(ItemCard.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(ItemCard.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(ItemCard.Delegate.Visible, 'Delegate should NOT be visible');
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [GIVEN] Approval exist on Item.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -214,7 +214,7 @@ codeunit 134212 "WF Demo Item Approval"
         Assert.IsTrue(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        ItemCard.Close;
+        ItemCard.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
@@ -254,7 +254,7 @@ codeunit 134212 "WF Demo Item Approval"
         Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
 
         // Cleanup
-        ItemList.Close;
+        ItemList.Close();
 
         // [GIVEN] Item approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
@@ -266,7 +266,7 @@ codeunit 134212 "WF Demo Item Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        ItemList.Close;
+        ItemList.Close();
 
         // [GIVEN] Approval exist on Item.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -309,7 +309,7 @@ codeunit 134212 "WF Demo Item Approval"
         Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
-        ItemCard.Close;
+        ItemCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
@@ -340,7 +340,7 @@ codeunit 134212 "WF Demo Item Approval"
         Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
-        ItemCard.Close;
+        ItemCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
@@ -384,7 +384,7 @@ codeunit 134212 "WF Demo Item Approval"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
         ItemCard.SendApprovalRequest.Invoke;
-        ItemCard.Close;
+        ItemCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
@@ -446,7 +446,7 @@ codeunit 134212 "WF Demo Item Approval"
     begin
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
-        exit(ApprovalCommentLine.FindFirst);
+        exit(ApprovalCommentLine.FindFirst())
     end;
 
     local procedure Initialize()

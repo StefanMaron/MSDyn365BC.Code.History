@@ -1,4 +1,4 @@
-﻿report 5885 "Calc. Phys. Invt. Order (Bins)"
+report 5885 "Calc. Phys. Invt. Order (Bins)"
 {
     Caption = 'Calc. Phys. Invt. Order (Bins)';
     ProcessingOnly = true;
@@ -33,33 +33,33 @@
                 WhseEntry.SetRange("Location Code", "Location Code");
                 WhseEntry.SetRange("Bin Code", Code);
                 if WhseEntry.Find('-') then
-                    repeat
-                        if Item.Get(WhseEntry."Item No.") then
-                            if not Item.Blocked then
-                                if IsNewWhseEntryGroup() then begin
-                                    LastWhseEntry := WhseEntry;
-                                    IsHandled := false;
-                                    OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
-                                      Item, WhseEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText, NextLineNo,
-                                      CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
-                                    if not IsHandled then begin
-                                        PhysInvtOrderLineArgs.PrepareLineArgs(WhseEntry);
-                                        if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                                             PhysInvtOrderLineArgs,
-                                             ErrorText,
-                                             PhysInvtOrderLine) = 0
-                                        then
-                                            CreateNewPhysInvtOrderLine;
-                                    end;
-                                end else
-                                    ItemsBlocked := true;
-                    until WhseEntry.Next() = 0;
+                        repeat
+                            if Item.Get(WhseEntry."Item No.") then
+                                if not Item.Blocked then
+                                    if IsNewWhseEntryGroup() then begin
+                                        LastWhseEntry := WhseEntry;
+                                        IsHandled := false;
+                                        OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
+                                          Item, WhseEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText, NextLineNo,
+                                          CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
+                                        if not IsHandled then begin
+                                            PhysInvtOrderLineArgs.PrepareLineArgs(WhseEntry);
+                                            if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                                                 PhysInvtOrderLineArgs,
+                                                 ErrorText,
+                                                 PhysInvtOrderLine) = 0
+                                            then
+                                                CreateNewPhysInvtOrderLine();
+                                        end;
+                                    end else
+                                        ItemsBlocked := true;
+                        until WhseEntry.Next() = 0;
             end;
 
             trigger OnPostDataItem()
             begin
                 if not HideValidationDialog then begin
-                    Window.Close;
+                    Window.Close();
                     if ItemsBlocked then
                         Message(BlockedItemMsg);
                     Message(
@@ -127,10 +127,6 @@
     }
 
     var
-        CalculatingLinesMsg: Label 'Calculating the order lines...\\';
-        LocationAndBinMsg: Label 'Location #1########   Bin #2############', Comment = '%1,%2 = counters';
-        LinesCreatedMsg: Label '%1 new lines have been created.', Comment = '%1 = counter';
-        BlockedItemMsg: Label 'There is at least one blocked item that was skipped.';
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
         Location: Record Location;
@@ -145,6 +141,11 @@
         ZeroQty: Boolean;
         CalcQtyExpected: Boolean;
         ItemsBlocked: Boolean;
+
+        CalculatingLinesMsg: Label 'Calculating the order lines...\\';
+        LocationAndBinMsg: Label 'Location #1########   Bin #2############', Comment = '%1,%2 = counters';
+        LinesCreatedMsg: Label '%1 new lines have been created.', Comment = '%1 = counter';
+        BlockedItemMsg: Label 'There is at least one blocked item that was skipped.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -176,7 +177,7 @@
             PhysInvtOrderLine.Insert(true);
             PhysInvtOrderLine.CreateDimFromDefaultDim();
             if CalcQtyExpected then
-                PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+                PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
             OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, CalcQtyExpected);
             PhysInvtOrderLine.Modify();
             NextLineNo := NextLineNo + 10000;

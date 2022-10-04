@@ -8,11 +8,6 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     var
-        ReservedQtyTooLargeErr: Label 'Reserved quantity cannot be greater than %1.', Comment = '%1: not reserved quantity on Sales Line';
-        ValueIsEmptyErr: Label 'must be filled in when a quantity is reserved';
-        ValueNotEmptyErr: Label 'must not be filled in when a quantity is reserved';
-        ValueChangedErr: Label 'must not be changed when a quantity is reserved';
-        CodeunitInitErr: Label 'Codeunit is not initialized correctly.';
         FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
@@ -24,6 +19,12 @@ codeunit 99000832 "Sales Line-Reserve"
         OverruleItemTracking: Boolean;
         DeleteItemTracking: Boolean;
         ItemTrkgAlreadyOverruled: Boolean;
+
+        ReservedQtyTooLargeErr: Label 'Reserved quantity cannot be greater than %1.', Comment = '%1: not reserved quantity on Sales Line';
+        ValueIsEmptyErr: Label 'must be filled in when a quantity is reserved';
+        ValueNotEmptyErr: Label 'must not be filled in when a quantity is reserved';
+        ValueChangedErr: Label 'must not be changed when a quantity is reserved';
+        CodeunitInitErr: Label 'Codeunit is not initialized correctly.';
 
     procedure CreateReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
@@ -139,19 +140,19 @@ codeunit 99000832 "Sales Line-Reserve"
 
     procedure Caption(SalesLine: Record "Sales Line") CaptionText: Text
     begin
-        CaptionText := SalesLine.GetSourceCaption;
+        CaptionText := SalesLine.GetSourceCaption();
     end;
 
     procedure FindReservEntry(SalesLine: Record "Sales Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         ReservEntry.InitSortingAndFilters(false);
         SalesLine.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     procedure ReservEntryExist(SalesLine: Record "Sales Line"): Boolean
     begin
-        exit(SalesLine.ReservEntryExist);
+        exit(SalesLine.ReservEntryExist());
     end;
 
     procedure VerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line")
@@ -221,7 +222,7 @@ codeunit 99000832 "Sales Line-Reserve"
                     exit;
             ReservMgt.SetReservSource(NewSalesLine);
             DeleteSalesReservEntries(NewSalesLine, OldSalesLine);
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack("Outstanding Qty. (Base)");
             AssignForPlanning(NewSalesLine);
         end;
@@ -238,7 +239,7 @@ codeunit 99000832 "Sales Line-Reserve"
 
         with NewSalesLine do begin
             if "Qty. per Unit of Measure" <> OldSalesLine."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             if "Outstanding Qty. (Base)" * OldSalesLine."Outstanding Qty. (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
@@ -261,12 +262,12 @@ codeunit 99000832 "Sales Line-Reserve"
 
         if not FindReservEntry(SalesLine, OldReservEntry) then
             exit(TransferQty);
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
         // Handle Item Tracking on drop shipment:
         Clear(CreateReservEntry);
 
         if OverruleItemTracking then
-            if ItemJnlLine.TrackingExists then begin
+            if ItemJnlLine.TrackingExists() then begin
                 CreateReservEntry.SetNewTrackingFromItemJnlLine(ItemJnlLine);
                 CreateReservEntry.SetOverruleItemTracking(not ItemTrkgAlreadyOverruled);
                 // Try to match against Item Tracking on the sales order line:
@@ -361,7 +362,7 @@ codeunit 99000832 "Sales Line-Reserve"
         if not FindReservEntry(OldSalesLine, OldReservEntry) then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         NewSalesLine.TestItemFields(OldSalesLine."No.", OldSalesLine."Variant Code", OldSalesLine."Location Code");
 
@@ -391,11 +392,11 @@ codeunit 99000832 "Sales Line-Reserve"
     procedure DeleteLineConfirm(var SalesLine: Record "Sales Line"): Boolean
     begin
         with SalesLine do begin
-            if not ReservEntryExist then
+            if not ReservEntryExist() then
                 exit(true);
 
             ReservMgt.SetReservSource(SalesLine);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -460,7 +461,7 @@ codeunit 99000832 "Sales Line-Reserve"
                     1, SalesLine."Purchase Order No.", '', 0, SalesLine."Purch. Order Line No."));
         end;
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, SalesLine."Shipment Date");
-        ItemTrackingLines.SetInbound(SalesLine.IsInbound);
+        ItemTrackingLines.SetInbound(SalesLine.IsInbound());
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(SalesLine, ItemTrackingLines);
         ItemTrackingLines.RunModal();
     end;
@@ -516,7 +517,7 @@ codeunit 99000832 "Sales Line-Reserve"
         end;
     end;
 
-    local procedure RetrieveInvoiceSpecification2(var SalesLine: Record "Sales Line"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
+    procedure RetrieveInvoiceSpecification2(var SalesLine: Record "Sales Line"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
@@ -540,7 +541,7 @@ codeunit 99000832 "Sales Line-Reserve"
             TempInvoicingSpecification := TrackingSpecification;
             TempInvoicingSpecification."Qty. to Invoice (Base)" := ReservEntry."Qty. to Invoice (Base)";
             TempInvoicingSpecification."Qty. to Invoice" :=
-              Round(ReservEntry."Qty. to Invoice (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+              Round(ReservEntry."Qty. to Invoice (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
             OnRetrieveInvoiceSpecificationOnBeforeInsert(TempInvoicingSpecification, ReservEntry);
             TempInvoicingSpecification.Insert();
@@ -619,7 +620,7 @@ codeunit 99000832 "Sales Line-Reserve"
 
             SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
             SetRange(Status, Status::"Partially Picked");
-            exit(FindFirst and NewReservEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) and
+            exit(FindFirst() and NewReservEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) and
               (OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Reservation) and
               (NewReservEntry."Source Type" <> DATABASE::"Item Ledger Entry") and ("Qty. Picked (Base)" >= TransferQty));
         end;
@@ -822,7 +823,6 @@ codeunit 99000832 "Sales Line-Reserve"
         DeleteItemTracking := NewDeleteItemTracking
     end;
 
-    [Scope('OnPrem')]
     procedure CopyReservEntryToTemp(var TempReservationEntry: Record "Reservation Entry" temporary; OldSalesLine: Record "Sales Line")
     var
         ReservationEntry: Record "Reservation Entry";
@@ -838,7 +838,6 @@ codeunit 99000832 "Sales Line-Reserve"
         ReservationEntry.DeleteAll();
     end;
 
-    [Scope('OnPrem')]
     procedure CopyReservEntryFromTemp(var TempReservationEntry: Record "Reservation Entry" temporary; OldSalesLine: Record "Sales Line"; NewSourceRefNo: Integer)
     var
         ReservationEntry: Record "Reservation Entry";
@@ -862,7 +861,7 @@ codeunit 99000832 "Sales Line-Reserve"
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(SalesLine);
-            SalesLine.Find;
+            SalesLine.Find();
             QtyPerUOM := SalesLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;
@@ -874,7 +873,7 @@ codeunit 99000832 "Sales Line-Reserve"
         SourceRecRef.SetTable(SalesLine);
         TestSourceTableFields(SalesLine);
         SalesLine.SetReservationEntry(ReservEntry);
-        CaptionText := SalesLine.GetSourceCaption;
+        CaptionText := SalesLine.GetSourceCaption();
     end;
 
     local procedure TestSourceTableFields(SalesLine: Record "Sales Line")
@@ -1004,7 +1003,7 @@ codeunit 99000832 "Sales Line-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(SalesLine);
             SalesLine.SetReservationFilters(ReservEntry);
-            CaptionText := SalesLine.GetSourceCaption;
+            CaptionText := SalesLine.GetSourceCaption();
         end;
     end;
 
@@ -1067,7 +1066,7 @@ codeunit 99000832 "Sales Line-Reserve"
                 "Table ID" := DATABASE::"Sales Line";
                 "Summary Type" :=
                     CopyStr(
-                    StrSubstNo('%1, %2', SalesLine.TableCaption, SalesLine."Document Type"),
+                    StrSubstNo('%1, %2', SalesLine.TableCaption(), SalesLine."Document Type"),
                     1, MaxStrLen("Summary Type"));
                 if DocumentType = SalesLine."Document Type"::"Return Order" then
                     "Total Quantity" := TotalQuantity
@@ -1075,7 +1074,7 @@ codeunit 99000832 "Sales Line-Reserve"
                     "Total Quantity" := -TotalQuantity;
                 "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
                 if not Insert() then
-                    Modify;
+                    Modify();
             end;
     end;
 

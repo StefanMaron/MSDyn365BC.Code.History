@@ -64,7 +64,7 @@ page 2820 "Native - Attachments"
                             Error(ContentChangedErr);
 
                         if AttachmentsLoaded then
-                            Modify;
+                            Modify();
                         GraphMgtAttachmentBuffer.RegisterFieldSet(FieldNo(Content), TempFieldBuffer);
 
                         ContentChanged := true;
@@ -81,9 +81,9 @@ page 2820 "Native - Attachments"
                         if ContentChanged then
                             Error(ContentChangedErr);
 
-                        ContentFromBase64String;
+                        ContentFromBase64String();
                         if AttachmentsLoaded then
-                            Modify;
+                            Modify();
                         GraphMgtAttachmentBuffer.RegisterFieldSet(FieldNo(Content), TempFieldBuffer);
 
                         ContentChanged := true;
@@ -117,7 +117,7 @@ page 2820 "Native - Attachments"
         DocumentId: Guid;
     begin
         if not AttachmentsLoaded then begin
-            FilterView := GetView;
+            FilterView := GetView();
             DocumentIdFilter := GetFilter("Document Id");
             AttachmentIdFilter := GetFilter(Id);
             if (AttachmentIdFilter <> '') and (DocumentIdFilter = '') then begin
@@ -144,7 +144,7 @@ page 2820 "Native - Attachments"
         Validate("Created Date-Time", RoundDateTime(CurrentDateTime, 1000));
         GraphMgtAttachmentBuffer.RegisterFieldSet(FieldNo("Created Date-Time"), TempFieldBuffer);
 
-        ByteSizeFromContent;
+        ByteSizeFromContent();
 
         GraphMgtAttachmentBuffer.PropagateInsertAttachmentSafe(Rec, TempFieldBuffer);
 
@@ -155,7 +155,7 @@ page 2820 "Native - Attachments"
     trigger OnModifyRecord(): Boolean
     begin
         GraphMgtAttachmentBuffer.PropagateModifyAttachment(Rec, TempFieldBuffer);
-        ByteSizeFromContent;
+        ByteSizeFromContent();
         Base64Content := ''; // Cut out base64Content from the response
         exit(false);
     end;
@@ -188,7 +188,7 @@ page 2820 "Native - Attachments"
         MemoryStream := MemoryStream.MemoryStream(Convert.FromBase64String(Base64Content));
         Content.CreateOutStream(OutStream);
         MemoryStream.WriteTo(OutStream);
-        MemoryStream.Close;
+        MemoryStream.Close();
     end;
 
     local procedure ByteSizeFromContent()

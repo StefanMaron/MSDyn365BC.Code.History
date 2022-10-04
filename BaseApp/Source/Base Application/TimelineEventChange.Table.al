@@ -66,51 +66,9 @@ table 5541 "Timeline Event Change"
     {
     }
 
-    [Scope('OnPrem')]
-    procedure TransferFromTransactionChangeTable(var TimelineEventChange: Record "Timeline Event Change"; var changeTable: DotNet DataModel_TransactionChangesDataTable)
-    var
-        changeRow: DotNet DataModel_TransactionChangesRow;
-        rowEnum: DotNet GenericIEnumerator1;
-        Id: Integer;
-    begin
-        TimelineEventChange.Reset();
-        TimelineEventChange.DeleteAll();
 
-        rowEnum := changeTable.GetEnumerator;
-        Id := 1;
-
-        while rowEnum.MoveNext do begin
-            changeRow := rowEnum.Current;
-            InsertTransactionRow(TimelineEventChange, changeRow, Id);
-            Id += 1;
-        end;
-
-        TimelineEventChange.SetCurrentKey("Due Date"); // Restore key to Due Date
-    end;
-
-    local procedure InsertTransactionRow(var TimelineEventChange: Record "Timeline Event Change"; changeRow: DotNet DataModel_TransactionChangesRow; Id: Integer)
-    begin
-        TimelineEventChange.Init();
-        TimelineEventChange.ID := Id;
-        TimelineEventChange."Reference No." := changeRow.RefNo;
-
-        if not changeRow.IsNewDateNull then
-            TimelineEventChange."Due Date" := DT2Date(changeRow.NewDate);
-
-        if not changeRow.IsOriginalDateNull then
-            TimelineEventChange."Original Due Date" := DT2Date(changeRow.OriginalDate);
-
-        if not changeRow.IsNewQuantityNull then
-            TimelineEventChange.Quantity := changeRow.NewQuantity;
-
-        if not changeRow.IsOriginalQuantityNull then
-            TimelineEventChange."Original Quantity" := changeRow.OriginalQuantity;
-
-        TimelineEventChange.Changes := changeRow.Changes;
-        TimelineEventChange.ChangeRefNo := changeRow.ChangeRefNo;
-        TimelineEventChange.Insert();
-    end;
-
+#if not CLEAN21
+    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
     procedure ActionMessage(): Integer
     var
         ActionMsg: Option " ",New,"Change Qty.",Reschedule,"Resched. & Chg. Qty.",Cancel;
@@ -133,9 +91,11 @@ table 5541 "Timeline Event Change"
         exit(0);
     end;
 
+    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
     procedure NewSupply(): Boolean
     begin
         exit((Changes = 1) and (ChangeRefNo = ''));
     end;
+#endif
 }
 

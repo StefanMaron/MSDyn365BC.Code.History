@@ -67,10 +67,10 @@ page 1607 "Office Update Available Dlg"
                         Message(RestartClientMsg)
                     else
                         Message(UnabletoUpdateMsg);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
-            field(UpgradeLater; GetLaterLabel)
+            field(UpgradeLater; GetLaterLabel())
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
@@ -80,7 +80,7 @@ page 1607 "Office Update Available Dlg"
 
                 trigger OnDrillDown()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             field(DontShowAgain; DontShowAgain)
@@ -114,7 +114,7 @@ page 1607 "Office Update Available Dlg"
         if DontShowAgain then begin
             if UserCanUpdate then
                 Message(DontDisplayAgainMsg);
-            InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode);
+            InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode());
         end;
 
         if Breaking then

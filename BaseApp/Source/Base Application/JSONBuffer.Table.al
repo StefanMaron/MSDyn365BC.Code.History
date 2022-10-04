@@ -65,9 +65,9 @@ table 1236 "JSON Buffer"
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
-        TempBlob.FromRecordRef(BlobFieldRef.Record, BlobFieldRef.Number);
+        TempBlob.FromRecordRef(BlobFieldRef.Record(), BlobFieldRef.Number);
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        ReadFromText(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.CRLFSeparator));
+        ReadFromText(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.CRLFSeparator()));
     end;
 
     procedure ReadFromText(JSONText: Text)
@@ -81,9 +81,9 @@ table 1236 "JSON Buffer"
             Error(DevMsgNotTemporaryErr);
         DeleteAll();
         JSONTextReader := JSONTextReader.JsonTextReader(StringReader.StringReader(JSONText));
-        if JSONTextReader.Read then
+        if JSONTextReader.Read() then
             repeat
-                Init;
+                Init();
                 "Entry No." += 1;
                 Depth := JSONTextReader.Depth;
                 TokenType := JSONTextReader.TokenType;
@@ -103,8 +103,8 @@ table 1236 "JSON Buffer"
                 else
                     "Value Type" := Format(JSONTextReader.ValueType);
                 Path := JSONTextReader.Path;
-                Insert;
-            until not JSONTextReader.Read;
+                Insert();
+            until not JSONTextReader.Read();
     end;
 
     procedure FindArray(var TempJSONBuffer: Record "JSON Buffer" temporary; ArrayName: Text): Boolean
@@ -118,7 +118,7 @@ table 1236 "JSON Buffer"
         TempJSONBuffer.SetFilter(Path, AppendPathToCurrent(ArrayName) + '[*');
         TempJSONBuffer.SetRange(Depth, TempJSONBuffer.Depth + 1);
         TempJSONBuffer.SetFilter("Token type", '<>%1', "Token type"::"End Object");
-        exit(TempJSONBuffer.FindSet);
+        exit(TempJSONBuffer.FindSet());
     end;
 
     procedure GetPropertyValue(var PropertyValue: Text; PropertyName: Text): Boolean
@@ -139,7 +139,7 @@ table 1236 "JSON Buffer"
         if not TempJSONBuffer.FindFirst() then
             exit;
         if TempJSONBuffer.Get(TempJSONBuffer."Entry No." + 1) then begin
-            PropertyValue := TempJSONBuffer.GetValue;
+            PropertyValue := TempJSONBuffer.GetValue();
             exit(true);
         end;
     end;
@@ -189,17 +189,17 @@ table 1236 "JSON Buffer"
         InStream: InStream;
     begin
         CalcFields("Value BLOB");
-        if not "Value BLOB".HasValue then
+        if not "Value BLOB".HasValue() then
             exit(Value);
 
         "Value BLOB".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure SetValue(NewValue: Text)
     begin
         SetValueWithoutModifying(NewValue);
-        Modify;
+        Modify();
     end;
 
     procedure SetValueWithoutModifying(NewValue: Text)

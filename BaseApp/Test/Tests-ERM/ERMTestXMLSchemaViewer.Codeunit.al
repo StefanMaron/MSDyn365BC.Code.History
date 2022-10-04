@@ -124,7 +124,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             SetRange("Node Name", 'GrpHdr');
             FindFirst();
             Validate(Selected, true);
-            Modify;
+            Modify();
             SetRange("Node Name", 'MsgId');
             FindFirst();
             Assert.IsTrue(Selected, 'Child was expected to have Selected=Yes.');
@@ -152,7 +152,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             SetRange("Node Name", 'GrpHdr');
             FindFirst();
             Validate(Selected, false);
-            Modify;
+            Modify();
         end;
 
         // Exercise.
@@ -623,9 +623,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CopyStream(OutStream, InStream);
         XMLSchema.Insert();
 
-        MainDefinitionFile.Close;
-        AlternativeNamespaceDefinitionFile.Close;
-        InfiniteLoopDefinitionFile.Close;
+        MainDefinitionFile.Close();
+        AlternativeNamespaceDefinitionFile.Close();
+        InfiniteLoopDefinitionFile.Close();
 
         XSDParser.LoadSchema(XMLSchema);
 
@@ -709,8 +709,8 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CopyStream(OutStream, InStream);
         XMLSchema.Insert();
 
-        MainDefinitionFile.Close;
-        InfiniteLoopDefinitionFile.Close;
+        MainDefinitionFile.Close();
+        InfiniteLoopDefinitionFile.Close();
 
         XSDParser.LoadSchema(XMLSchema);
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
@@ -729,7 +729,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         AlternativeNamespaceXMLSchema.TestField("Target Namespace Aliases", '');
         XSDParser.LoadSchema(AlternativeNamespaceXMLSchema);
         AlternativeNamespaceXMLSchema.TestField("Target Namespace Aliases", 'cac');
-        AlternativeNamespaceDefinitionFile.Close;
+        AlternativeNamespaceDefinitionFile.Close();
 
         // Verify Nodes
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
@@ -813,9 +813,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CopyStream(OutStream, InStream);
         XMLSchema.Insert();
 
-        MainDefinitionFile.Close;
-        AlternativeNamespaceDefinitionFile.Close;
-        InfiniteLoopDefinitionFile.Close;
+        MainDefinitionFile.Close();
+        AlternativeNamespaceDefinitionFile.Close();
+        InfiniteLoopDefinitionFile.Close();
 
         XSDParser.LoadSchema(XMLSchema);
         MainSchemaCode := XMLSchema.Code;
@@ -879,9 +879,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CopyStream(OutStream, InStream);
         XMLSchema.Insert();
 
-        MainDefinitionFile.Close;
-        AlternativeNamespaceDefinitionFile.Close;
-        InfiniteLoopDefinitionFile.Close;
+        MainDefinitionFile.Close();
+        AlternativeNamespaceDefinitionFile.Close();
+        InfiniteLoopDefinitionFile.Close();
 
         XSDParser.LoadSchema(XMLSchema);
         MainSchemaCode := XMLSchema.Code;
@@ -948,9 +948,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CopyStream(OutStream, InStream);
         XMLSchema.Insert();
 
-        MainDefinitionFile.Close;
-        AlternativeNamespaceDefinitionFile.Close;
-        InfiniteLoopDefinitionFile.Close;
+        MainDefinitionFile.Close();
+        AlternativeNamespaceDefinitionFile.Close();
+        InfiniteLoopDefinitionFile.Close();
 
         XSDParser.LoadSchema(XMLSchema);
         MainSchemaCode := XMLSchema.Code;
@@ -1134,11 +1134,11 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         Assert.RecordCount(XMLSchemaElement, 4);
         XMLSchemaElement.FindSet();
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
-        XMLSchemaElement.Next;
+        XMLSchemaElement.Next();
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Attribute);
-        XMLSchemaElement.Next;
+        XMLSchemaElement.Next();
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
-        XMLSchemaElement.Next;
+        XMLSchemaElement.Next();
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
 
         // [WHEN] Create XML Port from XSD Schema
@@ -1717,7 +1717,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         XMLSchemaElement.FindSet();
         repeat
-            FullPath := XMLSchemaElement.GetFullPath;
+            FullPath := XMLSchemaElement.GetFullPath();
             DataExchColDef.SetRange(Path, FullPath);
             DataExchColDef.SetRange(Description, XMLSchemaElement."Node Name");
 
@@ -1731,7 +1731,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
                 DataExchColDef.TestField("Data Formatting Culture", DataFormattingCulture);
             end else
                 Assert.AreEqual(0, DataExchColDef.Count, 'Unexpected column def.:' + DataExchColDef.GetFilters);
-        until XMLSchemaElement.Next = 0;
+        until XMLSchemaElement.Next() = 0;
     end;
 
     local procedure VerifyLeafStatus(XMLSchema: Record "XML Schema"; NodeName: Text; IsLeafStatus: Boolean)
@@ -1782,7 +1782,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
                 ElementFoundXMLSchemaElement := XMLSchemaElement;
                 exit(true);
             end;
-        until XMLSchemaElement.Next = 0;
+        until XMLSchemaElement.Next() = 0;
 
         exit(false);
     end;

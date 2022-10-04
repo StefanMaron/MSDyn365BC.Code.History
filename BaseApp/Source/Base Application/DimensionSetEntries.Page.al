@@ -12,12 +12,12 @@ page 479 "Dimension Set Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension.';
                 }
-                field("Dimension Name"; "Dimension Name")
+                field("Dimension Name"; Rec."Dimension Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Code field.';
@@ -28,7 +28,7 @@ page 479 "Dimension Set Entries"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';
                 }
-                field("Dimension Value Name"; "Dimension Value Name")
+                field("Dimension Value Name"; Rec."Dimension Value Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the descriptive name of the Dimension Value Code field.';
@@ -45,8 +45,6 @@ page 479 "Dimension Set Entries"
             {
                 ApplicationArea = Dimensions;
                 Caption = 'Update Shortcut Dimension No.';
-                Promoted = true;
-                PromotedCategory = Process;
                 Image = ChangeDimensions;
                 ToolTip = 'Fix incorrect settings for one or more global or shortcut dimensions.';
                 Visible = UpdDimSetGlblDimNoVisible;
@@ -55,6 +53,17 @@ page 479 "Dimension Set Entries"
                 begin
                     Report.Run(Report::"Update Dim. Set Glbl. Dim. No.");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UpdDimSetGlblDimNo_Promoted; UpdDimSetGlblDimNo)
+                {
+                }
             }
         }
     }

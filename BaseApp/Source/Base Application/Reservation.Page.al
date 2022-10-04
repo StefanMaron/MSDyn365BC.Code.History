@@ -4,7 +4,6 @@ page 498 Reservation
     DataCaptionExpression = CaptionText;
     DeleteAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line';
     SourceTable = "Entry Summary";
     SourceTableTemporary = true;
     InsertAllowed = false;
@@ -65,7 +64,7 @@ page 498 Reservation
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Summary Type"; "Summary Type")
+                field("Summary Type"; Rec."Summary Type")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -127,7 +126,7 @@ page 498 Reservation
                     Editable = false;
                     ToolTip = 'Specifies the quantity that is available for the user to reserve from entries of the type.';
                 }
-                field("Non-specific Reserved Qty."; "Non-specific Reserved Qty.")
+                field("Non-specific Reserved Qty."; Rec."Non-specific Reserved Qty.")
                 {
                     ApplicationArea = Reservation;
                     DecimalPlaces = 0 : 5;
@@ -211,9 +210,6 @@ page 498 Reservation
                     ApplicationArea = Reservation;
                     Caption = '&Available to Reserve';
                     Image = ItemReservation;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the quantities on documents or in inventory that are available to reserve for the item on the line. The two actions, Auto Reserve and Reserve from Current Line make reservations from the quantities in this view.';
 
@@ -228,9 +224,6 @@ page 498 Reservation
                     ApplicationArea = Reservation;
                     Caption = '&Reservation Entries';
                     Image = ReservationLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View all reservations that are made for the item, either manually or automatically.';
 
                     trigger OnAction()
@@ -251,9 +244,6 @@ page 498 Reservation
                     ApplicationArea = Reservation;
                     Caption = '&Auto Reserve';
                     Image = AutoReserve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Automatically reserve the first available quantity for the item on the line. ';
 
                     trigger OnAction()
@@ -266,9 +256,6 @@ page 498 Reservation
                     ApplicationArea = Reservation;
                     Caption = '&Reserve from Current Line';
                     Image = LineReserve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Open the view of quantities available to reserve and select which to reserve.';
 
@@ -301,9 +288,6 @@ page 498 Reservation
                     ApplicationArea = Reservation;
                     Caption = '&Cancel Reservation from Current Line';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Cancel the selected reservation entry.';
                     Scope = Repeater;
                     trigger OnAction()
@@ -328,12 +312,44 @@ page 498 Reservation
                             until ReservEntry2.Next() = 0;
 
                         if RecordsFound then
-                            UpdateReservFrom
+                            UpdateReservFrom()
                         else
                             Error(Text005);
 
                         OnAfterCancelReservationCurrentLine(ReservEntry);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Reserve from Current Line_Promoted"; "Reserve from Current Line")
+                {
+                }
+                actionref("Auto Reserve_Promoted"; "Auto Reserve")
+                {
+                }
+                actionref(CancelReservationCurrentLine_Promoted; CancelReservationCurrentLine)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(AvailableToReserve_Promoted; AvailableToReserve)
+                {
+                }
+                actionref("&Reservation Entries_Promoted"; "&Reservation Entries")
+                {
                 }
             }
         }
@@ -345,11 +361,6 @@ page 498 Reservation
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Full automatic Reservation is not possible.\Reserve manually.';
-        Text002: Label 'There is nothing available to reserve.';
-        Text003: Label 'Do you want to cancel all reservations in the %1?';
-        Text005: Label 'There are no reservations to cancel.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -368,11 +379,17 @@ page 498 Reservation
         FullAutoReservation: Boolean;
         FormIsOpen: Boolean;
         HandleItemTracking: Boolean;
-        ReservConfirmQst: Label 'Do you want to reserve specific tracking numbers?';
-        Text008: Label 'Action canceled.';
-        Text009: Label '%1 of the %2 are nonspecific and may be available.';
         [InDataSet]
         NoteTextVisible: Boolean;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Full automatic Reservation is not possible.\Reserve manually.';
+        Text002: Label 'There is nothing available to reserve.';
+        Text003: Label 'Do you want to cancel all reservations in the %1?';
+        Text005: Label 'There are no reservations to cancel.';
+        Text008: Label 'Action canceled.';
+        Text009: Label '%1 of the %2 are nonspecific and may be available.';
+        ReservConfirmQst: Label 'Do you want to reserve specific tracking numbers?';
 
     procedure SetReservSource(CurrentRecordVar: Variant)
     begin
@@ -429,7 +446,7 @@ page 498 Reservation
         UpdateReservMgt();
     end;
 
-    local procedure FilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
+    protected procedure FilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
     begin
         FilterReservEntry.SetRange("Item No.", ReservEntry."Item No.");
 
@@ -440,9 +457,9 @@ page 498 Reservation
         FilterReservEntry.SetRange("Reservation Status", FilterReservEntry."Reservation Status"::Reservation);
         FilterReservEntry.SetRange("Location Code", ReservEntry."Location Code");
         FilterReservEntry.SetRange("Variant Code", ReservEntry."Variant Code");
-        if ReservEntry.TrackingExists then
+        if ReservEntry.TrackingExists() then
             FilterReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
-        FilterReservEntry.SetRange(Positive, ReservMgt.IsPositive);
+        FilterReservEntry.SetRange(Positive, ReservMgt.IsPositive());
     end;
 
     local procedure RelatesToSummEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary"): Boolean
@@ -454,7 +471,7 @@ page 498 Reservation
         exit(IsHandled);
     end;
 
-    local procedure UpdateReservFrom()
+    protected procedure UpdateReservFrom()
     var
         EntrySummary: Record "Entry Summary";
         QtyPerUOM: Decimal;
@@ -478,11 +495,11 @@ page 498 Reservation
                 repeat
                     QtyReservedBase += ReservedThisLine(Rec);
                 until Next() = 0;
-            QtyReservedIT := Round(QtyReservedBase / QtyPerUOM, UOMMgt.QtyRndPrecision);
-            if Abs(QtyReserved - QtyReservedIT) > UOMMgt.QtyRndPrecision then
+            QtyReservedIT := Round(QtyReservedBase / QtyPerUOM, UOMMgt.QtyRndPrecision());
+            if Abs(QtyReserved - QtyReservedIT) > UOMMgt.QtyRndPrecision() then
                 QtyReserved := QtyReservedIT;
             QtyToReserveBase := ItemTrackingQtyToReserveBase;
-            if Abs(ItemTrackingQtyToReserve - QtyToReserve) > UOMMgt.QtyRndPrecision then
+            if Abs(ItemTrackingQtyToReserve - QtyToReserve) > UOMMgt.QtyRndPrecision() then
                 QtyToReserve := ItemTrackingQtyToReserve;
             Rec := EntrySummary;
         end;
@@ -511,7 +528,7 @@ page 498 Reservation
         if HandleItemTracking and ("Entry No." <> 1) then begin
             Clear(AvailableItemTrackingLines);
             AvailableItemTrackingLines.SetItemTrackingLine(
-                "Table ID", "Source Subtype", ReservEntry, ReservMgt.IsPositive, ReservEntry."Shipment Date");
+                "Table ID", "Source Subtype", ReservEntry, ReservMgt.IsPositive(), ReservEntry."Shipment Date");
             AvailableItemTrackingLines.RunModal();
             exit;
         end;
@@ -561,7 +578,7 @@ page 498 Reservation
             repeat
                 ReservEntry3.Get(ReservEntry2."Entry No.", not ReservEntry2.Positive);
 
-                if ReservEntry.TrackingExists then
+                if ReservEntry.TrackingExists() then
                     TrackingMatch := ReservEntry3.HasSameTracking(ReservEntry)
                 else
                     TrackingMatch := true;
@@ -644,7 +661,7 @@ page 498 Reservation
                 SignFactor := CreateReservEntry.SignFactor(TempReservEntry);
                 ItemTrackingQtyToReserveBase := TempReservEntry."Quantity (Base)" * SignFactor;
                 ItemTrackingQtyToReserve :=
-                  Round(ItemTrackingQtyToReserveBase / TempReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                  Round(ItemTrackingQtyToReserveBase / TempReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                 HandleItemTracking := true;
             end else
                 Error(Text008);

@@ -10,7 +10,7 @@ codeunit 980 "Payment Registration Mgt."
     end;
 
     var
-        NothingToPostErr: Label 'There is nothing to post.';
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         EmptyDateReceivedErr: Label 'Date Received is missing for line with Document No. %1.';
         ConfirmPostPaymentsQst: Label 'Do you want to post the %1 payments?', Comment = '%1=number of payments to post';
         CloseQst: Label 'The %1 check box is selected on one or more lines. Do you want to close the window without posting these lines?';
@@ -90,7 +90,7 @@ codeunit 980 "Payment Registration Mgt."
             if not LumpPayment then
                 UpdatePmtDiscountDateOnCustLedgerEntry(TempPaymentRegistrationBuffer);
             with GenJournalLine do begin
-                Init;
+                Init();
                 GenJournalLine.SetSuppressCommit(PreviewMode);
 
                 "Journal Template Name" := PaymentRegistrationSetup."Journal Template Name";
@@ -108,7 +108,7 @@ codeunit 980 "Payment Registration Mgt."
                 else
                     Validate("Document Type", "Document Type"::Payment);
                 "Document No." := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", "Posting Date", false);
-                Validate("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType);
+                Validate("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType());
                 Validate("Account No.", TempPaymentRegistrationBuffer."Source No.");
                 Validate(Amount, -TempPaymentRegistrationBuffer."Amount Received");
                 Validate("Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
@@ -141,7 +141,7 @@ codeunit 980 "Payment Registration Mgt."
     procedure ConfirmClose(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"): Boolean
     begin
         with PaymentRegistrationBuffer do begin
-            Reset;
+            Reset();
             SetRange("Payment Made", true);
             if not IsEmpty() then
                 exit(Confirm(StrSubstNo(CloseQst, FieldCaption("Payment Made"))));
@@ -163,7 +163,7 @@ codeunit 980 "Payment Registration Mgt."
 
             if PreviewMode or Confirmed then begin
                 Post(PaymentRegistrationBuffer, false);
-                PopulateTable;
+                PopulateTable();
             end;
             CopyFilters(PaymentRegistrationBuffer2);
         end
@@ -342,7 +342,7 @@ codeunit 980 "Payment Registration Mgt."
         CopyPaymentRegistrationBuffer.Copy(SourcePaymentRegistrationBuffer);
 
         with SourcePaymentRegistrationBuffer do begin
-            Reset;
+            Reset();
             if FindSet() then
                 repeat
                     TempPaymentRegistrationBuffer := SourcePaymentRegistrationBuffer;
@@ -361,10 +361,10 @@ codeunit 980 "Payment Registration Mgt."
                       Format("Amount Received", 0, '<Precision,2><Standard Format,0>')), true);
 
             if PreviewMode or Confirmed then begin
-                Modify;
+                Modify();
                 SetRange("Ledger Entry No.", "Ledger Entry No.");
                 Post(TempPaymentRegistrationBuffer, true);
-                SourcePaymentRegistrationBuffer.PopulateTable;
+                SourcePaymentRegistrationBuffer.PopulateTable();
             end else
                 ClearApplicationFieldsOnCustLedgerEntry(TempPaymentRegistrationBuffer);
         end;
@@ -534,7 +534,7 @@ codeunit 980 "Payment Registration Mgt."
         PaymentRegistrationBuffer.SetRange("Payment Made", true);
         PaymentRegistrationBuffer.SetFilter("Amount Received", '<>0');
         if not PaymentRegistrationBuffer.FindSet() then
-            Error(NothingToPostErr);
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure CheckCurrencyCode(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary; GenJnlLine: Record "Gen. Journal Line"; PaymentRegistrationSetup: Record "Payment Registration Setup"; LumpPayment: Boolean)
@@ -549,7 +549,7 @@ codeunit 980 "Payment Registration Mgt."
         CustLedgerEntry.SetFilter("Currency Code", '<>%1', GenJnlLine."Currency Code");
         if not CustLedgerEntry.IsEmpty() then
             Error(ForeignCurrNotSuportedErr, TempPaymentRegistrationBuffer."Document Type", TempPaymentRegistrationBuffer.Description,
-              PaymentRegistrationSetup.TableCaption);
+              PaymentRegistrationSetup.TableCaption());
     end;
 
     procedure CalculateBalance(var PostedBalance: Decimal; var UnpostedBalance: Decimal)
@@ -626,7 +626,7 @@ codeunit 980 "Payment Registration Mgt."
             ConfirmPost(PaymentRegistrationBuffer);
 
         // Populate the table so that all records show. Then restore the checked state of the originally checked records.
-        PaymentRegistrationBuffer.PopulateTable;
+        PaymentRegistrationBuffer.PopulateTable();
         CheckPaymentsToPost(TempPaymentRegistrationBuffer);
         repeat
             // Check to see if the record already exists before updating

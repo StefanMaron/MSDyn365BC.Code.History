@@ -767,7 +767,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
         // Create VAT Rate Change setup if not created in the Database.
         VATRateChangeSetup.Reset();
-        if not VATRateChangeSetup.Get then begin
+        if not VATRateChangeSetup.Get() then begin
             VATRateChangeSetup.Init();
             VATRateChangeSetup.Insert(true);
         end;
@@ -851,7 +851,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldShowErr);
-        VATPostingSetup.Close;
+        VATPostingSetup.Close();
     end;
 
     local procedure VerifyHideUnrealizedVATFieldsVATPostingSetupPage()
@@ -864,7 +864,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsFalse(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldHideErr);
-        VATPostingSetup.Close;
+        VATPostingSetup.Close();
     end;
 
     local procedure VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage()
@@ -877,7 +877,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldShowErr);
         Assert.IsTrue(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldShowErr);
-        VATPostingSetupCard.Close;
+        VATPostingSetupCard.Close();
     end;
 
     local procedure VerifyHideUnrealizedVATFieldsVATPostingSetupCardPage()
@@ -890,7 +890,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsFalse(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldHideErr);
         Assert.IsFalse(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldHideErr);
-        VATPostingSetupCard.Close;
+        VATPostingSetupCard.Close();
     end;
 
     [ModalPageHandler]

@@ -255,13 +255,13 @@ page 99000762 "Machine Center Statistics"
             group("Prod. Order")
             {
                 Caption = 'Prod. Order';
-                field("Capacity (Effective)"; "Capacity (Effective)")
+                field("Capacity (Effective)"; Rec."Capacity (Effective)")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Capacity (Effective)';
                     ToolTip = 'Specifies the effective available capacity of the machine center.';
                 }
-                field("Prod. Order Need (Qty.)"; "Prod. Order Need (Qty.)")
+                field("Prod. Order Need (Qty.)"; Rec."Prod. Order Need (Qty.)")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Need (Qty.)';
@@ -497,8 +497,8 @@ page 99000762 "Machine Center Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateAccountingPeriodFilter(WorkCtrDateFilter[1], WorkCtrDateName[1], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(WorkCtrDateFilter[2], WorkCtrDateName[2], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(WorkCtrDateFilter[3], WorkCtrDateName[3], CurrentDate, -1);

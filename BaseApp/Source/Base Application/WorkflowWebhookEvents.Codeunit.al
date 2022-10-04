@@ -19,22 +19,22 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         case EventFunctionName of
-            WorkflowWebhookResponseReceivedEventCode:
+            WorkflowWebhookResponseReceivedEventCode():
                 begin
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode);
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode,
-                      WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
+                    WorkflowEventHandling.AddEventPredecessor(WorkflowWebhookResponseReceivedEventCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode());
                 end;
         end;
     end;
@@ -44,7 +44,7 @@ codeunit 1541 "Workflow Webhook Events"
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
-        WorkflowEventHandling.AddEventToLibrary(WorkflowWebhookResponseReceivedEventCode, DATABASE::"Workflow Webhook Entry",
+        WorkflowEventHandling.AddEventToLibrary(WorkflowWebhookResponseReceivedEventCode(), DATABASE::"Workflow Webhook Entry",
           WorkflowWebhookResponseReceivedEventTxt, 0, false);
     end;
 
@@ -124,7 +124,7 @@ codeunit 1541 "Workflow Webhook Events"
     var
         WorkflowManagement: Codeunit "Workflow Management";
     begin
-        WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode, WorkflowWebhookEntry);
+        WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode(), WorkflowWebhookEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Management", 'OnContinueWorkflow', '', false, false)]
@@ -132,7 +132,7 @@ codeunit 1541 "Workflow Webhook Events"
     var
         WorkflowManagement: Codeunit "Workflow Management";
     begin
-        WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode, WorkflowWebhookEntry);
+        WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode(), WorkflowWebhookEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Management", 'OnRejectWorkflow', '', false, false)]
@@ -140,7 +140,7 @@ codeunit 1541 "Workflow Webhook Events"
     var
         WorkflowManagement: Codeunit "Workflow Management";
     begin
-        WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode, WorkflowWebhookEntry);
+        WorkflowManagement.HandleEvent(WorkflowWebhookResponseReceivedEventCode(), WorkflowWebhookEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCustomerApprovalRequest', '', false, false)]

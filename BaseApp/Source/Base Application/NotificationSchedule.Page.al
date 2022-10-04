@@ -88,13 +88,13 @@ page 1513 "Notification Schedule"
             {
                 Caption = 'Monthly';
                 Visible = Recurrence = Recurrence::Monthly;
-                field("Monthly Notification Date"; "Monthly Notification Date")
+                field("Monthly Notification Date"; Rec."Monthly Notification Date")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Notification Date';
                     ToolTip = 'Specifies that the user receives notifications once a month on the date in this field when the value in the Date of Month field is Custom.';
                 }
-                field("Date of Month"; "Date of Month")
+                field("Date of Month"; Rec."Date of Month")
                 {
                     ApplicationArea = Suite;
                     Editable = "Monthly Notification Date" = "Monthly Notification Date"::Custom;

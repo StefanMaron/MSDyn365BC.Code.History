@@ -387,7 +387,7 @@ codeunit 136208 "Marketing Interaction"
             asserterror Validate("Wizard Action", WizardAction::Merge);
             Assert.ExpectedErrorCode(DialogTxt);
             Assert.ExpectedError(
-              StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction::Merge, TableCaption, Code));
+              StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction::Merge, TableCaption(), Code));
         end;
     end;
 
@@ -418,7 +418,7 @@ codeunit 136208 "Marketing Interaction"
             asserterror Validate("Wizard Action", WizardAction);
             Assert.ExpectedErrorCode(DialogTxt);
             Assert.ExpectedError(
-              StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
+              StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption(), Code));
         end;
 
         // Tear Down
@@ -448,7 +448,7 @@ codeunit 136208 "Marketing Interaction"
                 asserterror Validate("Wizard Action", WizardAction);
                 Assert.ExpectedErrorCode(DialogTxt);
                 Assert.ExpectedError(
-                  StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
+                  StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption(), Code));
             end;
         end;
     end;
@@ -521,9 +521,9 @@ codeunit 136208 "Marketing Interaction"
         InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
         CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
         InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-        InteractTmplLanguages.Close;
+        InteractTmplLanguages.Close();
 
-        InteractionTmplLanguage.Find;
+        InteractionTmplLanguage.Find();
         DummyAttachment.SetRange("No.", InteractionTmplLanguage."Attachment No.");
         Assert.RecordIsNotEmpty(DummyAttachment);
     end;
@@ -549,15 +549,15 @@ codeunit 136208 "Marketing Interaction"
 
         CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
         InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-        InteractionTmplLanguage.Find;
+        InteractionTmplLanguage.Find();
         AttachmentNo[1] := InteractionTmplLanguage."Attachment No.";
 
         CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
         InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
-        InteractionTmplLanguage.Find;
+        InteractionTmplLanguage.Find();
         AttachmentNo[2] := InteractionTmplLanguage."Attachment No.";
 
-        InteractTmplLanguages.Close;
+        InteractTmplLanguages.Close();
 
         DummyAttachment.SetRange("No.", AttachmentNo[1]);
         Assert.RecordIsEmpty(DummyAttachment);
@@ -587,9 +587,9 @@ codeunit 136208 "Marketing Interaction"
         CustomReportLayout.Get(LibraryMarketing.FindEmailMergeCustomLayoutNo);
         InteractTmplLanguages.CustLayoutDescription.SetValue(CustomReportLayout.Description);
         InteractTmplLanguages.CustLayoutDescription.SetValue('');
-        InteractTmplLanguages.Close;
+        InteractTmplLanguages.Close();
 
-        InteractionTmplLanguage.Find;
+        InteractionTmplLanguage.Find();
         Assert.AreEqual(0, InteractionTmplLanguage."Attachment No.", InteractionTmplLanguage.FieldCaption("Attachment No."));
         Assert.RecordCount(DummyAttachment, Count);
     end;
@@ -633,7 +633,7 @@ codeunit 136208 "Marketing Interaction"
 
         InteractionLogEntry.Delete(true);
 
-        Attachment.SetRecFilter;
+        Attachment.SetRecFilter();
         Assert.RecordIsEmpty(Attachment);
     end;
 
@@ -659,7 +659,7 @@ codeunit 136208 "Marketing Interaction"
         Commit();
         REPORT.Run(REPORT::"Delete Interaction Log Entries", false);
         // [THEN] Attachment is removed
-        Attachment.SetRecFilter;
+        Attachment.SetRecFilter();
         Assert.RecordIsEmpty(Attachment);
     end;
 
@@ -687,7 +687,7 @@ codeunit 136208 "Marketing Interaction"
         Commit();
         REPORT.Run(REPORT::"Delete Interaction Log Entries", false, false, InteractionLogEntry);
         // [THEN] Attachment is not removed
-        Attachment.SetRecFilter;
+        Attachment.SetRecFilter();
         Assert.RecordIsNotEmpty(Attachment);
     end;
 
@@ -701,7 +701,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for empty record
         Initialize();
         TempSegmentLine.LoadSegLineAttachment(false);
-        Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
+        Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption());
     end;
 
     [Test]
@@ -719,7 +719,7 @@ codeunit 136208 "Marketing Interaction"
 
         TempSegmentLine.LoadSegLineAttachment(false);
 
-        Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
+        Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption());
     end;
 
     [Test]
@@ -737,7 +737,7 @@ codeunit 136208 "Marketing Interaction"
 
         TempSegmentLine.LoadSegLineAttachment(false);
 
-        Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
+        Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption());
 
         // Tear Down
         Attachment.Delete(true);
@@ -1014,7 +1014,7 @@ codeunit 136208 "Marketing Interaction"
 
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         ContactCode := MockContactNo('');
-        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate, '');
+        MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate(), '');
 
         asserterror TempSegmentLine.FinishSegLineWizard(true);
         Assert.ExpectedErrorCode('Dialog');
@@ -1035,7 +1035,7 @@ codeunit 136208 "Marketing Interaction"
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
         MockSegmentLine(
           TempSegmentLine, InteractionTmplLanguage, MockContactNo(InteractionTmplLanguage."Language Code"),
-          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID());
+          MockSalesPersonCode, WorkDate(), LibraryUtility.GenerateGUID());
 
         InteractionLogEntry.FindLast();
         TempSegmentLine.FinishSegLineWizard(true);
@@ -1243,7 +1243,7 @@ codeunit 136208 "Marketing Interaction"
 
             ResumeInteraction;
 
-            Find;
+            Find();
             VerifyFilterValuesAfterResumeInteraction(
               "To-do No.", "Contact Company No.", "Contact No.", "Salesperson Code", "Campaign No.", "Opportunity No.");
         end;
@@ -1271,7 +1271,7 @@ codeunit 136208 "Marketing Interaction"
         with InteractionLogEntry do begin
             ResumeInteraction;
 
-            Find;
+            Find();
             VerifyFilterValuesAfterResumeInteraction(
               "To-do No.", "Contact Company No.", "Contact No.", "Salesperson Code", "Campaign No.", "Opportunity No.");
         end;
@@ -1296,7 +1296,7 @@ codeunit 136208 "Marketing Interaction"
         // [THEN] Page 5077 "Create Interaction" is opened with "Salesperson Code" = "" (and no applied field filter)
         // Cancel "Create Interaction" (CreateInteraction_Cancel_MPH) and decline save (ConfirmHandlerNo)
         with InteractionLogEntry do begin
-            Init;
+            Init();
             ResumeInteraction;
             VerifyFilterValuesAfterResumeInteraction('', '', '', '', '', '');
         end;
@@ -1329,7 +1329,7 @@ codeunit 136208 "Marketing Interaction"
 
             ResumeInteraction;
 
-            Find;
+            Find();
             VerifyFilterValuesAfterResumeInteraction('', '', '', "Salesperson Code", '', '');
         end;
 
@@ -1361,7 +1361,7 @@ codeunit 136208 "Marketing Interaction"
 
             ResumeInteraction;
 
-            Find;
+            Find();
             VerifyFilterValuesAfterResumeInteraction('', '', '', "Salesperson Code", '', '');
         end;
 
@@ -1630,7 +1630,7 @@ codeunit 136208 "Marketing Interaction"
         // [GIVEN] Run Make Phone Call action
         // [GIVEN] Run Comments action
         // [WHEN] Comment YYY is being entered, comments page is being closed, and Phone call completed
-        CommentDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
+        CommentDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate()));
         CommentText :=
           LibraryUtility.GenerateRandomCode(
             InterLogEntryCommentLine.FieldNo(Comment),
@@ -1717,8 +1717,8 @@ codeunit 136208 "Marketing Interaction"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
 
         // [WHEN] Purchase order confirmation is being sent by email
-        PurchaseHeader.SetRecFilter;
-        PurchaseHeader.SendRecords;
+        PurchaseHeader.SetRecFilter();
+        PurchaseHeader.SendRecords();
 
         // [THEN] Interaction log entry created once
         FindInteractionLogEntryByDocument(
@@ -1817,7 +1817,7 @@ codeunit 136208 "Marketing Interaction"
 
         // [WHEN] Invoke export attachment from Interaction Tmpl. Language.
         BindSubscription(MarketingInteraction);
-        InteractionTmplLanguage.ExportAttachment;
+        InteractionTmplLanguage.ExportAttachment();
         NameValueBuffer.Get(SessionId);
         ExportFilePath := NameValueBuffer.Value;
         UnbindSubscription(MarketingInteraction);
@@ -2320,7 +2320,7 @@ codeunit 136208 "Marketing Interaction"
             // [THEN] Validation error
             asserterror Validate("Wizard Action", WizardAction);
             Assert.ExpectedErrorCode(DialogTxt);
-            Assert.ExpectedError(StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
+            Assert.ExpectedError(StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption(), Code));
         end;
     end;
 
@@ -2373,7 +2373,7 @@ codeunit 136208 "Marketing Interaction"
             // [THEN] Validation error
             asserterror Validate("Wizard Action", WizardAction);
             Assert.ExpectedErrorCode(DialogTxt);
-            Assert.ExpectedError(StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption, Code));
+            Assert.ExpectedError(StrSubstNo(CanNotBeSpecifiedErr, FieldCaption("Wizard Action"), WizardAction, TableCaption(), Code));
         end;
     end;
 
@@ -2947,14 +2947,14 @@ codeunit 136208 "Marketing Interaction"
         LanguageCode := CreateInteractionTmplLanguage(
             InteractionTmplLanguage, InteractionTemplateCode, FindLanguageCode(LanguageFilter),
             LibraryMarketing.FindEmailMergeCustomLayoutNo);
-        InteractionTmplLanguage.CreateAttachment;
+        InteractionTmplLanguage.CreateAttachment();
         exit(LanguageCode);
     end;
 
     local procedure CreateInteractionTmplLanguage(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; InteractionTemplateCode: Code[10]; LanguageCode: Code[10]; CustomLayoutCode: Code[20]): Code[10]
     begin
         with InteractionTmplLanguage do begin
-            Init;
+            Init();
             Validate("Interaction Template Code", InteractionTemplateCode);
             Validate("Language Code", LanguageCode);
             Validate("Custom Layout Code", CustomLayoutCode);
@@ -3029,10 +3029,10 @@ codeunit 136208 "Marketing Interaction"
     local procedure CreateInteractionLogEntryComment(var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; EntryNo: Integer)
     begin
         with InterLogEntryCommentLine do begin
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Line No." := 10000;
-            Date := WorkDate;
+            Date := WorkDate();
             Comment := LibraryUtility.GenerateRandomCode(FieldNo(Comment), DATABASE::"Inter. Log Entry Comment Line");
             Insert(true);
         end;
@@ -3233,11 +3233,11 @@ codeunit 136208 "Marketing Interaction"
         Contact: Record Contact;
     begin
         with Contact do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Contact);
             "Salutation Code" := CreateSalutation(LanguageCode);
             "E-Mail" := LibraryUtility.GenerateRandomEmail;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -3245,10 +3245,10 @@ codeunit 136208 "Marketing Interaction"
     local procedure MockInterLogEntryWithAttachment(var InteractionLogEntry: Record "Interaction Log Entry"; AttachmentNo: Integer)
     begin
         with InteractionLogEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
             "Attachment No." := AttachmentNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3265,9 +3265,9 @@ codeunit 136208 "Marketing Interaction"
     local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
     begin
         with InteractionLogEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3287,7 +3287,7 @@ codeunit 136208 "Marketing Interaction"
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Campaign No."), 0), 1, MaxStrLen("Campaign No."));
             "Opportunity No." :=
               CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Opportunity No."), 0), 1, MaxStrLen("Opportunity No."));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3296,7 +3296,7 @@ codeunit 136208 "Marketing Interaction"
         MockInterLogEntry(InteractionLogEntry);
         with InteractionLogEntry do begin
             "Salesperson Code" := SalespersonCode;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3305,12 +3305,12 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
         with InteractionLogEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
             "Document No." := SalesHeader."No.";
             "Document Type" := GetInterLogEntryDocTypeFromSalesDoc(SalesHeader);
             "Contact No." := SalesHeader."Bill-to Contact No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3318,13 +3318,13 @@ codeunit 136208 "Marketing Interaction"
     begin
         MockSegmentLine(
           SegmentLine, InteractionTmplLanguage, MockContactNo(InteractionTmplLanguage."Language Code"),
-          MockSalesPersonCode, WorkDate, LibraryUtility.GenerateGUID());
+          MockSalesPersonCode, WorkDate(), LibraryUtility.GenerateGUID());
     end;
 
     local procedure MockSegmentLine(var SegmentLine: Record "Segment Line"; InteractionTmplLanguage: Record "Interaction Tmpl. Language"; ContactNo: Code[20]; SalespersonCode: Code[10]; NewDate: Date; NewDescription: Text[50])
     begin
         with SegmentLine do begin
-            Init;
+            Init();
             if not IsTemporary then
                 "Line No." := LibraryUtility.GetNewRecNo(SegmentLine, FieldNo("Line No."));
             "Interaction Template Code" := InteractionTmplLanguage."Interaction Template Code";
@@ -3334,7 +3334,7 @@ codeunit 136208 "Marketing Interaction"
             "Salesperson Code" := SalespersonCode;
             Date := NewDate;
             Description := NewDescription;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3343,9 +3343,9 @@ codeunit 136208 "Marketing Interaction"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         with SalespersonPurchaser do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Salesperson/Purchaser");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -3963,7 +3963,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
             if StrPos(TextLine, '</tr>') > 0 then
                 TRCount += 1;
         until Instream.EOS;
-        MergeFile.Close;
+        MergeFile.Close();
         Assert.IsTrue(ValueFound, 'Value not found');
         Assert.IsFalse(WrongValueFound, 'Wrong value found');
         Assert.IsTrue(TRCount = 2, 'Wrong </tr> count');

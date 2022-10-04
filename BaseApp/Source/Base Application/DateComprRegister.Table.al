@@ -134,7 +134,7 @@ table 87 "Date Compr. Register"
 
     procedure InitRegister(TableID: Integer; RegNo: Integer; StartingDate: Date; EndingDate: Date; PeriodLength: Integer; EntryFilter: Text[250]; RelatedRegNo: Integer; SourceCode: Code[10])
     begin
-        Init;
+        Init();
         "No." := RegNo;
         "Table ID" := TableID;
         "Creation Date" := Today;
@@ -172,15 +172,15 @@ table 87 "Date Compr. Register"
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
     begin
-        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Cust. Ledger Entry", CustLedgEntry.TableCaption, Type);
-        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Vendor Ledger Entry", VendLedgEntry.TableCaption, Type);
-        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Employee Ledger Entry", EmployeeLedgerEntry.TableCaption, Type);
-        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Bank Account Ledger Entry", BankAccLedgEntry.TableCaption, Type);
-        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"VAT Entry", VATEntry.TableCaption, Type);
-        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"G/L Entry", GLEntry.TableCaption, Type);
+        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Cust. Ledger Entry", CustLedgEntry.TableCaption(), Type);
+        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Vendor Ledger Entry", VendLedgEntry.TableCaption(), Type);
+        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Employee Ledger Entry", EmployeeLedgerEntry.TableCaption(), Type);
+        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Bank Account Ledger Entry", BankAccLedgEntry.TableCaption(), Type);
+        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"VAT Entry", VATEntry.TableCaption(), Type);
+        CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"G/L Entry", GLEntry.TableCaption(), Type);
         if Type = Type::Reversal then begin
-            CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"FA Ledger Entry", FALedgEntry.TableCaption, Type);
-            CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption, Type);
+            CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"FA Ledger Entry", FALedgEntry.TableCaption(), Type);
+            CheckLedgerEntryCompressed(MaxPostingDate, DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption(), Type);
         end;
     end;
 }

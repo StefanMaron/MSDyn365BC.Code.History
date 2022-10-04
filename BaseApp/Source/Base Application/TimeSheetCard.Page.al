@@ -12,34 +12,34 @@ page 973 "Time Sheet Card"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the starting date for a time sheet.';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the ending date for a time sheet.';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource for the time sheet.';
                     Editable = false;
                 }
-                field("Resource Name"; "Resource Name")
+                field("Resource Name"; Rec."Resource Name")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the name of the resource for the time sheet.';
@@ -85,9 +85,6 @@ page 973 "Time Sheet Card"
                 ApplicationArea = Comments;
                 Caption = 'Comments';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 RunObject = Page "Time Sheet Comment Sheet";
                 RunPageLink = "No." = FIELD("No."),
                                   "Time Sheet Line No." = CONST(0);
@@ -101,9 +98,6 @@ page 973 "Time Sheet Card"
                 ApplicationArea = Jobs;
                 Caption = '&Submit';
                 Image = ReleaseDoc;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = SubmitEnabled;
                 Visible = not ManagerTimeSheet;
                 ShortCutKey = 'F9';
@@ -119,9 +113,6 @@ page 973 "Time Sheet Card"
                 ApplicationArea = Jobs;
                 Caption = '&Reopen';
                 Image = ReOpen;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = ReopenSubmittedEnabled;
                 Visible = not ManagerTimeSheet;
                 ToolTip = 'Reopen all submitted or rejected time sheet lines. For dedicated line reopen use action Reopen on the subform Lines.';
@@ -136,9 +127,6 @@ page 973 "Time Sheet Card"
                 ApplicationArea = Jobs;
                 Caption = '&Approve';
                 Image = ReleaseDoc;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = ApproveEnabled;
                 Visible = ManagerTimeSheet;
                 ToolTip = 'Approve all submitted time sheet lines. For dedicated line approval use action Approve on the subform Lines.';
@@ -153,9 +141,6 @@ page 973 "Time Sheet Card"
                 ApplicationArea = Jobs;
                 Caption = '&Reopen';
                 Image = ReOpen;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = ReopenApprovedEnabled;
                 Visible = ManagerTimeSheet;
                 ToolTip = 'Reopen all approved or rejected time sheet lines. For dedicated line reopen use action Reopen on the subform Lines.';
@@ -170,9 +155,6 @@ page 973 "Time Sheet Card"
                 ApplicationArea = Jobs;
                 Caption = 'Reject';
                 Image = Reject;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = ApproveEnabled;
                 Visible = ManagerTimeSheet;
                 ToolTip = 'Approve all submitted time sheet lines. For dedicated line approval use action Approve on the subform Lines.';
@@ -191,9 +173,6 @@ page 973 "Time Sheet Card"
                     ApplicationArea = Jobs;
                     Caption = '&Copy lines from previous time sheet';
                     Image = Copy;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a job, the job number is copied.';
                     Visible = not ManagerTimeSheet;
 
@@ -207,9 +186,6 @@ page 973 "Time Sheet Card"
                     ApplicationArea = Jobs;
                     Caption = 'Create lines from &job planning';
                     Image = CreateLinesFromJob;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create time sheet lines that are based on job planning lines.';
                     Visible = not ManagerTimeSheet;
 
@@ -217,6 +193,43 @@ page 973 "Time Sheet Card"
                     begin
                         TimeSheetMgt.CheckCreateLinesFromJobPlanning(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ReopenSubmitted_Promoted; ReopenSubmitted)
+                {
+                }
+                actionref(ReopenApproved_Promoted; ReopenApproved)
+                {
+                }
+                actionref(Submit_Promoted; Submit)
+                {
+                }
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(TimeSheetComments_Promoted; TimeSheetComments)
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(CopyLinesFromPrevTS_Promoted; CopyLinesFromPrevTS)
+                {
+                }
+                actionref(CreateLinesFromJobPlanning_Promoted; CreateLinesFromJobPlanning)
+                {
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿codeunit 5780 "Whse. Cross-Dock Management"
+codeunit 5780 "Whse. Cross-Dock Management"
 {
 
     trigger OnRun()
@@ -171,9 +171,9 @@
     begin
         Location.Get(LocationCode);
         if Format(Location."Cross-Dock Due Date Calc.") <> '' then
-            CrossDockDate := CalcDate(Location."Cross-Dock Due Date Calc.", WorkDate)
+            CrossDockDate := CalcDate(Location."Cross-Dock Due Date Calc.", WorkDate())
         else
-            CrossDockDate := WorkDate;
+            CrossDockDate := WorkDate();
 
         OnCalculateCrossDockOnAfterAssignCrossDocDate(WhseCrossDockOpp, CrossDockDate, ItemNo, VariantCode, LocationCode,
             QtyNeededSumBase, QtyOnPickSumBase, QtyPickedSumBase, LineNo, TemplateName, NameNo);
@@ -193,7 +193,7 @@
     var
         IsHandled: Boolean;
     begin
-        if HasSpecialOrder and (SourceType <> DATABASE::"Sales Line") then
+        if HasSpecialOrder() and (SourceType <> DATABASE::"Sales Line") then
             exit;
         if (QtyOutstandingBase - QtyOnPickBase - QtyPickedBase) <= 0 then
             exit;
@@ -255,7 +255,7 @@
           ReceiptLine."Unit of Measure Code", ReceiptLine."Qty. per Unit of Measure");
         CrossDockForm.LookupMode(true);
         CrossDockForm.SetTableView(CrossDockOpp);
-        if CrossDockForm.RunModal = ACTION::LookupOK then begin
+        if CrossDockForm.RunModal() = ACTION::LookupOK then begin
             ReceiptLine.Get(SourceNameNo, SourceLineNo);
             CrossDockForm.GetValues(QtyToCrossDock);
             QtyToCrossDock := QtyToCrossDock / ReceiptLine."Qty. per Unit of Measure";
@@ -275,7 +275,7 @@
         QtyCrossDockedUOMBase := 0;
         QtyCrossDockedAllUOMBase := 0;
         with BinContent do begin
-            Reset;
+            Reset();
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
             SetRange("Variant Code", VariantCode);
@@ -330,7 +330,7 @@
         with BinContentLookup do begin
             SetTableView(BinContent);
             Initialize(LocationCode);
-            RunModal;
+            RunModal();
         end;
         Clear(BinContentLookup);
     end;
@@ -399,7 +399,7 @@
             if FindSet() then
                 repeat
                     GetSourceLine("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-                    if HasSpecialOrder then begin
+                    if HasSpecialOrder() then begin
                         TempWhseRcptLineWthSpecOrder := WhseRcptLine;
                         TempWhseRcptLineWthSpecOrder.Insert();
                     end else begin
@@ -413,7 +413,7 @@
     local procedure InsertToItemList(WhseRcptLine: Record "Warehouse Receipt Line"; var TempItemVariant: Record "Item Variant" temporary)
     begin
         with TempItemVariant do begin
-            Init;
+            Init();
             "Item No." := WhseRcptLine."Item No.";
             Code := WhseRcptLine."Variant Code";
             if Insert() then;
@@ -454,7 +454,7 @@
         IsHandled := false;
         OnUpdateQtyToCrossDockOnBeforeValidateQtyToCrossDock(WhseRcptLine, IsHandled);
         if not IsHandled then begin
-            WhseRcptLine.Validate("Qty. to Cross-Dock", Round(QtyToCrossDockBase / WhseRcptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+            WhseRcptLine.Validate("Qty. to Cross-Dock", Round(QtyToCrossDockBase / WhseRcptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
             WhseRcptLine."Qty. to Cross-Dock (Base)" := QtyToCrossDockBase;
             WhseRcptLine.Modify();
         end;
@@ -482,13 +482,13 @@
             CalcSums("Qty. to Cross-Dock (Base)", "Pick Qty. (Base)", "Picked Qty. (Base)");
 
             WhseCrossDockOpp."Qty. Needed" :=
-              -Round("Qty. to Cross-Dock (Base)" / WhseCrossDockOpp."To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision);
+              -Round("Qty. to Cross-Dock (Base)" / WhseCrossDockOpp."To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision());
             WhseCrossDockOpp."Qty. Needed (Base)" := -"Qty. to Cross-Dock (Base)";
             WhseCrossDockOpp."Pick Qty." :=
-              -Round("Pick Qty. (Base)" / WhseCrossDockOpp."To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision);
+              -Round("Pick Qty. (Base)" / WhseCrossDockOpp."To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision());
             WhseCrossDockOpp."Pick Qty. (Base)" := -"Pick Qty. (Base)";
             WhseCrossDockOpp."Picked Qty." :=
-              -Round("Picked Qty. (Base)" / WhseCrossDockOpp."To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision);
+              -Round("Picked Qty. (Base)" / WhseCrossDockOpp."To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision());
             WhseCrossDockOpp."Picked Qty. (Base)" := -"Picked Qty. (Base)";
         end;
     end;

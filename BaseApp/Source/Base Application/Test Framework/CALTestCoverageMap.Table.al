@@ -71,7 +71,7 @@ table 130406 "CAL Test Coverage Map"
         CALTestCoverageMap: Record "CAL Test Coverage Map";
     begin
         CALTestCoverageMap.SetRange("Test Codeunit ID", TestCodeunitID);
-        CALTestCoverageMap.Show;
+        CALTestCoverageMap.Show();
     end;
 
     procedure ShowTestCodeunits()
@@ -80,7 +80,7 @@ table 130406 "CAL Test Coverage Map"
     begin
         CALTestCoverageMap.SetRange("Object Type", "Object Type");
         CALTestCoverageMap.SetRange("Object ID", "Object ID");
-        CALTestCoverageMap.Show;
+        CALTestCoverageMap.Show();
     end;
 }
 

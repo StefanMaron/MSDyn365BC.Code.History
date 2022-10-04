@@ -142,22 +142,6 @@ table 370 "Excel Buffer"
     }
 
     var
-        Text001: Label 'You must enter a file name.';
-        Text002: Label 'You must enter an Excel worksheet name.', Comment = '{Locked="Excel"}';
-        Text003: Label 'The file %1 does not exist.';
-        Text004: Label 'The Excel worksheet %1 does not exist.', Comment = '{Locked="Excel"}';
-        Text005: Label 'Creating Excel worksheet...\\', Comment = '{Locked="Excel"}';
-        PageTxt: Label 'Page';
-        Text007: Label 'Reading Excel worksheet...\\', Comment = '{Locked="Excel"}';
-        Text013: Label '&B';
-        Text014: Label '&D';
-        Text015: Label '&P';
-        Text016: Label 'A1';
-        Text017: Label 'SUMIF';
-        Text018: Label '#N/A';
-        Text019: Label 'GLAcc', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
-        Text020: Label 'Period', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
-        Text021: Label 'Budget';
         TempInfoExcelBuf: Record "Excel Buffer" temporary;
         FileManagement: Codeunit "File Management";
         OpenXMLManagement: Codeunit "OpenXML Management";
@@ -175,6 +159,25 @@ table 370 "Excel Buffer"
         CurrentRow: Integer;
         CurrentCol: Integer;
         UseInfoSheet: Boolean;
+        ErrorMessage: Text;
+        ReadDateTimeInUtcDate: Boolean;
+
+        Text001: Label 'You must enter a file name.';
+        Text002: Label 'You must enter an Excel worksheet name.', Comment = '{Locked="Excel"}';
+        Text003: Label 'The file %1 does not exist.';
+        Text004: Label 'The Excel worksheet %1 does not exist.', Comment = '{Locked="Excel"}';
+        Text005: Label 'Creating Excel worksheet...\\', Comment = '{Locked="Excel"}';
+        PageTxt: Label 'Page';
+        Text007: Label 'Reading Excel worksheet...\\', Comment = '{Locked="Excel"}';
+        Text013: Label '&B';
+        Text014: Label '&D';
+        Text015: Label '&P';
+        Text016: Label 'A1';
+        Text017: Label 'SUMIF';
+        Text018: Label '#N/A';
+        Text019: Label 'GLAcc', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
+        Text020: Label 'Period', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
+        Text021: Label 'Budget';
         Text022: Label 'CostAcc', Locked = true, Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.';
         Text023: Label 'Information';
         Text034: Label 'Excel Files (*.xls*)|*.xls*|All Files (*.*)|*.*', Comment = '{Split=r''\|\*\..{1,4}\|?''}{Locked="Excel"}';
@@ -186,9 +189,7 @@ table 370 "Excel Buffer"
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
         VmlDrawingXmlTxt: Label '<xml xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><o:shapelayout v:ext="edit"><o:idmap v:ext="edit" data="1"/></o:shapelayout><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202"  path="m,l,21600r21600,l21600,xe"><v:stroke joinstyle="miter"/><v:path gradientshapeok="t" o:connecttype="rect"/></v:shapetype>', Locked = true;
         EndXmlTokenTxt: Label '</xml>', Locked = true;
-        ErrorMessage: Text;
         CellNotFoundErr: Label 'Cell %1 not found.', Comment = '%1 - cell name';
-        ReadDateTimeInUtcDate: Boolean;
 
     procedure SetReadDateTimeInUtcDate(NewValue: Boolean)
     begin
@@ -213,26 +214,30 @@ table 370 "Excel Buffer"
         exit(XlWrkBkWriter.SheetsCount);
     end;
 
-    [Scope('OnPrem')]
     procedure EnterCellByCellName(CellName: Text; CellValueAsText: Text[250])
     var
         CellPosition: DotNet CellPosition;
+        RowInt: Integer;
+        ColumnInt: Integer;
     begin
         CellPosition := XlWrkBkWriter.GetCellPosition(CellName);
         if IsNull(CellPosition) then begin
-            CloseBook;
+            CloseBook();
             Error(CellNotFoundErr, CellName);
         end;
 
-        if Get(CellPosition.Row, CellPosition.Column) then begin
+        RowInt := CellPosition.Row;
+        ColumnInt := CellPosition.Column;
+
+        if Get(RowInt, ColumnInt) then begin
             "Cell Value as Text" := CellValueAsText;
-            Modify;
+            Modify();
         end else begin
-            Init;
-            Validate("Row No.", CellPosition.Row);
-            Validate("Column No.", CellPosition.Column);
+            Init();
+            Validate("Row No.", RowInt);
+            Validate("Column No.", ColumnInt);
             "Cell Value as Text" := CellValueAsText;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -245,7 +250,7 @@ table 370 "Excel Buffer"
         if XlWrkBkWriter.HasWorksheet(SheetName) then
             XlWrkShtWriter := XlWrkBkWriter.GetWorksheetByName(SheetName)
         else begin
-            CloseBook;
+            CloseBook();
             Error(Text004, SheetName);
         end;
     end;
@@ -256,7 +261,7 @@ table 370 "Excel Buffer"
         if XlWrkBkWriter.HasWorksheet(SheetNo) then
             exit(XlWrkBkWriter.GetWorksheetNameById(Format(SheetNo)))
         else begin
-            CloseBook;
+            CloseBook();
             Error(Text004, SheetNo);
         end;
     end;
@@ -292,13 +297,16 @@ table 370 "Excel Buffer"
         OpenXMLManagement.SetupWorksheetHelper(XlWrkBkWriter);
     end;
 
-    [Scope('OnPrem')]
     procedure GetValueByCellName(CellName: Text): Text
     var
         CellPosition: DotNet CellPosition;
+        RowInt: Integer;
+        ColumnInt: Integer;
     begin
         CellPosition := CellPosition.CellPosition(CellName);
-        if Get(CellPosition.Row, CellPosition.Column) then
+        RowInt := CellPosition.Row;
+        ColumnInt := CellPosition.Column;
+        if Get(RowInt, ColumnInt) then
             exit("Cell Value as Text");
     end;
 
@@ -334,10 +342,10 @@ table 370 "Excel Buffer"
 
         FileManagement.IsAllowedPath(FileName, false);
         XlWrkBkReader := XlWrkBkReader.Open(FileName);
-        if XlWrkBkReader.HasWorksheet(SheetName) then begin
-            XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName);
-        end else begin
-            CloseBook;
+        if XlWrkBkReader.HasWorksheet(SheetName) then
+            XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName)
+        else begin
+            CloseBook();
             Error(Text004, SheetName);
         end;
     end;
@@ -354,7 +362,7 @@ table 370 "Excel Buffer"
         if XlWrkBkReader.HasWorksheet(SheetName) then
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName)
         else begin
-            CloseBook;
+            CloseBook();
             ErrorMessage := StrSubstNo(Text004, SheetName);
             exit(ErrorMessage);
         end;
@@ -395,7 +403,7 @@ table 370 "Excel Buffer"
 
             OpenXMLManagement.SetupWorksheetHelper(XlWrkBkWriter);
         end else begin
-            CloseBook;
+            CloseBook();
             Error(Text004, SheetName);
         end;
     end;
@@ -410,9 +418,9 @@ table 370 "Excel Buffer"
     procedure CloseBook()
     begin
         if not IsNull(XlWrkBkWriter) then begin
-            XlWrkBkWriter.ClearFormulaCalculations;
-            XlWrkBkWriter.ValidateDocument;
-            XlWrkBkWriter.Close;
+            XlWrkBkWriter.ClearFormulaCalculations();
+            XlWrkBkWriter.ValidateDocument();
+            XlWrkBkWriter.Close();
             Clear(XlWrkShtWriter);
             Clear(XlWrkBkWriter);
         end;
@@ -443,7 +451,7 @@ table 370 "Excel Buffer"
         if XlWrkBkReader.HasWorksheet(NewSheetName) then
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(NewSheetName)
         else begin
-            CloseBook;
+            CloseBook();
             Error(Text004, NewSheetName);
         end;
     end;
@@ -461,15 +469,15 @@ table 370 "Excel Buffer"
         if ReportHeader <> '' then
             XlWrkShtWriter.AddHeader(
               true,
-              StrSubstNo('%1%2%1%3%4', GetExcelReference(1), ReportHeader, TypeHelper.LFSeparator, CompanyName2));
+              StrSubstNo('%1%2%1%3%4', GetExcelReference(1), ReportHeader, TypeHelper.LFSeparator(), CompanyName2));
 
         XlWrkShtWriter.AddHeader(
           false,
-          StrSubstNo('%1%3%4%3%5 %2', GetExcelReference(2), GetExcelReference(3), TypeHelper.LFSeparator, UserID2, PageTxt));
+          StrSubstNo('%1%3%4%3%5 %2', GetExcelReference(2), GetExcelReference(3), TypeHelper.LFSeparator(), UserID2, PageTxt));
 
         OpenXMLManagement.AddAndInitializeCommentsPart(XlWrkShtWriter, VmlDrawingPart);
 
-        StringBld := StringBld.StringBuilder;
+        StringBld := StringBld.StringBuilder();
         StringBld.Append(VmlDrawingXmlTxt);
 
         WriteAllToCurrentSheet(Rec);
@@ -477,9 +485,9 @@ table 370 "Excel Buffer"
         StringBld.Append(EndXmlTokenTxt);
 
         XmlTextWriter := XmlTextWriter.XmlTextWriter(VmlDrawingPart.GetStream(FileMode.Create), Encoding.UTF8);
-        XmlTextWriter.WriteRaw(StringBld.ToString);
-        XmlTextWriter.Flush;
-        XmlTextWriter.Close;
+        XmlTextWriter.WriteRaw(StringBld.ToString());
+        XmlTextWriter.Flush();
+        XmlTextWriter.Close();
 
         if UseInfoSheet then
             if not TempInfoExcelBuf.IsEmpty() then begin
@@ -531,7 +539,7 @@ table 370 "Excel Buffer"
 
             CellTextValue := "Cell Value as Text";
 
-            if "Cell Value as Blob".HasValue then begin
+            if "Cell Value as Blob".HasValue() then begin
                 CalcFields("Cell Value as Blob");
                 "Cell Value as Blob".CreateInStream(RecInStream, TextEncoding::Windows);
                 RecInStream.ReadText(CellTextValue);
@@ -571,7 +579,7 @@ table 370 "Excel Buffer"
         with ExcelBuffer do begin
             GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
 
-            XlWrkShtWriter.SetCellFormula("Row No.", xlColID, GetFormula, NumberFormat, Decorator);
+            XlWrkShtWriter.SetCellFormula("Row No.", xlColID, GetFormula(), NumberFormat, Decorator);
         end;
     end;
 
@@ -627,12 +635,11 @@ table 370 "Excel Buffer"
 
         if IsDoubleUnderlined then
             Decorator := XlWrkShtWriter.DefaultDoubleUnderlinedCellDecorator
-        else begin
+        else
             if IsUnderlined then
                 Decorator := XlWrkShtWriter.DefaultUnderlinedCellDecorator
             else
                 Decorator := XlWrkShtWriter.DefaultCellDecorator;
-        end;
     end;
 
     procedure SetColumnWidth(ColName: Text[10]; NewColWidth: Decimal)
@@ -667,11 +674,20 @@ table 370 "Excel Buffer"
 
     procedure ReadSheetContinous(SheetName: Text; CloseBookOnCompletion: Boolean)
     var
+        ColumnList: List of [Integer];
+        RowList: List of [Integer];
+    begin
+        ReadSheetContinous(SheetName, CloseBookOnCompletion, ColumnList, RowList, 0);
+    end;
+
+    procedure ReadSheetContinous(SheetName: Text; CloseBookOnCompletion: Boolean; ColumnList: List of [Integer]; RowList: List of [Integer]; MaxRowNo: Integer)
+    var
         ExcelBufferDialogMgt: Codeunit "Excel Buffer Dialog Management";
         CellData: DotNet CellData;
         Enumerator: DotNet IEnumerator;
         RowCount: Integer;
         LastUpdate: DateTime;
+        ReadData: Boolean;
     begin
         // Allows reading Excel files with more than one sheet without closing and reopening file
         if SheetName <> '' then
@@ -680,26 +696,30 @@ table 370 "Excel Buffer"
         ExcelBufferDialogMgt.Open(Text007);
         DeleteAll();
 
-        Enumerator := XlWrkShtReader.GetEnumerator;
+        Enumerator := XlWrkShtReader.GetEnumerator();
         RowCount := XlWrkShtReader.RowCount;
-        while Enumerator.MoveNext do begin
+        ReadData := Enumerator.MoveNext();
+        while ReadData do begin
             CellData := Enumerator.Current;
-            if CellData.HasValue then begin
+            if CellData.HasValue() and ShouldReadCellData(CellData.ColumnNumber, CellData.RowNumber, ColumnList, RowList) then begin
                 Validate("Row No.", CellData.RowNumber);
                 Validate("Column No.", CellData.ColumnNumber);
                 ParseCellValue(CellData.Value, CellData.Format);
-                Insert;
+                Insert();
 
                 if not UpdateProgressDialog(ExcelBufferDialogMgt, LastUpdate, CellData.RowNumber, RowCount) then begin
-                    CloseBook;
+                    CloseBook();
                     Error(Text035)
                 end;
             end;
+            ReadData := Enumerator.MoveNext();
+            if MaxRowNo = CellData.RowNumber then
+                ReadData := false;
         end;
 
         if CloseBookOnCompletion then
-            CloseBook;
-        ExcelBufferDialogMgt.Close;
+            CloseBook();
+        ExcelBufferDialogMgt.Close();
     end;
 
     protected procedure ParseCellValue(Value: Text; FormatString: Text)
@@ -785,7 +805,7 @@ table 370 "Excel Buffer"
             if TempNameValueBuffer.Count = 1 then
                 SelectedSheetName := TempNameValueBuffer.Value
             else begin
-                TempNameValueBuffer.FindFirst;
+                TempNameValueBuffer.FindFirst();
                 if PAGE.RunModal(PAGE::"Name/Value Lookup", TempNameValueBuffer) = ACTION::LookupOK then
                     SelectedSheetName := TempNameValueBuffer.Value;
             end;
@@ -841,8 +861,9 @@ table 370 "Excel Buffer"
         HasFormulaError: Boolean;
         ThisCellHasFormulaError: Boolean;
     begin
+        FirstRow := 0;
         ExcelBuf.SetFilter(Formula, '<>%1', '');
-        if ExcelBuf.FindSet then
+        if ExcelBuf.FindSet() then
             repeat
                 TempExcelBufFormula := ExcelBuf;
                 TempExcelBufFormula.Insert();
@@ -850,25 +871,25 @@ table 370 "Excel Buffer"
         ExcelBuf.Reset();
 
         with TempExcelBufFormula do
-            if FindSet then
+            if FindFirst() then
                 repeat
                     ThisCellHasFormulaError := false;
                     ExcelBuf.SetRange("Column No.", 1);
                     ExcelBuf.SetFilter("Row No.", '<>%1', "Row No.");
                     ExcelBuf.SetFilter("Cell Value as Text", Formula);
                     TempExcelBufFormula2 := TempExcelBufFormula;
-                    if ExcelBuf.FindSet then
+                    if ExcelBuf.FindSet() then
                         repeat
                             if not Get(ExcelBuf."Row No.", "Column No.") then
                                 ExcelBuf.Mark(true);
                         until ExcelBuf.Next() = 0;
                     TempExcelBufFormula := TempExcelBufFormula2;
-                    ClearFormula;
+                    ClearFormula();
                     ExcelBuf.SetRange("Cell Value as Text");
                     ExcelBuf.SetRange("Row No.");
-                    if ExcelBuf.FindSet then
+                    if ExcelBuf.FindSet() then
                         repeat
-                            if ExcelBuf.Mark then begin
+                            if ExcelBuf.Mark() then begin
                                 LastRow := ExcelBuf."Row No.";
                                 if FirstRow = 0 then
                                     FirstRow := LastRow;
@@ -898,7 +919,7 @@ table 370 "Excel Buffer"
 
                     ExcelBuf.Reset();
                     ExcelBuf.Get("Row No.", "Column No.");
-                    ExcelBuf.SetFormula(GetFormula);
+                    ExcelBuf.SetFormula(GetFormula());
                     ExcelBuf.Modify();
                     HasFormulaError := HasFormulaError or ThisCellHasFormulaError;
                 until Next() = 0;
@@ -911,7 +932,7 @@ table 370 "Excel Buffer"
         Overflow: Boolean;
         LongFormula: Text[1000];
     begin
-        LongFormula := GetFormula;
+        LongFormula := GetFormula();
         if LongFormula = '' then
             LongFormula := '=';
         if LongFormula <> '=' then
@@ -933,7 +954,7 @@ table 370 "Excel Buffer"
 
     procedure SetFormula(LongFormula: Text[1000])
     begin
-        ClearFormula;
+        ClearFormula();
         if LongFormula = '' then
             exit;
 
@@ -972,7 +993,7 @@ table 370 "Excel Buffer"
     local procedure AddColumnToBuffer(var ExcelBuffer: Record "Excel Buffer"; Value: Variant; IsFormula: Boolean; CommentText: Text; IsBold: Boolean; IsItalics: Boolean; IsUnderline: Boolean; NumFormat: Text[30]; CellType: Option)
     begin
         if CurrentRow < 1 then
-            NewRow;
+            NewRow();
 
         CurrentCol := CurrentCol + 1;
         ExcelBuffer.Init();
@@ -1085,7 +1106,6 @@ table 370 "Excel Buffer"
         CurrentCol := NewCurrentCol;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateValidationRule(Range: Code[20])
     begin
         XlWrkShtWriter.AddRangeDataValidation(
@@ -1097,7 +1117,7 @@ table 370 "Excel Buffer"
 
     procedure QuitExcel()
     begin
-        CloseBook;
+        CloseBook();
     end;
 
     procedure OpenExcel()
@@ -1105,13 +1125,13 @@ table 370 "Excel Buffer"
         if OpenUsingDocumentService('') then
             exit;
 
-        FileManagement.DownloadHandler(FileNameServer, '', '', Text034, GetFriendlyFilename);
+        FileManagement.DownloadHandler(FileNameServer, '', '', Text034, GetFriendlyFilename());
     end;
 
     [Scope('OnPrem')]
     procedure DownloadAndOpenExcel()
     begin
-        OpenExcelWithName(GetFriendlyFilename);
+        OpenExcelWithName(GetFriendlyFilename());
     end;
 
     [Scope('OnPrem')]
@@ -1144,9 +1164,9 @@ table 370 "Excel Buffer"
             Error(Text003, FileNameServer);
 
         // if document service is configured we save the generated document to SharePoint and open it from there.
-        if DocumentServiceMgt.IsConfigured then begin
+        if DocumentServiceMgt.IsConfigured() then begin
             if FileName = '' then
-                FileName := 'Book.' + PathHelper.ChangeExtension(PathHelper.GetRandomFileName, 'xlsx')
+                FileName := 'Book.' + PathHelper.ChangeExtension(PathHelper.GetRandomFileName(), 'xlsx')
             else begin
                 // if file is not applicable for the service it can not be opened using the document service.
                 if not DocumentServiceMgt.IsServiceUri(FileName) then
@@ -1158,7 +1178,7 @@ table 370 "Excel Buffer"
             DialogWindow.Open(StrSubstNo(SavingDocumentMsg, FileName));
             DocumentUrl := DocumentServiceMgt.SaveFile(FileNameServer, FileName, Enum::"Doc. Service Conflict Behavior"::Replace);
             DocumentServiceMgt.OpenDocument(DocumentUrl);
-            DialogWindow.Close;
+            DialogWindow.Close();
             exit(true);
         end;
 
@@ -1170,8 +1190,8 @@ table 370 "Excel Buffer"
     begin
         CreateBook(FileName, SheetName);
         WriteSheet(ReportHeader, CompanyName2, UserID2);
-        CloseBook;
-        OpenExcel;
+        CloseBook();
+        OpenExcel();
     end;
 
     local procedure UpdateProgressDialog(var ExcelBufferDialogManagement: Codeunit "Excel Buffer Dialog Management"; var LastUpdate: DateTime; CurrentCount: Integer; TotalCount: Integer): Boolean
@@ -1239,7 +1259,7 @@ table 370 "Excel Buffer"
         TempNameValueBufferOut.Reset();
         TempNameValueBufferOut.DeleteAll();
 
-        SheetNames := SheetNames.ArrayList(XlWrkBkReader.SheetNames);
+        SheetNames := SheetNames.ArrayList(XlWrkBkReader.SheetNames());
         if IsNull(SheetNames) then
             exit(false);
 
@@ -1259,7 +1279,21 @@ table 370 "Excel Buffer"
             end;
         end;
 
-        CloseBook;
+        CloseBook();
+    end;
+
+    local procedure ShouldReadCellData(ColumnNo: Integer; RowNo: Integer; ColumnList: List of [Integer]; RowList: List of [Integer]): Boolean
+    begin
+        if (ColumnList.Count = 0) and (RowList.Count = 0) then
+            exit(true);
+
+        if ColumnList.Count = 0 then
+            exit(RowList.Contains(RowNo));
+
+        if RowList.Count = 0 then
+            exit(ColumnList.Contains(ColumnNo));
+
+        exit(ColumnList.Contains(ColumnNo) and RowList.Contains(RowNo));
     end;
 
     [IntegrationEvent(false, false)]

@@ -5,20 +5,21 @@ codeunit 5655 "Insurance Jnl.-B.Post"
     trigger OnRun()
     begin
         InsuranceJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(InsuranceJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to post the journals?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlBatch: Record "Insurance Journal Batch";
         InsuranceJnlLine: Record "Insurance Journal Line";
         InsuranceJnlPostBatch: Codeunit "Insurance Jnl.-Post Batch";
         JournalWithErrors: Boolean;
+
+        Text000: Label 'Do you want to post the journals?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     begin
@@ -52,7 +53,7 @@ codeunit 5655 "Insurance Jnl.-B.Post"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup := 0;

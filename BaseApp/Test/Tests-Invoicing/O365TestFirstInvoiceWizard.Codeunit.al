@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138902 "O365 Test First Invoice Wizard"
 {
     Subtype = Test;
@@ -34,7 +35,7 @@ codeunit 138902 "O365 Test First Invoice Wizard"
 
         // [THEN] The First Invoice Wizard runs
         // FirstInvoiceWizardHandler will click on "Not now" and close the page
-        O365SalesActivities.Close;
+        O365SalesActivities.Close();
     end;
 
     [Test]
@@ -158,7 +159,7 @@ codeunit 138902 "O365 Test First Invoice Wizard"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             O365SalesInitialSetup.Insert();
         O365SalesInitialSetup.Validate("Tax Type", TaxType);
         O365SalesInitialSetup.Modify();
@@ -182,7 +183,7 @@ codeunit 138902 "O365 Test First Invoice Wizard"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -196,4 +197,4 @@ codeunit 138902 "O365 Test First Invoice Wizard"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

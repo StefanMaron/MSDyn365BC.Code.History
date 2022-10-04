@@ -1,4 +1,4 @@
-﻿codeunit 99000838 "Prod. Order Comp.-Reserve"
+codeunit 99000838 "Prod. Order Comp.-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -77,7 +77,7 @@
 
     procedure Caption(ProdOrderComp: Record "Prod. Order Component") CaptionText: Text
     begin
-        CaptionText := ProdOrderComp.GetSourceCaption;
+        CaptionText := ProdOrderComp.GetSourceCaption();
     end;
 
     procedure FindReservEntry(ProdOrderComp: Record "Prod. Order Component"; var ReservEntry: Record "Reservation Entry"): Boolean
@@ -85,7 +85,7 @@
         ReservEntry.InitSortingAndFilters(false);
         ProdOrderComp.SetReservationFilters(ReservEntry);
         if not ReservEntry.IsEmpty() then
-            exit(ReservEntry.FindLast);
+            exit(ReservEntry.FindLast());
     end;
 
     procedure ReservEntryExist(ProdOrderComp: Record "Prod. Order Component"): Boolean
@@ -204,12 +204,12 @@
                     exit;
             ReservMgt.SetReservSource(NewProdOrderComp);
             if "Qty. per Unit of Measure" <> OldProdOrderComp."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             if "Remaining Qty. (Base)" * OldProdOrderComp."Remaining Qty. (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
                 ReservMgt.DeleteReservEntries(false, "Remaining Qty. (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack("Remaining Qty. (Base)");
             AssignForPlanning(NewProdOrderComp);
         end;
@@ -224,7 +224,7 @@
         if not FindReservEntry(OldProdOrderComp, OldReservEntry) then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         NewProdOrderComp.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
 
@@ -266,17 +266,17 @@
         TrackedQty := -OldReservEntry."Quantity (Base)";
         xTransferQty := TransferQty;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         // Handle Item Tracking on consumption:
         Clear(CreateReservEntry);
         if NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::Consumption then
-            if NewItemJnlLine.TrackingExists then begin
+            if NewItemJnlLine.TrackingExists() then begin
                 CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
                 // Try to match against Item Tracking on the prod. order line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
                 if OldReservEntry.IsEmpty() then
-                    OldReservEntry.ClearTrackingFilter
+                    OldReservEntry.ClearTrackingFilter()
                 else
                     ItemTrackingFilterIsSet := true;
             end;
@@ -290,27 +290,27 @@
 
         ItemTrackingSetup.CopyTrackingFromItemJnlLine(NewItemJnlLine);
         if ReservEngineMgt.InitRecordSet(OldReservEntry, ItemTrackingSetup) then
-            repeat
-                OldReservEntry.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
+                repeat
+                    OldReservEntry.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
 
-                OnTransferPOCompToItemJnlLineCheckILEOnBeforeTransferReservEntry(NewItemJnlLine, OldReservEntry);
+                    OnTransferPOCompToItemJnlLineCheckILEOnBeforeTransferReservEntry(NewItemJnlLine, OldReservEntry);
 
-                TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    NewItemJnlLine."Entry Type".AsInteger(), NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
-                    NewItemJnlLine."Line No.", NewItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
+                        NewItemJnlLine."Entry Type".AsInteger(), NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
+                        NewItemJnlLine."Line No.", NewItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
-                OnTransferPOCompToItemJnlLineCheckILEOnAfterTransferReservEntry(NewItemJnlLine, OldReservEntry);
+                    OnTransferPOCompToItemJnlLineCheckILEOnAfterTransferReservEntry(NewItemJnlLine, OldReservEntry);
 
-                EndLoop := TransferQty = 0;
-                if not EndLoop then
-                    if ReservEngineMgt.NEXTRecord(OldReservEntry) = 0 then
-                        if ItemTrackingFilterIsSet then begin
-                            OldReservEntry.ClearTrackingFilter();
-                            ItemTrackingFilterIsSet := false;
-                            EndLoop := not ReservEngineMgt.InitRecordSet(OldReservEntry);
-                        end else
-                            EndLoop := true;
-            until EndLoop;
+                    EndLoop := TransferQty = 0;
+                    if not EndLoop then
+                        if ReservEngineMgt.NEXTRecord(OldReservEntry) = 0 then
+                            if ItemTrackingFilterIsSet then begin
+                                OldReservEntry.ClearTrackingFilter();
+                                ItemTrackingFilterIsSet := false;
+                                EndLoop := not ReservEngineMgt.InitRecordSet(OldReservEntry);
+                            end else
+                                EndLoop := true;
+                until EndLoop;
 
         // Handle remaining transfer quantity
         if TransferQty <> 0 then begin
@@ -332,7 +332,7 @@
                 exit(true);
 
             ReservMgt.SetReservSource(ProdOrderComp);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -386,7 +386,7 @@
             ProdOrderComp.TestField("Item No.");
             TrackingSpecification.InitFromProdOrderComp(ProdOrderComp);
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, ProdOrderComp."Due Date");
-            ItemTrackingLines.SetInbound(ProdOrderComp.IsInbound);
+            ItemTrackingLines.SetInbound(ProdOrderComp.IsInbound());
             ItemTrackingLines.RunModal();
         end;
 
@@ -479,7 +479,7 @@
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(ProdOrderComp);
-            ProdOrderComp.Find;
+            ProdOrderComp.Find();
             QtyPerUOM := ProdOrderComp.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;
@@ -493,7 +493,7 @@
 
         ProdOrderComp.SetReservationEntry(ReservEntry);
 
-        CaptionText := ProdOrderComp.GetSourceCaption;
+        CaptionText := ProdOrderComp.GetSourceCaption();
     end;
 
     local procedure EntryStartNo(): Integer
@@ -546,11 +546,10 @@
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
     local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
-        if MatchThisEntry(FromEntrySummary."Entry No.") then begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
             IsHandled :=
                 (FilterReservEntry."Source Type" = DATABASE::"Prod. Order Component") and
                 (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
-        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
@@ -610,7 +609,7 @@
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(ProdOrderComp);
             ProdOrderComp.SetReservationFilters(ReservEntry);
-            CaptionText := ProdOrderComp.GetSourceCaption;
+            CaptionText := ProdOrderComp.GetSourceCaption();
         end;
     end;
 
@@ -666,7 +665,7 @@
         ProdOrderComp.FilterLinesForReservation(CalcReservEntry, Status.AsInteger(), AvailabilityFilter, Positive);
         if ProdOrderComp.FindSet() then
             repeat
-                ProdOrderComp.CalcFields("Reserved Qty. (Base)");
+                    ProdOrderComp.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ProdOrderComp."Reserved Qty. (Base)";
                 TotalQuantity += ProdOrderComp."Remaining Qty. (Base)";
             until ProdOrderComp.Next() = 0;
@@ -679,14 +678,14 @@
                 "Table ID" := DATABASE::"Prod. Order Component";
                 if Status = ProdOrderComp.Status::"Firm Planned" then
                     "Summary Type" :=
-                        CopyStr(StrSubstNo(Text010, ProdOrderComp.TableCaption), 1, MaxStrLen("Summary Type"))
+                        CopyStr(StrSubstNo(Text010, ProdOrderComp.TableCaption()), 1, MaxStrLen("Summary Type"))
                 else
                     "Summary Type" :=
-                        CopyStr(StrSubstNo(Text011, ProdOrderComp.TableCaption), 1, MaxStrLen("Summary Type"));
+                        CopyStr(StrSubstNo(Text011, ProdOrderComp.TableCaption()), 1, MaxStrLen("Summary Type"));
                 "Total Quantity" := -TotalQuantity;
                 "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
                 if not Insert() then
-                    Modify;
+                    Modify();
             end;
     end;
 

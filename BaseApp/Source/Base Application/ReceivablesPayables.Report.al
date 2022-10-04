@@ -12,7 +12,7 @@ report 5 "Receivables-Payables"
         dataitem("General Ledger Setup"; "General Ledger Setup")
         {
             DataItemTableView = SORTING("Primary Key") WHERE("Primary Key" = CONST(''));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLSetupCustBalancesDue; GLSetup."Cust. Balances Due")
@@ -91,7 +91,7 @@ report 5 "Receivables-Payables"
                 begin
                     StartDate := EndDate + 1;
                     EndDate := CalcDate(PeriodLength, StartDate) - 1;
-                    MultiplyAmounts;
+                    MultiplyAmounts();
                 end;
 
                 trigger OnPreDataItem()
@@ -99,7 +99,7 @@ report 5 "Receivables-Payables"
                     if StartDate <> 0D then begin
                         EndDate := StartDate - 1;
                         StartDate := 0D;
-                        MultiplyAmounts;
+                        MultiplyAmounts();
                         beforeCustBalanceLCY := GLSetup."Cust. Balances Due";
                         beforeVendorBalanceLCY := GLSetup."Vendor Balances Due";
                     end;
@@ -150,7 +150,7 @@ report 5 "Receivables-Payables"
         trigger OnOpenPage()
         begin
             if StartDate = 0D then
-                StartDate := WorkDate;
+                StartDate := WorkDate();
             if NoOfPeriods = 0 then
                 NoOfPeriods := 1;
             if Format(PeriodLength) = '' then
@@ -164,7 +164,7 @@ report 5 "Receivables-Payables"
 
     trigger OnInitReport()
     begin
-        StartDate := WorkDate;
+        StartDate := WorkDate();
         NoOfPeriods := 1;
         Evaluate(PeriodLength, '<1M>');
     end;

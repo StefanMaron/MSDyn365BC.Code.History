@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2328 "BC O365 Email Settings Part"
 {
     Caption = ' ';
@@ -6,6 +7,9 @@ page 2328 "BC O365 Email Settings Part"
     SourceTable = "O365 Email Setup";
     SourceTableView = SORTING(Email)
                       ORDER(Ascending);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,7 +19,7 @@ page 2328 "BC O365 Email Settings Part"
             {
                 field(Email; Email)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
 
                     trigger OnValidate()
                     begin
@@ -25,13 +29,13 @@ page 2328 "BC O365 Email Settings Part"
                 }
                 field(RecipientType; RecipientType)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'CC/BCC';
                 }
             }
             field(EditDefaultMessages; EditDefaultEmailMessageLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
                 Style = StandardAccent;
@@ -57,4 +61,4 @@ page 2328 "BC O365 Email Settings Part"
     var
         EditDefaultEmailMessageLbl: Label 'Change default email messages';
 }
-
+#endif

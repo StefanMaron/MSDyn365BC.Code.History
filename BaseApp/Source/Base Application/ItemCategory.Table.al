@@ -84,8 +84,8 @@ table 5722 "Item Category"
     begin
         if HasChildren() then
             Error(DeleteWithChildrenErr);
-        UpdateDeletedCategoryItems;
-        DeleteAssignedAttributes;
+        UpdateDeletedCategoryItems();
+        DeleteAssignedAttributes();
     end;
 
     trigger OnInsert()
@@ -110,8 +110,9 @@ table 5722 "Item Category"
     end;
 
     var
-        CyclicInheritanceErr: Label 'An item category cannot be a parent of itself or any of its children.';
         ItemCategoryManagement: Codeunit "Item Category Management";
+
+        CyclicInheritanceErr: Label 'An item category cannot be a parent of itself or any of its children.';
         DeleteWithChildrenErr: Label 'You cannot delete this item category because it has child item categories.';
         DeleteItemInheritedAttributesQst: Label 'One or more items belong to item category ''''%1''''.\\Do you want to delete the inherited item attributes for the items in question? ', Comment = '%1 - item category code';
 

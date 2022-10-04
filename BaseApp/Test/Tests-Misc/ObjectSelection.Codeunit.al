@@ -935,7 +935,7 @@ codeunit 134562 "Object Selection"
           CalcFieldRef, AllObjWithCaption, RecRef, TableId, IdFieldNo, CalcFieldNo, ObjectType);
 
         // Excercise
-        CalcFieldRef.CalcField;
+        CalcFieldRef.CalcField();
 
         // Test
         VerifyCalculatedField(AllObjWithCaption, CalcFieldRef);
@@ -952,7 +952,7 @@ codeunit 134562 "Object Selection"
           ObjectType);
 
         // Excercise
-        CalcFieldRef.CalcField;
+        CalcFieldRef.CalcField();
 
         // Test
         VerifyCalculatedField(AllObjWithCaption, CalcFieldRef);
@@ -1033,12 +1033,12 @@ codeunit 134562 "Object Selection"
         ReportSelections: Record "Report Selections";
     begin
         with ReportSelections do begin
-            Init;
+            Init();
             Usage := UsageOption;
             Sequence :=
               LibraryUtility.GenerateRandomCode(FieldNo(Sequence), DATABASE::"Report Selections");
             Validate("Report ID", ReportID);
-            Insert;
+            Insert();
         end;
     end;
 

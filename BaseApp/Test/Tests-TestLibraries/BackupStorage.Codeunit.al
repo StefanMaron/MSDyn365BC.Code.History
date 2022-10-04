@@ -82,12 +82,12 @@ codeunit 130012 "Backup Storage"
                 TempTaintedTable2.Init();
                 TempTaintedTable2.Copy(TempTaintedTable);
                 TempTaintedTable2.Insert();
-            until TempTaintedTable.Next = 0;
+            until TempTaintedTable.Next() = 0;
 
         if TempTaintedTable2.FindSet() then
             repeat
                 RestoreTableFromBackupNo(BackupNo, CompanyName, TempTaintedTable2."Table No.");
-            until TempTaintedTable2.Next = 0;
+            until TempTaintedTable2.Next() = 0;
 
         SetWorkDate;
 
@@ -107,7 +107,7 @@ codeunit 130012 "Backup Storage"
                 TempTaintedTable2.Init();
                 TempTaintedTable2.Copy(TempTaintedTable);
                 TempTaintedTable2.Insert();
-            until TempTaintedTable.Next = 0
+            until TempTaintedTable.Next() = 0
     end;
 
     [Scope('OnPrem')]
@@ -141,7 +141,7 @@ codeunit 130012 "Backup Storage"
         repeat
             CopyFields(RecordRef, BackupRecordRef);
             BackupRecordRef.Insert
-        until RecordRef.Next = 0;
+        until RecordRef.Next() = 0;
         InsertTableBackup(BackupNo, BackupRecordRef)
     end;
 
@@ -178,7 +178,7 @@ codeunit 130012 "Backup Storage"
             repeat
                 CopyFields(BackupRecordRef, RecordRef);
                 RecordRef.Insert();
-            until BackupRecordRef.Next = 0;
+            until BackupRecordRef.Next() = 0;
 
             // It is necessary to explicitly comit changes between tables because these
             // can have auto_incrementing fields. If two tables are modified by the same
@@ -202,7 +202,7 @@ codeunit 130012 "Backup Storage"
                 RecordRef.Insert
             end;
             BackupRecordCount += 1
-        until BackupRecordRef.Next = 0;
+        until BackupRecordRef.Next() = 0;
 
         // It is necessary to explicitly comit changes between tables because these
         // can have auto_incrementing fields. If two tables are modified by the same
@@ -220,7 +220,7 @@ codeunit 130012 "Backup Storage"
         repeat
             if not BackupRecordRef.Get(RecordRef.RecordId) then
                 RecordRef.Delete();
-        until RecordRef.Next = 0;
+        until RecordRef.Next() = 0;
 
         // It is necessary to explicitly comit changes between tables because these
         // can have auto_incrementing fields. If two tables are modified by the same
@@ -290,7 +290,7 @@ codeunit 130012 "Backup Storage"
             if SourceFieldRef.Class = FieldClass::Normal then begin
                 DestinationFieldRef := RecordRefDestination.FieldIndex(i);
                 if SourceFieldRef.Type = FieldType::BLOB then
-                    SourceFieldRef.CalcField;
+                    SourceFieldRef.CalcField();
                 DestinationFieldRef.Value(SourceFieldRef.Value)
             end;
         end
@@ -313,7 +313,7 @@ codeunit 130012 "Backup Storage"
     begin
         TempTaintedTable.Reset();
         TempTaintedTable.SetRange("Snapshot No.", BackupNo);
-        exit(not TempTaintedTable.FindFirst);
+        exit(not TempTaintedTable.FindFirst())
     end;
 
     [Scope('OnPrem')]

@@ -1,4 +1,4 @@
-﻿codeunit 1013 "Job Jnl.-Post Batch"
+codeunit 1013 "Job Jnl.-Post Batch"
 {
     Permissions = TableData "Job Journal Batch" = imd;
     TableNo = "Job Journal Line";
@@ -6,18 +6,12 @@
     trigger OnRun()
     begin
         JobJnlLine.Copy(Rec);
-        JobJnlLine.SetAutoCalcFields;
-        Code;
+        JobJnlLine.SetAutoCalcFields();
+        Code();
         Rec := JobJnlLine;
     end;
 
     var
-        Text001: Label 'Journal Batch Name    #1##########\\';
-        Text002: Label 'Checking lines        #2######\';
-        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
-        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
-        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
         AccountingPeriod: Record "Accounting Period";
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlBatch: Record "Job Journal Batch";
@@ -26,7 +20,7 @@
         JobJnlLine3: Record "Job Journal Line";
         JobLedgEntry: Record "Job Ledger Entry";
         JobReg: Record "Job Register";
-        NoSeries: Record "No. Series" temporary;
+        TempNoSeries: Record "No. Series" temporary;
         JobJnlCheckLine: Codeunit "Job Jnl.-Check Line";
         JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -42,6 +36,13 @@
         NoOfPostingNoSeries: Integer;
         PostingNoSeriesNo: Integer;
         SuppressCommit: Boolean;
+
+        Text001: Label 'Journal Batch Name    #1##########\\';
+        Text002: Label 'Checking lines        #2######\';
+        Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
+        Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
+        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
 
     local procedure "Code"()
     var
@@ -63,8 +64,8 @@
             JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
             if JobJnlTemplate.Recurring then begin
-                SetRange("Posting Date", 0D, WorkDate);
-                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                SetRange("Posting Date", 0D, WorkDate());
+                SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
             end;
 
             if not Find('=><') then begin
@@ -106,7 +107,7 @@
             JobLedgEntry.LockTable();
             if JobLedgEntry.FindLast() then;
             JobReg.LockTable();
-            if JobReg.FindLast and (JobReg."To Entry No." = 0) then
+            if JobReg.FindLast() and (JobReg."To Entry No." = 0) then
                 JobRegNo := JobReg."No."
             else
                 JobRegNo := JobReg."No." + 1;
@@ -121,12 +122,12 @@
                 LineCount := LineCount + 1;
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                if not EmptyLine and
+                if not EmptyLine() and
                    (JobJnlBatch."No. Series" <> '') and
                    ("Document No." <> LastDocNo2)
                 then
                     TestField("Document No.", NoSeriesMgt.GetNextNo(JobJnlBatch."No. Series", "Posting Date", false));
-                if not EmptyLine then
+                if not EmptyLine() then
                     LastDocNo2 := "Document No.";
                 MakeRecurringTexts(JobJnlLine);
                 if "Posting No. Series" = '' then begin
@@ -136,22 +137,22 @@
                     if not IsHandled then
                         TestField("Document No.");
                 end else
-                    if not EmptyLine then
+                    if not EmptyLine() then
                         if ("Document No." = LastDocNo) and ("Document No." <> '') then
                             "Document No." := LastPostedDocNo
                         else begin
-                            if not NoSeries.Get("Posting No. Series") then begin
+                            if not TempNoSeries.Get("Posting No. Series") then begin
                                 NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
                                 if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
                                     Error(
                                       Text006,
                                       ArrayLen(NoSeriesMgt2));
-                                NoSeries.Code := "Posting No. Series";
-                                NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert();
+                                TempNoSeries.Code := "Posting No. Series";
+                                TempNoSeries.Description := Format(NoOfPostingNoSeries);
+                                TempNoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
-                            Evaluate(PostingNoSeriesNo, NoSeries.Description);
+                            Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
                             "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "Posting Date", false);
                             LastPostedDocNo := "Document No.";
                         end;
@@ -167,13 +168,13 @@
             OnCodeOnAfterMakeMultiLevelAdjmt(JobJnlLine);
 
             // Copy register no. and current journal batch name to the job journal
-            if not JobReg.FindLast or (JobReg."No." <> JobRegNo) then
+            if not JobReg.FindLast() or (JobReg."No." <> JobRegNo) then
                 JobRegNo := 0;
 
-            Init;
+            Init();
             "Line No." := JobRegNo;
 
-            UpdateAndDeleteLines;
+            UpdateAndDeleteLines();
             OnAfterPostJnlLines(JobJnlBatch, JobJnlLine, JobRegNo);
 
             if not SuppressCommit then
@@ -231,14 +232,14 @@
                         if (JobJnlLine2."Recurring Method" = JobJnlLine2."Recurring Method"::Variable) and
                            (JobJnlLine2."No." <> '')
                         then
-                            JobJnlLine2.DeleteAmounts;
+                            JobJnlLine2.DeleteAmounts();
                         JobJnlLine2.Modify();
                     until JobJnlLine2.Next() = 0;
                 end else begin
                     // Not a recurring journal
                     JobJnlLine2.CopyFilters(JobJnlLine);
                     JobJnlLine2.SetFilter("No.", '<>%1', '');
-                    if JobJnlLine2.Find then; // Remember the last line
+                    if JobJnlLine2.Find() then; // Remember the last line
                     JobJnlLine3.Copy(JobJnlLine);
                     IsHandled := false;
                     OnBeforeDeleteNonRecJnlLines(JobJnlLine3, IsHandled, JobJnlLine, JobJnlLine2);
@@ -272,12 +273,12 @@
                 end;
 
             if JobJnlBatch."No. Series" <> '' then
-                NoSeriesMgt.SaveNoSeries;
-            if NoSeries.Find('-') then
+                NoSeriesMgt.SaveNoSeries();
+            if TempNoSeries.Find('-') then
                 repeat
-                    Evaluate(PostingNoSeriesNo, NoSeries.Description);
-                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next() = 0;
+                    Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                    NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries();
+                until TempNoSeries.Next() = 0;
         end;
     end;
 

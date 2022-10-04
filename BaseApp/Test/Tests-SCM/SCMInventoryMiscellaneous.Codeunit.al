@@ -39,7 +39,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         GlobalQuantity: Decimal;
         GlobalQuantity2: Decimal;
         GlobalMessageCounter: Integer;
-        WorksheetMsg: Label 'You are now in worksheet';
         WrongNumberOfOrdersToPrintErr: Label 'Wrong number of transfer orders to print';
         CurrentSaveValuesId: Integer;
 
@@ -1086,7 +1085,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     [Test]
-    [HandlerFunctions('CalculatePlanReqWkshRequestPageHandler,CarryOutActionMsgRequestPageHandler,WorksheetNoMessageHandler')]
+    [HandlerFunctions('CalculatePlanReqWkshRequestPageHandler,CarryOutActionMsgRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TransferOrderCreatedFromRequisitionWorksheet()
     var
@@ -1508,12 +1507,11 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         RequisitionLine: Record "Requisition Line";
         CarryOutAction: Codeunit "Carry Out Action";
-        SourceType: Option Purchase,Transfer,Production,Assembly;
         Choice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh";
     begin
         CarryOutAction.SetSplitTransferOrders(not CombineTransferOrders);
-        CarryOutAction.SetTryParameters(
-          SourceType::Transfer, Choice::"Make Trans. Orders & Print",
+        CarryOutAction.SetParameters(
+          "Planning Create Source Type"::Transfer, Choice::"Make Trans. Orders & Print",
           RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
 
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
@@ -1522,7 +1520,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         RequisitionLine.FindSet();
         repeat
             CarryOutAction.Run(RequisitionLine);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
 
         CarryOutAction.GetTransferOrdersToPrint(TempTransferHeader);
     end;
@@ -1569,7 +1567,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Customer: Record Customer;
     begin
         CreateSalesOrder(SalesLine, CreateCustomer(LocationCode, Customer.Reserve::Optional), ItemNo, LocationCode, 1);  // Use 1 for Quantity since it is not important.
-        SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Add Random Days to Shipment date.
+        SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Add Random Days to Shipment date.
         SalesLine.Modify(true);
     end;
 
@@ -1632,7 +1630,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
         SetQtyToReceiveInTransferLine(TransferLine, QtytoReceive);
         LibraryInventory.PostTransferHeader(TransferHeader, false, true);
-        TransferLine.Find;
+        TransferLine.Find();
     end;
 
     local procedure CreateAndPostShippingAndReceiptInTransferOrderWithTwoLines(var TransferHeader: Record "Transfer Header"; var TransferLine: array[2] of Record "Transfer Line"; Item: array[2] of Record Item; LocationCode: Code[10]; Quantity: Decimal; QtytoReceive: Decimal)
@@ -1644,7 +1642,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SetQtyToReceiveInTransferLine(TransferLine[2], QtytoReceive);
         SetQtyToReceiveInTransferLine(TransferLine[1], Quantity);
         LibraryInventory.PostTransferHeader(TransferHeader, false, true);
-        TransferLine[1].Find;
+        TransferLine[1].Find();
     end;
 
     local procedure CreateAndReleaseWarehouseShipmentFromSalesOrder(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line")
@@ -1881,7 +1879,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
         CreateAndUpdateProductionForecast(
-          ProductionForecastEntry, ProductionForecastName.Name, CalcDate('<' + Format(-LibraryRandom.RandInt(20)) + 'D>', WorkDate),
+          ProductionForecastEntry, ProductionForecastName.Name, CalcDate('<' + Format(-LibraryRandom.RandInt(20)) + 'D>', WorkDate()),
           ParentItemNo, LocationCode, VariantCode, Quantity);
     end;
 
@@ -2013,7 +2011,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
     local procedure SetQtyToReceiveInTransferLine(var TransferLine: Record "Transfer Line"; Quantity: Decimal)
     begin
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.Validate("Qty. to Receive", Quantity);
         TransferLine.Modify(true);
     end;
@@ -2176,7 +2174,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         Item.SetFilter("No.", ItemFilter);
         Item.Validate("Location Filter", LocationCode);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));  // Dates based on WORKDATE.
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -2430,8 +2428,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CalculatePlanPlanWksh.Item.SetFilter("Location Filter", LibraryVariableStorage.DequeueText);
         if LibraryVariableStorage.Length() = 1 then
             CalculatePlanPlanWksh.Item.SetFilter("Variant Filter", LibraryVariableStorage.DequeueText);
-        CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CM>', WorkDate));
-        CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CM>', WorkDate));
+        CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CM>', WorkDate()));
+        CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CM>', WorkDate()));
         CalculatePlanPlanWksh.OK.Invoke;
     end;
 
@@ -2443,8 +2441,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         CalculatePlanReqWksh.Item.SetFilter("No.", LibraryVariableStorage.DequeueText);
         CalculatePlanReqWksh.Item.SetFilter("Location Filter", LibraryVariableStorage.DequeueText);
-        CalculatePlanReqWksh.StartingDate.SetValue(CalcDate('<-CY>', WorkDate));
-        CalculatePlanReqWksh.EndingDate.SetValue(CalcDate('<CY>', WorkDate));
+        CalculatePlanReqWksh.StartingDate.SetValue(CalcDate('<-CY>', WorkDate()));
+        CalculatePlanReqWksh.EndingDate.SetValue(CalcDate('<CY>', WorkDate()));
         CalculatePlanReqWksh.OK.Invoke;
     end;
 
@@ -2517,13 +2515,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Assert.IsTrue(StrPos(Message, StrSubstNo(TransferOrderDeleteMsg, GlobalDocumentNo)) > 0, Message)
     end;
 
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure WorksheetNoMessageHandler(Message: Text[1024])
-    begin
-        Assert.IsTrue(StrPos(Message, WorksheetMsg) > 0, Message);
-    end;
-
     [ReportHandler]
     [Scope('OnPrem')]
     procedure TransferShipmentReportDataHandler(var TransferShipment: Report "Transfer Shipment")
@@ -2531,7 +2522,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferShipmentHeader: Record "Transfer Shipment Header";
     begin
         TransferShipmentHeader.Get(FindShipmentNoByLocation(CopyStr(LibraryVariableStorage.DequeueText, 1, 20)));
-        TransferShipmentHeader.SetRecFilter;
+        TransferShipmentHeader.SetRecFilter();
         TransferShipment.SetTableView(TransferShipmentHeader);
         TransferShipment.SaveAsExcel(LibraryVariableStorage.DequeueText);
     end;
@@ -2543,7 +2534,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferReceiptHeader: Record "Transfer Receipt Header";
     begin
         TransferReceiptHeader.Get(FindReceiptNoByLocation(CopyStr(LibraryVariableStorage.DequeueText, 1, 20)));
-        TransferReceiptHeader.SetRecFilter;
+        TransferReceiptHeader.SetRecFilter();
         TransferReceipt.SetTableView(TransferReceiptHeader);
         TransferReceipt.SaveAsExcel(LibraryVariableStorage.DequeueText);
     end;

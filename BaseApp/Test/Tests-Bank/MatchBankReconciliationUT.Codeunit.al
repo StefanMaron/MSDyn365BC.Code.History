@@ -43,8 +43,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
         CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, '', '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), Description, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), '', '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
 
         // Exercise.
@@ -80,8 +80,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
         CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, '', '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), Description, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), '', '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
 
         // Exercise.
@@ -185,7 +185,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
         CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, DocumentNo, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), DocumentNo, '', Amount);
 
         // Exercise.
         BankAccReconciliation.MatchSingle(0);
@@ -216,8 +216,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
         CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, 0D, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, '', '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), Description, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), '', '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
 
         // Exercise.
@@ -255,7 +255,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation,
             PostingDate - LibraryRandom.RandInt(DateRange), Description, '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, PostingDate + DateRange + LibraryRandom.RandInt(10), Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, '', '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), '', '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
 
         // Exercise.
@@ -297,7 +297,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         CreateBankAccRecLine(BankAccReconciliation,
           PostingDate + LibraryRandom.RandInt(DateRange), Description, '', Amount);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, WorkDate, '', '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate(), '', '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
 
         // Exercise.
@@ -455,8 +455,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         // Setup.
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
         ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
-        CreateBankAccLedgerEntry(BankAccountNo, WorkDate, DocumentNo, '', Amount, '');
-        CreateBankAccLedgerEntry(BankAccountNo, WorkDate, 'WRONG DOC NO', '', Amount, '');
+        CreateBankAccLedgerEntry(BankAccountNo, WorkDate(), DocumentNo, '', Amount, '');
+        CreateBankAccLedgerEntry(BankAccountNo, WorkDate(), 'WRONG DOC NO', '', Amount, '');
         CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2), Description);
         CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
@@ -1026,7 +1026,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,BankStatementPagePostHandler')]
     [Scope('OnPrem')]
     procedure PostMatchManyToOne()
     var
@@ -1215,7 +1215,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
             repeat
                 TempBankAccReconciliationLine := BankAccReconciliationLine;
                 TempBankAccReconciliationLine.Insert();
-            until BankAccReconciliationLine.Next = 0;
+            until BankAccReconciliationLine.Next() = 0;
     end;
 
     local procedure AddBankEntriesToTemp(var TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary; BankAccountNo: Code[20])
@@ -1229,7 +1229,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
             repeat
                 TempBankAccLedgerEntry := BankAccLedgerEntry;
                 TempBankAccLedgerEntry.Insert();
-            until BankAccLedgerEntry.Next = 0;
+            until BankAccLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateInputData(var PostingDate: Date; var BankAccountNo: Code[20]; var StatementNo: Code[20]; var DocumentNo: Code[20]; var Description: Text[50]; var Amount: Decimal)
@@ -1252,7 +1252,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliation.Init();
         BankAccReconciliation."Bank Account No." := BankAccountNo;
         BankAccReconciliation."Statement No." := StatementNo;
-        BankAccReconciliation."Statement Date" := WorkDate;
+        BankAccReconciliation."Statement Date" := WorkDate();
         BankAccReconciliation.Insert();
     end;
 
@@ -1275,7 +1275,6 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine."Related-Party Name" := PayerInfo;
         BankAccReconciliationLine."Statement Amount" := Amount;
         BankAccReconciliationLine.Difference := Amount;
-        BankAccReconciliationLine.Type := BankAccReconciliationLine.Type::"Bank Account Ledger Entry";
         BankAccReconciliationLine.Insert();
 
         exit(BankAccReconciliationLine."Statement Line No.");
@@ -1398,7 +1397,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccountLedgerEntry.SetRange(Open, true);
         Assert.IsTrue(BankAccountLedgerEntry.IsEmpty, 'There should be no entries left.');
 
-        asserterror BankAccReconciliation.Find;
+        asserterror BankAccReconciliation.Find();
     end;
 
     [RequestPageHandler]
@@ -1443,6 +1442,13 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure BankStatementPagePostHandler(var BankStatement: TestPage "Bank Account Statement")
+    begin
+        BankStatement.Close();
     end;
 
 }

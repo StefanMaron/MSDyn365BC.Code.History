@@ -10,7 +10,7 @@ page 1219 "Data Exch Mapping Part"
         {
             repeater(Group)
             {
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Table ID';
@@ -21,28 +21,28 @@ page 1219 "Data Exch Mapping Part"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the data exchange mapping setup.';
                 }
-                field("Pre-Mapping Codeunit"; "Pre-Mapping Codeunit")
+                field("Pre-Mapping Codeunit"; Rec."Pre-Mapping Codeunit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the codeunit that prepares the mapping between fields in Dynamics 365 and external data.';
                 }
-                field("Mapping Codeunit"; "Mapping Codeunit")
+                field("Mapping Codeunit"; Rec."Mapping Codeunit")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the codeunit that is used to map the specified columns or XML data elements to fields in Microsoft Dynamics 365.';
                 }
-                field("Post-Mapping Codeunit"; "Post-Mapping Codeunit")
+                field("Post-Mapping Codeunit"; Rec."Post-Mapping Codeunit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the codeunit that completes the mapping between fields in Dynamics 365 and the external data file or service.';
                 }
-                field("Data Exch. No. Field ID"; "Data Exch. No. Field ID")
+                field("Data Exch. No. Field ID"; Rec."Data Exch. No. Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the No. field in the external file that is mapped to a field in Dynamics 365.';
                 }
-                field("Data Exch. Line Field ID"; "Data Exch. Line Field ID")
+                field("Data Exch. Line Field ID"; Rec."Data Exch. Line Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the Line field in the external file that is mapped to a field in Dynamics 365.';

@@ -357,14 +357,14 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         if TempItem.FindSet() then
             repeat
                 LibraryAssembly.ModifyItem(TempItem."No.", true, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
 
         if TempResource.FindSet() then
             repeat
                 Resource.Get(TempResource."No.");
                 Resource.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
                 Resource.Modify(true);
-            until TempResource.Next = 0;
+            until TempResource.Next() = 0;
     end;
 
     local procedure GetTree(var TempItem: Record Item temporary; var TempResource: Record Resource temporary; var RolledUpMaterialCost: Decimal; var RolledUpCapacityCost: Decimal; var RolledUpCapOvhd: Decimal; var SglLevelMaterialCost: Decimal; var SglLevelCapCost: Decimal; var SglLevelCapOvhd: Decimal; Item: Record Item): Decimal
@@ -406,7 +406,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                             RolledUpMaterialCost += BOMComponent."Quantity per" * LocalRolledUpMaterialCost;
                             RolledUpCapacityCost += BOMComponent."Quantity per" * LocalRolledUpCapCost;
                             RolledUpCapOvhd += BOMComponent."Quantity per" * LocalRolledUpCapOvhd;
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
                     if BOMComponent.FindSet() then
@@ -427,7 +427,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                             RolledUpCapacityCost += BOMComponent."Quantity per" * (UnitCost - Overhead) / LotSize;
                             RolledUpCapOvhd += BOMComponent."Quantity per" * Overhead / LotSize;
 
-                        until BOMComponent.Next = 0;
+                        until BOMComponent.Next() = 0;
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
@@ -450,7 +450,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                             RolledUpMaterialCost += ProdBOMLine."Quantity per" * LocalRolledUpMaterialCost;
                             RolledUpCapacityCost += ProdBOMLine."Quantity per" * LocalRolledUpCapCost;
                             RolledUpCapOvhd += ProdBOMLine."Quantity per" * LocalRolledUpCapOvhd;
-                        until ProdBOMLine.Next = 0;
+                        until ProdBOMLine.Next() = 0;
                 end;
             Item."Replenishment System"::Purchase:
                 begin
@@ -568,7 +568,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
     [Scope('OnPrem')]
     procedure RollupStdCostHandler(var RollUpStandardCost: TestRequestPage "Roll Up Standard Cost")
     begin
-        RollUpStandardCost.CalculationDate.SetValue(WorkDate);
+        RollUpStandardCost.CalculationDate.SetValue(WorkDate());
         RollUpStandardCost.Item.SetFilter("No.", GLBParentItemNo);
         RollUpStandardCost.OK.Invoke;
     end;
@@ -580,7 +580,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         RevalJnlTemplateName: Code[20];
         RevalJnlBatchName: Code[20];
     begin
-        ImplementStdCostChange.PostingDate.SetValue(WorkDate);
+        ImplementStdCostChange.PostingDate.SetValue(WorkDate());
         ImplementStdCostChange.DocumentNo.SetValue(GLBParentItemNo);
         GetRevalJournalNames(RevalJnlTemplateName, RevalJnlBatchName);
         ImplementStdCostChange.ItemJournalTemplate.SetValue(RevalJnlTemplateName);

@@ -57,7 +57,7 @@ page 130100 "Table Relation Type Mismatch"
             end;
             TempTableRelationsMetadata := TableRelationsMetadata;
             TempTableRelationsMetadata.Insert();
-        until TableRelationsMetadata.Next = 0;
+        until TableRelationsMetadata.Next() = 0;
 
         TempField.FindSet();
         repeat
@@ -69,16 +69,16 @@ page 130100 "Table Relation Type Mismatch"
                 Field.Get(TempTableRelationsMetadata."Related Table ID", TempTableRelationsMetadata."Related Field No.");
                 if Field.Type <> TempField.Type then
                     KeepRelation := true;
-            until TempTableRelationsMetadata.Next = 0;
+            until TempTableRelationsMetadata.Next() = 0;
             if not KeepRelation then
                 TempTableRelationsMetadata.DeleteAll();
 
             if KeepRelation then begin
                 Copy(TempField);
-                Insert;
+                Insert();
             end;
-        until TempField.Next = 0;
-        Reset;
+        until TempField.Next() = 0;
+        Reset();
         FindFirst();
     end;
 }

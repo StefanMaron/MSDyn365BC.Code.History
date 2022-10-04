@@ -348,9 +348,9 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // Setup: Create and Post Three Sales Order with Due Date. Take difference with 1 Month on Due Date.
         Initialize();
-        PostingDate := CalculatePostingDate(WorkDate);
+        PostingDate := CalculatePostingDate(WorkDate());
         PostingDate2 := CalculatePostingDate(PostingDate);
-        Amount := CreateAndPostSalesOrder(SalesLine, WorkDate);
+        Amount := CreateAndPostSalesOrder(SalesLine, WorkDate());
         CustomerNo := SalesLine."Sell-to Customer No.";
         Amount2 := CreateAndPostSalesOrder(SalesLine, PostingDate);
         CustomerNo2 := SalesLine."Sell-to Customer No.";
@@ -358,7 +358,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // Partial Payment of Posted Invoice through General Line with Due Date same as Posted Sales order.
         SelectGenJournalBatch(GenJournalBatch);
-        CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, CustomerNo, WorkDate, -Amount);
+        CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, CustomerNo, WorkDate(), -Amount);
         CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, CustomerNo2, PostingDate, -Amount2 / 2);
         CreateAndModifyGeneralLine(GenJournalLine, GenJournalBatch, SalesLine."Sell-to Customer No.", PostingDate2, -Amount3 / 2);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1061,7 +1061,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Customer.SetRange("No.", SalesHeader."Bill-to Customer No.");
         Customer.SetRange("Date Filter", SalesHeader."Posting Date");
         CustomerBalanceToDate.SetTableView(Customer);
-        CustomerBalanceToDate.InitializeRequest(AmountLCY, false, Unapplied, WorkDate);
+        CustomerBalanceToDate.InitializeRequest(AmountLCY, false, Unapplied, WorkDate());
         CustomerBalanceToDate.Run();
     end;
 

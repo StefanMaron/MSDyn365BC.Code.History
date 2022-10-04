@@ -21,11 +21,7 @@ codeunit 1641 "Setup Email Logging"
         EmailLoggingClientSecretAKVSecretNameLbl: Label 'emaillogging-clientsecret', Locked = true;
         TenantOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/%1/oauth2', Locked = true;
         CommonOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
-#if CLEAN18
         ScopesLbl: Label 'https://outlook.office.com/.default', Locked = true;
-#else
-        ResourceUrlLbl: Label 'https://outlook.office.com', Locked = true;
-#endif
         ClientCredentialsAccessTokenErr: Label 'No client credentials access token received', Locked = true;
         AccessTokenErrMsg: Label 'Failed to acquire an access token.';
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
@@ -79,11 +75,11 @@ codeunit 1641 "Setup Email Logging"
         Session.LogMessage('0000BYG', ClearEmailLoggingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         Clear(MarketingSetup."Queue Folder Path");
-        if MarketingSetup."Queue Folder UID".HasValue then
+        if MarketingSetup."Queue Folder UID".HasValue() then
             Clear(MarketingSetup."Queue Folder UID");
 
         Clear(MarketingSetup."Storage Folder Path");
-        if MarketingSetup."Storage Folder UID".HasValue then
+        if MarketingSetup."Storage Folder UID".HasValue() then
             Clear(MarketingSetup."Storage Folder UID");
 
         Clear(MarketingSetup."Exchange Account User Name");
@@ -189,9 +185,7 @@ codeunit 1641 "Setup Email Logging"
     var
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
-#if CLEAN18
         Scopes: List of [Text];
-#endif
         AuthError: Text;
     begin
         if (ClientId = '') or (ClientSecret = '') then begin
@@ -203,7 +197,6 @@ codeunit 1641 "Setup Email Logging"
 
         Session.LogMessage('0000D9M', AcquireAccessTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-#if CLEAN18
         Scopes.Add(ScopesLbl);
         OAuth2.AcquireTokenByAuthorizationCode(
             ClientId,
@@ -213,16 +206,6 @@ codeunit 1641 "Setup Email Logging"
             Scopes,
             PromptInteraction::Consent, AccessToken, AuthError
         );
-#else
-        OAuth2.AcquireTokenByAuthorizationCode(
-            ClientId,
-            ClientSecret,
-            CommonOAuthAuthorityUrlLbl,
-            RedirectURL,
-            ResourceUrlLbl,
-            PromptInteraction::Consent, AccessToken, AuthError
-        );
-#endif
         if AccessToken = '' then begin
             if AuthError <> '' then
                 Session.LogMessage('0000CFA', AuthError, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
@@ -245,9 +228,7 @@ codeunit 1641 "Setup Email Logging"
     procedure GetClientCredentialsAccessToken(ClientId: Text; ClientSecret: Text; RedirectURL: Text; TenantId: Text; var AccessToken: Text)
     var
         OAuth2: Codeunit OAuth2;
-#if CLEAN18
         Scopes: List of [Text];
-#endif
     begin
         if (ClientId = '') or (ClientSecret = '') then begin
             ClientId := GetClientId();
@@ -256,7 +237,6 @@ codeunit 1641 "Setup Email Logging"
         if RedirectURL = '' then
             RedirectURL := GetRedirectURL();
 
-#if CLEAN18
         Scopes.Add(ScopesLbl);
         OAuth2.AcquireTokenWithClientCredentials(
                     ClientId,
@@ -266,16 +246,6 @@ codeunit 1641 "Setup Email Logging"
                     Scopes,
                     AccessToken
                 );
-#else
-        OAuth2.AcquireTokenWithClientCredentials(
-                    ClientId,
-                    ClientSecret,
-                    StrSubstNo(TenantOAuthAuthorityUrlLbl, TenantId),
-                    RedirectURL,
-                    ResourceUrlLbl,
-                    AccessToken
-                );
-#endif
         if AccessToken = '' then begin
             Session.LogMessage('0000CFC', ClientCredentialsAccessTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(AccessTokenErrMsg);
@@ -394,7 +364,6 @@ codeunit 1641 "Setup Email Logging"
     [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
-        SetupEmailLogging: Codeunit "Setup Email Logging";
         GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         ModuleInfo: ModuleInfo;
@@ -403,7 +372,7 @@ codeunit 1641 "Setup Email Logging"
         GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
-        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then begin
+        if IsEmailLoggingUsingGraphApiFeatureEnabled() then begin
             if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging") then
                 GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging");
             exit;

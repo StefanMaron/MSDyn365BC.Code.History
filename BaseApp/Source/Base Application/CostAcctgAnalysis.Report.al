@@ -12,7 +12,7 @@ report 1127 "Cost Acctg. Analysis"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Cost Classification", Type, "Date Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FilterTxt; FilterTxt)
@@ -359,11 +359,10 @@ report 1127 "Cost Acctg. Analysis"
     trigger OnPreReport()
     begin
         if "Cost Type".GetFilters <> '' then
-            FilterTxt := Text000 + ' ' + "Cost Type".GetFilters;
+            FilterTxt := Text000 + ' ' + "Cost Type".GetFilters();
     end;
 
     var
-        Text000: Label 'Filter:';
         CostCenter: array[10] of Record "Cost Center";
         CostObject: array[10] of Record "Cost Object";
         FilterTxt: Text;
@@ -375,6 +374,8 @@ report 1127 "Cost Acctg. Analysis"
         PageGroupNo: Integer;
         NewPage: Boolean;
         LineTypeInt: Integer;
+
+        Text000: Label 'Filter:';
         CAAnalysisCaptionLbl: Label 'Cost Acctg. Analysis';
         CostTypeCaptionLbl: Label 'Cost Type';
         PageCaptionLbl: Label 'Page';

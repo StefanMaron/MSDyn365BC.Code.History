@@ -10,7 +10,7 @@ codeunit 137906 "SCM Assembly Availability"
     begin
         // [FEATURE] [Assembly] [SCM]
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -523,7 +523,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         // EXECUTE: Change Line "No" on Assembly Order Through UI.
         DummyAssemblyOrderTestPage.Lines."No.".Value(AssemblyLineNo);
-        DummyAssemblyOrderTestPage.Close;
+        DummyAssemblyOrderTestPage.Close();
     end;
 
     [Normal]
@@ -534,7 +534,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         // EXECUTE: Change Line unit of measure on Assembly Order Through UI.
         DummyAssemblyOrderTestPage.Lines."Unit of Measure Code".Value(AssemblyLineUnitOfMeasureCode);
-        DummyAssemblyOrderTestPage.Close;
+        DummyAssemblyOrderTestPage.Close();
     end;
 
     [Normal]
@@ -545,7 +545,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         // EXECUTE: Change Line type on Assembly Order Through UI.
         DummyAssemblyOrderTestPage.Lines.Type.Value(AssemblyLineType);
-        DummyAssemblyOrderTestPage.Close;
+        DummyAssemblyOrderTestPage.Close();
     end;
 
     [Normal]
@@ -556,7 +556,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         // EXECUTE: Change Demand "Quantity per" on Assembly Order Through UI.
         DummyAssemblyOrderTestPage.Lines."Quantity per".Value(Format(AssemblyQuantityPer));
-        DummyAssemblyOrderTestPage.Close;
+        DummyAssemblyOrderTestPage.Close();
     end;
 
     local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20])

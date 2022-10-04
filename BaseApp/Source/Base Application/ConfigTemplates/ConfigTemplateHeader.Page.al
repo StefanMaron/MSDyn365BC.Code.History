@@ -22,12 +22,12 @@ page 8618 "Config. Template Header"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the data template.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the table on which the data template is based.';
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -94,8 +94,6 @@ page 8618 "Config. Template Header"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Copy Config. Template';
                     Image = Copy;
-                    Promoted = true;
-                    PromotedIsBig = true;
                     ToolTip = 'Copies all information to the current configuration template from the selected one.';
 
                     trigger OnAction()
@@ -106,11 +104,22 @@ page 8618 "Config. Template Header"
                         ConfigTemplateHeader.SetFilter(Code, '<>%1', Code);
                         ConfigTemplateList.LookupMode(true);
                         ConfigTemplateList.SetTableView(ConfigTemplateHeader);
-                        if ConfigTemplateList.RunModal = ACTION::LookupOK then begin
+                        if ConfigTemplateList.RunModal() = ACTION::LookupOK then begin
                             ConfigTemplateList.GetRecord(ConfigTemplateHeader);
                             CopyConfigTemplate(ConfigTemplateHeader.Code);
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(CopyConfigTemplate_Promoted; CopyConfigTemplate)
+                {
                 }
             }
         }

@@ -201,7 +201,7 @@ codeunit 170 "Standard Codes Mgt."
         if IsHandled then
             exit;
 
-        StandardCodesExistNotification.Id := GetSalesRecurringLinesNotificationId;
+        StandardCodesExistNotification.Id := GetSalesRecurringLinesNotificationId();
         StandardCodesExistNotification.Message := StrSubstNo(GetSalesRecurringLinesQst, SalesHeader."Sell-to Customer No.");
         StandardCodesExistNotification.AddAction(
           GetRecurringLinesTxt, CODEUNIT::"Standard Codes Mgt.", 'GetSalesRecurringLinesFromNotification');
@@ -209,7 +209,7 @@ codeunit 170 "Standard Codes Mgt."
         StandardCodesExistNotification.SetData(SalesHeader.FieldName("Document Type"), Format(SalesHeader."Document Type"));
         StandardCodesExistNotification.SetData(SalesHeader.FieldName("No."), SalesHeader."No.");
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-          StandardCodesExistNotification, SalesHeader.RecordId, GetSalesRecurringLinesNotificationId);
+          StandardCodesExistNotification, SalesHeader.RecordId, GetSalesRecurringLinesNotificationId());
     end;
 
     procedure ShowGetPurchRecurringLinesNotification(PurchHeader: Record "Purchase Header")
@@ -223,7 +223,7 @@ codeunit 170 "Standard Codes Mgt."
         if IsHandled then
             exit;
 
-        StandardCodesExistNotification.Id := GetPurchRecurringLinesNotificationId;
+        StandardCodesExistNotification.Id := GetPurchRecurringLinesNotificationId();
         StandardCodesExistNotification.Message := StrSubstNo(GetPurchRecurringLinesQst, PurchHeader."Buy-from Vendor No.");
         StandardCodesExistNotification.AddAction(
           GetRecurringLinesTxt, CODEUNIT::"Standard Codes Mgt.", 'GetPurchRecurringLinesFromNotification');
@@ -231,7 +231,7 @@ codeunit 170 "Standard Codes Mgt."
         StandardCodesExistNotification.SetData(PurchHeader.FieldName("Document Type"), Format(PurchHeader."Document Type"));
         StandardCodesExistNotification.SetData(PurchHeader.FieldName("No."), PurchHeader."No.");
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-          StandardCodesExistNotification, PurchHeader.RecordId, GetPurchRecurringLinesNotificationId);
+          StandardCodesExistNotification, PurchHeader.RecordId, GetPurchRecurringLinesNotificationId());
     end;
 
     procedure GetSalesRecurringLinesNotificationId(): Guid

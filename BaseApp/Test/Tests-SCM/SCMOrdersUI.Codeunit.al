@@ -957,7 +957,7 @@ codeunit 137929 "SCM Orders UI"
         // [GIVEN] Entry Summary had Bin Content 100 and Bin Active and Total Available Quantity 200
         // [GIVEN] Entry Summary had Current Pending Quantity 50 and Current Requested Quantity 30
         with EntrySummary do begin
-            Init;
+            Init();
             Validate("Bin Active", true);
             Validate("Bin Content", 2 * LibraryRandom.RandInt(10));
             Validate("Current Pending Quantity", "Bin Content" / 2);
@@ -1398,7 +1398,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
-          LibraryRandom.RandInt(10), LocationCode, WorkDate);
+          LibraryRandom.RandInt(10), LocationCode, WorkDate());
     end;
 
     local procedure CreatePurchOrderWithLocationAndItem(var PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10]; ItemNo: Code[20])
@@ -1407,7 +1407,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, ItemNo,
-          LibraryRandom.RandInt(10), LocationCode, WorkDate);
+          LibraryRandom.RandInt(10), LocationCode, WorkDate());
     end;
 
     local procedure ClearCustBusRelationCode()
@@ -1441,7 +1441,7 @@ codeunit 137929 "SCM Orders UI"
 
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
         LibrarySales.CreateSalesLine(
           SalesLineForItemCharge, SalesHeader, SalesLineForItemCharge.Type::"Charge (Item)", ItemCharge."No.", 1);
         SalesLineForItemCharge.Validate("Unit Price", AmountToAssign);
@@ -1467,7 +1467,7 @@ codeunit 137929 "SCM Orders UI"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineForItemCharge, PurchaseHeader, PurchaseLineForItemCharge.Type::"Charge (Item)", ItemCharge."No.", 1);
         PurchaseLineForItemCharge.Validate("Direct Unit Cost", AmountToAssign);
@@ -1486,7 +1486,7 @@ codeunit 137929 "SCM Orders UI"
         ProdOrderComponents.OpenView;
         ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo);
         ProdOrderComponents.Reserve.Invoke;
-        ProdOrderComponents.Close;
+        ProdOrderComponents.Close();
     end;
 
     local procedure UpdateManufacturingSetup()
@@ -1494,7 +1494,7 @@ codeunit 137929 "SCM Orders UI"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         with ManufacturingSetup do begin
-            Get;
+            Get();
             Validate("Normal Starting Time", 080000T);
             Validate("Normal Ending Time", 160000T);
             Modify(true);
@@ -1668,7 +1668,7 @@ codeunit 137929 "SCM Orders UI"
         BinContentsList.First;
         repeat
             LibraryVariableStorage.Enqueue(Format(BinContentsList."Item No."));
-        until not BinContentsList.Next;
+        until not BinContentsList.Next();
     end;
 }
 

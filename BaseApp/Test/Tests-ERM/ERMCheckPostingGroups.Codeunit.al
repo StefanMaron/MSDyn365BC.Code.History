@@ -170,7 +170,7 @@ codeunit 134097 "ERM Check Posting Groups"
             Assert.AreEqual(
               "Purch. Pmt. Disc. Credit Acc.", GetPurchPmtDiscountAccount(false), 'Purch. Pmt. Disc. Credit Accounts are not equal');
             Assert.AreEqual(
-              "COGS Account", GetCOGSAccount, 'COGS Accounts are not equal');
+              "COGS Account", GetCOGSAccount(), 'COGS Accounts are not equal');
             Assert.AreEqual(
               "Inventory Adjmt. Account", GetInventoryAdjmtAccount, 'Inventory Adjmt. Accounts are not equal');
             Assert.AreEqual(
@@ -225,7 +225,7 @@ codeunit 134097 "ERM Check Posting Groups"
             "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
             "Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
             "Reverse Chrg. VAT Unreal. Acc." := LibraryERM.CreateGLAccountNo();
-            Modify;
+            Modify();
 
             // Verify
             Assert.AreEqual(
@@ -275,9 +275,9 @@ codeunit 134097 "ERM Check Posting Groups"
             SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Cap. Overhead Variance Account"));
             SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Subcontracted Variance Account"));
             TestInventoryPostingSetup := InventoryPostingSetup;
-            Init;
-            SuggestSetupAccounts;
-            Modify;
+            Init();
+            SuggestSetupAccounts();
+            Modify();
 
             // Verify
             Assert.AreEqual(
@@ -343,9 +343,9 @@ codeunit 134097 "ERM Check Posting Groups"
             SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Overhead Applied Account"));
             SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purchase Variance Account"));
             TestGenPostingSetup := GenPostingSetup;
-            Init;
-            SuggestSetupAccounts;
-            Modify;
+            Init();
+            SuggestSetupAccounts();
+            Modify();
 
             // Verify
             Assert.AreEqual(
@@ -445,9 +445,9 @@ codeunit 134097 "ERM Check Posting Groups"
             SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Reverse Chrg. VAT Acc."));
             SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Reverse Chrg. VAT Unreal. Acc."));
             TestVATPostingSetup := VATPostingSetup;
-            Init;
-            SuggestSetupAccounts;
-            Modify;
+            Init();
+            SuggestSetupAccounts();
+            Modify();
 
             // Verify
             Assert.AreEqual(
@@ -496,9 +496,9 @@ codeunit 134097 "ERM Check Posting Groups"
             SuggestAccount(RecRef, Code, FieldNo("Conv. LCY Rndg. Debit Acc."));
             SuggestAccount(RecRef, Code, FieldNo("Conv. LCY Rndg. Credit Acc."));
             TestCurrency := Currency;
-            Init;
-            SuggestSetupAccounts;
-            Modify;
+            Init();
+            SuggestSetupAccounts();
+            Modify();
 
             // Verify
             Assert.AreEqual(
@@ -1661,7 +1661,7 @@ codeunit 134097 "ERM Check Posting Groups"
             "Payment Tolerance Credit Acc." := CreateGLAccountNo(false, false);
             "Add. Fee per Line Account" := CreateGLAccountNo(true, false);
             "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1681,7 +1681,7 @@ codeunit 134097 "ERM Check Posting Groups"
             "Payment Tolerance Debit Acc." := CreateGLAccountNo(false, false);
             "Payment Tolerance Credit Acc." := CreateGLAccountNo(false, false);
             "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1707,7 +1707,7 @@ codeunit 134097 "ERM Check Posting Groups"
             LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
             "Purch. FA Disc. Account" := LibraryERM.CreateGLAccountNo();
             "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1745,7 +1745,7 @@ codeunit 134097 "ERM Check Posting Groups"
             "Cap. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
             "Subcontracted Variance Account" := LibraryERM.CreateGLAccountNo();
             "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1956,7 +1956,7 @@ codeunit 134097 "ERM Check Posting Groups"
         CurrencyFieldRef.SetFilter('<>%1', Code);
         TempAccountUseBuffer.UpdateBuffer(CurrencyRecRef, AccountFieldNo);
 
-        CurrencyRecRef.Close;
+        CurrencyRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
@@ -1991,7 +1991,7 @@ codeunit 134097 "ERM Check Posting Groups"
         PostingSetupFieldRef.SetRange(Code2);
         TempAccountUseBuffer.UpdateBuffer(PostingSetupRecRef, AccountFieldNo);
 
-        PostingSetupRecRef.Close;
+        PostingSetupRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");

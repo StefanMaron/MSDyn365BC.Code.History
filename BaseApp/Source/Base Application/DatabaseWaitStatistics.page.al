@@ -21,37 +21,37 @@ page 9520 "Database Wait Statistics"
             }
             repeater(Group)
             {
-                field("Wait Category"; "Wait Category")
+                field("Wait Category"; Rec."Wait Category")
                 {
                     ApplicationArea = All;
                     Caption = 'Wait Category';
                     ToolTip = 'Name of the wait category';
                 }
-                field("Waiting Tasks Count"; "Waiting Tasks Count")
+                field("Waiting Tasks Count"; Rec."Waiting Tasks Count")
                 {
                     ApplicationArea = All;
                     Caption = 'Waiting Tasks Count';
                     ToolTip = 'Number of waits on this wait type. This counter is incremented at the start of each wait.';
                 }
-                field("Wait Time in ms"; "Wait Time in ms")
+                field("Wait Time in ms"; Rec."Wait Time in ms")
                 {
                     ApplicationArea = All;
                     Caption = 'Wait Time in ms';
                     ToolTip = 'Total wait time for this wait type in milliseconds. This time is inclusive of signal_wait_time_ms.';
                 }
-                field("Max Wait Time in ms"; "Max Wait Time in ms")
+                field("Max Wait Time in ms"; Rec."Max Wait Time in ms")
                 {
                     ApplicationArea = All;
                     Caption = 'Max Wait Time in ms';
                     ToolTip = 'Maximum wait time in milliseconds on this wait type.';
                 }
-                field("Signal Wait Time in ms"; "Signal Wait Time in ms")
+                field("Signal Wait Time in ms"; Rec."Signal Wait Time in ms")
                 {
                     ApplicationArea = All;
                     Caption = 'Signal Wait Time in ms';
                     ToolTip = 'Sum of the differences between the time that the waiting thread was signaled and when it started running. Measured in milliseconds.';
                 }
-                field("Database start time"; "Database start time")
+                field("Database start time"; Rec."Database start time")
                 {
                     ApplicationArea = All;
                     Caption = 'Database start time';
@@ -69,12 +69,20 @@ page 9520 "Database Wait Statistics"
             {
                 ApplicationArea = all;
                 Caption = '&Emit telemetry';
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Image = Log;
                 RunObject = Codeunit "Emit Database Wait Statistics";
                 ToolTip = 'Emit database wait statistics to telemetry';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(EmitTelemetry_Promoted; EmitTelemetry)
+                {
+                }
             }
         }
     }

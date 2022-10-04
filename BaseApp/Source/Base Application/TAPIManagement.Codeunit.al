@@ -96,7 +96,7 @@ codeunit 5053 TAPIManagement
             if PAGE.RunModal(PAGE::"Contact Through", TempCommunicationMethod) = ACTION::LookupOK then
                 exit(TempCommunicationMethod.Number);
         end else
-            Error(Text002, Contact.TableCaption);
+            Error(Text002, Contact.TableCaption());
     end;
 
     local procedure TrimCode("Code": Code[20]) TrimString: Text[20]
@@ -109,7 +109,7 @@ codeunit 5053 TAPIManagement
         ContAltAddr: Record "Contact Alt. Address";
     begin
         with TempCommunicationMethod do begin
-            Init;
+            Init();
             "Contact No." := ContactNo;
             Name := Contact.Name;
             if Contact."Phone No." <> '' then begin
@@ -117,14 +117,14 @@ codeunit 5053 TAPIManagement
                 Description := CopyStr(Contact.FieldCaption("Phone No."), 1, MaxStrLen(Description));
                 Number := Contact."Phone No.";
                 Type := Contact.Type;
-                Insert;
+                Insert();
             end;
             if Contact."Mobile Phone No." <> '' then begin
                 Key += 1;
                 Description := CopyStr(Contact.FieldCaption("Mobile Phone No."), 1, MaxStrLen(Description));
                 Number := Contact."Mobile Phone No.";
                 Type := Contact.Type;
-                Insert;
+                Insert();
             end;
 
             // Alternative address
@@ -135,7 +135,7 @@ codeunit 5053 TAPIManagement
                       CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("Phone No."), 1, MaxStrLen(Description));
                     Number := ContAltAddr."Phone No.";
                     Type := Contact.Type;
-                    Insert;
+                    Insert();
                 end;
                 if ContAltAddr."Mobile Phone No." <> '' then begin
                     Key += 1;
@@ -143,7 +143,7 @@ codeunit 5053 TAPIManagement
                       CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("Mobile Phone No."), 1, MaxStrLen(Description));
                     Number := ContAltAddr."Mobile Phone No.";
                     Type := Contact.Type;
-                    Insert;
+                    Insert();
                 end;
             end;
             OnAfterCreateCommMethod(Contact, TempCommunicationMethod, ContactNo, ContAltAddrCode);

@@ -95,7 +95,7 @@ table 7347 "Internal Movement Line"
                     "Variant Code" := '';
 
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     Description := Item.Description;
                     "Description 2" := Item."Description 2";
                     "Shelf No." := Item."Shelf No.";
@@ -131,7 +131,7 @@ table 7347 "Internal Movement Line"
                     CheckBinContentQty();
 
                 if not xRec.IsEmpty() then
-                    if not CheckQtyItemTrackingLines then
+                    if not CheckQtyItemTrackingLines() then
                         Error(ItemTrackingErr, "Item No.", TableCaption);
             end;
         }
@@ -153,7 +153,7 @@ table 7347 "Internal Movement Line"
             trigger OnValidate()
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
                 end else
                     "Qty. per Unit of Measure" := 1;
@@ -266,13 +266,13 @@ table 7347 "Internal Movement Line"
     trigger OnInsert()
     begin
         TestField("Item No.");
-        "Sorting Sequence No." := GetSortSeqNo;
+        "Sorting Sequence No." := GetSortSeqNo();
     end;
 
     trigger OnModify()
     begin
         TestField("Item No.");
-        "Sorting Sequence No." := GetSortSeqNo;
+        "Sorting Sequence No." := GetSortSeqNo();
     end;
 
     trigger OnRename()
@@ -301,7 +301,7 @@ table 7347 "Internal Movement Line"
             LastLineNo := LastInternalMovementLine."Line No."
         else
             LastLineNo := 0;
-        "Line No." := GetNextLineNo;
+        "Line No." := GetNextLineNo();
         Validate("Location Code", InternalMovementHeader."Location Code");
         "To Bin Code" := InternalMovementHeader."To Bin Code";
         "Due Date" := InternalMovementHeader."Due Date";
@@ -347,7 +347,7 @@ table 7347 "Internal Movement Line"
 
     local procedure GetItemUnitOfMeasure()
     begin
-        GetItem;
+        GetItem();
         Item.TestField("No.");
         if (Item."No." <> ItemUnitOfMeasure."Item No.") or
            ("Unit of Measure Code" <> ItemUnitOfMeasure.Code)
@@ -411,7 +411,7 @@ table 7347 "Internal Movement Line"
     begin
         GetLocation("Location Code");
         if Location."Bin Mandatory" then
-            LookUpBinContent
+            LookUpBinContent()
         else begin
             if CurrentFieldNo = FieldNo("From Bin Code") then
                 Location.TestField("Bin Mandatory");
@@ -531,7 +531,7 @@ table 7347 "Internal Movement Line"
     begin
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
         if InternalMovementHeader."Sorting Method" <> InternalMovementHeader."Sorting Method"::None then
-            exit(GetLastLineNo + 10000);
+            exit(GetLastLineNo() + 10000);
 
         InternalMovementLine."No." := InternalMovementHeader."No.";
         InternalMovementLine."Line No." := LastLineNo;
@@ -617,7 +617,7 @@ table 7347 "Internal Movement Line"
 
     local procedure GetLastSeqNo(InternalMovementLine: Record "Internal Movement Line"): Integer
     begin
-        InternalMovementLine.SetRecFilter;
+        InternalMovementLine.SetRecFilter();
         InternalMovementLine.SetRange("Line No.");
         InternalMovementLine.SetCurrentKey("No.", "Sorting Sequence No.");
         if InternalMovementLine.FindLast() then

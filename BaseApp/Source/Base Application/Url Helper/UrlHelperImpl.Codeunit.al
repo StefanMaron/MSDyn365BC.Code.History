@@ -63,11 +63,11 @@ codeunit 3704 "Url Helper Impl."
     [Scope('OnPrem')]
     procedure GetFixedEndpointWebServiceUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://api.businesscentral.dynamics-tie.com');
-        if IsTIE then
+        if IsTIE() then
             exit('https://api.businesscentral.dynamics-servicestie.com');
-        if IsPROD then
+        if IsPROD() then
             exit('https://api.businesscentral.dynamics.com');
         exit('');
     end;
@@ -75,10 +75,10 @@ codeunit 3704 "Url Helper Impl."
     [Scope('OnPrem')]
     procedure GetGraphUrl(): Text
     begin
-        if IsTIE or IsPPE then
+        if IsTIE() or IsPPE() then
             exit('https://graph.microsoft-ppe.com/');
 
-        if IsPROD then
+        if IsPROD() then
             exit('https://graph.microsoft.com/');
     end;
 
@@ -92,7 +92,7 @@ codeunit 3704 "Url Helper Impl."
         if AuthEndpoint = '' then begin
             Session.LogMessage('0000GN6', NoServerAuthEndpointTelemetryErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
 
-            if IsPPE then
+            if IsPPE() then
                 AuthEndpoint := 'https://login.windows-ppe.net/'
             else
                 AuthEndpoint := 'https://login.microsoftonline.com/';
@@ -104,7 +104,7 @@ codeunit 3704 "Url Helper Impl."
     [Scope('OnPrem')]
     procedure GetO365Resource() Resource: Text
     begin
-        if IsPPE then
+        if IsPPE() then
             Resource := 'https://edgesdf.outlook.com'
         else
             Resource := 'https://outlook.office365.com';
@@ -118,7 +118,7 @@ codeunit 3704 "Url Helper Impl."
     [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIResourceUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://analysis.windows-int.net/powerbi/api');
 
         exit('https://analysis.windows.net/powerbi/api');
@@ -131,7 +131,7 @@ codeunit 3704 "Url Helper Impl."
     [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIApiUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://biazure-int-edog-redirect.analysis-df.windows.net');
 
         exit('https://api.powerbi.com');
@@ -144,7 +144,7 @@ codeunit 3704 "Url Helper Impl."
     [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIReportsUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://biazure-int-edog-redirect.analysis-df.windows.net/v1.0/myorg/reports');
 
         exit('https://api.powerbi.com/v1.0/myorg/reports');
@@ -157,7 +157,7 @@ codeunit 3704 "Url Helper Impl."
     [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIEmbedReportsUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://biazure-int-edog-redirect.analysis-df.windows.net/v1.0/myorg/reports');
 
         exit('https://app.powerbi.com/reportEmbed');
@@ -167,7 +167,7 @@ codeunit 3704 "Url Helper Impl."
     [Scope('OnPrem')]
     procedure GetExcelAddinProviderServiceUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://exceladdinprovider.smb.dynamics-tie.com');
         exit('https://exceladdinprovider.smb.dynamics.com');
     end;
@@ -178,10 +178,10 @@ codeunit 3704 "Url Helper Impl."
         AzureADTenant: Codeunit "Azure AD Tenant";
         Url: Text;
     begin
-        Url := GetFixedClientEndpointBaseUrl;
+        Url := GetFixedClientEndpointBaseUrl();
         if Url <> '' then
-            exit(Url + AzureADTenant.GetAadTenantId);
-        if IsPartnerPROD then
+            exit(Url + AzureADTenant.GetAadTenantId());
+        if IsPartnerPROD() then
             exit(LowerCase(GetUrl(CLIENTTYPE::Web)));
 
         exit('');
@@ -190,7 +190,7 @@ codeunit 3704 "Url Helper Impl."
     [Scope('OnPrem')]
     procedure GetOfficePortalUrl(): Text
     begin
-        if IsPPE then
+        if IsPPE() then
             exit('https://go.microsoft.com/fwlink/?linkid=844935');
 
         exit('https://go.microsoft.com/fwlink/?linkid=844936');

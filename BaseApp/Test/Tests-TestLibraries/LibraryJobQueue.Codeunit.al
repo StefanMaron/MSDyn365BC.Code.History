@@ -109,7 +109,7 @@ codeunit 132458 "Library - Job Queue"
         if DoNotHandleTableJobQueueEntryEvent then
             exit;
 
-        TaskGUID := CreateGuid;
+        TaskGUID := CreateGuid();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterInsertEvent', '', false, false)]
@@ -157,7 +157,7 @@ codeunit 132458 "Library - Job Queue"
             exit;
 
         TempJobQueueEntry.TransferFields(Rec);
-        TempJobQueueEntry.ID := CreateGuid;
+        TempJobQueueEntry.ID := CreateGuid();
         TempJobQueueEntry.Insert();
     end;
 
@@ -174,7 +174,7 @@ codeunit 132458 "Library - Job Queue"
             exit;
 
         TempJobQueueEntry.TransferFields(Rec);
-        TempJobQueueEntry.ID := CreateGuid;
+        TempJobQueueEntry.ID := CreateGuid();
         TempJobQueueEntry.Insert();
     end;
 

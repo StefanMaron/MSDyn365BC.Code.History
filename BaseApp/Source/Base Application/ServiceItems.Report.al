@@ -16,7 +16,7 @@ report 5935 "Service Items"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServItemFltr; TableCaption + ': ' + ServItemFilter)
@@ -88,7 +88,7 @@ report 5935 "Service Items"
 
     trigger OnPreReport()
     begin
-        ServItemFilter := "Service Item".GetFilters;
+        ServItemFilter := "Service Item".GetFilters();
     end;
 
     var

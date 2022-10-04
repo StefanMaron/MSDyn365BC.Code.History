@@ -166,31 +166,103 @@ page 5353 "CRM Sales Order List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create in Business Central';
-                    Enabled = HasRecords and CRMIntegrationEnabled;
+                    Enabled = (BidirectionalSalesOrderIntEnabled) or (not BidirectionalSalesOrderIntEnabled and (HasRecords and CRMIntegrationEnabled));
                     Image = New;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a sales order in Dynamics 365 that is coupled to the Dynamics 365 Sales entity.';
 
                     trigger OnAction()
                     var
                         SalesHeader: Record "Sales Header";
+                        CRMSalesorder: Record "CRM Salesorder";
                         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
                         if IsEmpty() then
                             exit;
 
-                        Session.LogMessage('0000DFA', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
-                        if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
-                            Session.LogMessage('0000DFB', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
-                            Commit();
-                            PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
+                        if BidirectionalSalesOrderIntEnabled then begin
+                            CurrPage.SetSelectionFilter(CRMSalesOrder);
+                            CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMSalesorder);
+                        end else begin
+                            Session.LogMessage('0000DFA', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                            if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
+                                Session.LogMessage('0000DFB', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                                Commit();
+                                PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
+                            end;
                         end;
+                    end;
+                }
+                action(ShowOnlyUncoupled)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Hide Coupled Sales Orders';
+                    Image = FilterLines;
+                    ToolTip = 'Do not show coupled sales orders.';
+                    Visible = BidirectionalSalesOrderIntEnabled;
+
+                    trigger OnAction()
+                    begin
+                        MarkedOnly(true);
+                    end;
+                }
+                action(ShowAll)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Show Coupled Sales Orders';
+                    Image = ClearFilter;
+                    ToolTip = 'Show coupled sales orders.';
+                    Visible = BidirectionalSalesOrderIntEnabled;
+
+                    trigger OnAction()
+                    begin
+                        MarkedOnly(false);
                     end;
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CreateInNAV_Promoted; CreateInNAV)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+            }
+        }
     }
+
+    trigger OnAfterGetRecord()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        RecordID: RecordID;
+    begin
+        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            if CRMIntegrationRecord.FindRecordIDFromID(SalesOrderId, Database::"Sales Header", RecordID) then
+                if CurrentlyCoupledCRMSalesorder.SalesOrderId = SalesOrderId then begin
+                    Coupled := 'Current';
+                    FirstColumnStyle := 'Strong';
+                    Mark(true);
+                end else begin
+                    Coupled := 'Yes';
+                    FirstColumnStyle := 'Subordinate';
+                    Mark(false);
+                end
+            else begin
+                Coupled := 'No';
+                FirstColumnStyle := 'None';
+                Mark(true);
+            end;
+    end;
 
     trigger OnAfterGetCurrRecord()
     begin
@@ -205,18 +277,35 @@ page 5353 "CRM Sales Order List"
     trigger OnOpenPage()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
-        SetRange(StateCode, StateCode::Submitted);
-        SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
+        BidirectionalSalesOrderIntEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
+        if BidirectionalSalesOrderIntEnabled then begin
+            FilterGroup(4);
+            SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Salesorder"));
+            FilterGroup(0);
+        end else begin
+            SetRange(StateCode, StateCode::Submitted);
+            SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
+        end;
         CRMIntegrationEnabled := CRMConnectionSetup.IsEnabled();
     end;
 
     var
+        CurrentlyCoupledCRMSalesorder: Record "CRM Salesorder";
         CRMProductName: Codeunit "CRM Product Name";
         CRMIntegrationEnabled: Boolean;
+        BidirectionalSalesOrderIntEnabled: Boolean;
         HasRecords: Boolean;
+        Coupled: Text;
+        FirstColumnStyle: Text;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
         StartingToCreateSalesOrderTelemetryMsg: Label 'Starting to create sales order from %1 order %2 via a page action.', Locked = true;
         CommittingAfterCreateSalesOrderTelemetryMsg: Label 'Committing after processing %1 order %2 via a page action.', Locked = true;
+
+    procedure SetCurrentlyCoupledCRMSalesorder(CRMSalesorder: Record "CRM Salesorder")
+    begin
+        CurrentlyCoupledCRMSalesorder := CRMSalesorder;
+    end;
 }
 

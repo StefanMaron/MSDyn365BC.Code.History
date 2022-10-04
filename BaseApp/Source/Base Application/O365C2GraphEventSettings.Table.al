@@ -2,6 +2,14 @@ table 2162 "O365 C2Graph Event Settings"
 {
     Caption = 'O365 C2Graph Event Settings';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -114,6 +122,8 @@ table 2162 "O365 C2Graph Event Settings"
     {
     }
 
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetEventsEnabled(State: Boolean)
     begin
         "Inv. Paid Enabled" := State;
@@ -128,5 +138,6 @@ table 2162 "O365 C2Graph Event Settings"
         "Est. Email Failed Enabled" := State;
         "Kpi Update Enabled" := State;
     end;
+#endif
 }
 

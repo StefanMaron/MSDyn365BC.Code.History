@@ -16,7 +16,7 @@ table 5766 "Warehouse Activity Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -31,7 +31,7 @@ table 5766 "Warehouse Activity Header"
                 WMSManagement: Codeunit "WMS Management";
             begin
                 if "Location Code" <> xRec."Location Code" then
-                    if LineExist then
+                    if LineExist() then
                         Error(Text002, FieldCaption("Location Code"));
 
                 if "Location Code" <> '' then
@@ -85,7 +85,7 @@ table 5766 "Warehouse Activity Header"
             trigger OnValidate()
             begin
                 if "Sorting Method" <> xRec."Sorting Method" then
-                    SortWhseDoc;
+                    SortWhseDoc();
             end;
         }
         field(9; "No. Series"; Code[20])
@@ -171,8 +171,8 @@ table 5766 "Warehouse Activity Header"
                 with WhseActivHeader do begin
                     WhseActivHeader := Rec;
                     WhseSetup.Get();
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetRegisteringNoSeriesCode, "Registering No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetRegisteringNoSeriesCode(), "Registering No. Series") then
                         Validate("Registering No. Series");
                     Rec := WhseActivHeader;
                 end;
@@ -182,8 +182,8 @@ table 5766 "Warehouse Activity Header"
             begin
                 if "Registering No. Series" <> '' then begin
                     WhseSetup.Get();
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetRegisteringNoSeriesCode, "Registering No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetRegisteringNoSeriesCode(), "Registering No. Series");
                 end;
             end;
         }
@@ -205,7 +205,7 @@ table 5766 "Warehouse Activity Header"
             trigger OnValidate()
             begin
                 if "Breakbulk Filter" <> xRec."Breakbulk Filter" then
-                    SetBreakbulkFilter;
+                    SetBreakbulkFilter();
             end;
         }
         field(7306; "Source No."; Code[20])
@@ -219,13 +219,13 @@ table 5766 "Warehouse Activity Header"
                 CreateInvtPick: Codeunit "Create Inventory Pick/Movement";
             begin
                 if "Source No." <> xRec."Source No." then begin
-                    if LineExist then
+                    if LineExist() then
                         Error(Text002, FieldCaption("Source No."));
                     if "Source No." <> '' then begin
                         TestField("Location Code");
                         TestField("Source Document");
                     end;
-                    ClearDestinationFields;
+                    ClearDestinationFields();
 
                     if ("Source Type" <> 0) and ("Source No." <> '') then begin
                         if Type = Type::"Invt. Put-away" then begin
@@ -264,10 +264,10 @@ table 5766 "Warehouse Activity Header"
                 AssemblyLine: Record "Assembly Line";
             begin
                 if "Source Document" <> xRec."Source Document" then begin
-                    if LineExist then
+                    if LineExist() then
                         Error(Text002, FieldCaption("Source Document"));
                     "Source No." := '';
-                    ClearDestinationFields;
+                    ClearDestinationFields();
                     if Type = Type::"Invt. Put-away" then begin
                         GetLocation("Location Code");
                         if Location.RequireReceive("Location Code") then
@@ -410,17 +410,17 @@ table 5766 "Warehouse Activity Header"
 
     trigger OnDelete()
     begin
-        DeleteWhseActivHeader;
+        DeleteWhseActivHeader();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+            TestNoSeries();
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
 
-        NoSeriesMgt.SetDefaultSeries("Registering No. Series", GetRegisteringNoSeriesCode);
+        NoSeriesMgt.SetDefaultSeries("Registering No. Series", GetRegisteringNoSeriesCode());
     end;
 
     trigger OnRename()
@@ -429,7 +429,6 @@ table 5766 "Warehouse Activity Header"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
         Location: Record Location;
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseSetup: Record "Warehouse Setup";
@@ -440,6 +439,8 @@ table 5766 "Warehouse Activity Header"
         PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
         PicksForJobsFeatureNotEnabledErr: Label 'The features for creating picks for jobs is not enabled. Your administrator can enable the feature on the Feature Management page by turning on Feature Update: Enable inventory and warehouse pick from jobs.';
 #endif
+
+        Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You must first set up user %1 as a warehouse employee.';
         Text002: Label 'You cannot change %1 because one or more lines exist.';
 
@@ -447,8 +448,8 @@ table 5766 "Warehouse Activity Header"
     begin
         with WhseActivHeader do begin
             WhseActivHeader := Rec;
-            TestNoSeries;
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldWhseActivHeader."No. Series", "No. Series")
+            TestNoSeries();
+            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldWhseActivHeader."No. Series", "No. Series")
             then begin
                 NoSeriesMgt.SetSeries("No.");
                 Rec := WhseActivHeader;
@@ -740,7 +741,7 @@ table 5766 "Warehouse Activity Header"
     var
         WhseActivLine3: Record "Warehouse Activity Line";
     begin
-        if not NewWhseActivLine2.Mark then begin
+        if not NewWhseActivLine2.Mark() then begin
             WhseActivLine3.Copy(NewWhseActivLine2);
             WhseActivLine3.SetRange("Bin Code", NewWhseActivLine2."Bin Code");
             WhseActivLine3.SetFilter("Breakbulk No.", '<>0');
@@ -797,7 +798,7 @@ table 5766 "Warehouse Activity Header"
             WarehouseActivityLineLocal."Sorting Sequence No." := NewSequenceNo;
             WarehouseActivityLineLocal.Modify();
             NewSequenceNo += 10000;
-            if WarehouseActivityLineLocal.Next <> 0 then
+            if WarehouseActivityLineLocal.Next() <> 0 then
                 if WarehouseActivityLineLocal."Action Type" = WarehouseActivityLineLocal."Action Type"::Place then begin
                     WarehouseActivityLineLocal."Sorting Sequence No." := NewSequenceNo;
                     WarehouseActivityLineLocal.Modify();
@@ -926,7 +927,7 @@ table 5766 "Warehouse Activity Header"
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
             Rec := WhseActivHeader;
-            if not Find then;
+            if not Find() then;
         end;
         exit(RealSteps);
     end;

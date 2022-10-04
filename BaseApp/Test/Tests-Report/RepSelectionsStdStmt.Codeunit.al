@@ -65,7 +65,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 0);
     end;
 
@@ -92,7 +92,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 0);
     end;
 
@@ -120,7 +120,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer.Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
 
     end;
@@ -144,9 +144,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer[1]), StandardStatementReportOutputType::Email, true);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -174,9 +174,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -199,9 +199,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer[1]), StandardStatementReportOutputType::Email, true);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -229,9 +229,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -260,9 +260,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -291,9 +291,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -322,9 +322,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -355,9 +355,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[2].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -389,9 +389,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[2].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -417,9 +417,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         RunReportWithParameters(
           GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Email, true);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 #endif
@@ -453,9 +453,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -483,9 +483,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -514,9 +514,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 #endif
@@ -547,9 +547,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[2].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -581,9 +581,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -613,9 +613,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -650,9 +650,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[2].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -683,9 +683,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[2].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 #endif
@@ -719,9 +719,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -754,9 +754,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -789,9 +789,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -826,9 +826,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -858,9 +858,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[2].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -895,9 +895,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -925,9 +925,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(Customer[1].Name);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 #endif
@@ -955,7 +955,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 0);
     end;
 
@@ -986,7 +986,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 0);
     end;
 
@@ -1020,7 +1020,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
     end;
 
@@ -1050,9 +1050,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1086,9 +1086,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1118,9 +1118,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1154,9 +1154,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1195,9 +1195,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1236,9 +1236,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1277,9 +1277,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1320,9 +1320,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox (Zip with two files)
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1361,9 +1361,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1396,9 +1396,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1430,9 +1430,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AssertActivityLog(TempErrorMessage);
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1463,9 +1463,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1495,9 +1495,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1543,9 +1543,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox (Zip with 2 files)
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1586,9 +1586,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // Thus, we insert output into Report Inbox (Zip with 2 files)
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1626,9 +1626,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1670,9 +1670,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountPdf(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1710,9 +1710,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountPdf(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1750,9 +1750,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1790,9 +1790,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1830,9 +1830,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1871,9 +1871,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1917,9 +1917,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -1954,9 +1954,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountPdf(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -1991,9 +1991,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountPdf(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -2015,10 +2015,10 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
     end;
 
@@ -2048,7 +2048,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 0);
     end;
 
@@ -2070,7 +2070,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
     end;
 
@@ -2093,9 +2093,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -2118,9 +2118,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -2143,9 +2143,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -2176,9 +2176,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -2207,7 +2207,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
     end;
 
@@ -2238,7 +2238,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 0);
     end;
 
@@ -2267,7 +2267,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Last Statement No.", 1);
     end;
 
@@ -2299,9 +2299,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -2331,9 +2331,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -2363,9 +2363,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxCountWord(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -2400,9 +2400,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         AssertReportInboxEmpty;
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 0);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 0);
     end;
 
@@ -2455,7 +2455,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" with entries. Filter = "A|B"
         Initialize();
 
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."User ID" := UserId;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Customer Statement via Queue";
@@ -2508,7 +2508,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Commit();
         AssertReportInboxCountPdf(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
     end;
 
@@ -2559,9 +2559,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Commit();
         AssertReportInboxCountZip(1);
 
-        Customer[1].Find;
+        Customer[1].Find();
         Customer[1].TestField("Last Statement No.", 1);
-        Customer[2].Find;
+        Customer[2].Find();
         Customer[2].TestField("Last Statement No.", 1);
     end;
 
@@ -2722,23 +2722,23 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
     local procedure GetStatementTitleDocx(Customer: Record Customer): Text
     begin
-        exit(StrSubstNo(StatementTitleDocxTxt, Customer.Name, Format(WorkDate, 0, 9)));
+        exit(StrSubstNo(StatementTitleDocxTxt, Customer.Name, Format(WorkDate(), 0, 9)));
     end;
 
     local procedure GetStatementTitlePdf(Customer: Record Customer): Text
     begin
-        exit(StrSubstNo(StatementTitlePdfTxt, Customer.Name, Format(WorkDate, 0, 9)));
+        exit(StrSubstNo(StatementTitlePdfTxt, Customer.Name, Format(WorkDate(), 0, 9)));
     end;
 
     local procedure GetStatementTitleHtml(Customer: Record Customer): Text
     begin
-        exit(StrSubstNo(StatementTitleHtmlTxt, Customer.Name, Format(WorkDate, 0, 9)));
+        exit(StrSubstNo(StatementTitleHtmlTxt, Customer.Name, Format(WorkDate(), 0, 9)));
     end;
 
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
         with CustomReportSelection do begin
-            Init;
+            Init();
             Validate("Source Type", DATABASE::Customer);
             Validate("Source No.", CustomerNo);
             Validate(Usage, ReportUsage);
@@ -2761,7 +2761,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
             exit;
 
         with ReportSelections do begin
-            Init;
+            Init();
             Validate(Usage, ReportUsage);
             Validate(Sequence, '1');
             Validate("Report ID", ReportID);
@@ -2840,7 +2840,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", StrSubstNo(EscapeTok, Customer."No."));
         CustomerCard."Report Statement".Invoke;
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     local procedure RunReportWithParameters(CustomerFilter: Text; ReportOutputType: Option; PrintRemaining: Boolean)
@@ -2857,22 +2857,22 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         case ReportOutputType of
             StandardStatementReportOutputType::Email:
-                MethodTypeInt := CustomLayoutReporting.GetEmailOption;
+                MethodTypeInt := CustomLayoutReporting.GetEmailOption();
             StandardStatementReportOutputType::PDF:
-                MethodTypeInt := CustomLayoutReporting.GetPDFOption;
+                MethodTypeInt := CustomLayoutReporting.GetPDFOption();
             StandardStatementReportOutputType::Preview:
-                MethodTypeInt := CustomLayoutReporting.GetPreviewOption;
+                MethodTypeInt := CustomLayoutReporting.GetPreviewOption();
             StandardStatementReportOutputType::Print:
-                MethodTypeInt := CustomLayoutReporting.GetPrintOption;
+                MethodTypeInt := CustomLayoutReporting.GetPrintOption();
             StandardStatementReportOutputType::Word:
-                MethodTypeInt := CustomLayoutReporting.GetWordOption;
+                MethodTypeInt := CustomLayoutReporting.GetWordOption();
             StandardStatementReportOutputType::XML:
-                MethodTypeInt := CustomLayoutReporting.GetXMLOption;
+                MethodTypeInt := CustomLayoutReporting.GetXMLOption();
         end;
 
         ReportParameters :=
           StrSubstNo(
-            ReqParametersTemplatesTok, Format(WorkDate, 0, 9), Format(WorkDate, 0, 9),
+            ReqParametersTemplatesTok, Format(WorkDate(), 0, 9), Format(WorkDate(), 0, 9),
             OutputTypeInt, MethodTypeInt, Format(PrintRemaining, 0, 9), DotNet_SecurityElement.Escape(CustomerFilter));
 
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
@@ -2896,7 +2896,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", CustomerFilter);
         CustomerCard.BackgroundStatement.Invoke;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         LibraryJobQueue.GetCollectedJobQueueEntries(TempJobQueueEntry);
         Assert.RecordCount(TempJobQueueEntry, 1);
@@ -2924,8 +2924,8 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         repeat
             Assert.ExpectedMessage(TempErrorMessage.Description, LibraryUtility.ConvertCRLFToBackSlash(ActivityLog.Description));
             ActivityLog.TestField(Status, ActivityLog.Status::Failed);
-            ActivityLog.Next;
-        until TempErrorMessage.Next = 0;
+            ActivityLog.Next();
+        until TempErrorMessage.Next() = 0;
 
         Assert.RecordCount(ActivityLog, TempErrorMessage.Count);
     end;
@@ -2938,7 +2938,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         repeat
             Assert.ExpectedMessage(TempErrorMessage.Description, ErrorMessages.Description.Value);
             ErrorMessages."Message Type".AssertEquals(TempErrorMessage."Message Type");
-            Stop := TempErrorMessage.Next = 0;
+            Stop := TempErrorMessage.Next() = 0;
             if not Stop then
                 Assert.IsTrue(ErrorMessages.Next, StrSubstNo(LessErrorsOnErrorMessagesPageErr, ErrorMessages.Caption));
         until Stop;
@@ -2986,7 +2986,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         repeat
             ReportInbox.TestField("Output Type", OutputType);
             Assert.IsTrue(ReportInbox."Report Output".HasValue, 'Output must be saved in Report Inbox');
-        until ReportInbox.Next = 0;
+        until ReportInbox.Next() = 0;
         Assert.RecordCount(ReportInbox, ExpectedCount);
         ReportInbox.DeleteAll();
     end;
@@ -2995,8 +2995,8 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     [Scope('OnPrem')]
     procedure StandardStatementOKRequestPageHandler(var StandardStatement: TestRequestPage "Standard Statement")
     begin
-        StandardStatement."Start Date".SetValue(WorkDate);
-        StandardStatement."End Date".SetValue(WorkDate);
+        StandardStatement."Start Date".SetValue(WorkDate());
+        StandardStatement."End Date".SetValue(WorkDate());
         StandardStatement.ReportOutput.SetValue(LibraryVariableStorage.DequeueInteger);
         StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
         StandardStatement.PrintMissingAddresses.SetValue(LibraryVariableStorage.DequeueBoolean);

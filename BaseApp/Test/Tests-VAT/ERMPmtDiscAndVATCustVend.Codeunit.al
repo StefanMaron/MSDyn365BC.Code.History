@@ -1100,11 +1100,11 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
         Assert.AreNearlyEqual(
           ExpectedAmount, ActualAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), ExpectedAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), ExpectedAmount, GLEntry.TableCaption()));
 
         Assert.AreNearlyEqual(
           ExpectedVATAmount, ActualVATAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
-          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), ExpectedVATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), ExpectedVATAmount, GLEntry.TableCaption()));
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -1174,7 +1174,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Payment Tolerance %", PmtTolPct);
             Validate("Max. Payment Tolerance Amount", MaxPmtTolAmount);
             Modify(true);

@@ -290,9 +290,6 @@ page 7005 "Price List Line Review"
                 ApplicationArea = All;
                 Caption = 'Open Price List';
                 Image = EditLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Visible = LineExists;
                 ToolTip = 'View or edit the price list.';
 
@@ -306,9 +303,6 @@ page 7005 "Price List Line Review"
                 ApplicationArea = Basic, Suite;
                 Ellipsis = true;
                 Image = CheckDuplicates;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Caption = 'Verify Lines';
                 ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
 
@@ -334,8 +328,6 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Caption = 'New Price List';
                     Image = NewOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Review the existing price lists and create a new price list or add a line to the existing one.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Duplicate to the action SalesPriceLists.';
@@ -352,8 +344,6 @@ page 7005 "Price List Line Review"
                     ApplicationArea = Jobs;
                     Caption = 'New Job Price List';
                     Image = NewResource;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Review the existing price lists that apply to all jobs, to one job, or to a job task and create a new price list or add a line to the existing one.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Duplicate to the action SalesJobPriceLists.';
@@ -372,9 +362,6 @@ page 7005 "Price List Line Review"
                 ApplicationArea = All;
                 Caption = 'Sales Price Lists';
                 Image = Sales;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Visible = IsSalesPrice;
                 ToolTip = 'View the list of all sales price lists.';
 
@@ -388,9 +375,6 @@ page 7005 "Price List Line Review"
                 ApplicationArea = All;
                 Caption = 'Sales Job Price Lists';
                 Image = Sales;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Visible = IsSalesPrice;
                 ToolTip = 'View the list of all sales job price lists.';
 
@@ -404,9 +388,6 @@ page 7005 "Price List Line Review"
                 ApplicationArea = All;
                 Caption = 'Purchase Price Lists';
                 Image = Purchase;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Visible = not IsSalesPrice;
                 ToolTip = 'View the list of all purchase price lists.';
 
@@ -420,9 +401,6 @@ page 7005 "Price List Line Review"
                 ApplicationArea = All;
                 Caption = 'Purchase Job Price Lists';
                 Image = Purchase;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Visible = not IsSalesPrice;
                 ToolTip = 'View the list of all purchase job price lists.';
 
@@ -430,6 +408,46 @@ page 7005 "Price List Line Review"
                 begin
                     Page.Run(Page::"Purchase Job Price Lists");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenPriceList_Promoted; OpenPriceList)
+                {
+                }
+                actionref(VerifyLines_Promoted; VerifyLines)
+                {
+                }
+#if not CLEAN20
+                actionref(PriceLists_Promoted; PriceLists)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicate to the action SalesPriceLists.';
+                    ObsoleteTag = '20.0';
+                }
+                actionref(JobPriceLists_Promoted; JobPriceLists)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicate to the action SalesJobPriceLists.';
+                    ObsoleteTag = '20.0';
+                }
+#endif
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(SalesJobPriceLists_Promoted; SalesJobPriceLists)
+                {
+                }
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
+                }
+                actionref(PurchJobPriceLists_Promoted; PurchJobPriceLists)
+                {
+                }
             }
         }
     }

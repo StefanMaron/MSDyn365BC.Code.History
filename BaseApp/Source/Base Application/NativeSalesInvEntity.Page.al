@@ -23,7 +23,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         RegisterFieldSet(FieldNo(Id));
                     end;
                 }
@@ -42,7 +42,7 @@ page 2810 "Native - Sales Inv. Entity"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        CheckStatus;
+                        CheckStatus();
 
                         if not Customer.GetBySystemId("Customer Id") then
                             Error(CannotFindCustomerErr);
@@ -65,7 +65,7 @@ page 2810 "Native - Sales Inv. Entity"
                         Contact: Record Contact;
                         Customer: Record Customer;
                     begin
-                        CheckStatus;
+                        CheckStatus();
 
                         if ("Contact Graph Id" = '') and CustomerIdSet then
                             exit;
@@ -95,7 +95,7 @@ page 2810 "Native - Sales Inv. Entity"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        CheckStatus;
+                        CheckStatus();
 
                         if Customer."No." <> '' then
                             exit;
@@ -119,7 +119,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         RegisterFieldSet(FieldNo("Tax Liable"));
                     end;
                 }
@@ -130,11 +130,11 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
 
                         RegisterFieldSet(FieldNo("Tax Area ID"));
 
-                        if IsUsingVAT then
+                        if IsUsingVAT() then
                             RegisterFieldSet(FieldNo("VAT Bus. Posting Group"))
                         else
                             RegisterFieldSet(FieldNo("Tax Area Code"));
@@ -154,7 +154,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         RegisterFieldSet(FieldNo("VAT Registration No."));
                     end;
                 }
@@ -178,7 +178,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
 
                         DocumentDateVar := "Document Date";
                         DocumentDateSet := true;
@@ -194,7 +194,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
 
                         DueDateVar := "Due Date";
                         DueDateSet := true;
@@ -211,7 +211,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         BillingPostalAddressSet := true;
                     end;
                 }
@@ -237,7 +237,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         SalesLinesSet := PreviousSalesInvoiceLinesJSON <> SalesInvoiceLinesJSON;
                     end;
                 }
@@ -268,7 +268,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         CouponsSet := PreviousCouponsJSON <> CouponsJSON;
                     end;
                 }
@@ -299,7 +299,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         NoteForCustomerSet := true;
                     end;
                 }
@@ -336,7 +336,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         RegisterFieldSet(FieldNo("Invoice Discount Calculation"));
                         DiscountAmountSet := true;
                     end;
@@ -348,7 +348,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                     trigger OnValidate()
                     begin
-                        CheckStatus;
+                        CheckStatus();
                         RegisterFieldSet(FieldNo("Invoice Discount Value"));
                         DiscountAmountSet := true;
                     end;
@@ -433,17 +433,17 @@ page 2810 "Native - Sales Inv. Entity"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
-        CheckCustomer;
-        ProcessBillingPostalAddress;
+        CheckCustomer();
+        ProcessBillingPostalAddress();
 
         SalesInvoiceAggregator.PropagateOnInsert(Rec, TempFieldBuffer);
-        SetDates;
+        SetDates();
 
-        UpdateAttachments;
-        UpdateLines;
-        UpdateDiscount;
-        UpdateCoupons;
-        SetNoteForCustomer;
+        UpdateAttachments();
+        UpdateLines();
+        UpdateDiscount();
+        UpdateCoupons();
+        SetNoteForCustomer();
 
         if not GetParentRecordNativeInvoicing(SalesHeader, SalesInvoiceHeader) then
             Error(AggregateParentIsMissingErr);
@@ -462,23 +462,23 @@ page 2810 "Native - Sales Inv. Entity"
         if Posted then begin
             if not IsAttachmentsSet then
                 exit(false);
-            UpdateAttachments;
-            SetAttachmentsJSON;
+            UpdateAttachments();
+            SetAttachmentsJSON();
             exit(false);
         end;
 
         if xRec.Id <> Id then
             Error(CannotChangeIDErr);
 
-        ProcessBillingPostalAddress;
+        ProcessBillingPostalAddress();
 
         SalesInvoiceAggregator.PropagateOnModify(Rec, TempFieldBuffer);
 
-        UpdateAttachments;
-        UpdateLines;
-        UpdateDiscount;
-        UpdateCoupons;
-        SetNoteForCustomer;
+        UpdateAttachments();
+        UpdateLines();
+        UpdateDiscount();
+        UpdateCoupons();
+        SetNoteForCustomer();
 
         if not GetParentRecordNativeInvoicing(SalesHeader, SalesInvoiceHeader) then
             Error(AggregateParentIsMissingErr);
@@ -490,13 +490,13 @@ page 2810 "Native - Sales Inv. Entity"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearCalculatedFields;
+        ClearCalculatedFields();
     end;
 
     trigger OnOpenPage()
     begin
         BindSubscription(NativeAPILanguageHandler);
-        SelectLatestVersion;
+        SelectLatestVersion();
     end;
 
     var
@@ -576,7 +576,7 @@ page 2810 "Native - Sales Inv. Entity"
         if "Sell-to Customer No." <> '' then
             if Customer.Get("Sell-to Customer No.") then begin
                 CustomerEmail := Customer."E-Mail";
-                IsCustomerBlocked := Customer.IsBlocked
+                IsCustomerBlocked := Customer.IsBlocked()
             end else begin
                 IsCustomerBlocked := false;
                 CustomerEmail := '';
@@ -590,10 +590,10 @@ page 2810 "Native - Sales Inv. Entity"
         CouponsJSON := NativeCoupons.WriteCouponsJSON("Sales Document Type"::Invoice.AsInteger(), "No.", Posted);
         PreviousCouponsJSON := CouponsJSON;
 
-        SetAttachmentsJSON;
+        SetAttachmentsJSON();
         TaxAreaDisplayName := DummyNativeAPITaxSetup.GetTaxAreaDisplayName("Tax Area ID");
         GetNoteForCustomer(SalesHeader, SalesInvoiceHeader);
-        GetRemainingAmount;
+        GetRemainingAmount();
         GetLastEmailSentFields(SalesHeader, SalesInvoiceHeader);
     end;
 
@@ -709,7 +709,7 @@ page 2810 "Native - Sales Inv. Entity"
           "Sales Document Type"::Invoice.AsInteger(), SalesInvoiceLinesJSON, TempSalesInvoiceLineAggregate, Id);
         TempSalesInvoiceLineAggregate.SetRange("Document Id", Id);
         SalesInvoiceAggregator.PropagateMultipleLinesUpdate(TempSalesInvoiceLineAggregate);
-        Find;
+        Find();
     end;
 
     local procedure UpdateDiscount()
@@ -810,9 +810,9 @@ page 2810 "Native - Sales Inv. Entity"
     local procedure GetNoteForCustomer(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         if Posted then
-            WorkDescription := SalesInvoiceHeader.GetWorkDescription
+            WorkDescription := SalesInvoiceHeader.GetWorkDescription()
         else
-            WorkDescription := SalesHeader.GetWorkDescription;
+            WorkDescription := SalesHeader.GetWorkDescription();
     end;
 
     local procedure GetLastEmailSentFields(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -833,12 +833,12 @@ page 2810 "Native - Sales Inv. Entity"
         RemainingAmountVar := "Amount Including VAT";
         if Posted then
             if SalesInvoiceHeader.Get("No.") then begin
-                if IsInvoiceCanceled then begin
+                if IsInvoiceCanceled() then begin
                     RemainingAmountVar := 0;
                     exit;
                 end;
 
-                RemainingAmountVar := SalesInvoiceHeader.GetRemainingAmount;
+                RemainingAmountVar := SalesInvoiceHeader.GetRemainingAmount();
             end;
     end;
 
@@ -855,7 +855,7 @@ page 2810 "Native - Sales Inv. Entity"
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, "No.");
         SalesHeader.SetWorkDescription(WorkDescription);
         SalesHeader.Modify(true);
-        Find;
+        Find();
     end;
 
     local procedure SetDates()
@@ -881,7 +881,7 @@ page 2810 "Native - Sales Inv. Entity"
         end;
 
         SalesInvoiceAggregator.PropagateOnModify(Rec, TempFieldBuffer);
-        Find;
+        Find();
     end;
 
     local procedure GetPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -915,7 +915,7 @@ page 2810 "Native - Sales Inv. Entity"
         EmailAddress := GetDocumentEmailAddress(DocumentNo);
         if EmailAddress <> '' then
             exit(EmailAddress);
-        EmailAddress := GetCustomerEmailAddress;
+        EmailAddress := GetCustomerEmailAddress();
         exit(EmailAddress);
     end;
 
@@ -939,7 +939,7 @@ page 2810 "Native - Sales Inv. Entity"
     var
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        if IsInvoiceCanceled then
+        if IsInvoiceCanceled() then
             Error(AlreadyCanceledErr);
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
     end;
@@ -974,7 +974,7 @@ page 2810 "Native - Sales Inv. Entity"
 
         CheckAttachmentsSize(SalesInvoiceHeader);
 
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         SalesInvoiceHeader.EmailRecords(false);
     end;
 
@@ -992,7 +992,7 @@ page 2810 "Native - Sales Inv. Entity"
         CheckAttachmentsSize(SalesHeader);
 
         O365SalesEmailManagement.NativeAPISaveEmailBodyText(Id);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.EmailRecords(false);
     end;
 
@@ -1014,7 +1014,7 @@ page 2810 "Native - Sales Inv. Entity"
         JobQueueEntry."Maximum No. of Attempts to Run" := 3;
         JobQueueEntry."Record ID to Process" := SalesInvoiceHeader.RecordId;
 
-        if GraphMail.IsEnabled and GraphMail.HasConfiguration then
+        if GraphMail.IsEnabled() and GraphMail.HasConfiguration() then
             O365SalesCancelInvoice.SendInvoiceCancelationEmail(SalesInvoiceHeader)
         else
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
@@ -1081,7 +1081,7 @@ page 2810 "Native - Sales Inv. Entity"
     begin
         if Posted then begin
             GetPostedInvoice(SalesInvoiceHeader);
-            if IsInvoiceCanceled then
+            if IsInvoiceCanceled() then
                 SendCanceledInvoice(SalesInvoiceHeader)
             else
                 SendPostedInvoice(SalesInvoiceHeader);

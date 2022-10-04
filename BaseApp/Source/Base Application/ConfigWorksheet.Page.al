@@ -5,7 +5,6 @@ page 8632 "Config. Worksheet"
     Caption = 'Configuration Worksheet';
     DelayedInsert = true;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Excel,Show';
     SourceTable = "Config. Line";
     SourceTableView = SORTING("Vertical Sorting");
     UsageCategory = Tasks;
@@ -19,14 +18,14 @@ page 8632 "Config. Worksheet"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
                     StyleExpr = NameEmphasize;
                     ToolTip = 'Specifies the type of the configuration package line. The line can be one of the following types:';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -39,7 +38,7 @@ page 8632 "Config. Worksheet"
                     StyleExpr = NameEmphasize;
                     ToolTip = 'Specifies the name of the line type.';
                 }
-                field("Promoted Table"; "Promoted Table")
+                field("Promoted Table"; Rec."Promoted Table")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the table is promoted. Select the check box to promote the table in the configuration worksheet. You can use this designation as a signal that this table requires additional attention.';
@@ -50,19 +49,19 @@ page 8632 "Config. Worksheet"
                     ToolTip = 'Specifies a url address. Use this field to provide a url address to a location that Specifies information about the table. For example, you could provide the address of a page that Specifies information about setup considerations that the solution implementer should consider.';
                     Width = 20;
                 }
-                field("Package Code"; "Package Code")
+                field("Package Code"; Rec."Package Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code of the package associated with the configuration. The code is filled in when you use the Assign Package function to select the package for the line type.';
                 }
-                field("Package Exists"; "Package Exists")
+                field("Package Exists"; Rec."Package Exists")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies whether the package that has been assigned to the worksheet line has been created.';
                 }
-                field("Responsible ID"; "Responsible ID")
+                field("Responsible ID"; Rec."Responsible ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "User Lookup";
@@ -73,7 +72,7 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the table in the configuration worksheet. You can use the status information, which you provide, to help you in planning and tracking your work.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = true;
@@ -82,15 +81,15 @@ page 8632 "Config. Worksheet"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowTableData;
+                        ShowTableData();
                     end;
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the displayed name of the journal or worksheet that uses the template.';
                 }
-                field("Licensed Table"; "Licensed Table")
+                field("Licensed Table"; Rec."Licensed Table")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the table is covered by the license of the person creating the configuration package.';
@@ -101,24 +100,24 @@ page 8632 "Config. Worksheet"
                     Caption = 'No. of Records';
                     ToolTip = 'Specifies how many records are created in connection with migration.';
                 }
-                field("Dimensions as Columns"; "Dimensions as Columns")
+                field("Dimensions as Columns"; Rec."Dimensions as Columns")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies whether the configuration includes dimensions as columns. When you select the Dimensions as Columns check box, the dimensions are included in the Excel worksheet that you create for configuration. In order to select this check box, you must include the Default Dimension and Dimension Value tables in the configuration package.';
                 }
-                field("Copying Available"; "Copying Available")
+                field("Copying Available"; Rec."Copying Available")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether copying is available in the configuration worksheet.';
                 }
-                field("No. of Question Groups"; "No. of Question Groups")
+                field("No. of Question Groups"; Rec."No. of Question Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the number of question groups that are contained on the configuration questionnaire.';
                     Visible = false;
                 }
-                field("Licensed Page"; "Licensed Page")
+                field("Licensed Page"; Rec."Licensed Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the page that is associated with the table is licensed.';
@@ -175,14 +174,11 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Questions';
                     Image = Answers;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'View the questions that are to be answered on the setup questionnaire.';
 
                     trigger OnAction()
                     begin
-                        ShowQuestions;
+                        ShowQuestions();
                     end;
                 }
                 action(Users)
@@ -214,9 +210,6 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Package Card';
                     Image = Bin;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'View or edit information about the package.';
 
                     trigger OnAction()
@@ -228,11 +221,8 @@ page 8632 "Config. Worksheet"
                 action(PromotedOnly)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Promoted Only';
+                    Caption = 'Toggle Promoted Only';
                     Image = ShowSelected;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'View tables that are marked as promoted, for example, because they are frequently by a typical customer during the setup process.';
 
                     trigger OnAction()
@@ -248,14 +238,11 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Database Data';
                     Image = Database;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'View the data that has been applied to the database.';
 
                     trigger OnAction()
                     begin
-                        ShowTableData;
+                        ShowTableData();
                     end;
                 }
                 action(PackageData)
@@ -263,9 +250,6 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Package Data';
                     Image = Grid;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'View or edit information about the package.';
 
                     trigger OnAction()
@@ -292,14 +276,12 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Fields';
                     Image = CheckList;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View the fields that are used in the company configuration process. For each table in the list of configuration tables, the Config. Package Fields window displays a list of all the fields in the table and indicates the order in which the data in a field is to be processed.';
 
                     trigger OnAction()
                     begin
                         GetConfigPackageTable(ConfigPackageTable);
-                        ConfigPackageTable.ShowPackageFields;
+                        ConfigPackageTable.ShowPackageFields();
                     end;
                 }
                 action(Filters)
@@ -307,14 +289,12 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Filters';
                     Image = FilterLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View or set field filter values for a configuration package filter. By setting a value, you specify that only records with that value are included in the configuration package.';
 
                     trigger OnAction()
                     begin
                         GetConfigPackageTable(ConfigPackageTable);
-                        ConfigPackageTable.ShowFilters;
+                        ConfigPackageTable.ShowFilters();
                     end;
                 }
             }
@@ -375,7 +355,7 @@ page 8632 "Config. Worksheet"
 
                     trigger OnAction()
                     begin
-                        DeleteDuplicateLines;
+                        DeleteDuplicateLines();
                     end;
                 }
                 action(ApplyData)
@@ -383,9 +363,6 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Data';
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Apply the data in the package to the database. After you apply data, you can only see it in the database.';
 
                     trigger OnAction()
@@ -404,16 +381,13 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Move Up';
                     Image = MoveUp;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Move the selected line up in the list.';
 
                     trigger OnAction()
                     var
                         ConfigLine: Record "Config. Line";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ConfigLine.SetCurrentKey("Vertical Sorting");
                         ConfigLine.SetFilter("Vertical Sorting", '..%1', "Vertical Sorting" - 1);
                         if ConfigLine.FindLast() then begin
@@ -427,16 +401,13 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Move Down';
                     Image = MoveDown;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Move the selected line down in the list.';
 
                     trigger OnAction()
                     var
                         ConfigLine: Record "Config. Line";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ConfigLine.SetCurrentKey("Vertical Sorting");
                         ConfigLine.SetFilter("Vertical Sorting", '%1..', "Vertical Sorting" + 1);
                         if ConfigLine.FindFirst() then begin
@@ -450,8 +421,6 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Assign Package';
                     Image = Migration;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Assign the tables that you want to treat as part of your configuration to a configuration package.';
 
                     trigger OnAction()
@@ -472,8 +441,6 @@ page 8632 "Config. Worksheet"
                     Caption = 'Copy Data from Company';
                     Ellipsis = true;
                     Image = Copy;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy commonly used values from an existing company to a new one. For example, if you have a standard list of symptom codes that is common to all your service management implementations, you can copy the codes easily from one company to another.';
 
                     trigger OnAction()
@@ -490,9 +457,6 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export to Template';
                     Image = ExportToExcel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Export the data to an Excel workbook to serve as a template that is based on the structure of an existing database table quickly. You can then use the template to gather together customer data in a consistent format for later import into Dynamics 365.';
 
                     trigger OnAction()
@@ -511,9 +475,6 @@ page 8632 "Config. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import from Template';
                     Image = ImportExcel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Import data that exists in a configuration template.';
 
                     trigger OnAction()
@@ -565,6 +526,103 @@ page 8632 "Config. Worksheet"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ApplyData_Promoted; ApplyData)
+                {
+                }
+                actionref(AssignPackage_Promoted; AssignPackage)
+                {
+                }
+                actionref(MoveUp_Promoted; MoveUp)
+                {
+                }
+                actionref(MoveDown_Promoted; MoveDown)
+                {
+                }
+                actionref(PromotedOnly_Promoted; PromotedOnly)
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                group(Category_Excel)
+                {
+                    Caption = 'Excel';
+
+                    actionref("Import from Template_Promoted"; "Import from Template")
+                    {
+                    }
+                    actionref("Export to Template_Promoted"; "Export to Template")
+                    {
+                    }
+                }
+                actionref(CopyDataFromCompany_Promoted; CopyDataFromCompany)
+                {
+                }
+                actionref("Get Tables_Promoted"; "Get Tables")
+                {
+                }
+                actionref(GetRelatedTables_Promoted; GetRelatedTables)
+                {
+                }
+                actionref(DeleteDuplicateLines_Promoted; DeleteDuplicateLines)
+                {
+                }
+            }
+            group(Category_Line)
+            {
+                Caption = 'Line';
+
+                actionref(Fields_Promoted; Fields)
+                {
+                }
+                actionref("Database Data_Promoted"; "Database Data")
+                {
+                }
+                actionref(Filters_Promoted; Filters)
+                {
+                }
+                actionref(PackageCard_Promoted; PackageCard)
+                {
+                }
+                actionref(PackageData_Promoted; PackageData)
+                {
+                }
+                actionref(Errors_Promoted; Errors)
+                {
+                }
+#if not CLEAN21
+                actionref(Questions_Promoted; Questions)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Excel', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -584,7 +642,7 @@ page 8632 "Config. Worksheet"
     var
         ConfigMgt: Codeunit "Config. Management";
     begin
-        ConfigMgt.AssignParentLineNos;
+        ConfigMgt.AssignParentLineNos();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -668,7 +726,7 @@ page 8632 "Config. Worksheet"
         Clear(ConfigPackages);
         ConfigPackage.Init();
         ConfigPackages.LookupMode(true);
-        if ConfigPackages.RunModal = ACTION::LookupOK then begin
+        if ConfigPackages.RunModal() = ACTION::LookupOK then begin
             ConfigPackages.GetRecord(ConfigPackage);
             ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
         end;
@@ -679,10 +737,10 @@ page 8632 "Config. Worksheet"
         PackageCode: Code[20];
     begin
         PackageCode := '';
-        with SelectedConfigLine do begin
+        with SelectedConfigLine do
             if FindSet() then
                 repeat
-                    CheckBlocked;
+                    CheckBlocked();
                     if ("Package Code" <> '') and
                        ("Line Type" = "Line Type"::Table) and
                        (Status <= Status::"In Progress")
@@ -696,7 +754,6 @@ page 8632 "Config. Worksheet"
                         if "Package Code" = '' then
                             Error(Text001);
                 until Next() = 0;
-        end;
     end;
 
     local procedure GetConfigPackageTable(var ConfigPackageTable: Record "Config. Package Table")

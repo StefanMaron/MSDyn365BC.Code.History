@@ -16,7 +16,7 @@ report 10 "Closing Trial Balance"
             column(PeriodText; StrSubstNo(Text001, PeriodText))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLAccGLFilter; TableCaption + ': ' + GLFilter)
@@ -49,22 +49,22 @@ report 10 "Closing Trial Balance"
                 }
                 column(FiscalYearBalance; FiscalYearBalance)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(NegFiscalYearBalance; -FiscalYearBalance)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(LastYearBalance; LastYearBalance)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(NegLastYearBalance; -LastYearBalance)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(NoBlankLines_GLAccount; "G/L Account"."No. of Blank Lines")
@@ -164,13 +164,13 @@ report 10 "Closing Trial Balance"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
 
         if FiscalYearStartDate = 0D then
             Error(Text000);
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod."Starting Date" := FiscalYearStartDate;
-        AccountingPeriod.Find;
+        AccountingPeriod.Find();
         AccountingPeriod.Next(1);
         FiscalYearEndDate := AccountingPeriod."Starting Date" - 1;
 
@@ -179,8 +179,6 @@ report 10 "Closing Trial Balance"
     end;
 
     var
-        Text000: Label 'Enter the starting date for the fiscal year.';
-        Text001: Label 'Period: %1';
         AccountingPeriod: Record "Accounting Period";
         GLSetup: Record "General Ledger Setup";
         FiscalYearStartDate: Date;
@@ -195,6 +193,9 @@ report 10 "Closing Trial Balance"
         NextPageGroupNo: Integer;
         AllAmountsInLbl: Label 'All amounts are in';
         GLAccountTypePosting: Boolean;
+
+        Text000: Label 'Enter the starting date for the fiscal year.';
+        Text001: Label 'Period: %1';
 
     local procedure GetCurrency(): Code[10]
     begin

@@ -278,7 +278,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         repeat
             CostAllocationTarget.TestField(Percent, 0);
             CostAllocationTarget.TestField("Share Updated on", Today);
-        until CostAllocationTarget.Next = 0;
+        until CostAllocationTarget.Next() = 0;
     end;
 
     [Test]
@@ -800,7 +800,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         // Exercise & Verify:
         CostAccSetup.Get();
-        asserterror CostAccSetup.Validate("Starting Date for G/L Transfer", WorkDate);
+        asserterror CostAccSetup.Validate("Starting Date for G/L Transfer", WorkDate());
     end;
 
     [Test]
@@ -820,7 +820,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostAccSetup.Get();
         PrevStartingDate := CostAccSetup."Starting Date for G/L Transfer";
-        NewStartingDate := CalcDate('<+1D>', WorkDate);
+        NewStartingDate := CalcDate('<+1D>', WorkDate());
 
         // Exercise:
         UpdateCostAccSetupStartingDateForGLTransfer(NewStartingDate);
@@ -851,7 +851,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostAccSetup.Get();
         PrevStartingDate := CostAccSetup."Starting Date for G/L Transfer";
-        NewStartingDate := CalcDate('<+1D>', WorkDate);
+        NewStartingDate := CalcDate('<+1D>', WorkDate());
 
         // Exercise:
         asserterror UpdateCostAccSetupStartingDateForGLTransfer(NewStartingDate);
@@ -870,7 +870,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     begin
         Initialize();
         GeneralLedgerSetup.Get();
-        Assert.AreEqual(GeneralLedgerSetup."Additional Reporting Currency", CostEntry.GetCurrencyCode, IncorrectAddReportingCurrency);
+        Assert.AreEqual(GeneralLedgerSetup."Additional Reporting Currency", CostEntry.GetCurrencyCode(), IncorrectAddReportingCurrency);
     end;
 
     [Test]
@@ -920,7 +920,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostRegister.FindFirst();
         repeat
             CostRegister.TestField(Closed, true);
-        until CostRegister.Next = 0;
+        until CostRegister.Next() = 0;
     end;
 
     [Test]
@@ -1120,7 +1120,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             MaxStrLen(CostBudgetEntry."Budget Name")),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Center Code"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Cost Center Code")),
@@ -1141,7 +1141,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CreateCostBudgetEntry(CostBudgetEntry, 0, '',
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Center Code"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Cost Center Code")), '', 0, false);
@@ -1163,7 +1163,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             MaxStrLen(CostBudgetEntry."Budget Name")),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           '', '', 0, false);
         asserterror
           CostBudgetEntry.CheckEntries
@@ -1181,7 +1181,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Budget Name"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Budget Name")),
-          '', WorkDate,
+          '', WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Center Code"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Cost Center Code")), '', 0, false);
@@ -1224,7 +1224,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             MaxStrLen(CostBudgetEntry."Budget Name")),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Center Code"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Cost Center Code")), '', 0, false);
@@ -1249,7 +1249,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             MaxStrLen(CostBudgetEntry."Budget Name")),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           '',
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Object Code"), DATABASE::"Cost Budget Entry"), 1,
@@ -1281,7 +1281,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // verify entries were deleted
         for j := (FromEntryNo + 1) to ToEntryNo do begin
             if CostBudgetEntry.Get(j) then
-                Error(Text007, CostBudgetEntry.TableCaption)
+                Error(Text007, CostBudgetEntry.TableCaption())
         end;
         // verify the sum matches expected.
         CostBudgetEntry.Get(FromEntryNo);
@@ -1307,7 +1307,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // verify entries were deleted
         for j := (FromEntryNo + 1) to ToEntryNo do begin
             if CostBudgetEntry.Get(j) then
-                Error(Text007, CostBudgetEntry.TableCaption)
+                Error(Text007, CostBudgetEntry.TableCaption())
         end;
         // verify the sum matches expected.
         CostBudgetEntry.Get(FromEntryNo);
@@ -1340,7 +1340,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         for i := FirstEntryNo to ToEntryNo do begin
             if i <> FromEntryNo then
                 if CostBudgetEntry.Get(i) then
-                    Error(Text007, CostBudgetEntry.TableCaption)
+                    Error(Text007, CostBudgetEntry.TableCaption())
         end;
         // verify the sum matches expected.
         CostBudgetEntry.Get(FromEntryNo);
@@ -1402,9 +1402,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostBudgetEntry.CompressBudgetEntries(CostBudgetEntry."Budget Name");
         for i := 1 to ArrayLen(EntryNos) do begin
-            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption));
-            Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, StrSubstNo(Text010, CostBudgetEntry.TableCaption));
-            Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), StrSubstNo(Text011, CostBudgetEntry.TableCaption));
+            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption()));
+            Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, StrSubstNo(Text010, CostBudgetEntry.TableCaption()));
+            Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), StrSubstNo(Text011, CostBudgetEntry.TableCaption()));
         end;
     end;
 
@@ -1436,9 +1436,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostBudgetEntry.CompressBudgetEntries(CostBudgetEntry."Budget Name");
         for i := 1 to ArrayLen(EntryNos) do begin
-            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption));
-            Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, StrSubstNo(Text010, CostBudgetEntry.TableCaption));
-            Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), StrSubstNo(Text011, CostBudgetEntry.TableCaption));
+            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption()));
+            Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, StrSubstNo(Text010, CostBudgetEntry.TableCaption()));
+            Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), StrSubstNo(Text011, CostBudgetEntry.TableCaption()));
         end;
     end;
 
@@ -1471,7 +1471,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostBudgetEntry.CompressBudgetEntries(CostBudgetEntry."Budget Name");
         for i := 1 to ArrayLen(EntryNos) do begin
-            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption));
+            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption()));
             Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, 'The amount on the compressed entry does not match the sum of the entries');
             Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), 'The entry to be compressed still exists');
         end;
@@ -1502,9 +1502,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         CostBudgetEntry.CompressBudgetEntries(CostBudgetEntry."Budget Name");
         for i := 1 to ArrayLen(EntryNos) do begin
-            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption));
-            Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, StrSubstNo(Text010, CostBudgetEntry.TableCaption));
-            Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), StrSubstNo(Text011, CostBudgetEntry.TableCaption));
+            Assert.IsTrue(CostBudgetEntry.Get(EntryNos[i]), StrSubstNo(Text009, CostBudgetEntry.TableCaption()));
+            Assert.AreEqual(Amounts[i], CostBudgetEntry.Amount, StrSubstNo(Text010, CostBudgetEntry.TableCaption()));
+            Assert.IsFalse(CostBudgetEntry.Get(EntryNos[i] + 1), StrSubstNo(Text011, CostBudgetEntry.TableCaption()));
         end;
     end;
 
@@ -1611,7 +1611,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
 
         Evaluate(DateFormulaMonth, '<1M>');
-        RandomDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate(DateFormulaMonth, WorkDate));
+        RandomDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate(DateFormulaMonth, WorkDate()));
         RandomDate2 := LibraryUtility.GenerateRandomDate(RandomDate, CalcDate(DateFormulaMonth, RandomDate));
         RandomDate3 := LibraryUtility.GenerateRandomDate(RandomDate2, CalcDate(DateFormulaMonth, RandomDate2));
         CostBudgetEntry.FilterGroup := 26;
@@ -1634,7 +1634,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
         Evaluate(DateFormulaYear, '<1Y>');
-        RandomDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate(DateFormulaYear, WorkDate));
+        RandomDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate(DateFormulaYear, WorkDate()));
         Assert.AreEqual(
           RandomDate, CostBudgetEntry.GetFirstDate(Format(RandomDate)),
           StrSubstNo(ExpectedValueIsDifferentError, CostBudgetEntry.FieldName(Date)));
@@ -1663,7 +1663,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, true);
         CostBudgetRegister.FindLast();
 
-        Assert.AreEqual(CostBudgetRegister."No.", CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption))
+        Assert.AreEqual(CostBudgetRegister."No.", CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption()))
     end;
 
     [Test]
@@ -1685,8 +1685,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, true);
         CostBudgetRegister.FindLast();
 
-        Assert.AreEqual(CostBudgetRegister."No.", CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption));
-        Assert.AreNotEqual(OldBudgetRegisterNo, CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption))
+        Assert.AreEqual(CostBudgetRegister."No.", CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption()));
+        Assert.AreNotEqual(OldBudgetRegisterNo, CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption()))
     end;
 
     [Test]
@@ -1703,7 +1703,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             CostBudgetEntry."Entry No." := 0;
             CostBudgetEntry.Insert(true);
             Assert.AreEqual(
-              i, CostBudgetEntry."Entry No.", StrSubstNo(Text000, CostBudgetEntry.FieldCaption("Entry No."), CostBudgetEntry.TableCaption, i))
+              i, CostBudgetEntry."Entry No.", StrSubstNo(Text000, CostBudgetEntry.FieldCaption("Entry No."), CostBudgetEntry.TableCaption(), i))
         end
     end;
 
@@ -1747,7 +1747,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Assert.AreEqual(
           NewEntryAmount, CostBudgetRegister.Amount,
           StrSubstNo(
-            Text000, CostBudgetRegister.FieldCaption(Amount), CostBudgetRegister.TableCaption, PrevBudgetRegisterTotal + NewEntryAmount));
+            Text000, CostBudgetRegister.FieldCaption(Amount), CostBudgetRegister.TableCaption(), PrevBudgetRegisterTotal + NewEntryAmount));
     end;
 
     [Test]
@@ -1772,7 +1772,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Assert.AreEqual(
           -NewEntryAmount, CostBudgetRegister.Amount,
           StrSubstNo(
-            Text000, CostBudgetRegister.FieldCaption(Amount), CostBudgetRegister.TableCaption, PrevBudgetRegisterTotal + NewEntryAmount));
+            Text000, CostBudgetRegister.FieldCaption(Amount), CostBudgetRegister.TableCaption(), PrevBudgetRegisterTotal + NewEntryAmount));
     end;
 
     [Test]
@@ -1806,18 +1806,18 @@ codeunit 134819 "ERM Cost Accounting - Tables"
           CostBudgetEntry, 0, CostBudgetName.Name,
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Center Code"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Cost Center Code")), '', 0, true);
-        Assert.IsTrue(CostBudgetRegister.Get(CostBudgetEntry.GetCostBudgetRegNo), StrSubstNo(Text012, CostBudgetRegister.TableCaption));
+        Assert.IsTrue(CostBudgetRegister.Get(CostBudgetEntry.GetCostBudgetRegNo), StrSubstNo(Text012, CostBudgetRegister.TableCaption()));
         CostBudgetName.Delete(true);
         asserterror CostBudgetEntry.Get(CostBudgetEntry."Entry No.");
-        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetEntry.TableCaption()));
         asserterror CostBudgetRegister.Get(CostBudgetRegister."No.");
-        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetRegister.TableCaption));
+        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetRegister.TableCaption()));
         asserterror CostBudgetName.Get(CostBudgetName.Name);
-        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetName.TableCaption));
+        Assert.ExpectedError(StrSubstNo(Text012, CostBudgetName.TableCaption()));
     end;
 
     [Test]
@@ -1839,7 +1839,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetRegister.Next(-2);
         CostBudgetRegister.Validate(Closed, true);
         repeat
-            Assert.IsTrue(CostBudgetRegister.Closed, StrSubstNo(Text015, CostBudgetRegister.TableCaption))
+            Assert.IsTrue(CostBudgetRegister.Closed, StrSubstNo(Text015, CostBudgetRegister.TableCaption()))
         until CostBudgetRegister.Next(-1) = 0
     end;
 
@@ -1980,7 +1980,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         // Verify: To check that expected error occur when Totaling field value is modified for Cost Center.
         Assert.ExpectedError(
-          StrSubstNo(IncorrectLineTypeError, CostCenter."Line Type", CostCenter.TableCaption, CostCenter.FieldCaption(Code), CostCenter.Code));
+          StrSubstNo(IncorrectLineTypeError, CostCenter."Line Type", CostCenter.TableCaption(), CostCenter.FieldCaption(Code), CostCenter.Code));
     end;
 
     [Test]
@@ -1999,7 +1999,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostJournalBatch.Delete(true);
         CostJournalLine.SetRange("Journal Batch Name", CostJournalBatchName);
 
-        Assert.IsTrue(CostJournalLine.IsEmpty, StrSubstNo(ExpectedValueIsDifferentError, CostJournalBatch.TableCaption));
+        Assert.IsTrue(CostJournalLine.IsEmpty, StrSubstNo(ExpectedValueIsDifferentError, CostJournalBatch.TableCaption()));
 
         CostJournalTemplate.Delete(true);
     end;
@@ -2167,7 +2167,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             GetLastErrorText,
             StrSubstNo(
               Text016, CostCenter.FieldCaption("Line Type"), CostCenter."Line Type"::"Cost Center", CostCenter."Line Type"::"Begin-Total",
-              CostCenter.TableCaption, CostCenter.Code)), 0, GetLastErrorText);
+              CostCenter.TableCaption(), CostCenter.Code)), 0, GetLastErrorText);
     end;
 
     [Test]
@@ -2197,7 +2197,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             GetLastErrorText,
             StrSubstNo(
               Text016, CostObject.FieldCaption("Line Type"), CostObject."Line Type"::"Cost Object", CostObject."Line Type"::"Begin-Total",
-              CostObject.TableCaption, CostObject.Code)), 0, GetLastErrorText);
+              CostObject.TableCaption(), CostObject.Code)), 0, GetLastErrorText);
     end;
 
     [Test]
@@ -2378,7 +2378,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostJournalBatch.Modify(true);
 
         LibraryCostAccounting.CreateCostJournalLineBasic(
-          CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate, CostType."No.", BalCostType."No.");
+          CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate(), CostType."No.", BalCostType."No.");
 
         CostJournalLine.TestField("Reason Code", CostJournalBatch."Reason Code");
 
@@ -2418,7 +2418,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostJournalTemplate.Delete(true);
         CostJournalBatch.SetRange("Journal Template Name", CostJournalTemplate.Name);
 
-        Assert.IsTrue(CostJournalBatch.IsEmpty, StrSubstNo(ExpectedValueIsDifferentError, CostJournalBatch.TableCaption));
+        Assert.IsTrue(CostJournalBatch.IsEmpty, StrSubstNo(ExpectedValueIsDifferentError, CostJournalBatch.TableCaption()));
     end;
 
     [Test]
@@ -2550,7 +2550,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
 
         // Verify: To check that expected error occur when Totaling field value is modified for Cost Object.
         Assert.ExpectedError(
-          StrSubstNo(IncorrectLineTypeError, CostObject."Line Type", CostObject.TableCaption, CostObject.FieldCaption(Code), CostObject.Code));
+          StrSubstNo(IncorrectLineTypeError, CostObject."Line Type", CostObject.TableCaption(), CostObject.FieldCaption(Code), CostObject.Code));
     end;
 
     [Test]
@@ -2853,7 +2853,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         LibraryCostAccounting.CreateCostJournalTemplate(CostJournalTemplate);
         LibraryCostAccounting.CreateCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
         LibraryCostAccounting.CreateCostJournalLineBasic(
-          CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate, CostType."No.", BalCostType."No.");
+          CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate(), CostType."No.", BalCostType."No.");
     end;
 
     local procedure CreateCostObject(): Code[20]
@@ -2920,14 +2920,14 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         LibraryCostAccounting.FindGLAccLinkedToCostType(GLAccount);
         with GLEntry do begin
             if FindLast() then
-                Init;
+                Init();
             "Entry No." += 1;
             "G/L Account No." := GLAccount."No.";
             "Dimension Set ID" := DimSetID;
             "Document No." := GLAccount."No."; // Document No just needs to have a value, so it can be the same as G/L Account No.
             Amount := LibraryRandom.RandDec(100, 2);
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -2949,7 +2949,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         with CostBudgetEntry do begin
             if EntryNo = 0 then begin
                 if FindLast() then
-                    Init;
+                    Init();
                 "Entry No." += 1;
             end;
             "Budget Name" := BudgetName;
@@ -2969,7 +2969,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             MaxStrLen(CostBudgetEntry."Budget Name")),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Center Code"), DATABASE::"Cost Budget Entry"), 1,
             MaxStrLen(CostBudgetEntry."Cost Center Code")), '', LibraryRandom.RandInt(1000))
@@ -2983,7 +2983,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
             MaxStrLen(CostBudgetEntry."Budget Name")),
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
-            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate,
+            MaxStrLen(CostBudgetEntry."Cost Type No.")), WorkDate(),
           '',
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Object Code"), DATABASE::"Cost Budget Entry"), 1,

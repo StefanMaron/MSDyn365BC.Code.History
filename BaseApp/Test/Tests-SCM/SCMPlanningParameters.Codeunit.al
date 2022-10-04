@@ -1230,7 +1230,7 @@ codeunit 137022 "SCM Planning Parameters"
         Assert.AreEqual(StartingDate + 1, RequisitionLine."Due Date",
           'Unexpected Due Date on Requistion Line');
 
-        RequisitionLine.Next;
+        RequisitionLine.Next();
     end;
 
     local procedure ValidatePlanningLineCount(var RequisitionLine: Record "Requisition Line"; Item: Record Item; "Count": Integer)
@@ -1255,7 +1255,7 @@ codeunit 137022 "SCM Planning Parameters"
         Assert.AreEqual(Source, UntrackedPlanningElement.Source,
           'Unexpected Source text on Planning Line');
 
-        UntrackedPlanningElement.Next;
+        UntrackedPlanningElement.Next();
     end;
 
     local procedure ValidateTrackingLineCount(var UntrackedPlanningElement: Record "Untracked Planning Element"; Item: Record Item; RequisitionLineNo: Integer; "Count": Integer)
@@ -1272,7 +1272,7 @@ codeunit 137022 "SCM Planning Parameters"
 
     local procedure StartingDate(): Date
     begin
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     local procedure EndingDate(): Date

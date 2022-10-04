@@ -255,9 +255,9 @@ report 5186 "Remove Contacts"
     trigger OnPostReport()
     begin
         if EntireCompanies then
-            AddPeople;
+            AddPeople();
 
-        UpdateSegLines;
+        UpdateSegLines();
     end;
 
     trigger OnPreReport()
@@ -302,11 +302,9 @@ report 5186 "Remove Contacts"
         Cont: Record Contact;
         SegLine: Record "Segment Line";
         SegmentHistoryMgt: Codeunit SegHistoryManagement;
-        SegCriteriaManagement: Codeunit SegCriteriaManagement;
         Window: Dialog;
         MainReportNo: Integer;
         ItemFilters: Boolean;
-        ContactOK: Boolean;
         EntireCompanies: Boolean;
         SkipItemLedgerEntry: Boolean;
         NoOfRecords: Integer;
@@ -315,6 +313,10 @@ report 5186 "Remove Contacts"
         NewDateTime: DateTime;
         OldProgress: Integer;
         NewProgress: Integer;
+
+    protected var
+        SegCriteriaManagement: Codeunit SegCriteriaManagement;
+        ContactOK: Boolean;
 
     procedure SetOptions(CalledFromReportNo: Integer; OptionEntireCompanies: Boolean)
     begin

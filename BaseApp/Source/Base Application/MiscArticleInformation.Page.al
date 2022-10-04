@@ -12,13 +12,13 @@ page 5219 "Misc. Article Information"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a number for the employee.';
                     Visible = false;
                 }
-                field("Misc. Article Code"; "Misc. Article Code")
+                field("Misc. Article Code"; Rec."Misc. Article Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a code to define the type of miscellaneous article.';
@@ -28,22 +28,22 @@ page 5219 "Misc. Article Information"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description of the miscellaneous article.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the miscellaneous article.';
                 }
-                field("From Date"; "From Date")
+                field("From Date"; Rec."From Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee first received the miscellaneous article.';
                 }
-                field("To Date"; "To Date")
+                field("To Date"; Rec."To Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee no longer possesses the miscellaneous article.';
                 }
-                field("In Use"; "In Use")
+                field("In Use"; Rec."In Use")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies that the miscellaneous article is in use.';

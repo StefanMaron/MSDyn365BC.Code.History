@@ -14,7 +14,7 @@ page 594 "Change Log Setup (Field) List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No.';
@@ -22,7 +22,7 @@ page 594 "Change Log Setup (Field) List"
                     Lookup = false;
                     ToolTip = 'Specifies the number of the field.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Caption';
@@ -45,7 +45,7 @@ page 594 "Change Log Setup (Field) List"
                             LogInsertionVisible := false;
                             Error(CannotChangeColumnErr);
                         end;
-                        UpdateRec;
+                        UpdateRec();
                     end;
                 }
                 field("Log Modification"; LogMod)
@@ -63,7 +63,7 @@ page 594 "Change Log Setup (Field) List"
                             LogModificationVisible := false;
                             Error(CannotChangeColumnErr);
                         end;
-                        UpdateRec;
+                        UpdateRec();
                     end;
                 }
                 field("Log Deletion"; LogDel)
@@ -81,7 +81,7 @@ page 594 "Change Log Setup (Field) List"
                             LogDeletionVisible := false;
                             Error(CannotChangeColumnErr);
                         end;
-                        UpdateRec;
+                        UpdateRec();
                     end;
                 }
             }
@@ -108,14 +108,14 @@ page 594 "Change Log Setup (Field) List"
     trigger OnAfterGetCurrRecord()
     begin
         PageIsEditable := CurrPage.Editable();
-        GetRec;
-        TransFromRec;
+        GetRec();
+        TransFromRec();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        GetRec;
-        TransFromRec;
+        GetRec();
+        TransFromRec();
     end;
 
     trigger OnInit()
@@ -171,14 +171,14 @@ page 594 "Change Log Setup (Field) List"
         if IsHandled then
             exit;
 
-        GetRec;
-        TransToRec;
+        GetRec();
+        TransToRec();
         with ChangeLogSetupField do
             if not ("Log Insertion" or "Log Modification" or "Log Deletion") then begin
-                if Delete then;
+                if Delete() then;
             end else
-                if not Modify then
-                    Insert;
+                if not Modify() then
+                    Insert();
     end;
 
     local procedure GetRec()

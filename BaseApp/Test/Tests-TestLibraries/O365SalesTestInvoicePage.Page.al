@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 138900 "O365 Sales Test Invoice Page"
 {
 
@@ -29,4 +30,4 @@ page 138900 "O365 Sales Test Invoice Page"
         }
     }
 }
-
+#endif

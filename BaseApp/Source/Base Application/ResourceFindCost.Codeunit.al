@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 220 "Resource-Find Cost"
 {
     TableNo = "Resource Cost";
@@ -58,7 +58,7 @@ codeunit 220 "Resource-Find Cost"
                 exit;
             if Get(Type::All, '', "Work Type Code") then
                 exit;
-            Init;
+            Init();
             Code := Res."No.";
             "Direct Unit Cost" := Res."Direct Unit Cost";
             "Unit Cost" := Res."Unit Cost";

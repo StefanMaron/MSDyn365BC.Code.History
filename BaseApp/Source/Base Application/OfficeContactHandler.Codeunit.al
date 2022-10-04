@@ -44,12 +44,12 @@ codeunit 1636 "Office Contact Handler"
 
         with TempOfficeContactDetails do begin
             if (Count() > 1) and (TempOfficeAddinContext.Command <> '') then
-                SetRange("Associated Table", TempOfficeAddinContext.CommandType);
+                SetRange("Associated Table", TempOfficeAddinContext.CommandType());
 
             if Count() = 1 then begin
                 OfficeMgt.ChangeCompany(Company);
                 FindFirst();
-                ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", GetContactNo);
+                ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", GetContactNo());
                 exit;
             end;
 
@@ -57,15 +57,14 @@ codeunit 1636 "Office Contact Handler"
             if Count() = 1 then begin
                 OfficeMgt.ChangeCompany(Company);
                 FindFirst();
-                ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", GetContactNo);
+                ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", GetContactNo());
                 exit;
             end;
 
             SetRange(Type);
             SetRange("Associated Table");
-            if Count() > 1 then begin
+            if Count() > 1 then
                 Page.Run(Page::"Office Contact Associations", TempOfficeContactDetails);
-            end;
         end;
     end;
 
@@ -102,7 +101,7 @@ codeunit 1636 "Office Contact Handler"
         case AssociatedTable of
             OfficeContactDetails."Associated Table"::Customer:
                 begin
-                    if TempOfficeAddinContext.CommandType = OfficeContactDetails."Associated Table"::Vendor then
+                    if TempOfficeAddinContext.CommandType() = OfficeContactDetails."Associated Table"::Vendor then
                         Page.Run(Page::"Office No Vendor Dlg", Contact)
                     else
                         if Customer.Get(LinkNo) then
@@ -111,7 +110,7 @@ codeunit 1636 "Office Contact Handler"
                 end;
             OfficeContactDetails."Associated Table"::Vendor:
                 begin
-                    if TempOfficeAddinContext.CommandType = OfficeContactDetails."Associated Table"::Customer then
+                    if TempOfficeAddinContext.CommandType() = OfficeContactDetails."Associated Table"::Customer then
                         Page.Run(Page::"Office No Customer Dlg", Contact)
                     else
                         if Vendor.Get(LinkNo) then
@@ -119,11 +118,11 @@ codeunit 1636 "Office Contact Handler"
                     exit;
                 end;
             else
-                if TempOfficeAddinContext.CommandType = OfficeContactDetails."Associated Table"::Customer then begin
+                if TempOfficeAddinContext.CommandType() = OfficeContactDetails."Associated Table"::Customer then begin
                     Page.Run(Page::"Office No Customer Dlg", Contact);
                     exit;
                 end;
-                if TempOfficeAddinContext.CommandType = OfficeContactDetails."Associated Table"::Vendor then begin
+                if TempOfficeAddinContext.CommandType() = OfficeContactDetails."Associated Table"::Vendor then begin
                     Page.Run(Page::"Office No Vendor Dlg", Contact);
                     exit;
                 end;
@@ -136,7 +135,7 @@ codeunit 1636 "Office Contact Handler"
     local procedure CollectMultipleContacts(var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var TempOfficeContactDetails: Record "Office Contact Details" temporary; TempOfficeAddinContext: Record "Office Add-in Context" temporary; ContactCompany: Text[50])
     begin
         FilterContactBusinessRelations(Contact, ContactBusinessRelation);
-        if TempOfficeAddinContext.IsAppointment then
+        if TempOfficeAddinContext.IsAppointment() then
             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         if ContactBusinessRelation.FindSet() then
             repeat
@@ -150,9 +149,9 @@ codeunit 1636 "Office Contact Handler"
                         Company := ContactCompany;
                         Type := Contact.Type;
                         "Business Relation Description" := ContactBusinessRelation."Business Relation Description";
-                        if ContactBusinessRelation."Link to Table".AsInteger() = TempOfficeAddinContext.CommandType then begin
+                        if ContactBusinessRelation."Link to Table".AsInteger() = TempOfficeAddinContext.CommandType() then begin
                             "Contact No." := Contact."No.";
-                            "Associated Table" := TempOfficeAddinContext.CommandType;
+                            "Associated Table" := TempOfficeAddinContext.CommandType();
                         end;
                         Insert();
                     end;
@@ -211,8 +210,8 @@ codeunit 1636 "Office Contact Handler"
         with ContactBusinessRelation do
             case true of
                 OfficeAddinContext.Command <> '':
-                    SetRange("Link to Table", OfficeAddinContext.CommandType);
-                OfficeAddinContext.IsAppointment:
+                    SetRange("Link to Table", OfficeAddinContext.CommandType());
+                OfficeAddinContext.IsAppointment():
                     SetRange("Link to Table", "Link to Table"::Customer);
                 else
                     exit;

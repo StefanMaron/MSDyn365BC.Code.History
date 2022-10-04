@@ -9,14 +9,15 @@ codeunit 429 "IC Dimension Value-Indent"
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ICDimValueIndentQst, "Dimension Code"), true) then
             exit;
         ICDimVal.SetRange("Dimension Code", "Dimension Code");
-        Indent;
+        Indent();
     end;
 
     var
-        Text004: Label 'Indenting IC Dimension Values @1@@@@@@@@@@@@@@@@@@';
         ICDimVal: Record "IC Dimension Value";
         Window: Dialog;
         i: Integer;
+
+        Text004: Label 'Indenting IC Dimension Values @1@@@@@@@@@@@@@@@@@@';
         Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
         ICDimValueIndentQst: Label 'This function updates the indentation of all the IC dimension values for IC dimension %1. All IC dimension values between a Begin-Total and the matching End-Total are indented by one level. The Totaling field for each End-Total is also updated.\\Do you want to indent the IC dimension values?', Comment = '%1 - field value';
 
@@ -44,13 +45,13 @@ codeunit 429 "IC Dimension Value-Indent"
                     end;
 
                     Indentation := i;
-                    Modify;
+                    Modify();
 
                     if "Dimension Value Type" = "Dimension Value Type"::"Begin-Total" then
                         i += 1;
                 until Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 }
 

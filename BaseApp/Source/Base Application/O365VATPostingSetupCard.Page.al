@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2145 "O365 VAT Posting Setup Card"
 {
     Caption = 'VAT Rate';
@@ -5,6 +6,9 @@ page 2145 "O365 VAT Posting Setup Card"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "VAT Product Posting Group";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,25 +16,25 @@ page 2145 "O365 VAT Posting Setup Card"
         {
             field(Description; Description)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 NotBlank = true;
             }
             field("VAT Percentage"; VATPercentage)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'VAT Percentage';
                 MinValue = 0;
                 ToolTip = 'Specifies the relevant VAT rate as a percentage (%). For example, if the VAT rate is 25%, enter 25 in this field.';
             }
             field("VAT Regulation Reference"; VATRegulationReference)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'VAT Regulation Reference';
                 ToolTip = 'Specifies the VAT Regulation Reference for the VAT rate. VAT Regulation Reference describe the VAT that is being reported on a sales document, and are displayed on printed documents alongside the VAT identifier and VAT rate.';
             }
             field(DefaultVATGroupTxt; DefaultVATGroupTxt)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 Enabled = NOT DefaultGroup;
                 ShowCaption = false;
@@ -54,11 +58,11 @@ page 2145 "O365 VAT Posting Setup Card"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if not VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup, Code) then
+        if not VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup(), Code) then
             exit;
 
         VATPercentage := VATPostingSetup."VAT %";
-        DefaultGroup := Code = O365TemplateManagement.GetDefaultVATProdPostingGroup;
+        DefaultGroup := Code = O365TemplateManagement.GetDefaultVATProdPostingGroup();
 
         // VAT Regulation Reference = Vat clause
         if not VATClause.Get(VATPostingSetup."VAT Clause Code") then begin
@@ -77,8 +81,8 @@ page 2145 "O365 VAT Posting Setup Card"
 
     trigger OnClosePage()
     begin
-        UpdateVATClause;
-        UpdateVATPercentage;
+        UpdateVATClause();
+        UpdateVATPercentage();
     end;
 
     var
@@ -117,4 +121,4 @@ page 2145 "O365 VAT Posting Setup Card"
             until SalesLine.Next() = 0;
     end;
 }
-
+#endif

@@ -18,7 +18,7 @@ codeunit 132473 "Payroll Service Extension Mock"
             repeat
                 TempServiceConnection.Copy(TempAvailableServiceConnection);
                 TempServiceConnection.Insert(true);
-            until TempAvailableServiceConnection.Next = 0;
+            until TempAvailableServiceConnection.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Payroll Management", 'OnImportPayroll', '', false, false)]
@@ -32,7 +32,7 @@ codeunit 132473 "Payroll Service Extension Mock"
                 GenJournalLine.TransferFields(TempNewGenJournalLine);
                 GenJournalLine."Line No." := GetGenJournalNewLineNo(TempNewGenJournalLine);
                 GenJournalLine.Insert();
-            until TempNewGenJournalLine.Next = 0;
+            until TempNewGenJournalLine.Next() = 0;
     end;
 
     procedure SetAvailableServiceConnections(var TempSetupAvailableServiceConnection: Record "Service Connection" temporary)
@@ -44,7 +44,7 @@ codeunit 132473 "Payroll Service Extension Mock"
             repeat
                 TempAvailableServiceConnection.Copy(TempSetupAvailableServiceConnection);
                 TempAvailableServiceConnection.Insert();
-            until TempSetupAvailableServiceConnection.Next = 0;
+            until TempSetupAvailableServiceConnection.Next() = 0;
     end;
 
     procedure SetNewGenJournalLine(var TempSetupGenJournalLine: Record "Gen. Journal Line" temporary)
@@ -56,7 +56,7 @@ codeunit 132473 "Payroll Service Extension Mock"
             repeat
                 TempNewGenJournalLine.Copy(TempSetupGenJournalLine);
                 TempNewGenJournalLine.Insert();
-            until TempSetupGenJournalLine.Next = 0;
+            until TempSetupGenJournalLine.Next() = 0;
     end;
 
     procedure GetAvailableServiceConnections(var TempSetupAvailableServiceConnection: Record "Service Connection" temporary)
@@ -66,7 +66,7 @@ codeunit 132473 "Payroll Service Extension Mock"
             repeat
                 TempSetupAvailableServiceConnection.Copy(TempAvailableServiceConnection);
                 TempSetupAvailableServiceConnection.Insert();
-            until TempAvailableServiceConnection.Next = 0;
+            until TempAvailableServiceConnection.Next() = 0;
     end;
 
     local procedure GetGenJournalNewLineNo(var GenJournalLine: Record "Gen. Journal Line"): Integer

@@ -12,7 +12,7 @@ page 791 "G/L Accounts ListPart"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -22,7 +22,7 @@ page 791 "G/L Accounts ListPart"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies is the general ledger account is an income statement account or a balance sheet account.';

@@ -8,7 +8,6 @@ page 5343 "CRM Opportunity List"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Dynamics 365 Sales';
     SourceTable = "CRM Opportunity";
     SourceTableView = SORTING(Name);
     UsageCategory = Lists;
@@ -112,8 +111,6 @@ page 5343 "CRM Opportunity List"
                     ApplicationArea = Suite;
                     Caption = 'Opportunity';
                     Image = CoupledOpportunity;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Specifies the sales opportunity that is coupled to this Dynamics 365 Sales opportunity.';
 
                     trigger OnAction()
@@ -132,8 +129,6 @@ page 5343 "CRM Opportunity List"
                 ApplicationArea = Suite;
                 Caption = 'Create in Business Central';
                 Image = NewOpportunity;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Generate an opportunity from the coupled Dynamics 365 Sales opportunity.';
 
                 trigger OnAction()
@@ -150,8 +145,6 @@ page 5343 "CRM Opportunity List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Opportunities';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled opportunities.';
 
                 trigger OnAction()
@@ -164,14 +157,41 @@ page 5343 "CRM Opportunity List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Opportunities';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled opportunities.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreateFromCRM_Promoted; CreateFromCRM)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Dynamics 365 Sales', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CRMGotoOpportunities_Promoted; CRMGotoOpportunities)
+                {
+                }
             }
         }
     }

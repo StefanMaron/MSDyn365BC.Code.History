@@ -8,7 +8,7 @@ codeunit 1277 "Exp. External Data Gen. Jnl."
         TempBlob: Codeunit "Temp Blob";
     begin
         CalcFields("File Content");
-        if not "File Content".HasValue then
+        if not "File Content".HasValue() then
             Error(ExternalContentErr, FieldCaption("File Content"));
 
         TempBlob.FromRecord(Rec, FieldNo("File Content"));

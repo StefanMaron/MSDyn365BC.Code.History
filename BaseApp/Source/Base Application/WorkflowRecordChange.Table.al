@@ -75,11 +75,11 @@ table 1525 "Workflow - Record Change"
 
     procedure FormatValue(Value: Text; FormatOptionString: Boolean): Text
     var
+        DateFormula: DateFormula;
         RecRef: RecordRef;
         FieldRef: FieldRef;
         Bool: Boolean;
         Date: Date;
-        DateFormula: DateFormula;
         DateTime: DateTime;
         Decimal: Decimal;
         Duration: Duration;

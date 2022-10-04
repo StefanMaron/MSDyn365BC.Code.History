@@ -17,7 +17,7 @@ report 189 "Suggest Reminder Lines"
                 Clear(MakeReminder);
                 MakeReminder.SuggestLines("Reminder Header", CustLedgEntry, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn);
                 if NoOfRecords = 1 then begin
-                    MakeReminder.Code;
+                    MakeReminder.Code();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -29,7 +29,7 @@ report 189 "Suggest Reminder Lines"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Mark := not MakeReminder.Code;
+                    Mark := not MakeReminder.Code();
                 end;
             end;
 
@@ -38,7 +38,7 @@ report 189 "Suggest Reminder Lines"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 Commit();
-                Window.Close;
+                Window.Close();
                 MarkedOnly := true;
                 if FindFirst() then
                     if ConfirmManagement.GetResponse(Text002, true) then
@@ -122,9 +122,6 @@ report 189 "Suggest Reminder Lines"
     end;
 
     var
-        Text000: Label 'Suggesting lines...';
-        Text001: Label 'Suggesting lines @1@@@@@@@@@@@@@';
-        Text002: Label 'It was not possible to process some of the selected reminders.\Do you want to see these reminders?';
         CustLedgEntry: Record "Cust. Ledger Entry";
         MakeReminder: Codeunit "Reminder-Make";
         Window: Dialog;
@@ -136,5 +133,9 @@ report 189 "Suggest Reminder Lines"
         OldDateTime: DateTime;
         OverdueEntriesOnly: Boolean;
         IncludeEntriesOnHold: Boolean;
+
+        Text000: Label 'Suggesting lines...';
+        Text001: Label 'Suggesting lines @1@@@@@@@@@@@@@';
+        Text002: Label 'It was not possible to process some of the selected reminders.\Do you want to see these reminders?';
 }
 

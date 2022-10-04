@@ -123,7 +123,7 @@ table 5338 "Integration Synch. Job"
         IntegrationSynchJob.SetRange(Failed);
         if IntegrationSynchJob.FindSet() then
             repeat
-                if IntegrationSynchJob.CanBeRemoved then
+                if IntegrationSynchJob.CanBeRemoved() then
                     IntegrationSynchJob.Delete(true);
             until IntegrationSynchJob.Next() = 0;
     end;
@@ -138,7 +138,7 @@ table 5338 "Integration Synch. Job"
             IntegrationSynchJobErrors.SetRange("Destination Record ID", RecID)
         else
             IntegrationSynchJobErrors.SetRange("Source Record ID", RecID);
-        exit(IntegrationSynchJobErrors.FindLast);
+        exit(IntegrationSynchJobErrors.FindLast());
     end;
 
     [Obsolete('Replaced by AreSomeRecordsFailed procedure', '18.0')]
@@ -157,7 +157,7 @@ table 5338 "Integration Synch. Job"
 
     procedure HaveJobsBeenIdle(JobQueueLogEntryNo: Integer): Boolean
     begin
-        Reset;
+        Reset();
         SetRange("Job Queue Log Entry No.", JobQueueLogEntryNo);
         if not IsEmpty() then begin
             CalcSums(Inserted, Modified, Deleted, Failed);

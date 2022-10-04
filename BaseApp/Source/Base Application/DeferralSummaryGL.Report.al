@@ -12,7 +12,7 @@ report 1700 "Deferral Summary - G/L"
         {
             DataItemTableView = SORTING("Deferral Doc. Type", "Account No.", "Posting Date", "Gen. Jnl. Document No.", "Document Type", "Document No.", "Line No.") ORDER(Ascending) WHERE("Deferral Doc. Type" = CONST("G/L"));
             RequestFilterFields = "Account No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PageGroupNo; PageGroupNo)
@@ -182,7 +182,7 @@ report 1700 "Deferral Summary - G/L"
         trigger OnOpenPage()
         begin
             if BalanceAsOfDateFilter = 0D then
-                BalanceAsOfDateFilter := WorkDate;
+                BalanceAsOfDateFilter := WorkDate();
         end;
     }
 
@@ -201,7 +201,7 @@ report 1700 "Deferral Summary - G/L"
 
     trigger OnPreReport()
     begin
-        PostedDeferralFilter := "Posted Deferral Header".GetFilters;
+        PostedDeferralFilter := "Posted Deferral Header".GetFilters();
     end;
 
     var

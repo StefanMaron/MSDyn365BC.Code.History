@@ -9,7 +9,7 @@ page 365 "Post and Send Confirmation"
     {
         area(content)
         {
-            field(SelectedSendingProfiles; GetRecordAsText)
+            field(SelectedSendingProfiles; GetRecordAsText())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Send Document to';
@@ -29,7 +29,7 @@ page 365 "Post and Send Confirmation"
 
                     if PAGE.RunModal(PAGE::"Select Sending Options", TempDocumentSendingProfile) = ACTION::LookupOK then begin
                         Copy(TempDocumentSendingProfile);
-                        UpdatePromptMessage;
+                        UpdatePromptMessage();
                     end;
                 end;
             }
@@ -54,7 +54,7 @@ page 365 "Post and Send Confirmation"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdatePromptMessage;
+        UpdatePromptMessage();
         CurrentDocumentSendingProfileCode := Code;
     end;
 
@@ -65,7 +65,7 @@ page 365 "Post and Send Confirmation"
 
     local procedure UpdatePromptMessage()
     begin
-        if WillUserBePrompted then
+        if WillUserBePrompted() then
             ChoicesForSendingTxt := PromptsForAdditionalSettingsTxt
         else
             ChoicesForSendingTxt := '';

@@ -42,19 +42,19 @@
 
         for i := 1 to 3 do begin
             UpdateQtysInLine(PurchOrderLine, 2, 0);
-            PurchOrderHeader.Find;
+            PurchOrderHeader.Find();
             LibraryPurchase.PostPurchaseDocument(PurchOrderHeader, true, false);
             GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
         end;
 
-        PurchOrderHeader.Find;
+        PurchOrderHeader.Find();
         LibraryPurchase.PostPurchaseDocument(PurchOrderHeader, true, false);
         GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
 
         LibraryPurchase.PostPurchaseDocument(PurchInvoiceHeader, false, true);
         VerifyZeroVendorAccEntry;
 
-        PurchOrderLine.Find;
+        PurchOrderLine.Find();
         Assert.AreEqual(
           PurchOrderLine."Prepmt. Amt. Inv.",
           PurchOrderLine."Prepmt Amt Deducted", '"Prepmt Amt Deducted" should be equal to "Prepmt. Amt. Inv.".');
@@ -115,7 +115,7 @@
         LibraryPurchase.PostPurchaseDocument(PurchInvoiceHeader, false, true);
         VerifyZeroVendorAccEntry;
 
-        PurchOrderHeader.Find;
+        PurchOrderHeader.Find();
         InvoicePurchaseDoc(PurchOrderHeader);
         VerifyZeroVendorAccEntry;
     end;
@@ -165,7 +165,7 @@
         GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
 
         UpdateQtysInLine(PurchOrderLine, GetQtyToShipTFS332246(PositiveDiff), 0);
-        PurchOrderHeader.Find;
+        PurchOrderHeader.Find();
         LibraryPurchase.PostPurchaseDocument(PurchOrderHeader, true, false);
         GetReceiptLine(PurchInvoiceHeader, PurchOrderHeader."Last Receiving No.");
 
@@ -887,7 +887,7 @@
         if PurchLine.FindSet() then
             repeat
                 UpdateQtysInLine(PurchLine, GetQtyToShipTFS332246(PositiveDiff), 0);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
     end;
 
     local procedure PreparePurchOrder(var PurchHeader: Record "Purchase Header")
@@ -939,7 +939,7 @@
             Validate("Currency Code", CurrencyCode);
             Validate("Prices Including VAT", PricesInclVAT);
             Validate("Compress Prepayment", CompressPrepmt);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -963,7 +963,7 @@
 
     local procedure CreateCurrencyCodeWithExchRate(ExchRate: Decimal): Code[10]
     begin
-        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchRate, ExchRate)));
+        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate)));
     end;
 
     local procedure AddPurchOrderLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Qty: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal; DiscountPct: Decimal)
@@ -1085,7 +1085,7 @@
 
     local procedure UpdateQtysInLine(var PurchLine: Record "Purchase Line"; QtyToReceive: Decimal; QtyToInvoice: Decimal)
     begin
-        PurchLine.Find;
+        PurchLine.Find();
         PurchLine.Validate("Qty. to Receive", QtyToReceive);
         PurchLine.Validate("Qty. to Invoice", QtyToInvoice);
         PurchLine.Modify();

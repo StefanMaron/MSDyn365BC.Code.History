@@ -1,7 +1,7 @@
 page 863 "CF Entries Dim. Matrix"
 {
     Caption = 'CF Forcst. Entries Dim. Overv. M.';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -17,22 +17,22 @@ page 863 "CF Entries Dim. Matrix"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Cash Flow Date"; "Cash Flow Date")
+                field("Cash Flow Date"; Rec."Cash Flow Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cash flow date that the entry is posted to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the document that represents the forecast entry.';
                 }
-                field("Cash Flow Forecast No."; "Cash Flow Forecast No.")
+                field("Cash Flow Forecast No."; Rec."Cash Flow Forecast No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a number for the cash flow forecast.';
                 }
-                field("Cash Flow Account No."; "Cash Flow Account No.")
+                field("Cash Flow Account No."; Rec."Cash Flow Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the cash flow account that the forecast entry is posted to.';
@@ -42,12 +42,12 @@ page 863 "CF Entries Dim. Matrix"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the cash flow forecast.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of the worksheet line in LCY. Revenues are entered without a plus or minus sign. Expenses are entered with a minus sign.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -480,7 +480,7 @@ page 863 "CF Entries Dim. Matrix"
         if MATRIX_OnFindRecord('=') then begin
             MATRIX_CurrentColumnOrdinal := 1;
             repeat
-                MATRIX_OnAfterGetRecord;
+                MATRIX_OnAfterGetRecord();
                 MATRIX_Steps := MATRIX_OnNextRecord(1);
                 MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + MATRIX_Steps;
             until (MATRIX_CurrentColumnOrdinal - MATRIX_Steps = MATRIX_NoOfMatrixColumns) or (MATRIX_Steps = 0);
@@ -560,7 +560,7 @@ page 863 "CF Entries Dim. Matrix"
     trigger OnOpenPage()
     begin
         MATRIX_NoOfMatrixColumns := ArrayLen(MATRIX_CellData);
-        SetColumnVisibility;
+        SetColumnVisibility();
     end;
 
     var

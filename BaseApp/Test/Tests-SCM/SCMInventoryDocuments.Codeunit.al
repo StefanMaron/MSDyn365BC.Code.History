@@ -1090,7 +1090,7 @@ codeunit 137140 "SCM Inventory Documents"
         Item.SetRange("No.", ItemNo);
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate, LibraryUtility.GenerateGUID, CalculatePer::Item, false, false, false, 0, false);
+          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID, CalculatePer::Item, false, false, false, 0, false);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();

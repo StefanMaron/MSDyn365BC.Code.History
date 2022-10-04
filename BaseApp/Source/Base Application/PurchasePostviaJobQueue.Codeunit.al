@@ -15,7 +15,7 @@ codeunit 98 "Purchase Post via Job Queue"
         TestField("Record ID to Process");
         RecRef.Get("Record ID to Process");
         RecRef.SetTable(PurchHeader);
-        PurchHeader.Find;
+        PurchHeader.Find();
 
         BatchProcessingMgt.GetBatchFromSession("Record ID to Process", "User Session ID");
 
@@ -34,7 +34,7 @@ codeunit 98 "Purchase Post via Job Queue"
             BatchPostingPrintMgt.PrintPurchaseDocument(RecRefToPrint);
         end;
         if not AreOtherJobQueueEntriesScheduled(Rec) then
-            BatchProcessingMgt.ResetBatchID;
+            BatchProcessingMgt.ResetBatchID();
         BatchProcessingMgt.DeleteBatchProcessingSessionMapForRecordId(PurchHeader.RecordId);
         SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::" ", Rec);
     end;
@@ -51,7 +51,7 @@ codeunit 98 "Purchase Post via Job Queue"
     begin
         OnBeforeSetJobQueueStatus(PurchHeader, NewStatus, JobQueueEntry);
         PurchHeader.LockTable();
-        if PurchHeader.Find then begin
+        if PurchHeader.Find() then begin
             PurchHeader."Job Queue Status" := NewStatus;
             PurchHeader.Modify();
             Commit();
@@ -88,7 +88,7 @@ codeunit 98 "Purchase Post via Job Queue"
             Ship := TempShip;
             "Job Queue Status" := "Job Queue Status"::"Scheduled for Posting";
             "Job Queue Entry ID" := EnqueueJobEntry(PurchHeader);
-            Modify;
+            Modify();
 
             if GuiAllowed then
                 if WithUI then
@@ -107,7 +107,7 @@ codeunit 98 "Purchase Post via Job Queue"
             "Record ID to Process" := PurchHeader.RecordId;
             FillJobEntryFromPurchSetup(JobQueueEntry);
             FillJobEntryPurchDescription(JobQueueEntry, PurchHeader);
-            "User Session ID" := SessionId;
+            "User Session ID" := SessionId();
             OnEnqueueJobEntryOnBeforeRunJobQueueEnqueue(PurchHeader, JobQueueEntry);
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
             exit(ID);
@@ -143,7 +143,7 @@ codeunit 98 "Purchase Post via Job Queue"
             if "Job Queue Status" <> "Job Queue Status"::" " then begin
                 DeleteJobs(PurchHeader);
                 "Job Queue Status" := "Job Queue Status"::" ";
-                Modify;
+                Modify();
             end;
     end;
 
@@ -173,7 +173,7 @@ codeunit 98 "Purchase Post via Job Queue"
             Status, '%1|%2|%3|%4',
             JobQueueEntry.Status::"In Process", JobQueueEntry.Status::"On Hold",
             JobQueueEntry.Status::"On Hold with Inactivity Timeout", JobQueueEntry.Status::Ready);
-        result := not JobQueueEntryFilter.IsEmpty;
+        result := not JobQueueEntryFilter.IsEmpty();
 
         exit(result);
     end;

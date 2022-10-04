@@ -75,11 +75,11 @@ report 9000 "Add/Subtract Permission Set"
 
                     trigger OnAssistEdit()
                     var
-                        PermissionSetList: Page "Permission Set List";
                         SelectionFilterManagement: Codeunit SelectionFilterManagement;
+                        PermissionSetList: Page "Permission Set List";
                     begin
                         PermissionSetList.LookupMode := true;
-                        if PermissionSetList.RunModal = ACTION::LookupOK then begin
+                        if PermissionSetList.RunModal() = ACTION::LookupOK then begin
                             PermissionSetList.GetSelectionFilter(DummySourceAggregatePermissionSet);
                             SelectedRoleIdFilter := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(DummySourceAggregatePermissionSet);
                         end;

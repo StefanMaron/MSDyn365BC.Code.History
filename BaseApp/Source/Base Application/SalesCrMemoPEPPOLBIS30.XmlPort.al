@@ -2013,7 +2013,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                 if not FindNextCreditMemoRec(CrMemoHeaderLoop.Number) then
                     currXMLport.Break();
 
-                GetTotals;
+                GetTotals();
 
                 PEPPOLMgt.GetGeneralInfoBIS(
                   SalesHeader,
@@ -2025,8 +2025,8 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                   DocumentCurrencyCode,
                   AccountingCost);
 
-                CustomizationID := GetCustomizationID;
-                ProfileID := GetProfileID;
+                CustomizationID := GetCustomizationID();
+                ProfileID := GetProfileID();
             end;
         }
     }
@@ -2122,7 +2122,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
     begin
         if Position = 1 then
             exit(VATAmtLine.Find('-'));
-        exit(VATAmtLine.Next <> 0);
+        exit(VATAmtLine.Next() <> 0);
     end;
 
     procedure Initialize(DocVariant: Variant)
@@ -2136,7 +2136,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     RecRef.SetTable(SalesCrMemoHeader);
                     if SalesCrMemoHeader."No." = '' then
                         Error(SpecifyASalesCreditMemoNoErr);
-                    SalesCrMemoHeader.SetRecFilter;
+                    SalesCrMemoHeader.SetRecFilter();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
                     SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
 
@@ -2147,7 +2147,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     RecRef.SetTable(ServiceCrMemoHeader);
                     if ServiceCrMemoHeader."No." = '' then
                         Error(SpecifyAServCreditMemoNoErr);
-                    ServiceCrMemoHeader.SetRecFilter;
+                    ServiceCrMemoHeader.SetRecFilter();
                     ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
                     ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
 

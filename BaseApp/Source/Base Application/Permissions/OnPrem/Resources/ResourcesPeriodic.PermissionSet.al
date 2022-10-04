@@ -21,7 +21,7 @@ permissionset 9338 "Resources - Periodic"
                   tabledata "Res. Ledger Entry" = Rid,
                   tabledata Resource = RM,
                   tabledata "Resource Group" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Price" = RIMD,
                   tabledata "Resource Price Change" = RIMD,
 #endif

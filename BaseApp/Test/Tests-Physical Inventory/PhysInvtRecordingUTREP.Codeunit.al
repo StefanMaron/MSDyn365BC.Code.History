@@ -67,7 +67,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         repeat
             LibraryReportDataset.AssertElementWithValueExists(
               'Phys__Invt__Recording_Header_Order_No_', PhysInvtRecordHeader."Order No.");
-        until PhysInvtRecordHeader.Next = 0;
+        until PhysInvtRecordHeader.Next() = 0;
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         repeat
             LibraryReportDataset.AssertElementWithValueExists(
               'Posted_Phys__Invt__Rec__Header___Order_No__', PstdPhysInvtRecordHdr."Order No.");
-        until PstdPhysInvtRecordHdr.Next = 0;
+        until PstdPhysInvtRecordHdr.Next() = 0;
     end;
 
     local procedure Initialize()

@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2183 "O365 Sales Invoice Line Dummy"
 {
     Caption = 'Invoice Line';
@@ -5,6 +6,9 @@ page 2183 "O365 Sales Invoice Line Dummy"
     PageType = ListPart;
     RefreshOnActivate = true;
     SourceTable = "Sales Line";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +18,7 @@ page 2183 "O365 Sales Invoice Line Dummy"
             {
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     LookupPageID = "O365 Sales Item Lookup";
                     ShowCaption = false;
                     ToolTip = 'Specifies a description of the item or service on the line.';
@@ -29,31 +33,31 @@ page 2183 "O365 Sales Invoice Line Dummy"
                         Rec.SaveLookupSelection(Selected);
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount';
                     Editable = false;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field("Price description"; "Price description")
+                field("Price description"; Rec."Price description")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field(LineAmountExclVAT; GetLineAmountExclVAT)
+                field(LineAmountExclVAT; GetLineAmountExclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount';
                     Editable = false;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT)
+                field(LineAmountInclVAT; GetLineAmountInclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount Incl. VAT';
@@ -70,7 +74,7 @@ page 2183 "O365 Sales Invoice Line Dummy"
         {
             action(AllItems)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Add multiple';
                 Ellipsis = true;
                 Image = List;
@@ -81,12 +85,12 @@ page 2183 "O365 Sales Invoice Line Dummy"
 
                 trigger OnAction()
                 begin
-                    SelectFromFullItemList;
+                    SelectFromFullItemList();
                 end;
             }
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete Line';
                 Gesture = RightSwipe;
                 Image = Delete;
@@ -105,13 +109,13 @@ page 2183 "O365 Sales Invoice Line Dummy"
                     if not Confirm(DeleteQst, true) then
                         exit;
                     Delete(true);
-                    if not EnvInfoProxy.IsInvoicing then
+                    if not EnvInfoProxy.IsInvoicing() then
                         CurrPage.Update();
                 end;
             }
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 RunObject = Page "O365 Sales Invoice Line Card";
@@ -126,13 +130,13 @@ page 2183 "O365 Sales Invoice Line Dummy"
 
     trigger OnAfterGetRecord()
     begin
-        ConstructCurrencyFormatString;
+        ConstructCurrencyFormatString();
     end;
 
     trigger OnInit()
     begin
-        Currency.InitRoundingPrecision;
-        ConstructCurrencyFormatString;
+        Currency.InitRoundingPrecision();
+        ConstructCurrencyFormatString();
     end;
 
     var
@@ -148,10 +152,10 @@ page 2183 "O365 Sales Invoice Line Dummy"
     begin
         if "Currency Code" = '' then begin
             GLSetup.Get();
-            CurrencySymbol := GLSetup.GetCurrencySymbol;
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
         end else begin
             if Currency.Get("Currency Code") then;
-            CurrencySymbol := Currency.GetCurrencySymbol;
+            CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
     end;
@@ -164,4 +168,4 @@ page 2183 "O365 Sales Invoice Line Dummy"
         O365ItemBasketPart.Run();
     end;
 }
-
+#endif

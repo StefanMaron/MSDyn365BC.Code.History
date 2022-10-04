@@ -35,7 +35,6 @@ codeunit 134101 "ERM Prepayment II"
         ShipmentLinesDocNoErr: Label 'Wrong Document No. in shipment line in "Get Shipment Lines" page.';
         ReceiptLinesDocNoErr: Label 'Wrong Document No. in receipt line in "Get Receipt Lines" page.';
         VATCalculationType: Enum "Tax Calculation Type";
-        PrepmtLineAmtErr: Label 'Prepmt. Line Amount Excl. VAT cannot be more than';
 
     [Test]
     [Scope('OnPrem')]
@@ -163,7 +162,7 @@ codeunit 134101 "ERM Prepayment II"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           -GenJournalLine.Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -GenJournalLine.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -GenJournalLine.Amount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -189,7 +188,7 @@ codeunit 134101 "ERM Prepayment II"
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
         repeat
             SalesLine.TestField("Prepmt. Line Amount", Round(SalesHeader."Prepayment %" * SalesLine."Line Amount" / 100));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]
@@ -217,7 +216,7 @@ codeunit 134101 "ERM Prepayment II"
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
         repeat
             PrePaymentLineAmount += SalesLine."Prepmt. Line Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         // [WHEN] Post Prepayment Invoice on Sales Header.
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
@@ -255,7 +254,7 @@ codeunit 134101 "ERM Prepayment II"
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
         repeat
             SalesLine.TestField("Prepmt. Line Amount", Round(NewPrePaymentAmount * SalesLine."Line Amount" / TotalLineAmount));
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]
@@ -292,7 +291,7 @@ codeunit 134101 "ERM Prepayment II"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Get Posted Purchase Receipt and Post Invoice.
-        DocumentNo := InvoicePostedPurchaseOrder(PurchaseHeader, PurchaseHeader."Buy-from Vendor No.", DocumentNo, '', WorkDate);
+        DocumentNo := InvoicePostedPurchaseOrder(PurchaseHeader, PurchaseHeader."Buy-from Vendor No.", DocumentNo, '', WorkDate());
 
         // [THEN] Verify Prepayment and VAT Amount in G/L Entry.
         VerifyGLEntry(DocumentNo, PurchPrepaymentsAccount, -PurchaseLine."Line Amount");
@@ -418,9 +417,6 @@ codeunit 134101 "ERM Prepayment II"
         // [WHEN] Reopen partially posted Purchase Order and Modify Prepayment %.
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         asserterror PurchaseHeader.Validate("Prepayment %", 100 - PurchaseHeader."Prepayment %" + LibraryRandom.RandInt(5));
-
-        // [THEN] Error will popup after modifing Prepayment%.
-        Assert.ExpectedError(PrepmtLineAmtErr);
     end;
 
     [Test]
@@ -461,7 +457,7 @@ codeunit 134101 "ERM Prepayment II"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchaseLine."Line Amount", GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), PurchaseLine."Line Amount", GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), PurchaseLine."Line Amount", GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -575,7 +571,7 @@ codeunit 134101 "ERM Prepayment II"
         // [THEN] Verify Error during validate of Prepayment Amount to Deduct on Purchase Order after Posting Purchase Invoice.
         Assert.AreEqual(
           StrSubstNo(PurchasePrepaymentErr, PurchaseLine.FieldCaption("Prepmt Amt to Deduct"), Amount,
-            PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Document Type"), PurchaseLine."Document Type",
+            PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Document Type"), PurchaseLine."Document Type",
             PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.", PurchaseLine.FieldCaption("Line No."),
             PurchaseLine."Line No."), GetLastErrorText, ErrorValidateMsg);
     end;
@@ -619,7 +615,7 @@ codeunit 134101 "ERM Prepayment II"
         FindGLEntry(GLEntry, DocumentNo, PurchPrepaymentsAccount);
         Assert.AreNearlyEqual(
           PrepaymentAmount, GLEntry.Amount, Currency."Invoice Rounding Precision",
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), PrepaymentAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), PrepaymentAmount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -752,7 +748,7 @@ codeunit 134101 "ERM Prepayment II"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [WHEN] Get Posted Sales Shipment and Post Invoice.
-        DocumentNo := InvoicePostedSalesOrder(SalesHeader, SalesHeader."Sell-to Customer No.", DocumentNo, '', WorkDate);
+        DocumentNo := InvoicePostedSalesOrder(SalesHeader, SalesHeader."Sell-to Customer No.", DocumentNo, '', WorkDate());
 
         // [THEN] Verify Prepayment and VAT Amount in G/L Entry.
         VerifyGLEntry(DocumentNo, SalesPrepaymentsAccount, SalesLine."Line Amount");
@@ -806,7 +802,7 @@ codeunit 134101 "ERM Prepayment II"
 
         // [WHEN] Get Posted Sales Shipment and Post Invoice.
         DocumentNo :=
-          InvoicePostedSalesOrder(SalesHeader, SalesHeader."Sell-to Customer No.", StrSubstNo('%1|%2', DocumentNo, DocumentNo2), '', WorkDate);
+          InvoicePostedSalesOrder(SalesHeader, SalesHeader."Sell-to Customer No.", StrSubstNo('%1|%2', DocumentNo, DocumentNo2), '', WorkDate());
 
         // [THEN] Verify Prepayment and VAT Amount in G/L Entry.
         VerifyGLEntry(DocumentNo, SalesPrepaymentsAccount, SalesLine."Line Amount" + SalesLine2."Line Amount");
@@ -970,7 +966,7 @@ codeunit 134101 "ERM Prepayment II"
 
         // [THEN] Verify Error during validate of Prepayment Amount to Deduct on Sales Order after Posting Sales Invoice.
         Assert.AreEqual(
-          StrSubstNo(SalesPrepaymentErr, SalesLine.FieldCaption("Prepmt Amt to Deduct"), Amount, SalesLine.TableCaption,
+          StrSubstNo(SalesPrepaymentErr, SalesLine.FieldCaption("Prepmt Amt to Deduct"), Amount, SalesLine.TableCaption(),
             SalesLine.FieldCaption("Document Type"), SalesLine."Document Type", SalesLine.FieldCaption("Document No."), SalesLine.
             "Document No.", SalesLine.FieldCaption("Line No."), SalesLine."Line No."), GetLastErrorText, 'Error must be same');
     end;
@@ -1013,7 +1009,7 @@ codeunit 134101 "ERM Prepayment II"
         FindGLEntry(GLEntry, DocumentNo, PrepmtGLAccountNo);
         Assert.AreNearlyEqual(
           -PrepaymentAmount, GLEntry.Amount, Currency."Invoice Rounding Precision",
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -PrepaymentAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -PrepaymentAmount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -1332,7 +1328,7 @@ codeunit 134101 "ERM Prepayment II"
 
         // [WHEN] Post Sales Prepayment Invoice
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        AmountLCY := Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate()));
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
@@ -1372,8 +1368,8 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Reopen Posted Prepayment Inovice and Modify Exchange Rate.
         LibrarySales.ReopenSalesDocument(SalesHeader);
         ModifyExchangeRate(SalesHeader."Currency Code");
-        AmountLCY := Round(LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', WorkDate));
-        PrePaymentAmount := Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', WorkDate()));
+        PrePaymentAmount := Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate()));
 
         // [GIVEN] Modify Currency again on Sales Header through page.
         SalesOrder.OpenEdit;
@@ -1496,7 +1492,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] 100% Prepayment Invoice posted on 01-10-16 with Amount LCY = 100
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         AmountLCYPrepmt :=
-          Round(LibraryERM.ConvertCurrency(PurchaseLine."Prepmt. Line Amount", PurchaseHeader."Currency Code", '', WorkDate));
+          Round(LibraryERM.ConvertCurrency(PurchaseLine."Prepmt. Line Amount", PurchaseHeader."Currency Code", '', WorkDate()));
         AmountLCYInvoice :=
           Round(LibraryERM.ConvertCurrency(PurchaseLine."Prepmt. Line Amount", PurchaseHeader."Currency Code", '', InvPostingDate));
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -1543,7 +1539,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] 100% Prepayment Invoice posted on 01-10-16 with Amount LCY = 100
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         AmountLCYPrepmt :=
-          Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate));
+          Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate()));
         AmountLCYInvoice :=
           Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', InvPostingDate));
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -1584,7 +1580,7 @@ codeunit 134101 "ERM Prepayment II"
         asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [THEN] Status of Sales Order is Open
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
     end;
 
@@ -1605,7 +1601,7 @@ codeunit 134101 "ERM Prepayment II"
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // [THEN] Status of Sales Order is 'Pending Prepayment'
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Prepayment");
     end;
 
@@ -1629,7 +1625,7 @@ codeunit 134101 "ERM Prepayment II"
         asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [THEN] Status of Purchase Order is Open
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
     end;
 
@@ -1650,7 +1646,7 @@ codeunit 134101 "ERM Prepayment II"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [THEN] Status of Purchase Order is 'Pending Prepayment'
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::"Pending Prepayment");
     end;
 
@@ -1963,7 +1959,7 @@ codeunit 134101 "ERM Prepayment II"
         ItemCharge: Record "Item Charge";
     begin
         with ItemCharge do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Gen. Prod. Posting Group" := LineGLAccount."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := LineGLAccount."VAT Prod. Posting Group";
@@ -2143,7 +2139,7 @@ codeunit 134101 "ERM Prepayment II"
         FindSalesLine(SalesLine, DocumentType, DocumentNo);
         repeat
             TotalLineAmount += SalesLine."Line Amount";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]) DocumentNo: Code[20]
@@ -2151,7 +2147,7 @@ codeunit 134101 "ERM Prepayment II"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         Clear(NoSeriesManagement);
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
     end;
 
     local procedure GetSalesInvAmount(DocumentNo: Code[20]): Decimal
@@ -2327,7 +2323,7 @@ codeunit 134101 "ERM Prepayment II"
         ItemNo[1] := CreateItemWithPostingSetup(LineGLAccount);
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
         LibrarySales.CreateSalesPrepaymentPct(
-          SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, CustomerNo, ItemNo[1], WorkDate);
+          SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, CustomerNo, ItemNo[1], WorkDate());
         SalesPrepaymentPct.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
         SalesPrepaymentPct.Modify(true);
 
@@ -2448,7 +2444,7 @@ codeunit 134101 "ERM Prepayment II"
         PurchInvLine.TestField(Quantity, Quantity);
         Assert.AreNearlyEqual(
           LineAmount, PurchInvLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, PurchInvLine.FieldCaption("Line Amount"), LineAmount, PurchInvLine.TableCaption));
+          StrSubstNo(AmountErr, PurchInvLine.FieldCaption("Line Amount"), LineAmount, PurchInvLine.TableCaption()));
     end;
 
     local procedure VerifyPurchInvLineJobNoJobTaskNo(DocumentNo: Code[20]; JobNo: Code[20]; JobTaskNo: Code[20])
@@ -2488,7 +2484,7 @@ codeunit 134101 "ERM Prepayment II"
         SalesInvoiceLine.TestField(Quantity, Quantity);
         Assert.AreNearlyEqual(
           LineAmount, SalesInvoiceLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("Line Amount"), LineAmount, SalesInvoiceLine.TableCaption));
+          StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("Line Amount"), LineAmount, SalesInvoiceLine.TableCaption()));
     end;
 
     [ModalPageHandler]
@@ -2695,7 +2691,7 @@ codeunit 134101 "ERM Prepayment II"
         if GetShptLines.First then
             repeat
                 Count += 1;
-            until not GetShptLines.Next;
+            until not GetShptLines.Next();
         exit(Count);
     end;
 
@@ -2706,7 +2702,7 @@ codeunit 134101 "ERM Prepayment II"
         if GetRcptLines.First then
             repeat
                 Count += 1;
-            until not GetRcptLines.Next;
+            until not GetRcptLines.Next();
         exit(Count);
     end;
 
@@ -2765,13 +2761,13 @@ codeunit 134101 "ERM Prepayment II"
 
     local procedure VerifyStatusOnSalesHeader(var SalesHeader: Record "Sales Header"; ExpectedStatus: Enum "Sales Document Status")
     begin
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, ExpectedStatus);
     end;
 
     local procedure VerifyStatusOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; ExpectedStatus: Enum "Purchase Document Status")
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, ExpectedStatus);
     end;
 }

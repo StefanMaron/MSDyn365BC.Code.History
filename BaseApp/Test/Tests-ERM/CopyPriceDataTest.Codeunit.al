@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 134167 "Copy Price Data Test"
 {
     Subtype = Test;

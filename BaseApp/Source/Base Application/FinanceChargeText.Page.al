@@ -16,7 +16,7 @@ page 445 "Finance Charge Text"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';

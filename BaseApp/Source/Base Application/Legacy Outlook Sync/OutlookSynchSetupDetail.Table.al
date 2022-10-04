@@ -93,14 +93,14 @@ table 5310 "Outlook Synch. Setup Detail"
 #if not CLEAN19
     trigger OnInsert()
     begin
-        CheckOSynchEntity;
-        SetTableNo;
+        CheckOSynchEntity();
+        SetTableNo();
     end;
 
     trigger OnModify()
     begin
-        CheckOSynchEntity;
-        SetTableNo;
+        CheckOSynchEntity();
+        SetTableNo();
     end;
 
     var

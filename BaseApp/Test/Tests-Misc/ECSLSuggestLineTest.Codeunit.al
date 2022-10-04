@@ -259,7 +259,7 @@ codeunit 134068 "ECSL Suggest Line Test"
 
         repeat
             Total += Round(VATEntry.Base, 1);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         exit(-Total);
     end;
 

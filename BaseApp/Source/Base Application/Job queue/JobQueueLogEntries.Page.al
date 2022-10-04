@@ -22,7 +22,7 @@ page 674 "Job Queue Log Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the running of the job queue entry in a log.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -32,44 +32,44 @@ page 674 "Job Queue Log Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the job queue entry in the log.';
                 }
-                field("Object Type to Run"; "Object Type to Run")
+                field("Object Type to Run"; Rec."Object Type to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the object that is to be run for the job.';
                 }
-                field("Object ID to Run"; "Object ID to Run")
+                field("Object ID to Run"; Rec."Object ID to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the object that is to be run for the job.';
                 }
-                field("Object Caption to Run"; "Object Caption to Run")
+                field("Object Caption to Run"; Rec."Object Caption to Run")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name or caption of the object that was run for the job.';
                 }
-                field("Parameter String"; "Parameter String")
+                field("Parameter String"; Rec."Parameter String")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the parameter string of the corresponding job.';
                 }
-                field("Start Date/Time"; "Start Date/Time")
+                field("Start Date/Time"; Rec."Start Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time when the job was started.';
                 }
-                field(Duration; Duration)
+                field(Duration; Duration())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Duration';
                     ToolTip = 'Specifies how long the job queue log entry will take to run.';
                 }
-                field("End Date/Time"; "End Date/Time")
+                field("End Date/Time"; Rec."End Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time when the job ended.';
                     Visible = false;
                 }
-                field("Error Message"; "Error Message")
+                field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Error Message';
@@ -77,11 +77,11 @@ page 674 "Job Queue Log Entries"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowErrorMessage;
+                        ShowErrorMessage();
                     end;
                 }
 #if not CLEAN20
-                field("Processed by User ID"; "Processed by User ID")
+                field("Processed by User ID"; Rec."Processed by User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user ID of the job queue entry processor. The user ID comes from the job queue entry card.';
@@ -91,7 +91,7 @@ page 674 "Job Queue Log Entries"
                     ObsoleteReason = 'The Processed by User ID is the same as User ID';
                 }
 #endif
-                field("Job Queue Category Code"; "Job Queue Category Code")
+                field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category code for the entry in the job queue log.';
@@ -139,7 +139,7 @@ page 674 "Job Queue Log Entries"
 
                 trigger OnAction()
                 begin
-                    ShowErrorMessage;
+                    ShowErrorMessage();
                 end;
             }
             action("Show Error Call Stack")
@@ -152,7 +152,7 @@ page 674 "Job Queue Log Entries"
 
                 trigger OnAction()
                 begin
-                    ShowErrorCallStack;
+                    ShowErrorCallStack();
                 end;
             }
             action(SetStatusToError)
@@ -165,7 +165,7 @@ page 674 "Job Queue Log Entries"
                 trigger OnAction()
                 begin
                     if Confirm(JobQueueEntryRunningQst, false) then
-                        MarkAsError;
+                        MarkAsError();
                 end;
             }
         }
@@ -176,15 +176,23 @@ page 674 "Job Queue Log Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Details';
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
                 ToolTip = 'View detailed information about the job queue log entry.';
 
                 trigger OnAction()
                 begin
                     OnShowDetails(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(Details_Promoted; Details)
+                {
+                }
             }
         }
     }

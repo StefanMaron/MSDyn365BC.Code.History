@@ -417,6 +417,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType SetupNotificationNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 1378938356" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Late Payment Prediction extension can help you reduce outstanding receivables by predicting whether sales invoices will be paid on time. Set it up now.</source>
+          <target state="translated">Расширение "Прогнозирование просрочек оплаты" может помочь уменьшить объем просроченной дебиторской задолженности за счет прогнозирования того, будут ли счета продажи оплачены в срок. Настройте его прямо сейчас.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 530150016" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Late Payment Prediction</source>
+          <target state="translated">Прогнозирование просрочек оплаты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupShortTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2361022759 - NamedType 2882172826" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Late Payment Prediction</source>
+          <target state="translated">Настройка прогнозирования просрочек оплаты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType MachineLearningSetupTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2361022759 - NamedType 2502994393" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>LatePaymentML</source>
           <target state="translated">LatePaymentML</target>

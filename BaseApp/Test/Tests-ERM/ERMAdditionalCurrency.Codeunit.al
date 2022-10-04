@@ -50,7 +50,7 @@ codeunit 134043 "ERM Additional Currency"
         LibraryPurchase.SetCalcInvDiscount(true);
         OriginalVATBase := -Round(CreatePurchaseInvoiceCalcDisc(PurchaseHeader, PurchaseLine));
         UpdateGeneralPostingSetup(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(OriginalVATBase, '', CurrencyCode, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(OriginalVATBase, '', CurrencyCode, WorkDate());
         VATAmount := Round(AdditionalCurrencyAmount * PurchaseLine."VAT %" / 100);
 
         // Exercise: Post Purchase Invoice and Find Purchase Invoice Header.
@@ -86,7 +86,7 @@ codeunit 134043 "ERM Additional Currency"
         LibrarySales.SetCalcInvDiscount(true);
         OriginalVATBase := Round(CreateSalesInvoiceCalcDisc(SalesHeader, SalesLine));
         UpdateGeneralPostingSetup(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(OriginalVATBase, '', CurrencyCode, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(OriginalVATBase, '', CurrencyCode, WorkDate());
         VATAmount := Round(AdditionalCurrencyAmount * SalesLine."VAT %" / 100);
 
         // Exercise: Post Sales Invoice and Find Sales Invoice Header.
@@ -217,7 +217,7 @@ codeunit 134043 "ERM Additional Currency"
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
         VATBase := GenJournalLine.Amount - ((GenJournalLine.Amount * GenJournalLine."VAT %") / (GenJournalLine."VAT %" + 100));
-        VATBase := Round(LibraryERM.ConvertCurrency(VATBase, CurrencyCode, '', WorkDate));
+        VATBase := Round(LibraryERM.ConvertCurrency(VATBase, CurrencyCode, '', WorkDate()));
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -258,7 +258,7 @@ codeunit 134043 "ERM Additional Currency"
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify(true);
-        AdditionalCurrencyAmount := Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate));
+        AdditionalCurrencyAmount := Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate()));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Close Newly Created Fiscal Year. Customized Date formula required to calculate Fiscal Ending Date.
@@ -349,7 +349,7 @@ codeunit 134043 "ERM Additional Currency"
         ApplyAndPostCreditMemo(GenJournalLine, LibraryERM.CreateCurrencyWithRandomExchRates, LibraryERM.CreateCurrencyWithRandomExchRates);
 
         // Exercise: Convert Amount LCY According to Currency and Post General Line.
-        AmountLCY := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Customer Ledger Entry and Detailed Customer Entry with Discount Date and Amount, Amount LCY.
@@ -908,7 +908,7 @@ codeunit 134043 "ERM Additional Currency"
 
         // Verify: G/L entry generated for Close Income statement. "Additional-Currency Amount" is correct.
         AdditionalCurrencyAmount :=
-          Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount / (1 + VATPostingSetup."VAT %" / 100), '', CurrencyCode, WorkDate));
+          Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount / (1 + VATPostingSetup."VAT %" / 100), '', CurrencyCode, WorkDate()));
         VerifyGLEntryForCloseIncomeStatement(PostingDate, GenJournalLine."Account No.", -AdditionalCurrencyAmount);
 
         // Tear Down.
@@ -1053,7 +1053,7 @@ codeunit 134043 "ERM Additional Currency"
         // [GIVEN] Additional currency setup
         Initialize();
 
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         CreateCurrencyWithExchangeRates(Currency, 3, PostingDate);
         LibraryERM.SetAddReportingCurrency(Currency.Code);
         DocumentNo := LibraryUtility.GenerateGUID();
@@ -1097,7 +1097,7 @@ codeunit 134043 "ERM Additional Currency"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         IsInitialized := true;
         Commit();
 
@@ -1186,7 +1186,7 @@ codeunit 134043 "ERM Additional Currency"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(SalesLine."Line Amount", '', CurrencyCode, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(SalesLine."Line Amount", '', CurrencyCode, WorkDate());
 
         // Exercise.
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1436,12 +1436,12 @@ codeunit 134043 "ERM Additional Currency"
 
             Description := LibraryUtility.GenerateGUID();
             "Document No." := DocumentNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Source Code" := LibraryUtility.GenerateGUID();
             "Additional-Currency Posting" := "Additional-Currency Posting"::"Additional-Currency Amount Only";
             "Currency Code" := CurrencyCode;
             "Amount (LCY)" := 0;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1632,7 +1632,7 @@ codeunit 134043 "ERM Additional Currency"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyAdjExchEntryBankExists(BankAccountNo: Code[20]; DocumentNo: Code[20])
@@ -1670,7 +1670,7 @@ codeunit 134043 "ERM Additional Currency"
         CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
         Assert.AreNearlyEqual(
           RemainingAmountLCY, CustLedgerEntry."Remaining Amt. (LCY)", GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), RemainingAmountLCY, CustLedgerEntry.TableCaption));
+          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), RemainingAmountLCY, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure RemainingAmountLCYInVendor(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; DocumentNo: Code[20]; RemainingAmountLCY: Decimal)
@@ -1682,7 +1682,7 @@ codeunit 134043 "ERM Additional Currency"
         VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
         Assert.AreNearlyEqual(
           RemainingAmountLCY, VendorLedgerEntry."Remaining Amt. (LCY)", GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), RemainingAmountLCY, VendorLedgerEntry.TableCaption)
+          StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), RemainingAmountLCY, VendorLedgerEntry.TableCaption())
           );
     end;
 
@@ -1726,7 +1726,7 @@ codeunit 134043 "ERM Additional Currency"
     begin
         Assert.AreNearlyEqual(
           ExpectedAmount, ActualAmount, GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, FieldCaption, ExpectedAmount, GLAccount.TableCaption));
+          StrSubstNo(AmountErr, FieldCaption, ExpectedAmount, GLAccount.TableCaption()));
     end;
 
     local procedure VerifyGLEntryAdjustExchExists(DocumentNo: Code[20])
@@ -1754,7 +1754,7 @@ codeunit 134043 "ERM Additional Currency"
         VerifyAdditionalCurrencyAmount(GLEntry, AdditionalCurrencyAmount);
         Assert.AreNearlyEqual(
           GenJournalLine."Amount (LCY)", GLEntry.Amount, GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GenJournalLine."Amount (LCY)", GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GenJournalLine."Amount (LCY)", GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForACYPayment(GenJournalLine: Record "Gen. Journal Line"; AdditionalCurrencyAmount: Decimal)
@@ -1774,7 +1774,7 @@ codeunit 134043 "ERM Additional Currency"
         VerifyAdditionalCurrencyAmount(GLEntry, AdditionalCurrencyAmount);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryForCloseIncomeStatement(PostingDate: Date; AccountNo: Code[20]; AdditionalCurrencyAmount: Decimal)
@@ -1798,7 +1798,7 @@ codeunit 134043 "ERM Additional Currency"
         FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, DocumentNo);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntryForBase(DocumentNo: Code[20]; BaseAmount: Decimal)
@@ -1808,7 +1808,7 @@ codeunit 134043 "ERM Additional Currency"
         FindVATEntry(VATEntry, VATEntry."Document Type"::" ", DocumentNo);
         Assert.AreNearlyEqual(
           BaseAmount, VATEntry.Base, GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), BaseAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), BaseAmount, VATEntry.TableCaption()));
     end;
 
     [ModalPageHandler]

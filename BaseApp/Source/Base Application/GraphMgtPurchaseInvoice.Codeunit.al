@@ -113,7 +113,7 @@ codeunit 5527 "Graph Mgt - Purchase Invoice"
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
     begin
         UpdateIntegrationRecordIds(false);
-        PurchInvAggregator.UpdateAggregateTableRecords;
+        PurchInvAggregator.UpdateAggregateTableRecords();
     end;
 }
 

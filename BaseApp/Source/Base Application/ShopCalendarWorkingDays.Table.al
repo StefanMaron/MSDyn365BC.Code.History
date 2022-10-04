@@ -40,7 +40,7 @@ table 99000752 "Shop Calendar Working Days"
                     else
                         "Ending Time" := 235959T;
                 end;
-                CheckRedundancy;
+                CheckRedundancy();
             end;
         }
         field(5; "Ending Time"; Time)
@@ -54,7 +54,7 @@ table 99000752 "Shop Calendar Working Days"
                 then
                     Error(Text000, FieldCaption("Ending Time"), FieldCaption("Starting Time"));
 
-                CheckRedundancy;
+                CheckRedundancy();
             end;
         }
     }
@@ -73,18 +73,19 @@ table 99000752 "Shop Calendar Working Days"
 
     trigger OnInsert()
     begin
-        CheckRedundancy;
+        CheckRedundancy();
     end;
 
     trigger OnRename()
     begin
-        CheckRedundancy;
+        CheckRedundancy();
     end;
 
     var
+        ShopCalendar: Record "Shop Calendar Working Days";
+
         Text000: Label '%1 must be higher than %2.';
         Text001: Label 'There is redundancy in the Shop Calendar. Actual work shift %1 from : %2 to %3. Conflicting work shift %4 from : %5 to %6.';
-        ShopCalendar: Record "Shop Calendar Working Days";
 
     local procedure CheckRedundancy()
     var
@@ -100,7 +101,7 @@ table 99000752 "Shop Calendar Working Days"
             until ShopCalendar2.Next() = 0;
 
         TempShopCalendar := xRec;
-        if TempShopCalendar.Delete then;
+        if TempShopCalendar.Delete() then;
 
         TempShopCalendar.SetRange("Shop Calendar Code", "Shop Calendar Code");
         TempShopCalendar.SetRange(Day, Day);

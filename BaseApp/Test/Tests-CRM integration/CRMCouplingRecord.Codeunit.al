@@ -479,7 +479,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount[3]);
         // [GIVEN] Integration Table Filter with "A" only
         CRMAccount[1].SetRange(AccountId, CRMAccount[2].AccountId);
-        SetIntTableFilter(IntegrationTableMapping, CRMAccount[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMAccount[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Customer.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -513,7 +513,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCRMContact(CRMContact[3]);
         // [GIVEN] Integration Table Filter with "A" only
         CRMContact[1].SetRange(ContactId, CRMContact[2].ContactId);
-        SetIntTableFilter(IntegrationTableMapping, CRMContact[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMContact[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Contact.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -547,7 +547,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser[3]);
         // [GIVEN] Integration Table Filter with "A" only
         CRMSystemuser[1].SetRange(SystemUserId, CRMSystemuser[2].SystemUserId);
-        SetIntTableFilter(IntegrationTableMapping, CRMSystemuser[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMSystemuser[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, SalespersonPurchaser.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -589,7 +589,7 @@ codeunit 139174 "CRM Coupling Record"
             1, MaxStrLen(CRMTransactioncurrency[3].ISOCurrencyCode)));
         // [GIVEN] Integration Table Filter with "A" only
         CRMTransactioncurrency[1].SetRange(TransactionCurrencyId, CRMTransactioncurrency[2].TransactionCurrencyId);
-        SetIntTableFilter(IntegrationTableMapping, CRMTransactioncurrency[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMTransactioncurrency[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Currency.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -626,7 +626,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCRMPriceList(CRMPricelevel[3], CRMTransactioncurrency);
         // [GIVEN] Integration Table Filter with "A" only
         CRMPricelevel[1].SetRange(PriceLevelId, CRMPricelevel[2].PriceLevelId);
-        SetIntTableFilter(IntegrationTableMapping, CRMPricelevel[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMPricelevel[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, CustomerPriceGroup.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -659,7 +659,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryVariableStorage.Enqueue(CRMProduct[2].Name);
         // [GIVEN] Integration Table Filter with "A" only
         CRMProduct[1].SetRange(ProductTypeCode, CRMProduct[2].ProductTypeCode);
-        SetIntTableFilter(IntegrationTableMapping, CRMProduct[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMProduct[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Item.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -692,7 +692,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryVariableStorage.Enqueue(CRMProduct[3].Name);
         // [GIVEN] Integration Table Filter with "B" only
         CRMProduct[1].SetRange(ProductTypeCode, CRMProduct[3].ProductTypeCode);
-        SetIntTableFilter(IntegrationTableMapping, CRMProduct[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMProduct[1].GetView());
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Resource.RecordId);
         // [WHEN] Lookup "CRM Name"
@@ -937,7 +937,7 @@ codeunit 139174 "CRM Coupling Record"
         Assert.IsTrue(CRMCouplingRecord.CoupledFields.First, 'There should be fields in the list part');
         IntegrationFieldMapping.FindFirst();
         ActualFieldCount := 1;
-        while CRMCouplingRecord.CoupledFields.Next do begin
+        while CRMCouplingRecord.CoupledFields.Next() do begin
             ActualFieldCount += 1;
             // [THEN] First mapped field values are shown in the list part
             if CRMCouplingRecord.CoupledFields."Field Name".Value = GetFldRefCaption(DATABASE::Customer, IntegrationFieldMapping."Field No.") then
@@ -1336,7 +1336,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationRecord.SetLastSynchResultFailed(RecRef, false, JobID);
 
         // [THEN] CRMIntegrationRecord, where Skipped := TRUE
-        CRMIntegrationRecord.Find;
+        CRMIntegrationRecord.Find();
         CRMIntegrationRecord.TestField(Skipped, true);
     end;
 
@@ -1364,7 +1364,7 @@ codeunit 139174 "CRM Coupling Record"
         Assert.AreEqual(true, CustomerListPage.CreateInCRM.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(true, CustomerListPage.CreateFromCRM.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(true, CustomerListPage.ShowLog.Visible, WrongControlVisibilityErr);
-        CustomerListPage.Close;
+        CustomerListPage.Close();
 
         // [WHEN] CRM Connection is not configured
         LibraryCRMIntegration.ResetEnvironment;
@@ -1380,7 +1380,7 @@ codeunit 139174 "CRM Coupling Record"
         Assert.AreEqual(false, CustomerListPage.CreateInCRM.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(false, CustomerListPage.CreateFromCRM.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(false, CustomerListPage.ShowLog.Visible, WrongControlVisibilityErr);
-        CustomerListPage.Close;
+        CustomerListPage.Close();
     end;
 
     [Test]
@@ -1405,7 +1405,7 @@ codeunit 139174 "CRM Coupling Record"
         Assert.AreEqual(true, CustomerCard.ManageCRMCoupling.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(true, CustomerCard.DeleteCRMCoupling.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(true, CustomerCard.ShowLog.Visible, WrongControlVisibilityErr);
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // [WHEN] CRM Connection is not configured
         LibraryCRMIntegration.ResetEnvironment;
@@ -1419,7 +1419,7 @@ codeunit 139174 "CRM Coupling Record"
         Assert.AreEqual(false, CustomerCard.ManageCRMCoupling.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(false, CustomerCard.DeleteCRMCoupling.Visible, WrongControlVisibilityErr);
         Assert.AreEqual(false, CustomerCard.ShowLog.Visible, WrongControlVisibilityErr);
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -1548,7 +1548,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         with IntegrationTableMapping do begin
             DeleteAll();
-            Init;
+            Init();
             Name := LibraryUtility.GenerateGUID();
             "Table ID" := TableId;
             "Integration Table ID" := CRMTableId;
@@ -1560,7 +1560,7 @@ codeunit 139174 "CRM Coupling Record"
 
         with IntegrationFieldMapping do begin
             DeleteAll();
-            Init;
+            Init();
             "No." := 0;
             "Integration Table Mapping Name" := IntegrationTableMapping.Name;
             "Field No." := FldNo;

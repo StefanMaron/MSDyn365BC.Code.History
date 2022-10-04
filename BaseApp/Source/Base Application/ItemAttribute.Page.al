@@ -27,7 +27,7 @@ page 7503 "Item Attribute"
 
                         trigger OnValidate()
                         begin
-                            UpdateControlVisibility;
+                            UpdateControlVisibility();
                         end;
                     }
                     field(Blocked; Blocked)
@@ -40,7 +40,7 @@ page 7503 "Item Attribute"
                 {
                     ShowCaption = false;
                     Visible = ValuesDrillDownVisible;
-                    field(Values; GetValues)
+                    field(Values; GetValues())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Values';
@@ -49,7 +49,7 @@ page 7503 "Item Attribute"
 
                         trigger OnDrillDown()
                         begin
-                            OpenItemAttributeValues;
+                            OpenItemAttributeValues();
                         end;
                     }
                 }
@@ -57,7 +57,7 @@ page 7503 "Item Attribute"
                 {
                     ShowCaption = false;
                     Visible = UnitOfMeasureVisible;
-                    field("Unit of Measure"; "Unit of Measure")
+                    field("Unit of Measure"; Rec."Unit of Measure")
                     {
                         ApplicationArea = Basic, Suite;
                         DrillDown = false;
@@ -65,7 +65,7 @@ page 7503 "Item Attribute"
 
                         trigger OnDrillDown()
                         begin
-                            OpenItemAttributeValues;
+                            OpenItemAttributeValues();
                         end;
                     }
                 }
@@ -83,9 +83,6 @@ page 7503 "Item Attribute"
                 Caption = 'Item Attribute &Values';
                 Enabled = ValuesDrillDownVisible;
                 Image = CalculateInventory;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Item Attribute Values";
                 RunPageLink = "Attribute ID" = FIELD(ID);
                 ToolTip = 'Opens a window in which you can define the values for the selected item attribute.';
@@ -95,24 +92,35 @@ page 7503 "Item Attribute"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Translations';
                 Image = Translations;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Item Attribute Translations";
                 RunPageLink = "Attribute ID" = FIELD(ID);
                 ToolTip = 'Opens a window in which you can define the translations for the selected item attribute.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ItemAttributeValues_Promoted; ItemAttributeValues)
+                {
+                }
+                actionref(ItemAttributeTranslations_Promoted; ItemAttributeTranslations)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateControlVisibility;
+        UpdateControlVisibility();
     end;
 
     trigger OnOpenPage()
     begin
-        UpdateControlVisibility;
+        UpdateControlVisibility();
     end;
 
     var

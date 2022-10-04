@@ -61,10 +61,10 @@ codeunit 5509 "Graph Mgt - Inc Doc Attachment"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         IntegrationManagement: Codeunit "Integration Management";
         DataTypeManagement: Codeunit "Data Type Management";
-        RelatedDocument: Variant;
         RelatedRecRef: RecordRef;
+        RelatedDocument: Variant;
     begin
-        if IncomingDocumentAttachment.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if IncomingDocumentAttachment.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if not IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then

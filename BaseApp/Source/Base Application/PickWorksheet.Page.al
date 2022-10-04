@@ -5,7 +5,6 @@ page 7345 "Pick Worksheet"
     DataCaptionFields = Name;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Item';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Whse. Worksheet Line";
@@ -25,7 +24,7 @@ page 7345 "Pick Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     LookupWhseWkshName(Rec, CurrentWkshName, CurrentLocationCode);
                     CurrPage.Update(false);
                 end;
@@ -33,7 +32,7 @@ page 7345 "Pick Worksheet"
                 trigger OnValidate()
                 begin
                     CheckWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
-                    CurrentWkshNameOnAfterValidate;
+                    CurrentWkshNameOnAfterValidate();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -74,18 +73,18 @@ page 7345 "Pick Worksheet"
                         Rec.Validate("Whse. Document Type", WhseDocumentType);
                     end;
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the warehouse document.';
                 }
-                field("Whse. Document Line No."; "Whse. Document Line No.")
+                field("Whse. Document Line No."; Rec."Whse. Document Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the line in the warehouse document that is the basis for the worksheet line.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -96,7 +95,7 @@ page 7345 "Pick Worksheet"
                         GetItem("Item No.", ItemDescription);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -109,21 +108,21 @@ page 7345 "Pick Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies the description of the item on the line.';
                 }
-                field("To Zone Code"; "To Zone Code")
+                field("To Zone Code"; Rec."To Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the code of the zone in which the items should be placed.';
                     Visible = false;
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the code of the bin into which the items should be placed.';
                     Visible = false;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for information use.';
@@ -135,22 +134,22 @@ page 7345 "Pick Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies how many units of the item you want to move.';
                 }
-                field("Qty. to Handle"; "Qty. to Handle")
+                field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units of the item you want to move.';
 
                     trigger OnValidate()
                     begin
-                        QtytoHandleOnAfterValidate;
+                        QtytoHandleOnAfterValidate();
                     end;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                 }
-                field(AvailableQtyToPickExcludingQCBins; AvailableQtyToPickExcludingQCBins)
+                field(AvailableQtyToPickExcludingQCBins; AvailableQtyToPickExcludingQCBins())
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Available Qty. to Pick';
@@ -158,45 +157,45 @@ page 7345 "Pick Worksheet"
                     Editable = false;
                     ToolTip = 'Specifies the quantity on the pick worksheet line that is available to pick. This quantity includes released warehouse shipment lines.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the due date of the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Shipping Advice"; "Shipping Advice")
+                field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shipping advice on the warehouse shipment line associated with this worksheet line.';
                 }
-                field("Destination Type"; "Destination Type")
+                field("Destination Type"; Rec."Destination Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of destination associated with the warehouse worksheet line.';
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the customer, vendor, or location for which the items should be processed.';
                 }
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field("Source Line No."; "Source Line No.")
+                field("Source Line No."; Rec."Source Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the line number of the source document that the entry originates from.';
@@ -299,9 +298,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Source &Document Line';
                     Image = SourceDocLine;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View the line on a released source document that the warehouse activity is for. ';
 
                     trigger OnAction()
@@ -315,8 +311,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Whse. Document Line';
                     Image = Line;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View the line on another warehouse document that the warehouse activity is for.';
 
                     trigger OnAction()
@@ -330,9 +324,7 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -350,8 +342,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -362,8 +352,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Warehouse Entries';
                     Image = BinLedger;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Warehouse Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -377,8 +365,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -391,8 +377,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -414,8 +398,6 @@ page 7345 "Pick Worksheet"
                     Caption = 'Get Warehouse Documents';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Select a warehouse document to pick for, such as a warehouse shipment.';
 
@@ -436,8 +418,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Autofill Qty. to Handle';
                     Image = AutofillQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
 
                     trigger OnAction()
@@ -453,8 +433,6 @@ page 7345 "Pick Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = 'Delete Qty. to Handle';
                     Image = DeleteQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Have the system clear the value in the Qty. To Handle field. ';
 
                     trigger OnAction()
@@ -471,9 +449,6 @@ page 7345 "Pick Worksheet"
                     Caption = 'Create Pick';
                     Ellipsis = true;
                     Image = CreateInventoryPickup;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create warehouse pick documents for the specified picks. ';
 
                     trigger OnAction()
@@ -481,6 +456,85 @@ page 7345 "Pick Worksheet"
                         CODEUNIT.Run(CODEUNIT::"Whse. Create Pick", Rec);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreatePick_Promoted; CreatePick)
+                {
+                }
+                actionref("Get Warehouse Documents_Promoted"; "Get Warehouse Documents")
+                {
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+                actionref("Source &Document Line_Promoted"; "Source &Document Line")
+                {
+                }
+                actionref("Whse. Document Line_Promoted"; "Whse. Document Line")
+                {
+                }
+                actionref("Warehouse Entries_Promoted"; "Warehouse Entries")
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -498,7 +552,7 @@ page 7345 "Pick Worksheet"
             QtyCrossDockedUOMBase, QtyCrossDockedAllUOMBase);
         QtyCrossDockedUOM := 0;
         if Rec."Qty. per Unit of Measure" <> 0 then
-            QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / Rec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / Rec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
     end;
 
     trigger OnDeleteRecord(): Boolean

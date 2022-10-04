@@ -43,7 +43,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         MockTextSalesInvoiceLine(SalesInvoiceHeader."No.");
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] PEPPOL BIS identifers are exported in <CustomizationID> and <ProfileID>
@@ -83,7 +83,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesInvoiceHeader.Modify();
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
@@ -117,7 +117,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <AccountingSupplierParty> has <CompanyID> = 'NO1234567890'
@@ -154,7 +154,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <PartyLegalEntity> of <AccountingCustomerParty> has <CompanyID> = '1234567890123' with <SchemeID> = '0088'
@@ -187,7 +187,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryS, LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'S', <Percent> = 10
@@ -217,7 +217,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryE, 0));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'E', <Percent> = 0
@@ -246,7 +246,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryO, 0));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'O'
@@ -278,7 +278,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryZ, 0));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'Z', <Percent> = 0
@@ -307,7 +307,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryAE, LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'AE', <Percent> = 0
@@ -337,7 +337,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryG, 0));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'G', <Percent> = 0
@@ -367,7 +367,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryL, LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'L', <Percent> = 7
@@ -394,7 +394,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryM, LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'M', <Percent> = 4
@@ -420,7 +420,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice, GetTaxCategoryK, 0));
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCategory> has <ID> 'K'
@@ -455,7 +455,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         MockTextSalesCrMemoLine(SalesCrMemoHeader."No.");
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] PEPPOL BIS identifers are exported in <CustomizationID> and <ProfileID>
@@ -494,7 +494,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesCrMemoHeader.Modify();
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
@@ -528,7 +528,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <AccountingSupplierParty> has <CompanyID> = 'NO1234567890'
@@ -565,7 +565,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <PartyLegalEntity> of <AccountingCustomerParty> has <CompanyID> = '1234567890123' with <SchemeID> = '0088'
@@ -598,7 +598,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryS, LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'S', <Percent> = 10
@@ -628,7 +628,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryE, 0));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'E', <Percent> = 0
@@ -657,7 +657,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryO, 0));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'O'
@@ -689,7 +689,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryZ, 0));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'Z', <Percent> = 0
@@ -719,7 +719,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'AE', <Percent> = 0
@@ -749,7 +749,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryG, 0));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'G', <Percent> = 0
@@ -780,7 +780,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'L', <Percent> = 10
@@ -807,7 +807,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryM, LibraryRandom.RandIntInRange(10, 20)));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'M', <Percent> = 10
@@ -834,7 +834,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryK, 0));
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCategory> has <ID> 'K'
@@ -864,7 +864,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Customer.Get(ServiceInvoiceHeader."Customer No.");
 
         // [WHEN] Export Service Credit Memo with PEPPOL BIS3
-        ServiceInvoiceHeader.SetRecFilter;
+        ServiceInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, CreateBISElectronicDocumentFormatServiceInvoice);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
@@ -896,7 +896,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Customer.Get(ServiceCrMemoHeader."Customer No.");
 
         // [WHEN] Export Service Credit Memo with PEPPOL BIS3
-        ServiceCrMemoHeader.SetRecFilter;
+        ServiceCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, CreateBISElectronicDocumentFormatServiceCrMemo);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
@@ -927,10 +927,10 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
         SalesInvoiceHeader."Salesperson Code" := '';
         SalesInvoiceHeader."Payment Terms Code" := '';
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] 'Contact' node is not exported for 'AccountingSupplierParty'
@@ -957,10 +957,10 @@ codeunit 139145 "PEPPOL BIS BillingTests"
           CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
         SalesCrMemoHeader."Salesperson Code" := '';
         SalesCrMemoHeader."Payment Terms Code" := '';
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] 'Contact' node is not exported for 'AccountingSupplierParty'
@@ -993,7 +993,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesInvoiceHeader.Modify();
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
@@ -1024,7 +1024,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesCrMemoHeader.Modify();
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
@@ -1049,7 +1049,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Customer.Get(ServiceInvoiceHeader."Customer No.");
 
         // [WHEN] Export Service Invoice with PEPPOL BIS3
-        ServiceInvoiceHeader.SetRecFilter;
+        ServiceInvoiceHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, CreateBISElectronicDocumentFormatServiceInvoice);
 
         // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
@@ -1074,7 +1074,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Customer.Get(ServiceCrMemoHeader."Customer No.");
 
         // [WHEN] Export Service Credit Memo with PEPPOL BIS3
-        ServiceCrMemoHeader.SetRecFilter;
+        ServiceCrMemoHeader.SetRecFilter();
         XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, CreateBISElectronicDocumentFormatServiceCrMemo);
 
         // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
@@ -1177,7 +1177,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         with ElectronicDocumentFormat do begin
-            Init;
+            Init();
             Code := NewCode;
             Usage := NewUsage;
             "Codeunit ID" := NewCodeunitID;
@@ -1227,7 +1227,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         CompanyInfo: Record "Company Information";
     begin
         with CompanyInfo do begin
-            Get;
+            Get();
             Validate(GLN, '1234567891231');
             Modify(true);
         end;
@@ -1485,11 +1485,11 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         with SalesInvoiceLine do begin
-            Init;
+            Init();
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, FieldNo("Line No."));
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1498,11 +1498,11 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         with SalesCrMemoLine do begin
-            Init;
+            Init();
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, FieldNo("Line No."));
             Description := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 

@@ -26,7 +26,7 @@ codeunit 131903 "Library - Rapid Start"
         ConfigPackage.DeleteAll(true);
         ConfigLine.DeleteAll(true);
         ConfigPackageError.DeleteAll();
-        ClearLastError;
+        ClearLastError();
     end;
 
     procedure CreateConfigTemplateHeader(var ConfigTemplateHeader: Record "Config. Template Header")
@@ -129,7 +129,7 @@ codeunit 131903 "Library - Rapid Start"
     procedure CreatePackageTableRule(var ConfigTableProcessingRule: Record "Config. Table Processing Rule"; ConfigPackageTable: Record "Config. Package Table"; ProcessingAction: Option; CodeunitID: Integer)
     begin
         with ConfigTableProcessingRule do begin
-            Init;
+            Init();
             Validate("Package Code", ConfigPackageTable."Package Code");
             Validate("Table ID", ConfigPackageTable."Table ID");
             "Rule No." += 10000;
@@ -142,7 +142,7 @@ codeunit 131903 "Library - Rapid Start"
     procedure CreatePackageTableRuleFilter(var ConfigPackageFilter: Record "Config. Package Filter"; ConfigTableProcessingRule: Record "Config. Table Processing Rule"; FieldID: Integer; FilterValue: Text[250])
     begin
         with ConfigPackageFilter do begin
-            Init;
+            Init();
             Validate("Package Code", ConfigTableProcessingRule."Package Code");
             Validate("Table ID", ConfigTableProcessingRule."Table ID");
             Validate("Processing Rule No.", ConfigTableProcessingRule."Rule No.");

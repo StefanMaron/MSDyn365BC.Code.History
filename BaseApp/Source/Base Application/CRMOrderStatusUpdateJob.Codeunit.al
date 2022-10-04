@@ -4,12 +4,13 @@ codeunit 5352 "CRM Order Status Update Job"
 
     trigger OnRun()
     begin
-        UpdateOrders(GetLastLogEntryNo);
+        UpdateOrders(GetLastLogEntryNo());
     end;
 
     var
-        ConnectionNotEnabledErr: Label 'The %1 connection is not enabled.', Comment = '%1 = CRM product name';
         CRMProductName: Codeunit "CRM Product Name";
+
+        ConnectionNotEnabledErr: Label 'The %1 connection is not enabled.', Comment = '%1 = CRM product name';
         OrderStatusUpdatedMsg: Label 'Sent messages about status change of sales orders.';
         OrderStatusReleasedTxt: Label 'The order status has changed to Released.';
         OrderShipmentCreatedTxt: Label 'A shipment has been created for the order.';
@@ -22,9 +23,9 @@ codeunit 5352 "CRM Order Status Update Job"
     begin
         CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
-            Error(ConnectionNotEnabledErr, CRMProductName.FULL);
+            Error(ConnectionNotEnabledErr, CRMProductName.FULL());
 
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
         CRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, CRMConnectionSetup.GetDefaultCRMConnection(ConnectionName));
@@ -47,10 +48,10 @@ codeunit 5352 "CRM Order Status Update Job"
         else
             IntegrationTableSynch.BeginIntegrationSynchJobLoging(TABLECONNECTIONTYPE::CRM, CODEUNIT::"CRM Order Status Update Job", JobLogEntryNo, DATABASE::"Sales Header");
 
-        Counter := CreateStatusPostOnModifiedOrders;
+        Counter := CreateStatusPostOnModifiedOrders();
         IntegrationTableSynch.UpdateSynchJobCounters(SynchActionType::Modify, Counter);
 
-        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetOrderStatusUpdateFinalMessage);
+        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetOrderStatusUpdateFinalMessage());
     end;
 
     procedure GetOrderStatusUpdateFinalMessage(): Text
@@ -73,7 +74,7 @@ codeunit 5352 "CRM Order Status Update Job"
         if Sender."Object ID to Run" <> CODEUNIT::"CRM Order Status Update Job" then
             exit;
 
-        if not CRMConnectionSetup.Get then
+        if not CRMConnectionSetup.Get() then
             exit;
 
         if not CRMConnectionSetup."Is Enabled" then
@@ -88,7 +89,7 @@ codeunit 5352 "CRM Order Status Update Job"
     var
         CRMPost: Record "CRM Post";
     begin
-        CRMPost.PostId := CreateGuid;
+        CRMPost.PostId := CreateGuid();
         CRMPost.RegardingObjectId := CRMSalesorder.SalesOrderId;
         CRMPost.RegardingObjectTypeCode := CRMPost.RegardingObjectTypeCode::salesorder;
         CRMPost.Text := CopyStr(Message, 1, MaxStrLen(CRMPost.Text));
@@ -100,13 +101,13 @@ codeunit 5352 "CRM Order Status Update Job"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit(false);
 
         if not CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CRMSalesorder.SalesOrderId) then
             exit(false);
 
-        if not CRMSalesorder.Find then
+        if not CRMSalesorder.Find() then
             exit(false);
 
         exit(true);

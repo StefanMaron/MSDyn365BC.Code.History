@@ -209,7 +209,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Excercise & verify
         asserterror WorkflowMgt.ExecuteResponses(Item, Item, FirstWorkflowStepInstance);
-        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption));
+        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption()));
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Verify
         PurchInvNo := PurchaseHeader."No.";
-        asserterror PurchaseHeader.Find;
+        asserterror PurchaseHeader.Find();
 
         Assert.ExpectedError(StrSubstNo(PurchaseDocDoesNotExistErr, PurchaseHeader."Document Type"::Invoice, PurchInvNo));
 
@@ -302,7 +302,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Verify
         SalesInvNo := SalesHeader."No.";
-        asserterror SalesHeader.Find;
+        asserterror SalesHeader.Find();
 
         Assert.ExpectedError(StrSubstNo(SalesDocDoesNotExistErr, SalesHeader."Document Type"::Invoice, SalesInvNo));
 
@@ -336,7 +336,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Excercise & verify
         asserterror WorkflowMgt.ExecuteResponses(Item, Item, FirstWorkflowStepInstance);
-        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption));
+        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption()));
     end;
 
     [Test]
@@ -563,7 +563,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Excercise & verify
         asserterror WorkflowMgt.ExecuteResponses(Item, Item, FirstWorkflowStepInstance);
-        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption));
+        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption()));
     end;
 
     [Test]
@@ -721,7 +721,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Excercise & verify
         asserterror WorkflowMgt.ExecuteResponses(Item, Item, FirstWorkflowStepInstance);
-        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption));
+        Assert.ExpectedError(StrSubstNo(UnsupportedRecordTypeErr, Item.TableCaption()));
     end;
 
     [Test]
@@ -900,7 +900,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
 
         // Verify
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
     end;
 
@@ -931,7 +931,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
 
         // Verify
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::"Pending Approval");
     end;
 
@@ -988,13 +988,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver1UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 2);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 3);
@@ -1110,7 +1110,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 2);
@@ -1226,7 +1226,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           ApprovalEntry."Approval Type"::"Sales Pers./Purchaser", ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::"Sales Pers./Purchaser", ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 2);
@@ -1400,13 +1400,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver1UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 2);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 3);
@@ -1522,7 +1522,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::Approver, ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 2);
@@ -1583,7 +1583,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           ApprovalEntry."Approval Type"::"Sales Pers./Purchaser", ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserSetup."User ID", Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::"Sales Pers./Purchaser", ApprovalEntry."Limit Type"::"Approval Limits", DueDateFormula, 2);
@@ -1761,7 +1761,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           ApprovalEntry."Approval Type"::"Sales Pers./Purchaser", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 1);
         ApprovalEntry.TestField("Approval Code", FirstWorkflowStepInstance."Workflow Code");
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, Approver2UserSetup."User ID",
           ApprovalEntry."Approval Type"::"Sales Pers./Purchaser", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 2);
@@ -2556,12 +2556,12 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup1."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 1);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup2."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 2);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup3."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 3);
@@ -2623,12 +2623,12 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup1."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 1);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup2."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 1);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup3."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 1);
@@ -2689,12 +2689,12 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup1."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 1);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup2."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 2);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntryIsCreated(ApprovalEntry);
         VerifyApprovalEntry(ApprovalEntry, UserId, UserSetup3."User ID",
           ApprovalEntry."Approval Type"::"Workflow User Group", ApprovalEntry."Limit Type"::"No Limits", DueDateFormula, 3);
@@ -2751,7 +2751,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         GenJnlBatch.Init();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ShowMessageWorkflowStepInstance,
-          WorkflowResponseHandling.ShowMessageCode);
+          WorkflowResponseHandling.ShowMessageCode());
 
         WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
@@ -2795,7 +2795,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           WorkflowResponseHandling.RestrictRecordUsageCode);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          Customer."No.", LibraryInventory.CreateItemNo, 10, '', WorkDate);
+          Customer."No.", LibraryInventory.CreateItemNo, 10, '', WorkDate());
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
@@ -2837,7 +2837,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          Customer."No.", LibraryInventory.CreateItemNo, LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          Customer."No.", LibraryInventory.CreateItemNo, LibraryRandom.RandDec(1000, 2), '', WorkDate());
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
         Commit();
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3290,7 +3290,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(WorkflowRecordChange, WorkflowRecordChange, FirstWorkflowStepInstance);
 
         // Verify.
-        Vendor.Find;
+        Vendor.Find();
         Assert.AreEqual(NewValue, Vendor."Budgeted Amount", 'The new value was not applied');
     end;
 
@@ -3514,7 +3514,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           WorkflowResponseHandling.ApplyNewValuesCode);
 
         LibrarySales.CreateCustomer(Customer);
-        OldValue := CalcDate('<-1D>', WorkDate);
+        OldValue := CalcDate('<-1D>', WorkDate());
         NewValue := Today;
 
         Customer."Last Date Modified" := OldValue;
@@ -3880,13 +3880,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
     end;
 
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
     end;
 

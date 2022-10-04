@@ -24,22 +24,20 @@ codeunit 99000812 PlanningWkshManagement
         if ReqLine."No." = '' then
             ItemDescription := ''
         else
-            if ReqLine."No." <> LastReqLine."No." then begin
+            if ReqLine."No." <> LastReqLine."No." then
                 if Item.Get(ReqLine."No.") then
                     ItemDescription := Item.Description
                 else
                     ItemDescription := '';
-            end;
 
         if ReqLine."Routing No." = '' then
             RoutingDescription := ''
         else
-            if ReqLine."Routing No." <> LastReqLine."Routing No." then begin
+            if ReqLine."Routing No." <> LastReqLine."Routing No." then
                 if RtngHeader.Get(ReqLine."Routing No.") then
                     RoutingDescription := RtngHeader.Description
                 else
                     RoutingDescription := '';
-            end;
 
         LastReqLine := ReqLine;
     end;

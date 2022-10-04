@@ -124,9 +124,6 @@ page 9171 "Profile List"
                     Caption = 'Use as default profile';
                     Image = Default;
                     Scope = "Repeater";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Set the selected profile as the one that is used for all users that are not assigned a role. Only one profile can be set as the default.​';
                     Enabled = Enabled;
                     AccessByPermission = tabledata "Tenant Profile Setting" = M;
@@ -136,7 +133,7 @@ page 9171 "Profile List"
                         TestField("Profile ID");
                         TestField("Role Center ID");
                         Validate("Default Role Center", true);
-                        Modify;
+                        Modify();
                         ConfPersonalizationMgt.ChangeDefaultRoleCenter(Rec);
                     end;
                 }
@@ -147,9 +144,6 @@ page 9171 "Profile List"
                     Ellipsis = true;
                     Image = Copy;
                     Scope = "Repeater";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Create a copy of this profile including any page customizations made by users for this profile.';
                     AccessByPermission = tabledata "Tenant Profile" = I;
 
@@ -167,9 +161,6 @@ page 9171 "Profile List"
                     Caption = 'Customize pages';
                     Image = SetupColumns;
                     Scope = "Repeater";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Visible = IsWebClient;
                     ToolTip = 'Change the user interface for this profile to fit the unique needs of the role (opens in a new tab). The changes that you make only apply to users that are assigned this profile.';
                     AccessByPermission = tabledata "Tenant Profile" = M;
@@ -185,9 +176,6 @@ page 9171 "Profile List"
                     Caption = 'Export Profiles';
                     Image = Export;
                     Scope = Page;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Visible = IsWebClient;
                     ToolTip = 'Export to a profile package all changes done by users to this list. This may include new profiles, modified profiles and page customizations.';
 
@@ -202,14 +190,34 @@ page 9171 "Profile List"
                     Caption = 'Import Profiles';
                     Image = Import;
                     Scope = Page;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     AccessByPermission = TableData "Profile Designer Diagnostic" = I;
                     Visible = IsWebClient;
                     ToolTip = 'Import a profile package that adds or replaces profiles in this list. This may include new profiles, modified profiles and page customizations.';
                     RunPageMode = Edit;
                     RunObject = page "Profile Import Wizard";
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SetDefaultRoleCenterAction_Promoted; SetDefaultRoleCenterAction)
+                {
+                }
+                actionref(CopyProfileAction_Promoted; CopyProfileAction)
+                {
+                }
+                actionref(CustomizeRoleAction_Promoted; CustomizeRoleAction)
+                {
+                }
+                actionref(ExportProfiles_Promoted; ExportProfiles)
+                {
+                }
+                actionref(ImportProfiles_Promoted; ImportProfiles)
+                {
                 }
             }
         }

@@ -189,12 +189,12 @@ codeunit 136307 "Job Consumption - Planning"
         // Exercise: Calculate WIP.
         Job.SetRange("No.", Job."No.");
         Job.SetFilter(
-          "Posting Date Filter", '%1..%2', WorkDate, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate));
+          "Posting Date Filter", '%1..%2', WorkDate(), CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Job Calculate WIP", true, false, Job);
 
         // Verify: Verifying WIP Amount in Job WIP Entry.
-        VerifyWIPEntryAmountInJobWIPEntry(Job, WorkDate, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate));
+        VerifyWIPEntryAmountInJobWIPEntry(Job, WorkDate(), CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
     end;
 
     [Test]
@@ -391,9 +391,9 @@ codeunit 136307 "Job Consumption - Planning"
         CreateJobTask(JobTask, Job);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
-        CreateJobJournalLine(JobJournalLine, JobTask, JobPlanningLine, WorkDate);
+        CreateJobJournalLine(JobJournalLine, JobTask, JobPlanningLine, WorkDate());
         CreateJobJournalLine(
-          JobJournalLine, JobTask, JobPlanningLine, CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandInt(3)), WorkDate));
+          JobJournalLine, JobTask, JobPlanningLine, CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandInt(3)), WorkDate()));
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
@@ -613,7 +613,7 @@ codeunit 136307 "Job Consumption - Planning"
         end;
 
         // Exercise
-        JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate, LibraryJob.GetJobJournalTemplate(JobJournalTemplate),
+        JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate(), LibraryJob.GetJobJournalTemplate(JobJournalTemplate),
           LibraryJob.CreateJobJournalBatch(LibraryJob.GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch), JobJournalLine);
 
         // Verify
@@ -624,7 +624,7 @@ codeunit 136307 "Job Consumption - Planning"
                 Assert.AreEqual("Job Planning Line No.", JobPlanningLine."Line No.", FieldCaption("Line No."))
             else
                 Assert.AreEqual("Job Planning Line No.", 0, FieldCaption("Line No."));
-            Assert.AreEqual("Posting Date", WorkDate, FieldCaption("Posting Date"));
+            Assert.AreEqual("Posting Date", WorkDate(), FieldCaption("Posting Date"));
             Assert.AreEqual(Type, JobPlanningLine.Type, FieldCaption(Type));
             Assert.AreEqual("No.", JobPlanningLine."No.", FieldCaption("No."));
             Assert.AreEqual("Unit of Measure Code", JobPlanningLine."Unit of Measure Code", FieldCaption("Unit of Measure Code"));
@@ -742,14 +742,14 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLine.FindSet();
         repeat
             JobPlanningLine.TestField("Qty. to Transfer to Journal", 0)
-        until JobPlanningLine.Next = 0;
+        until JobPlanningLine.Next() = 0;
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobCalculateWIPRequestPageHandler(var JobCalculateWIP: TestRequestPage "Job Calculate WIP")
     begin
-        JobCalculateWIP.PostingDate.SetValue(WorkDate);
+        JobCalculateWIP.PostingDate.SetValue(WorkDate());
         JobCalculateWIP.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
         JobCalculateWIP.OK.Invoke;
     end;

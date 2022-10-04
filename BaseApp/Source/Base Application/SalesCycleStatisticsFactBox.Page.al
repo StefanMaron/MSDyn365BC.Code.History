@@ -14,17 +14,17 @@ page 5175 "Sales Cycle Statistics FactBox"
             group(Control1)
             {
                 ShowCaption = false;
-                field("No. of Opportunities"; "No. of Opportunities")
+                field("No. of Opportunities"; Rec."No. of Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of opportunities that you have created using the sales cycle. This field is not editable.';
                 }
-                field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+                field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the estimated value of all the open opportunities that you have assigned to the sales cycle. This field is not editable.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the calculated current value of all the open opportunities that you have assigned to the sales cycle. This field is not editable.';

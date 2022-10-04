@@ -18,48 +18,48 @@ codeunit 5602 "FA Get G/L Account No."
             if "FA Posting Category" = "FA Posting Category"::" " then
                 case "FA Posting Type" of
                     "FA Posting Type"::"Acquisition Cost":
-                        GLAccNo := FAPostingGr.GetAcquisitionCostAccount;
+                        GLAccNo := FAPostingGr.GetAcquisitionCostAccount();
                     "FA Posting Type"::Depreciation:
-                        GLAccNo := FAPostingGr.GetAccumDepreciationAccount;
+                        GLAccNo := FAPostingGr.GetAccumDepreciationAccount();
                     "FA Posting Type"::"Write-Down":
-                        GLAccNo := FAPostingGr.GetWriteDownAccount;
+                        GLAccNo := FAPostingGr.GetWriteDownAccount();
                     "FA Posting Type"::Appreciation:
-                        GLAccNo := FAPostingGr.GetAppreciationAccount;
+                        GLAccNo := FAPostingGr.GetAppreciationAccount();
                     "FA Posting Type"::"Custom 1":
-                        GLAccNo := FAPostingGr.GetCustom1Account;
+                        GLAccNo := FAPostingGr.GetCustom1Account();
                     "FA Posting Type"::"Custom 2":
-                        GLAccNo := FAPostingGr.GetCustom2Account;
+                        GLAccNo := FAPostingGr.GetCustom2Account();
                     "FA Posting Type"::"Proceeds on Disposal":
-                        GLAccNo := FAPostingGr.GetSalesAccountOnDisposalGain;
+                        GLAccNo := FAPostingGr.GetSalesAccountOnDisposalGain();
                     "FA Posting Type"::"Gain/Loss":
                         begin
                             if "Result on Disposal" = "Result on Disposal"::Gain then
-                                GLAccNo := FAPostingGr.GetGainsAccountOnDisposal;
+                                GLAccNo := FAPostingGr.GetGainsAccountOnDisposal();
                             if "Result on Disposal" = "Result on Disposal"::Loss then
-                                GLAccNo := FAPostingGr.GetLossesAccountOnDisposal;
+                                GLAccNo := FAPostingGr.GetLossesAccountOnDisposal();
                         end;
                 end;
 
             if "FA Posting Category" = "FA Posting Category"::Disposal then
                 case "FA Posting Type" of
                     "FA Posting Type"::"Acquisition Cost":
-                        GLAccNo := FAPostingGr.GetAcquisitionCostAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetAcquisitionCostAccountOnDisposal();
                     "FA Posting Type"::Depreciation:
-                        GLAccNo := FAPostingGr.GetAccumDepreciationAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetAccumDepreciationAccountOnDisposal();
                     "FA Posting Type"::"Write-Down":
-                        GLAccNo := FAPostingGr.GetWriteDownAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetWriteDownAccountOnDisposal();
                     "FA Posting Type"::Appreciation:
-                        GLAccNo := FAPostingGr.GetAppreciationAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetAppreciationAccountOnDisposal();
                     "FA Posting Type"::"Custom 1":
-                        GLAccNo := FAPostingGr.GetCustom1AccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetCustom1AccountOnDisposal();
                     "FA Posting Type"::"Custom 2":
-                        GLAccNo := FAPostingGr.GetCustom2AccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetCustom2AccountOnDisposal();
                     "FA Posting Type"::"Book Value on Disposal":
                         begin
                             if "Result on Disposal" = "Result on Disposal"::Gain then
-                                GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalGain;
+                                GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalGain();
                             if "Result on Disposal" = "Result on Disposal"::Loss then
-                                GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalLoss;
+                                GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalLoss();
                             "Result on Disposal" := "Result on Disposal"::" ";
                         end;
                 end;
@@ -67,13 +67,13 @@ codeunit 5602 "FA Get G/L Account No."
             if "FA Posting Category" = "FA Posting Category"::"Bal. Disposal" then
                 case "FA Posting Type" of
                     "FA Posting Type"::"Write-Down":
-                        GLAccNo := FAPostingGr.GetWriteDownBalAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetWriteDownBalAccountOnDisposal();
                     "FA Posting Type"::Appreciation:
-                        GLAccNo := FAPostingGr.GetAppreciationBalAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetAppreciationBalAccountOnDisposal();
                     "FA Posting Type"::"Custom 1":
-                        GLAccNo := FAPostingGr.GetCustom1BalAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetCustom1BalAccountOnDisposal();
                     "FA Posting Type"::"Custom 2":
-                        GLAccNo := FAPostingGr.GetCustom2BalAccountOnDisposal;
+                        GLAccNo := FAPostingGr.GetCustom2BalAccountOnDisposal();
                 end;
         end;
 
@@ -85,7 +85,7 @@ codeunit 5602 "FA Get G/L Account No."
     begin
         FAPostingGr.GetPostingGroup(
             MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
-        exit(FAPostingGr.GetMaintenanceExpenseAccount);
+        exit(FAPostingGr.GetMaintenanceExpenseAccount());
     end;
 
     [IntegrationEvent(false, false)]

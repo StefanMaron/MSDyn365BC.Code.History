@@ -12,12 +12,12 @@ page 6670 "Returns-Related Documents"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

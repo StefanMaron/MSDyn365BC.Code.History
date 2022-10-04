@@ -13,7 +13,7 @@ report 5801 "Invt. Valuation - Cost Spec."
             DataItemTableView = WHERE(Type = CONST(Inventory));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Inventory Posting Group", "Statistics Group";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(AsOfValuationDate; StrSubstNo(Text000, Format(ValuationDate)))
@@ -115,7 +115,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                 var
                     ItemLedgerEntry: Record "Item Ledger Entry";
                 begin
-                    ClearTotals;
+                    ClearTotals();
 
                     ItemLedgerEntry.SetFilter("Item No.", Item."No.");
                     ItemLedgerEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
@@ -129,7 +129,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                         CurrReport.Break();
 
                     repeat
-                        ClearBufferVariables;
+                        ClearBufferVariables();
 
                         IsPositive := GetSign(ItemLedgerEntry);
                         CalcRemainingQty(ItemLedgerEntry);
@@ -141,10 +141,10 @@ report 5801 "Invt. Valuation - Cost Spec."
                         end;
                         TotalRemAvg += RemainingQty;
 
-                        IncrTotals;
+                        IncrTotals();
                     until ItemLedgerEntry.Next() = 0;
 
-                    CalcAvgCost;
+                    CalcAvgCost();
                 end;
             }
         }
@@ -184,7 +184,7 @@ report 5801 "Invt. Valuation - Cost Spec."
         trigger OnOpenPage()
         begin
             if ValuationDate = 0D then
-                ValuationDate := WorkDate;
+                ValuationDate := WorkDate();
         end;
     }
 
@@ -205,7 +205,7 @@ report 5801 "Invt. Valuation - Cost Spec."
     trigger OnPreReport()
     begin
         if ValuationDate = 0D then
-            ValuationDate := WorkDate;
+            ValuationDate := WorkDate();
 
         for i := 1 to ArrayLen(EntryTypeDescription) do begin
             ValueEntry."Entry Type" := "Cost Entry Type".FromInteger(i - 1);
@@ -223,8 +223,6 @@ report 5801 "Invt. Valuation - Cost Spec."
     end;
 
     var
-        Text000: Label 'As of %1';
-        Text001: Label 'Enter the valuation date.';
         ValueEntry: Record "Value Entry";
         EntryTypeDescription: array[5] of Text[30];
         i: Integer;
@@ -245,6 +243,9 @@ report 5801 "Invt. Valuation - Cost Spec."
         ResultForRemainingQty: Decimal;
         ResultForAvgCost: Decimal;
 
+        Text000: Label 'As of %1';
+        Text001: Label 'Enter the valuation date.';
+
     local procedure CalcRemainingQty(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         ItemApplnEntry: Record "Item Application Entry";
@@ -255,7 +256,7 @@ report 5801 "Invt. Valuation - Cost Spec."
 
         with ItemApplnEntry do
             if ItemLedgerEntry.Positive then begin
-                Reset;
+                Reset();
                 SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
                 SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
                 SetFilter("Outbound Item Entry No.", '<>%1', 0);
@@ -265,7 +266,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                         SumQty(RemainingQty, PosQty, "Outbound Item Entry No.", Quantity);
                     until Next() = 0;
             end else begin
-                Reset;
+                Reset();
                 SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
                 SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
                 SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
@@ -340,7 +341,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                             exit(false);
                         ItemLedgEntry.CopyFilters(ItemLedgerEntry);
                         ItemLedgEntry."Entry No." := "Entry No." - 1;
-                        exit(not ItemLedgEntry.Find);
+                        exit(ItemLedgEntry.IsEmpty());
                     end;
                 else
                     exit(false)

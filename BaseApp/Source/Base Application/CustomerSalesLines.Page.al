@@ -15,13 +15,13 @@ page 351 "Customer Sales Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -40,7 +40,7 @@ page 351 "Customer Sales Lines"
                         ShowCustEntriesDue();
                     end;
                 }
-                field("Cust.""Sales (LCY)"""; "Sales (LCY)")
+                field("Cust.""Sales (LCY)"""; Rec."Sales (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -53,7 +53,7 @@ page 351 "Customer Sales Lines"
                         ShowCustEntries();
                     end;
                 }
-                field("Cust.""Profit (LCY)"""; "Profit (LCY)")
+                field("Cust.""Profit (LCY)"""; Rec."Profit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

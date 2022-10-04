@@ -1,4 +1,4 @@
-table 7338 "Bin Creation Worksheet Line"
+﻿table 7338 "Bin Creation Worksheet Line"
 {
     Caption = 'Bin Creation Worksheet Line';
     LookupPageID = "Bin Creation Worksheet";
@@ -36,7 +36,7 @@ table 7338 "Bin Creation Worksheet Line"
                     "Bin Code" := '';
                     "Zone Code" := '';
                     "Variant Code" := '';
-                    Init;
+                    Init();
                     Type := BinCreateWkshLine.Type;
                 end;
             end;
@@ -99,7 +99,7 @@ table 7338 "Bin Creation Worksheet Line"
                 if "Item No." <> '' then begin
                     GetItem("Item No.");
                     Description := Item.Description;
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
                     CheckWhseClass("Item No.");
                 end else begin
@@ -305,21 +305,22 @@ table 7338 "Bin Creation Worksheet Line"
         BinCreateWkshTemplate: Record "Bin Creation Wksh. Template";
         Location: Record Location;
         Zone: Record Zone;
-        Text001: Label '%1 Worksheet';
-        Text002: Label 'Default Worksheet';
-        Text003: Label 'Cancelled.';
         Bin: Record Bin;
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UOMMgt: Codeunit "Unit of Measure Management";
         WMSMgt: Codeunit "WMS Management";
+        OpenFromBatch: Boolean;
+
+        Text001: Label '%1 Worksheet';
+        Text002: Label 'Default Worksheet';
+        Text003: Label 'Cancelled.';
         Text004: Label 'DEFAULT';
         Text005: Label 'The Total Cubage %1 of the %2 in the bin contents exceeds the entered %3 %4.\Do you still want to enter this %3?';
         Text007: Label 'The %1 %2 %3 does not match the %4 %5.';
         Text008: Label 'The location %1 of bin creation  Wksh. batch %2 is not enabled for user %3.';
         Text009: Label 'The %1 %2 must not be less than the %3 %4.';
-        UOMMgt: Codeunit "Unit of Measure Management";
         Text010: Label 'There is already a default bin content for location code %1, item no. %2 and variant code %3.';
-        OpenFromBatch: Boolean;
 
     procedure EmptyLine(): Boolean
     begin
@@ -403,7 +404,7 @@ table 7338 "Bin Creation Worksheet Line"
 
     procedure OpenWksh(var CurrentWkshName: Code[10]; var CurrentLocationCode: Code[10]; var BinCreateWkshLine: Record "Bin Creation Worksheet Line")
     begin
-        WMSMgt.CheckUserIsWhseEmployee;
+        WMSMgt.CheckUserIsWhseEmployee();
         CheckTemplateName(
           BinCreateWkshLine.GetRangeMax("Worksheet Template Name"),
           CurrentLocationCode, CurrentWkshName);
@@ -454,7 +455,7 @@ table 7338 "Bin Creation Worksheet Line"
         if not BinCreateWkshName.FindFirst() then begin
             BinCreateWkshName.Init();
             BinCreateWkshName."Worksheet Template Name" := CurrentWkshTemplateName;
-            BinCreateWkshName.SetupNewName;
+            BinCreateWkshName.SetupNewName();
             BinCreateWkshName."Location Code" := CurrentLocationCode;
             BinCreateWkshName.Name := Text004;
             BinCreateWkshName.Description := Text002;
@@ -556,7 +557,7 @@ table 7338 "Bin Creation Worksheet Line"
             Error(
               Text007,
               TableCaption, FieldCaption("Warehouse Class Code"), "Warehouse Class Code",
-              Item.TableCaption, Item.FieldCaption("Warehouse Class Code"));
+              Item.TableCaption(), Item.FieldCaption("Warehouse Class Code"));
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -597,6 +598,7 @@ table 7338 "Bin Creation Worksheet Line"
         ItemVariant: Record "Item Variant";
         OldItemNo: Code[20];
     begin
+        OldItemNo := '';
         ItemDescription := '';
         if ItemNo <> OldItemNo then begin
             ItemDescription := '';

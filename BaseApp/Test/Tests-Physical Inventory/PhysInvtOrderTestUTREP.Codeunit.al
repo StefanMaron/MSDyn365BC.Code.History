@@ -59,11 +59,11 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         // [GIVEN] Update User Setup with Allow Posting From, Create Physical Inventory Order Header with Posting Date less than Allow Posting From.
         Initialize();
         UserSetup."User ID" := UserId;
-        UserSetup."Allow Posting From" := CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        UserSetup."Allow Posting From" := CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         UserSetup.Insert();
 
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
-        PhysInvtOrderHeader."Posting Date" := WorkDate;
+        PhysInvtOrderHeader."Posting Date" := WorkDate();
         PhysInvtOrderHeader.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
@@ -89,7 +89,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         // [GIVEN] Update User Setup with Allow Posting To, Create Physical Inventory Order Header with Posting Date more than Allow Posting To.
         Initialize();
         UserSetup."User ID" := UserId;
-        UserSetup."Allow Posting To" := WorkDate;
+        UserSetup."Allow Posting To" := WorkDate();
         UserSetup.Insert();
 
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
@@ -136,7 +136,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         LibraryReportDataset.AssertElementWithValueExists(
           'ErrorText_Number__Control41', StrSubstNo(ValueSpecifiedWarningTxt, PhysInvtOrderLine.FieldCaption("Inventory Posting Group")));
         LibraryReportDataset.AssertElementWithValueExists(
-          'ErrorText_Number__Control41', StrSubstNo('%1 %2 does not exist.', Item.TableCaption, PhysInvtOrderLine."Item No."));
+          'ErrorText_Number__Control41', StrSubstNo('%1 %2 does not exist.', Item.TableCaption(), PhysInvtOrderLine."Item No."));
     end;
 
     [Test]

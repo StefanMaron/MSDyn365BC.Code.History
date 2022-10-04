@@ -2,6 +2,14 @@ table 2101 "O365 Item Basket Entry"
 {
     Caption = 'O365 Item Basket Entry';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -12,21 +20,23 @@ table 2101 "O365 Item Basket Entry"
         field(3; Quantity; Decimal)
         {
             Caption = 'Quantity';
-
+#if not CLEAN21
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
+#endif
         }
         field(4; "Unit Price"; Decimal)
         {
             Caption = 'Unit Price';
             DecimalPlaces = 2 : 5;
-
+#if not CLEAN21
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
+#endif
         }
         field(5; "Line Total"; Decimal)
         {
@@ -73,13 +83,14 @@ table 2101 "O365 Item Basket Entry"
         {
         }
     }
-
+#if not CLEAN21
     local procedure UpdateAmounts()
     begin
         "Line Total" := Round(Quantity * "Unit Price");
         "Brick Text 2" := Format("Line Total", 0, '<Precision,2><Standard Format,0>');
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CreateSalesDocument(DocumentType: Option; CustomerNo: Code[20]; var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -104,5 +115,6 @@ table 2101 "O365 Item Basket Entry"
         until Next() = 0;
         DeleteAll(true);
     end;
+#endif    
 }
 

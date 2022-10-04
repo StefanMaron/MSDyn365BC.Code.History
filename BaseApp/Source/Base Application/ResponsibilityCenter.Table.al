@@ -1,4 +1,4 @@
-table 5714 "Responsibility Center"
+﻿table 5714 "Responsibility Center"
 {
     Caption = 'Responsibility Center';
     DrillDownPageID = "Responsibility Center List";
@@ -11,10 +11,12 @@ table 5714 "Responsibility Center"
             Caption = 'Code';
             NotBlank = true;
         }
-        field(2; Name; Text[50])
+#pragma warning disable AS0086
+        field(2; Name; Text[100])
         {
             Caption = 'Name';
         }
+#pragma warning restore AS0086
         field(3; Address; Text[100])
         {
             Caption = 'Address';
@@ -39,8 +41,13 @@ table 5714 "Responsibility Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(6; "Post Code"; Code[20])
@@ -59,8 +66,13 @@ table 5714 "Responsibility Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(7; "Country/Region Code"; Code[10])
@@ -149,7 +161,7 @@ table 5714 "Responsibility Center"
         field(5901; "Contract Gain/Loss Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Contract Gain/Loss Entry".Amount WHERE("Responsibility Center" = FIELD(Code),
+            CalcFormula = Sum("Contract Gain/Loss Entry".Amount WHERE("Responsibility Center" = FIELD(Code),
                                                                        "Change Date" = FIELD("Date Filter")));
             Caption = 'Contract Gain/Loss Amount';
             Editable = false;
@@ -193,9 +205,9 @@ table 5714 "Responsibility Center"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Responsibility Center", Code, FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -209,5 +221,14 @@ table 5714 "Responsibility Center"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ResponsibilityCenter: Record "Responsibility Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ResponsibilityCenter: Record "Responsibility Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }
 

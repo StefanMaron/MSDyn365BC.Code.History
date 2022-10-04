@@ -59,8 +59,6 @@ page 5362 "CRM UnitGroup List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Unit Groups';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled unit groups.';
 
                 trigger OnAction()
@@ -73,14 +71,26 @@ page 5362 "CRM UnitGroup List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Unit Groups';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled unit groups.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

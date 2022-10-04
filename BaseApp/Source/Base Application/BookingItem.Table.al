@@ -218,7 +218,7 @@ table 6707 "Booking Item"
 
     procedure CheckActionAllowed() Allowed: Boolean
     begin
-        Allowed := ("Service Name" <> '') and not IsEmpty;
+        Allowed := ("Service Name" <> '') and not IsEmpty();
     end;
 }
 

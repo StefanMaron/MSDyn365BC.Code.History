@@ -6,12 +6,13 @@ codeunit 5603 "FA Get Balance Account"
     end;
 
     var
-        Text000: Label 'Do you want to insert a line for the balancing account that is related to the selected lines?';
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
+
+        Text000: Label 'Do you want to insert a line for the balancing account that is related to the selected lines?';
 
     procedure InsertAcc(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        ClearAll;
+        ClearAll();
         with GenJnlLine do begin
             if Count > 1 then
                 if not Confirm(Text000) then
@@ -25,7 +26,7 @@ codeunit 5603 "FA Get Balance Account"
 
     procedure InsertAccWithBalAccountInfo(var GenJnlLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20])
     begin
-        ClearAll;
+        ClearAll();
         with GenJnlLine do begin
             if Count > 1 then
                 if not Confirm(Text000) then

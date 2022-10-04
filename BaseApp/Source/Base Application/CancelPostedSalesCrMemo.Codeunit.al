@@ -161,7 +161,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         TableID[1] := DATABASE::Customer;
         No[1] := Customer."No.";
         if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesCrMemoHeader."Dimension Set ID") then
-            ErrorHelperAccount(ErrorType::DimErr, Customer.TableCaption, Customer."No.", Customer."No.", Customer.Name);
+            ErrorHelperAccount(ErrorType::DimErr, Customer."No.", Customer.TableCaption(), Customer."No.", Customer.Name);
     end;
 
     local procedure TestSalesLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -185,7 +185,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
                         TableID[1] := DATABASE::Item;
                         No[1] := SalesCrMemoLine."No.";
                         if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesCrMemoLine."Dimension Set ID") then
-                            ErrorHelperAccount(ErrorType::DimErr, Item.TableCaption, No[1], Item."No.", Item.Description);
+                            ErrorHelperAccount(ErrorType::DimErr, No[1], Item.TableCaption(), Item."No.", Item.Description);
 
                         if Item.Type = Item.Type::Inventory then
                             TestInventoryPostingSetup(SalesCrMemoLine);
@@ -211,14 +211,14 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount(ErrorType::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
+            ErrorHelperAccount(ErrorType::AccountBlocked, AccountNo, GLAccount.TableCaption(), '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then begin
             Item.Get(SalesCrMemoLine."No.");
             if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesCrMemoLine."Dimension Set ID") then
-                ErrorHelperAccount(ErrorType::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+                ErrorHelperAccount(ErrorType::DimErr, AccountNo, GLAccount.TableCaption(), Item."No.", Item.Description);
         end;
     end;
 
@@ -255,7 +255,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         PostingDate: Date;
         PostingNoSeries: Code[20];
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         SalesReceivablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '' then
@@ -308,8 +308,8 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
             TestGLAccount("Sales Line Disc. Account", SalesCrMemoLine);
             if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then begin
                 Item.Get(SalesCrMemoLine."No.");
-                if Item.IsInventoriableType then
-                    TestGLAccount(GetCOGSAccount, SalesCrMemoLine);
+                if Item.IsInventoriableType() then
+                    TestGLAccount(GetCOGSAccount(), SalesCrMemoLine);
             end;
         end;
     end;

@@ -51,7 +51,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
                 ToItemJnlLine.Quantity := Round("Quantity (Base)" * FromBOMComp."Quantity per", 0.00001);
                 if ToItemJnlLine.Quantity > 0 then
                     if ItemCheckAvail.ItemJnlCheckLine(ToItemJnlLine) then
-                        ItemCheckAvail.RaiseUpdateInterruptedError;
+                        ItemCheckAvail.RaiseUpdateInterruptedError();
             until FromBOMComp.Next() = 0;
 
         ToItemJnlLine := Rec;
@@ -100,9 +100,6 @@ codeunit 246 "Item Jnl.-Explode BOM"
     end;
 
     var
-        Text000: Label 'Item %1 is not a BOM.';
-        Text002: Label 'There is not enough space to explode the BOM.';
-        Text003: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
         ToItemJnlLine: Record "Item Journal Line";
         FromBOMComp: Record "BOM Component";
         Item: Record Item;
@@ -111,6 +108,10 @@ codeunit 246 "Item Jnl.-Explode BOM"
         LineSpacing: Integer;
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
+
+        Text000: Label 'Item %1 is not a BOM.';
+        Text002: Label 'There is not enough space to explode the BOM.';
+        Text003: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
 
     local procedure GetItemJnlLineSpacing(OldItemJnlLine: Record "Item Journal Line"; var ToItemJnlLine: Record "Item Journal Line") LineSpacing: Integer
     var

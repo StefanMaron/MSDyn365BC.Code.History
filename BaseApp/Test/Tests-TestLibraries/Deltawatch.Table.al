@@ -1,5 +1,6 @@
 table 130001 "Delta watch"
 {
+    ReplicateData = false;
 
     fields
     {

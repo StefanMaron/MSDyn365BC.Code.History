@@ -140,16 +140,16 @@ codeunit 136203 "Marketing Task Management"
         // 3. Verify: Verify Task deleted attach on Team, Contact and Salespeople.
         Task.Reset();
         Task.SetRange("Team Code", Team.Code);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
 
         Task.Reset();
         Task.SetRange("Contact No.", Contact."No.");
         Task.SetRange("Team Code", Team.Code);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
 
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -207,13 +207,13 @@ codeunit 136203 "Marketing Task Management"
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
-        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption(), SegmentLine.Count));
 
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
-        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption(), SegmentLine.Count));
 
         VerifyTaskForSegment(SegmentHeader."No.");
     end;
@@ -271,12 +271,12 @@ codeunit 136203 "Marketing Task Management"
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
-        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption(), SegmentLine.Count));
 
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.SetRange("Segment No.", SegmentHeader."No.");
-        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption(), SegmentLine.Count));
 
         VerifyTaskForSegment(SegmentHeader."No.");
     end;
@@ -594,7 +594,7 @@ codeunit 136203 "Marketing Task Management"
         Task.TestField(Status, Task.Status::Completed);
 
         FindClosedTask(Task, SalespersonPurchaser.Code, false);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -633,7 +633,7 @@ codeunit 136203 "Marketing Task Management"
         Task.TestField(Status, Task.Status::Completed);
 
         FindCanceledTask(Task, SalespersonPurchaser.Code, false);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -785,7 +785,7 @@ codeunit 136203 "Marketing Task Management"
         Task.Reset();
         Task.SetRange("Team Code", Team.Code);
         Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -1323,11 +1323,11 @@ codeunit 136203 "Marketing Task Management"
         Evaluate(DateFormula, EndingDateFormula);
         with Task do begin
             Validate(Type, Type::Meeting);
-            Validate(Date, WorkDate);
+            Validate(Date, WorkDate());
             Validate(Duration, 1440 * 60 * 1000);
             Validate("All Day Event", true);
 
-            EndingDate := CalcDate(DateFormula, WorkDate);
+            EndingDate := CalcDate(DateFormula, WorkDate());
             Validate("Ending Date", EndingDate);
 
             TestField("Ending Date", EndingDate);
@@ -1384,7 +1384,7 @@ codeunit 136203 "Marketing Task Management"
             Task.FindFirst();
             Task.TestField("Team Code", Team.Code);
         end else
-            Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+            Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     local procedure InitializeGlobalVariable()
@@ -1432,10 +1432,10 @@ codeunit 136203 "Marketing Task Management"
     local procedure CreateMeetingTask(var Task: Record "To-do")
     begin
         with Task do begin
-            Init;
+            Init();
             Type := Type::Meeting;
             "Start Time" := Time;
-            Date := WorkDate;
+            Date := WorkDate();
             Insert(true);
         end;
     end;
@@ -1476,7 +1476,7 @@ codeunit 136203 "Marketing Task Management"
             LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeaderNo);
             SegmentLine.Validate("Contact No.", Contact."No.");
             SegmentLine.Modify(true);
-            Contact.Next;
+            Contact.Next();
         end;
     end;
 
@@ -1485,7 +1485,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Validate("Segment No.", SegmentNo3);
         TempTask.Validate(Type, TaskType);
         TempTask.Validate(Description, SegmentNo3);
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
     end;
 
     local procedure CreateTeamWithSalesperson(var Team: Record Team; var SalespersonPurchaser: Record "Salesperson/Purchaser")
@@ -1545,8 +1545,8 @@ codeunit 136203 "Marketing Task Management"
             Task.FindFirst();
             Task.TestField(Priority, ActivityStep.Priority);
             Task.TestField("Team Code", TeamCode);
-            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
-        until ActivityStep.Next = 0;
+            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate()));
+        until ActivityStep.Next() = 0;
     end;
 
     local procedure VerifySalespersonActivity(SalespersonCode: Code[20]; ActivityCode: Code[10]; TeamCode: Code[10])
@@ -1563,8 +1563,8 @@ codeunit 136203 "Marketing Task Management"
             Task.FindFirst();
             Task.TestField(Priority, ActivityStep.Priority);
             Task.TestField("Team Code", TeamCode);
-            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
-        until ActivityStep.Next = 0;
+            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate()));
+        until ActivityStep.Next() = 0;
     end;
 
     local procedure VerifyTeamActivity(ActivityCode: Code[10]; TeamCode: Code[10])
@@ -1580,8 +1580,8 @@ codeunit 136203 "Marketing Task Management"
             Task.SetRange(Type, ActivityStep.Type);
             Task.FindFirst();
             Task.TestField(Priority, ActivityStep.Priority);
-            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
-        until ActivityStep.Next = 0;
+            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate()));
+        until ActivityStep.Next() = 0;
     end;
 
     local procedure VerifyTaskForTeam(TeamCode: Code[10])
@@ -1629,7 +1629,7 @@ codeunit 136203 "Marketing Task Management"
             Task.FindFirst();
             Task.TestField("Contact Company No.", SegmentLine."Contact Company No.");
             Task.TestField(Date, SegmentLine.Date);
-        until SegmentLine.Next = 0;
+        until SegmentLine.Next() = 0;
     end;
 
     local procedure VerifySalespersonDeleted(SalespersonPurchaserCode: Code[20])
@@ -1667,7 +1667,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Validate(Type, TaskType2);
         TempTask.Validate(Description, TeamCode);
         TempTask.Validate("Team To-do", true);
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
         TempTask.Validate("All Day Event", AllDayEvent2);
 
         if SalespersonCode2 <> '' then
@@ -1744,7 +1744,7 @@ codeunit 136203 "Marketing Task Management"
             CreateAttendee(
               TempAttendee, TempAttendee."Attendance Type"::Required, TempAttendee."Attendee Type"::Contact, SegmentLine."Contact No.");
             TempTask.SetAttendee(TempAttendee);
-        until SegmentLine.Next = 0;
+        until SegmentLine.Next() = 0;
         TempTask.SetAttendee(TempAttendee);
         TempTask.GetAttendee(TempAttendee);
 
@@ -1763,7 +1763,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Validate("Contact No.", ContactNo);
         TempTask.Validate("Activity Code", ActivityCode);
         TempTask.Validate(Description, ActivityCode);
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
         TempTask.Validate("Team Code", TeamCode);
         TempTask.Validate("Team Meeting Organizer", SalespersonCode2);
         TempTask.Modify();

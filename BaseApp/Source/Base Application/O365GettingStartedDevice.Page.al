@@ -48,7 +48,7 @@ page 1307 "O365 Getting Started Device"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -64,12 +64,12 @@ page 1307 "O365 Getting Started Device"
         CurrentPageID := 1;
         FirstPageVisible := true;
 
-        LoadRecords;
+        LoadRecords();
 
-        if not AlreadyShown then begin
-            MarkAsShown;
+        if not AlreadyShown() then begin
+            MarkAsShown();
             "Tour Completed" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -86,7 +86,6 @@ page 1307 "O365 Getting Started Device"
         ImageO365GettingStartedPageData.GetPageImage(ImageO365GettingStartedPageData, CurrentPageID, PAGE::"O365 Getting Started Device");
         if ImagPageDataMediaResources.Get(ImageO365GettingStartedPageData."Media Resources Ref") then;
 
-        BodyText := StrSubstNo(GetDevice1Txt, PRODUCTNAME.Marketing);
+        BodyText := StrSubstNo(GetDevice1Txt, PRODUCTNAME.Marketing());
     end;
 }
-

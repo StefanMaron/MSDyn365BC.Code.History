@@ -12,7 +12,7 @@ report 809 "Where-Used List"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaption; TableCaption + ': ' + ItemFilter)
@@ -85,7 +85,7 @@ report 809 "Where-Used List"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

@@ -328,7 +328,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Customer.Get(SalesLine."Sell-to Customer No.");
 
         // Execute: Assign Sales Item Charge
-        CreateCreditMemo(SalesHeader, Customer, WorkDate);
+        CreateCreditMemo(SalesHeader, Customer, WorkDate());
         AssignItemChargeShipment(SalesHeader, SalesShptLine);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         Adjust(Item);
@@ -896,7 +896,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         repeat
             TotalCost += TempItemJournalLine.Amount;
             TotalQuantity += TempItemJournalLine.Quantity;
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
 
         TempItemJournalLine.SetRange("Entry Type");
         TempItemJournalLine.FindSet();
@@ -926,7 +926,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
                 ItemJnlLine.Validate(
                   "Inventory Value (Revalued)", Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
                 ItemJnlLine.Modify();
-            until (ItemJnlLine.Next = 0);
+            until (ItemJnlLine.Next() = 0);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
 
@@ -935,8 +935,8 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         NearlyEqual(CostFor(ItemLedgerEntry, TempItemJournalLine), EntryCost(ValueEntry, Actual),
           'Unexpected cost amount actual on value entry.');
         NextValueEntry(ValueEntry);
-        ItemLedgerEntry.Next;
-        TempItemJournalLine.Next;
+        ItemLedgerEntry.Next();
+        TempItemJournalLine.Next();
     end;
 
     local procedure ValidateValueEntry_Outbound(var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; AverageCost: Decimal; InitialUnitCost: Decimal; Actual: Boolean)
@@ -950,7 +950,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
           'Unexpected cost amount actual on value entry.');
 
         NextValueEntry(ValueEntry);
-        ItemLedgerEntry.Next;
+        ItemLedgerEntry.Next();
     end;
 
     local procedure ValidateValueEntry_StandardInbound(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; var TempItemJournalLine: Record "Item Journal Line" temporary)
@@ -963,16 +963,16 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         NearlyEqual(CostFor(ItemLedgerEntry, TempItemJournalLine) - StdCostFor(ItemLedgerEntry, Item), -ValueEntry."Cost Amount (Actual)",
           'Unexpected cost amount actual on inbound variance value entry after adjusting.');
 
-        ItemLedgerEntry.Next;
+        ItemLedgerEntry.Next();
         NextValueEntry(ValueEntry);
-        TempItemJournalLine.Next;
+        TempItemJournalLine.Next();
     end;
 
     local procedure ValidateValueEntry_StandardOutbound(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry")
     begin
         NearlyEqual(StdCostFor(ItemLedgerEntry, Item), ValueEntry."Cost Amount (Actual)",
           'Unexpected cost amount actual on outbound value entry, standard cost.');
-        ItemLedgerEntry.Next;
+        ItemLedgerEntry.Next();
         NextValueEntry(ValueEntry);
     end;
 
@@ -980,7 +980,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         NearlyEqual(StdCostFor(ItemLedgerEntry, Item), ValueEntry."Cost Amount (Expected)",
           'Unexpected cost amount expected on outbound value entry, standard cost.');
-        ItemLedgerEntry.Next;
+        ItemLedgerEntry.Next();
         NextValueEntry(ValueEntry);
     end;
 
@@ -1003,7 +1003,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
 
     local procedure NextValueEntry(var ValueEntry: Record "Value Entry")
     begin
-        if ValueEntry.Next = 0 then
+        if ValueEntry.Next() = 0 then
             exit;
 
         if (Abs(ValueEntry."Cost Amount (Actual)") <= 0.02) and (Abs(ValueEntry."Cost Amount (Expected)") <= 0.02) then
@@ -1115,7 +1115,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         IsInitialized := false;
 
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
-        Day1 := WorkDate;
+        Day1 := WorkDate();
         Loc := '';
         Variant := '';
 

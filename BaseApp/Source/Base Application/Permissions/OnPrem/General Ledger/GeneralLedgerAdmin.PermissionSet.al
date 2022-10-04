@@ -30,6 +30,8 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Data Exch. Field Mapping" = R,
                   tabledata "Data Exch. Line Def" = R,
                   tabledata "Data Exch. Mapping" = R,
+                  tabledata "Data Exch. Field Grouping" = R,
+                  tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Default Dimension Priority" = RIMD,

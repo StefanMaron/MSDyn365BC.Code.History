@@ -342,7 +342,7 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.RecordIsEmpty(IntegrationRecord);
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Record");
-        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationRecord.TableCaption));
+        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationRecord.TableCaption()));
         Assert.RecordCount(ConfigPackageError, IntegrationRecordCount);
     end;
 
@@ -379,7 +379,7 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.RecordIsEmpty(IntegrationTableMapping);
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Table Mapping");
-        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationTableMapping.TableCaption));
+        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationTableMapping.TableCaption()));
         Assert.RecordCount(ConfigPackageError, IntegrationTableMappingRecordCount);
     end;
 
@@ -416,7 +416,7 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.RecordIsEmpty(IntegrationFieldMapping);
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Field Mapping");
-        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationFieldMapping.TableCaption));
+        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationFieldMapping.TableCaption()));
         Assert.RecordCount(ConfigPackageError, IntegrationFieldMappingRecordCount);
     end;
 
@@ -1822,7 +1822,7 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.AreEqual(PackageCode, LibraryVariableStorage.DequeueText(), 'wrong package code in preview'); // from ExcelImportPreviewHandler
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'new package');
         Assert.AreEqual(DATABASE::Currency, LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview');
-        Assert.AreEqual(Currency.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview');
+        Assert.AreEqual(Currency.TableCaption(), LibraryVariableStorage.DequeueText(), 'wrong table name in preview');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'new table');
         // [WHEN] Run "Import" action
         // [THEN] Config. Package 'XA' does exist with table 'Currency'
@@ -1875,13 +1875,13 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText(), 'wrong package code in preview #1'); // from ExcelImportPreviewHandler
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new package #1');
         Assert.AreEqual(DATABASE::Currency, LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview #1');
-        Assert.AreEqual(Currency.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview #1');
+        Assert.AreEqual(Currency.TableCaption(), LibraryVariableStorage.DequeueText(), 'wrong table name in preview #1');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new table #1');
         // [THEN] The first one, where "Package Code" is 'A', "Table ID" is 9, "Table Name" is 'Country\Region','New Package' is 'No','New Table' is 'Yes'
         Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText(), 'wrong package code in preview #2'); // from ExcelImportPreviewHandler
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new package #2');
         Assert.AreEqual(DATABASE::"Country/Region", LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview #2');
-        Assert.AreEqual(CountryRegion.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview #2');
+        Assert.AreEqual(CountryRegion.TableCaption(), LibraryVariableStorage.DequeueText(), 'wrong table name in preview #2');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'new table #2');
         // [WHEN] Run "Import" action
         // [THEN] Config. Package 'A' does exist, where are tables 'Currency', 'Country\Region'
@@ -1977,7 +1977,7 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText(), 'wrong package code in preview'); // from ExcelImportPreviewHandler
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new package');
         Assert.AreEqual(DATABASE::"Country/Region", LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview');
-        Assert.AreEqual(CountryRegion.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview');
+        Assert.AreEqual(CountryRegion.TableCaption(), LibraryVariableStorage.DequeueText(), 'wrong table name in preview');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new table');
         // [WHEN] Run "Import" action
         // [THEN] 'Country/Region' table data is imported, 'Payment Terms' table is empty
@@ -3487,8 +3487,8 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageField.SetRange("Package Code", ConfigPackageCode);
 
         if AnyData then
-            exit(ConfigPackage.Get(ConfigPackageCode) or not ConfigPackageTable.IsEmpty or not ConfigPackageField.IsEmpty);
-        exit(ConfigPackage.Get(ConfigPackageCode) and not ConfigPackageTable.IsEmpty and not ConfigPackageField.IsEmpty);
+            exit(ConfigPackage.Get(ConfigPackageCode) or not ConfigPackageTable.IsEmpty() or not ConfigPackageField.IsEmpty);
+        exit(ConfigPackage.Get(ConfigPackageCode) and not ConfigPackageTable.IsEmpty() and not ConfigPackageField.IsEmpty);
     end;
 
     local procedure CreateTextFile(var FileName: Text)

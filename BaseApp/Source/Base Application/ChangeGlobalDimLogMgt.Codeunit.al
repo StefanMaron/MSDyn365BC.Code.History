@@ -39,8 +39,8 @@ codeunit 484 "Change Global Dim. Log Mgt."
     begin
         if TempChangeGlobalDimLogEntry.Get(TableId) then
             TempChangeGlobalDimLogEntry.Delete();
-        if AreAllCompleted then
-            ClearBuffer;
+        if AreAllCompleted() then
+            ClearBuffer();
     end;
 
 #if not CLEAN19
@@ -65,7 +65,7 @@ codeunit 484 "Change Global Dim. Log Mgt."
     var
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
-        ClearBuffer;
+        ClearBuffer();
         if ChangeGlobalDimLogEntry.IsEmpty() then
             exit(false);
         ChangeGlobalDimLogEntry.FindSet();
@@ -75,7 +75,7 @@ codeunit 484 "Change Global Dim. Log Mgt."
         until ChangeGlobalDimLogEntry.Next() = 0;
         TempChangeGlobalDimLogEntry.SetRange("Total Records", 0);
         TempChangeGlobalDimLogEntry.DeleteAll();
-        exit(not IsBufferClear);
+        exit(not IsBufferClear());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnGetIntegrationDisabled', '', false, false)]

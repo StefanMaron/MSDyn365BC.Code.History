@@ -12,12 +12,12 @@ page 5067 "Contact Industry Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Industry Group Code"; "Industry Group Code")
+                field("Industry Group Code"; Rec."Industry Group Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the industry group code. This field is not editable.';
                 }
-                field("Industry Group Description"; "Industry Group Description")
+                field("Industry Group Description"; Rec."Industry Group Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

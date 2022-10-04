@@ -190,7 +190,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -426,7 +426,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        SalesHeader.Find; // Sales document's status was modified so reread from database.
+        SalesHeader.Find(); // Sales document's status was modified so reread from database.
         SalesHeader.Delete(true);
 
         // Verify
@@ -457,7 +457,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesOrderList.Close;
+        SalesOrderList.Close();
     end;
 
     [Test]
@@ -511,7 +511,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -538,7 +538,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesQuotes.Close;
+        SalesQuotes.Close();
     end;
 
     [Test]
@@ -565,7 +565,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -592,7 +592,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesInvoiceList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesInvoiceList.Close;
+        SalesInvoiceList.Close();
     end;
 
     [Test]
@@ -619,7 +619,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -646,7 +646,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.IsTrue(SalesCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        SalesCreditMemos.Close;
+        SalesCreditMemos.Close();
     end;
 
     [Test]
@@ -675,7 +675,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -704,7 +704,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesOrderList.Close;
+        SalesOrderList.Close();
     end;
 
     [Test]
@@ -733,7 +733,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -762,7 +762,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesQuotes.Close;
+        SalesQuotes.Close();
     end;
 
     [Test]
@@ -791,7 +791,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -820,7 +820,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesInvoiceList.Close;
+        SalesInvoiceList.Close();
     end;
 
     [Test]
@@ -849,7 +849,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -878,7 +878,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        SalesCreditMemos.Close;
+        SalesCreditMemos.Close();
     end;
 
     local procedure ChangeWorkflowWebhookEntryInitiatedBy(Id: Guid; InitiatedByUserID: Code[50])
@@ -997,14 +997,14 @@ codeunit 134216 "WFWH Sales Document Approval"
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SendApprovalRequest.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
 
     local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
         SalesHeader.TestField(Status, Status);
     end;

@@ -20,7 +20,7 @@ report 5855 "Implement Standard Cost Change"
                         begin
                             UpdateItem("Standard Cost Worksheet");
                             UpdateSKU("Standard Cost Worksheet");
-                            InsertRevalItemJnlLine;
+                            InsertRevalItemJnlLine();
                         end;
                     Type::"Work Center":
                         UpdateWorkCenter("Standard Cost Worksheet");
@@ -35,7 +35,7 @@ report 5855 "Implement Standard Cost Change"
             trigger OnPostDataItem()
             begin
                 if not NoMessage then
-                    Message(GetMessage);
+                    Message(GetMessage());
             end;
 
             trigger OnPreDataItem()
@@ -109,7 +109,7 @@ report 5855 "Implement Standard Cost Change"
 
                         trigger OnValidate()
                         begin
-                            RevalItemJnlBatchNameOnAfterVa;
+                            RevalItemJnlBatchNameOnAfterVa();
                         end;
                     }
                 }
@@ -123,9 +123,9 @@ report 5855 "Implement Standard Cost Change"
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
+                PostingDate := WorkDate();
 
-            ValidatePostingDate;
+            ValidatePostingDate();
         end;
     }
 
@@ -152,7 +152,6 @@ report 5855 "Implement Standard Cost Change"
         Window: Dialog;
         StdCostWkshName: Code[10];
         DocNo: Code[20];
-        PostingDate: Date;
         Text000: Label 'Implementing standard cost changes...\\';
         Text001: Label 'You must specify a document no.';
         Text002: Label 'You must specify a worksheet to implement from.';
@@ -171,6 +170,9 @@ report 5855 "Implement Standard Cost Change"
         Text011: Label ', ';
         Text012: Label '.';
         Text013: Label 'Standard Cost Worksheet %1 is empty.';
+
+    protected var
+        PostingDate: Date;
 
     local procedure UpdateItem(StdCostWksh: Record "Standard Cost Worksheet")
     var
@@ -284,7 +286,7 @@ report 5855 "Implement Standard Cost Change"
         HideDuplWarning := true;
 
         GLSetup.Get();
-        if ItemJnlLine2.Next <> 0 then
+        if ItemJnlLine2.Next() <> 0 then
             repeat
                 ItemJnlLine2.Validate(
                   "Unit Cost (Revalued)", Round("Standard Cost Worksheet"."New Standard Cost", GLSetup."Unit-Amount Rounding Precision"));
@@ -308,25 +310,25 @@ report 5855 "Implement Standard Cost Change"
     begin
         TheMsg := '';
         if ItemCostsUpdated then
-            TheMsg := Item.TableCaption;
+            TheMsg := Item.TableCaption();
         if SKUCostsUpdated then begin
             TheMsg := TheMsg + Text011;
-            TheMsg := TheMsg + SKU.TableCaption;
+            TheMsg := TheMsg + SKU.TableCaption();
         end;
         if MachCtrCostsUpdated then begin
             if TheMsg <> '' then
                 TheMsg := TheMsg + Text011;
-            TheMsg := TheMsg + MachCtr.TableCaption;
+            TheMsg := TheMsg + MachCtr.TableCaption();
         end;
         if WorkCtrCostsUpdated then begin
             if TheMsg <> '' then
                 TheMsg := TheMsg + Text011;
-            TheMsg := TheMsg + WorkCtr.TableCaption;
+            TheMsg := TheMsg + WorkCtr.TableCaption();
         end;
         if ResCostsUpdated then begin
             if TheMsg <> '' then
                 TheMsg := TheMsg + Text011;
-            TheMsg := TheMsg + Res.TableCaption;
+            TheMsg := TheMsg + Res.TableCaption();
         end;
         if TheMsg <> '' then
             TheMsg := Text010 + TheMsg + Text012;
@@ -366,7 +368,7 @@ report 5855 "Implement Standard Cost Change"
 
     local procedure RevalItemJnlBatchNameOnAfterVa()
     begin
-        ValidatePostingDate;
+        ValidatePostingDate();
     end;
 
     local procedure CalculateInventoryValue()
@@ -401,7 +403,7 @@ report 5855 "Implement Standard Cost Change"
         if IsHandled then
             exit;
 
-#if not CLEAN19
+#if not CLEAN21
         if UpdateOldResourceCost(StandardCostWorksheet, Resource) then
             exit;
 #endif
@@ -427,7 +429,7 @@ report 5855 "Implement Standard Cost Change"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateOldResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource): Boolean;
     var
         ResourceCost: Record "Resource Cost";

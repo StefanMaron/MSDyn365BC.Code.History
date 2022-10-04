@@ -462,7 +462,7 @@
         <trans-unit id="Codeunit 3915934517 - NamedType 483457420" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit Line  #2########\</source>
           <target state="translated">Pankkitalletusrivi  #2########\</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">#2- a number (progress indicator)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Deposit-Post - NamedType BankDepositLineTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3915934517 - NamedType 1620158295" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -498,7 +498,7 @@
         <trans-unit id="Codeunit 3915934517 - NamedType 2444345320" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Status        #4###################\</source>
           <target state="translated">Tila        #4###################\</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">#4 - a number (progress indicator)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Deposit-Post - NamedType StatusTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3915934517 - NamedType 3628172168" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -554,6 +554,12 @@
           <target state="translated">Pankkitalletusten kirjauskansiot</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Bank Deposit Reports - NamedType BankDepositJournalTemplateDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2005374712 - NamedType 1923184603" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BNKDEPOSIT</source>
+          <target state="translated">PNKTALLET.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Bank Deposit Reports - NamedType BankDepositNoSeriesCodeTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2005374712 - NamedType 665819366" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit</source>
@@ -626,12 +632,6 @@
           <target state="translated">Määrittää kommentin luontipäivämäärän.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Acc. Comment Sheet - Control Date - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3073362426 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Posting,Bank Deposit</source>
-          <target state="translated">Uusi,Käsittely,Raportti,Kirjaus,Pankkitalletus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3073362426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit</source>
@@ -872,12 +872,6 @@
           <target state="translated">Pankkitalletusten testiraportti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit List - Action Bank Deposit Test Report - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1890430176 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Line,Functions</source>
-          <target state="translated">Uusi,Käsittely,Raportti,Rivi,Toiminnot</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit Subform - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 1890430176 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Lines</source>
@@ -1202,12 +1196,6 @@
           <target state="translated">Testiraportti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposits - Action TestReport - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1816704201 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Bank Deposit,Print/Send</source>
-          <target state="translated">Uusi,Käsittely,Raportti,Pankkitalletus,Tulostus/Lähettäminen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 1816704201 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posted Bank Deposit</source>
@@ -1664,12 +1652,6 @@
           <target state="translated">Pankkitalletus</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Action BankDeposit - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3865959199 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Line,Functions</source>
-          <target state="translated">Uusi,Käsittely,Raportti,Rivi,Toiminnot</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit Subform - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3865959199 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posted Bank Deposit Subform</source>
@@ -2459,6 +2441,13 @@
         <trans-unit id="PageExtension 2647506971 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales &amp; Receivables Setup</source>
           <target state="translated">Myyntien ja myyntisaamisten asetukset</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4145206282</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2647506971 - Control 2880731335 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Deposits</source>
+          <target state="translated">Pankkitalletukset</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4145206282</note>

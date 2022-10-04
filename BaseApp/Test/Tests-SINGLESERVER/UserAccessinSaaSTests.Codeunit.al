@@ -61,7 +61,7 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert.IsFalse(UserPersonalizationCard.GotoRecord(ExternalUserPersonalization),
           'External users should not be visible in SaaS on page User Personalization Card');
 
-        UserPersonalizationCard.Close;
+        UserPersonalizationCard.Close();
 
         UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
@@ -98,7 +98,7 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert.IsTrue(UserPersonalizationCard.GotoRecord(ExternalUserPersonalization),
           'External users should be visible in PaaS and on-prem on page User Personalization Card');
 
-        UserPersonalizationCard.Close;
+        UserPersonalizationCard.Close();
 
         UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
@@ -135,7 +135,7 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert.IsFalse(UserPersonalizationList.GotoRecord(ExternalUserPersonalization),
           'External users should not be visible in SaaS on page User Personalization List');
 
-        UserPersonalizationList.Close;
+        UserPersonalizationList.Close();
 
         UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
@@ -172,7 +172,7 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert.IsTrue(UserPersonalizationList.GotoRecord(ExternalUserPersonalization),
           'External users should be visible in PaaS and on-prem on page User Personalization List');
 
-        UserPersonalizationList.Close;
+        UserPersonalizationList.Close();
 
         UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
@@ -577,7 +577,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserCardPage.FindFirstField("User Name", UserName);
         UserCardPage."User Name".AssertEquals(UserName);
         UserCardPage.WebServiceID.AssistEdit;
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure GetUserWebServiceParametersFromUserCard(UserName: Code[50]; var WsCompareKey: Text; var ChangeWebServiceAccessKeyEnabled: Boolean)
@@ -590,7 +590,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserCardPage.WebServiceExpiryDate.AssertEquals('');
         WsCompareKey := UserCardPage.WebServiceID.Value;
         ChangeWebServiceAccessKeyEnabled := UserCardPage.ChangeWebServiceAccessKey.Enabled;
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     local procedure Initialize()

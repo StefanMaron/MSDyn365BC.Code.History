@@ -7,7 +7,7 @@ codeunit 572 "Run Acc. Sched. Balance Sheet"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
+        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
     end;
 }
 

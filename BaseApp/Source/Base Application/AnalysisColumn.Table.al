@@ -44,7 +44,7 @@ table 7118 "Analysis Column"
 
             trigger OnValidate()
             begin
-                ItemSchedLine.CheckFormula(Formula);
+                TempAnalysisLine.CheckFormula(Formula);
             end;
         }
         field(9; "Comparison Date Formula"; DateFormula)
@@ -161,13 +161,14 @@ table 7118 "Analysis Column"
     }
 
     var
-        ItemSchedLine: Record "Analysis Line" temporary;
-        PeriodFormulaErr: Label '%1 is not a valid Period Formula.', Comment = '%1 - value of Comparison Period Formula field';
+        TempAnalysisLine: Record "Analysis Line" temporary;
+        AnalysisRepMgmt: Codeunit "Analysis Report Management";
+
         Text002: Label 'P', Comment = 'Period';
         Text003: Label 'FY', Comment = 'Fiscal year';
         Text004: Label 'CP', Comment = 'Current Period';
         Text005: Label 'LP', Comment = 'Last period';
-        AnalysisRepMgmt: Codeunit "Analysis Report Management";
+        PeriodFormulaErr: Label '%1 is not a valid Period Formula.', Comment = '%1 - value of Comparison Period Formula field';
 
     procedure ParsePeriodFormula(FormulaExpression: Code[20]; var Steps: Integer; var Type: Option " ",Period,"Fiscal Year"; var RangeFromType: Option Int,CP,LP; var RangeToType: Option Int,CP,LP; var RangeFromInt: Integer; var RangeToInt: Integer)
     var
@@ -254,10 +255,9 @@ table 7118 "Analysis Column"
                     if not ParseInt(FormulaExpression, Int, false) then
                         exit(false);
                 end;
-            else begin
-                    if not ParseInt(FormulaExpression, Int, true) then
-                        exit(false);
-                end;
+            else
+                if not ParseInt(FormulaExpression, Int, true) then
+                    exit(false);
         end;
         exit(true);
     end;

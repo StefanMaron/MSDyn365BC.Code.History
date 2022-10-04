@@ -72,14 +72,15 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Record Buffer" = Rimd,
+                  tabledata "Remit Address" = RIMD,
                   tabledata "Requisition Line" = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif

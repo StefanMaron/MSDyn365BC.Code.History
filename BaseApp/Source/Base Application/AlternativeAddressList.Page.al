@@ -24,7 +24,7 @@ page 5204 "Alternative Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s last name.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s first name, or an alternate name.';
@@ -35,7 +35,7 @@ page 5204 "Alternative Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate address for the employee.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
@@ -47,7 +47,7 @@ page 5204 "Alternative Address List"
                     ToolTip = 'Specifies the city of the alternate address.';
                     Visible = false;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -59,18 +59,18 @@ page 5204 "Alternative Address List"
                     ToolTip = 'Specifies the county of the employee''s alternate address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s telephone number at the alternate address.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s fax number at the alternate address.';
                     Visible = false;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;

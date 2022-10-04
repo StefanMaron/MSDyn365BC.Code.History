@@ -32,7 +32,7 @@ codeunit 6307 "PBI Aged Inventory Calc."
         LogInManagement: Codeunit LogInManagement;
         I: Integer;
     begin
-        PeriodStartDate[6] := LogInManagement.GetDefaultWorkDate;
+        PeriodStartDate[6] := LogInManagement.GetDefaultWorkDate();
         PeriodStartDate[1] := 0D;
         for I := 2 to 5 do
             PeriodStartDate[I] := CalcDate('<-' + Format((6 - I) * PeriodLength) + 'D>', PeriodStartDate[6]);
@@ -52,7 +52,7 @@ codeunit 6307 "PBI Aged Inventory Calc."
                 "Period Type" := TempBusinessChartBuffer."Period Length";
                 Date := AddChartColumns(TempBusinessChartBuffer, -i);
                 "Period Type Sorting" := "Period Type";
-                Insert;
+                Insert();
             end
     end;
 
@@ -72,11 +72,11 @@ codeunit 6307 "PBI Aged Inventory Calc."
             PeriodLengthOnXAxis := AgedInventoryChartMgt.GetPeriodLengthInDays(BusChartBuf);
             if PeriodLengthOnXAxis = 365 then begin
                 PeriodLengthOnXAxis := 1;
-                XAxisValueTxt := AgedInventoryChartMgt.FromToYearsTxt;
-                LastXAxisValueTxt := AgedInventoryChartMgt.OverYearsTxt;
+                XAxisValueTxt := AgedInventoryChartMgt.FromToYearsTxt();
+                LastXAxisValueTxt := AgedInventoryChartMgt.OverYearsTxt();
             end else begin
-                XAxisValueTxt := AgedInventoryChartMgt.FromToDaysTxt;
-                LastXAxisValueTxt := AgedInventoryChartMgt.OverDaysTxt;
+                XAxisValueTxt := AgedInventoryChartMgt.FromToDaysTxt();
+                LastXAxisValueTxt := AgedInventoryChartMgt.OverDaysTxt();
             end;
             if I < 4 then begin
                 J := I + 1;

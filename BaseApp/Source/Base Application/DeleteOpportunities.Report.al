@@ -19,7 +19,7 @@ report 5182 "Delete Opportunities"
                 OppEntry.SetRange("Opportunity No.", "No.");
                 OppEntry.DeleteAll();
 
-                Delete;
+                Delete();
             end;
         }
     }

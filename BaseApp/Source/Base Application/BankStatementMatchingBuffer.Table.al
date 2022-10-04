@@ -2,6 +2,13 @@ table 1250 "Bank Statement Matching Buffer"
 {
     Caption = 'Bank Statement Matching Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -57,6 +64,31 @@ table 1250 "Bank Statement Matching Buffer"
             Caption = 'Match Details';
             DataClassification = SystemMetadata;
         }
+        field(15; "Doc. No. Score"; Integer)
+        {
+            Caption = 'Document No. Score';
+            DataClassification = SystemMetadata;
+        }
+        field(16; "Ext. Doc. No. Score"; Integer)
+        {
+            Caption = 'External Document No. Score';
+            DataClassification = SystemMetadata;
+        }
+        field(17; "Description Score"; Integer)
+        {
+            Caption = 'Description Score';
+            DataClassification = SystemMetadata;
+        }
+        field(18; "Amount Difference"; Decimal)
+        {
+            Caption = 'Amount Matches';
+            DataClassification = SystemMetadata;
+        }
+        field(19; "Date Difference"; Integer)
+        {
+            Caption = 'Date Matches';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -86,16 +118,16 @@ table 1250 "Bank Statement Matching Buffer"
         BankStatementMatchingBuffer.Quality := NewQuality;
         if Get(LineNo, EntryNo, AccountType, AccountNo) then begin
             Rec := BankStatementMatchingBuffer;
-            Modify
+            Modify();
         end else begin
             Rec := BankStatementMatchingBuffer;
-            Insert
+            Insert();
         end;
     end;
 
     procedure InsertOrUpdateOneToManyRule(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; RelatedPartyMatched: Option; AccountType: Enum "Gen. Journal Account Type"; RemainingAmount: Decimal)
     begin
-        Init;
+        Init();
         SetRange("Line No.", LineNo);
         SetRange("Account Type", AccountType);
         SetRange("Account No.", TempLedgerEntryMatchingBuffer."Account No.");
@@ -110,7 +142,7 @@ table 1250 "Bank Statement Matching Buffer"
             "One to Many Match" := true;
             "No. of Entries" := 1;
             "Related Party Matched" := RelatedPartyMatched;
-            Insert;
+            Insert();
         end else
             "No. of Entries" += 1;
 

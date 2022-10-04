@@ -77,13 +77,14 @@ report 6007 "Insert Fault/Resol. Relations"
     end;
 
     var
-        Text000: Label 'You must fill in the From Date field.';
-        Text001: Label 'You must fill in the To Date field.';
         CalcFaultResolutionRelation: Codeunit "FaultResolRelation-Calculate";
         FromDate: Date;
         ToDate: Date;
         BasedOnServItemGr: Boolean;
         RetainManuallyInserted: Boolean;
+
+        Text000: Label 'You must fill in the From Date field.';
+        Text001: Label 'You must fill in the To Date field.';
 
     procedure InitializeRequest(DateFrom: Date; ToDateFrom: Date; BasedOnServItemGrFrom: Boolean; RetainManuallyInsertedFrom: Boolean)
     begin

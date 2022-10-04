@@ -9,13 +9,13 @@ codeunit 5981 "Service-Post (Yes/No)"
     end;
 
     var
-        ShipInvoiceConsumeQst: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
-        PostConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
         GlobalServiceHeader: Record "Service Header";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Selection: Integer;
         PreviewMode: Boolean;
-        CancelErr: Label 'The preview has been canceled.';
-        NothingToPostErr: Label 'There is nothing to post.';
+
+        ShipInvoiceConsumeQst: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
+        PostConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
 
     local procedure "Code"(var PassedServLine: Record "Service Line"; var PassedServiceHeader: Record "Service Header")
     var
@@ -27,8 +27,8 @@ codeunit 5981 "Service-Post (Yes/No)"
         HideDialog: Boolean;
         IsHandled: Boolean;
     begin
-        if not PassedServiceHeader.Find then
-            Error(NothingToPostErr);
+        if not PassedServiceHeader.Find() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         HideDialog := false;
         IsHandled := false;
@@ -44,7 +44,7 @@ codeunit 5981 "Service-Post (Yes/No)"
                             Selection := StrMenu(ShipInvoiceConsumeQst, 3);
                             if Selection = 0 then begin
                                 if PreviewMode then
-                                    Error(CancelErr);
+                                    Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
                                 exit;
                             end;
                             Ship := Selection in [1, 3, 4];
@@ -71,10 +71,10 @@ codeunit 5981 "Service-Post (Yes/No)"
 
     procedure PostDocument(var ServiceHeaderSource: Record "Service Header")
     var
-        DummyServLine: Record "Service Line" temporary;
+        TempServiceLine: Record "Service Line" temporary;
     begin
-        OnBeforePostDocument(ServiceHeaderSource, DummyServLine);
-        PostDocumentWithLines(ServiceHeaderSource, DummyServLine);
+        OnBeforePostDocument(ServiceHeaderSource, TempServiceLine);
+        PostDocumentWithLines(ServiceHeaderSource, TempServiceLine);
     end;
 
     procedure PostDocumentWithLines(var ServiceHeaderSource: Record "Service Header"; var PassedServLine: Record "Service Line")

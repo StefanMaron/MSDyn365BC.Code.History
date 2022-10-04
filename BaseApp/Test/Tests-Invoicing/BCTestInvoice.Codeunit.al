@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138946 "BC Test Invoice"
 {
     Subtype = Test;
@@ -23,7 +24,7 @@ codeunit 138946 "BC Test Invoice"
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
     begin
         // [GIVEN] A clean Invoicing App
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The users have no documents
@@ -40,7 +41,7 @@ codeunit 138946 "BC Test Invoice"
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
     begin
         // [GIVEN] A clean Invoicing App
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The users have some documents
@@ -59,7 +60,7 @@ codeunit 138946 "BC Test Invoice"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         LibraryLowerPermissions.SetInvoiceApp;
-        Init;
+        Init();
 
         // [GIVEN] Create new test invoice
         O365SalesTestInvoiceTest.OpenEdit;
@@ -82,7 +83,7 @@ codeunit 138946 "BC Test Invoice"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         LibraryLowerPermissions.SetInvoiceApp;
-        Init;
+        Init();
 
         // [GIVEN] Create new normal invoice
         O365SalesTestInvoiceTest.OpenEdit;
@@ -105,7 +106,7 @@ codeunit 138946 "BC Test Invoice"
         O365SalesTestInvoiceTest: TestPage "O365 Sales Test Invoice Page";
     begin
         LibraryLowerPermissions.SetInvoiceApp;
-        Init;
+        Init();
 
         // [GIVEN] Create new test invoice
         O365SalesTestInvoiceTest.OpenEdit;
@@ -148,7 +149,7 @@ codeunit 138946 "BC Test Invoice"
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.IsTrue(BCO365SalesInvoice.SendTest.Visible, 'Send draft is not visible on draft invoice after inserting customer');
         Assert.IsFalse(BCO365SalesInvoice.Post.Visible, 'Send invoice is visible on draft invoice after inserting customer');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -161,7 +162,7 @@ codeunit 138946 "BC Test Invoice"
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.IsTrue(BCO365SalesInvoice.Post.Visible, 'Send is not visible on draft invoice after inserting customer');
         Assert.IsFalse(BCO365SalesInvoice.SendTest.Visible, 'Send draft invoice is visible on draft invoice after inserting customer');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     [SendNotificationHandler(true)]
@@ -171,4 +172,4 @@ codeunit 138946 "BC Test Invoice"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

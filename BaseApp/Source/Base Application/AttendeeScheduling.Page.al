@@ -13,7 +13,7 @@ page 5199 "Attendee Scheduling"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -31,7 +31,7 @@ page 5199 "Attendee Scheduling"
                     Editable = false;
                     ToolTip = 'Specifies the location where the meeting will take place.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Editable = false;
@@ -65,17 +65,17 @@ page 5199 "Attendee Scheduling"
             group(Interaction)
             {
                 Caption = 'Interaction';
-                field("Interaction Template Code"; "Interaction Template Code")
+                field("Interaction Template Code"; Rec."Interaction Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code for the interaction template that you have selected.';
 
                     trigger OnValidate()
                     begin
-                        InteractionTemplateCodeOnAfter;
+                        InteractionTemplateCodeOnAfter();
                     end;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = LanguageCodeEnable;
@@ -97,16 +97,16 @@ page 5199 "Attendee Scheduling"
 
                     trigger OnAssistEdit()
                     begin
-                        MaintainAttachment;
+                        MaintainAttachment();
                     end;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = UnitCostLCYEnable;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                 }
-                field("Unit Duration (Min.)"; "Unit Duration (Min.)")
+                field("Unit Duration (Min.)"; Rec."Unit Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Enabled = UnitDurationMinEnable;
@@ -175,7 +175,7 @@ page 5199 "Attendee Scheduling"
 
                         trigger OnAction()
                         begin
-                            ImportAttachment;
+                            ImportAttachment();
                         end;
                     }
                     action(Export)
@@ -187,7 +187,7 @@ page 5199 "Attendee Scheduling"
 
                         trigger OnAction()
                         begin
-                            ExportAttachment;
+                            ExportAttachment();
                         end;
                     }
                     action(Remove)
@@ -229,7 +229,7 @@ page 5199 "Attendee Scheduling"
 
     trigger OnAfterGetCurrRecord()
     begin
-        EnableFields
+        EnableFields();
     end;
 
     trigger OnAfterGetRecord()
@@ -292,7 +292,7 @@ page 5199 "Attendee Scheduling"
 
     local procedure InteractionTemplateCodeOnAfter()
     begin
-        EnableFields
+        EnableFields();
     end;
 
     [IntegrationEvent(false, false)]

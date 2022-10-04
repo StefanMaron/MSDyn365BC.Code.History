@@ -235,7 +235,7 @@ codeunit 7302 "WMS Management"
             end;
             if QtyAbsBase <> "Qty. (Absolute, Base)" then begin
                 Validate("Qty. (Absolute, Base)");
-                Modify;
+                Modify();
             end;
         end;
 
@@ -443,7 +443,7 @@ codeunit 7302 "WMS Management"
             if ShowError then
                 Error(Text015,
                   CurrFieldCaption,
-                  LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
+                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
 
             if "Entry Type" in
                ["Entry Type"::"Negative Adjmt.", "Entry Type"::"Positive Adjmt.", "Entry Type"::Sale, "Entry Type"::Purchase]
@@ -470,12 +470,12 @@ codeunit 7302 "WMS Management"
                     if "Phys. Inventory" then
                         Error(Text010,
                           CurrFieldCaption,
-                          Location.TableCaption, Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                          Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
                           WhsePhysInvJnl.Caption);
 
                     Error(Text010,
                       CurrFieldCaption,
-                      Location.TableCaption, Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                      Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
                       WhseItemJnl.Caption);
                 end;
             end;
@@ -503,7 +503,7 @@ codeunit 7302 "WMS Management"
                         GetLocation("Location Code");
                         if Location."Directed Put-away and Pick" then
                             Error(Text011,
-                              LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                              LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
                               WhseItemJnl.Caption);
                     end;
                 end;
@@ -523,7 +523,7 @@ codeunit 7302 "WMS Management"
 
                 if ShowError then
                     Error(Text012,
-                      LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                      LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
                       TransferOrder.Caption);
             end;
         end;
@@ -554,20 +554,20 @@ codeunit 7302 "WMS Management"
                             GetItem("Item No.");
                             if ItemTrackingCode.IsWarehouseTracking() then
                                 Error(Text013,
-                                  LowerCase(Item.TableCaption),
-                                  LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
+                                  LowerCase(Item.TableCaption()),
+                                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
                         end;
                     end;
 
-                if IsReclass then
+                if IsReclass() then
                     if CheckTrackingSpecificationChangeNeeded(TrackingSpecification, xTrackingSpecification) then begin
                         GetLocation("Location Code");
                         if Location."Directed Put-away and Pick" then begin
                             GetItem("Item No.");
                             if ItemTrackingCode.IsWarehouseTracking() then
                                 Error(Text014,
-                                  LowerCase(Item.TableCaption),
-                                  LowerCase(Location.TableCaption), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
+                                  LowerCase(Item.TableCaption()),
+                                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
                         end;
                     end;
             end;
@@ -699,7 +699,7 @@ codeunit 7302 "WMS Management"
         Location: Record Location;
         WhseEmployee: Record "Warehouse Employee";
     begin
-        CheckUserIsWhseEmployee;
+        CheckUserIsWhseEmployee();
         if WhseEmployee.Get(UserId, CurrentLocationCode) and Location.Get(CurrentLocationCode) then
             if Location."Bin Mandatory" then
                 exit;
@@ -728,7 +728,7 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit(LocationCode);
 
-        if Location.Get(GetDefaultLocation) then
+        if Location.Get(GetDefaultLocation()) then
             if Location."Directed Put-away and Pick" then
                 exit(Location.Code)
             else begin
@@ -907,7 +907,7 @@ codeunit 7302 "WMS Management"
     local procedure InitWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"; QuantityBase: Decimal)
     begin
         with WhseJnlLine do begin
-            Init;
+            Init();
             "Journal Template Name" := ItemJnlLine."Journal Template Name";
             "Journal Batch Name" := ItemJnlLine."Journal Batch Name";
             "Location Code" := ItemJnlLine."Location Code";
@@ -918,7 +918,7 @@ codeunit 7302 "WMS Management"
             if ItemJnlLine."Qty. per Unit of Measure" = 0 then
                 ItemJnlLine."Qty. per Unit of Measure" := 1;
             if Location."Directed Put-away and Pick" then begin
-                Quantity := Round(QuantityBase / ItemJnlLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                Quantity := Round(QuantityBase / ItemJnlLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                 "Unit of Measure Code" := ItemJnlLine."Unit of Measure Code";
                 "Qty. per Unit of Measure" := ItemJnlLine."Qty. per Unit of Measure";
             end else begin
@@ -1038,10 +1038,10 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit(LocationCode);
 
-        CheckUserIsWhseEmployee;
+        CheckUserIsWhseEmployee();
         if WhseEmployee.Get(UserId, LocationCode) then
             exit(LocationCode);
-        exit(GetDefaultLocation);
+        exit(GetDefaultLocation());
     end;
 
     procedure LocationIsAllowed(LocationCode: Code[10]): Boolean
@@ -2111,7 +2111,7 @@ codeunit 7302 "WMS Management"
             if (MachineCenter."Location Code" = LocationCode) and
                (MachineCenter."From-Production Bin Code" <> '')
             then
-                exit(MachineCenter.GetBinCode(UseFlushingMethod, FlushingMethod.AsInteger()));
+                exit(MachineCenter.GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
 
             exit(GetWorkCenterBinCode(MachineCenter."Work Center No.", LocationCode, UseFlushingMethod, FlushingMethod));
         end;
@@ -2123,7 +2123,7 @@ codeunit 7302 "WMS Management"
     begin
         if WorkCenter.Get(WorkCenterNo) then
             if WorkCenter."Location Code" = LocationCode then
-                exit(WorkCenter.GetBinCode(UseFlushingMethod, FlushingMethod.AsInteger()));
+                exit(WorkCenter.GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
     end;
 
     [IntegrationEvent(false, false)]

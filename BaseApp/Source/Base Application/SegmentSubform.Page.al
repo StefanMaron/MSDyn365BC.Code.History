@@ -13,7 +13,7 @@ page 5092 "Segment Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the contact to which this segment line applies.';
@@ -23,30 +23,30 @@ page 5092 "Segment Subform"
                         ContactNoOnAfterValidate();
                     end;
                 }
-                field("Correspondence Type"; "Correspondence Type")
+                field("Correspondence Type"; Rec."Correspondence Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
                 }
-                field("Send Word Doc. As Attmt."; "Send Word Doc. As Attmt.")
+                field("Send Word Doc. As Attmt."; Rec."Send Word Doc. As Attmt.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the Microsoft Word document that is linked to that segment line should be sent as an attachment in the e-mail message.';
                     Visible = false;
                 }
-                field("Contact Alt. Address Code"; "Contact Alt. Address Code")
+                field("Contact Alt. Address Code"; Rec."Contact Alt. Address Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the contact''s alternate address to use for this interaction.';
                     Visible = false;
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the company for which the contact works. If the contact is a company, this field contains the company''s name.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
@@ -57,24 +57,24 @@ page 5092 "Segment Subform"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the segment line.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the code of the salesperson responsible for this segment line and/or interaction.';
                 }
-                field("Interaction Template Code"; "Interaction Template Code")
+                field("Interaction Template Code"; Rec."Interaction Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the interaction template code of the interaction involving the contact on this segment line.';
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
 
                     trigger OnValidate()
                     begin
-                        LanguageCodeOnAfterValidate;
+                        LanguageCodeOnAfterValidate();
                     end;
                 }
                 field(Subject; Subject)
@@ -87,47 +87,47 @@ page 5092 "Segment Subform"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the cost of the interaction with the contact that this segment line applies to.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the duration of the interaction with the contact to which this segment line applies.';
                 }
-                field("Initiated By"; "Initiated By")
+                field("Initiated By"; Rec."Initiated By")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies whether the interaction recorded for this segment line was initiated by your company or by one of your contacts. The Us option indicates that your company was the initiator; the Them option indicates that a contact was the initiator.';
                     Visible = false;
                 }
-                field("Information Flow"; "Information Flow")
+                field("Information Flow"; Rec."Information Flow")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the direction of the information that is part of the interaction created for this segment line. There are two options: Inbound and Outbound.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign for which the segment line has been created.';
                     Visible = false;
                 }
-                field("Campaign Target"; "Campaign Target")
+                field("Campaign Target"; Rec."Campaign Target")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the segment involved in this interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
                     Visible = false;
                 }
-                field("Campaign Response"; "Campaign Response")
+                field("Campaign Response"; Rec."Campaign Response")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
                     Visible = false;
                 }
-                field(AttachmentText; AttachmentText)
+                field(AttachmentText; AttachmentText())
                 {
                     ApplicationArea = RelationshipMgmt;
                     AssistEdit = true;
@@ -137,37 +137,37 @@ page 5092 "Segment Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         MaintainSegLineAttachment();
                         CurrPage.Update(false);
                     end;
                 }
-                field("Word Template Code"; "Word Template Code")
+                field("Word Template Code"; Rec."Word Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Word Template Code';
                     ToolTip = 'Specifies the Word Template code to use for merging.';
                 }
 
-                field("Contact Via"; "Contact Via")
+                field("Contact Via"; Rec."Contact Via")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the telephone number you used when calling the contact, or the e-mail address you used when sending an e-mail to the contact.';
                     Visible = false;
                 }
-                field("Contact Phone No."; "Contact Phone No.")
+                field("Contact Phone No."; Rec."Contact Phone No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the telephone number of the contact to whom the segment line applies. The number will be filled in for you if you choose a contact in the Contact No. field on the line.';
                 }
-                field("Contact Mobile Phone No."; "Contact Mobile Phone No.")
+                field("Contact Mobile Phone No."; Rec."Contact Mobile Phone No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the mobile telephone number of the contact to whom the segment line applies. The number will be filled in for you if you choose a contact in the Contact No. field on the line.';
                 }
-                field("Contact E-Mail"; "Contact Email")
+                field("Contact E-Mail"; Rec."Contact Email")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
@@ -251,7 +251,7 @@ page 5092 "Segment Subform"
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            RemoveAttachment;
+                            RemoveAttachment();
                         end;
                     }
                 }
@@ -269,7 +269,7 @@ page 5092 "Segment Subform"
 
                     trigger OnAction()
                     begin
-                        CreatePhoneCall;
+                        CreatePhoneCall();
                     end;
                 }
             }

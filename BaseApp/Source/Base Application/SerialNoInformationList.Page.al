@@ -15,19 +15,19 @@ page 6509 "Serial No. Information List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number that is copied from the Tracking Specification table, when a serial number information record is created.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies this number from the Tracking Specification table when a serial number information record is created.';
@@ -54,7 +54,7 @@ page 6509 "Serial No. Information List"
                     ToolTip = 'Specifies the inventory quantity of the specified serial number.';
                     Visible = false;
                 }
-                field("Expired Inventory"; "Expired Inventory")
+                field("Expired Inventory"; Rec."Expired Inventory")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the inventory of the serial number with an expiration date before the posting date on the associated document.';
@@ -134,7 +134,7 @@ page 6509 "Serial No. Information List"
                         ItemTracingBuffer.SetRange("Variant Code", "Variant Code");
                         ItemTracingBuffer.SetRange("Serial No.", "Serial No.");
                         ItemTracing.InitFilters(ItemTracingBuffer);
-                        ItemTracing.FindRecords;
+                        ItemTracing.FindRecords();
                         ItemTracing.RunModal();
                     end;
                 }
@@ -147,8 +147,6 @@ page 6509 "Serial No. Information List"
                 ApplicationArea = ItemTracking;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -163,6 +161,17 @@ page 6509 "Serial No. Information List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+        }
     }
 
     trigger OnInit()
@@ -172,7 +181,7 @@ page 6509 "Serial No. Information List"
 
     trigger OnOpenPage()
     begin
-        Rec.SetFilter("Date Filter", '>%1&<=%2', 0D, WorkDate);
+        Rec.SetFilter("Date Filter", '>%1&<=%2', 0D, WorkDate());
     end;
 
     procedure GetSelectionFilter(): Text

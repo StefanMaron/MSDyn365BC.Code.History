@@ -52,7 +52,7 @@ table 5300 "Outlook Synch. Entity"
             var
                 TableNo: Integer;
             begin
-                TableNo := OSynchSetupMgt.ShowTablesList;
+                TableNo := OSynchSetupMgt.ShowTablesList();
 
                 if TableNo <> 0 then
                     Validate("Table No.", TableNo);
@@ -63,7 +63,7 @@ table 5300 "Outlook Synch. Entity"
                 if "Table No." = xRec."Table No." then
                     exit;
 
-                CheckUserSetup;
+                CheckUserSetup();
                 TestField("Table No.");
 
                 if not OSynchSetupMgt.CheckPKFieldsQuantity("Table No.") then
@@ -74,10 +74,10 @@ table 5300 "Outlook Synch. Entity"
                        Confirm(
                          StrSubstNo(
                            Text001,
-                           OSynchEntityElement.TableCaption,
-                           OSynchField.TableCaption,
-                           OSynchFilter.TableCaption,
-                           OSynchDependency.TableCaption))
+                           OSynchEntityElement.TableCaption(),
+                           OSynchField.TableCaption(),
+                           OSynchFilter.TableCaption(),
+                           OSynchDependency.TableCaption()))
                     then begin
                         "Table No." := xRec."Table No.";
                         exit;
@@ -138,7 +138,7 @@ table 5300 "Outlook Synch. Entity"
             var
                 ItemName: Text[50];
             begin
-                ItemName := OSynchSetupMgt.ShowOItemsList;
+                ItemName := OSynchSetupMgt.ShowOItemsList();
 
                 if ItemName <> '' then
                     Validate("Outlook Item", ItemName);
@@ -153,7 +153,7 @@ table 5300 "Outlook Synch. Entity"
                 if "Outlook Item" = xRec."Outlook Item" then
                     exit;
 
-                CheckUserSetup;
+                CheckUserSetup();
 
                 if xRec."Outlook Item" = '' then
                     exit;
@@ -162,10 +162,10 @@ table 5300 "Outlook Synch. Entity"
                    Confirm(
                      StrSubstNo(
                        Text001,
-                       OSynchEntityElement.TableCaption,
-                       OSynchField.TableCaption,
-                       OSynchFilter.TableCaption,
-                       OSynchDependency.TableCaption))
+                       OSynchEntityElement.TableCaption(),
+                       OSynchField.TableCaption(),
+                       OSynchFilter.TableCaption(),
+                       OSynchDependency.TableCaption()))
                 then begin
                     "Outlook Item" := xRec."Outlook Item";
                     exit;
@@ -221,7 +221,7 @@ table 5300 "Outlook Synch. Entity"
 
         OutlookSynchUserSetup.SetRange("Synch. Entity Code", Code);
         if not OutlookSynchUserSetup.IsEmpty() then
-            Error(Text003, OutlookSynchUserSetup.TableCaption);
+            Error(Text003, OutlookSynchUserSetup.TableCaption());
 
         OSynchDependency.DeleteAll();
         OutlookSynchUserSetup.DeleteAll(true);
@@ -242,7 +242,7 @@ table 5300 "Outlook Synch. Entity"
     trigger OnInsert()
     begin
         if IsNullGuid("Record GUID") then
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
     end;
 
     var

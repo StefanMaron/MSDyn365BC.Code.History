@@ -131,7 +131,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [THEN] "Field Name" and "Integration Field Name" controls show fields' captions
         IntegrationFieldMappingList.FieldName.AssertEquals(NAVField[2]."Field Caption");
         IntegrationFieldMappingList.IntegrationFieldName.AssertEquals(CRMField[2]."Field Caption");
-        IntegrationFieldMappingList.Close;
+        IntegrationFieldMappingList.Close();
     end;
 
     [Test]
@@ -249,10 +249,10 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
         IntegrationTableMapping.Insert();
         // [GIVEN] Integration Sync Job for 'Y' and for 'X'
-        IntegrationSynchJob[1].ID := CreateGuid;
+        IntegrationSynchJob[1].ID := CreateGuid();
         IntegrationSynchJob[1]."Integration Table Mapping Name" := IntegrationTableMapping.Name;
         IntegrationSynchJob[1].Insert();
-        IntegrationSynchJob[2].ID := CreateGuid;
+        IntegrationSynchJob[2].ID := CreateGuid();
         IntegrationSynchJob[2]."Integration Table Mapping Name" := 'X';
         IntegrationSynchJob[2].Insert();
 
@@ -260,7 +260,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationSynchJobList.Trap;
         IntegrationTableMappingList.OpenView;
         IntegrationTableMappingList."View Integration Synch. Job Log".Invoke;
-        IntegrationTableMappingList.Close;
+        IntegrationTableMappingList.Close();
 
         // [THEN] Integration Synch. Job List shows one record, related to 'Y'
         Assert.IsTrue(IntegrationSynchJobList.GotoRecord(IntegrationSynchJob[1]), 'Cannot find the job.');
@@ -343,17 +343,17 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] 1 record, where "Integration Table ID" is not equal to one set in Integration Table Mapping
         CRMOptionMapping."Table ID" := DATABASE::"Payment Terms";
         CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Contact";
-        PaymentTerms.Next;
+        PaymentTerms.Next();
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
         CRMOptionMapping.Insert();
         // [GIVEN] 1 record, where all "Table ID","Integration Table ID","Integration Field ID" equal to ones set in Integration Table Mapping
         CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Account";
-        PaymentTerms.Next;
+        PaymentTerms.Next();
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
         CRMOptionMapping.Insert();
         // [GIVEN] 1 record, where "Integration Field ID" is not equal to one set in Integration Table Mapping
         CRMOptionMapping."Integration Field ID" := 16;
-        PaymentTerms.Next;
+        PaymentTerms.Next();
         CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
         CRMOptionMapping.Insert();
 
@@ -477,7 +477,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2);
+          IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -494,7 +494,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0);
+          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0, false);
         VerifyFieldMapping(IntegrationTableMapping, Customer.FieldNo("Salesperson Code"), CRMAccount.FieldNo(OwnerId), true);
         VerifyFieldMapping(IntegrationTableMapping, Customer.FieldNo(County), CRMAccount.FieldNo(Address1_StateOrProvince), false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
@@ -513,7 +513,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0);
+          IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0, false);
         VerifyFieldMapping(IntegrationTableMapping, Contact.FieldNo("Salesperson Code"), CRMContact.FieldNo(OwnerId), true);
         VerifyFieldMapping(IntegrationTableMapping, Contact.FieldNo(County), CRMContact.FieldNo(Address1_StateOrProvince), false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
@@ -532,7 +532,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Currency, DATABASE::"CRM Transactioncurrency",
-          CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1);
+          CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -550,7 +550,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Item, DATABASE::"CRM Product",
-          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional);
+          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
         VerifyFieldMapping(IntegrationTableMapping, Item.FieldNo("Vendor No."), CRMProduct.FieldNo(VendorID), false);
         VerifyFieldMapping(IntegrationTableMapping, Item.FieldNo("Vendor Item No."), CRMProduct.FieldNo(VendorPartNumber), false);
@@ -570,7 +570,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
-          7, IntegrationTableMapping.Direction::Bidirectional);
+          7, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Salesperson Code"), CRMOpportunity.FieldNo(OwnerId), true);
         VerifyJobQueueEntry(IntegrationTableMapping, 0);
     end;
@@ -589,7 +589,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Resource, DATABASE::"CRM Product",
-          CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional);
+          CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
         VerifyFieldMapping(IntegrationTableMapping, Resource.FieldNo("Vendor No."), CRMProduct.FieldNo(VendorID), false);
     end;
@@ -607,7 +607,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1);
+          IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1, false);
         VerifyFieldMapping(IntegrationTableMapping, SalesInvoiceHeader.FieldNo("Salesperson Code"), CRMInvoice.FieldNo(OwnerId), true);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
@@ -625,7 +625,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail",
-          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1);
+          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
 
@@ -641,11 +641,11 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1);
+          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -658,7 +658,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1);
+          IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 #endif
@@ -675,7 +675,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize(true, false);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 5, 1);
+          IntegrationTableMapping, DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 5, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -691,7 +691,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize(false, true);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Unit Group", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 2, 1);
+          IntegrationTableMapping, DATABASE::"Unit Group", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 2, 1, true);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -707,7 +707,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize(false, true);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Item Unit of Measure", DATABASE::"CRM Uom", CRMUom.FieldNo(UoMId), 2, 1);
+          IntegrationTableMapping, DATABASE::"Item Unit of Measure", DATABASE::"CRM Uom", CRMUom.FieldNo(UoMId), 2, 1, true);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -723,11 +723,11 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize(false, true);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Resource Unit of Measure", DATABASE::"CRM Uom", CRMUom.FieldNo(UoMId), 2, 1);
+          IntegrationTableMapping, DATABASE::"Resource Unit of Measure", DATABASE::"CRM Uom", CRMUom.FieldNo(UoMId), 2, 1, true);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -741,7 +741,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel",
-          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1);
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 #endif
@@ -759,7 +759,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel",
-          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 7, 1);
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 7, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
@@ -776,7 +776,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] "Shipping Agent" is empty
         ShippingAgent.DeleteAll();
         // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [THEN] "Shipping Agent" is NOT empty
         Assert.TableIsNotEmpty(DATABASE::"Shipping Agent");
         // [THEN] "CRM Option Mapping" is defined
@@ -798,7 +798,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-          CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2);
+          CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2, false);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
@@ -816,7 +816,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] "Shipment Method" is empty
         ShipmentMethod.DeleteAll();
         // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [GIVEN] "Shipment Method" is NOT empty
         Assert.TableIsNotEmpty(DATABASE::"Shipment Method");
         // [THEN] "CRM Option Mapping" is defined
@@ -837,7 +837,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2);
+          IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2, false);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
@@ -855,7 +855,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] "Payment Terms" is empty
         PaymentTerms.DeleteAll();
         // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [THEN] "Payment Terms" is NOT empty
         Assert.TableIsNotEmpty(DATABASE::"Payment Terms");
         // [THEN] "CRM Option Mapping" is defined
@@ -876,7 +876,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2, false);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
@@ -905,7 +905,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] Default mapping setup
         LibraryCRMIntegration.ConfigureCRM;
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [GIVEN] the temp mappings for CUSTOMER/POSTEDSALESINV-INV are added, where "Delete After Synchronization" is 'Yes'
         AddTempTableMapping('CUSTOMER');
         AddTempTableMapping('POSTEDSALESINV-INV');
@@ -926,19 +926,19 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.AreEqual('1', TempNameValueBuffer.Name, 'Expected the first priority to be 1');
         Assert.AreEqual('SALESPEOPLE', TempNameValueBuffer.Value, 'Expected the first priority to be the SALESPEOPLE mapping');
         // [THEN] The prioritized list has currency as the second item
-        TempNameValueBuffer.Next;
+        TempNameValueBuffer.Next();
         Assert.AreEqual('2', TempNameValueBuffer.Name, 'Expected the second priority to be 2');
         Assert.AreEqual('CURRENCY', TempNameValueBuffer.Value, 'Expected the second priority to be the CURRENCY mapping');
         // [THEN] The prioritized list has unit of measure as the third item
-        TempNameValueBuffer.Next;
+        TempNameValueBuffer.Next();
         Assert.AreEqual('3', TempNameValueBuffer.Name, 'Expected the third priority to be 3');
         Assert.AreEqual('UNIT OF MEASURE', TempNameValueBuffer.Value, 'Expected the third priority to be the UNIT OF MEASURE mapping');
         // [THEN] The prioritized list has customer as the fourth item
-        TempNameValueBuffer.Next;
+        TempNameValueBuffer.Next();
         Assert.AreEqual('4', TempNameValueBuffer.Name, 'Expected the fourth priority to be 4');
         Assert.AreEqual('CUSTOMER', TempNameValueBuffer.Value, 'Expected the fourth priority to be the CUSTOMER mapping');
         // [THEN] The prioritized list has contact as the fifth item
-        TempNameValueBuffer.Next;
+        TempNameValueBuffer.Next();
         Assert.AreEqual('5', TempNameValueBuffer.Name, 'Expected the fifth priority to be 5');
         Assert.AreEqual('CONTACT', TempNameValueBuffer.Value, 'Expected the fifth priority to be the CONTACT mapping');
     end;
@@ -960,7 +960,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] Default mapping setup, where are 14 mappings and 3 of them are for Options.
         LibraryCRMIntegration.ConfigureCRM;
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         TotalCount := IntegrationTableMapping.Count();
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::Option);
@@ -984,7 +984,7 @@ codeunit 139183 "CRM Integration Mapping"
     begin
         Initialize();
         // [GIVEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [GIVEN] "Payment Terms" and "CRM Option Mapping" are empty
         PaymentTerms.DeleteAll();
         CRMOptionMapping.DeleteAll();
@@ -1013,7 +1013,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Status] [UT]
         Initialize();
         // [GIVEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [GIVEN] Currency 'X'
         Currency.DeleteAll();
         LibraryERM.CreateCurrency(Currency);
@@ -1038,7 +1038,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Status] [UT]
         Initialize();
         // [GIVEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [GIVEN] Currency 'X'
         Currency.DeleteAll();
         LibraryERM.CreateCurrency(Currency);
@@ -1070,7 +1070,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Status] [UT]
         Initialize();
         // [GIVEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
         // [GIVEN] Currency 'X'
         Currency.DeleteAll();
         LibraryERM.CreateCurrency(Currency);
@@ -1103,7 +1103,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Sales] [Order] [UT]
         // [SCENARIO] Mapped option fields should be copied to NAV Order by "Create in NAV" action.
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN]  CRM Salesorder, where defined "Payment Terms", "Shipping Agent", "Shipment Method"
         CreateCRMSalesorder(CRMSalesorder);
@@ -1134,7 +1134,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Sales] [Order] [UT]
         // [SCENARIO] Mapped "Bill-To" fields should be copied to NAV Order by "Create in NAV" action.
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN]  CRM Salesorder, where defined "Bill-To" fields
         CreateCRMSalesorder(CRMSalesorder);
@@ -1193,7 +1193,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Sales] [Order] [UT]
         // [SCENARIO] Mapped "Ship-To" fields should be copied to NAV Order by "Create in NAV" action.
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN]  CRM Salesorder, where defined "Ship-To" fields
         CreateCRMSalesorder(CRMSalesorder);
@@ -1272,7 +1272,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Sales] [Invoice] [Option Mapping]
         // [SCENARIO] Mapped option fields "Payment Terms", "Shipping Agent" should be copied to CRM Invoice.
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Posted Sales Invoice, where "Payment Terms" = "Net45", "Shipping Agent" = "WillCall"
         ExpectedShippingMethodCode := CRMInvoice.ShippingMethodCodeEnum::WillCall.AsInteger();
@@ -1287,11 +1287,11 @@ codeunit 139183 "CRM Integration Mapping"
         CRMOptionMapping.FindRecordID(
           DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), ExpectedShippingMethodCode);
         SalesInvoiceHeader."Shipping Agent Code" :=
-          CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesInvoiceHeader."Shipping Agent Code"));
+          CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesInvoiceHeader."Shipping Agent Code"));
         CRMOptionMapping.FindRecordID(
           DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), ExpectedPaymentTermsCode);
         SalesInvoiceHeader."Payment Terms Code" :=
-          CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesInvoiceHeader."Payment Terms Code"));
+          CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesInvoiceHeader."Payment Terms Code"));
         LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
         LibraryInventory.CreateItem(Item);
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
@@ -1315,7 +1315,7 @@ codeunit 139183 "CRM Integration Mapping"
         FilteredSalesInvoiceHeader.SetRange(SystemId, SalesInvoiceHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"Sales Invoice Header", FilteredSalesInvoiceHeader.GetView, IntegrationTableMapping);
+            DATABASE::"Sales Invoice Header", FilteredSalesInvoiceHeader.GetView(), IntegrationTableMapping);
 
         // [THEN] The coupled CRM Invoice is created, where "Payment Terms" = "Net 45", "Shipping Agent" = "Will Call"
         Assert.IsTrue(CRMCouplingManagement.IsRecordCoupledToCRM(SalesInvoiceHeader.RecordId), 'Invoice is not coupled.');
@@ -1346,7 +1346,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [SCENARIO] Modified TransactionCurrencyId should be synced as "Currency Code" in NAV table
         // [FEATURE] [Currency]
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled Contacts, where currency is blank
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -1387,7 +1387,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [SCENARIO] Modified TransactionCurrencyId to null GUID should be synced as LCY in NAV table
         // [FEATURE] [Currency]
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled Contacts, where currency is blank
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -1434,7 +1434,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [SCENARIO] Modified TransactionCurrencyId with code equal to NAV LCY code, should be synced as blank in NAV table
         // [FEATURE] [Currency]
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled Contacts, where currency is blank
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -1482,7 +1482,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [SCENARIO] Modified "Currency Code" should be synced as TransactionCurrencyId in CRM
         // [FEATURE] [Currency] [Mapping]
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled Contacts, where currency is blank
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -1520,7 +1520,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Contact] [County]
         // [SCENARIO] Synchronizing a CRM Contact, where "Address1_StateOrProvince" is modified.
         Initialize();
-        ResetCRMConfiguration();
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled Contact and CRM Contact, where "Address1_StateOrProvince" set to 'Texas'
         CreateCoupledContactsWithParents(Contact, CRMContact);
@@ -1549,7 +1549,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Contact] [County] [Not Null]
         // [SCENARIO] Synchronizing a contact, where County is modified in NAV
         Initialize();
-        ResetCRMConfiguration();
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled CRM Contact and Contact, where "County" set to 'Texas'
         CreateCoupledContactsWithParents(Contact, CRMContact);
@@ -1581,7 +1581,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Customer] [County]
         // [SCENARIO] Synchronizing a CRM Account, where "Address1_StateOrProvince" is modified.
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled Customer and CRM Account, where "Address1_StateOrProvince" set to 'Texas'
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1593,7 +1593,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, true, false);
 
         // [THEN] Modified Customer, where "County" = 'Texas'
-        Customer.Find;
+        Customer.Find();
         Customer.TestField(County, CRMAccount.Address1_StateOrProvince);
     end;
 
@@ -1609,7 +1609,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Customer] [County]
         // [SCENARIO] Synchronizing a customer, where County is modified in NAV
         Initialize();
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] Coupled CRM Account and Customer, where "County" set to 'Texas'
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1642,14 +1642,14 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Accounts with Name=A and Name=B
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMAccount(CRMAccount[i]);
-            CRMAccount[i].Name := Format(CreateGuid);
+            CRMAccount[i].Name := Format(CreateGuid());
             CRMAccount[i].Modify();
         end;
 
         // [GIVEN] The CUSTOMER mapping, where "Integration Table Filter" is Name=A
         FindIntTableMapping(IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account");
         CRMAccount[1].SetRange(Name, CRMAccount[1].Name);
-        SetIntTableFilter(IntegrationTableMapping, CRMAccount[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMAccount[1].GetView());
 
         // [WHEN] Page CRM Account List is being opened
         CRMAccountList.OpenView;
@@ -1677,14 +1677,14 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Contacts with FullName=A and FullName=B
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMContact(CRMContact[i]);
-            CRMContact[i].FullName := Format(CreateGuid);
+            CRMContact[i].FullName := Format(CreateGuid());
             CRMContact[i].Modify();
         end;
 
         // [GIVEN] The CONTACT mapping, where "Integration Table Filter" is FullName=A
         FindIntTableMapping(IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact");
         CRMContact[1].SetRange(FullName, CRMContact[1].FullName);
-        SetIntTableFilter(IntegrationTableMapping, CRMContact[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMContact[1].GetView());
 
         // [WHEN] Page CRM Contact List is being opened
         CRMContactList.OpenView;
@@ -1713,14 +1713,14 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Opportunities with Name=A and Name=B
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMOpportunity(CRMOpportunity[i]);
-            CRMOpportunity[i].Name := Format(CreateGuid);
+            CRMOpportunity[i].Name := Format(CreateGuid());
             CRMOpportunity[i].Modify();
         end;
 
         // [GIVEN] The OPPORTUNITY mapping, where "Integration Table Filter" is Name=A
         FindIntTableMapping(IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity");
         CRMOpportunity[1].SetRange(Name, CRMOpportunity[1].Name);
-        SetIntTableFilter(IntegrationTableMapping, CRMOpportunity[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMOpportunity[1].GetView());
 
         // [WHEN] Page CRM Opportunity List is being opened
         CRMOpportunityList.OpenView;
@@ -1749,20 +1749,20 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Products with Name=A, Name=B and Name=C
         for i := 1 to 3 do begin
             CRMProduct[i].Init();
-            CRMProduct[i].ProductId := CreateGuid;
-            CRMProduct[i].Name := Format(CreateGuid);
+            CRMProduct[i].ProductId := CreateGuid();
+            CRMProduct[i].Name := Format(CreateGuid());
             CRMProduct[i].Insert();
         end;
 
         // [GIVEN] The ITEM-PRODUCT mapping, where "Integration Table Filter" is Name=A
         FindIntTableMapping(IntegrationTableMapping, DATABASE::Item, DATABASE::"CRM Product");
         CRMProduct[1].SetRange(Name, CRMProduct[1].Name);
-        SetIntTableFilter(IntegrationTableMapping, CRMProduct[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMProduct[1].GetView());
 
         // [GIVEN] The RESOURCE-PRODUCT mapping, where "Integration Table Filter" is Name=B
         FindIntTableMapping(IntegrationTableMapping, DATABASE::Resource, DATABASE::"CRM Product");
         CRMProduct[2].SetRange(Name, CRMProduct[2].Name);
-        SetIntTableFilter(IntegrationTableMapping, CRMProduct[2].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMProduct[2].GetView());
 
         // [WHEN] Page CRM Product List is being opened
         CRMProductList.OpenView;
@@ -1794,14 +1794,14 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Transactioncurrencies with CurrencyName=A and CurrencyName=B
         for i := 1 to 2 do begin
             LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency[i], 'USD');
-            CRMTransactioncurrency[i].CurrencyName := Format(CreateGuid);
+            CRMTransactioncurrency[i].CurrencyName := Format(CreateGuid());
             CRMTransactioncurrency[i].Modify();
         end;
 
         // [GIVEN] The CURRENCY mapping, where "Integration Table Filter" is CurrencyName=A
         FindIntTableMapping(IntegrationTableMapping, DATABASE::Currency, DATABASE::"CRM Transactioncurrency");
         CRMTransactioncurrency[1].SetRange(CurrencyName, CRMTransactioncurrency[1].CurrencyName);
-        SetIntTableFilter(IntegrationTableMapping, CRMTransactioncurrency[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMTransactioncurrency[1].GetView());
 
         // [WHEN] Page CRM TransactionCurrency List is being opened
         CRMTransactionCurrencyList.OpenView;
@@ -1830,15 +1830,15 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] CRM Uomschedules with Name=A and Name=B
         for i := 1 to 2 do begin
             CRMUomschedule[i].Init();
-            CRMUomschedule[i].UoMScheduleId := CreateGuid;
-            CRMUomschedule[i].Name := Format(CreateGuid);
+            CRMUomschedule[i].UoMScheduleId := CreateGuid();
+            CRMUomschedule[i].Name := Format(CreateGuid());
             CRMUomschedule[i].Insert();
         end;
 
         // [GIVEN] The UNIT OF MEASURE mapping, where "Integration Table Filter" is Name=AAAAA
         FindIntTableMapping(IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule");
         CRMUomschedule[1].SetRange(Name, CRMUomschedule[1].Name);
-        SetIntTableFilter(IntegrationTableMapping, CRMUomschedule[1].GetView);
+        SetIntTableFilter(IntegrationTableMapping, CRMUomschedule[1].GetView());
 
         // [WHEN] Page CRM TransactionCurrency List is being opened
         CRMUnitGroupList.OpenView;
@@ -1868,7 +1868,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [GIVEN] Mock unregistered connection
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Is Enabled", true);
-        CRMConnectionSetup.UnregisterConnection;
+        CRMConnectionSetup.UnregisterConnection();
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM));
 
         // [GIVEN] Open Integration table mapping list
@@ -1915,7 +1915,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] The number of Integration Table Mappings 
         IntegrationTableMappingsNo := IntegrationTableMapping.Count();
@@ -1937,7 +1937,7 @@ codeunit 139183 "CRM Integration Mapping"
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail");
         ModifyIntegrationTableMappingDirection(DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule");
-#if not CLEAN19
+#if not CLEAN21
         ModifyIntegrationTableMappingDirection(DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel");
 #endif
@@ -1954,72 +1954,72 @@ codeunit 139183 "CRM Integration Mapping"
 
         // [THEN] All integration Table Mappings have been recreatd and the field mapping configuration resetted to default
         VerifyMapping(
-              IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2);
+              IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0);
+          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-            IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0);
+            IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Currency, DATABASE::"CRM Transactioncurrency",
-                  CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1);
+                  CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Item, DATABASE::"CRM Product",
-          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional);
+          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
-                  7, IntegrationTableMapping.Direction::Bidirectional);
+                  7, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 0);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Resource, DATABASE::"CRM Product",
-                  CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional);
+                  CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1);
+                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail",
-          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1);
+          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1);
+          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
-#if not CLEAN19
+#if not CLEAN21
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1);
+          IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel",
-          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1);
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 #endif
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2);
+                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2);
+                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
 
@@ -2054,7 +2054,7 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize(true, false);
 
         // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(false);
 
         // [GIVEN] The number of Integration Table Mappings 
         IntegrationTableMappingsNo := IntegrationTableMapping.Count();
@@ -2091,71 +2091,71 @@ codeunit 139183 "CRM Integration Mapping"
 
         // [THEN] All integration Table Mappings have been recreatd and the field mapping configuration resetted to default
         VerifyMapping(
-              IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2);
+              IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", CRMSystemuser.FieldNo(SystemUserId), 3, 2, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0);
+          IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account", CRMAccount.FieldNo(AccountId), 20, 0, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-            IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0);
+            IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact", CRMContact.FieldNo(ContactId), 20, 0, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Currency, DATABASE::"CRM Transactioncurrency",
-                  CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1);
+                  CRMTransactioncurrency.FieldNo(TransactionCurrencyId), 3, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Item, DATABASE::"CRM Product",
-          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional);
+          CRMProduct.FieldNo(ProductId), 11, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
-                  7, IntegrationTableMapping.Direction::Bidirectional);
+                  7, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 0);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Resource, DATABASE::"CRM Product",
-                  CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional);
+                  CRMProduct.FieldNo(ProductId), 7, IntegrationTableMapping.Direction::Bidirectional, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1);
+                  IntegrationTableMapping, DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice", CRMInvoice.FieldNo(InvoiceId), 26, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail",
-          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1);
+          CRMInvoicedetail.FieldNo(InvoiceDetailId), 6, 1, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1);
+          IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Price List Header", DATABASE::"CRM Pricelevel",
-          CRMPricelevel.FieldNo(PriceLevelId), 5, 1);
+          CRMPricelevel.FieldNo(PriceLevelId), 5, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel",
-          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 7, 1);
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), 7, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2);
+                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2);
+                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2, false);
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
 
@@ -2175,7 +2175,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Sales] [Order] [UT]
         // [SCENARIO] Contact details for a customer should be added to the sales order.
         Initialize();
-        ResetCRMConfiguration();
+        ResetCRMConfiguration(false);
 
         // [GIVEN] A company (and its contact details).
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -2222,10 +2222,6 @@ codeunit 139183 "CRM Integration Mapping"
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
-        LibraryCRMIntegration.DisableUnitGroupMapping();
-        if EnableUnitGroupMapping then
-            LibraryCRMIntegration.EnableUnitGroupMapping();
-
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
         LibraryTemplates.EnableTemplatesFeature();
@@ -2233,7 +2229,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMConnectionSetup.DeleteAll();
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, '');
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-        ResetCRMConfiguration();
+        ResetCRMConfiguration(EnableUnitGroupMapping);
         CRMConnectionSetup.Get('');
         CRMConnectionSetup.RegisterConnection();
 
@@ -2350,7 +2346,7 @@ codeunit 139183 "CRM Integration Mapping"
     begin
         NAVField[2].Find('-');
         NAVField[1] := NAVField[2];
-        NAVField[2].Next;
+        NAVField[2].Next();
         CRMField[2].Find('+');
         CRMField[1] := CRMField[2];
         CRMField[2].Next(-1);
@@ -2441,11 +2437,11 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping.Direction := (IntegrationTableMapping.Direction + 1) mod 3;
     end;
 
-    local procedure VerifyMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer; IntegrationTableID: Integer; UIDFieldID: Integer; FieldCount: Integer; ExpectedDirection: Option)
+    local procedure VerifyMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer; IntegrationTableID: Integer; UIDFieldID: Integer; FieldCount: Integer; ExpectedDirection: Option; UnitGroupMappingEnabled: Boolean)
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(UnitGroupMappingEnabled);
 
         IntegrationTableMapping.SetRange("Table ID", TableID);
         IntegrationTableMapping.SetRange("Integration Table ID", IntegrationTableID);
@@ -2465,7 +2461,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         Assert.RecordCount(IntegrationFieldMapping, FieldCount + 1);
 
-        ResetCRMConfiguration;
+        ResetCRMConfiguration(UnitGroupMappingEnabled);
 
         Assert.RecordCount(IntegrationFieldMapping, FieldCount);
     end;
@@ -2518,7 +2514,7 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.AreEqual(Field.Type::Option, Field.Type, 'UID Field type should be Option');
     end;
 
-    local procedure ResetCRMConfiguration()
+    local procedure ResetCRMConfiguration(EnableUnitGroupMapping: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMOrganization: Record "CRM Organization";
@@ -2533,14 +2529,15 @@ codeunit 139183 "CRM Integration Mapping"
         CDSConnectionSetup.SetClientSecret('ClientSecret');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
-        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
-        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
         CRMConnectionSetup.Modify();
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
     end;
 
     local procedure TransferMappedFields(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary; OnlyTransferModifiedFields: Boolean): Boolean
@@ -2549,7 +2546,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMIntTableSubscriber: Codeunit "CRM Int. Table. Subscriber";
     begin
         Commit();
-        CRMIntTableSubscriber.ClearCache;
+        CRMIntTableSubscriber.ClearCache();
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, OnlyTransferModifiedFields);
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         if IntegrationRecordSynch.Run then

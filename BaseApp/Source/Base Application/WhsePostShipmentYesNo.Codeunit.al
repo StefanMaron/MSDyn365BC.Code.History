@@ -5,7 +5,7 @@ codeunit 5764 "Whse.-Post Shipment (Yes/No)"
     trigger OnRun()
     begin
         WhseShptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := WhseShptLine;
     end;
 
@@ -28,7 +28,7 @@ codeunit 5764 "Whse.-Post Shipment (Yes/No)"
             exit;
 
         with WhseShptLine do begin
-            if Find then
+            if Find() then
                 if not HideDialog then begin
                     Selection := StrMenu(ShipInvoiceQst, 1);
                     if Selection = 0 then
@@ -41,7 +41,7 @@ codeunit 5764 "Whse.-Post Shipment (Yes/No)"
             WhsePostShipment.SetPostingSettings(Invoice);
             WhsePostShipment.SetPrint(false);
             WhsePostShipment.Run(WhseShptLine);
-            WhsePostShipment.GetResultMessage;
+            WhsePostShipment.GetResultMessage();
             Clear(WhsePostShipment);
         end;
 

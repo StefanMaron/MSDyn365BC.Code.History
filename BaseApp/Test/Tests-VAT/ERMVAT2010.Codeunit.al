@@ -299,7 +299,7 @@ codeunit 134030 "ERM VAT 2010"
         PostedDocumentNo: Code[20];
     begin
         // Store Posted Document No. and Create Service Lines of Item and GL Account Type.
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
         CreateAndUpdateServiceLine(
           ServiceHeader, ServiceLine.Type::Item, LineNo, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
         CreateAndUpdateServiceLine(ServiceHeader, ServiceLine.Type::"G/L Account", LineNo,

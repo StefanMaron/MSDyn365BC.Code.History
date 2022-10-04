@@ -45,7 +45,7 @@ table 99000753 "Shop Calendar Holiday"
                 if "Ending Time" < "Starting Time" then
                     Error(Text000, FieldCaption("Ending Time"), FieldCaption("Starting Time"));
 
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(5; "Starting Date-Time"; DateTime)

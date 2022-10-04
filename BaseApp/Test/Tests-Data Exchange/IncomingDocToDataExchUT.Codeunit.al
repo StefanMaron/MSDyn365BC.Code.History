@@ -298,7 +298,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Execute and Assert
         GeneralJournal.Trap;
         AssertDataExchTypeMatchesResponse(IncomingDocument, IncomingDocument."Document Type"::Journal);
-        GeneralJournal.Close;
+        GeneralJournal.Close();
 
         asserterror AssertDataExchTypeMatchesResponse(IncomingDocument, InvalidChoice);
         Assert.ExpectedError(StrSubstNo(NoDocCreatedForChoiceErr, InvalidChoice));
@@ -398,7 +398,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         AssertSpecifiedDataInTable(TempExpectedDataExchField, DataExchField);
 
         // Close file
-        File.Close;
+        File.Close();
     end;
 
     [Test]
@@ -1157,7 +1157,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         File.CreateOutStream(OutStream);
         UnsupportedNamespace := NamespaceTxt + '2';
         WriteInvoiceFileWithNoNestingAndWithNamespaces(OutStream, UTF8Txt, UnsupportedNamespace);
-        File.Close;
+        File.Close();
         FileName := FileManagement.DownloadTempFile(FileName);
 
         // Init: Create test data exchange definition
@@ -1206,7 +1206,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         File.Create(FileName, TEXTENCODING::UTF8);
         File.CreateOutStream(OutStream);
         WriteLine(OutStream, 'ABC');
-        File.Close;
+        File.Close();
         FileName := FileManagement.DownloadTempFile(FileName);
 
         // Init: Create test data exchange definition
@@ -1255,7 +1255,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         File.Create(FileName, TEXTENCODING::UTF8);
         File.CreateOutStream(OutStream);
         WriteInvoiceFileWithNestingAndWithNoNamespaces(OutStream, UTF8Txt);
-        File.Close;
+        File.Close();
         FileName := FileManagement.DownloadTempFile(FileName);
 
         // Init: Create test data exchange definition
@@ -1305,7 +1305,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         File.Create(FileName, TEXTENCODING::UTF8);
         File.CreateOutStream(OutStream);
         WriteInvoiceFileWithNoNestingAndWithNoNamespaces(OutStream, UTF8Txt);
-        File.Close;
+        File.Close();
         FileName := FileManagement.DownloadTempFile(FileName);
 
         // Init: Create test data exchange definition
@@ -1628,13 +1628,13 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     local procedure CreateDataExchangeColumnValuePair(var TempExpectedDataExchField: Record "Data Exch. Field" temporary; DataExch: Record "Data Exch."; ColumnNo: Integer; NodeValue: Text[250]; LineDef: Text[20])
     begin
         with TempExpectedDataExchField do begin
-            Init;
+            Init();
             Validate("Data Exch. No.", DataExch."Entry No.");
             Validate("Line No.", 1);
             Validate("Column No.", ColumnNo);
             Validate(Value, CopyStr(NodeValue, 1, MaxStrLen(Value)));
             Validate("Data Exch. Line Def Code", LineDef);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1779,7 +1779,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                 ItemReference.Validate("Reference No.", Item."No.");
                 ItemReference.Insert(true);
             end;
-        until SalesInvoiceLine.Next = 0;
+        until SalesInvoiceLine.Next() = 0;
         exit(Vendor."No.")
     end;
 
@@ -1822,7 +1822,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                 ItemReference.Validate("Reference No.", Item."No.");
                 ItemReference.Insert(true);
             end;
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
         exit(Vendor."No.")
     end;
 
@@ -1865,7 +1865,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                 ItemReference.Validate("Reference No.", Item."No.");
                 ItemReference.Insert(true);
             end;
-        until SalesCrMemoLine.Next = 0;
+        until SalesCrMemoLine.Next() = 0;
 
         exit(Vendor."No.")
     end;
@@ -1909,7 +1909,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                 ItemReference.Validate("Reference No.", Item."No.");
                 ItemReference.Insert(true);
             end;
-        until ServiceCrMemoLine.Next = 0;
+        until ServiceCrMemoLine.Next() = 0;
 
         exit(Vendor."No.")
     end;
@@ -1971,7 +1971,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         until not Currency2.Get(CurrencyCode);
 
         Currency.Rename(CurrencyCode);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 2, 1);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 2, 1);
     end;
 
     local procedure CreateSalesDocument(DocumentType: Enum "Sales Document Type"; InvoiceCurrencyIsLCY: Boolean): Code[20]
@@ -2019,7 +2019,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         SalesLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
         SalesLine.Modify(true);
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         if SalesCalcDiscountByType.InvoiceDiscIsAllowed(SalesHeader."Invoice Disc. Code") then
             SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(LibraryRandom.RandDec(Round(LineAmount, 1, '<'), 2) / 2,
               SalesHeader);
@@ -2452,7 +2452,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
             Assert.AreEqual(SalesInvoiceLine."Line Discount Amount", PurchaseLine."Line Discount Amount", '');
             Assert.AreEqual(SalesInvoiceLine.Description, PurchaseLine.Description, '');
             Assert.AreEqual(SalesInvoiceLine."Description 2", PurchaseLine."Description 2", '');
-        until (PurchaseLine.Next = 0) or (SalesInvoiceLine.Next = 0);
+        until (PurchaseLine.Next() = 0) or (SalesInvoiceLine.Next() = 0);
     end;
 
     local procedure AssertServiceInvoiceHeaderValues(IncomingDocument: Record "Incoming Document"; var PurchaseHeader: Record "Purchase Header"; ServiceInvoiceHeader: Record "Service Invoice Header"; InvoiceCurrencyIsLCY: Boolean)
@@ -2498,7 +2498,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
             Assert.AreEqual(ServiceInvoiceLine."Line Discount Amount", PurchaseLine."Line Discount Amount", '');
             Assert.AreEqual(ServiceInvoiceLine.Description, PurchaseLine.Description, '');
             Assert.AreEqual(ServiceInvoiceLine."Description 2", PurchaseLine."Description 2", '');
-        until (PurchaseLine.Next = 0) or (ServiceInvoiceLine.Next = 0);
+        until (PurchaseLine.Next() = 0) or (ServiceInvoiceLine.Next() = 0);
     end;
 
     local procedure AssertCrMemoHeaderValues(IncomingDocument: Record "Incoming Document"; var PurchaseHeader: Record "Purchase Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; InvoiceCurrencyIsLCY: Boolean)
@@ -2564,7 +2564,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
             Assert.AreEqual(SalesCrMemoLine."Line Discount Amount", PurchaseLine."Line Discount Amount", '');
             Assert.AreEqual(SalesCrMemoLine.Description, PurchaseLine.Description, '');
             Assert.AreEqual(SalesCrMemoLine."Description 2", PurchaseLine."Description 2", '');
-        until (PurchaseLine.Next = 0) or (SalesCrMemoLine.Next = 0);
+        until (PurchaseLine.Next() = 0) or (SalesCrMemoLine.Next() = 0);
     end;
 
     local procedure AssertServiceCrMemoLineValues(PurchaseHeader: Record "Purchase Header"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -2588,7 +2588,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
             Assert.AreEqual(ServiceCrMemoLine."Line Discount Amount", PurchaseLine."Line Discount Amount", '');
             Assert.AreEqual(ServiceCrMemoLine.Description, PurchaseLine.Description, '');
             Assert.AreEqual(ServiceCrMemoLine."Description 2", PurchaseLine."Description 2", '');
-        until (PurchaseLine.Next = 0) or (ServiceCrMemoLine.Next = 0);
+        until (PurchaseLine.Next() = 0) or (ServiceCrMemoLine.Next() = 0);
     end;
 
     local procedure AssertExpectedError(var IncomingDocuments: TestPage "Incoming Documents"; ExpectedErrorMessage: Text)
@@ -2599,12 +2599,12 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         ErrorMessages.Trap;
         IncomingDocuments.StatusField.DrillDown;
         Assert.IsTrue(ErrorMessages.FindFirstField(Description, Format(ExpectedErrorMessage)), 'Expected error message not found');
-        ErrorMessages.Close;
+        ErrorMessages.Close();
         IncomingDocumentCard.Trap;
         IncomingDocuments.Edit.Invoke;
         Assert.IsTrue(IncomingDocumentCard.ErrorMessagesPart.FindFirstField(Description, ExpectedErrorMessage),
           'Expected error message not found');
-        IncomingDocumentCard.Close;
+        IncomingDocumentCard.Close();
     end;
 
     local procedure AssertExpectedErrorSubstring(var IncomingDocuments: TestPage "Incoming Documents"; ExpectedErrorMessage: Text)
@@ -2619,9 +2619,9 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         repeat
             if StrPos(ErrorMessages.Description.Value, Format(ExpectedErrorMessage)) > 0 then
                 ErrorFound := true;
-        until ErrorMessages.Next = false;
+        until ErrorMessages.Next() = false;
         Assert.IsTrue(ErrorFound, 'Expected error message not found');
-        ErrorMessages.Close;
+        ErrorMessages.Close();
     end;
 
     local procedure AssertDataInTable(var ExpectedDataExchField: Record "Data Exch. Field"; var ActualDataExchField: Record "Data Exch. Field"; Msg: Text)
@@ -2633,7 +2633,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));
-        until (ExpectedDataExchField.Next = 0) or (ActualDataExchField.Next = 0);
+        until (ExpectedDataExchField.Next() = 0) or (ActualDataExchField.Next() = 0);
         Assert.AreEqual(ExpectedDataExchField.Count, ActualDataExchField.Count, 'Row count does not match');
     end;
 
@@ -2649,7 +2649,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                 Error(CannotFindColumnErr, ExpectedDataExchField."Column No.", ExpectedDataExchField."Data Exch. Line Def Code");
 
             Assert.AreEqual(ExpectedDataExchField.Value, ActualDataExchField.Value, 'Expected values do not match');
-        until (ExpectedDataExchField.Next = 0);
+        until (ExpectedDataExchField.Next() = 0);
     end;
 
     local procedure AssertDataExchTypeMatchesResponse(IncomingDocument: Record "Incoming Document"; RelatedDocumentType: Enum "Incoming Related Document Type")

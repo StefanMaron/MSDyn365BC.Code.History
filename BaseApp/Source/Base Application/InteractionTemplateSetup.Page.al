@@ -15,29 +15,29 @@ page 5186 "Interaction Template Setup"
             group(General)
             {
                 Caption = 'General';
-                field("E-Mails"; "E-Mails")
+                field("E-Mails"; Rec."E-Mails")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the code of the interaction template to use when recording e-mails as interactions.';
                 }
-                field("E-Mail Draft"; "E-Mail Draft")
+                field("E-Mail Draft"; Rec."E-Mail Draft")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the code of the interaction template to use when recording e-mail draft as interactions.';
                 }
-                field("Cover Sheets"; "Cover Sheets")
+                field("Cover Sheets"; Rec."Cover Sheets")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the code of the interaction template to use when recording cover sheets as interactions.';
                 }
-                field("Outg. Calls"; "Outg. Calls")
+                field("Outg. Calls"; Rec."Outg. Calls")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Caption = 'Outgoing Calls';
                     ToolTip = 'Specifies the code of the interaction template to use when recording outgoing phone calls as interactions.';
                 }
-                field("Meeting Invitation"; "Meeting Invitation")
+                field("Meeting Invitation"; Rec."Meeting Invitation")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     ToolTip = 'Specifies the code of the interaction template to use when recording meeting invitations as interactions.';
@@ -46,67 +46,67 @@ page 5186 "Interaction Template Setup"
             group(Sales)
             {
                 Caption = 'Sales';
-                field("Sales Invoices"; "Sales Invoices")
+                field("Sales Invoices"; Rec."Sales Invoices")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Caption = 'Invoices';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales invoices as interactions.';
                 }
-                field("Sales Cr. Memo"; "Sales Cr. Memo")
+                field("Sales Cr. Memo"; Rec."Sales Cr. Memo")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Caption = 'Credit Memos';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales credit memos as interactions.';
                 }
-                field("Sales Ord. Cnfrmn."; "Sales Ord. Cnfrmn.")
+                field("Sales Ord. Cnfrmn."; Rec."Sales Ord. Cnfrmn.")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Caption = 'Order Confirmations';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales order confirmations as interactions.';
                 }
-                field("Sales Quotes"; "Sales Quotes")
+                field("Sales Quotes"; Rec."Sales Quotes")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Caption = 'Quotes';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales quotes as interactions.';
                 }
-                field("Sales Blnkt. Ord"; "Sales Blnkt. Ord")
+                field("Sales Blnkt. Ord"; Rec."Sales Blnkt. Ord")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Caption = 'Blanket Orders';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales blanket orders as interactions.';
                 }
-                field("Sales Shpt. Note"; "Sales Shpt. Note")
+                field("Sales Shpt. Note"; Rec."Sales Shpt. Note")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Shipment Notes';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales shipment notes as interactions.';
                 }
-                field("Sales Statement"; "Sales Statement")
+                field("Sales Statement"; Rec."Sales Statement")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statements';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales statements as interactions.';
                 }
-                field("Sales Rmdr."; "Sales Rmdr.")
+                field("Sales Rmdr."; Rec."Sales Rmdr.")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Reminders';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales reminders as interactions.';
                 }
-                field("Sales Return Order"; "Sales Return Order")
+                field("Sales Return Order"; Rec."Sales Return Order")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Return Orders';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales return orders as interactions.';
                 }
-                field("Sales Return Receipt"; "Sales Return Receipt")
+                field("Sales Return Receipt"; Rec."Sales Return Receipt")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Return Receipts';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales return receipts as interactions.';
                 }
-                field("Sales Finance Charge Memo"; "Sales Finance Charge Memo")
+                field("Sales Finance Charge Memo"; Rec."Sales Finance Charge Memo")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Finance Charge Memos';
@@ -116,49 +116,49 @@ page 5186 "Interaction Template Setup"
             group(Purchases)
             {
                 Caption = 'Purchases';
-                field("Purch Invoices"; "Purch Invoices")
+                field("Purch Invoices"; Rec."Purch Invoices")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Caption = 'Invoices';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase invoices as interactions.';
                 }
-                field("Purch Cr Memos"; "Purch Cr Memos")
+                field("Purch Cr Memos"; Rec."Purch Cr Memos")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Credit Memos';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase credit memos as interactions.';
                 }
-                field("Purch. Orders"; "Purch. Orders")
+                field("Purch. Orders"; Rec."Purch. Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Orders';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase orders as interactions.';
                 }
-                field("Purch. Quotes"; "Purch. Quotes")
+                field("Purch. Quotes"; Rec."Purch. Quotes")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quotes';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase quotes as interactions.';
                 }
-                field("Purch Blnkt Ord"; "Purch Blnkt Ord")
+                field("Purch Blnkt Ord"; Rec."Purch Blnkt Ord")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Caption = 'Blanket Orders';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase blanket orders as interactions.';
                 }
-                field("Purch. Rcpt."; "Purch. Rcpt.")
+                field("Purch. Rcpt."; Rec."Purch. Rcpt.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Receipts';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase receipts as interactions.';
                 }
-                field("Purch. Return Shipment"; "Purch. Return Shipment")
+                field("Purch. Return Shipment"; Rec."Purch. Return Shipment")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Return Shipments';
                     ToolTip = 'Specifies the code of the interaction template to use when recording purchase return shipments as interactions.';
                 }
-                field("Purch. Return Ord. Cnfrmn."; "Purch. Return Ord. Cnfrmn.")
+                field("Purch. Return Ord. Cnfrmn."; Rec."Purch. Return Ord. Cnfrmn.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Return Order Confirmations';
@@ -168,25 +168,25 @@ page 5186 "Interaction Template Setup"
             group(Service)
             {
                 Caption = 'Service';
-                field("Serv Ord Create"; "Serv Ord Create")
+                field("Serv Ord Create"; Rec."Serv Ord Create")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Service Order Create';
                     ToolTip = 'Specifies the code of the interaction template to use when recording the creation of service orders as interactions.';
                 }
-                field("Service Contract"; "Service Contract")
+                field("Service Contract"; Rec."Service Contract")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contracts';
                     ToolTip = 'Specifies the code of the interaction template to use when recording service contracts as interactions.';
                 }
-                field("Service Contract Quote"; "Service Contract Quote")
+                field("Service Contract Quote"; Rec."Service Contract Quote")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contract Quotes';
                     ToolTip = 'Specifies the code of the interaction template to use when recording service contract quotes as interactions.';
                 }
-                field("Service Quote"; "Service Quote")
+                field("Service Quote"; Rec."Service Quote")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Quotes';
@@ -215,10 +215,10 @@ page 5186 "Interaction Template Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

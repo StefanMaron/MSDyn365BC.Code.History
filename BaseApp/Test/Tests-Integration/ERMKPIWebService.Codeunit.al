@@ -28,7 +28,7 @@ codeunit 134401 "ERM KPI Web Service"
         GLBudgetEntry: Record "G/L Budget Entry";
         TempGLBudgetEntry: Record "G/L Budget Entry" temporary;
     begin
-        InitSetupData;
+        InitSetupData();
         CopyBudgetEntries(GLBudgetEntry, TempGLBudgetEntry);
         GLBudgetEntry.DeleteAll();
         Assert.AreEqual(0D, AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate, 'Wrong Last Date Modified for empty budget.');
@@ -42,7 +42,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        InitSetupData;
+        InitSetupData();
 
         with GLBudgetEntry do begin
             SetCurrentKey("Last Date Modified", "Budget Name");
@@ -64,10 +64,10 @@ codeunit 134401 "ERM KPI Web Service"
         EndDate: Date;
     begin
         with AccSchedKPIWebSrvSetup do begin
-            if Get then
+            if Get() then
                 Delete(true);
-            InitSetupData;
-            Get;
+            InitSetupData();
+            Get();
 
             Period := Period::"Fiscal Year - Last Locked Period";
             "View By" := "View By"::Day;
@@ -115,19 +115,19 @@ codeunit 134401 "ERM KPI Web Service"
             Period := Period::"Current Calendar Quarter";
             GetPeriodLength(NoOfLines, StartDate, EndDate);
             Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current calendar quarter.');
-            Assert.AreEqual(CalcDate('<-CQ>', WorkDate), StartDate, 'Wrong startdate for current calendar quarter.');
-            Assert.AreEqual(CalcDate('<CQ>', WorkDate), EndDate, 'Wrong enddate for current calendar quarter.');
+            Assert.AreEqual(CalcDate('<-CQ>', WorkDate()), StartDate, 'Wrong startdate for current calendar quarter.');
+            Assert.AreEqual(CalcDate('<CQ>', WorkDate()), EndDate, 'Wrong enddate for current calendar quarter.');
 
             Period := Period::"Current Month";
             GetPeriodLength(NoOfLines, StartDate, EndDate);
             Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current month.');
-            Assert.AreEqual(CalcDate('<-CM>', WorkDate), StartDate, 'Wrong startdate for current month.');
+            Assert.AreEqual(CalcDate('<-CM>', WorkDate()), StartDate, 'Wrong startdate for current month.');
             Assert.AreEqual(CalcDate('<CM>', StartDate), EndDate, 'Wrong enddate for current month.');
 
             Period := Period::Today;
             GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(WorkDate, StartDate, 'Wrong day of startdate for today.');
-            Assert.AreEqual(WorkDate, EndDate, 'Wrong day of startdate for today.');
+            Assert.AreEqual(WorkDate(), StartDate, 'Wrong day of startdate for today.');
+            Assert.AreEqual(WorkDate(), EndDate, 'Wrong day of startdate for today.');
         end;
     end;
 
@@ -141,10 +141,10 @@ codeunit 134401 "ERM KPI Web Service"
         EndDate: Date;
         Date: Date;
     begin
-        InitSetupData;
+        InitSetupData();
 
         with AccSchedKPIWebSrvSetup do begin
-            Get;
+            Get();
             "View By" := "View By"::Day;
             GetPeriodLength(NoOfLines, StartDate, EndDate);
             Date := CalcNextStartDate(StartDate, 1);
@@ -168,7 +168,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
         LastClosedDate: Date;
     begin
-        InitSetupData;
+        InitSetupData();
         if LibraryERM.GetAllowPostingFrom = 0D then
             LastClosedDate := WorkDate
         else
@@ -200,7 +200,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
         WebService: Record "Web Service";
     begin
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         WebService.LockTable();
         WebService.SetRange("Object Type", WebService."Object Type"::Page);
@@ -218,7 +218,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
         WebService: Record "Web Service";
     begin
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.PublishWebService;
         AccSchedKPIWebSrvSetup.DeleteWebService;
@@ -229,7 +229,7 @@ codeunit 134401 "ERM KPI Web Service"
     [Scope('OnPrem')]
     procedure TestWebServicePage()
     begin
-        InitSetupData;
+        InitSetupData();
         ValidateWebServicePage;
     end;
 
@@ -241,7 +241,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer";
         AccSchedKPIBufferCount: Integer;
     begin
-        InitSetupData;
+        InitSetupData();
         // Run the web service page once to initiate data
         ValidateWebServicePage;
         AccSchedKPIBufferCount := AccSchedKPIBuffer.Count();
@@ -270,7 +270,7 @@ codeunit 134401 "ERM KPI Web Service"
         EndDate: Date;
         PrevKPIName: Text;
     begin
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
 
@@ -306,9 +306,9 @@ codeunit 134401 "ERM KPI Web Service"
 
         PrevKPIName := AccSchedKPIWSDimensions."KPI Name".Value;
         Assert.AreNotEqual('', PrevKPIName, 'Missing KPI Name.');
-        AccSchedKPIWSDimensions.Next;
+        AccSchedKPIWSDimensions.Next();
         Assert.AreNotEqual(PrevKPIName, AccSchedKPIWSDimensions."KPI Name".Value, 'Expected KPI names to be different.');
-        AccSchedKPIWSDimensions.Close;
+        AccSchedKPIWSDimensions.Close();
     end;
 
     [Test]
@@ -319,7 +319,7 @@ codeunit 134401 "ERM KPI Web Service"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         // Verify that table 135 is reset when another budget entry is added
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
@@ -343,7 +343,7 @@ codeunit 134401 "ERM KPI Web Service"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         // Verify that table 135 is NOT reset when another budget entry is added
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
@@ -366,7 +366,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
     begin
         // Verify that single instance codeunit 198 is updated when table 135 is changed.
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
@@ -387,7 +387,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         // Verify that single instance codeunit 198 is updated when table 135 is changed.
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
@@ -410,7 +410,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         // Verify that single instance codeunit 198 is updated when table 135 is changed.
-        InitSetupData;
+        InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
@@ -438,7 +438,7 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 292696] In case of "View By"=Period function GetPeriodLength calculates parameter NoOfLines as a number of accounting periods
-        InitSetupData;
+        InitSetupData();
 
         // [GIVEN] Delete all accounting periods
         AccountingPeriod.DeleteAll();
@@ -471,16 +471,16 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 292696] In case of "View By"=Year function GetPeriodLength calculates parameter NoOfLines as a number of years for more than one year period
-        InitSetupData;
+        InitSetupData();
 
         // [GIVEN] Delete all accounting periods
         AccountingPeriod.DeleteAll();
 
         // [GIVEN] Create 3 privious and current fiscal years
-        RunCreateFiscalYear(CalcDate('<-3Y>', WorkDate));
-        RunCreateFiscalYear(CalcDate('<-2Y>', WorkDate));
-        RunCreateFiscalYear(CalcDate('<-1Y>', WorkDate));
-        RunCreateFiscalYear(WorkDate);
+        RunCreateFiscalYear(CalcDate('<-3Y>', WorkDate()));
+        RunCreateFiscalYear(CalcDate('<-2Y>', WorkDate()));
+        RunCreateFiscalYear(CalcDate('<-1Y>', WorkDate()));
+        RunCreateFiscalYear(WorkDate());
 
         // [GIVEN] Period = "Current Fiscal Year + 3 Previous Years", "View By" = Year
         SetAccSchedKPIWebSrvSetupPeriodAndViewBy(
@@ -510,10 +510,10 @@ codeunit 134401 "ERM KPI Web Service"
         AccountingPeriod.DeleteAll();
 
         // [WHEN] Create current fiscal year
-        RunCreateFiscalYear(WorkDate);
+        RunCreateFiscalYear(WorkDate());
 
         // [THEN] CorrespondingAccountingPeriodExists returns True for current month
-        Assert.IsTrue(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, WorkDate), '');
+        Assert.IsTrue(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, WorkDate()), '');
     end;
 
     [Test]
@@ -531,10 +531,10 @@ codeunit 134401 "ERM KPI Web Service"
         AccountingPeriod.DeleteAll();
 
         // [WHEN] Create current fiscal year
-        RunCreateFiscalYear(WorkDate);
+        RunCreateFiscalYear(WorkDate());
 
         // [THEN] CorrespondingAccountingPeriodExists returns False for the date next year
-        Assert.IsFalse(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, CalcDate('<+1M+1Y>', WorkDate)), '');
+        Assert.IsFalse(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, CalcDate('<+1M+1Y>', WorkDate())), '');
     end;
 
     local procedure InitSetupData()
@@ -544,13 +544,13 @@ codeunit 134401 "ERM KPI Web Service"
         GLEntry: Record "G/L Entry";
     begin
         with AccSchedKPIWebSrvSetup do begin
-            if Get then
-                Delete;
-            Init;
+            if Get() then
+                Delete();
+            Init();
             "G/L Budget Name" := GetBudgetName;
             "Web Service Name" := 'kpi';
             "View By" := "View By"::Day;
-            Insert;
+            Insert();
         end;
 
         AccSchedKPIBuffer.DeleteAll();
@@ -564,7 +564,7 @@ codeunit 134401 "ERM KPI Web Service"
         InsertTestData(ActivitiesTxt, 10000, 'REV', 'Revenue', GLAccNo1);
         InsertTestData(LiquidityTxt, 10000, 'COST', 'Cost', GLAccNo2);
 
-        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         LibraryVariableStorage.Clear();
     end;
 
@@ -581,10 +581,10 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         with AccScheduleName do
             if not Get(Name2) then begin
-                Init;
+                Init();
                 Name := Name2;
                 Description := Format(Name2[1]) + CopyStr(LowerCase(Name2), 2);
-                Insert;
+                Insert();
             end;
     end;
 
@@ -594,14 +594,14 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         with AccScheduleLine do
             if not Get(Name2, LineNo) then begin
-                Init;
+                Init();
                 "Schedule Name" := Name2;
                 "Line No." := LineNo;
                 "Row No." := RowNo;
                 Description := Description2;
                 Totaling := Totaling2;
                 "Totaling Type" := "Totaling Type"::"Posting Accounts";
-                Insert;
+                Insert();
             end;
     end;
 
@@ -611,9 +611,9 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         with AccSchedKPIWebSrvLine do
             if not Get(Name2) then begin
-                Init;
+                Init();
                 "Acc. Schedule Name" := Name2;
-                Insert;
+                Insert();
             end;
     end;
 
@@ -675,7 +675,7 @@ codeunit 134401 "ERM KPI Web Service"
             repeat
                 ToGLBudgetEntry := FromGLBudgetEntry;
                 ToGLBudgetEntry.Insert();
-            until FromGLBudgetEntry.Next = 0;
+            until FromGLBudgetEntry.Next() = 0;
     end;
 
     local procedure RunCreateFiscalYear(StartingDate: Date)
@@ -752,9 +752,9 @@ codeunit 134401 "ERM KPI Web Service"
 
         PrevKPIName := AccSchedKPIWebService."KPI Name".Value;
         Assert.AreNotEqual('', PrevKPIName, 'Missing KPI Name.');
-        AccSchedKPIWebService.Next;
+        AccSchedKPIWebService.Next();
         Assert.AreNotEqual(PrevKPIName, AccSchedKPIWebService."KPI Name".Value, 'Expected KPI names to be different.');
-        AccSchedKPIWebService.Close;
+        AccSchedKPIWebService.Close();
     end;
 
     local procedure ValidateAccSchedKpiIsReset()

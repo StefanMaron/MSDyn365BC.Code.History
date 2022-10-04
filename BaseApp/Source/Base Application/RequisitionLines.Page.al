@@ -13,17 +13,17 @@ page 517 "Requisition Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Worksheet Template Name"; "Worksheet Template Name")
+                field("Worksheet Template Name"; Rec."Worksheet Template Name")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the name of the requisition worksheet template.';
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the requisition worksheet line.';
@@ -34,12 +34,12 @@ page 517 "Requisition Lines"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the type of requisition worksheet line you are creating.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -50,7 +50,7 @@ page 517 "Requisition Lines"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies text that describes the entry.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
@@ -61,40 +61,40 @@ page 517 "Requisition Lines"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of units of the item.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of this item have been reserved.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
+                field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the method that will be used for price calculation in the requisition line.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the customer.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -154,13 +154,13 @@ page 517 "Requisition Lines"
                                                                   Blocked = CONST(false));
                     Visible = false;
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when the related order was created.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
@@ -179,9 +179,6 @@ page 517 "Requisition Lines"
                 Image = Line;
                 action("Show Worksheet")
                 {
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ApplicationArea = Planning;
                     Caption = 'Show Worksheet';
                     Image = ViewWorksheet;
@@ -200,9 +197,6 @@ page 517 "Requisition Lines"
                 }
                 action("Reservation Entries")
                 {
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     AccessByPermission = TableData Item = R;
                     ApplicationArea = Reservation;
                     Caption = 'Reservation Entries';
@@ -216,9 +210,6 @@ page 517 "Requisition Lines"
                 }
                 action(Dimensions)
                 {
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
@@ -229,14 +220,11 @@ page 517 "Requisition Lines"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
                 {
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
@@ -247,6 +235,26 @@ page 517 "Requisition Lines"
                     begin
                         OpenItemTrackingLines();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Worksheet_Promoted"; "Show Worksheet")
+                {
+                }
+                actionref("Reservation Entries_Promoted"; "Reservation Entries")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
                 }
             }
         }

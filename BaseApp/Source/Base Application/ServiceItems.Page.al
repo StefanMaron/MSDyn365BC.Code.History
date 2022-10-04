@@ -2,7 +2,7 @@ page 5988 "Service Items"
 {
     Caption = 'Service Items';
     CardPageID = "Service Item Card";
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     Editable = false;
     PageType = List;
     SourceTable = "Service Item";
@@ -15,7 +15,7 @@ page 5988 "Service Items"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,42 +25,42 @@ page 5988 "Service Items"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of this item.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item number linked to the service item.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of this item.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns this item.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Warranty Starting Date (Parts)"; "Warranty Starting Date (Parts)")
+                field("Warranty Starting Date (Parts)"; Rec."Warranty Starting Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the spare parts warranty for this item.';
                 }
-                field("Warranty Ending Date (Parts)"; "Warranty Ending Date (Parts)")
+                field("Warranty Ending Date (Parts)"; Rec."Warranty Ending Date (Parts)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the spare parts warranty for this item.';
                 }
-                field("Warranty Starting Date (Labor)"; "Warranty Starting Date (Labor)")
+                field("Warranty Starting Date (Labor)"; Rec."Warranty Starting Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the labor warranty for this item.';
                 }
-                field("Warranty Ending Date (Labor)"; "Warranty Ending Date (Labor)")
+                field("Warranty Ending Date (Labor)"; Rec."Warranty Ending Date (Labor)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the labor warranty for this item.';
@@ -130,8 +130,6 @@ page 5988 "Service Items"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Service Item Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -203,6 +201,17 @@ page 5988 "Service Items"
                                       "No." = FIELD("Item No.");
                         ToolTip = 'View and edit detailed information for the item.';
                     }
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

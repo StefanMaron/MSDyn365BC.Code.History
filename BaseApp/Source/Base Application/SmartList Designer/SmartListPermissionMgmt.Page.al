@@ -50,9 +50,6 @@ page 9890 "SmartList Permission Mgmt"
                 ApplicationArea = All;
                 Caption = 'Permission Sets';
                 ToolTip = 'Manage permission sets that you can assign to the users of the database.';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Image = Permission;
 
                 trigger OnAction()
@@ -62,6 +59,17 @@ page 9890 "SmartList Permission Mgmt"
                     PermissionSetsPage.RunModal();
                     FillRecordBuffer();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PermissionSets_Promoted; PermissionSets)
+                {
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿page 9255 "Tasks Matrix"
+page 9255 "Tasks Matrix"
 {
     Caption = 'Tasks Matrix';
     DataCaptionExpression = Format(SelectStr(OutputOption + 1, Text001));
@@ -16,7 +16,7 @@
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Style = Strong;
@@ -70,7 +70,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(1);
                     end;
                 }
@@ -83,7 +83,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(2);
                     end;
                 }
@@ -96,7 +96,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(3);
                     end;
                 }
@@ -109,7 +109,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(4);
                     end;
                 }
@@ -122,7 +122,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(5);
                     end;
                 }
@@ -135,7 +135,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(6);
                     end;
                 }
@@ -148,7 +148,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(7);
                     end;
                 }
@@ -161,7 +161,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(8);
                     end;
                 }
@@ -174,7 +174,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(9);
                     end;
                 }
@@ -187,7 +187,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(10);
                     end;
                 }
@@ -200,7 +200,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(11);
                     end;
                 }
@@ -213,7 +213,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(12);
                     end;
                 }
@@ -226,7 +226,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(13);
                     end;
                 }
@@ -239,7 +239,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(14);
                     end;
                 }
@@ -252,7 +252,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(15);
                     end;
                 }
@@ -265,7 +265,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(16);
                     end;
                 }
@@ -278,7 +278,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(17);
                     end;
                 }
@@ -291,7 +291,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(18);
                     end;
                 }
@@ -304,7 +304,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(19);
                     end;
                 }
@@ -317,7 +317,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(20);
                     end;
                 }
@@ -330,7 +330,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(21);
                     end;
                 }
@@ -343,7 +343,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(22);
                     end;
                 }
@@ -356,7 +356,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(23);
                     end;
                 }
@@ -369,7 +369,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(24);
                     end;
                 }
@@ -382,7 +382,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(25);
                     end;
                 }
@@ -395,7 +395,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(26);
                     end;
                 }
@@ -408,7 +408,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(27);
                     end;
                 }
@@ -421,7 +421,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(28);
                     end;
                 }
@@ -434,7 +434,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(29);
                     end;
                 }
@@ -447,7 +447,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(30);
                     end;
                 }
@@ -460,7 +460,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(31);
                     end;
                 }
@@ -473,7 +473,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetFilters;
+                        SetFilters();
                         MatrixOnDrillDown(32);
                     end;
                 }
@@ -500,7 +500,7 @@
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
         end;
 
-        FormatLine;
+        FormatLine();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -531,8 +531,8 @@
         else
             SetRange("Priority Filter");
 
-        ValidateFilter;
-        ValidateTableOption;
+        ValidateFilter();
+        ValidateTableOption();
     end;
 
     var
@@ -713,7 +713,7 @@
     local procedure CopySalesPersonToBuf(var Salesperson: Record "Salesperson/Purchaser"; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := Salesperson.Code;
             Type := Type::Person;
             Name := Salesperson.Name;
@@ -725,7 +725,7 @@
     local procedure CopyCampaignToBuf(var Campaign: Record Campaign; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := Campaign."No.";
             Type := Type::Person;
             Name := CopyStr(Campaign.Description, 1, MaxStrLen(Name));
@@ -737,7 +737,7 @@
     local procedure CopyContactToBuf(var Cont: Record Contact; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := CopyStr(Cont."Company Name", 1, MaxStrLen("Company Name"));
             Type := Cont.Type;
             Name := CopyStr(Cont.Name, 1, MaxStrLen(Name));
@@ -749,7 +749,7 @@
     local procedure CopyTeamToBuf(var TheTeam: Record Team; var RMMatrixMgt: Record "RM Matrix Management")
     begin
         with RMMatrixMgt do begin
-            Init;
+            Init();
             "Company Name" := TheTeam.Code;
             Type := Type::Person;
             Name := TheTeam.Name;
@@ -767,28 +767,28 @@
                     SetFilter("Team Filter", FilterTeam);
                     SetFilter("Campaign Filter", FilterCampaign);
                     SetFilter("Contact Filter", FilterContact);
-                    ValidateFilter;
+                    ValidateFilter();
                 end;
             TableOption::Team:
                 begin
                     SetFilter("Salesperson Filter", FilterSalesPerson);
                     SetFilter("Campaign Filter", FilterCampaign);
                     SetFilter("Contact Filter", FilterContact);
-                    ValidateFilter;
+                    ValidateFilter();
                 end;
             TableOption::Campaign:
                 begin
                     SetFilter("Salesperson Filter", FilterSalesPerson);
                     SetFilter("Team Filter", FilterTeam);
                     SetFilter("Contact Filter", FilterContact);
-                    ValidateFilter;
+                    ValidateFilter();
                 end;
             TableOption::Contact:
                 begin
                     SetFilter("Salesperson Filter", FilterSalesPerson);
                     SetFilter("Team Filter", FilterTeam);
                     SetFilter("Campaign Filter", FilterCampaign);
-                    ValidateFilter;
+                    ValidateFilter();
                 end;
         end;
     end;
@@ -797,13 +797,13 @@
     begin
         case TableOption of
             TableOption::Salesperson:
-                UpdateSalesPersonFilter;
+                UpdateSalesPersonFilter();
             TableOption::Team:
-                UpdateTeamFilter;
+                UpdateTeamFilter();
             TableOption::Campaign:
-                UpdateCampaignFilter;
+                UpdateCampaignFilter();
             TableOption::Contact:
-                UpdateContactFilter;
+                UpdateContactFilter();
         end;
         CurrPage.Update(false);
     end;
@@ -878,7 +878,7 @@
         StatusFilter := StatusFilterLocal;
         IncludeClosed := IncludeClosedLocal;
         PriorityFilter := PriorityFilterLocal;
-        SetFilters;
+        SetFilters();
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
@@ -907,7 +907,7 @@
 
     local procedure MATRIX_OnAfterGetRecord(Matrix_ColumnOrdinal: Integer)
     begin
-        SetFilters;
+        SetFilters();
         SetRange("Date Filter", MatrixRecords[Matrix_ColumnOrdinal]."Period Start", MatrixRecords[Matrix_ColumnOrdinal]."Period End");
         CalcFields("No. of Tasks");
         if OutputOption <> OutputOption::"Contact No." then begin

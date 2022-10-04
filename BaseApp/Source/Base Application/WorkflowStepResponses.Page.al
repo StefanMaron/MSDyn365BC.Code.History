@@ -75,7 +75,7 @@ page 1515 "Workflow Step Responses"
                 begin
                     AddMoreResponsesLabel := '';
                     ShowResponseList := true;
-                    UpdatePageData;
+                    UpdatePageData();
                 end;
             }
             field(NextStepDescription; "Next Step Description")
@@ -90,7 +90,7 @@ page 1515 "Workflow Step Responses"
 
                 trigger OnDrillDown()
                 begin
-                    if NextStepLookup then
+                    if NextStepLookup() then
                         CurrPage.Update(false);
                 end;
             }
@@ -119,16 +119,16 @@ page 1515 "Workflow Step Responses"
 
         ShowNextStep := "Next Step Description" <> '';
 
-        UpdateRecFromWorkflowStep;
+        UpdateRecFromWorkflowStep();
     end;
 
     trigger OnAfterGetRecord()
     begin
         WorkflowStep.Get("Workflow Code", "Response Step ID");
-        "Response Description" := WorkflowStep.GetDescription;
-        Modify;
+        "Response Description" := WorkflowStep.GetDescription();
+        Modify();
 
-        UpdateNextStepDescription;
+        UpdateNextStepDescription();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -157,7 +157,7 @@ page 1515 "Workflow Step Responses"
         CalculateNewKey(BelowxRec);
 
         WorkflowStep.Init();
-        UpdateNextStepDescription;
+        UpdateNextStepDescription();
     end;
 
     trigger OnOpenPage()
@@ -166,7 +166,7 @@ page 1515 "Workflow Step Responses"
         ShowResponseList := Count > 1;
         CanAddMoreResponses := not (ShowResponseList or Template);
         AddMoreResponsesLabel := AddMoreResponsesLbl;
-        UpdatePageCaption;
+        UpdatePageCaption();
         ShowNextStep := true;
     end;
 
@@ -182,17 +182,17 @@ page 1515 "Workflow Step Responses"
 
     local procedure UpdatePageCaption()
     var
-        WorkflowStep: Record "Workflow Step";
+        WorkflowStep2: Record "Workflow Step";
         WorkflowEvent: Record "Workflow Event";
     begin
-        WorkflowStep.Get(GetRangeMax("Workflow Code"), GetRangeMax("Parent Event Step ID"));
-        WorkflowEvent.Get(WorkflowStep."Function Name");
+        WorkflowStep2.Get(GetRangeMax("Workflow Code"), GetRangeMax("Parent Event Step ID"));
+        WorkflowEvent.Get(WorkflowStep2."Function Name");
         DataCaptionString := WorkflowEvent.Description;
     end;
 
     local procedure UpdatePageData()
     begin
-        ClearBuffer;
+        ClearBuffer();
         PopulateTableFromEvent(GetRangeMax("Workflow Code"), GetRangeMax("Parent Event Step ID"));
         CurrPage.Update(false);
     end;

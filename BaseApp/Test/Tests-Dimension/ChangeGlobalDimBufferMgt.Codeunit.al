@@ -24,10 +24,10 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         Initialize();
 
         MockChangeGlobalDimLogEntry;
-        ChangeGlobalDimLogMgt.FillBuffer;
+        ChangeGlobalDimLogMgt.FillBuffer();
         Assert.IsFalse(ChangeGlobalDimLogMgt.IsBufferClear, 'IsClear before ClearBuffer');
 
-        ChangeGlobalDimLogMgt.ClearBuffer;
+        ChangeGlobalDimLogMgt.ClearBuffer();
         Assert.IsTrue(ChangeGlobalDimLogMgt.IsBufferClear, 'IsClear after ClearBuffer');
     end;
 

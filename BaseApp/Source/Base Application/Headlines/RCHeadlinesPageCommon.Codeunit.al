@@ -21,7 +21,7 @@ codeunit 1440 "RC Headlines Page Common"
                 RCHeadlinesUserData."User ID" := UserSecurityId();
                 RCHeadlinesUserData.Insert();
             end;
-            RCHeadlinesUserData."User workdate" := WorkDate;
+            RCHeadlinesUserData."User workdate" := WorkDate();
             if ShouldCreateAComputeJob(RCHeadlinesUserData) then begin
                 RCHeadlinesUserData."Last Computed" := CurrentDateTime();
                 RCHeadlinesUserData.Modify();
@@ -30,7 +30,7 @@ codeunit 1440 "RC Headlines Page Common"
                 RCHeadlinesUserData.Modify();
         end;
         GreetingText := Headlines.GetUserGreetingText();
-        DocumentationText := StrSubstNo(DocumentationTxt, PRODUCTNAME.Short);
+        DocumentationText := StrSubstNo(DocumentationTxt, PRODUCTNAME.Short());
         ComputeDefaultFieldsVisibility(RoleCenterPageID);
 
         Commit(); // not to mess up the other page parts that may do IF CODEUNIT.RUN()
@@ -52,7 +52,7 @@ codeunit 1440 "RC Headlines Page Common"
     begin
         OnIsAnyExtensionHeadlineVisible(ExtensionHeadlinesVisible, RoleCenterPageID);
         DefaultFieldsVisible := not ExtensionHeadlinesVisible;
-        UserGreetingVisible := Headlines.ShouldUserGreetingBeVisible;
+        UserGreetingVisible := Headlines.ShouldUserGreetingBeVisible();
     end;
 
     procedure DocumentationUrlTxt(): Text

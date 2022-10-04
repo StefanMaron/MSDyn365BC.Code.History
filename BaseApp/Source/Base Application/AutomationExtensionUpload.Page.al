@@ -54,7 +54,7 @@ page 5447 "Automation Extension Upload"
         ExtensionManagement: Codeunit "Extension Management";
         FileStream: InStream;
     begin
-        if Content.HasValue then begin
+        if Content.HasValue() then begin
             Content.CreateInStream(FileStream);
             ExtensionManagement.UploadExtension(FileStream, GlobalLanguage);
         end;

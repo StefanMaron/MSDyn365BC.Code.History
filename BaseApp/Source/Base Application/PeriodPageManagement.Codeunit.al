@@ -1,4 +1,4 @@
-﻿codeunit 362 PeriodPageManagement
+codeunit 362 PeriodPageManagement
 {
 
     trigger OnRun()

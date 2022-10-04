@@ -28,7 +28,7 @@ page 5872 "BOM Cost Shares"
                     begin
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -38,7 +38,7 @@ page 5872 "BOM Cost Shares"
 
                     trigger OnValidate()
                     begin
-                        RefreshPage;
+                        RefreshPage();
                     end;
                 }
             }
@@ -52,7 +52,7 @@ page 5872 "BOM Cost Shares"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the item''s position in the BOM structure. Lower-level items are indented under their parents.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
@@ -81,54 +81,54 @@ page 5872 "BOM Cost Shares"
                     trigger OnDrillDown()
                     begin
                         if HasWarning then
-                            ShowWarnings;
+                            ShowWarnings();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant code that you entered in the Variant Filter field in the Item Availability by BOM Level window.';
                     Visible = false;
                 }
-                field("Qty. per Parent"; "Qty. per Parent")
+                field("Qty. per Parent"; Rec."Qty. per Parent")
                 {
                     ApplicationArea = Assembly;
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the parent.';
                 }
-                field("Qty. per Top Item"; "Qty. per Top Item")
+                field("Qty. per Top Item"; Rec."Qty. per Top Item")
                 {
                     ApplicationArea = Assembly;
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the top item.';
                 }
-                field("Qty. per BOM Line"; "Qty. per BOM Line")
+                field("Qty. per BOM Line"; Rec."Qty. per BOM Line")
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the component are required to assemble or produce one unit of the item on the BOM line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("BOM Unit of Measure Code"; "BOM Unit of Measure Code")
+                field("BOM Unit of Measure Code"; Rec."BOM Unit of Measure Code")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies the unit of measure of the BOM item. ';
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Assembly;
                     Editable = false;
                     ToolTip = 'Specifies the item''s replenishment system.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
@@ -136,25 +136,25 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Scrap %"; "Scrap %")
+                field("Scrap %"; Rec."Scrap %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
                     Visible = false;
                 }
-                field("Scrap Qty. per Parent"; "Scrap Qty. per Parent")
+                field("Scrap Qty. per Parent"; Rec."Scrap Qty. per Parent")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item are scrapped to output the top item quantity.';
                     Visible = false;
                 }
-                field("Scrap Qty. per Top Item"; "Scrap Qty. per Top Item")
+                field("Scrap Qty. per Top Item"; Rec."Scrap Qty. per Top Item")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item are scrapped to output the parent item quantity.';
                     Visible = false;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -162,7 +162,7 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Overhead Rate"; "Overhead Rate")
+                field("Overhead Rate"; Rec."Overhead Rate")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -170,61 +170,61 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the item''s overhead rate.';
                     Visible = false;
                 }
-                field("Lot Size"; "Lot Size")
+                field("Lot Size"; Rec."Lot Size")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s lot size. The value is copied from the Lot Size field on the item card.';
                     Visible = false;
                 }
-                field("Production BOM No."; "Production BOM No.")
+                field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the production BOM that the item represents.';
                     Visible = false;
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the item''s production order routing.';
                     Visible = false;
                 }
-                field("Resource Usage Type"; "Resource Usage Type")
+                field("Resource Usage Type"; Rec."Resource Usage Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how the cost of the resource on the assembly BOM is allocated during assembly.';
                     Visible = false;
                 }
-                field("Rolled-up Material Cost"; "Rolled-up Material Cost")
+                field("Rolled-up Material Cost"; Rec."Rolled-up Material Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the material cost of all items at all levels of the parent item''s BOM, added to the material cost of the item itself.';
                 }
-                field("Rolled-up Capacity Cost"; "Rolled-up Capacity Cost")
+                field("Rolled-up Capacity Cost"; Rec."Rolled-up Capacity Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the capacity costs related to the item''s parent item and other items in the parent item''s BOM.';
                 }
-                field("Rolled-up Subcontracted Cost"; "Rolled-up Subcontracted Cost")
+                field("Rolled-up Subcontracted Cost"; Rec."Rolled-up Subcontracted Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the single-level cost of outsourcing operations to a subcontractor.';
                 }
-                field("Rolled-up Mfg. Ovhd Cost"; "Rolled-up Mfg. Ovhd Cost")
+                field("Rolled-up Mfg. Ovhd Cost"; Rec."Rolled-up Mfg. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item''s overhead capacity cost rolled up from underlying item levels.';
                 }
-                field("Rolled-up Capacity Ovhd. Cost"; "Rolled-up Capacity Ovhd. Cost")
+                field("Rolled-up Capacity Ovhd. Cost"; Rec."Rolled-up Capacity Ovhd. Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the rolled-up manufacturing overhead cost of the item.';
                 }
-                field("Rolled-up Scrap Cost"; "Rolled-up Scrap Cost")
+                field("Rolled-up Scrap Cost"; Rec."Rolled-up Scrap Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of all component material that will eventually be scrapped to produce the parent item.';
                 }
-                field("Single-Level Material Cost"; "Single-Level Material Cost")
+                field("Single-Level Material Cost"; Rec."Single-Level Material Cost")
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;
@@ -232,7 +232,7 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the total material cost of all components on the parent item''s BOM.';
                     Visible = false;
                 }
-                field("Single-Level Capacity Cost"; "Single-Level Capacity Cost")
+                field("Single-Level Capacity Cost"; Rec."Single-Level Capacity Cost")
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;
@@ -240,7 +240,7 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the capacity costs related to the item''s parent item only.';
                     Visible = false;
                 }
-                field("Single-Level Subcontrd. Cost"; "Single-Level Subcontrd. Cost")
+                field("Single-Level Subcontrd. Cost"; Rec."Single-Level Subcontrd. Cost")
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;
@@ -248,7 +248,7 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the single-level cost of outsourcing operations to a subcontractor.';
                     Visible = false;
                 }
-                field("Single-Level Cap. Ovhd Cost"; "Single-Level Cap. Ovhd Cost")
+                field("Single-Level Cap. Ovhd Cost"; Rec."Single-Level Cap. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;
@@ -256,7 +256,7 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the single-level capacity overhead cost.';
                     Visible = false;
                 }
-                field("Single-Level Mfg. Ovhd Cost"; "Single-Level Mfg. Ovhd Cost")
+                field("Single-Level Mfg. Ovhd Cost"; Rec."Single-Level Mfg. Ovhd Cost")
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;
@@ -264,13 +264,13 @@ page 5872 "BOM Cost Shares"
                     ToolTip = 'Specifies the single-level manufacturing overhead cost.';
                     Visible = false;
                 }
-                field("Single-Level Scrap Cost"; "Single-Level Scrap Cost")
+                field("Single-Level Scrap Cost"; Rec."Single-Level Scrap Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of material at this BOM level that will eventually be scrapped in order to produce the parent item.';
                     Visible = false;
                 }
-                field("Total Cost"; "Total Cost")
+                field("Total Cost"; Rec."Total Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the sum of all cost at this BOM level.';
@@ -288,14 +288,11 @@ page 5872 "BOM Cost Shares"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Warnings';
                 Image = ErrorLog;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View details about bottlenecks.';
 
                 trigger OnAction()
                 begin
-                    ShowWarningsForAllLines;
+                    ShowWarningsForAllLines();
                 end;
             }
         }
@@ -306,15 +303,26 @@ page 5872 "BOM Cost Shares"
                 ApplicationArea = Assembly;
                 Caption = 'BOM Cost Share Distribution';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Get a graphical overview of how an assembled or produced item''s cost is distributed through its BOM. The first chart shows the total unit cost of the parent item''s components and labor resources broken down in up to five different cost shares. The pie chart labeled By Material/Labor shows the proportional distribution between the parent item''s material and labor costs, as well as its own manufacturing overhead. The material cost share includes the item''s material costs. The labor cost share includes capacity, capacity overhead and subcontracted costs. The pie chart labeled By Direct/Indirect shows the proportional distribution between the parent item''s direct and indirect costs. The direct cost share includes the item''s material, capacity, and subcontracted costs.';
 
                 trigger OnAction()
                 begin
-                    ShowBOMCostShareDistribution;
+                    ShowBOMCostShareDistribution();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Warnings_Promoted"; "Show Warnings")
+                {
+                }
+                actionref("BOM Cost Share Distribution_Promoted"; "BOM Cost Share Distribution")
+                {
+                }
             }
         }
     }
@@ -330,7 +338,7 @@ page 5872 "BOM Cost Shares"
 
     trigger OnOpenPage()
     begin
-        RefreshPage;
+        RefreshPage();
     end;
 
     var
@@ -339,12 +347,15 @@ page 5872 "BOM Cost Shares"
         ProdOrderLine: Record "Prod. Order Line";
         [InDataSet]
         IsParentExpr: Boolean;
-        ItemFilter: Code[250];
-        ShowBy: Option Item,Assembly,Production;
-        Text000: Label 'None of the items in the filter have a BOM.';
-        Text001: Label 'There are no warnings.';
         [InDataSet]
         HasWarning: Boolean;
+
+        Text000: Label 'None of the items in the filter have a BOM.';
+        Text001: Label 'There are no warnings.';
+
+    protected var
+        ItemFilter: Code[250];
+        ShowBy: Enum "BOM Structure Show By";
 
     procedure InitItem(var NewItem: Record Item)
     var
@@ -374,14 +385,17 @@ page 5872 "BOM Cost Shares"
         CalcBOMTree: Codeunit "Calculate BOM Tree";
         HasBOM: Boolean;
         IsHandled: Boolean;
+        ShowByOption: Option;
     begin
         IsHandled := false;
-        OnBeforeRefreshPage(Rec, Item, AsmHeader, ProdOrderLine, ShowBy, ItemFilter, IsHandled);
+        ShowByOption := ShowBy.AsInteger();
+        OnBeforeRefreshPage(Rec, Item, AsmHeader, ProdOrderLine, ShowByOption, ItemFilter, IsHandled);
+        ShowBy := "BOM Structure Show By".FromInteger(ShowByOption);
         if IsHandled then
             exit;
 
         Item.SetFilter("No.", ItemFilter);
-        Item.SetRange("Date Filter", 0D, WorkDate);
+        Item.SetRange("Date Filter", 0D, WorkDate());
         CalcBOMTree.SetItemFilter(Item);
 
         case ShowBy of
@@ -389,7 +403,7 @@ page 5872 "BOM Cost Shares"
                 begin
                     Item.FindSet();
                     repeat
-                        HasBOM := Item.HasBOM or (Item."Routing No." <> '')
+                        HasBOM := Item.HasBOM() or (Item."Routing No." <> '')
                     until HasBOM or (Item.Next() = 0);
 
                     if not HasBOM then

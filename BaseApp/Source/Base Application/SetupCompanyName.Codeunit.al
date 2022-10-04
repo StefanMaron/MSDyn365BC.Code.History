@@ -6,7 +6,7 @@ codeunit 8624 "Setup Company Name"
     begin
         Validate(Name, CompanyName);
         Validate("Ship-to Name", CompanyName);
-        Modify;
+        Modify();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Config. Table Processing Rule", 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]

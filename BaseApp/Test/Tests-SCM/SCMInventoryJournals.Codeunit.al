@@ -13,6 +13,7 @@ codeunit 137275 "SCM Inventory Journals"
         ReclassificationItemJournalTemplate: Record "Item Journal Template";
         ReclassificationItemJournalBatch: Record "Item Journal Batch";
         LibraryDimension: Codeunit "Library - Dimension";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -44,7 +45,6 @@ codeunit 137275 "SCM Inventory Journals"
         LotNoInformationError: Label 'Do you want to overwrite the existing information?';
         LocationErr: Label 'Wrong Location Code in Item Journal Line.';
         NewExpirationDate: Label 'New Expiration Date must be equal to ''%1''  in Tracking Specification: Entry No.=1. Current value is ''''.';
-        NothingToPost: Label 'There is nothing to post.';
         ErrorMustMatch: Label 'Error must be same.';
         CorrectionsError: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         BlockedLotNoInformationError: Label '%1 must be equal to ''No''  in %2: %3=%4, %5=, %6=%7. Current value is ''Yes''.', Comment = '%1:FieldCaption1,%2:TableCaption1,%3:FieldCaption2,%4:Value1,%5:FieldCaption3,%6:FieldCaption4,%7::Value2';
@@ -77,7 +77,7 @@ codeunit 137275 "SCM Inventory Journals"
         CreateItem(Item, Item."Costing Method"::FIFO);
         UnitOfMeasureCode := CreateItemUnitOfMeasure(Item."No.");
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, Item."No.", WorkDate, LibraryRandom.RandInt(10));  // Use Random value for Unit Amount.
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, Item."No.", WorkDate(), LibraryRandom.RandInt(10));  // Use Random value for Unit Amount.
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", ItemJournalLine."Entry Type",
           Item."No.", 2 * ItemJournalLine.Quantity);  // Use Random value for Quantity.
@@ -274,7 +274,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Verify Error message.
         Assert.ExpectedError(
           StrSubstNo(
-            LotNoError, LotNoInformation.TableCaption, LotNoInformation.FieldCaption("Item No."), GlobalItemNo,
+            LotNoError, LotNoInformation.TableCaption(), LotNoInformation.FieldCaption("Item No."), GlobalItemNo,
             ReclassificationItemJournalLine.FieldCaption("Variant Code"),
             ReclassificationItemJournalLine.FieldCaption("Lot No."), GlobalNewLotNo));
 
@@ -475,7 +475,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Verify Error message.
         Assert.ExpectedError(
           StrSubstNo(
-            BlockedLotNoInformationError, LotNoInformation.FieldCaption(Blocked), LotNoInformation.TableCaption,
+            BlockedLotNoInformationError, LotNoInformation.FieldCaption(Blocked), LotNoInformation.TableCaption(),
             LotNoInformation.FieldCaption("Item No."), GlobalItemNo, ReclassificationItemJournalLine.FieldCaption("Variant Code"),
             ReclassificationItemJournalLine.FieldCaption("Lot No."), GlobalNewLotNo));
     end;
@@ -778,7 +778,7 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [GIVEN] Item Journal Line created with default dimension "Dim1" with value "Val1" matching Dimension Set ID = "DS"
         CreateItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", WorkDate, LibraryRandom.RandDec(10, 2));
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", WorkDate(), LibraryRandom.RandDec(10, 2));
         DimSetID := ItemJournalLine."Dimension Set ID";
         // [GIVEN] Posted Item Journal Line with updated mandatory dimension "Dim2" with value "Val2"
         ItemJournalLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
@@ -792,7 +792,7 @@ codeunit 137275 "SCM Inventory Journals"
         CreateAndPostPhysInventoryJournal(ItemJournalLine, ItemJournalBatch, Item."No.", false);
 
         // [THEN] Phys. Inventory Journal is created with Dimension Set ID = "DS"
-        ItemJournalLine.Find;
+        ItemJournalLine.Find();
         ItemJournalLine.TestField("Dimension Set ID", DimSetID);
     end;
 
@@ -1704,7 +1704,7 @@ codeunit 137275 "SCM Inventory Journals"
         CreateItemJournalBatch(ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
+        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate(), true, false);
         if IsPost then
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -1713,7 +1713,7 @@ codeunit 137275 "SCM Inventory Journals"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, WorkDate, LibraryRandom.RandDec(10, 2)); // Use Random value for Unit Amount.
+        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, WorkDate(), LibraryRandom.RandDec(10, 2)); // Use Random value for Unit Amount.
         PostItemJournalLine(ItemJournalLine, VariantCode, LocationCode, BinCode, Qty);
     end;
 
@@ -1721,7 +1721,7 @@ codeunit 137275 "SCM Inventory Journals"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, WorkDate, LibraryRandom.RandDec(10, 2));
+        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, WorkDate(), LibraryRandom.RandDec(10, 2));
         CreateDimSetForItemJournalLine(ItemJournalLine, DimSetID, DimensionCode);
         PostItemJournalLine(ItemJournalLine, '', '', '', Qty);
     end;
@@ -2006,7 +2006,7 @@ codeunit 137275 "SCM Inventory Journals"
         // Create and post Purchase Order with Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
         PostPurchaseOrderWithItemTracking(LotNos, LibraryUtility.GetGlobalNoSeriesCode, LotSpecific, SerialSpecific, GlobalAction);
         Item.Get(GlobalItemNo);
-        GlobalExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate);  // Assigned in global variable.
+        GlobalExpirationDate := CalcDate(Item."Expiration Calculation", WorkDate());  // Assigned in global variable.
 
         LibraryInventory.ClearItemJournal(ReclassificationItemJournalTemplate, ReclassificationItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -2031,7 +2031,7 @@ codeunit 137275 "SCM Inventory Journals"
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type", ItemNo, 0);
         Item.SetRange("No.", ItemNo);
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, WorkDate, ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."), CalculatePer::Item,
+          ItemJournalLine, Item, WorkDate(), ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."), CalculatePer::Item,
           false, false, false, CalcBase::" ", false);
         exit(ItemJournalLine."Dimension Set ID");
     end;
@@ -2043,7 +2043,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         CreateItemJournalBatch(ItemJournalBatch);
         with ItemJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", ItemJournalBatch.Name);
         end;
@@ -2088,7 +2088,7 @@ codeunit 137275 "SCM Inventory Journals"
         SerialNoInformationCard.Description.SetValue(GlobalDescription);
         ItemTrackingComments.Trap;
         SerialNoInformationCard.Comment.Invoke;
-        ItemTrackingComments.Date.SetValue(WorkDate);
+        ItemTrackingComments.Date.SetValue(WorkDate());
         ItemTrackingComments.Comment.SetValue(GlobalComment);
         ItemTrackingComments.OK.Invoke;
         Commit();
@@ -2108,7 +2108,7 @@ codeunit 137275 "SCM Inventory Journals"
         LotNoInformationCard.Description.SetValue(GlobalDescription);
         ItemTrackingComments.Trap;
         LotNoInformationCard.Comment.Invoke;
-        ItemTrackingComments.Date.SetValue(WorkDate);
+        ItemTrackingComments.Date.SetValue(WorkDate());
         ItemTrackingComments.Comment.SetValue(GlobalComment);
         ItemTrackingComments.OK.Invoke;
         Commit();
@@ -2141,7 +2141,7 @@ codeunit 137275 "SCM Inventory Journals"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, WorkDate, LibraryRandom.RandInt(10));  // Use Random value for Unit Amount.
+        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, WorkDate(), LibraryRandom.RandInt(10));  // Use Random value for Unit Amount.
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("Variant Code", VariantCode);
         ItemJournalLine.Validate(Quantity, Quantity);
@@ -2225,10 +2225,10 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         FilterItemJournalLine(ItemJournalLine, ItemNo, VariantCode, LocationCode, BinCode);
         Assert.IsTrue(
-          ItemJournalLine.FindFirst, StrSubstNo(ItemJournalLineNotExistErr, ItemJournalLine.TableCaption, VariantCode, LocationCode, BinCode));
+          ItemJournalLine.FindFirst, StrSubstNo(ItemJournalLineNotExistErr, ItemJournalLine.TableCaption(), VariantCode, LocationCode, BinCode));
         Assert.AreEqual(
           QtyCalculated, ItemJournalLine."Qty. (Calculated)",
-          StrSubstNo(QtyCalculatedErr, ItemJournalLine.TableCaption, VariantCode, LocationCode, BinCode))
+          StrSubstNo(QtyCalculatedErr, ItemJournalLine.TableCaption(), VariantCode, LocationCode, BinCode))
     end;
 
     local procedure VerifyNoItemJournalLineExists(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[20])
@@ -2268,7 +2268,7 @@ codeunit 137275 "SCM Inventory Journals"
                     ItemTrackingLines.Last;
                     ItemTrackingLines."New Serial No.".SetValue(
                       LibraryUtility.GenerateRandomCode(TrackingSpecification.FieldNo("New Serial No."), DATABASE::"Tracking Specification"));
-                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate, WorkDate));
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate()));
                     LibraryItemTracking.CreateSerialNoInformation(
                       SerialNoInformation, GlobalItemNo, '', ItemTrackingLines."New Serial No.".Value);
                     UpdateAndVerifySerialNoInformationAndComments(ItemTrackingLines);
@@ -2279,7 +2279,7 @@ codeunit 137275 "SCM Inventory Journals"
                     ItemTrackingLines.Last;
                     ItemTrackingLines."New Lot No.".SetValue(
                       LibraryUtility.GenerateRandomCode(TrackingSpecification.FieldNo("New Lot No."), DATABASE::"Tracking Specification"));
-                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate, WorkDate));
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate()));
                     LibraryItemTracking.CreateLotNoInformation(LotNoInformation, GlobalItemNo, '', ItemTrackingLines."New Lot No.".Value);
                     UpdateAndVerifyLotNoInformationAndComments(ItemTrackingLines);
                 end;
@@ -2289,13 +2289,13 @@ codeunit 137275 "SCM Inventory Journals"
                     ItemTrackingLines.Last;
                     ItemTrackingLines."New Lot No.".SetValue(
                       LibraryUtility.GenerateRandomCode(TrackingSpecification.FieldNo("New Lot No."), DATABASE::"Tracking Specification"));
-                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate, WorkDate));
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate()));
                     LibraryItemTracking.CreateLotNoInformation(LotNoInformation, GlobalItemNo, '', ItemTrackingLines."New Lot No.".Value);
                     UpdateAndVerifyLotNoInformationAndComments(ItemTrackingLines);
 
                     ItemTrackingLines."New Serial No.".SetValue(
                       LibraryUtility.GenerateRandomCode(TrackingSpecification.FieldNo("New Serial No."), DATABASE::"Tracking Specification"));
-                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate, WorkDate));
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate()));
                     LibraryItemTracking.CreateSerialNoInformation(
                       SerialNoInformation, GlobalItemNo, '', ItemTrackingLines."New Serial No.".Value);
                     UpdateAndVerifySerialNoInformationAndComments(ItemTrackingLines);
@@ -2370,7 +2370,7 @@ codeunit 137275 "SCM Inventory Journals"
                     ItemTrackingLines.Last;
                     ItemTrackingLines."New Lot No.".SetValue(
                       LibraryUtility.GenerateRandomCode(TrackingSpecification.FieldNo("New Lot No."), DATABASE::"Tracking Specification"));
-                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate, WorkDate));
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate()));
                     LibraryItemTracking.CreateLotNoInformation(LotNoInformation, GlobalItemNo, '', ItemTrackingLines."New Lot No.".Value);
                     UpdateAndVerifyLotNoInformationAndComments(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemLedgerEntry.Quantity - 1);  // Less Quantity is needed.
@@ -2478,7 +2478,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure NothingToPostConfirmHandler(ConfirmMessage: Text[1024])
     begin
-        Assert.IsTrue(StrPos(ConfirmMessage, StrSubstNo(NothingToPost)) > 0, ConfirmMessage);
+        Assert.IsTrue(StrPos(ConfirmMessage, StrSubstNo(JournalErrorsMgt.GetNothingToPostErrorMsg())) > 0, ConfirmMessage);
     end;
 
     [ConfirmHandler]

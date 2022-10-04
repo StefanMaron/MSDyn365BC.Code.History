@@ -15,10 +15,10 @@ report 704 "Inventory - Transaction Detail"
             column(PeriodItemDateFilter; StrSubstNo(Text000, ItemDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(TableCaptionItemFilter; StrSubstNo('%1: %2', TableCaption, ItemFilter))
+            column(TableCaptionItemFilter; StrSubstNo('%1: %2', TableCaption(), ItemFilter))
             {
             }
             column(ItemFilter; ItemFilter)
@@ -185,7 +185,7 @@ report 704 "Inventory - Transaction Detail"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         ItemDateFilter := Item.GetFilter("Date Filter");
     end;
 

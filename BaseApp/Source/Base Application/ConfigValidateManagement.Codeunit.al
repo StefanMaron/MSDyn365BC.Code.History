@@ -6,12 +6,13 @@ codeunit 8617 "Config. Validate Management"
     end;
 
     var
+        TypeHelper: Codeunit "Type Helper";
+
         Text001Msg: Label 'Field %2 in table %1 can only contain %3 characters (%4).';
         Text002Msg: Label '%1 is not a supported data type.';
         Text003Msg: Label '%1 is not a valid %2.';
         Text004Msg: Label '%1 is not a valid option.\Valid options are %2.';
         ExternalTablesAreNotAllowedErr: Label 'External tables cannot be added in Configuration Packages.';
-        TypeHelper: Codeunit "Type Helper";
 
     procedure ValidateFieldValue(var RecRef: RecordRef; var FieldRef: FieldRef; Value: Text; SkipValidation: Boolean; LanguageID: Integer)
     var
@@ -243,12 +244,12 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         RecordRef: RecordRef;
     begin
-        RecordRef := FieldRef.Record;
+        RecordRef := FieldRef.Record();
         Field.Get(RecordRef.Number, FieldRef.Number);
         TypeHelper.TestFieldIsNotObsolete(Field);
 
         if StrLen(Value) > FieldRef.Length then
-            exit(StrSubstNo(Text001Msg, FieldRef.Record.Caption, FieldRef.Caption, FieldRef.Length, Value));
+            exit(StrSubstNo(Text001Msg, FieldRef.Record().Caption, FieldRef.Caption, FieldRef.Length, Value));
 
         if Validate then
             FieldRef.Validate(Value)
@@ -302,6 +303,7 @@ codeunit 8617 "Config. Validate Management"
         ZeroDate: Date;
         Decimal: Decimal;
     begin
+        ZeroDate := 0D;
         if not Evaluate(Decimal, Value) or not (Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) and (Date <> ZeroDate)) then
             if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
                 exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));

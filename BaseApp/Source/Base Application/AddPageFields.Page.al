@@ -530,8 +530,8 @@ page 9621 "Add Page Fields"
                 var
                     FieldTypeOptions: Option Number,Text,Boolean,DateTime,RelatedData,Option;
                 begin
-                    ClearAllDynamicFieldsVisibility;
-                    Evaluate(FieldTypeOptions, CurrPage.FieldTypes.PAGE.GetSelectedRecType);
+                    ClearAllDynamicFieldsVisibility();
+                    Evaluate(FieldTypeOptions, CurrPage.FieldTypes.PAGE.GetSelectedRecType());
                     case FieldTypeOptions of
                         FieldTypeOptions::Number:
                             begin
@@ -585,8 +585,8 @@ page 9621 "Add Page Fields"
 
                 trigger OnAction()
                 begin
-                    SaveNewFieldDefinition;
-                    CurrPage.Close;
+                    SaveNewFieldDefinition();
+                    CurrPage.Close();
                 end;
             }
         }
@@ -596,8 +596,8 @@ page 9621 "Add Page Fields"
     var
         DesignerPageId: Codeunit DesignerPageId;
     begin
-        InitializeVariables;
-        PageId := DesignerPageId.GetPageId;
+        InitializeVariables();
+        PageId := DesignerPageId.GetPageId();
         RelatedFieldType := RelatedFieldType::"Computed value";
         CurrentNavigationPage := CurrentNavigationPage::FieldSelectionPage;
     end;
@@ -673,7 +673,7 @@ page 9621 "Add Page Fields"
             end;
         end;
 
-        PropertyDictionary := PropertyDictionary.Dictionary;
+        PropertyDictionary := PropertyDictionary.Dictionary();
         PropertyDictionary.Add(NavDesignerProperty.Description, NewFieldDescr);
         PropertyDictionary.Add(NavDesignerProperty.Caption, NewFieldCaption);
 
@@ -710,7 +710,7 @@ page 9621 "Add Page Fields"
         IsNextVisible := false;
         IsFinishBtnVisible := false;
 
-        ClearAllDynamicFieldsVisibility;
+        ClearAllDynamicFieldsVisibility();
 
         NewFieldName := '';
         NewFieldDescr := '';
@@ -741,7 +741,7 @@ page 9621 "Add Page Fields"
             CurrentNavigationPage::FieldSelectionPage:
                 begin
                     CurrentNavigationPage := CurrentNavigationPage::FieldSelectionPage;
-                    InitializeVariables;
+                    InitializeVariables();
                 end;
             CurrentNavigationPage::FieldBasicDefinitionPage:
                 begin

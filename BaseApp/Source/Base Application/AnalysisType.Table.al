@@ -71,6 +71,8 @@ table 7113 "Analysis Type"
     }
 
     var
+        AnalysisRepMgmt: Codeunit "Analysis Report Management";
+
         Text000: Label 'You cannot specify a %1 for %2.';
         Text001: Label 'COGS';
         Text002: Label 'Non-Inventoriable Cost';
@@ -127,7 +129,6 @@ table 7113 "Analysis Type"
         Text053: Label 'Indirect Cost %';
         Text054: Label 'INDCOSTPCT';
         Text055: Label 'The default Analysis Types have been recreated.';
-        AnalysisRepMgmt: Codeunit "Analysis Report Management";
 
     local procedure CanUseValueTypeForItemLedgerEntryTypeFilter() CanUseValueType: Boolean
     begin
@@ -329,7 +330,7 @@ table 7113 "Analysis Type"
         AnalysisType: Record "Analysis Type";
     begin
         with AnalysisType do begin
-            Init;
+            Init();
             Code := Code2;
             Name := Name2;
             Validate("Value Type", ValueType);

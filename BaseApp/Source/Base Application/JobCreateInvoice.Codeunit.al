@@ -11,6 +11,11 @@ codeunit 1002 "Job Create-Invoice"
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempJobPlanningLine: Record "Job Planning Line" temporary;
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+        JobInvCurrency: Boolean;
+        UpdateExchangeRates: Boolean;
+        NoOfSalesLinesCreated: Integer;
+
         Text000: Label 'The lines were successfully transferred to an invoice.';
         Text001: Label 'The lines were not transferred to an invoice.';
         Text002: Label 'There was no %1 with a %2 larger than 0. No lines were transferred.';
@@ -18,15 +23,11 @@ codeunit 1002 "Job Create-Invoice"
         Text004: Label 'You must specify Invoice No. or New Invoice.';
         Text005: Label 'You must specify Credit Memo No. or New Invoice.';
         Text007: Label 'You must specify %1.';
-        TransferExtendedText: Codeunit "Transfer Extended Text";
-        JobInvCurrency: Boolean;
-        UpdateExchangeRates: Boolean;
         Text008: Label 'The lines were successfully transferred to a credit memo.';
         Text009: Label 'The selected planning lines must have the same %1.';
         Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the job. Do you want to continue?';
         Text011: Label 'The currency exchange rate on all planning lines will be updated based on the exchange rate on the sales invoice. Do you want to continue?';
         Text012: Label 'The %1 %2 does not exist anymore. A printed copy of the document was created before the document was deleted.', Comment = 'The Sales Invoice Header 103001 does not exist in the system anymore. A printed copy of the document was created before deletion.';
-        NoOfSalesLinesCreated: Integer;
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
@@ -100,11 +101,11 @@ codeunit 1002 "Job Create-Invoice"
     begin
         OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo);
 
-        ClearAll;
+        ClearAll();
         Job.Get(JobNo);
         OnCreateSalesInvoiceLinesOnBeforeTestJob(Job);
         if Job.Blocked = Job.Blocked::All then
-            Job.TestBlocked;
+            Job.TestBlocked();
         if Job."Currency Code" = '' then
             JobInvCurrency := Job."Invoice Currency Code" <> '';
         CheckJobBillToCustomer(JobPlanningLineSource, Job);
@@ -139,7 +140,7 @@ codeunit 1002 "Job Create-Invoice"
 
         if LineCounter = 0 then
             Error(Text002,
-              JobPlanningLine.TableCaption,
+              JobPlanningLine.TableCaption(),
               JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
 
         if NewInvoice then
@@ -166,7 +167,7 @@ codeunit 1002 "Job Create-Invoice"
                         JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
                     JobPlanningLineInvoice.Insert();
 
-                    JobPlanningLine.UpdateQtyToTransfer;
+                    JobPlanningLine.UpdateQtyToTransfer();
                     OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify();
                 end;
@@ -177,7 +178,7 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLineSource.CalcFields("Qty. Transferred to Invoice");
 
         if NoOfSalesLinesCreated = 0 then
-            Error(Text002, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
+            Error(Text002, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
 
         OnAfterCreateSalesInvoiceLines(SalesHeader, NewInvoice);
     end;
@@ -202,7 +203,7 @@ codeunit 1002 "Job Create-Invoice"
 
     procedure DeleteSalesInvoiceBuffer()
     begin
-        ClearAll;
+        ClearAll();
         TempJobPlanningLine.DeleteAll();
     end;
 
@@ -221,14 +222,14 @@ codeunit 1002 "Job Create-Invoice"
         if IsHandled then
             exit;
 
-        ClearAll;
+        ClearAll();
         if not LastJobTask then begin
             JobTask := JobTask2;
             if JobTask."Job No." = '' then
                 exit;
             if JobTask."Job Task No." = '' then
                 exit;
-            JobTask.Find;
+            JobTask.Find();
             if JobTask."Job Task Type" <> JobTask."Job Task Type"::Posting then
                 exit;
             Job.Get(JobTask."Job No.");
@@ -243,7 +244,7 @@ codeunit 1002 "Job Create-Invoice"
         OnCreateSalesInvoiceJobTaskTestJob(Job, JobPlanningLine, PostingDate);
         Job.TestField("Bill-to Customer No.");
         if Job.Blocked = Job.Blocked::All then
-            Job.TestBlocked;
+            Job.TestBlocked();
         if Job."Currency Code" = '' then
             JobInvCurrency := Job."Invoice Currency Code" <> '';
         Cust.Get(Job."Bill-to Customer No.");
@@ -260,7 +261,7 @@ codeunit 1002 "Job Create-Invoice"
                     Job.Get(TempJobPlanningLine."Job No.");
                     JobInvCurrency := (Job."Currency Code" = '') and (Job."Invoice Currency Code" <> '');
                     JobPlanningLine := TempJobPlanningLine;
-                    JobPlanningLine.Find;
+                    JobPlanningLine.Find();
                     if JobPlanningLine.Type in [JobPlanningLine.Type::Resource,
                                                 JobPlanningLine.Type::Item,
                                                 JobPlanningLine.Type::"G/L Account"]
@@ -285,7 +286,7 @@ codeunit 1002 "Job Create-Invoice"
                     OnCreateSalesInvoiceJobTaskOnBeforeJobPlanningLineInvoiceInsert(JobPlanningLineInvoice);
                     JobPlanningLineInvoice.Insert();
 
-                    JobPlanningLine.UpdateQtyToTransfer;
+                    JobPlanningLine.UpdateQtyToTransfer();
                     JobPlanningLine.Modify();
                 until TempJobPlanningLine.Next() = 0;
             TempJobPlanningLine.DeleteAll();
@@ -295,7 +296,7 @@ codeunit 1002 "Job Create-Invoice"
 
         if LastJobTask then begin
             if NoOfSalesLinesCreated = 0 then
-                Error(Text002, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
+                Error(Text002, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
             exit;
         end;
 
@@ -409,13 +410,12 @@ codeunit 1002 "Job Create-Invoice"
 
         if (not JobInvCurrency) and (JobPlanningLine.Type <> JobPlanningLine.Type::Text) then begin
             SalesHeader.TestField("Currency Code", JobPlanningLine."Currency Code");
-            if (Job."Currency Code" <> '') and (JobPlanningLine."Currency Factor" <> SalesHeader."Currency Factor") then begin
+            if (Job."Currency Code" <> '') and (JobPlanningLine."Currency Factor" <> SalesHeader."Currency Factor") then
                 if Confirm(Text011) then begin
                     JobPlanningLine.Validate("Currency Factor", SalesHeader."Currency Factor");
                     JobPlanningLine.Modify();
                 end else
                     Error(Text001);
-            end;
             SalesHeader.TestField("Currency Code", Job."Currency Code");
         end;
         if JobPlanningLine.Type = JobPlanningLine.Type::Text then
@@ -453,7 +453,7 @@ codeunit 1002 "Job Create-Invoice"
             SalesLine.Validate("Line Discount %", JobPlanningLine."Line Discount %");
             SalesLine."Inv. Discount Amount" := 0;
             SalesLine."Inv. Disc. Amount to Invoice" := 0;
-            SalesLine.UpdateAmounts;
+            SalesLine.UpdateAmounts();
         end;
         if not SalesHeader."Prices Including VAT" then
             SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
@@ -569,12 +569,11 @@ codeunit 1002 "Job Create-Invoice"
                    ("Qty. to Transfer to Invoice" < 0)
                 then
                     Error(Text003, FieldCaption("Qty. to Transfer to Invoice"), 0, Quantity - "Qty. Transferred to Invoice");
-            end else begin
+            end else
                 if ("Qty. to Transfer to Invoice" > 0) or
                    ("Qty. to Transfer to Invoice" < 0) and ("Qty. to Transfer to Invoice" < (Quantity - "Qty. Transferred to Invoice"))
                 then
                     Error(Text003, FieldCaption("Qty. to Transfer to Invoice"), Quantity - "Qty. Transferred to Invoice", 0);
-            end;
         end;
     end;
 
@@ -601,8 +600,8 @@ codeunit 1002 "Job Create-Invoice"
             if FindSet() then
                 repeat
                     JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
-                    Delete;
-                    JobPlanningLine.UpdateQtyToTransfer;
+                    Delete();
+                    JobPlanningLine.UpdateQtyToTransfer();
                     OnDeleteSalesLineOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify();
                 until Next() = 0;
@@ -642,7 +641,7 @@ codeunit 1002 "Job Create-Invoice"
         end;
 
         TempJobPlanningLineInvoice.DeleteAll();
-        if JobPlanningLineInvoice.FindSet() then begin
+        if JobPlanningLineInvoice.FindSet() then
             repeat
                 RecordFound := false;
                 case DetailLevel of
@@ -696,14 +695,13 @@ codeunit 1002 "Job Create-Invoice"
                     TempJobPlanningLineInvoice.Insert();
                 end;
             until JobPlanningLineInvoice.Next() = 0;
-        end;
     end;
 
     procedure GetJobPlanningLineInvoices(JobPlanningLine: Record "Job Planning Line")
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
-        ClearAll;
+        ClearAll();
         with JobPlanningLine do begin
             if "Line No." = 0 then
                 exit;
@@ -748,13 +746,13 @@ codeunit 1002 "Job Create-Invoice"
                 "Document Type"::"Posted Invoice":
                     begin
                         if not SalesInvHeader.Get("Document No.") then
-                            Error(Text012, SalesInvHeader.TableCaption, "Document No.");
+                            Error(Text012, SalesInvHeader.TableCaption(), "Document No.");
                         PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvHeader);
                     end;
                 "Document Type"::"Posted Credit Memo":
                     begin
                         if not SalesCrMemoHeader.Get("Document No.") then
-                            Error(Text012, SalesCrMemoHeader.TableCaption, "Document No.");
+                            Error(Text012, SalesCrMemoHeader.TableCaption(), "Document No.");
                         PAGE.RunModal(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
                     end;
             end;

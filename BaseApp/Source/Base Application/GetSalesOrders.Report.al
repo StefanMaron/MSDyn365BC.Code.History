@@ -104,8 +104,6 @@ report 698 "Get Sales Orders"
     end;
 
     var
-        Text000: Label 'Processing sales lines  #1######';
-        Text001: Label 'There are no sales lines to retrieve.';
         ReqWkshTmpl: Record "Req. Wksh. Template";
         SalesHeader: Record "Sales Header";
         PurchasingCode: Record Purchasing;
@@ -116,6 +114,9 @@ report 698 "Get Sales Orders"
         LineCount: Integer;
         GetDim: Option Item,"Sales Line";
         HideDialog: Boolean;
+
+        Text000: Label 'Processing sales lines  #1######';
+        Text001: Label 'There are no sales lines to retrieve.';
 
     protected var
         ReqWkshName: Record "Requisition Wksh. Name";
@@ -190,7 +191,7 @@ report 698 "Get Sales Orders"
 
         OnBeforeInsertReqWkshLine(ReqLine, SalesLine, SpecOrder);
         ReqLine.Insert();
-        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, ReqLine.RowID1, true);
+        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
         if GetDim = GetDim::"Sales Line" then begin
             ReqLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
             ReqLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
@@ -214,7 +215,7 @@ report 698 "Get Sales Orders"
           Quantity,
           Round(
             SalesLine."Outstanding Quantity" * SalesLine."Qty. per Unit of Measure" / RequisitionLine."Qty. per Unit of Measure",
-            UOMMgt.QtyRndPrecision));
+            UOMMgt.QtyRndPrecision()));
     end;
 
     procedure InitializeRequest(NewRetrieveDimensionsFrom: Option)

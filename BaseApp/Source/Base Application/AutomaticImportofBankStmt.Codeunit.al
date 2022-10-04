@@ -46,7 +46,7 @@ codeunit 1415 "Automatic Import of Bank Stmt."
     local procedure DeleteBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccount: Record "Bank Account"; LastStatementNo: Code[20])
     begin
         BankAccReconciliation.Delete();
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount."Last Statement No." := LastStatementNo;
         BankAccount.Modify();
         Commit();

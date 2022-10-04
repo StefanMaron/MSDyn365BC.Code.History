@@ -21,7 +21,7 @@ codeunit 5200 "Employee/Resource Update"
     begin
         Res.Get(Employee."Resource No.");
         Res."Job Title" := Employee."Job Title";
-        Res.Name := CopyStr(Employee.FullName, 1, MaxStrLen(Res.Name));
+        Res.Name := CopyStr(Employee.FullName(), 1, MaxStrLen(Res.Name));
         Res.Address := Employee.Address;
         Res."Address 2" := Employee."Address 2";
         Res."Post Code" := Employee."Post Code";

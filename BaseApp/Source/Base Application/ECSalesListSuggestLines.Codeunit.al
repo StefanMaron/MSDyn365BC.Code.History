@@ -7,16 +7,16 @@ codeunit 140 "EC Sales List Suggest Lines"
         ECSLVATReportLine: Record "ECSL VAT Report Line";
     begin
         ErrorMessage.SetContext(Rec);
-        ErrorMessage.ClearLog;
+        ErrorMessage.ClearLog();
 
-        if not IsPeriodValid then begin
+        if not IsPeriodValid() then begin
             ErrorMessage.LogMessage(Rec, FieldNo("No."), ErrorMessage."Message Type"::Error, InvalidPeriodErr);
             exit;
         end;
 
         VATReportHeader := Rec;
         ECSLVATReportLine.ClearLines(Rec);
-        PopulateVatEntryLines;
+        PopulateVatEntryLines();
     end;
 
     var
@@ -33,11 +33,11 @@ codeunit 140 "EC Sales List Suggest Lines"
         EUVATEntries.SetRange(PostingDate, VATReportHeader."Start Date", VATReportHeader."End Date");
         EUVATEntries.SetFilter(CountryCode, '<>%1', CompanyInformation."Country/Region Code");
 
-        EUVATEntries.Open;
-        while EUVATEntries.Read do
+        EUVATEntries.Open();
+        while EUVATEntries.Read() do
             AddOrUpdateECLLine(EUVATEntries);
-        RowsTotalCorrection;
-        DeleteZeroAmountLines;
+        RowsTotalCorrection();
+        DeleteZeroAmountLines();
     end;
 
     local procedure GetECLLine(var ECSLVATReportLine: Record "ECSL VAT Report Line"; EUVATEntries: Query "EU VAT Entries")

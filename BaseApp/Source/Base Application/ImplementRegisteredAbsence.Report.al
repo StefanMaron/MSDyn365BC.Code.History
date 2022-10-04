@@ -13,6 +13,7 @@ report 99003801 "Implement Registered Absence"
 
             trigger OnAfterGetRecord()
             begin
+                CalendarAbsEntry.Init();
                 CalendarAbsEntry.Validate("Capacity Type", "Capacity Type");
                 CalendarAbsEntry.Validate("No.", "No.");
                 CalendarAbsEntry.Validate(Date, Date);

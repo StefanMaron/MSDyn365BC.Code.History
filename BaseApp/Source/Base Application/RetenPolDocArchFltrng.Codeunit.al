@@ -57,7 +57,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
         exit(RetentionPeriodInterface.CalculateExpirationDate(RetentionPeriod, Today()));
     end;
 
-    local procedure ValidateExpirationDate(ExpirationDate: Date; TableId: Integer; TableCaption: Text)
+    local procedure ValidateExpirationDate(ExpirationDate: Date; TableId: Integer; TableCaption2: Text)
     var
         RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
         RetentionPolicyLog: Codeunit "Retention Policy Log";
@@ -67,7 +67,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
             exit;
         MinExpirationDate := RetenPolAllowedTables.CalcMinimumExpirationDate(TableId);
         if ExpirationDate > MinExpirationDate then
-            RetentionPolicyLog.LogError(LogCategory(), StrSubstNo(MinExpirationDateErr, TableId, TableCaption, RetenPolAllowedTables.GetMandatoryMinimumRetentionDays(TableId)));
+            RetentionPolicyLog.LogError(LogCategory(), StrSubstNo(MinExpirationDateErr, TableId, TableCaption2, RetenPolAllowedTables.GetMandatoryMinimumRetentionDays(TableId)));
     end;
 
     local procedure MarkRecordRefWithRecordsToDelete(RetentionPolicySetup: Record "Retention Policy Setup"; var RecRef: RecordRef; var RetenPolFilteringParam: Record "Reten. Pol. Filtering Param" temporary)

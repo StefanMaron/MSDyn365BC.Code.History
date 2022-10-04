@@ -466,7 +466,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
@@ -481,7 +481,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         Assert.IsFalse(PurchaseReturnOrder.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(PurchaseReturnOrder.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(PurchaseReturnOrder.Delegate.Visible, 'Delegate should NOT be visible');
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -498,7 +498,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         Assert.IsTrue(PurchaseReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
@@ -545,7 +545,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseReturnOrderList.Close;
+        PurchaseReturnOrderList.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
@@ -557,7 +557,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         // [THEN] Only Send is enabled.
         Assert.IsTrue(PurchaseReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(PurchaseReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        PurchaseReturnOrderList.Close;
+        PurchaseReturnOrderList.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -772,12 +772,12 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.SendApprovalRequest.Invoke;
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
     end;
 
@@ -836,7 +836,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.Approve.Invoke;
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure RejectPurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
@@ -846,7 +846,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.Reject.Invoke;
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure DelegatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
@@ -856,7 +856,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.Delegate.Invoke;
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure CancelPurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")
@@ -866,7 +866,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.CancelApprovalRequest.Invoke;
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure SetPurchDocPurchaserCode(PurchaseHeader: Record "Purchase Header"; PurchaserCode: Code[20])
@@ -893,15 +893,15 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -919,12 +919,12 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -942,12 +942,12 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(PurchaseHeader: Record "Purchase Header"; CancelActionExpectedEnabled: Boolean)
@@ -959,13 +959,13 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseReturnOrder.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         PurchaseReturnOrderList.OpenView;
         PurchaseReturnOrderList.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseReturnOrderList.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        PurchaseReturnOrderList.Close;
+        PurchaseReturnOrderList.Close();
     end;
 }
 

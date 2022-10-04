@@ -34,13 +34,13 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                 if CheckWhseRequest("Warehouse Request") then
                     CurrReport.Skip();
 
-                if ((Type = Type::Inbound) and (WhseActivHeader.Type <> WhseActivHeader.Type::"Invt. Put-away")) or
-                   ((Type = Type::Outbound) and ((WhseActivHeader.Type <> WhseActivHeader.Type::"Invt. Pick") and
-                                                 (WhseActivHeader.Type <> WhseActivHeader.Type::"Invt. Movement"))) or
-                   ("Source Type" <> WhseActivHeader."Source Type") or
-                   ("Source Subtype" <> WhseActivHeader."Source Subtype") or
-                   ("Source No." <> WhseActivHeader."Source No.") or
-                   ("Location Code" <> WhseActivHeader."Location Code")
+                if ((Type = Type::Inbound) and (WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Put-away")) or
+                   ((Type = Type::Outbound) and ((WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Pick") and
+                                                 (WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Movement"))) or
+                   ("Source Type" <> WarehouseActivityHeader."Source Type") or
+                   ("Source Subtype" <> WarehouseActivityHeader."Source Subtype") or
+                   ("Source No." <> WarehouseActivityHeader."Source No.") or
+                   ("Location Code" <> WarehouseActivityHeader."Location Code")
                 then begin
                     case Type of
                         Type::Inbound:
@@ -50,23 +50,23 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                             if not CreateInvtPickMovement.CheckSourceDoc("Warehouse Request") then
                                 CurrReport.Skip();
                     end;
-                    InitWhseActivHeader;
+                    InitWhseActivHeader();
                 end;
 
                 case Type of
                     Type::Inbound:
                         begin
                             CreateInvtPutAway.SetWhseRequest("Warehouse Request", true);
-                            CreateInvtPutAway.AutoCreatePutAway(WhseActivHeader);
+                            CreateInvtPutAway.AutoCreatePutAway(WarehouseActivityHeader);
                         end;
                     Type::Outbound:
                         begin
                             CreateInvtPickMovement.SetWhseRequest("Warehouse Request", true);
-                            CreateInvtPickMovement.AutoCreatePickOrMove(WhseActivHeader);
+                            CreateInvtPickMovement.AutoCreatePickOrMove(WarehouseActivityHeader);
                         end;
                 end;
 
-                if WhseActivHeader."No." <> '' then begin
+                if WarehouseActivityHeader."No." <> '' then begin
                     DocumentCreated := true;
                     case Type of
                         Type::Inbound:
@@ -82,7 +82,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                                 MovementCounter += 1;
                     end;
                     if PrintDocument then
-                        InsertTempWhseActivHdr;
+                        InsertTempWhseActivHdr();
                     Commit();
                 end;
             end;
@@ -92,19 +92,19 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                 ExpiredItemMessageText: Text[100];
                 Msg: Text;
             begin
-                ExpiredItemMessageText := CreateInvtPickMovement.GetExpiredItemMessage;
-                if TempWhseActivHdr.Find('-') then
-                    PrintNewDocuments;
+                ExpiredItemMessageText := CreateInvtPickMovement.GetExpiredItemMessage();
+                if TempWarehouseActivityHeader.Find('-') then
+                    PrintNewDocuments();
 
-                Window.Close;
+                Window.Close();
                 if not SuppressMessagesState then
                     if DocumentCreated then begin
                         if PutAwayCounter > 0 then
-                            AddToText(Msg, StrSubstNo(Text005, WhseActivHeader.Type::"Invt. Put-away", PutAwayCounter, TotalPutAwayCounter));
+                            AddToText(Msg, StrSubstNo(Text005, WarehouseActivityHeader.Type::"Invt. Put-away", PutAwayCounter, TotalPutAwayCounter));
                         if PickCounter > 0 then
-                            AddToText(Msg, StrSubstNo(Text005, WhseActivHeader.Type::"Invt. Pick", PickCounter, TotalPickCounter));
+                            AddToText(Msg, StrSubstNo(Text005, WarehouseActivityHeader.Type::"Invt. Pick", PickCounter, TotalPickCounter));
                         if MovementCounter > 0 then
-                            AddToText(Msg, StrSubstNo(Text005, WhseActivHeader.Type::"Invt. Movement", MovementCounter, TotalMovementCounter));
+                            AddToText(Msg, StrSubstNo(Text005, WarehouseActivityHeader.Type::"Invt. Movement", MovementCounter, TotalMovementCounter));
 
                         if CreatePutAway or CreatePick then
                             Msg += ExpiredItemMessageText;
@@ -165,7 +165,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                         begin
                             if CreatePick and CreateMovement then
                                 Error(Text009);
-                            EnableFieldsInPage;
+                            EnableFieldsInPage();
                         end;
                     }
                     field(CInvtMvmt; CreateMovement)
@@ -180,7 +180,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                         begin
                             if CreatePick and CreateMovement then
                                 Error(Text009);
-                            EnableFieldsInPage;
+                            EnableFieldsInPage();
                         end;
                     }
                     field(PrintDocument; PrintDocument)
@@ -211,9 +211,9 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
 
         trigger OnOpenPage()
         begin
-            OnBeforeOpenPage;
+            OnBeforeOpenPage();
 
-            EnableFieldsInPage;
+            EnableFieldsInPage();
         end;
     }
 
@@ -223,7 +223,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
 
     trigger OnPostReport()
     begin
-        TempWhseActivHdr.DeleteAll();
+        TempWarehouseActivityHeader.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -235,42 +235,45 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
     end;
 
     var
-        WhseActivHeader: Record "Warehouse Activity Header";
-        TempWhseActivHdr: Record "Warehouse Activity Header" temporary;
         CreateInvtPutAway: Codeunit "Create Inventory Put-away";
         CreateInvtPickMovement: Codeunit "Create Inventory Pick/Movement";
         WhseDocPrint: Codeunit "Warehouse Document-Print";
         Window: Dialog;
-        CreatePutAway: Boolean;
-        CreatePick: Boolean;
-        Text001: Label 'Creating Inventory Activities...\\';
-        Text002: Label 'Source Type     #1##########\';
-        Text003: Label 'Source No.      #2##########';
-        CreateMovement: Boolean;
         DocumentCreated: Boolean;
-        PrintDocument: Boolean;
         PutAwayCounter: Integer;
         PickCounter: Integer;
         MovementCounter: Integer;
-        Text004: Label 'There is nothing to create.';
-        Text005: Label 'Number of %1 activities created: %2 out of a total of %3.';
-        Text006: Label '%1\\%2', Locked = true;
-        Text008: Label 'You must select Create Invt. Put-away, Create Invt. Pick, or Create Invt. Movement.';
         TotalPutAwayCounter: Integer;
         TotalPickCounter: Integer;
         TotalMovementCounter: Integer;
-        ShowError: Boolean;
-        Text009: Label 'You can select either Create Invt. Pick or Create Invt. Movement.';
         [InDataSet]
         CreatePickEditable: Boolean;
         [InDataSet]
         CreateMovementEditable: Boolean;
+
+        Text001: Label 'Creating Inventory Activities...\\';
+        Text002: Label 'Source Type     #1##########\';
+        Text003: Label 'Source No.      #2##########';
+        Text004: Label 'There is nothing to create.';
+        Text005: Label 'Number of %1 activities created: %2 out of a total of %3.';
+        Text006: Label '%1\\%2', Locked = true;
+        Text008: Label 'You must select Create Invt. Put-away, Create Invt. Pick, or Create Invt. Movement.';
+        Text009: Label 'You can select either Create Invt. Pick or Create Invt. Movement.';
+
+    protected var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TempWarehouseActivityHeader: Record "Warehouse Activity Header" temporary;
+        CreatePutAway: Boolean;
+        CreatePick: Boolean;
+        CreateMovement: Boolean;
+        PrintDocument: Boolean;
+        ShowError: Boolean;
         SuppressMessagesState: Boolean;
 
     local procedure InitWhseActivHeader()
     begin
-        with WhseActivHeader do begin
-            Init;
+        with WarehouseActivityHeader do begin
+            Init();
             case "Warehouse Request".Type of
                 "Warehouse Request".Type::Inbound:
                     Type := Type::"Invt. Put-away";
@@ -284,30 +287,29 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
             "Location Code" := "Warehouse Request"."Location Code";
         end;
 
-        OnAfterInitWhseActivHeader(WhseActivHeader, "Warehouse Request");
+        OnAfterInitWhseActivHeader(WarehouseActivityHeader, "Warehouse Request");
     end;
 
     local procedure InsertTempWhseActivHdr()
     begin
-        TempWhseActivHdr.Init();
-        TempWhseActivHdr := WhseActivHeader;
-        TempWhseActivHdr.Insert();
+        TempWarehouseActivityHeader.Init();
+        TempWarehouseActivityHeader := WarehouseActivityHeader;
+        TempWarehouseActivityHeader.Insert();
     end;
 
     local procedure PrintNewDocuments()
     begin
-        with TempWhseActivHdr do begin
+        with TempWarehouseActivityHeader do
             repeat
                 case Type of
                     Type::"Invt. Put-away":
-                        WhseDocPrint.PrintInvtPutAwayHeader(TempWhseActivHdr, false);
+                        WhseDocPrint.PrintInvtPutAwayHeader(TempWarehouseActivityHeader, false);
                     Type::"Invt. Pick":
-                        WhseDocPrint.PrintInvtPickHeader(TempWhseActivHdr, false);
+                        WhseDocPrint.PrintInvtPickHeader(TempWarehouseActivityHeader, false);
                     Type::"Invt. Movement":
-                        WhseDocPrint.PrintInvtMovementHeader(TempWhseActivHdr, false);
+                        WhseDocPrint.PrintInvtMovementHeader(TempWarehouseActivityHeader, false);
                 end;
             until Next() = 0;
-        end;
     end;
 
     local procedure CheckWhseRequest(var WhseRequest: Record "Warehouse Request") SkipRecord: Boolean

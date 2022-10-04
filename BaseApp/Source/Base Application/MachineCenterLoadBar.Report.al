@@ -16,7 +16,7 @@ report 99000786 "Machine Center Load/Bar"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Work_Center__TABLECAPTION_________WorkCenterFilter; TableCaption + ':' + WorkCenterFilter)
@@ -220,7 +220,7 @@ report 99000786 "Machine Center Load/Bar"
         trigger OnInit()
         begin
             if StartingDate = 0D then
-                StartingDate := WorkDate;
+                StartingDate := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1W>');
             if NoOfPeriods = 0 then
@@ -237,7 +237,7 @@ report 99000786 "Machine Center Load/Bar"
         BarTxt := '0                       100                      200';
         BarTxt2 := '|                        |                        |';
         if StartingDate = 0D then
-            StartingDate := WorkDate;
+            StartingDate := WorkDate();
         if Format(PeriodLength) = '' then
             Evaluate(PeriodLength, '<1W>');
         if NoOfPeriods = 0 then
@@ -246,7 +246,7 @@ report 99000786 "Machine Center Load/Bar"
 
     trigger OnPreReport()
     begin
-        WorkCenterFilter := "Work Center".GetFilters;
+        WorkCenterFilter := "Work Center".GetFilters();
     end;
 
     var

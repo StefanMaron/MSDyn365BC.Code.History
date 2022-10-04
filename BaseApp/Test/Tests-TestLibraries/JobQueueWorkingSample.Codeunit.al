@@ -13,7 +13,7 @@ codeunit 132451 "Job Queue Working Sample"
         Counter := 0;
         while Counter < 5000000 do begin
             JobQueueSampleLogging.SetFilter("No.", Format(Counter));
-            if not JobQueueSampleLogging.Find then;
+            if not JobQueueSampleLogging.Find() then;
 
             Counter := Counter + 1;
         end;

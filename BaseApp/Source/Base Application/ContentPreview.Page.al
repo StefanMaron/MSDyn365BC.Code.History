@@ -15,7 +15,7 @@ page 5084 "Content Preview"
 
                     trigger ControlAddInReady(callbackUrl: Text)
                     begin
-                        CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                        CurrPage.BodyHTMLMessage.LinksOpenInNewWindow();
                         CurrPage.BodyHTMLMessage.SetContent(HTMLContent);
                     end;
 
@@ -29,7 +29,7 @@ page 5084 "Content Preview"
 
                     trigger Refresh(callbackUrl: Text)
                     begin
-                        CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                        CurrPage.BodyHTMLMessage.LinksOpenInNewWindow();
                         CurrPage.BodyHTMLMessage.SetContent(HTMLContent);
                     end;
                 }

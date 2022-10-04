@@ -33,7 +33,7 @@ report 1139 "Delete Cost Budget Entries"
                 CostAccSetup: Record "Cost Accounting Setup";
             begin
                 DeleteAll();
-                Reset;
+                Reset();
                 SetRange(Source, Source::Allocation);
 
                 if FindLast() then begin
@@ -113,16 +113,17 @@ report 1139 "Delete Cost Budget Entries"
     end;
 
     var
+        CostBudgetRegister2: Record "Cost Budget Register";
+        CostBudgetRegister3: Record "Cost Budget Register";
+        CostBudgetEntry: Record "Cost Budget Entry";
+        Window: Dialog;
+
         Text000: Label 'From Register No. must not be higher than To Register No..';
         Text001: Label 'All corresponding cost budget entries and budget register entries will be deleted. Do you want to delete cost budget register %1 to %2?';
         Text004: Label 'Are you sure?';
         Text005: Label 'Delete cost register\';
         Text006: Label 'Register  no.      #1######';
         Text007: Label 'Register %1 can no longer be deleted because it is marked as closed.';
-        CostBudgetRegister2: Record "Cost Budget Register";
-        CostBudgetRegister3: Record "Cost Budget Register";
-        CostBudgetEntry: Record "Cost Budget Entry";
-        Window: Dialog;
 
     procedure InitializeRequest(FromEntryNo: Integer; ToEntryNo: Integer)
     begin

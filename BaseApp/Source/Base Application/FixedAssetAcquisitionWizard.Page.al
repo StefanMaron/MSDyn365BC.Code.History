@@ -137,7 +137,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                     {
                         ShowCaption = false;
                         Visible = AcquisitionOptions = AcquisitionOptions::"Bank Account";
-                        field("Bank Account"; "Bal. Account No.")
+                        field("Bank Account"; Rec."Bal. Account No.")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Bank Account';
@@ -290,7 +290,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
                     end else
                         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action("Exit")
@@ -300,7 +300,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close
+                    CurrPage.Close();
                 end;
             }
         }
@@ -308,28 +308,28 @@ page 5551 "Fixed Asset Acquisition Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     begin
         // We could check if values like FA Posting code, descirption are in the temp
-        if not Get then begin
-            Init;
-            "Journal Template Name" := FixedAssetAcquisitionWizard.SelectFATemplate;
+        if not Get() then begin
+            Init();
+            "Journal Template Name" := FixedAssetAcquisitionWizard.SelectFATemplate();
             "Journal Batch Name" := FixedAssetAcquisitionWizard.GetGenJournalBatchName(
                 CopyStr(Rec.GetFilter("Account No."), 1, MaxStrLen("Account No.")));
             "Document Type" := "Document Type"::Invoice;
             "Account Type" := "Account Type"::"Fixed Asset";
             "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-            "Posting Date" := WorkDate;
-            SetAccountNoFromFilter;
-            Insert;
+            "Posting Date" := WorkDate();
+            SetAccountNoFromFilter();
+            Insert();
         end;
 
-        EnableOpenFAGLJournal := JournalBatchIsEmpty;
+        EnableOpenFAGLJournal := JournalBatchIsEmpty();
         OpenFAGLJournal := not EnableOpenFAGLJournal;
-        VerifyFADoNotExistInGLJournalLines;
+        VerifyFADoNotExistInGLJournalLines();
         ValidateCurrentStep(Step);
     end;
 
@@ -369,8 +369,8 @@ page 5551 "Fixed Asset Acquisition Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -418,7 +418,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
             Step := Step::"Already In Journal";
             OpenFAGLJournal := true;
             Copy(GenJournalLine);
-            Insert;
+            Insert();
         end
     end;
 }

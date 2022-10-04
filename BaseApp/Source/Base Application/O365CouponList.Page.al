@@ -1,9 +1,13 @@
+#if not CLEAN21
 page 2166 "O365 Coupon List"
 {
     Caption = 'Coupons';
     Editable = false;
     PageType = List;
     SourceTable = "O365 Coupon Claim";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,22 +17,22 @@ page 2166 "O365 Coupon List"
             {
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     StyleExpr = CodeStyleExpr;
                 }
-                field("Status Text"; "Status Text")
+                field("Status Text"; Rec."Status Text")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     StyleExpr = StatusTextStyleExpr;
                 }
-                field("Amount Text"; "Amount Text")
+                field("Amount Text"; Rec."Amount Text")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the coupon amount in letters.';
                 }
                 field(Offer; Offer)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
         }
@@ -40,7 +44,7 @@ page 2166 "O365 Coupon List"
         {
             action(ViewCoupon)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View';
                 Image = ViewDetails;
                 ShortCutKey = 'Return';
@@ -55,47 +59,55 @@ page 2166 "O365 Coupon List"
                     PAGE.RunModal(PAGE::"O365 Coupon", Rec);
                     CalcFields("Is applied");
                     if (not IsAppliedBeforeOpening) and "Is applied" then
-                        CurrPage.Close;
+                        CurrPage.Close();
                 end;
             }
             action(UseCoupon)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Use coupon';
                 Gesture = LeftSwipe;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Use this coupon.';
 
                 trigger OnAction()
                 begin
-                    Apply;
+                    Apply();
                 end;
             }
             action(DoNotUseCoupon)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Do not use coupon';
                 Gesture = RightSwipe;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Do not use this coupon.';
 
                 trigger OnAction()
                 begin
-                    Unapply;
+                    Unapply();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UseCoupon_Promoted; UseCoupon)
+                {
+                }
+                actionref(DoNotUseCoupon_Promoted; DoNotUseCoupon)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        UpdateStatusText;
+        UpdateStatusText();
         if "Is applied" then begin
             StatusTextStyleExpr := 'Favorable';
             CodeStyleExpr := 'Subordinate';
@@ -109,4 +121,4 @@ page 2166 "O365 Coupon List"
         StatusTextStyleExpr: Text;
         CodeStyleExpr: Text;
 }
-
+#endif

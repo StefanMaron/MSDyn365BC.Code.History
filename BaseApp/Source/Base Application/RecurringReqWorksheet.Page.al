@@ -23,7 +23,7 @@ page 296 "Recurring Req. Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ReqJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -31,18 +31,18 @@ page 296 "Recurring Req. Worksheet"
                 trigger OnValidate()
                 begin
                     ReqJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Recurring Method"; "Recurring Method")
+                field("Recurring Method"; Rec."Recurring Method")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a recurring method, if you have indicated in the Recurring field that the worksheet is a recurring requisition worksheet.';
                 }
-                field("Recurring Frequency"; "Recurring Frequency")
+                field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a recurring frequency, if it is indicated in the Recurring field that the worksheet is a recurring requisition worksheet.';
@@ -57,7 +57,7 @@ page 296 "Recurring Req. Worksheet"
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -68,18 +68,18 @@ page 296 "Recurring Req. Worksheet"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Action Message"; "Action Message")
+                field("Action Message"; Rec."Action Message")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies an action to take to rebalance the demand-supply situation.';
                 }
-                field("Accept Action Message"; "Accept Action Message")
+                field("Accept Action Message"; Rec."Accept Action Message")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether to accept the action message proposed for the line.';
@@ -89,13 +89,13 @@ page 296 "Recurring Req. Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies text that describes the entry.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
@@ -105,12 +105,12 @@ page 296 "Recurring Req. Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of units of the item or resource specified on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
@@ -121,18 +121,18 @@ page 296 "Recurring Req. Worksheet"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number that the vendor uses for this item.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -222,7 +222,7 @@ page 296 "Recurring Req. Worksheet"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Planning;
                     AssistEdit = true;
@@ -231,43 +231,43 @@ page 296 "Recurring Req. Worksheet"
 
                     trigger OnAssistEdit()
                     begin
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
 
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                     Visible = false;
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when the related order was created.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
-                field("Requester ID"; "Requester ID")
+                field("Requester ID"; Rec."Requester ID")
                 {
                     ApplicationArea = Planning;
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the ID of the user who is ordering the items on the line.';
                     Visible = false;
                 }
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the related production order.';
@@ -279,7 +279,7 @@ page 296 "Recurring Req. Worksheet"
                     ToolTip = 'Specifies whether the items on the line have been approved for purchase.';
                     Visible = false;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the last date on which the recurring requisition worksheet will be converted to a purchase order.';
@@ -361,7 +361,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -373,7 +373,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -385,7 +385,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -398,7 +398,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -421,7 +421,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -450,7 +450,7 @@ page 296 "Recurring Req. Worksheet"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -514,7 +514,7 @@ page 296 "Recurring Req. Worksheet"
 
                     trigger OnAction()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowReservation();
                     end;
                 }
@@ -585,7 +585,7 @@ page 296 "Recurring Req. Worksheet"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ReqJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

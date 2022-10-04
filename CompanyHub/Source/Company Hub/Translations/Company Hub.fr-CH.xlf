@@ -1527,12 +1527,6 @@
           <note from="Developer" annotates="general" priority="2">This message is added after CouldNotFetchCompaniesMsg</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Url Task Manager - NamedType IncludeDemoComapniesMsg</note>
         </trans-unit>
-        <trans-unit id="Page 2379616563 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New,Process,Report,Setup,Errors,Tasks</source>
-          <target state="translated">Nouveau,Traitement,État,Configurer,Erreurs,Tâches</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Property PromotedActionCategories</note>
-        </trans-unit>
         <trans-unit id="Page 2379616563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
           <target state="translated">Hub Entreprise</target>

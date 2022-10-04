@@ -23,12 +23,12 @@ page 1107 "Cost Journal Templates"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a description of the cost journal entry.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
@@ -50,12 +50,14 @@ page 1107 "Cost Journal Templates"
                     ApplicationArea = CostAccounting;
                     Caption = 'Batches';
                     Image = Description;
-                    Promoted = false;
                     RunObject = Page "Cost Journal Batches";
                     RunPageLink = "Journal Template Name" = FIELD(Name);
                     ToolTip = 'Open the list of journal batches for the journal template. ';
                 }
             }
+        }
+        area(Promoted)
+        {
         }
     }
 }

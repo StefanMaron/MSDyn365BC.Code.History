@@ -354,7 +354,7 @@ codeunit 134900 "ERM Batch Job"
         Initialize();
         LibrarySales.SetStockoutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CreateSalesDocument(SalesHeader2, SalesLine2, SalesHeader2."Document Type"::Order);
         LibrarySales.ReleaseSalesDocument(SalesHeader2);
@@ -364,7 +364,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [THEN] Verify Copy Document Error on Sales Order When Order is Released.
         Assert.ExpectedError(
-          StrSubstNo(StatusErr, SalesHeader2.TableCaption, SalesLine2.FieldCaption("Document Type"), SalesLine2."Document Type",
+          StrSubstNo(StatusErr, SalesHeader2.TableCaption(), SalesLine2.FieldCaption("Document Type"), SalesLine2."Document Type",
             SalesHeader2.FieldCaption("No."), SalesLine2."Document No."));
     end;
 
@@ -385,7 +385,7 @@ codeunit 134900 "ERM Batch Job"
         // [GIVEN] Create And Post Purchase Invoice and Create Purchase Order, Release it.
         Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreatePurchaseDocument(PurchaseHeader2, PurchaseLine2, PurchaseHeader2."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader2);
@@ -395,7 +395,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [THEN] Verify Copy Document Error on Purchase Order When Order is Released.
         Assert.ExpectedError(
-          StrSubstNo(StatusErr, PurchaseHeader2.TableCaption, PurchaseLine2.FieldCaption("Document Type"), PurchaseLine2."Document Type",
+          StrSubstNo(StatusErr, PurchaseHeader2.TableCaption(), PurchaseLine2.FieldCaption("Document Type"), PurchaseLine2."Document Type",
             PurchaseHeader2.FieldCaption("No."), PurchaseLine2."Document No."));
     end;
 
@@ -523,7 +523,7 @@ codeunit 134900 "ERM Batch Job"
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
 
         // [WHEN] Run Batch Post Purchase Order with Receive.
         RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, false, 0D, false, false, false);
@@ -556,7 +556,7 @@ codeunit 134900 "ERM Batch Job"
         // [FEATURE] [Batch Post] [Order] [Purchase]
         // [SCENARIO] Check Batch Post Purchase Order Report with Work Date.
         Initialize();
-        BatchPostPurchOrderWithDate(WorkDate);
+        BatchPostPurchOrderWithDate(WorkDate());
     end;
 
     local procedure BatchPostPurchOrderWithDate(PostingDate: Date)
@@ -668,7 +668,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // [WHEN] Run Batch Post Purchase Order with Receive, Invoice and Invoice Discount.
-        RunBatchPostPurchaseOrders(PurchaseLine."Document No.", true, true, WorkDate, false, false, true);
+        RunBatchPostPurchaseOrders(PurchaseLine."Document No.", true, true, WorkDate(), false, false, true);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // [THEN] Verify Invoice Discount on Posted Purchase Invoice Line.
@@ -869,7 +869,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
         Assert.ExpectedMessage(
-          StrSubstNo(NotificationMsg, SalesHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+          StrSubstNo(NotificationMsg, SalesHeader.TableCaption()), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
         LibraryVariableStorage.AssertEmpty;
         Clear(SalesHeader);
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
@@ -902,11 +902,11 @@ codeunit 134900 "ERM Batch Job"
 
         // [WHEN] Post Purchase Batch.
         ErrorMessagesPage.Trap;
-        RunBatchPostPurchaseOrders(PurchaseHeaderNo, true, true, WorkDate, false, false, false);
+        RunBatchPostPurchaseOrders(PurchaseHeaderNo, true, true, WorkDate(), false, false, false);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
         Assert.ExpectedMessage(
-          StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+          StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption()), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
         LibraryVariableStorage.AssertEmpty;
         Clear(PurchaseHeader);
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
@@ -1083,7 +1083,7 @@ codeunit 134900 "ERM Batch Job"
         GetSpecialOrderOnReqWksht(SalesLine, RequisitionLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
         SelectSalesLineWithDropShipment(SalesLine1, SalesHeader);
         GetDropShipmentOnReqWksht(SalesLine1, RequisitionLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address on 1st Purchase Order.
         GetPurchHeader(PurchHeader, SalesLine."No.");
@@ -1444,7 +1444,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(
           "Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDecInRange(10, 20, 2), 1));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), 1));
         Customer.Modify(true);
         LibraryERM.CreateExchangeRate(Customer."Currency Code", WorkDate + 1, LibraryRandom.RandDecInRange(10, 20, 2), 1);
 
@@ -1470,10 +1470,10 @@ codeunit 134900 "ERM Batch Job"
         ValueEntry.FindFirst();
         ValueEntry.TestField(
           "Sales Amount (Expected)",
-          Round(LibraryERM.ConvertCurrency(SalesLine.Amount, Customer."Currency Code", '', WorkDate)));
+          Round(LibraryERM.ConvertCurrency(SalesLine.Amount, Customer."Currency Code", '', WorkDate())));
         ValueEntry.TestField(
           "Discount Amount",
-          -Round(LibraryERM.ConvertCurrency(SalesLine."Line Discount Amount", Customer."Currency Code", '', WorkDate)));
+          -Round(LibraryERM.ConvertCurrency(SalesLine."Line Discount Amount", Customer."Currency Code", '', WorkDate())));
     end;
 
     [Test]
@@ -1527,9 +1527,9 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
 
         // [GIVEN] Updated "Item2" on Sales Line with "Qty.to Ship" = 5
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.ReopenSalesDocument(SalesHeader);
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
         SalesLine.Modify(true);
 
@@ -1671,7 +1671,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The archive copy of Sales Order is created.
-        VerifyArchiveOfSalesOrder(SalesHeader, 1); // [BUG 369983]
+        VerifyArchiveOfSalesOrder(SalesHeader, 2); // [BUG 369983]
     end;
 
     [Test]
@@ -1871,7 +1871,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [WHEN] Update "Buy-from Vendor No." from "V" to "W" on Purchase Order
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         asserterror PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
 
@@ -1912,7 +1912,7 @@ codeunit 134900 "ERM Batch Job"
             PurchaseHeader."Document Type", PurchaseHeader."No."));
 
         // [THEN] "PO" Status still Open.
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
 
         // Rollback
@@ -1991,7 +1991,7 @@ codeunit 134900 "ERM Batch Job"
             SalesHeader."Document Type", SalesHeader."No."));
 
         // [THEN] "SO" still has Status::Open
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
 
         // Rollback
@@ -2225,7 +2225,7 @@ codeunit 134900 "ERM Batch Job"
         Commit();
 
         // [WHEN] Inventory Put-Away created and posted from Purchase Order with Posting Date = WORKDATE + 1
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.CreateInvtPutAwayPick;
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine,
@@ -2275,7 +2275,7 @@ codeunit 134900 "ERM Batch Job"
         Commit();
 
         // [WHEN] Inventory Pick created and posted from Sales Order with Posting Date = WORKDATE + 1
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.CreateInvtPutAwayPick;
         FindAndUpdateWhseActivityPostingDate(
           WarehouseActivityHeader, WarehouseActivityLine,
@@ -2426,7 +2426,7 @@ codeunit 134900 "ERM Batch Job"
         RunPostBatchSalesOrder(SalesHeader."No.");
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, SalesHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, SalesHeader.TableCaption()), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
         LibraryVariableStorage.AssertEmpty();
 
         // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because it is pending approval"
@@ -2457,10 +2457,10 @@ codeunit 134900 "ERM Batch Job"
 
         // [WHEN] Post Purchase Batch on this header
         ErrorMessagesPage.Trap();
-        RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, true, WorkDate, false, false, false);
+        RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, true, WorkDate(), false, false, false);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption()), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
         LibraryVariableStorage.AssertEmpty();
 
         // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because it is pending approval"
@@ -2497,7 +2497,7 @@ codeunit 134900 "ERM Batch Job"
         RunPostBatchSalesOrder(SalesHeader."No.");
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, SalesHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, SalesHeader.TableCaption()), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
         LibraryVariableStorage.AssertEmpty();
 
         // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because of approval workflow restrictions"
@@ -2532,10 +2532,10 @@ codeunit 134900 "ERM Batch Job"
 
         // [WHEN] Post Purchase Batch on this header
         ErrorMessagesPage.Trap();
-        RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, true, WorkDate, false, false, false);
+        RunBatchPostPurchaseOrders(PurchaseHeader."No.", true, true, WorkDate(), false, false, false);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption()), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
         LibraryVariableStorage.AssertEmpty();
 
         // [THEN] On "Details" action - Error Messages page is open, message is: "Can not be posted because of approval workflow restrictions"
@@ -2639,7 +2639,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -2653,7 +2653,7 @@ codeunit 134900 "ERM Batch Job"
     begin
         AssemblyHeader.SetRange("Item No.", ItemNo);
         AssemblyHeader.FindFirst();
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, 0);
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), 0);
     end;
 
     local procedure CreateSalesAndPurchOrdersWithDropShipment(var SalesHeader: Record "Sales Header"; var PurchHeader: Record "Purchase Header")
@@ -2737,7 +2737,7 @@ codeunit 134900 "ERM Batch Job"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo);
-        exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false));
     end;
 
     local procedure CreateAndReleasePurchaseOrder(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10])
@@ -2908,7 +2908,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, DocumentType, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.FindFirst();
@@ -2945,7 +2945,7 @@ codeunit 134900 "ERM Batch Job"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType, LibraryInventory.CreateItemNo);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         UserSetup.Get(UserId);
         UserSetup.Get(UserSetup."Approver ID");
         SalesHeader.Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
@@ -3158,7 +3158,7 @@ codeunit 134900 "ERM Batch Job"
         CreateFinanceChargeMemos: Report "Create Finance Charge Memos";
     begin
         Customer.SetRange("No.", CustomerNo);
-        CreateFinanceChargeMemos.InitializeRequest(WorkDate, FindFinanceChargeTerms(FinanceChargeTerms, CustomerNo));
+        CreateFinanceChargeMemos.InitializeRequest(WorkDate(), FindFinanceChargeTerms(FinanceChargeTerms, CustomerNo));
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.UseRequestPage(false);
         CreateFinanceChargeMemos.Run();
@@ -3210,7 +3210,7 @@ codeunit 134900 "ERM Batch Job"
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
@@ -3224,7 +3224,7 @@ codeunit 134900 "ERM Batch Job"
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryWarehouse.CreateWhseShipmentFromPurchaseReturnOrder(PurchaseHeader);
         WarehouseShipmentHeader.Get(
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
@@ -3238,7 +3238,7 @@ codeunit 134900 "ERM Batch Job"
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
@@ -3252,7 +3252,7 @@ codeunit 134900 "ERM Batch Job"
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
@@ -3363,11 +3363,11 @@ codeunit 134900 "ERM Batch Job"
     begin
         CountryCode := CreateNewCountryCode;
         with ShipToAddress do begin
-            Init;
+            Init();
             "Customer No." := CustNo;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Ship-to Address");
             "Country/Region Code" := CountryCode;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -3377,9 +3377,9 @@ codeunit 134900 "ERM Batch Job"
         CountryRegion: Record "Country/Region";
     begin
         with CountryRegion do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Country/Region");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -3404,7 +3404,7 @@ codeunit 134900 "ERM Batch Job"
         CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
         GetSalesOrderForDropShipmentOnReqWksh(RequisitionLine, SalesHeader, SalesLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
         GetSalesOrderForDropShipmentOnReqWksh(RequisitionLine, SalesHeader2, SalesLine2, RequisitionWkshName.Name, ReqWkshTemplate.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CarryOutActionMsgOnReqWkshForDropShipment(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
@@ -3415,7 +3415,7 @@ codeunit 134900 "ERM Batch Job"
     begin
         CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
         GetSalesOrderForDropShipmentOnReqWksh(RequisitionLine, SalesHeader, SalesLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CarryOutActionMsgOnReqWkshForSpecialOrder(SalesHeader: Record "Sales Header"; SalesHeader2: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line")
@@ -3427,7 +3427,7 @@ codeunit 134900 "ERM Batch Job"
         CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
         GetSalesOrderForSpecialOrderOnReqWksh(RequisitionLine, SalesHeader, SalesLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
         GetSalesOrderForSpecialOrderOnReqWksh(RequisitionLine, SalesHeader2, SalesLine2, RequisitionWkshName.Name, ReqWkshTemplate.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
 #if not CLEAN19
@@ -3505,7 +3505,7 @@ codeunit 134900 "ERM Batch Job"
     begin
         Customer.Get(CustomerNo);
         FinanceChargeTerms.Get(Customer."Fin. Charge Terms Code");
-        exit(CalcDate(FinanceChargeTerms."Grace Period", CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate)));
+        exit(CalcDate(FinanceChargeTerms."Grace Period", CalcDate(FinanceChargeTerms."Due Date Calculation", WorkDate())));
     end;
 
     local procedure FindRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name")
@@ -3517,7 +3517,7 @@ codeunit 134900 "ERM Batch Job"
     local procedure FindGLRegister(var GLRegister: Record "G/L Register"; JournalBatchName: Code[10]): Boolean
     begin
         GLRegister.SetRange("Journal Batch Name", JournalBatchName);
-        exit(GLRegister.FindFirst);
+        exit(GLRegister.FindFirst())
     end;
 
     local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; PurchHeaderNo: Code[20])
@@ -3611,7 +3611,7 @@ codeunit 134900 "ERM Batch Job"
     begin
         ReminderHeader.SetRange("Customer No.", CustomerNo);
         ReminderHeader.FindFirst();
-        ReminderIssue.Set(ReminderHeader, false, WorkDate);
+        ReminderIssue.Set(ReminderHeader, false, WorkDate());
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
 
@@ -3682,7 +3682,7 @@ codeunit 134900 "ERM Batch Job"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
             Modify(true);
         end;
@@ -3891,7 +3891,7 @@ codeunit 134900 "ERM Batch Job"
             SetRange("Document No.", PurchHeaderNo);
             FindFirst();
             Validate("Qty. to Receive", QtyToReceive);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3903,7 +3903,7 @@ codeunit 134900 "ERM Batch Job"
             SetRange("Document No.", SalesHeaderNo);
             FindFirst();
             Validate("Qty. to Ship", QtyToShip);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3914,7 +3914,7 @@ codeunit 134900 "ERM Batch Job"
             "Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
             "Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
             "Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -4321,7 +4321,7 @@ codeunit 134900 "ERM Batch Job"
     begin
         BatchPostSalesOrders.Ship.SetValue(true);
         BatchPostSalesOrders.Invoice.SetValue(true);
-        BatchPostSalesOrders.PostingDate.SetValue(WorkDate);
+        BatchPostSalesOrders.PostingDate.SetValue(WorkDate());
         BatchPostSalesOrders.OK.Invoke;
     end;
 
@@ -4417,7 +4417,7 @@ codeunit 134900 "ERM Batch Job"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
-        until not DimensionSelectionMultiple.Next;
+        until not DimensionSelectionMultiple.Next();
         DimensionSelectionMultiple.OK.Invoke;
     end;
 

@@ -86,14 +86,14 @@ table 5334 "CRM Option Mapping"
         SetRange("Integration Table ID", IntegrationTableID);
         SetRange("Integration Field ID", IntegrationFieldID);
         SetRange("Option Value", OptionValue);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure GetRecordKeyValue(): Text
     var
+        RecordRef: RecordRef;
         FieldRef: FieldRef;
         KeyRef: KeyRef;
-        RecordRef: RecordRef;
     begin
         RecordRef.Get("Record ID");
         KeyRef := RecordRef.KeyIndex(1);
@@ -105,7 +105,7 @@ table 5334 "CRM Option Mapping"
     var
         CRMProductName: Codeunit "CRM Product Name";
     begin
-        Reset;
+        Reset();
         SetRange("Table ID", NAVRecordID.TableNo());
         SetRange("Option Value", CRMOptionId);
         if FindFirst() then

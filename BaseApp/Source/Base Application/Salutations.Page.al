@@ -53,11 +53,20 @@ page 5153 Salutations
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Formulas';
                     Image = SalutationFormula;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Salutation Formulas";
                     RunPageLink = "Salutation Code" = FIELD(Code);
                     ToolTip = 'View or edit formal and an informal salutations for each language you want to use when interacting with your contacts.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Formulas_Promoted; Formulas)
+                {
                 }
             }
         }

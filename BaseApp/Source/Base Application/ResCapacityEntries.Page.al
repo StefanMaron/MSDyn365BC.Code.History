@@ -20,12 +20,12 @@ page 224 "Res. Capacity Entries"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date for which the capacity entry is valid.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the corresponding resource.';
                 }
-                field("Resource Group No."; "Resource Group No.")
+                field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the corresponding resource group assigned to the resource.';
@@ -35,7 +35,7 @@ page 224 "Res. Capacity Entries"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the capacity that is calculated and recorded. The capacity is in the unit of measure.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';

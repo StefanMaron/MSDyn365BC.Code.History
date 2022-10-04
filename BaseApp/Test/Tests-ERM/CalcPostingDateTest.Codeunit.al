@@ -60,7 +60,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
 
         // Exercise.
-        DueDateOffset := -LibraryRandom.RandIntInRange(1, VendorLedgerEntry."Due Date" - WorkDate);
+        DueDateOffset := -LibraryRandom.RandIntInRange(1, VendorLedgerEntry."Due Date" - WorkDate());
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorLedgerEntry."Due Date", false, false, true, Format(DueDateOffset) + 'D',
           Vendor."No.");
 
@@ -123,7 +123,7 @@ codeunit 134254 "Calc. Posting Date Test"
           Vendor."No.");
 
         // Verify.
-        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate, '', '', -VendorLedgerEntry."Purchase (LCY)");
+        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate(), '', '', -VendorLedgerEntry."Purchase (LCY)");
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 134254 "Calc. Posting Date Test"
           Vendor."No.");
 
         // Verify.
-        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate, 'Unfavorable', PaymentWarningMsg, -VendorLedgerEntry."Purchase (LCY)");
+        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate(), 'Unfavorable', PaymentWarningMsg, -VendorLedgerEntry."Purchase (LCY)");
     end;
 
     [Test]
@@ -208,7 +208,7 @@ codeunit 134254 "Calc. Posting Date Test"
           Vendor."No.");
 
         // Verify.
-        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate, 'Unfavorable', PaymentWarningMsg, -VendorLedgerEntry."Purchase (LCY)");
+        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate(), 'Unfavorable', PaymentWarningMsg, -VendorLedgerEntry."Purchase (LCY)");
     end;
 
     local procedure SuggVendMultipleMixedDates(DueDateRange: Integer; DueDateOffset: Integer; DiscDateOffset: Integer)
@@ -332,7 +332,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
 
         // Exercise.
-        asserterror SuggestVendorPayments(GenJnlLine, GenJnlBatch, WorkDate, true, false, true, '0D', '');
+        asserterror SuggestVendorPayments(GenJnlLine, GenJnlBatch, WorkDate(), true, false, true, '0D', '');
 
         // Verify.
         Assert.ExpectedError(PmtDiscUnavailableErr);
@@ -352,7 +352,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
 
         // Exercise.
-        asserterror SuggestVendorPayments(GenJnlLine, GenJnlBatch, WorkDate, false, true, true, '0D', '');
+        asserterror SuggestVendorPayments(GenJnlLine, GenJnlBatch, WorkDate(), false, true, true, '0D', '');
 
         // Verify.
         Assert.ExpectedError(PmtDiscUnavailableErr);
@@ -380,7 +380,7 @@ codeunit 134254 "Calc. Posting Date Test"
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorLedgerEntry."Due Date", false, false, false, '0D', Vendor."No.");
 
         // Verify.
-        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate, '', '', -VendorLedgerEntry."Purchase (LCY)");
+        VerifyGenJnlLine(GenJnlBatch, Vendor."No.", WorkDate(), '', '', -VendorLedgerEntry."Purchase (LCY)");
     end;
 
     [Test]
@@ -493,7 +493,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryERM.CreateGeneralJnlLine(GenJnlLine,
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Invoice,
           GenJnlLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(1000, 2));
-        GenJnlLine.Validate("Posting Date", WorkDate);
+        GenJnlLine.Validate("Posting Date", WorkDate());
         GenJnlLine.Validate("Due Date", WorkDate + DateOffset);
         if DiscDateOffset <> 0 then begin
             GenJnlLine.Validate("Pmt. Discount Date", GenJnlLine."Due Date" - DiscDateOffset);
@@ -554,8 +554,8 @@ codeunit 134254 "Calc. Posting Date Test"
             repeat
                 GenJnlLine.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
                 GenJnlLine.FindFirst();
-                if VendLedgEntry."Due Date" + DueDateOffset < WorkDate then
-                    Assert.AreEqual(WorkDate, GenJnlLine."Posting Date", 'Wrong posting date.')
+                if VendLedgEntry."Due Date" + DueDateOffset < WorkDate() then
+                    Assert.AreEqual(WorkDate(), GenJnlLine."Posting Date", 'Wrong posting date.')
                 else
                     Assert.AreEqual(VendLedgEntry."Due Date" + DueDateOffset, GenJnlLine."Posting Date", 'Wrong posting date.');
                 if VendLedgEntry."Pmt. Discount Date" >= GenJnlLine."Due Date" then
@@ -563,7 +563,7 @@ codeunit 134254 "Calc. Posting Date Test"
                       'Wrong calculated discount.')
                 else
                     Assert.AreEqual(VendLedgEntry."Purchase (LCY)", -GenJnlLine."Amount (LCY)", 'Wrong calculated amount.');
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     [MessageHandler]
@@ -593,7 +593,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryVariableStorage.Dequeue(SummarizePerVendor);
         SuggestVendorPayments.SummarizePerVendor.SetValue(SummarizePerVendor);
 
-        SuggestVendorPayments.PostingDate.SetValue(WorkDate);
+        SuggestVendorPayments.PostingDate.SetValue(WorkDate());
         LibraryVariableStorage.Dequeue(UseDueDateAsPostDate);
         SuggestVendorPayments.UseDueDateAsPostingDate.SetValue(UseDueDateAsPostDate);
 

@@ -109,16 +109,12 @@ page 307 "Report Selection - Job"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(
-      var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Job"
-    )
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Job")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitUsageFilterOnElseCase(
-      ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Job"
-    )
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Job")
     begin
     end;
 }

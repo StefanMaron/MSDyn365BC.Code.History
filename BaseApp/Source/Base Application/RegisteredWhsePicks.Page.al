@@ -22,37 +22,37 @@ page 9344 "Registered Whse. Picks"
                     ToolTip = 'Specifies the type of activity that the warehouse performed on the lines attached to the header, such as put-away, pick or movement.';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Whse. Activity No."; "Whse. Activity No.")
+                field("Whse. Activity No."; Rec."Whse. Activity No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse activity number from which the activity was registered.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the location in which the registered warehouse activity occurred.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the lines were sorted on the warehouse header, such as by item, or bin code.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
@@ -157,7 +157,7 @@ page 9344 "Registered Whse. Picks"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := RegisteredWhseActivHeader;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 

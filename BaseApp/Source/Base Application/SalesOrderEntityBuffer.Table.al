@@ -14,7 +14,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateSellToCustomerId;
+                UpdateSellToCustomerId();
             end;
         }
         field(3; "No."; Code[20])
@@ -31,7 +31,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateBillToCustomerId;
+                UpdateBillToCustomerId();
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -117,7 +117,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsId;
+                UpdatePaymentTermsId();
             end;
         }
         field(27; "Shipment Method Code"; Code[10])
@@ -128,7 +128,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodId;
+                UpdateShipmentMethodId();
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -157,7 +157,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyId;
+                UpdateCurrencyId();
             end;
         }
         field(35; "Prices Including VAT"; Boolean)
@@ -391,7 +391,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateSellToCustomerNo;
+                UpdateSellToCustomerNo();
             end;
         }
         field(9633; "Contact Graph Id"; Text[250])
@@ -407,7 +407,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyCode;
+                UpdateCurrencyCode();
             end;
         }
         field(9635; "Payment Terms Id"; Guid)
@@ -418,7 +418,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsCode;
+                UpdatePaymentTermsCode();
             end;
         }
         field(9636; "Shipment Method Id"; Guid)
@@ -429,7 +429,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodCode;
+                UpdateShipmentMethodCode();
             end;
         }
         field(9638; "Bill-to Customer Id"; Guid)
@@ -440,7 +440,7 @@ table 5495 "Sales Order Entity Buffer"
 
             trigger OnValidate()
             begin
-                UpdateBillToCustomerNo;
+                UpdateBillToCustomerNo();
             end;
         }
     }
@@ -466,19 +466,19 @@ table 5495 "Sales Order Entity Buffer"
     trigger OnInsert()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnModify()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnRename()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     local procedure UpdateSellToCustomerId()
@@ -608,13 +608,13 @@ table 5495 "Sales Order Entity Buffer"
 
     procedure UpdateReferencedRecordIds()
     begin
-        UpdateSellToCustomerId;
-        UpdateBillToCustomerId;
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdateShipmentMethodId;
+        UpdateSellToCustomerId();
+        UpdateBillToCustomerId();
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdateShipmentMethodId();
 #if not CLEAN20
-        UpdateGraphContactId;
+        UpdateGraphContactId();
 #endif        
     end;
 

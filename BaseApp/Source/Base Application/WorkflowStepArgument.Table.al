@@ -194,22 +194,22 @@ table 1523 "Workflow Step Argument"
 
     trigger OnDelete()
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     trigger OnInsert()
     begin
-        ID := CreateGuid;
+        ID := CreateGuid();
     end;
 
     trigger OnModify()
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     trigger OnRename()
     begin
-        CheckEditingIsAllowed;
+        CheckEditingIsAllowed();
     end;
 
     var
@@ -255,7 +255,7 @@ table 1523 "Workflow Step Argument"
     var
         FiltersInStream: InStream;
     begin
-        if "Event Conditions".HasValue then begin
+        if "Event Conditions".HasValue() then begin
             CalcFields("Event Conditions");
             "Event Conditions".CreateInStream(FiltersInStream, TextEncoding::UTF8);
             FiltersInStream.Read(Filters);
@@ -298,7 +298,7 @@ table 1523 "Workflow Step Argument"
         WorkflowStep.SetRange(Argument, ID);
         if WorkflowStep.FindFirst() then begin
             Workflow.Get(WorkflowStep."Workflow Code");
-            Workflow.CheckEditingIsAllowed;
+            Workflow.CheckEditingIsAllowed();
         end;
     end;
 
@@ -307,7 +307,7 @@ table 1523 "Workflow Step Argument"
         EnvironmentInfo: Codeunit "Environment Information";
         OriginalFilterGroup: Integer;
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
         OriginalFilterGroup := FilterGroup;

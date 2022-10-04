@@ -45,7 +45,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(8; Comment; Boolean)
         {
-            CalcFormula = Exist ("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST("Sales Cycle Stage"),
+            CalcFormula = Exist("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST("Sales Cycle Stage"),
                                                                   "No." = FIELD("Sales Cycle Code"),
                                                                   "Sub No." = FIELD(Stage)));
             Caption = 'Comment';
@@ -54,7 +54,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(9; "No. of Opportunities"; Integer)
         {
-            CalcFormula = Count ("Opportunity Entry" WHERE(Active = CONST(true),
+            CalcFormula = Count("Opportunity Entry" WHERE(Active = CONST(true),
                                                            "Sales Cycle Code" = FIELD("Sales Cycle Code"),
                                                            "Sales Cycle Stage" = FIELD(Stage),
                                                            "Estimated Close Date" = FIELD("Date Filter")));
@@ -65,7 +65,7 @@ table 5091 "Sales Cycle Stage"
         field(10; "Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Sum("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
                                                                                  "Sales Cycle Code" = FIELD("Sales Cycle Code"),
                                                                                  "Sales Cycle Stage" = FIELD(Stage),
                                                                                  "Estimated Close Date" = FIELD("Date Filter")));
@@ -76,7 +76,7 @@ table 5091 "Sales Cycle Stage"
         field(11; "Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Sum("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
                                                                                       "Sales Cycle Code" = FIELD("Sales Cycle Code"),
                                                                                       "Sales Cycle Stage" = FIELD(Stage),
                                                                                       "Estimated Close Date" = FIELD("Date Filter")));
@@ -86,7 +86,7 @@ table 5091 "Sales Cycle Stage"
         }
         field(12; "Average No. of Days"; Decimal)
         {
-            CalcFormula = Average ("Opportunity Entry"."Days Open" WHERE(Active = CONST(false),
+            CalcFormula = Average("Opportunity Entry"."Days Open" WHERE(Active = CONST(false),
                                                                          "Sales Cycle Code" = FIELD("Sales Cycle Code"),
                                                                          "Sales Cycle Stage" = FIELD(Stage),
                                                                          "Estimated Close Date" = FIELD("Date Filter")));
@@ -141,7 +141,8 @@ table 5091 "Sales Cycle Stage"
     end;
 
     var
-        Text000: Label 'You cannot delete a stage which has active entries.';
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
+
+        Text000: Label 'You cannot delete a stage which has active entries.';
 }
 

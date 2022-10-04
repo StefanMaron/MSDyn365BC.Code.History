@@ -285,8 +285,9 @@ table 5768 "Whse. Cross-Dock Opportunity"
     }
 
     var
-        CrossDockQtyExceedsCrossDockQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Cross-Dock field on the warehouse receipt line.';
         UOMMgt: Codeunit "Unit of Measure Management";
+
+        CrossDockQtyExceedsCrossDockQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Cross-Dock field on the warehouse receipt line.';
 
     procedure AutoFillQtyToCrossDock(var Rec: Record "Whse. Cross-Dock Opportunity")
     var
@@ -307,12 +308,12 @@ table 5768 "Whse. Cross-Dock Opportunity"
                             Validate(
                               "Qty. to Cross-Dock",
                               CalcQty("Qty. Needed (Base)", "To-Src. Qty. per Unit of Meas."));
-                            Modify;
+                            Modify();
                         end else begin
                             Validate(
                               "Qty. to Cross-Dock",
                               CalcQty(QtyToHandleBase - "Qty. Cross-Docked (Base)", "To-Src. Qty. per Unit of Meas."));
-                            Modify;
+                            Modify();
                         end;
                 until Next() = 0;
             end;
@@ -321,7 +322,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
     local procedure CalcBaseQty(Qty: Decimal): Decimal
     begin
         TestField("To-Src. Qty. per Unit of Meas.");
-        exit(Round(Qty * "To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision));
+        exit(Round(Qty * "To-Src. Qty. per Unit of Meas.", UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure CalcQty(QtyBase: Decimal; QtyPerUOM: Decimal): Decimal
@@ -332,7 +333,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
             QtyPerUOM := 1;
         Discriminant := QtyBase mod QtyPerUOM;
         if Discriminant = 0 then
-            exit(Round(QtyBase / QtyPerUOM, UOMMgt.QtyRndPrecision));
+            exit(Round(QtyBase / QtyPerUOM, UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure CalcQtyToHandleBase(TemplateName: Code[10]; NameNo: Code[20]; LineNo: Integer) QtyToHandleBase: Decimal

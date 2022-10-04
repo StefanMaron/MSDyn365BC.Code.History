@@ -41,7 +41,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted sales invoice
         PostedSalesInvoice."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted sales credit memo
         PostedSalesCreditMemo."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -129,7 +129,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted sales invoice
         PostedSalesInvoice."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted sales credit memo
         PostedSalesCreditMemo."Sell-to Customer Name".AssertEquals(SalesHeader."Sell-to Customer Name");
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [Test]
@@ -217,7 +217,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase invoice
         PostedPurchaseInvoice."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -261,7 +261,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase credit memo
         PostedPurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -306,7 +306,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase invoice
         PostedPurchaseInvoice."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [Test]
@@ -351,7 +351,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted purchase credit memo
         PostedPurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(PurchaseHeader."Buy-from Vendor Name");
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -395,7 +395,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted service invoice
         PostedServiceInvoice."Customer No.".AssertEquals(ServiceHeader."Customer No.");
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
     end;
 
     [Test]
@@ -439,7 +439,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted service credit memo
         PostedServiceCreditMemo."Customer No.".AssertEquals(ServiceHeader."Customer No.");
-        PostedServiceCreditMemo.Close;
+        PostedServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -483,7 +483,7 @@ codeunit 138047 "Navigate to Posted Document"
 
         // [THEN] the user will get a confirmation dialog to open the posted service invoice
         PostedServiceInvoice."Customer No.".AssertEquals(ServiceHeader."Customer No.");
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
     end;
 
     [Test]

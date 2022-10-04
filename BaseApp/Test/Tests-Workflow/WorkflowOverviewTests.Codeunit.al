@@ -293,6 +293,41 @@ codeunit 134209 "Workflow Overview Tests"
         TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode, PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,WorkflowOverviewModalHandler')]
+    [Scope('OnPrem')]
+    procedure TestVendorWorkflowsFactboxDrilldown()
+    var
+        Vendor: Record Vendor;
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [444327]  Missing FactBox for active Workflows on Vendor Card.
+        // [WHEN] Annie opens the vendor card for a vendor that is part of an approval workflow
+        // [THEN] Annie can see the Workflow Status factbox
+        // [WHEN] Annie drills down on the workflow description
+        // [THEN] The Workflow Overview page opens with details on the current workflow.
+
+        // [GIVEN] Create the Workflow Setup
+        Initialize();
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        //[THEN] Exercise - Send for approval
+        VendorCard.OpenEdit;
+        VendorCard.GotoRecord(Vendor);
+        VendorCard.SendApprovalRequest.Invoke;
+
+        // [VERIFY]
+        LibraryVariableStorage.Enqueue(Format(Vendor.RecordId, 0, 1));
+        VendorCard.WorkflowStatus.First;
+        VendorCard.WorkflowStatus.WorkflowDescription.AssertEquals(Workflow.Description);
+        VendorCard.WorkflowStatus.WorkflowDescription.DrillDown;
+        Assert.IsFalse(VendorCard.WorkflowStatus.Next, VendorCard.WorkflowStatus.WorkflowDescription.Value);
+    end;
+
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";

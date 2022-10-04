@@ -97,9 +97,9 @@ codeunit 136111 "Service Planning Management"
         // related Service Item and Item as False.
         Assert.IsFalse(
           ResourceSkill.Get(ResourceSkill.Type::"Service Item", ServiceItem."No.", ResourceSkill."Skill Code"),
-          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption));
+          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption()));
         Assert.IsFalse(ResourceSkill.Get(ResourceSkill.Type::Item, Item."No.", ResourceSkill."Skill Code"),
-          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption));
+          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption()));
     end;
 
     [Test]
@@ -126,10 +126,10 @@ codeunit 136111 "Service Planning Management"
         // 3. Verify: Skill Codes are deleted from Service Item and Item.
         Assert.IsFalse(
           ResourceSkill.Get(ResourceSkill.Type::"Service Item", ServiceItem."No.", ResourceSkill."Skill Code"),
-          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption));
+          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption()));
         Assert.IsFalse(
           ResourceSkill.Get(ResourceSkill.Type::Item, Item."No.", ResourceSkill."Skill Code"),
-          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption));
+          StrSubstNo(ResourceSkillDeletionError, ResourceSkill.TableCaption()));
     end;
 
     [Test]
@@ -201,7 +201,7 @@ codeunit 136111 "Service Planning Management"
         ResourceNo2 := Resource."No.";
         ResourceGroupNo2 := '';  // Global variable should be set to blank.
         AllocatedHours2 := LibraryRandom.RandInt(10);  // Required field - value is not important to test case.
-        AllocationDate2 := WorkDate;
+        AllocationDate2 := WorkDate();
         RunResourceAllocationForm(ServiceItemLine);
 
         // 3. Verify: Check Status as Active and other Values on Service Allocation, Resource to be allocated to the Service Order.
@@ -259,13 +259,13 @@ codeunit 136111 "Service Planning Management"
         ResourceNo2 := '';  // Global variable should be set to blank.
         ResourceGroupNo2 := ResourceGroup."No.";
         AllocatedHours2 := LibraryRandom.RandInt(10);  // Required field - value is not important to test case.
-        AllocationDate2 := WorkDate;
+        AllocationDate2 := WorkDate();
         RunResourceAllocationForm(ServiceItemLine);
 
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceOrderAllocation.FindFirst();
-        ServiceOrderAllocation.Validate("Allocation Date", WorkDate);
+        ServiceOrderAllocation.Validate("Allocation Date", WorkDate());
         ServiceOrderAllocation.Modify(true);
 
         // 3. Verify: Check Status as Active and updated Values, Resource to be allocated to the Service Order.
@@ -392,7 +392,7 @@ codeunit 136111 "Service Planning Management"
         UpdateServiceOrderAllocation(ServiceOrderAllocation, ServiceItemLine."Document No.", Resource."No.", '', AllocatedHours);
         ServAllocationManagement.CancelAllocation(ServiceOrderAllocation);
         ResourceNo := Resource."No.";
-        Resource.Next;
+        Resource.Next();
         ServiceOrderAllocation.Validate("Resource No.", Resource."No.");
         ServiceOrderAllocation.Modify(true);
 
@@ -400,7 +400,7 @@ codeunit 136111 "Service Planning Management"
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceItemLine.FindFirst();
-        VerifyValuesServiceAllocation(ServiceItemLine, ServiceOrderAllocation.Status::Active, Resource."No.", '', WorkDate, AllocatedHours);
+        VerifyValuesServiceAllocation(ServiceItemLine, ServiceOrderAllocation.Status::Active, Resource."No.", '', WorkDate(), AllocatedHours);
         VerifyCancelServiceAllocation(ServiceItemLine."Document No.", ServiceItemLine."Service Item No.", ResourceNo, AllocatedHours);
     end;
 
@@ -491,7 +491,7 @@ codeunit 136111 "Service Planning Management"
         LibraryResource.FindResource(Resource);
         // Required field - value is not important to test case.
         UpdateServiceOrderAllocation(ServiceOrderAllocation, ServiceItemLine."Document No.", Resource."No.", '', LibraryRandom.RandInt(10));
-        Resource.Next;
+        Resource.Next();
         ServiceOrderAllocation.Validate("Resource No.", Resource."No.");
         ServiceOrderAllocation.Modify(true);
 
@@ -524,7 +524,7 @@ codeunit 136111 "Service Planning Management"
         AllocatedHours := LibraryRandom.RandInt(10);  // Required field - value is not important to test case.
         LibraryResource.FindResource(Resource);
         UpdateServiceOrderAllocation(ServiceOrderAllocation, ServiceItemLine."Document No.", Resource."No.", '', AllocatedHours);
-        Resource.Next;
+        Resource.Next();
         ServiceOrderAllocation.Validate("Resource No.", Resource."No.");
         ServiceOrderAllocation.Modify(true);
 
@@ -535,12 +535,12 @@ codeunit 136111 "Service Planning Management"
         LibraryService.CreateServiceItem(ServiceItem, ServiceItemLine."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         UpdateRepairStatusInitial(ServiceItemLine);
-        Resource.Next;
+        Resource.Next();
 
         ResourceNo := Resource."No.";
         UpdateAllocationOnSecondLine(ServiceOrderAllocation, ServiceHeader."No.", Resource."No.", '', AllocatedHours);
         UpdateRepairStatusInProcess(ServiceItemLine);
-        Resource.Next;
+        Resource.Next();
         ServiceOrderAllocation.Get(ServiceOrderAllocation."Entry No.");
         ServiceOrderAllocation.Validate("Resource No.", Resource."No.");
         ServiceOrderAllocation.Modify(true);
@@ -760,7 +760,7 @@ codeunit 136111 "Service Planning Management"
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItemWithVendorNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important.
-        ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Used Random to calculate the Needed By Date.
+        ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Used Random to calculate the Needed By Date.
         ServiceLine.Modify(true);
     end;
 
@@ -894,19 +894,19 @@ codeunit 136111 "Service Planning Management"
                 begin
                     UpdateRepairStatusFinished(ServiceItemLine);
                     VerifyValuesServiceAllocation(
-                      ServiceItemLine, ServiceOrderAllocation.Status::Finished, Resource."No.", '', WorkDate, AllocatedHours);
+                      ServiceItemLine, ServiceOrderAllocation.Status::Finished, Resource."No.", '', WorkDate(), AllocatedHours);
                 end;
             Status::"Partly Serviced":
                 begin
                     UpdateRepairStatusPartlyServed(ServiceItemLine);
                     VerifyValuesServiceAllocation(
-                      ServiceItemLine, ServiceOrderAllocation.Status::"Reallocation Needed", Resource."No.", '', WorkDate, AllocatedHours);
+                      ServiceItemLine, ServiceOrderAllocation.Status::"Reallocation Needed", Resource."No.", '', WorkDate(), AllocatedHours);
                 end;
             Status::Referred:
                 begin
                     UpdateRepairStatusReferred(ServiceItemLine);
                     VerifyValuesServiceAllocation(
-                      ServiceItemLine, ServiceOrderAllocation.Status::"Reallocation Needed", Resource."No.", '', WorkDate, AllocatedHours);
+                      ServiceItemLine, ServiceOrderAllocation.Status::"Reallocation Needed", Resource."No.", '', WorkDate(), AllocatedHours);
                 end;
         end;
     end;
@@ -960,7 +960,7 @@ codeunit 136111 "Service Planning Management"
         repeat
             ServiceLine.Validate("Qty. to Ship", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure RunResourceAllocationForm(ServiceItemLine: Record "Service Item Line")
@@ -1077,7 +1077,7 @@ codeunit 136111 "Service Planning Management"
     begin
         ServiceOrderAllocation.Validate("Resource No.", ResourceNo);
         ServiceOrderAllocation.Validate("Resource Group No.", ResourceGroupNo);
-        ServiceOrderAllocation.Validate("Allocation Date", WorkDate);
+        ServiceOrderAllocation.Validate("Allocation Date", WorkDate());
         ServiceOrderAllocation.Validate("Allocated Hours", AllocatedHours);
         ServiceOrderAllocation.Modify(true);
     end;
@@ -1106,10 +1106,10 @@ codeunit 136111 "Service Planning Management"
             ServiceOrderAllocation.TestField(Status, Status);
             ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
             ServiceOrderAllocation.TestField("Service Item No.", ServiceItemLine."Service Item No.");
-            ServiceOrderAllocation.TestField("Allocation Date", WorkDate);
+            ServiceOrderAllocation.TestField("Allocation Date", WorkDate());
             ServiceOrderAllocation.TestField("Resource Group No.", ResourceGroupNo);
             ServiceOrderAllocation.TestField("Resource No.", ResourceNo);
-        until ServiceItemLine.Next = 0
+        until ServiceItemLine.Next() = 0
     end;
 
     local procedure VerifyCancelServiceAllocation(DocumentNo: Code[20]; ServiceItemNo: Code[20]; ResourceNo: Code[20]; AllocatedHours: Decimal)
@@ -1122,7 +1122,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange(Status, ServiceOrderAllocation.Status::Canceled);
         ServiceOrderAllocation.FindFirst();
         ServiceOrderAllocation.TestField("Resource No.", ResourceNo);
-        ServiceOrderAllocation.TestField("Allocation Date", WorkDate);
+        ServiceOrderAllocation.TestField("Allocation Date", WorkDate());
         ServiceOrderAllocation.TestField("Allocated Hours", AllocatedHours);
     end;
 
@@ -1135,7 +1135,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange("Service Item No.", ServiceItemNo);
         ServiceOrderAllocation.SetRange(Status, Status);
         ServiceOrderAllocation.SetRange("Resource No.", ResourceNo);
-        ServiceOrderAllocation.SetRange("Allocation Date", WorkDate);
+        ServiceOrderAllocation.SetRange("Allocation Date", WorkDate());
         ServiceOrderAllocation.SetRange("Allocated Hours", AllocatedHours);
         ServiceOrderAllocation.FindFirst();
     end;

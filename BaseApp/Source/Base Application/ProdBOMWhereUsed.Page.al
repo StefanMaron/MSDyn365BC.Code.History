@@ -1,7 +1,7 @@
 page 99000811 "Prod. BOM Where-Used"
 {
     Caption = 'Prod. BOM Where-Used';
-    DataCaptionExpression = SetCaption;
+    DataCaptionExpression = SetCaption();
     PageType = Worksheet;
     SourceTable = "Where-Used Line";
     SourceTableTemporary = true;
@@ -21,7 +21,7 @@ page 99000811 "Prod. BOM Where-Used"
 
                     trigger OnValidate()
                     begin
-                        CalculateDateOnAfterValidate;
+                        CalculateDateOnAfterValidate();
                     end;
                 }
                 field(ShowLevel; ShowLevel)
@@ -33,7 +33,7 @@ page 99000811 "Prod. BOM Where-Used"
 
                     trigger OnValidate()
                     begin
-                        ShowLevelOnAfterValidate;
+                        ShowLevelOnAfterValidate();
                     end;
                 }
             }
@@ -43,12 +43,12 @@ page 99000811 "Prod. BOM Where-Used"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the item that the base item or production BOM is assigned to.';
                 }
-                field("Version Code"; "Version Code")
+                field("Version Code"; Rec."Version Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version code of the production BOM that the item or production BOM component is assigned to.';
@@ -58,7 +58,7 @@ page 99000811 "Prod. BOM Where-Used"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the item to which the item or production BOM component is assigned.';
                 }
-                field("Quantity Needed"; "Quantity Needed")
+                field("Quantity Needed"; Rec."Quantity Needed")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quantity of the item or the production BOM component that is needed for the assigned item.';
@@ -87,7 +87,7 @@ page 99000811 "Prod. BOM Where-Used"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        DescriptionOnFormat;
+        DescriptionOnFormat();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -102,7 +102,7 @@ page 99000811 "Prod. BOM Where-Used"
 
     trigger OnOpenPage()
     begin
-        BuildForm;
+        BuildForm();
     end;
 
     var
@@ -128,7 +128,7 @@ page 99000811 "Prod. BOM Where-Used"
         CalculateDate := NewCalcDate;
     end;
 
-    local procedure BuildForm()
+    procedure BuildForm()
     begin
         if ProdBOM."No." <> '' then
             WhereUsedMgt.WhereUsedFromProdBOM(ProdBOM, CalculateDate, ShowLevel = ShowLevel::Multi)
@@ -146,13 +146,13 @@ page 99000811 "Prod. BOM Where-Used"
 
     local procedure CalculateDateOnAfterValidate()
     begin
-        BuildForm;
+        BuildForm();
         CurrPage.Update(false);
     end;
 
     local procedure ShowLevelOnAfterValidate()
     begin
-        BuildForm;
+        BuildForm();
         CurrPage.Update(false);
     end;
 

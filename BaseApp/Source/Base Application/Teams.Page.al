@@ -23,7 +23,7 @@ page 5105 Teams
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the team.';
                 }
-                field("Next Task Date"; "Next Task Date")
+                field("Next Task Date"; Rec."Next Task Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the next task involving the team.';
@@ -81,8 +81,6 @@ page 5105 Teams
                     ApplicationArea = Basic, Suite;
                     Caption = 'Salespeople';
                     Image = ExportSalesPerson;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Team Salespeople";
                     RunPageLink = "Team Code" = FIELD(Code);
                     ToolTip = 'View a list of salespeople within the team.';
@@ -96,8 +94,6 @@ page 5105 Teams
                 ApplicationArea = Basic, Suite;
                 Caption = 'Team - Tasks';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Team - Tasks";
                 ToolTip = 'View the list of marketing tasks that exist for the team.';
             }
@@ -106,8 +102,6 @@ page 5105 Teams
                 ApplicationArea = Suite;
                 Caption = 'Salesperson - Tasks';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Salesperson - Tasks";
                 ToolTip = 'View the list of marketing tasks that exist for the salesperson.';
             }
@@ -116,11 +110,32 @@ page 5105 Teams
                 ApplicationArea = Suite;
                 Caption = 'Salesperson - Opportunities';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Salesperson - Opportunities";
                 ToolTip = 'View information about the opportunities handled by one or several salespeople.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Salespeople_Promoted; Salespeople)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Team - Tasks_Promoted"; "Team - Tasks")
+                {
+                }
+                actionref("Salesperson - Tasks_Promoted"; "Salesperson - Tasks")
+                {
+                }
             }
         }
     }

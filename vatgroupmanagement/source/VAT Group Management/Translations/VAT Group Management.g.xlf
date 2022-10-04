@@ -233,6 +233,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - NamedType AssistedSetupDescriptionTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1491000021 - NamedType 2507620317" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Management</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - NamedType AssistedSetupShortTitleTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1491000021 - NamedType 1420859235" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up VAT Group Management</source>
           <note from="Developer" annotates="general" priority="2"></note>

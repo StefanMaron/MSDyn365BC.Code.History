@@ -11,17 +11,17 @@ page 9828 "User Group Plan FactBox"
         {
             repeater(Group)
             {
-                field("Plan Name"; "Plan Name")
+                field("Plan Name"; Rec."Plan Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the subscription plan.';
                 }
-                field("User Group Code"; "User Group Code")
+                field("User Group Code"; Rec."User Group Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a user group.';
                 }
-                field("User Group Name"; "User Group Name")
+                field("User Group Name"; Rec."User Group Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the user group.';

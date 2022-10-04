@@ -13,7 +13,7 @@ page 7301 "Zone List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code of the zone.';
@@ -29,25 +29,25 @@ page 7301 "Zone List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the zone.';
                 }
-                field("Bin Type Code"; "Bin Type Code")
+                field("Bin Type Code"; Rec."Bin Type Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin type code for the zone. The bin type determines the inbound and outbound flow of items.';
                     Visible = false;
                 }
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse class code of the zone. You can store items with the same warehouse class code in this zone.';
                     Visible = false;
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the special equipment to be used when you work in this zone.';
                     Visible = false;
                 }
-                field("Zone Ranking"; "Zone Ranking")
+                field("Zone Ranking"; Rec."Zone Ranking")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Zone Ranking';

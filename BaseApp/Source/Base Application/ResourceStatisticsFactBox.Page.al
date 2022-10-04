@@ -8,7 +8,7 @@ page 9107 "Resource Statistics FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Resource No.';
@@ -16,7 +16,7 @@ page 9107 "Resource Statistics FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             field(ResCapacity; ResCapacity)
@@ -77,8 +77,8 @@ page 9107 "Resource Statistics FactBox"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateFiscalYearFilter(ResDateFilter, ResDateName, CurrentDate, 0);
         end;
 
@@ -128,8 +128,6 @@ page 9107 "Resource Statistics FactBox"
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
         CurrentDate: Date;
-        ResCapacity: Decimal;
-        UnusedCapacity: Decimal;
         UnitPrice: Decimal;
         InvoicedPct: Decimal;
         ResUsageCost: Decimal;
@@ -141,6 +139,10 @@ page 9107 "Resource Statistics FactBox"
         TotalUsageUnits: Decimal;
         ResUsagePrice: Decimal;
         j: Integer;
+
+    protected var
+        ResCapacity: Decimal;
+        UnusedCapacity: Decimal;
 
     local procedure ShowDetails()
     begin

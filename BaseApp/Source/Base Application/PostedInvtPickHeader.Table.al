@@ -168,11 +168,11 @@ table 7342 "Posted Invt. Pick Header"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            TestNoSeries;
-            "No. Series" := GetNoSeriesCode;
+            TestNoSeries();
+            "No. Series" := GetNoSeriesCode();
             NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
-        "Registering Date" := WorkDate;
+        "Registering Date" := WorkDate();
     end;
 
     var

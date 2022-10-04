@@ -28,7 +28,7 @@ report 1094 "Job Transfer to Sales Invoice"
                             if NewInvoice then begin
                                 InvoiceNo := '';
                                 if PostingDate = 0D then
-                                    PostingDate := WorkDate;
+                                    PostingDate := WorkDate();
                                 InvoicePostingDate := 0D;
                             end;
                         end;
@@ -67,7 +67,7 @@ report 1094 "Job Transfer to Sales Invoice"
                                 PostingDate := 0D;
                             end;
                             if InvoiceNo = '' then
-                                InitReport;
+                                InitReport();
                         end;
 
                         trigger OnValidate()
@@ -79,7 +79,7 @@ report 1094 "Job Transfer to Sales Invoice"
                                 PostingDate := 0D;
                             end;
                             if InvoiceNo = '' then
-                                InitReport;
+                                InitReport();
                         end;
                     }
                     field(InvoicePostingDate; InvoicePostingDate)
@@ -105,7 +105,7 @@ report 1094 "Job Transfer to Sales Invoice"
 
         trigger OnOpenPage()
         begin
-            InitReport;
+            InitReport();
         end;
     }
 
@@ -126,11 +126,13 @@ report 1094 "Job Transfer to Sales Invoice"
     var
         Job: Record Job;
         SalesHeader: Record "Sales Header";
-        NewInvoice: Boolean;
-        InvoiceNo: Code[20];
         PostingDate: Date;
         InvoicePostingDate: Date;
         Done: Boolean;
+
+    protected var
+        InvoiceNo: Code[20];
+        NewInvoice: Boolean;
 
     procedure GetInvoiceNo(var Done2: Boolean; var NewInvoice2: Boolean; var PostingDate2: Date; var InvoiceNo2: Code[20])
     begin
@@ -142,7 +144,7 @@ report 1094 "Job Transfer to Sales Invoice"
 
     procedure InitReport()
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         NewInvoice := true;
         InvoiceNo := '';
         InvoicePostingDate := 0D;

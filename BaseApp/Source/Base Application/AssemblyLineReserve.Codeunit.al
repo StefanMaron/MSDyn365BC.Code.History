@@ -90,7 +90,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         ReservEntry.InitSortingAndFilters(false);
         AssemblyLine.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     local procedure AssignForPlanning(var AssemblyLine: Record "Assembly Line")
@@ -105,13 +105,13 @@ codeunit 926 "Assembly Line-Reserve"
                 exit;
 
             if "No." <> '' then
-                PlanningAssignment.ChkAssignOne("No.", "Variant Code", "Location Code", WorkDate);
+                PlanningAssignment.ChkAssignOne("No.", "Variant Code", "Location Code", WorkDate());
         end;
     end;
 
     procedure ReservEntryExist(AssemblyLine: Record "Assembly Line"): Boolean
     begin
-        exit(AssemblyLine.ReservEntryExist);
+        exit(AssemblyLine.ReservEntryExist());
     end;
 
     procedure DeleteLine(var AssemblyLine: Record "Assembly Line")
@@ -121,7 +121,7 @@ codeunit 926 "Assembly Line-Reserve"
             if DeleteItemTracking then
                 ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
             ReservMgt.DeleteReservEntries(true, 0);
-            ReservMgt.ClearActionMessageReferences;
+            ReservMgt.ClearActionMessageReferences();
             CalcFields("Reserved Qty. (Base)");
             AssignForPlanning(AssemblyLine);
         end;
@@ -239,9 +239,9 @@ codeunit 926 "Assembly Line-Reserve"
 
             ReservMgt.SetReservSource(NewAssemblyLine);
             if "Qty. per Unit of Measure" <> OldAssemblyLine."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             ReservMgt.DeleteReservEntries(false, "Remaining Quantity (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack("Remaining Quantity (Base)");
             AssignForPlanning(NewAssemblyLine);
         end;
@@ -249,7 +249,7 @@ codeunit 926 "Assembly Line-Reserve"
 
     procedure Caption(AssemblyLine: Record "Assembly Line") CaptionText: Text
     begin
-        CaptionText := AssemblyLine.GetSourceCaption;
+        CaptionText := AssemblyLine.GetSourceCaption();
     end;
 
     procedure CallItemTracking(var AssemblyLine: Record "Assembly Line")
@@ -259,7 +259,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         TrackingSpecification.InitFromAsmLine(AssemblyLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyLine."Due Date");
-        ItemTrackingLines.SetInbound(AssemblyLine.IsInbound);
+        ItemTrackingLines.SetInbound(AssemblyLine.IsInbound());
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyLine, ItemTrackingLines);
         ItemTrackingLines.RunModal();
     end;
@@ -267,11 +267,11 @@ codeunit 926 "Assembly Line-Reserve"
     procedure DeleteLineConfirm(var AssemblyLine: Record "Assembly Line"): Boolean
     begin
         with AssemblyLine do begin
-            if not ReservEntryExist then
+            if not ReservEntryExist() then
                 exit(true);
 
             ReservMgt.SetReservSource(AssemblyLine);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -281,7 +281,6 @@ codeunit 926 "Assembly Line-Reserve"
     procedure UpdateItemTrackingAfterPosting(AssemblyLine: Record "Assembly Line")
     var
         ReservEntry: Record "Reservation Entry";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
         ReservEntry.InitSortingAndFilters(false);
@@ -306,7 +305,7 @@ codeunit 926 "Assembly Line-Reserve"
         ItemJnlLine.TestField("Variant Code", AssemblyLine."Variant Code");
         ItemJnlLine.TestField("Location Code", AssemblyLine."Location Code");
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then begin
             repeat
@@ -341,7 +340,7 @@ codeunit 926 "Assembly Line-Reserve"
         if not FindReservEntry(OldAssemblyLine, OldReservEntry) then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         NewAssemblyLine.TestField("No.", OldAssemblyLine."No.");
         NewAssemblyLine.TestField("Variant Code", OldAssemblyLine."Variant Code");
@@ -437,7 +436,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(AssemblyLine);
-            AssemblyLine.Find;
+            AssemblyLine.Find();
             QtyPerUOM := AssemblyLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;
@@ -452,7 +451,7 @@ codeunit 926 "Assembly Line-Reserve"
 
         AssemblyLine.SetReservationEntry(ReservEntry);
 
-        CaptionText := AssemblyLine.GetSourceCaption;
+        CaptionText := AssemblyLine.GetSourceCaption();
     end;
 
     local procedure EntryStartNo(): Integer
@@ -503,11 +502,10 @@ codeunit 926 "Assembly Line-Reserve"
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
     local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
-        if MatchThisEntry(FromEntrySummary."Entry No.") then begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
             IsHandled :=
                 (FilterReservEntry."Source Type" = DATABASE::"Assembly Line") and
                 (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
-        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
@@ -564,7 +562,7 @@ codeunit 926 "Assembly Line-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(AssemblyLine);
             AssemblyLine.SetReservationFilters(ReservEntry);
-            CaptionText := AssemblyLine.GetSourceCaption;
+            CaptionText := AssemblyLine.GetSourceCaption();
         end;
     end;
 
@@ -625,12 +623,12 @@ codeunit 926 "Assembly Line-Reserve"
                 "Table ID" := DATABASE::"Assembly Line";
                 "Summary Type" :=
                     CopyStr(
-                    StrSubstNo('%1, %2', AssemblyLine.TableCaption, AssemblyLine."Document Type"),
+                    StrSubstNo('%1, %2', AssemblyLine.TableCaption(), AssemblyLine."Document Type"),
                     1, MaxStrLen("Summary Type"));
                 "Total Quantity" := -TotalQuantity;
                 "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
                 if not Insert() then
-                    Modify;
+                    Modify();
             end;
     end;
 

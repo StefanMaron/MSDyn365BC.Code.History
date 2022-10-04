@@ -183,7 +183,7 @@ codeunit 137501 "SCM Available to Pick UT"
                 begin
                     asserterror LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
                     Assert.IsTrue(StrPos(GetLastErrorText, NothingToHandleErr) > 0, 'Unexpected error message');
-                    ClearLastError;
+                    ClearLastError();
                 end;
         end;
     end;
@@ -350,7 +350,7 @@ codeunit 137501 "SCM Available to Pick UT"
                 begin
                     asserterror LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
                     Assert.IsTrue(StrPos(GetLastErrorText, NothingToHandleErr) > 0, 'Unexpected error message');
-                    ClearLastError;
+                    ClearLastError();
                 end;
         end;
     end;
@@ -504,7 +504,7 @@ codeunit 137501 "SCM Available to Pick UT"
             for i := 1 to 2 do
                 ItemVariantQuantity += MockSalesLine(SalesHeader, TempItemVariant);
             MockPositiveILE(TempItemVariant, ItemVariantQuantity);
-        until TempItemVariant.Next = 0;
+        until TempItemVariant.Next() = 0;
 
         // [GIVEN] Additional Sales Line with "Var[1][2]" for overstock condition
         TempItemVariant.FindFirst();
@@ -544,7 +544,7 @@ codeunit 137501 "SCM Available to Pick UT"
             for i := 1 to 2 do
                 ItemVariantQuantity += MockTransferLine(TempItemVariant, TransferHeader."No.");
             MockPositiveILE(TempItemVariant, ItemVariantQuantity);
-        until TempItemVariant.Next = 0;
+        until TempItemVariant.Next() = 0;
 
         // [GIVEN] Additional Transfer Line with "Var[1][2]" for overstock condition
         TempItemVariant.FindFirst();
@@ -673,7 +673,7 @@ codeunit 137501 "SCM Available to Pick UT"
                     WhseActivityLine."Bin Code" := PlaceBinCode;
 
             WhseActivityLine.Modify();
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetRange(Type, ActivityType);
@@ -710,9 +710,9 @@ codeunit 137501 "SCM Available to Pick UT"
         Item: Record Item;
     begin
         with Item do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -722,10 +722,10 @@ codeunit 137501 "SCM Available to Pick UT"
         ItemVariant: Record "Item Variant";
     begin
         with ItemVariant do begin
-            Init;
+            Init();
             "Item No." := ItemNo;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Variant");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -738,23 +738,23 @@ codeunit 137501 "SCM Available to Pick UT"
         with ItemLedgerEntry do begin
             FindLast();
             LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Item No." := ItemVariant."Item No.";
             "Variant Code" := ItemVariant.Code;
             Quantity := ILEQty;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
             "Shipping Advice" := "Shipping Advice"::Complete;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -769,7 +769,7 @@ codeunit 137501 "SCM Available to Pick UT"
             SetRange("Document No.", SalesHeader."No.");
             if FindLast() then
                 LastLineNo := "Line No.";
-            Init;
+            Init();
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
             "Line No." := LastLineNo + 10000;
@@ -777,7 +777,7 @@ codeunit 137501 "SCM Available to Pick UT"
             "No." := ItemVariant."Item No.";
             "Variant Code" := ItemVariant.Code;
             "Outstanding Qty. (Base)" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
             exit("Outstanding Qty. (Base)");
         end;
     end;
@@ -785,10 +785,10 @@ codeunit 137501 "SCM Available to Pick UT"
     local procedure MockTransferHeader(var TransferHeader: Record "Transfer Header")
     begin
         with TransferHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Transfer Header");
             "Shipping Advice" := "Shipping Advice"::Complete;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -802,13 +802,13 @@ codeunit 137501 "SCM Available to Pick UT"
             SetRange("Document No.", TransferHeaderNo);
             if FindLast() then
                 LastLineNo := "Line No.";
-            Init;
+            Init();
             "Document No." := TransferHeaderNo;
             "Line No." := LastLineNo + 10000;
             "Item No." := ItemVariant."Item No.";
             "Variant Code" := ItemVariant.Code;
             "Outstanding Qty. (Base)" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
             exit("Outstanding Qty. (Base)");
         end;
     end;

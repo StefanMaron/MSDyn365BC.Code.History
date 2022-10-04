@@ -464,7 +464,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
           "Variant Filter", StrSubstNo('%1..%2', LibraryUtility.GenerateRandomCode(Item.FieldNo("Variant Filter"), DATABASE::Item)));
         TempBOMBuffer.SetLocationVariantFiltersFrom(Item);
 
-        TempBOMBuffer.TransferFromItem(EntryNo, Item, WorkDate);
+        TempBOMBuffer.TransferFromItem(EntryNo, Item, WorkDate());
 
         TempBOMBuffer.TestField(Type, TempBOMBuffer.Type::Item);
         TempBOMBuffer.TestField("No.", Item."No.");
@@ -497,7 +497,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         Item.SetFilter("Variant Filter", SKU."Variant Code");
         TempBOMBuffer.SetLocationVariantFiltersFrom(Item);
 
-        TempBOMBuffer.TransferFromItem(EntryNo, Item, WorkDate);
+        TempBOMBuffer.TransferFromItem(EntryNo, Item, WorkDate());
 
         TempBOMBuffer.TestField(Type, TempBOMBuffer.Type::Item);
         TempBOMBuffer.TestField("No.", Item."No.");
@@ -573,7 +573,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Create BOM Buffer from Production BOM Line
-        BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate, '', Item, 1);
+        BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate(), '', Item, 1);
 
         // [THEN] "Scrap Qty. per Parent" = 0
         BOMBuffer.TestField("Scrap Qty. per Parent", 0);
@@ -603,7 +603,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Create BOM Buffer from Production BOM Line
-        BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate, '', Item, 1);
+        BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate(), '', Item, 1);
 
         // [THEN] "Scrap Qty. per Parent" is calculated using Length and Width
         with ProductionBOMLine do
@@ -743,7 +743,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     begin
         LibraryInventory.CreateItem(Item);
         with ProductionBOMLine do begin
-            Init;
+            Init();
             "Line No." := LibraryUtility.GetNewRecNo(ProductionBOMLine, FieldNo("Line No."));
             Type := Type::Item;
             "No." := Item."No.";
@@ -751,7 +751,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
             Length := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 1);
             Width := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 1);
             Validate("Calculation Formula", "Calculation Formula"::"Length * Width");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -817,29 +817,29 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                         Assert.AreNearlyEqual(Item."Single-Level Mfg. Ovhd Cost", BOMBuf."Single-Level Mfg. Ovhd Cost", RoundingFactor,
                           StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), TempItem."No."));
                     end;
-                until BOMBuf.Next = 0;
-            until TempItem.Next = 0;
+                until BOMBuf.Next() = 0;
+            until TempItem.Next() = 0;
 
         if TempResource.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::Resource);
                 BOMBuf.SetRange("No.", TempResource."No.");
                 BOMBuf.FindSet();
-            until TempResource.Next = 0;
+            until TempResource.Next() = 0;
 
         if TempMachineCenter.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::"Machine Center");
                 BOMBuf.SetRange("No.", TempMachineCenter."No.");
                 BOMBuf.FindSet();
-            until TempMachineCenter.Next = 0;
+            until TempMachineCenter.Next() = 0;
 
         if TempWorkCenter.FindSet() then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::"Work Center");
                 BOMBuf.SetRange("No.", TempWorkCenter."No.");
                 BOMBuf.FindSet();
-            until TempWorkCenter.Next = 0;
+            until TempWorkCenter.Next() = 0;
     end;
 
     local procedure VerifyTopItem(BOMBuf: Record "BOM Buffer"; Item: Record Item)

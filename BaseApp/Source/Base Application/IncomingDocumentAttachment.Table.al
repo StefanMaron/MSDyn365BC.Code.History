@@ -108,11 +108,11 @@ table 133 "Incoming Document Attachment"
             trigger OnValidate()
             begin
                 if Default and (not xRec.Default) then begin
-                    ClearDefaultAttachmentsFromIncomingDocument;
-                    FindDataExchType;
-                    UpdateIncomingDocumentHeaderFields;
+                    ClearDefaultAttachmentsFromIncomingDocument();
+                    FindDataExchType();
+                    UpdateIncomingDocumentHeaderFields();
                 end else
-                    CheckDefault;
+                    CheckDefault();
             end;
         }
         field(18; "Use for OCR"; Boolean)
@@ -145,7 +145,7 @@ table 133 "Incoming Document Attachment"
 
             trigger OnValidate()
             begin
-                CheckMainAttachment;
+                CheckMainAttachment();
             end;
         }
         field(8000; Id; Guid)
@@ -182,15 +182,13 @@ table 133 "Incoming Document Attachment"
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
         IncomingDocumentAttachment.SetFilter("Line No.", '<>%1', "Line No.");
 
-        if Default then begin
+        if Default then
             if not IncomingDocumentAttachment.IsEmpty() then
                 Error(DefaultAttachErr);
-        end;
 
-        if "Main Attachment" then begin
+        if "Main Attachment" then
             if not IncomingDocumentAttachment.IsEmpty() then
                 Error(MainAttachErr);
-        end;
     end;
 
     trigger OnInsert()
@@ -234,7 +232,7 @@ table 133 "Incoming Document Attachment"
         SetRange("Journal Batch Name Filter", GenJournalLine."Journal Batch Name");
         SetRange("Journal Line No. Filter", GenJournalLine."Line No.");
 
-        NewAttachment;
+        NewAttachment();
     end;
 
     procedure NewAttachmentFromSalesDocument(SalesHeader: Record "Sales Header")
@@ -299,14 +297,14 @@ table 133 "Incoming Document Attachment"
         if "Incoming Document Entry No." = 0 then
             exit;
         CalcFields(Content);
-        if not Content.HasValue then
+        if not Content.HasValue() then
             exit;
 
         if DefaultFileName = '' then
             DefaultFileName := Name + '.' + "File Extension";
 
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
         exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
@@ -324,7 +322,7 @@ table 133 "Incoming Document Attachment"
         IncomingDocument.Get("Incoming Document Entry No.");
         IncomingDocument.TestField(Posted, false);
         if Confirm(DeleteQst, false) then
-            Delete;
+            Delete();
     end;
 
     local procedure CheckDefault()
@@ -360,12 +358,12 @@ table 133 "Incoming Document Attachment"
     begin
         CalcFields(Content);
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
 
         if "External Document Reference" = '' then
-            "External Document Reference" := LowerCase(DelChr(Format(CreateGuid), '=', '{}-'));
-        Modify;
+            "External Document Reference" := LowerCase(DelChr(Format(CreateGuid()), '=', '{}-'));
+        Modify();
         IncomingDocument.Get("Incoming Document Entry No.");
         OCRServiceMgt.UploadAttachment(
           TempBlob,
@@ -410,7 +408,7 @@ table 133 "Incoming Document Attachment"
         if Type <> Type::XML then
             exit;
         OnGetBinaryContent(TempBlob, "Incoming Document Entry No.");
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             TempBlob.FromRecord(Rec, FieldNo(Content));
 
         TempBlob.CreateInStream(InStream);
@@ -467,7 +465,7 @@ table 133 "Incoming Document Attachment"
         XmlValue: Text;
         XPath: Text;
     begin
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         XPath := IncomingDocument.GetDataExchangePath(FieldNo);
         if XPath = '' then
             exit;
@@ -511,7 +509,7 @@ table 133 "Incoming Document Attachment"
         IncomingDocumentAttachment.SetRange("Main Attachment", true);
 
         MoreThanOneMainAttachmentExist := "Main Attachment" and (not IncomingDocumentAttachment.IsEmpty);
-        NoMainAttachmentExist := (not "Main Attachment") and IncomingDocumentAttachment.IsEmpty;
+        NoMainAttachmentExist := (not "Main Attachment") and IncomingDocumentAttachment.IsEmpty();
 
         if MoreThanOneMainAttachmentExist or NoMainAttachmentExist then
             Error(MainAttachErr);
@@ -610,10 +608,10 @@ table 133 "Incoming Document Attachment"
     var
         Notification: Notification;
     begin
-        Notification.Id := CreateGuid;
+        Notification.Id := CreateGuid();
         Notification.Message := NotifIncDocCompletedMsg;
         Notification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure SetContentFromBlob(TempBlob: Codeunit "Temp Blob")

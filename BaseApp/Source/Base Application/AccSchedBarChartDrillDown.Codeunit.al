@@ -13,10 +13,10 @@ codeunit 436 "Acc. Sched. BarChart DrillDown"
             3:
                 Evaluate(AccSchedLine."Line No.", DelChr(CopyStr(Tag, 27, 8), '>'));
         end;
-        AccSchedLine.Find;
+        AccSchedLine.Find();
         ColumnLayout."Column Layout Name" := DelChr(CopyStr(Tag, 35, 10), '>');
         Evaluate(ColumnLayout."Line No.", DelChr(CopyStr(Tag, 45, 8), '>'));
-        ColumnLayout.Find;
+        ColumnLayout.Find();
         s := DelChr(CopyStr(Tag, 53, 20), '>');
         if s <> '' then
             AccSchedLine.SetFilter("Date Filter", s);

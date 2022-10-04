@@ -23,11 +23,11 @@ page 709 "Error Message Register"
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
-                field("Created On"; "Created On")
+                field("Created On"; Rec."Created On")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -75,16 +75,23 @@ page 709 "Error Message Register"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show';
                 Image = ShowList;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Open the list of all error messages related to the current register record.';
 
                 trigger OnAction()
                 begin
                     DrillDownErrors(MessageType::All);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(Show_Promoted; Show)
+                {
+                }
             }
         }
     }

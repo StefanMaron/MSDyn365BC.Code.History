@@ -1,8 +1,3 @@
-// ------------------------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-// ------------------------------------------------------------------------------------------------
-
 codeunit 134689 "Email Message Unit Test"
 {
     Subtype = Test;
@@ -511,7 +506,6 @@ codeunit 134689 "Email Message Unit Test"
     var
         TempAccount: Record "Email Account" temporary;
         EmailRecipient: Record "Email Recipient";
-        Email: Codeunit Email;
         Message: Codeunit "Email Message";
         ConnectorMock: Codeunit "Connector Mock";
     begin

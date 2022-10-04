@@ -55,7 +55,7 @@ codeunit 9180 "Generic Chart Mgt"
             GetSourceIDName("Source Type", "Source ID", "Object Name");
         end;
 
-        BuildMemoBuf(TempGenericChartMemoBuf, DescriptionCode, chartBuilder.GetMultilanguageDescription);
+        BuildMemoBuf(TempGenericChartMemoBuf, DescriptionCode(), chartBuilder.GetMultilanguageDescription());
 
         // Filters:
         Clear(FilterText);
@@ -69,27 +69,27 @@ codeunit 9180 "Generic Chart Mgt"
             "X-Axis Field Name" := chartBuilder.XDimensionName;  // Name of field
             GetFieldColumnNoName("Source Type", "Source ID", "X-Axis Field ID", "X-Axis Field Name", false);
             "X-Axis Show Title" := chartBuilder.ShowXDimensionTitle;
-            BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisTitleCode, chartBuilder.GetXDimensionMultilanguageTitle);
-            BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisCaptionCode, chartBuilder.GetXDimensionMultilanguageCaption);
+            BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisTitleCode(), chartBuilder.GetXDimensionMultilanguageTitle());
+            BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisCaptionCode(), chartBuilder.GetXDimensionMultilanguageCaption());
             "Y-Axis Show Title" := chartBuilder.ShowYAxisTitle;
-            BuildCaptionBuf(TempGenericChartCaptionsBuf, YAxisTitleCode, chartBuilder.GetYAxisMultilanguageTitle);
+            BuildCaptionBuf(TempGenericChartCaptionsBuf, YAxisTitleCode(), chartBuilder.GetYAxisMultilanguageTitle());
 
             if chartBuilder.HasZDimension then begin
-                "Z-Axis Field ID" := chartBuilder.ZDimensionId;
-                "Z-Axis Field Name" := chartBuilder.ZDimensionName;
+                "Z-Axis Field ID" := chartBuilder.ZDimensionId();
+                "Z-Axis Field Name" := chartBuilder.ZDimensionName();
                 GetFieldColumnNoName("Source Type", "Source ID", "Z-Axis Field ID", "Z-Axis Field Name", false);
-                "Z-Axis Show Title" := chartBuilder.ShowZDimensionTitle;
-                BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisTitleCode, chartBuilder.GetZDimensionMultilanguageTitle);
-                BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisCaptionCode, chartBuilder.GetZDimensionMultilanguageCaption);
+                "Z-Axis Show Title" := chartBuilder.ShowZDimensionTitle();
+                BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisTitleCode(), chartBuilder.GetZDimensionMultilanguageTitle());
+                BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisCaptionCode(), chartBuilder.GetZDimensionMultilanguageCaption());
             end;
         end;
 
         // Measures:
         with TempGenericChartYAxis do begin
             DeleteAll();
-            CaptionCode := RequiredMeasureCode;
+            CaptionCode := RequiredMeasureCode();
             for i := 0 to chartBuilder.MeasureCount - 1 do begin
-                Init;
+                Init();
                 ID := Chart.ID;
                 "Line No." := 10000 * (i + 1);
                 if chartBuilder.HasMeasureField(i) then begin
@@ -100,14 +100,14 @@ codeunit 9180 "Generic Chart Mgt"
                       TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", "Y-Axis Measure Field ID",
                       "Y-Axis Measure Field Name", false);
 
-                    if CaptionCode = RequiredMeasureCode then
-                        CaptionCode := OptionalMeasure1Code
+                    if CaptionCode = RequiredMeasureCode() then
+                        CaptionCode := OptionalMeasure1Code()
                     else
                         CaptionCode := IncStr(CaptionCode)
                 end;
                 "Chart Type" := ChartType2GraphType(chartBuilder.GetMeasureChartType(i));
                 Aggregation := Operator2Aggregation(chartBuilder.GetMeasureOperator(i));
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -133,39 +133,39 @@ codeunit 9180 "Generic Chart Mgt"
                     chartBuilder.QueryName(TempGenericChartSetup."Object Name");
                 end;
         end;
-        BuildMemoMultilanguageText(TempGenericChartMemoBuf, DescriptionCode, MultilanguageText);
+        BuildMemoMultilanguageText(TempGenericChartMemoBuf, DescriptionCode(), MultilanguageText);
         chartBuilder.SetMultilanguageDescription(MultilanguageText);
         chartBuilder.XDimensionId := TempGenericChartSetup."X-Axis Field ID";
         chartBuilder.XDimensionName := TempGenericChartSetup."X-Axis Field Name";
         chartBuilder.ShowXDimensionTitle := TempGenericChartSetup."X-Axis Show Title";
-        BuildMultilanguageText(TempGenericChartCaptionsBuf, XAxisTitleCode, MultilanguageText);
+        BuildMultilanguageText(TempGenericChartCaptionsBuf, XAxisTitleCode(), MultilanguageText);
         chartBuilder.SetXDimensionMultilanguageTitle(MultilanguageText);
-        BuildMultilanguageText(TempGenericChartCaptionsBuf, XAxisCaptionCode, MultilanguageText);
+        BuildMultilanguageText(TempGenericChartCaptionsBuf, XAxisCaptionCode(), MultilanguageText);
         chartBuilder.SetXDimensionMultilanguageCaption(MultilanguageText);
         chartBuilder.ZDimensionId := TempGenericChartSetup."Z-Axis Field ID";
         chartBuilder.ZDimensionName := TempGenericChartSetup."Z-Axis Field Name";
         chartBuilder.ShowZDimensionTitle := TempGenericChartSetup."Z-Axis Show Title";
-        BuildMultilanguageText(TempGenericChartCaptionsBuf, ZAxisTitleCode, MultilanguageText);
+        BuildMultilanguageText(TempGenericChartCaptionsBuf, ZAxisTitleCode(), MultilanguageText);
         chartBuilder.SetZDimensionMultilanguageTitle(MultilanguageText);
-        BuildMultilanguageText(TempGenericChartCaptionsBuf, ZAxisCaptionCode, MultilanguageText);
+        BuildMultilanguageText(TempGenericChartCaptionsBuf, ZAxisCaptionCode(), MultilanguageText);
         chartBuilder.SetZDimensionMultilanguageCaption(MultilanguageText);
 
         // Y-Axis
         chartBuilder.ShowYAxisTitle := TempGenericChartSetup."Y-Axis Show Title";
-        BuildMultilanguageText(TempGenericChartCaptionsBuf, YAxisTitleCode, MultilanguageText);
+        BuildMultilanguageText(TempGenericChartCaptionsBuf, YAxisTitleCode(), MultilanguageText);
         chartBuilder.SetYAxisMultilanguageTitle(MultilanguageText);
 
         with TempGenericChartYAxis do
             if Find('-') then begin
-                CaptionCode := RequiredMeasureCode;
+                CaptionCode := RequiredMeasureCode();
                 repeat
                     BuildMultilanguageText(TempGenericChartCaptionsBuf, CaptionCode, MultilanguageText);
                     DataMeasureType := GraphType2ChartType("Chart Type");
                     DataAggregationType := Aggregation2Operator(Aggregation);
                     chartBuilder.AddMeasure(
                       "Y-Axis Measure Field ID", "Y-Axis Measure Field Name", MultilanguageText, DataMeasureType, DataAggregationType);
-                    if CaptionCode = RequiredMeasureCode then
-                        CaptionCode := OptionalMeasure1Code
+                    if CaptionCode = RequiredMeasureCode() then
+                        CaptionCode := OptionalMeasure1Code()
                     else
                         CaptionCode := IncStr(CaptionCode)
                 until Next() = 0
@@ -193,12 +193,12 @@ codeunit 9180 "Generic Chart Mgt"
         chartBuilder: DotNet BusinessChartBuilder;
         OutStream: OutStream;
     begin
-        chartBuilder := chartBuilder.Empty;
+        chartBuilder := chartBuilder.Empty();
         FillChartHelper(chartBuilder, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
           TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
         Clear(Chart.BLOB);
         Chart.BLOB.CreateOutStream(OutStream);
-        CopyStream(OutStream, chartBuilder.GetAsStream);
+        CopyStream(OutStream, chartBuilder.GetAsStream());
         Clear(chartBuilder);
     end;
 
@@ -445,7 +445,7 @@ codeunit 9180 "Generic Chart Mgt"
         AllObj.Get(AllObj."Object Type"::Query, ObjID);
         if not ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", ApplicationObjectMetadata."Object Type"::Query, ObjID) then
             exit;
-        if not ApplicationObjectMetadata.Metadata.HasValue then
+        if not ApplicationObjectMetadata.Metadata.HasValue() then
             exit;
         ApplicationObjectMetadata.CalcFields(Metadata);
         ApplicationObjectMetadata.Metadata.CreateInStream(inStream);
@@ -553,7 +553,7 @@ codeunit 9180 "Generic Chart Mgt"
     var
         InStream: InStream;
     begin
-        if not Chart.BLOB.HasValue then
+        if not Chart.BLOB.HasValue() then
             exit(false);
         Chart.CalcFields(BLOB);
         Chart.BLOB.CreateInStream(InStream);
@@ -604,8 +604,8 @@ codeunit 9180 "Generic Chart Mgt"
     procedure ChartCustomization(var TempChart: Record Chart temporary): Boolean
     begin
         TempChart.Insert();
-        if NoOfMeasuresApplied(TempChart) > GetMaxNoOfMeasures then begin
-            Message(Text003, GetMaxNoOfMeasures);
+        if NoOfMeasuresApplied(TempChart) > GetMaxNoOfMeasures() then begin
+            Message(Text003, GetMaxNoOfMeasures());
             exit(false);
         end;
         exit(PAGE.RunModal(PAGE::"Generic Chart Customization", TempChart) = ACTION::LookupOK);
@@ -657,7 +657,7 @@ codeunit 9180 "Generic Chart Mgt"
                             SetRange("Query Column No.", FieldColNo);
                             if FindFirst() then
                                 FieldColName := "Column Name";
-                        end else begin
+                        end else
                             if FindSet() then
                                 repeat
                                     if UpperCase("Column Name") = UpperCase(FieldColName) then begin
@@ -665,7 +665,6 @@ codeunit 9180 "Generic Chart Mgt"
                                         FieldColNo := "Query Column No.";
                                     end;
                                 until (Next() = 0) or Found;
-                        end;
                 end;
         end;
     end;
@@ -704,7 +703,7 @@ codeunit 9180 "Generic Chart Mgt"
             case TempGenericChartSetup."Source Type" of
                 TempGenericChartSetup."Source Type"::Table:
                     for i := 0 to chartBuilder.TableFilterCount - 1 do begin
-                        Init;
+                        Init();
                         ID := TempGenericChartSetup.ID;
                         "Line No." := i + 1;
                         "Filter Field ID" := chartBuilder.GetTableFilterFieldId(i);
@@ -715,11 +714,11 @@ codeunit 9180 "Generic Chart Mgt"
                         if "Filter Value" <> '' then
                             BuildFilterText(FilterText,
                               CopyStr("Filter Field Name" + ' : ' + "Filter Value", 1, MaxStrLen(FilterText)));
-                        Insert;
+                        Insert();
                     end;
                 TempGenericChartSetup."Source Type"::Query:
                     for i := 0 to chartBuilder.QueryFilterCount - 1 do begin
-                        Init;
+                        Init();
                         ID := TempGenericChartSetup.ID;
                         "Line No." := i + 1;
                         "Filter Field ID" := chartBuilder.GetQueryFilterFieldId(i);
@@ -730,7 +729,7 @@ codeunit 9180 "Generic Chart Mgt"
                         if "Filter Value" <> '' then
                             BuildFilterText(FilterText,
                               CopyStr("Filter Field Name" + ' : ' + "Filter Value", 1, MaxStrLen(FilterText)));
-                        Insert;
+                        Insert();
                     end;
             end;
         end;
@@ -844,7 +843,7 @@ codeunit 9180 "Generic Chart Mgt"
         Language: Codeunit Language;
         LanguageId: Integer;
     begin
-        MultilanguageText := MultilanguageText.BusinessChartMultiLanguageText;
+        MultilanguageText := MultilanguageText.BusinessChartMultiLanguageText();
         TempGenericChartCaptionsBuf.SetRange(Code, CaptionCode);
         if TempGenericChartCaptionsBuf.FindSet() then
             repeat
@@ -880,13 +879,13 @@ codeunit 9180 "Generic Chart Mgt"
         Language: Codeunit Language;
         LanguageId: Integer;
     begin
-        MultilanguageText := MultilanguageText.BusinessChartMultiLanguageText;
+        MultilanguageText := MultilanguageText.BusinessChartMultiLanguageText();
         TempGenericChartMemoBuf.SetRange(Code, MemoCode);
         if TempGenericChartMemoBuf.FindSet() then
             repeat
                 Language.GetLanguageId(TempGenericChartMemoBuf."Language Code");
                 if LanguageId <> 0 then
-                    MultilanguageText.SetText(LanguageId, TempGenericChartMemoBuf.GetMemoText);
+                    MultilanguageText.SetText(LanguageId, TempGenericChartMemoBuf.GetMemoText());
             until TempGenericChartMemoBuf.Next() = 0;
         TempGenericChartMemoBuf.SetRange(Code)
     end;
@@ -915,7 +914,7 @@ codeunit 9180 "Generic Chart Mgt"
     var
         Language: Codeunit Language;
     begin
-        exit(Language.GetUserLanguageCode)
+        exit(Language.GetUserLanguageCode())
     end;
 
     procedure DescriptionCode(): Code[10]

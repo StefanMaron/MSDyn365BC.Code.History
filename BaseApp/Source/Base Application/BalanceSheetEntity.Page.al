@@ -6,17 +6,7 @@ page 5501 "Balance Sheet Entity"
     InsertAllowed = false;
     ModifyAllowed = false;
     SourceTable = "Balance Sheet Buffer";
-#if not CLEAN18
-    PageType = API;
-    DelayedInsert = true;
-    EntityName = 'balanceSheet';
-    EntitySetName = 'balanceSheet';
-#else
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
-    ObsoleteTag = '18.0';
     PageType = List;
-#endif
     SourceTableTemporary = true;
 
     layout

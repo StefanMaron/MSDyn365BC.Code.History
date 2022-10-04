@@ -12,7 +12,7 @@ page 5644 "Insurance Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
@@ -30,44 +30,44 @@ page 5644 "Insurance Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies a description of the insurance policy.';
                 }
-                field("Insurance Vendor No."; "Insurance Vendor No.")
+                field("Insurance Vendor No."; Rec."Insurance Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the vendor from whom you purchased this insurance policy.';
                 }
-                field("Effective Date"; "Effective Date")
+                field("Effective Date"; Rec."Effective Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date from which the insurance policy is valid.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date to which the insurance policy is valid.';
                 }
-                field("Insurance Type"; "Insurance Type")
+                field("Insurance Type"; Rec."Insurance Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of insurance (for example, theft or fire) that is covered by this insurance policy.';
                 }
-                field("Policy No."; "Policy No.")
+                field("Policy No."; Rec."Policy No.")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies the insurance policy number as stated on the actual insurance policy.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies a search description for the insurance policy.';
                 }
-                field("Annual Premium"; "Annual Premium")
+                field("Annual Premium"; Rec."Annual Premium")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of the annual insurance premium.';
                 }
-                field("Policy Coverage"; "Policy Coverage")
+                field("Policy Coverage"; Rec."Policy Coverage")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of coverage provided by this insurance policy.';
@@ -77,7 +77,7 @@ page 5644 "Insurance Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies when the insurance card was last modified.';
@@ -86,19 +86,19 @@ page 5644 "Insurance Card"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("FA Class Code"; "FA Class Code")
+                field("FA Class Code"; Rec."FA Class Code")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies a fixed asset class code to assign to the insurance policy.';
                 }
-                field("FA Subclass Code"; "FA Subclass Code")
+                field("FA Subclass Code"; Rec."FA Subclass Code")
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ToolTip = 'Specifies a fixed asset subclass code to assign to the insurance policy.';
                 }
-                field("FA Location Code"; "FA Location Code")
+                field("FA Location Code"; Rec."FA Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -169,8 +169,6 @@ page 5644 "Insurance Card"
                     ApplicationArea = FixedAssets;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Insurance Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -181,8 +179,6 @@ page 5644 "Insurance Card"
                     ApplicationArea = FixedAssets;
                     Caption = 'Total Value Ins&ured per FA';
                     Image = TotalValueInsuredperFA;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Total Value Insured per FA";
                     ToolTip = 'View, in a matrix window, the amount of insurance registered with each insurance policy. These are the insurance-related amounts that you posted from a journal.';
                 }
@@ -195,8 +191,6 @@ page 5644 "Insurance Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'List';
                 Image = OpportunitiesList;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Insurance - List";
                 ToolTip = 'View or edit the list of insurance policies in the system.';
             }
@@ -205,8 +199,6 @@ page 5644 "Insurance Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Uninsured FAs';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Insurance - Uninsured FAs";
                 ToolTip = 'View the individual fixed assets for which amounts have not been posted to an insurance policy. For each fixed asset, the report shows the asset''s acquisition cost, accumulated depreciation, and book value.';
             }
@@ -215,7 +207,6 @@ page 5644 "Insurance Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Tot. Value Insured';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Insurance - Tot. Value Insured";
@@ -226,7 +217,6 @@ page 5644 "Insurance Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Coverage Details';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Insurance - Coverage Details";
@@ -237,8 +227,6 @@ page 5644 "Insurance Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Register';
                 Image = Confirm;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Insurance Register";
                 ToolTip = 'View registers containing all the fixed asset entries that are created. Every register shows the first and last entry number of its entries.';
             }
@@ -247,10 +235,39 @@ page 5644 "Insurance Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Insurance - Analysis";
                 ToolTip = 'View an analysis of your fixed assets with various types of data for both individual assets and groups of assets.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Total Value Ins&ured per FA_Promoted"; "Total Value Ins&ured per FA")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(List_Promoted; List)
+                {
+                }
+                actionref("Uninsured FAs_Promoted"; "Uninsured FAs")
+                {
+                }
+                actionref(Register_Promoted; Register)
+                {
+                }
+                actionref(Analysis_Promoted; Analysis)
+                {
+                }
             }
         }
     }

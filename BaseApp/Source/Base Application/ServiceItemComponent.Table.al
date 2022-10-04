@@ -70,7 +70,7 @@ table 5941 "Service Item Component"
                                 if "No." = "Parent Service Item No." then
                                     Error(
                                       Text000,
-                                      Type, "No.", TableCaption, ServItem.TableCaption, "Parent Service Item No.");
+                                      Type, "No.", TableCaption(), ServItem.TableCaption(), "Parent Service Item No.");
                                 ServItem.Get("No.");
                                 "Serial No." := ServItem."Serial No.";
                                 "Variant Code" := ServItem."Variant Code";
@@ -87,7 +87,7 @@ table 5941 "Service Item Component"
                         else
                             OnValidateNoOnCaseElse(Rec);
                     end;
-                    "Date Installed" := WorkDate;
+                    "Date Installed" := WorkDate();
                 end else begin
                     "No." := '';
                     "Date Installed" := 0D;
@@ -255,8 +255,6 @@ table 5941 "Service Item Component"
     end;
 
     var
-        Text000: Label '%1 %2 can not be a component in %3 for %4 %5';
-        Text001: Label '%1 must be the same as in %2 %3.';
         ServItemComponent: Record "Service Item Component";
         ServItem: Record "Service Item";
         ServItem2: Record "Service Item";
@@ -264,6 +262,9 @@ table 5941 "Service Item Component"
         ItemVariant: Record "Item Variant";
         ServOrderMgt: Codeunit ServOrderManagement;
         NextNo: Integer;
+
+        Text000: Label '%1 %2 can not be a component in %3 for %4 %5';
+        Text001: Label '%1 must be the same as in %2 %3.';
         Text002: Label 'Component %1 has replacements\Do you want to delete this Component?';
 
     procedure AssistEditSerialNo()

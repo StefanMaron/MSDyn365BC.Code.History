@@ -120,7 +120,7 @@ table 368 "Dimension Selection Buffer"
                 InsertDimSelBufForDimSelectionMultiple(DimSelectionMultiple, Dim, ObjectType, ObjectID)
             until Dim.Next() = 0;
 
-        if DimSelectionMultiple.RunModal = ACTION::OK then begin
+        if DimSelectionMultiple.RunModal() = ACTION::OK then begin
             DimSelectionMultiple.GetDimSelBuf(TempDimSelectionBuf);
             SetDimSelection(ObjectType, ObjectID, '', SelectedDimText, TempDimSelectionBuf);
         end;
@@ -151,7 +151,7 @@ table 368 "Dimension Selection Buffer"
                 InsertDimSelBufForDimSelectionChange(DimSelectionChange, Dim, ObjectType, ObjectID);
             until Dim.Next() = 0;
 
-        if DimSelectionChange.RunModal = ACTION::OK then begin
+        if DimSelectionChange.RunModal() = ACTION::OK then begin
             DimSelectionChange.GetDimSelBuf(TempDimSelectionBuf);
             SetDimSelection(ObjectType, ObjectID, '', SelectedDimText, TempDimSelectionBuf);
         end;
@@ -240,21 +240,21 @@ table 368 "Dimension Selection Buffer"
     var
         GLAcc: Record "G/L Account";
     begin
-        SetDimSelectionLevelWithAutoSet(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, GLAcc.TableCaption, false);
+        SetDimSelectionLevelWithAutoSet(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, GLAcc.TableCaption(), false);
     end;
 
     procedure SetDimSelectionLevelGLAccAutoSet(ObjectType: Integer; ObjectID: Integer; AnalysisViewCode: Code[10]; var SelectedDimText: Text[250])
     var
         GLAcc: Record "G/L Account";
     begin
-        SetDimSelectionLevelWithAutoSet(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, GLAcc.TableCaption, true);
+        SetDimSelectionLevelWithAutoSet(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, GLAcc.TableCaption(), true);
     end;
 
     procedure SetDimSelectionLevelCFAcc(ObjectType: Integer; ObjectID: Integer; AnalysisViewCode: Code[10]; var SelectedDimText: Text[250])
     var
         CFAcc: Record "Cash Flow Account";
     begin
-        SetDimSelectionLevelWithAutoSet(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, CFAcc.TableCaption, false);
+        SetDimSelectionLevelWithAutoSet(ObjectType, ObjectID, AnalysisViewCode, SelectedDimText, CFAcc.TableCaption(), false);
     end;
 
     local procedure SetDimSelectionLevelWithAutoSet(ObjectType: Integer; ObjectID: Integer; AnalysisViewCode: Code[10]; var SelectedDimText: Text[250]; AccTableCaption: Text[30]; AutoSet: Boolean)
@@ -315,7 +315,7 @@ table 368 "Dimension Selection Buffer"
         end;
 
         if not AutoSet then
-            Finished := DimSelectionLevel.RunModal = ACTION::OK
+            Finished := DimSelectionLevel.RunModal() = ACTION::OK
         else
             Finished := true;
 
@@ -332,12 +332,11 @@ table 368 "Dimension Selection Buffer"
     begin
         SetDefaultRangeOnSelectedDimTable(SelectedDim, ObjectType, ObjectID, AnalysisViewCode);
         SelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level, "Dimension Code");
-        with SelectedDim do begin
+        with SelectedDim do
             if Find('-') then
                 repeat
                     AddDimCodeToText("Dimension Code", SelectedDimText);
                 until Next() = 0;
-        end;
         exit(SelectedDimText);
     end;
 

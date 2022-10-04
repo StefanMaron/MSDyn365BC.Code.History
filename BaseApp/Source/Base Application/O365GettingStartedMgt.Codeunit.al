@@ -1,6 +1,5 @@
 codeunit 1309 "O365 Getting Started Mgt."
 {
-
     trigger OnRun()
     begin
     end;
@@ -26,17 +25,17 @@ codeunit 1309 "O365 Getting Started Mgt."
         WizardHasBeenShownToUser: Boolean;
         PageToStart: Integer;
     begin
-        if not UserHasPermissionsToRunGettingStarted then
+        if not UserHasPermissionsToRunGettingStarted() then
             exit(false);
 
-        if not CompanyInformationMgt.IsDemoCompany then
+        if not CompanyInformationMgt.IsDemoCompany() then
             exit(false);
 
-        PageToStart := GetPageToStart;
+        PageToStart := GetPageToStart();
         if PageToStart <= 0 then
             exit(false);
 
-        WizardHasBeenShownToUser := O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType);
+        WizardHasBeenShownToUser := O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType());
 
         if not WizardHasBeenShownToUser then begin
             O365GettingStarted.OnO365DemoCompanyInitialize();
@@ -59,12 +58,12 @@ codeunit 1309 "O365 Getting Started Mgt."
         end;
 
         if O365GettingStarted."Tour in Progress" then begin
-            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then
+            if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then
                 exit(false);
 
             if Launch then begin
                 Commit();
-                if TourCompleted and not EnvironmentInfo.IsSandbox then
+                if TourCompleted and not EnvironmentInfo.IsSandbox() then
                     PAGE.RunModal(PAGE::"O365 Tour Complete")
                 else
                     PAGE.RunModal(PageToStart);
@@ -83,18 +82,18 @@ codeunit 1309 "O365 Getting Started Mgt."
         TileGettingStartedVisible := false;
         TileRestartGettingStartedVisible := false;
 
-        if not UserHasPermissionsToRunGettingStarted then
+        if not UserHasPermissionsToRunGettingStarted() then
             exit;
 
         if not IsGettingStartedSupported() then
             exit;
 
-        if EnvironmentInfo.IsSandbox then
+        if EnvironmentInfo.IsSandbox() then
             exit;
 
         TileRestartGettingStartedVisible := true;
 
-        if not O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then
+        if not O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then
             exit;
 
         TileGettingStartedVisible := O365GettingStarted."Tour in Progress";
@@ -108,7 +107,7 @@ codeunit 1309 "O365 Getting Started Mgt."
 
     procedure AreUserToursEnabled(): Boolean
     begin
-        exit(ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web);
+        exit(ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web);
     end;
 
     procedure GetGettingStartedTourID(): Integer
@@ -175,10 +174,10 @@ codeunit 1309 "O365 Getting Started Mgt."
     var
         O365GettingStarted: Record "O365 Getting Started";
     begin
-        if not WizardCanBeOpenedForDevices then
+        if not WizardCanBeOpenedForDevices() then
             exit(false);
 
-        exit(not O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType));
+        exit(not O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()));
     end;
 
     procedure GetAccountantTourID(): Integer
@@ -190,14 +189,14 @@ codeunit 1309 "O365 Getting Started Mgt."
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSandbox then begin
-            if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
+        if EnvironmentInfo.IsSandbox() then begin
+            if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web then
                 exit(PAGE::"O365 Developer Welcome");
             exit(-1)
         end;
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
-            if EnvironmentInfo.IsSaaS then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
+            if EnvironmentInfo.IsSaaS() then
                 exit(PAGE::"O365 Getting Started Device");
             exit(-1);
         end;
@@ -222,16 +221,16 @@ codeunit 1309 "O365 Getting Started Mgt."
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]) then
+        if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]) then
             exit(false);
 
-        if not UserHasPermissionsToRunGettingStarted then
+        if not UserHasPermissionsToRunGettingStarted() then
             exit(false);
 
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit(false);
 
-        if not CompanyInformationMgt.IsDemoCompany then
+        if not CompanyInformationMgt.IsDemoCompany() then
             exit(false);
 
         exit(true)

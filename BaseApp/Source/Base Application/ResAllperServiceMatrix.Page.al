@@ -14,7 +14,7 @@ page 9215 "Res. All. per Service  Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -458,7 +458,7 @@ page 9215 "Res. All. per Service  Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN19
+#if not CLEAN21
                 action(Costs)
                 {
                     ApplicationArea = Service;
@@ -511,7 +511,6 @@ page 9215 "Res. All. per Service  Matrix"
                     ApplicationArea = Jobs;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource group.';
 
@@ -541,11 +540,22 @@ page 9215 "Res. All. per Service  Matrix"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        MatrixOnAfterGetRecord;
+        MatrixOnAfterGetRecord();
     end;
 
     trigger OnInit()
@@ -701,7 +711,7 @@ page 9215 "Res. All. per Service  Matrix"
                 MatrixCellData[I] := '';
         end;
 
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MatrixOnDrillDown(Column: Integer)

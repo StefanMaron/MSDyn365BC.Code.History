@@ -208,7 +208,7 @@ table 96 "G/L Budget Entry"
             trigger OnValidate()
             begin
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    Error(DimMgt.GetDimCombErr);
+                    Error(DimMgt.GetDimCombErr());
             end;
         }
     }
@@ -245,15 +245,15 @@ table 96 "G/L Budget Entry"
 
     trigger OnDelete()
     begin
-        CheckIfBlocked;
-        DeleteAnalysisViewBudgetEntries;
+        CheckIfBlocked();
+        DeleteAnalysisViewBudgetEntries();
     end;
 
     trigger OnInsert()
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        CheckIfBlocked;
+        CheckIfBlocked();
         TestField(Date);
         TestField("G/L Account No.");
         TestField("Budget Name");
@@ -277,21 +277,22 @@ table 96 "G/L Budget Entry"
 
     trigger OnModify()
     begin
-        CheckIfBlocked;
+        CheckIfBlocked();
         "User ID" := UserId;
         "Last Date Modified" := Today;
     end;
 
     var
-        Text001: Label '1,5,,Budget Dimension 1 Code';
-        Text002: Label '1,5,,Budget Dimension 2 Code';
-        Text003: Label '1,5,,Budget Dimension 3 Code';
-        Text004: Label '1,5,,Budget Dimension 4 Code';
         GLBudgetName: Record "G/L Budget Name";
         GLSetup: Record "General Ledger Setup";
         DimVal: Record "Dimension Value";
         DimMgt: Codeunit DimensionManagement;
         GLSetupRetrieved: Boolean;
+
+        Text001: Label '1,5,,Budget Dimension 1 Code';
+        Text002: Label '1,5,,Budget Dimension 2 Code';
+        Text003: Label '1,5,,Budget Dimension 3 Code';
+        Text004: Label '1,5,,Budget Dimension 4 Code';
         AnalysisViewBudgetEntryExistsErr: Label 'You cannot change the amount on this G/L budget entry because one or more related analysis view budget entries exist.\\You must make the change on the related entry in the G/L Budget window.';
 
     procedure GetLastEntryNo(): Integer;
@@ -330,7 +331,7 @@ table 96 "G/L Budget Entry"
         DimValueList: Page "Dimension Value List";
     begin
         if DimOption in [DimOption::"Global Dimension 1", DimOption::"Global Dimension 2"] then
-            GetGLSetup
+            GetGLSetup()
         else
             if GLBudgetName.Name <> "Budget Name" then
                 GLBudgetName.Get("Budget Name");
@@ -353,7 +354,7 @@ table 96 "G/L Budget Entry"
         DimValueList.SetTableView(DimValue);
         DimValueList.SetRecord(DimValue);
         DimValueList.LookupMode := true;
-        if DimValueList.RunModal = ACTION::LookupOK then begin
+        if DimValueList.RunModal() = ACTION::LookupOK then begin
             DimValueList.GetRecord(DimValue);
             exit(DimValue.Code);
         end;
@@ -445,7 +446,7 @@ table 96 "G/L Budget Entry"
         if TempDimSetEntry.Get("Dimension Set ID", DimCode) then
             TempDimSetEntry.Delete();
         if DimValueCode = '' then
-            DimVal.Init
+            DimVal.Init()
         else
             DimVal.Get(DimCode, DimValueCode);
         TempDimSetEntry.Init();

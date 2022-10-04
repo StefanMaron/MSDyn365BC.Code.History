@@ -72,7 +72,7 @@ table 5207 "Employee Absence"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST("Employee Absence"),
+            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST("Employee Absence"),
                                                                      "Table Line No." = FIELD("Entry No.")));
             Caption = 'Comment';
             Editable = false;
@@ -131,7 +131,7 @@ table 5207 "Employee Absence"
         if EmployeeAbsence.FindLast() then
             "Entry No." := EmployeeAbsence."Entry No." + 1
         else begin
-            CheckBaseUOM;
+            CheckBaseUOM();
             "Entry No." := 1;
         end;
     end;
@@ -141,8 +141,9 @@ table 5207 "Employee Absence"
         Employee: Record Employee;
         EmployeeAbsence: Record "Employee Absence";
         HumanResUnitOfMeasure: Record "Human Resource Unit of Measure";
-        BlockedErr: Label 'You cannot register absence because the employee is blocked due to privacy.';
         UOMMgt: Codeunit "Unit of Measure Management";
+
+        BlockedErr: Label 'You cannot register absence because the employee is blocked due to privacy.';
 
     local procedure CheckBaseUOM()
     var

@@ -94,7 +94,7 @@ table 5305 "Outlook Synch. User Setup"
                     if OSynchSetupDetail.Find('-') then
                         repeat
                             OSynchEntityElement.Get(OSynchSetupDetail."Synch. Entity Code", OSynchSetupDetail."Element No.");
-                            Modify;
+                            Modify();
                             OSynchEntityElement.CalcFields("No. of Dependencies");
                             if OSynchEntityElement."No. of Dependencies" > 0 then
                                 if not OSynchSetupMgt.CheckOCollectionAvailability(OSynchEntityElement, "User ID") then
@@ -184,7 +184,7 @@ table 5305 "Outlook Synch. User Setup"
     trigger OnInsert()
     begin
         if IsNullGuid("Record GUID") then
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
     end;
 
     trigger OnRename()

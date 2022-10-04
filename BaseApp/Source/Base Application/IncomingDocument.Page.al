@@ -2,7 +2,6 @@ page 189 "Incoming Document"
 {
     Caption = 'Incoming Document';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Release,Status,Incoming Document,OCR,Approve,Request Approval';
     SourceTable = "Incoming Document";
 
     layout
@@ -12,13 +11,13 @@ page 189 "Incoming Document"
             group(General)
             {
                 Caption = 'General';
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the description of the incoming document. You must enter the description manually.';
                 }
-                field(URL; URL)
+                field(URL; Rec.URL)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Link to Document';
@@ -28,7 +27,7 @@ page 189 "Incoming Document"
 
                     trigger OnValidate()
                     begin
-                        SetURL(URL);
+                        Rec.SetURL(Rec.URL);
                         CurrPage.Update();
                     end;
                 }
@@ -42,11 +41,11 @@ page 189 "Incoming Document"
 
                     trigger OnDrillDown()
                     begin
-                        MainAttachmentDrillDown;
+                        Rec.MainAttachmentDrillDown();
                         CurrPage.Update();
                     end;
                 }
-                field("Data Exchange Type"; "Data Exchange Type")
+                field("Data Exchange Type"; Rec."Data Exchange Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsDataExchTypeEditable;
@@ -55,7 +54,7 @@ page 189 "Incoming Document"
 
                     trigger OnValidate()
                     begin
-                        if not DefaultAttachmentIsXML then
+                        if not Rec.DefaultAttachmentIsXML() then
                             Error(InvalidTypeErr);
                     end;
                 }
@@ -68,32 +67,32 @@ page 189 "Incoming Document"
 
                     trigger OnDrillDown()
                     begin
-                        ShowRecord;
+                        Rec.ShowRecord();
                         CurrPage.Update();
                     end;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of document or journal that the incoming document can be connected to.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the related document or journal line that is created for the incoming document.';
                     Visible = false;
                 }
-                field(StatusField; Status)
+                field(StatusField; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     StyleExpr = StatusStyleText;
                     ToolTip = 'Specifies the status of the incoming document record.';
                 }
-                field("OCR Status"; "OCR Status")
+                field("OCR Status"; Rec."OCR Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the incoming document record when it takes part in the OCR process.';
@@ -107,13 +106,13 @@ page 189 "Incoming Document"
                             HyperLink(OCRServiceMgt.GetStatusHyperLink(Rec));
                     end;
                 }
-                field("OCR Track ID"; "OCR Track ID")
+                field("OCR Track ID"; Rec."OCR Track ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the process stage of the track ID in relation to the OCR service.';
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the job queue entry that is processing the incoming document.';
@@ -121,13 +120,13 @@ page 189 "Incoming Document"
                 group(Control71)
                 {
                     ShowCaption = false;
-                    field("OCR Service Doc. Template Code"; "OCR Service Doc. Template Code")
+                    field("OCR Service Doc. Template Code"; Rec."OCR Service Doc. Template Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the code of the document template that you want the OCR service provider to use when they convert the incoming-document file to an electronic document. Chose the field to pick a supported document template from the OCR Service Setup window.';
                     }
-                    field("OCR Service Doc. Template Name"; "OCR Service Doc. Template Name")
+                    field("OCR Service Doc. Template Name"; Rec."OCR Service Doc. Template Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -143,7 +142,7 @@ page 189 "Incoming Document"
 
                         trigger OnDrillDown()
                         begin
-                            OCRResultDrillDown;
+                            Rec.OCRResultDrillDown();
                             CurrPage.Update();
                         end;
                     }
@@ -151,13 +150,13 @@ page 189 "Incoming Document"
                 group(Control72)
                 {
                     ShowCaption = false;
-                    field("Created Date-Time"; "Created Date-Time")
+                    field("Created Date-Time"; Rec."Created Date-Time")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies when the incoming document line was created.';
                     }
-                    field("Created By User Name"; "Created By User Name")
+                    field("Created By User Name"; Rec."Created By User Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -169,42 +168,42 @@ page 189 "Incoming Document"
                         ToolTip = 'Specifies if the incoming document has been approved.';
                         Visible = false;
                     }
-                    field("Released Date-Time"; "Released Date-Time")
+                    field("Released Date-Time"; Rec."Released Date-Time")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies when the incoming document was approved.';
                     }
-                    field("Released By User Name"; "Released By User Name")
+                    field("Released By User Name"; Rec."Released By User Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the user who approved the incoming document.';
                     }
-                    field("Last Date-Time Modified"; "Last Date-Time Modified")
+                    field("Last Date-Time Modified"; Rec."Last Date-Time Modified")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies when the incoming document line was last modified.';
                     }
-                    field("Last Modified By User Name"; "Last Modified By User Name")
+                    field("Last Modified By User Name"; Rec."Last Modified By User Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the user who last modified the incoming document line.';
                     }
-                    field(Posted; Posted)
+                    field(Posted; Rec.Posted)
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies if the document or journal line that was created for this incoming document has been posted.';
                     }
-                    field("Posted Date-Time"; "Posted Date-Time")
+                    field("Posted Date-Time"; Rec."Posted Date-Time")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies when the related document or journal line was posted.';
                     }
-                    field("Posting Date"; "Posting Date")
+                    field("Posting Date"; Rec."Posting Date")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies when the document or journal line that relates to the incoming document was posted.';
@@ -223,95 +222,95 @@ page 189 "Incoming Document"
             group(FinancialInformation)
             {
                 Caption = 'Financial Information';
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the vendor on the incoming document. The field may be filled automatically.';
                 }
-                field("Vendor Name"; "Vendor Name")
+                field("Vendor Name"; Rec."Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the vendor on the incoming document. The field may be filled automatically.';
                 }
-                field("Vendor VAT Registration No."; "Vendor VAT Registration No.")
+                field("Vendor VAT Registration No."; Rec."Vendor VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number of the vendor, if the document contains that number. The field may be filled automatically.';
                 }
-                field("Vendor IBAN"; "Vendor IBAN")
+                field("Vendor IBAN"; Rec."Vendor IBAN")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the IBAN of the vendor on the incoming document.';
                 }
-                field("Vendor Bank Branch No."; "Vendor Bank Branch No.")
+                field("Vendor Bank Branch No."; Rec."Vendor Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank branch number of the vendor on the incoming document.';
                 }
-                field("Vendor Bank Account No."; "Vendor Bank Account No.")
+                field("Vendor Bank Account No."; Rec."Vendor Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bank account number of the vendor on the incoming document.';
                 }
-                field("Vendor Phone No."; "Vendor Phone No.")
+                field("Vendor Phone No."; Rec."Vendor Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the phone number of the vendor on the incoming document.';
                 }
-                field("Vendor Invoice No."; "Vendor Invoice No.")
+                field("Vendor Invoice No."; Rec."Vendor Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document number of the original document you received from the vendor. You can require the document number for posting, or let it be optional. By default, it''s required, so that this document references the original. Making document numbers optional removes a step from the posting process. For example, if you attach the original invoice as a PDF, you might not need to enter the document number. To specify whether document numbers are required, in the Purchases & Payables Setup window, select or clear the Ext. Doc. No. Mandatory field.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor Order No.';
                     Editable = false;
                     ToolTip = 'Specifies the order number, if the document contains that number. The field may be filled automatically.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date that is printed on the incoming document. This is the date when the vendor created the invoice, for example. The field may be filled automatically.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date when the vendor document must be paid. The field may be filled automatically.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the currency code, if the document contains that code. The field may be filled automatically.';
                 }
-                field("Amount Excl. VAT"; "Amount Excl. VAT")
+                field("Amount Excl. VAT"; Rec."Amount Excl. VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount excluding VAT for the whole document. The field may be filled automatically.';
                 }
-                field("Amount Incl. VAT"; "Amount Incl. VAT")
+                field("Amount Incl. VAT"; Rec."Amount Incl. VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount including VAT for the whole document. The field may be filled automatically.';
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -369,8 +368,6 @@ page 189 "Incoming Document"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Data Exchange Types';
                     Image = Entries;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Data Exchange Types";
                     ToolTip = 'View the data exchange types that are available to convert electronic documents to documents in Dynamics 365.';
                 }
@@ -393,9 +390,6 @@ page 189 "Incoming Document"
                     ApplicationArea = Basic, Suite;
                     Caption = 'OCR Setup';
                     Image = ServiceSetup;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Open the OCR Service Setup window, for example to change credentials or enable the service.';
                     Visible = ShowOCRSetup;
 
@@ -403,10 +397,10 @@ page 189 "Incoming Document"
                     begin
                         PAGE.RunModal(PAGE::"OCR Service Setup");
                         CurrPage.Update();
-                        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
-                            if OCRIsEnabled then begin
+                        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web then
+                            if Rec.OCRIsEnabled() then begin
                                 OnCloseIncomingDocumentFromAction(Rec);
-                                CurrPage.Close;
+                                CurrPage.Close();
                             end;
                     end;
                 }
@@ -422,7 +416,7 @@ page 189 "Incoming Document"
                     var
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
+                        ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                     end;
                 }
             }
@@ -435,17 +429,13 @@ page 189 "Incoming Document"
                 Caption = 'Create Document';
                 Enabled = AutomaticCreationActionsAreEnabled;
                 Image = CreateDocument;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a document, such as a purchase invoice, automatically by converting the electronic document that is attached to the incoming document record.';
 
                 trigger OnAction()
                 begin
-                    "Created Doc. Error Msg. Type" := "Created Doc. Error Msg. Type"::Warning;
-                    Modify;
-                    CreateDocumentWithDataExchange;
+                    Rec."Created Doc. Error Msg. Type" := "Created Doc. Error Msg. Type"::Warning;
+                    Rec.Modify();
+                    Rec.CreateDocumentWithDataExchange();
                 end;
             }
             action(CreateGenJnlLine)
@@ -454,15 +444,11 @@ page 189 "Incoming Document"
                 Caption = 'Create Journal Line';
                 Enabled = AutomaticCreationActionsAreEnabled;
                 Image = TransferToGeneralJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a journal line automatically by converting the electronic document that is attached to the incoming document record.';
 
                 trigger OnAction()
                 begin
-                    CreateGeneralJournalLineWithDataExchange;
+                    Rec.CreateGeneralJournalLineWithDataExchange();
                 end;
             }
             action(CreateManually)
@@ -470,18 +456,14 @@ page 189 "Incoming Document"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create Manually';
                 Image = CreateCreditMemo;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a document, such as a purchase invoice, manually from information in the file that is attached to the incoming document record.';
 
                 trigger OnAction()
                 begin
-                    if not AskUserPermission then
+                    if not AskUserPermission() then
                         exit;
 
-                    CreateManually;
+                    Rec.CreateManually();
                 end;
             }
             action(AttachFile)
@@ -489,14 +471,11 @@ page 189 "Incoming Document"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attach File';
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Attach a file to the incoming document record.';
 
                 trigger OnAction()
                 begin
-                    ImportAttachment(Rec);
+                    Rec.ImportAttachment(Rec);
                     CurrPage.Update(true);
                 end;
             }
@@ -506,15 +485,12 @@ page 189 "Incoming Document"
                 Caption = 'Replace Main Attachment';
                 Enabled = ReplaceMainAttachmentEnabled;
                 Image = Interaction;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Attach another file to be used as the main file attachment on the incoming document record.';
 
                 trigger OnAction()
                 begin
-                    ReplaceOrInsertMainAttachment;
-                    Clear("Data Exchange Type");
+                    Rec.ReplaceOrInsertMainAttachment();
+                    Clear(Rec."Data Exchange Type");
                 end;
             }
             action(AttachFromCamera)
@@ -523,10 +499,6 @@ page 189 "Incoming Document"
                 Caption = 'Attach Image from Camera';
                 Enabled = AttachEnabled;
                 Image = Camera;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add a picture from your device camera to the document.';
                 Visible = HasCamera;
 
@@ -537,7 +509,7 @@ page 189 "Incoming Document"
                     PictureName: Text;
                 begin
                     if Camera.GetPicture(InStr, PictureName) then
-                        AddAttachmentFromStream(IncomingDocumentAttachment, PictureName, '', InStr);
+                        Rec.AddAttachmentFromStream(IncomingDocumentAttachment, PictureName, '', InStr);
                 end;
             }
             action(TextToAccountMapping)
@@ -545,10 +517,6 @@ page 189 "Incoming Document"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Map Text to Account';
                 Image = MapAccounts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Text-to-Account Mapping Wksh.";
                 ToolTip = 'Create a mapping of text on incoming documents to identical text on specific debit, credit, and balancing accounts in the general ledger or on bank accounts so that the resulting document or journal lines are prefilled with the specified information.';
             }
@@ -561,10 +529,6 @@ page 189 "Incoming Document"
                     Caption = 'Release';
                     Enabled = RecordHasAttachment;
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Release the incoming document to indicate that it has been approved by the incoming document approver.';
 
                     trigger OnAction()
@@ -580,10 +544,6 @@ page 189 "Incoming Document"
                     Caption = 'Reopen';
                     Enabled = RecordHasAttachment;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the incoming document record after it has been approved by the incoming document approver.';
 
                     trigger OnAction()
@@ -599,10 +559,6 @@ page 189 "Incoming Document"
                     Caption = 'Reject';
                     Enabled = RecordHasAttachment;
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Reject to approve the incoming document.';
 
                     trigger OnAction()
@@ -622,16 +578,12 @@ page 189 "Incoming Document"
                     Caption = 'Set To Processed';
                     Enabled = NOT Processed;
                     Image = Archive;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Set the incoming document to processed. It will then be moved to the Processed Incoming Documents window.';
 
                     trigger OnAction()
                     begin
-                        Validate(Processed, true);
-                        Modify(true);
+                        Rec.Validate(Processed, true);
+                        Rec.Modify(true);
                     end;
                 }
                 action(SetToUnprocessed)
@@ -640,16 +592,12 @@ page 189 "Incoming Document"
                     Caption = 'Set To Unprocessed';
                     Enabled = Processed;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Set the incoming document to unprocessed. This allows you to edit information or perform actions for the incoming document.';
 
                     trigger OnAction()
                     begin
-                        Validate(Processed, false);
-                        Modify(true);
+                        Rec.Validate(Processed, false);
+                        Rec.Modify(true);
                     end;
                 }
             }
@@ -661,9 +609,6 @@ page 189 "Incoming Document"
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ToolTip = 'Approve the requested changes.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -671,7 +616,7 @@ page 189 "Incoming Document"
                     var
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        TestReadyForApproval;
+                        Rec.TestReadyForApproval();
                         ApprovalsMgmt.ApproveRecordApprovalRequest(RecordId);
                     end;
                 }
@@ -680,9 +625,6 @@ page 189 "Incoming Document"
                     ApplicationArea = All;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ToolTip = 'Reject to approve the incoming document.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -698,8 +640,6 @@ page 189 "Incoming Document"
                     ApplicationArea = All;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'Delegate the approval to a substitute approver.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -715,8 +655,6 @@ page 189 "Incoming Document"
                     ApplicationArea = All;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'View or add comments for the record.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -738,16 +676,13 @@ page 189 "Incoming Document"
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedOnly = true;
                     ToolTip = 'Request approval of the incoming document. You can send an approval request as part of a workflow if this has been set up in your organization.';
 
                     trigger OnAction()
                     var
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        TestReadyForApproval;
+                        Rec.TestReadyForApproval();
                         if ApprovalsMgmt.CheckIncomingDocApprovalsWorkflowEnabled(Rec) then
                             ApprovalsMgmt.OnSendIncomingDocForApproval(Rec);
                     end;
@@ -758,9 +693,6 @@ page 189 "Incoming Document"
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = CanCancelApprovalForRecord;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedOnly = true;
                     ToolTip = 'Cancel requesting approval of the incoming document.';
 
                     trigger OnAction()
@@ -780,15 +712,11 @@ page 189 "Incoming Document"
                     Caption = 'Open Record';
                     Enabled = RecordLinkExists;
                     Image = ViewDetails;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Open the document, journal line, or entry that the incoming document is linked to.';
 
                     trigger OnAction()
                     begin
-                        ShowRecord;
+                        Rec.ShowRecord();
                     end;
                 }
                 action(RemoveReferencedRecord)
@@ -797,15 +725,11 @@ page 189 "Incoming Document"
                     Caption = 'Remove Reference to Record';
                     Enabled = RecordLinkExists;
                     Image = ClearLog;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Remove the link that exists from the incoming document to a document, journal line, or entry.';
 
                     trigger OnAction()
                     begin
-                        RemoveReferencedRecords;
+                        Rec.RemoveReferencedRecords();
                     end;
                 }
                 action(Navigate)
@@ -820,9 +744,9 @@ page 189 "Incoming Document"
                     var
                         NavigatePage: Page Navigate;
                     begin
-                        if not Posted then
+                        if not Rec.Posted then
                             Error(NoPostedDocumentsErr);
-                        NavigatePage.SetDoc("Posting Date", "Document No.");
+                        NavigatePage.SetDoc(Rec."Posting Date", Rec."Document No.");
                         NavigatePage.Run();
                     end;
                 }
@@ -844,11 +768,11 @@ page 189 "Incoming Document"
                             GenJournalBatch: Record "Gen. Journal Batch";
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            if not AskUserPermission then
+                            if not AskUserPermission() then
                                 exit;
 
-                            CreateGenJnlLine;
-                            IncomingDocumentsSetup.Fetch;
+                            Rec.CreateGenJnlLine();
+                            IncomingDocumentsSetup.Fetch();
                             GenJournalBatch.Get(IncomingDocumentsSetup."General Journal Template Name", IncomingDocumentsSetup."General Journal Batch Name");
                             GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
                         end;
@@ -862,10 +786,10 @@ page 189 "Incoming Document"
 
                         trigger OnAction()
                         begin
-                            if not AskUserPermission then
+                            if not AskUserPermission() then
                                 exit;
 
-                            CreatePurchInvoice;
+                            Rec.CreatePurchInvoice();
                         end;
                     }
                     action(PurchaseCreditMemo)
@@ -879,10 +803,10 @@ page 189 "Incoming Document"
 
                         trigger OnAction()
                         begin
-                            if not AskUserPermission then
+                            if not AskUserPermission() then
                                 exit;
 
-                            CreatePurchCreditMemo;
+                            Rec.CreatePurchCreditMemo();
                         end;
                     }
                     action(SalesInvoice)
@@ -896,10 +820,10 @@ page 189 "Incoming Document"
 
                         trigger OnAction()
                         begin
-                            if not AskUserPermission then
+                            if not AskUserPermission() then
                                 exit;
 
-                            CreateSalesInvoice;
+                            CreateSalesInvoice();
                         end;
                     }
                     action(SalesCreditMemo)
@@ -913,10 +837,10 @@ page 189 "Incoming Document"
 
                         trigger OnAction()
                         begin
-                            if not AskUserPermission then
+                            if not AskUserPermission() then
                                 exit;
 
-                            CreateSalesCreditMemo;
+                            Rec.CreateSalesCreditMemo();
                         end;
                     }
                 }
@@ -935,7 +859,7 @@ page 189 "Incoming Document"
 
                     trigger OnAction()
                     begin
-                        SendToJobQueue(true);
+                        Rec.SendToJobQueue(true);
                     end;
                 }
                 action(RemoveFromJobQueue)
@@ -949,7 +873,7 @@ page 189 "Incoming Document"
 
                     trigger OnAction()
                     begin
-                        RemoveFromJobQueue(true);
+                        Rec.RemoveFromJobQueue(true);
                     end;
                 }
                 action(SendToOcr)
@@ -958,15 +882,12 @@ page 189 "Incoming Document"
                     Caption = 'Send to OCR Service';
                     Enabled = CanBeSentToOCR;
                     Image = Translations;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Send the attached PDF or image file to the OCR service immediately.';
                     Visible = OCRServiceIsEnabled;
 
                     trigger OnAction()
                     begin
-                        SendToOCR(true);
+                        Rec.SendToOCR(true);
                     end;
                 }
                 action(ReceiveFromOCR)
@@ -975,15 +896,12 @@ page 189 "Incoming Document"
                     Caption = 'Receive from OCR Service';
                     Enabled = EnableReceiveFromOCR;
                     Image = Translations;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Get any electronic documents that are ready to receive from the OCR service.';
                     Visible = OCRServiceIsEnabled;
 
                     trigger OnAction()
                     begin
-                        RetrieveFromOCR(true);
+                        Rec.RetrieveFromOCR(true);
                     end;
                 }
                 action(CorrectOCRData)
@@ -992,9 +910,6 @@ page 189 "Incoming Document"
                     Caption = 'Correct OCR Data';
                     Enabled = OCRDataCorrectionEnabled;
                     Image = EditAttachment;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     RunObject = Page "OCR Data Correction";
                     RunPageOnRec = true;
                     ToolTip = 'Open a window where you can teach the OCR service how to interpret data on PDF and image files so that future documents created by the OCR service are more correct.';
@@ -1002,31 +917,173 @@ page 189 "Incoming Document"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreateManually_Promoted; CreateManually)
+                {
+                }
+                actionref(CreateDocument_Promoted; CreateDocument)
+                {
+                }
+                actionref(CreateGenJnlLine_Promoted; CreateGenJnlLine)
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref(Release_Promoted; Release)
+                    {
+                    }
+                    actionref(Reject_Promoted; Reject)
+                    {
+                    }
+                    actionref(Reopen_Promoted; Reopen)
+                    {
+                    }
+                }
+                group(Category_Category5)
+                {
+                    Caption = 'Status', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+                    actionref(SetToProcessed_Promoted; SetToProcessed)
+                    {
+                    }
+                    actionref(SetToUnprocessed_Promoted; SetToUnprocessed)
+                    {
+                    }
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(AttachFile_Promoted; AttachFile)
+                {
+                }
+                actionref(ReplaceMainAttachment_Promoted; ReplaceMainAttachment)
+                {
+                }
+                actionref(AttachFromCamera_Promoted; AttachFromCamera)
+                {
+                }
+                actionref(TextToAccountMapping_Promoted; TextToAccountMapping)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(RejectApproval_Promoted; RejectApproval)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 8.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Incoming Document', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(OpenDocument_Promoted; OpenDocument)
+                {
+                }
+                actionref(RemoveReferencedRecord_Promoted; RemoveReferencedRecord)
+                {
+                }
+                actionref(ApprovalEntries_Promoted; ApprovalEntries)
+                {
+                }
+#if not CLEAN21
+                actionref(DataExchangeTypes_Promoted; DataExchangeTypes)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'OCR', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(SendToOcr_Promoted; SendToOcr)
+                {
+                }
+                actionref(ReceiveFromOCR_Promoted; ReceiveFromOCR)
+                {
+                }
+#if not CLEAN21
+                actionref(OCRSetup_Promoted; OCRSetup)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref(CorrectOCRData_Promoted; CorrectOCRData)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        IsDataExchTypeEditable := not (Status in [Status::Created, Status::Posted]);
-        ShowErrors;
-        SetCalculatedFields;
-        RecordHasAttachment := HasAttachment;
-        SetControlVisibility;
-        AttachEnabled := "Entry No." <> 0;
-        StatusStyleText := GetStatusStyleText();
+        IsDataExchTypeEditable := not (Rec.Status in [Rec.Status::Created, Rec.Status::Posted]);
+        ShowErrors();
+        SetCalculatedFields();
+        RecordHasAttachment := Rec.HasAttachment();
+        SetControlVisibility();
+        AttachEnabled := Rec."Entry No." <> 0;
+        StatusStyleText := Rec.GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        URL := GetURL;
-        ShowErrors;
-        EnableReceiveFromOCR := WaitingToReceiveFromOCR;
-        CurrPage.Editable(not Processed);
+        Rec.URL := Rec.GetURL();
+        ShowErrors();
+        EnableReceiveFromOCR := Rec.WaitingToReceiveFromOCR();
+        CurrPage.Editable(not Rec.Processed);
     end;
 
     trigger OnInit()
     begin
         IsDataExchTypeEditable := true;
-        EnableReceiveFromOCR := WaitingToReceiveFromOCR;
+        EnableReceiveFromOCR := Rec.WaitingToReceiveFromOCR();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1038,19 +1095,19 @@ page 189 "Incoming Document"
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        OCRDataCorrectionEnabled := GetGeneratedFromOCRAttachment(IncomingDocumentAttachment);
-        RecordHasAttachment := HasAttachment;
+        OCRDataCorrectionEnabled := Rec.GetGeneratedFromOCRAttachment(IncomingDocumentAttachment);
+        RecordHasAttachment := Rec.HasAttachment();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        URL := '';
+        Rec.URL := '';
     end;
 
     trigger OnOpenPage()
     begin
         HasCamera := Camera.IsAvailable();
-        UpdateOCRSetupVisibility;
+        UpdateOCRSetupVisibility();
     end;
 
     var
@@ -1084,12 +1141,12 @@ page 189 "Incoming Document"
         AttachEnabled: Boolean;
         ReplaceMainAttachmentEnabled: Boolean;
 
-    local procedure AskUserPermission(): Boolean
+    protected procedure AskUserPermission(): Boolean
     begin
-        if "Data Exchange Type" = '' then
+        if Rec."Data Exchange Type" = '' then
             exit(true);
 
-        if Status <> Status::New then
+        if Rec.Status <> Rec.Status::New then
             exit(true);
 
         exit(Confirm(AutomaticProcessingQst));
@@ -1100,21 +1157,21 @@ page 189 "Incoming Document"
         ErrorMessage: Record "Error Message";
         TempErrorMessage: Record "Error Message" temporary;
     begin
-        ErrorMessage.SetRange("Context Record ID", RecordId);
+        ErrorMessage.SetRange("Context Record ID", Rec.RecordId);
         ErrorMessage.CopyToTemp(TempErrorMessage);
         CurrPage.ErrorMessagesPart.PAGE.SetRecords(TempErrorMessage);
-        CurrPage.ErrorMessagesPart.PAGE.Update;
+        CurrPage.ErrorMessagesPart.PAGE.Update();
     end;
 
     local procedure SetCalculatedFields()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        OCRDataCorrectionEnabled := GetGeneratedFromOCRAttachment(IncomingDocumentAttachment);
-        AttachmentFileName := GetMainAttachmentFileName;
-        RecordLinkTxt := GetRecordLinkText;
-        OCRResultFileName := GetOCRResutlFileName;
-        AdditionalAttachmentsPresent := GetAdditionalAttachments(IncomingDocumentAttachment);
+        OCRDataCorrectionEnabled := Rec.GetGeneratedFromOCRAttachment(IncomingDocumentAttachment);
+        AttachmentFileName := Rec.GetMainAttachmentFileName();
+        RecordLinkTxt := Rec.GetRecordLinkText();
+        OCRResultFileName := Rec.GetOCRResutlFileName();
+        AdditionalAttachmentsPresent := Rec.GetAdditionalAttachments(IncomingDocumentAttachment);
         if AdditionalAttachmentsPresent then
             CurrPage.SupportingAttachments.PAGE.LoadDataIntoPart(Rec);
     end;
@@ -1128,11 +1185,11 @@ page 189 "Incoming Document"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
-        UpdateOCRSetupVisibility;
-        AutomaticCreationActionsAreEnabled := "Data Exchange Type" <> '';
-        RecordLinkExists := GetRecord(RelatedRecord);
-        CanBeSentToOCR := VerifyCanBeSentToOCR;
-        ReplaceMainAttachmentEnabled := CanReplaceMainAttachment;
+        UpdateOCRSetupVisibility();
+        AutomaticCreationActionsAreEnabled := Rec."Data Exchange Type" <> '';
+        RecordLinkExists := Rec.GetRecord(RelatedRecord);
+        CanBeSentToOCR := VerifyCanBeSentToOCR();
+        ReplaceMainAttachmentEnabled := Rec.CanReplaceMainAttachment();
     end;
 
     [IntegrationEvent(TRUE, TRUE)]
@@ -1145,13 +1202,13 @@ page 189 "Incoming Document"
         if not RecordHasAttachment then
             exit(false);
 
-        exit(not ("OCR Status" in
-                  ["OCR Status"::Sent, "OCR Status"::Success, "OCR Status"::"Awaiting Verification"]));
+        exit(not (Rec."OCR Status" in
+                  [Rec."OCR Status"::Sent, Rec."OCR Status"::Success, Rec."OCR Status"::"Awaiting Verification"]));
     end;
 
     local procedure UpdateOCRSetupVisibility()
     begin
-        OCRServiceIsEnabled := OCRIsEnabled;
+        OCRServiceIsEnabled := Rec.OCRIsEnabled();
         ShowOCRSetup := not OCRServiceIsEnabled;
     end;
 }

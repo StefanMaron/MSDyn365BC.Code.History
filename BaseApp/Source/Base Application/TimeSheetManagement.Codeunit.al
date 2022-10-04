@@ -104,7 +104,7 @@ codeunit 950 "Time Sheet Management"
         end;
 
         TimeSheetList.LookupMode := true;
-        if TimeSheetList.RunModal = ACTION::LookupOK then begin
+        if TimeSheetList.RunModal() = ACTION::LookupOK then begin
             TimeSheetList.GetRecord(TimeSheetHeader);
             TimeSheetNo := TimeSheetHeader."No.";
             SetTimeSheetNo(TimeSheetNo, TimeSheetLine);
@@ -122,7 +122,7 @@ codeunit 950 "Time Sheet Management"
         end;
 
         ManagerTimeSheetList.LookupMode := true;
-        if ManagerTimeSheetList.RunModal = ACTION::LookupOK then begin
+        if ManagerTimeSheetList.RunModal() = ACTION::LookupOK then begin
             ManagerTimeSheetList.GetRecord(TimeSheetHeader);
             TimeSheetNo := TimeSheetHeader."No.";
             SetTimeSheetNo(TimeSheetNo, TimeSheetLine);
@@ -280,7 +280,7 @@ codeunit 950 "Time Sheet Management"
         end;
 
         TimeSheetArchiveList.LookupMode := true;
-        if TimeSheetArchiveList.RunModal = ACTION::LookupOK then begin
+        if TimeSheetArchiveList.RunModal() = ACTION::LookupOK then begin
             TimeSheetArchiveList.GetRecord(TimeSheetHeaderArchive);
             TimeSheetNo := TimeSheetHeaderArchive."No.";
             SetTimeSheetArchiveNo(TimeSheetNo, TimeSheetLineArchive);
@@ -298,7 +298,7 @@ codeunit 950 "Time Sheet Management"
         end;
 
         ManagerTimeSheetArcList.LookupMode := true;
-        if ManagerTimeSheetArcList.RunModal = ACTION::LookupOK then begin
+        if ManagerTimeSheetArcList.RunModal() = ACTION::LookupOK then begin
             ManagerTimeSheetArcList.GetRecord(TimeSheetHeaderArchive);
             TimeSheetNo := TimeSheetHeaderArchive."No.";
             SetTimeSheetArchiveNo(TimeSheetNo, TimeSheetLineArchive);
@@ -340,7 +340,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetCmtLineArchive: Record "Time Sheet Cmt. Line Archive";
     begin
         with TimeSheetHeader do begin
-            Check;
+            Check();
 
             TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
             TimeSheetHeaderArchive.Insert();
@@ -358,7 +358,7 @@ codeunit 950 "Time Sheet Management"
             if TimeSheetDetail.FindSet() then begin
                 repeat
                     TimeSheetDetailArchive.TransferFields(TimeSheetDetail);
-                    TimeSheetDetailArchive.Insert
+                    TimeSheetDetailArchive.Insert();
                 until TimeSheetDetail.Next() = 0;
                 TimeSheetDetail.DeleteAll();
             end;
@@ -372,7 +372,7 @@ codeunit 950 "Time Sheet Management"
                 TimeSheetCommentLine.DeleteAll();
             end;
 
-            Delete;
+            Delete();
         end;
     end;
 
@@ -396,7 +396,7 @@ codeunit 950 "Time Sheet Management"
         LineNo: Integer;
         IsHandled: Boolean;
     begin
-        LineNo := ToTimeSheetHeader.GetLastLineNo;
+        LineNo := ToTimeSheetHeader.GetLastLineNo();
 
         FromTimeSheetHeader.Get(ToTimeSheetHeader."No.");
         FromTimeSheetHeader.SetCurrentKey("Resource No.", "Starting Date");
@@ -493,7 +493,7 @@ codeunit 950 "Time Sheet Management"
         TempJobPlanningLine: Record "Job Planning Line" temporary;
         LineNo: Integer;
     begin
-        LineNo := TimeSheetHeader.GetLastLineNo;
+        LineNo := TimeSheetHeader.GetLastLineNo();
 
         FillJobPlanningBuffer(TimeSheetHeader, TempJobPlanningLine);
 
@@ -682,7 +682,7 @@ codeunit 950 "Time Sheet Management"
             if FindLast() then;
             LineNo := "Line No." + 10000;
 
-            Init;
+            Init();
             "Time Sheet No." := TimeSheetHeader."No.";
             "Line No." := LineNo;
             "Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
@@ -709,7 +709,7 @@ codeunit 950 "Time Sheet Management"
             "Approval Date" := Today;
             Status := Status::Approved;
             Posted := true;
-            Insert;
+            Insert();
 
             TimeSheetDetail.Init();
             TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
@@ -746,7 +746,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetPostingEntry: Record "Time Sheet Posting Entry";
     begin
         with TimeSheetPostingEntry do begin
-            Init;
+            Init();
             "Time Sheet No." := TimeSheetDetail."Time Sheet No.";
             "Time Sheet Line No." := TimeSheetDetail."Time Sheet Line No.";
             "Time Sheet Date" := TimeSheetDetail.Date;
@@ -754,7 +754,7 @@ codeunit 950 "Time Sheet Management"
             "Document No." := DocumentNo;
             "Posting Date" := PostingDate;
             Description := Desc;
-            Insert;
+            Insert();
         end;
 
         OnAfterCreateTSPostingEntry(TimeSheetDetail, TimeSheetPostingEntry);
@@ -769,7 +769,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetDetail.TestField(Status, TimeSheetDetail.Status::Approved);
         TimeSheetDetail.TestField(Posted, false);
 
-        MaxAvailableQtyBase := TimeSheetDetail.GetMaxQtyToPost;
+        MaxAvailableQtyBase := TimeSheetDetail.GetMaxQtyToPost();
         MaxAvailableQty := MaxAvailableQtyBase * QtyPerUnitOfMeasure;
         exit(QtyToPost <= MaxAvailableQty);
     end;
@@ -868,10 +868,9 @@ codeunit 950 "Time Sheet Management"
                         TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
                         TimeSheetDetail.Insert();
                     end;
-                end else begin
+                end else
                     if TimeSheetDetail.Get("Time Sheet No.", "Line No.", TimeSheetDate) then
                         TimeSheetDetail.Delete();
-                end;
             end;
         end;
     end;
@@ -995,7 +994,7 @@ codeunit 950 "Time Sheet Management"
         ServiceLine: Record "Service Line";
         QtyToPost: Decimal;
     begin
-        QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
+        QtyToPost := TimeSheetDetail.GetMaxQtyToPost();
         if QtyToPost <> 0 then begin
             ServiceLine.Init();
             ServiceLine."Document Type" := ServiceHeader."Document Type";

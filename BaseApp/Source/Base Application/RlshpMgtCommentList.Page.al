@@ -13,12 +13,12 @@ page 5118 "Rlshp. Mgt. Comment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sub No."; "Sub No.")
+                field("Sub No."; Rec."Sub No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the stage within the sales cycle.';

@@ -419,7 +419,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         // setup
         PostSalesDoc(SalesShipmentHeader, SalesHeader."Document Type"::Order, true);
         CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
-        RcptDate := CalcDate('<+2W>', WorkDate);
+        RcptDate := CalcDate('<+2W>', WorkDate());
 
         // exercise
         ExpectedStatus := CertificateOfSupply.Status::Received;
@@ -965,7 +965,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
         LibraryVariableStorage.Enqueue(false);
-        CertificateOfSupply.Print;
+        CertificateOfSupply.Print();
 
         // verify
         VerifyReportSalesDoc(CertificateOfSupply, SalesShipmentHeader);
@@ -991,7 +991,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
         LibraryVariableStorage.Enqueue(true);
-        CertificateOfSupply.Print;
+        CertificateOfSupply.Print();
 
         // verify
         VerifyMultilineReportSalesDoc(CertificateOfSupply, SalesShipmentHeader);
@@ -1019,7 +1019,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
         LibraryVariableStorage.Enqueue(false);
-        CertificateOfSupply.Print;
+        CertificateOfSupply.Print();
 
         // verify
         VerifyReportServiceDoc(CertificateOfSupply, ServiceShipmentHeader);
@@ -1045,7 +1045,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
         LibraryVariableStorage.Enqueue(true);
-        CertificateOfSupply.Print;
+        CertificateOfSupply.Print();
 
         // verify
         VerifyMultilineReportServiceDoc(CertificateOfSupply, ServiceShipmentHeader);
@@ -1073,7 +1073,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
         LibraryVariableStorage.Enqueue(false);
-        CertificateOfSupply.Print;
+        CertificateOfSupply.Print();
 
         // verify
         VerifyReportReturnShipmentDoc(CertificateOfSupply, ReturnShipmentHeader);
@@ -1099,7 +1099,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document Type");
         LibraryVariableStorage.Enqueue(CertificateOfSupply."Document No.");
         LibraryVariableStorage.Enqueue(true);
-        CertificateOfSupply.Print;
+        CertificateOfSupply.Print();
 
         // verify
         VerifyMultilineReportReturnShipmentDoc(CertificateOfSupply, ReturnShipmentHeader);

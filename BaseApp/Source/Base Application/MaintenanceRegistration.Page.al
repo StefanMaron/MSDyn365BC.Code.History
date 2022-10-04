@@ -13,18 +13,18 @@ page 5625 "Maintenance Registration"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                     Visible = false;
                 }
-                field("Service Date"; "Service Date")
+                field("Service Date"; Rec."Service Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date when the fixed asset is being serviced.';
                 }
-                field("Maintenance Vendor No."; "Maintenance Vendor No.")
+                field("Maintenance Vendor No."; Rec."Maintenance Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the vendor who services the fixed asset for this entry.';
@@ -34,17 +34,17 @@ page 5625 "Maintenance Registration"
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies a comment for the service, repairs or maintenance to be performed on the fixed asset.';
                 }
-                field("Service Agent Name"; "Service Agent Name")
+                field("Service Agent Name"; Rec."Service Agent Name")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the service agent who is servicing the fixed asset.';
                 }
-                field("Service Agent Phone No."; "Service Agent Phone No.")
+                field("Service Agent Phone No."; Rec."Service Agent Phone No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the phone number of the service agent who is servicing the fixed asset.';
                 }
-                field("Service Agent Mobile Phone"; "Service Agent Mobile Phone")
+                field("Service Agent Mobile Phone"; Rec."Service Agent Mobile Phone")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the mobile phone number of the service agent who is servicing the fixed asset.';

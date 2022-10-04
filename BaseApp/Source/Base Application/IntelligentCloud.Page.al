@@ -17,7 +17,7 @@ page 4010 "Intelligent Cloud"
                 trigger ControlAddInReady(callbackUrl: Text)
                 begin
                     AddInReady := true;
-                    NavigateToUrl;
+                    NavigateToUrl();
                 end;
 
                 trigger DocumentReady()
@@ -31,7 +31,7 @@ page 4010 "Intelligent Cloud"
                 trigger Refresh(callbackUrl: Text)
                 begin
                     if AddInReady then
-                        NavigateToUrl;
+                        NavigateToUrl();
                 end;
             }
         }
@@ -43,7 +43,7 @@ page 4010 "Intelligent Cloud"
 
     trigger OnOpenPage()
     begin
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
     end;
 
     var

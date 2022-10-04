@@ -694,14 +694,14 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     [Scope('OnPrem')]
     procedure DocumentSelectorPageHandler(var OfficeAddinDocSelection: TestPage "Office Document Selection")
     begin
-        OfficeAddinDocSelection.Close;
+        OfficeAddinDocSelection.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure NoDocumentAvailablePageHandler(var OfficeDocSelectionDlg: TestPage "Office Doc Selection Dlg")
     begin
-        OfficeDocSelectionDlg.Close;
+        OfficeDocSelectionDlg.Close();
     end;
 
     [PageHandler]
@@ -710,7 +710,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         if StrPos(UpperCase(PurchaseInvoice.Caption), UpperCase(DocNo)) = 0 then
             Error(PurchInvErr);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [PageHandler]
@@ -719,7 +719,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         if StrPos(UpperCase(PurchaseCreditMemo.Caption), UpperCase(DocNo)) = 0 then
             Error(PurchCrMemoErr);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [PageHandler]
@@ -728,7 +728,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         if StrPos(UpperCase(PurchaseOrder.Caption), UpperCase(DocNo)) = 0 then
             Error(PurchOrderErr);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [PageHandler]
@@ -745,7 +745,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // Test to ensure the Navigate action is not visible when in add-in mode.
         Assert.AreEqual(false, PostedPurchaseInvoice.Navigate.Visible, 'Navigate action should not be visible');
 
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [PageHandler]
@@ -762,7 +762,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // Test to ensure the Navigate action is not visible when in add-in mode.
         Assert.AreEqual(false, PostedPurchCreditMemo."&Navigate".Visible, 'Navigate action should not be visible');
 
-        PostedPurchCreditMemo.Close;
+        PostedPurchCreditMemo.Close();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")

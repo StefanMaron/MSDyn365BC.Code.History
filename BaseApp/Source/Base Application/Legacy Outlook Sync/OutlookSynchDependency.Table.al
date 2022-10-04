@@ -107,7 +107,7 @@ table 5311 "Outlook Synch. Dependency"
 #if not CLEAN19
     trigger OnDelete()
     begin
-        CheckUserSetup;
+        CheckUserSetup();
 
         OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
@@ -116,17 +116,17 @@ table 5311 "Outlook Synch. Dependency"
 
     trigger OnInsert()
     begin
-        CheckUserSetup;
+        CheckUserSetup();
 
         if IsNullGuid("Record GUID") then
-            "Record GUID" := CreateGuid;
+            "Record GUID" := CreateGuid();
 
         TestField("Table Relation");
     end;
 
     trigger OnRename()
     begin
-        CheckUserSetup;
+        CheckUserSetup();
 
         OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");

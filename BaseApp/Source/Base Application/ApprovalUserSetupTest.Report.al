@@ -10,7 +10,7 @@ report 600 "Approval User Setup Test"
         {
             DataItemTableView = SORTING(Number);
             MaxIteration = 1;
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -500,8 +500,8 @@ report 600 "Approval User Setup Test"
                     SalesApprovalAmount := "Sales Amount Approval Limit";
                     Clear(ErrorMessage);
 
-                    UserTEMP := "Sales Approval";
-                    UserTEMP.Insert();
+                    TempUserSetup := "Sales Approval";
+                    TempUserSetup.Insert();
 
                     SalesApprovalAmount := "Sales Amount Approval Limit";
                     if "Unlimited Sales Approval" then begin
@@ -513,10 +513,10 @@ report 600 "Approval User Setup Test"
                     end;
                     if not Brk then begin
                         UserSetup.SetRange("User ID", "Approver ID");
-                        if UserSetup.FindFirst() then begin
+                        if UserSetup.FindFirst() then
                             repeat
-                                UserTEMP := UserSetup;
-                                if not UserTEMP.Insert() then begin
+                                TempUserSetup := UserSetup;
+                                if not TempUserSetup.Insert() then begin
                                     ErrorMessage := StrSubstNo(Text007, UserSetup."User ID", Text013);
                                     Status := Text002;
                                     Brk := true;
@@ -560,7 +560,6 @@ report 600 "Approval User Setup Test"
                                 if I = 500 then
                                     Brk := true;
                             until Brk;
-                        end;
                     end;
                 end;
 
@@ -568,13 +567,12 @@ report 600 "Approval User Setup Test"
                 begin
                     if UserCode = '' then
                         Error(Text005);
-                    if WhatToTest <> WhatToTest::All then begin
+                    if WhatToTest <> WhatToTest::All then
                         if WhatToTest <> WhatToTest::Sales then
                             CurrReport.Break();
-                    end;
                     SetRange("User ID", UserCode);
 
-                    UserTEMP.DeleteAll();
+                    TempUserSetup.DeleteAll();
                 end;
             }
             dataitem("Purchase Approval"; "User Setup")
@@ -1056,8 +1054,8 @@ report 600 "Approval User Setup Test"
                     PurchaseApprovalAmount := "Purchase Amount Approval Limit";
                     Clear(ErrorMessage);
 
-                    UserTEMP := "Purchase Approval";
-                    UserTEMP.Insert();
+                    TempUserSetup := "Purchase Approval";
+                    TempUserSetup.Insert();
 
                     PurchaseApprovalAmount := "Purchase Amount Approval Limit";
                     if "Unlimited Purchase Approval" then begin
@@ -1069,10 +1067,10 @@ report 600 "Approval User Setup Test"
                     end;
                     if not Brk then begin
                         UserSetup.SetRange("User ID", "Approver ID");
-                        if UserSetup.FindFirst() then begin
+                        if UserSetup.FindFirst() then
                             repeat
-                                UserTEMP := UserSetup;
-                                if not UserTEMP.Insert() then begin
+                                TempUserSetup := UserSetup;
+                                if not TempUserSetup.Insert() then begin
                                     ErrorMessage := StrSubstNo(Text007, UserSetup."User ID", Text015);
                                     Status := Text002;
                                     Brk := true;
@@ -1113,7 +1111,6 @@ report 600 "Approval User Setup Test"
                                 if I = 500 then
                                     Brk := true;
                             until Brk;
-                        end;
                     end;
                 end;
 
@@ -1121,12 +1118,12 @@ report 600 "Approval User Setup Test"
                 begin
                     if UserCode = '' then
                         Error(Text005);
-                    if WhatToTest <> WhatToTest::All then begin
+                    if WhatToTest <> WhatToTest::All then
                         if WhatToTest <> WhatToTest::Purchase then
                             CurrReport.Break();
-                    end;
+
                     SetRange("User ID", UserCode);
-                    UserTEMP.DeleteAll();
+                    TempUserSetup.DeleteAll();
                 end;
             }
             dataitem("Request Approval"; "User Setup")
@@ -1608,8 +1605,8 @@ report 600 "Approval User Setup Test"
                     RequestApprovalAmount := "Request Amount Approval Limit";
                     Clear(ErrorMessage);
 
-                    UserTEMP := "Request Approval";
-                    UserTEMP.Insert();
+                    TempUserSetup := "Request Approval";
+                    TempUserSetup.Insert();
 
                     RequestApprovalAmount := "Request Amount Approval Limit";
                     if "Unlimited Request Approval" then begin
@@ -1621,10 +1618,10 @@ report 600 "Approval User Setup Test"
                     end;
                     if not Brk then begin
                         UserSetup.SetRange("User ID", "Approver ID");
-                        if UserSetup.FindFirst() then begin
+                        if UserSetup.FindFirst() then
                             repeat
-                                UserTEMP := UserSetup;
-                                if not UserTEMP.Insert() then begin
+                                TempUserSetup := UserSetup;
+                                if not TempUserSetup.Insert() then begin
                                     ErrorMessage := StrSubstNo(Text007, UserSetup."User ID", Text016);
                                     Status := Text002;
                                     Brk := true;
@@ -1665,7 +1662,6 @@ report 600 "Approval User Setup Test"
                                 if I = 500 then
                                     Brk := true;
                             until Brk;
-                        end;
                     end;
                 end;
 
@@ -1673,12 +1669,11 @@ report 600 "Approval User Setup Test"
                 begin
                     if UserCode = '' then
                         Error(Text005);
-                    if WhatToTest <> WhatToTest::All then begin
+                    if WhatToTest <> WhatToTest::All then
                         if WhatToTest <> WhatToTest::Request then
                             CurrReport.Break();
-                    end;
                     SetRange("User ID", UserCode);
-                    UserTEMP.DeleteAll();
+                    TempUserSetup.DeleteAll();
                 end;
             }
         }
@@ -1723,7 +1718,7 @@ report 600 "Approval User Setup Test"
     }
 
     var
-        UserTEMP: Record "User Setup" temporary;
+        TempUserSetup: Record "User Setup" temporary;
         SalesApprovalRoute: array[500, 7] of Text[200];
         I: Integer;
         Brk: Boolean;

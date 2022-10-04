@@ -17,14 +17,14 @@ page 654 "Requests to Approve"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(ToApprove; RecordCaption)
+                field(ToApprove; RecordCaption())
                 {
                     ApplicationArea = Suite;
                     Caption = 'To Approve';
                     ToolTip = 'Specifies the record that you are requested to approve. On the Home tab, in the Process group, choose Record to view the record on a new page where you can also act on the approval request.';
                     Width = 30;
                 }
-                field(Details; RecordDetails)
+                field(Details; RecordDetails())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Details';
@@ -37,7 +37,7 @@ page 654 "Requests to Approve"
                     HideValue = NOT Comment;
                     ToolTip = 'Specifies whether there are comments relating to the approval of the record. If you want to read the comments, choose the field to open the Approval Comment Sheet window.';
                 }
-                field("Sender ID"; "Sender ID")
+                field("Sender ID"; Rec."Sender ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who sent the approval request for the document to be approved.';
@@ -49,7 +49,7 @@ page 654 "Requests to Approve"
                         UserMgt.DisplayUserInformation("Sender ID");
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = DateStyle;
@@ -66,12 +66,12 @@ page 654 "Requests to Approve"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total amount (excl. VAT) on the document awaiting approval.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total amount in LCY (excl. VAT) on the document awaiting approval.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the currency of the amounts on the sales or purchase lines.';
@@ -121,15 +121,12 @@ page 654 "Requests to Approve"
                     Caption = 'Open Record';
                     Enabled = ShowRecCommentsEnabled;
                     Image = Document;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Open the document, journal line, or card that the approval is requested for.';
 
                     trigger OnAction()
                     begin
-                        ShowRecord;
+                        ShowRecord();
                     end;
                 }
                 action(Comments)
@@ -138,8 +135,6 @@ page 654 "Requests to Approve"
                     Caption = 'Comments';
                     Enabled = ShowRecCommentsEnabled;
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'View or add comments for the record.';
 
@@ -162,9 +157,6 @@ page 654 "Requests to Approve"
                 ApplicationArea = Suite;
                 Caption = 'Approve';
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Approve the requested changes.';
 
@@ -182,9 +174,6 @@ page 654 "Requests to Approve"
                 ApplicationArea = Suite;
                 Caption = 'Reject';
                 Image = Reject;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Reject the approval request.';
 
@@ -202,9 +191,6 @@ page 654 "Requests to Approve"
                 ApplicationArea = Suite;
                 Caption = 'Delegate';
                 Image = Delegate;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Delegate the approval to a substitute approver.';
 
@@ -248,6 +234,40 @@ page 654 "Requests to Approve"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Record_Promoted; Record)
+                {
+                }
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+                group(Category_View)
+                {
+                    Caption = 'View';
+
+                    actionref(AllRequests_Promoted; AllRequests)
+                    {
+                    }
+                    actionref(OpenRequests_Promoted; OpenRequests)
+                    {
+                    }
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -261,7 +281,7 @@ page 654 "Requests to Approve"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateStyle;
+        SetDateStyle();
     end;
 
     trigger OnOpenPage()
@@ -283,7 +303,7 @@ page 654 "Requests to Approve"
     local procedure SetDateStyle()
     begin
         DateStyle := '';
-        if IsOverdue then
+        if IsOverdue() then
             DateStyle := 'Attention';
     end;
 

@@ -19,12 +19,12 @@ page 5057 "Contact Alt. Address List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the alternate address.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the company for the alternate address.';
                 }
-                field("Company Name 2"; "Company Name 2")
+                field("Company Name 2"; Rec."Company Name 2")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the additional part of the company name for the alternate address.';
@@ -35,7 +35,7 @@ page 5057 "Contact Alt. Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the alternate address of the contact.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies additional address information.';
@@ -47,7 +47,7 @@ page 5057 "Contact Alt. Address List"
                     ToolTip = 'Specifies the city of the contact''s alternate address.';
                     Visible = false;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the postal code.';
@@ -59,24 +59,24 @@ page 5057 "Contact Alt. Address List"
                     ToolTip = 'Specifies the county for the contact''s alternate address.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number for the alternate address.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the fax number for the alternate address.';
                     Visible = false;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ExtendedDatatype = EMail;

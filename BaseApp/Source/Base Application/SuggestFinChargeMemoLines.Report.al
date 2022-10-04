@@ -17,7 +17,7 @@ report 192 "Suggest Fin. Charge Memo Lines"
                 Clear(MakeFinChrgMemo);
                 MakeFinChrgMemo.SuggestLines("Finance Charge Memo Header", CustLedgEntry);
                 if NoOfRecords = 1 then begin
-                    MakeFinChrgMemo.Code;
+                    MakeFinChrgMemo.Code();
                     Mark := false;
                 end else begin
                     NewDateTime := CurrentDateTime;
@@ -38,7 +38,7 @@ report 192 "Suggest Fin. Charge Memo Lines"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 Commit();
-                Window.Close;
+                Window.Close();
                 MarkedOnly := true;
                 if FindFirst() then
                     if ConfirmManagement.GetResponse(Text002, true) then
@@ -91,9 +91,6 @@ report 192 "Suggest Fin. Charge Memo Lines"
     end;
 
     var
-        Text000: Label 'Suggesting lines...';
-        Text001: Label 'Suggesting lines @1@@@@@@@@@@@@@';
-        Text002: Label 'It was not possible to process some of the selected finance charge memos.\Do you want to see these finance charge memos?';
         CustLedgEntry: Record "Cust. Ledger Entry";
         MakeFinChrgMemo: Codeunit "FinChrgMemo-Make";
         Window: Dialog;
@@ -103,5 +100,9 @@ report 192 "Suggest Fin. Charge Memo Lines"
         OldProgress: Integer;
         NewDateTime: DateTime;
         OldDateTime: DateTime;
+
+        Text000: Label 'Suggesting lines...';
+        Text001: Label 'Suggesting lines @1@@@@@@@@@@@@@';
+        Text002: Label 'It was not possible to process some of the selected finance charge memos.\Do you want to see these finance charge memos?';
 }
 

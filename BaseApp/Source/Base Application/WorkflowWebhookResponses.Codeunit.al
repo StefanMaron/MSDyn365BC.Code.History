@@ -20,22 +20,22 @@ codeunit 1542 "Workflow Webhook Responses"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         case ResponseFunctionName of
-            SendNotificationToWebhookCode:
+            SendNotificationToWebhookCode():
                 begin
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode,
-                      WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode());
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
+                    WorkflowResponseHandling.AddResponsePredecessor(SendNotificationToWebhookCode(),
+                      WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode());
                 end;
         end;
     end;
@@ -45,7 +45,7 @@ codeunit 1542 "Workflow Webhook Responses"
     var
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        WorkflowResponseHandling.AddResponseToLibrary(SendNotificationToWebhookCode, 0, SendNotificationToWebhookTxt, 'GROUP 8');
+        WorkflowResponseHandling.AddResponseToLibrary(SendNotificationToWebhookCode(), 0, SendNotificationToWebhookTxt, 'GROUP 8');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', false, false)]
@@ -55,7 +55,7 @@ codeunit 1542 "Workflow Webhook Responses"
     begin
         if WorkflowResponse.Get(ResponseWorkflowStepInstance."Function Name") then
             case WorkflowResponse."Function Name" of
-                SendNotificationToWebhookCode:
+                SendNotificationToWebhookCode():
                     begin
                         SendNotificationToWebhook(Variant, ResponseWorkflowStepInstance);
                         ResponseExecuted := true;

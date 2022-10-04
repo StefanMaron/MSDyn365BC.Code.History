@@ -132,37 +132,41 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         Resource: Record Resource;
     begin
         PriceCalculationBuffer."Price Calculation Method" := PurchaseLine."Price Calculation Method";
-        PriceCalculationBuffer."Variant Code" := PurchaseLine."Variant Code";
-        PriceCalculationBuffer."Location Code" := PurchaseLine."Location Code";
-        case PriceCalculationBuffer."Asset Type" of
-            PriceCalculationBuffer."Asset Type"::Item:
-                begin
-                    PriceCalculationBuffer."Is SKU" := IsSKU;
-                    if PriceCalculationBuffer."Is SKU" then
-                        PriceCalculationBuffer."Unit Price" := StockkeepingUnit."Last Direct Cost"
-                    else begin
-                        Item.Get(PriceCalculationBuffer."Asset No.");
-                        PriceCalculationBuffer."Unit Price" := Item."Last Direct Cost";
-                    end;
-                end;
-            PriceCalculationBuffer."Asset Type"::Resource:
-                begin
-                    Resource.Get(PriceCalculationBuffer."Asset No.");
-                    PriceCalculationBuffer."Unit Price" := Resource."Direct Unit Cost";
-                end;
-        end;
-        PriceCalculationBuffer."Document Date" := GetDocumentDate();
-
-        // Currency
-        PriceCalculationBuffer.Validate("Currency Code", PurchaseHeader."Currency Code");
-        PriceCalculationBuffer."Currency Factor" := PurchaseHeader."Currency Factor";
-
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := PurchaseHeader."Prices Including VAT";
         PriceCalculationBuffer."Tax %" := PurchaseLine."VAT %";
         PriceCalculationBuffer."VAT Calculation Type" := PurchaseLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := PurchaseLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := PurchaseLine."VAT Prod. Posting Group";
+
+        case PriceCalculationBuffer."Asset Type" of
+            PriceCalculationBuffer."Asset Type"::Item:
+                begin
+                    PriceCalculationBuffer."Variant Code" := PurchaseLine."Variant Code";
+                    PriceCalculationBuffer."Is SKU" := IsSKU;
+                    if PriceCalculationBuffer."Is SKU" then
+                        PriceCalculationBuffer."Unit Price" := StockkeepingUnit."Last Direct Cost"
+                    else begin
+                        Item.Get(PriceCalculationBuffer."Asset No.");
+                        PriceCalculationBuffer."Unit Price" := Item."Last Direct Cost";
+                        if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                            PriceCalculationBuffer."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
+                    end;
+                end;
+            PriceCalculationBuffer."Asset Type"::Resource:
+                begin
+                    Resource.Get(PriceCalculationBuffer."Asset No.");
+                    PriceCalculationBuffer."Unit Price" := Resource."Direct Unit Cost";
+                    if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                        PriceCalculationBuffer."VAT Prod. Posting Group" := Resource."VAT Prod. Posting Group";
+                end;
+        end;
+        PriceCalculationBuffer."Location Code" := PurchaseLine."Location Code";
+        PriceCalculationBuffer."Document Date" := GetDocumentDate();
+
+        // Currency
+        PriceCalculationBuffer.Validate("Currency Code", PurchaseHeader."Currency Code");
+        PriceCalculationBuffer."Currency Factor" := PurchaseHeader."Currency Factor";
 
         // UoM
         PriceCalculationBuffer.Quantity := Abs(PurchaseLine.Quantity);

@@ -27,13 +27,13 @@ codeunit 903 "Release Assembly Document"
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
             if AssemblyLine.FindSet() then
                 repeat
-                    if AssemblyLine.IsInventoriableItem then
+                    if AssemblyLine.IsInventoriableItem() then
                         AssemblyLine.TestField("Location Code");
                 until AssemblyLine.Next() = 0;
         end;
 
         Status := Status::Released;
-        Modify;
+        Modify();
 
         if "Document Type" = "Document Type"::Order then
             WhseAssemblyRelease.Release(Rec);

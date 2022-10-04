@@ -12,9 +12,9 @@ codeunit 7711 "Miniform Whse. Activity Line"
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
         if Code <> CurrentCode then
-            PrepareData
+            PrepareData()
         else
-            ProcessInput;
+            ProcessInput();
 
         Clear(DOMxmlin);
     end;
@@ -126,9 +126,9 @@ codeunit 7711 "Miniform Whse. Activity Line"
                     if Remark = '' then
                         if ADCSCommunication.LastEntryField(CurrentCode, FldNo) then begin
                             RecRef.GetTable(WhseActivityLine);
-                            if not ADCSCommunication.FindRecRef(1, ActiveInputField) then begin
-                                Remark := Text008;
-                            end else
+                            if not ADCSCommunication.FindRecRef(1, ActiveInputField) then
+                                Remark := Text008
+                            else
                                 ActiveInputField := 1;
                         end else
                             ActiveInputField += 1;

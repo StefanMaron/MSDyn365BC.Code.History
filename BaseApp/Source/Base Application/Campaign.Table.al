@@ -360,7 +360,7 @@ table 5071 Campaign
         end;
 
         if "Salesperson Code" = '' then
-            SetDefaultSalesperson;
+            SetDefaultSalesperson();
 
         DimMgt.UpdateDefaultDim(
           DATABASE::Campaign, "No.",
@@ -380,8 +380,6 @@ table 5071 Campaign
     end;
 
     var
-        Text000: Label '%1 must be before %2.';
-        Text001: Label '%1 must be after %2.';
         RMSetup: Record "Marketing Setup";
         Campaign: Record Campaign;
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
@@ -390,6 +388,9 @@ table 5071 Campaign
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         CampaignMgmt: Codeunit "Campaign Target Group Mgt";
+
+        Text000: Label '%1 must be before %2.';
+        Text001: Label '%1 must be after %2.';
 
     procedure AssistEdit(OldCampaign: Record Campaign): Boolean
     begin
@@ -414,7 +415,7 @@ table 5071 Campaign
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Campaign, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);

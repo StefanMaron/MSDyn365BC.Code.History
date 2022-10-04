@@ -12,7 +12,7 @@ page 210 "Resource Units of Measure"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource.';
@@ -25,14 +25,14 @@ page 210 "Resource Units of Measure"
                     StyleExpr = StyleName;
                     ToolTip = 'Specifies one of the unit of measure codes that has been set up in the Unit of Measure table.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Jobs;
                     Style = Strong;
                     StyleExpr = StyleName;
                     ToolTip = 'Specifies the number of units of the code. If, for example, the base unit of measure is hour, and the code is day, enter 8 in this field.';
                 }
-                field("Related to Base Unit of Meas."; "Related to Base Unit of Meas.")
+                field("Related to Base Unit of Meas."; Rec."Related to Base Unit of Meas.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies that the unit of measure can be calculated into the base unit of measure. For example, 2 days equals 16 hours.';
@@ -191,12 +191,12 @@ page 210 "Resource Units of Measure"
 
     trigger OnAfterGetRecord()
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetStyle;
+        SetStyle();
     end;
 
     trigger OnOpenPage()

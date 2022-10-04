@@ -404,15 +404,15 @@ codeunit 134980 "ERM Insurance Reports"
     [Normal]
     local procedure UpdateDateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book")
     begin
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Random Number Generator for Ending date.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
     end;
 
     local procedure UpdateValuesOnInsurance(var Insurance: Record Insurance)
     begin
-        Insurance.Validate("Effective Date", WorkDate);
+        Insurance.Validate("Effective Date", WorkDate());
 
         // Using Random Number Generator for Annual Premium and Policy Coverage.
         Insurance.Validate("Annual Premium", LibraryRandom.RandDec(10000, 2));

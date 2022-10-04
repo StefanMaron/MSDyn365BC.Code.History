@@ -24,12 +24,12 @@ page 9375 "Analysis Report Purchase"
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the analysis report description.';
                 }
-                field("Analysis Line Template Name"; "Analysis Line Template Name")
+                field("Analysis Line Template Name"; Rec."Analysis Line Template Name")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the analysis line template name for this analysis report.';
                 }
-                field("Analysis Column Template Name"; "Analysis Column Template Name")
+                field("Analysis Column Template Name"; Rec."Analysis Column Template Name")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the column template name for this analysis report.';
@@ -60,9 +60,6 @@ page 9375 "Analysis Report Purchase"
                 ApplicationArea = PurchaseAnalysis;
                 Caption = 'Edit Analysis Report';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Edit the settings for the analysis report such as the name or period.';
 
@@ -73,6 +70,17 @@ page 9375 "Analysis Report Purchase"
                     PurchaseAnalysisReport.SetReportName(Name);
                     PurchaseAnalysisReport.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(EditAnalysisReport_Promoted; EditAnalysisReport)
+                {
+                }
             }
         }
     }

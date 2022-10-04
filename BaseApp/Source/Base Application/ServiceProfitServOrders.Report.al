@@ -12,7 +12,7 @@ report 5910 "Service Profit (Serv. Orders)"
         {
             DataItemTableView = SORTING("Order No.");
             RequestFilterFields = "Order No.", "Posting Date";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -249,7 +249,7 @@ report 5910 "Service Profit (Serv. Orders)"
 
     trigger OnPreReport()
     begin
-        ServShipmentHeaderFilter := "Service Shipment Header".GetFilters;
+        ServShipmentHeaderFilter := "Service Shipment Header".GetFilters();
         TotalDiscountAmount := 0;
         TotalContractDiscAmount := 0;
         TotalCostAmount := 0;

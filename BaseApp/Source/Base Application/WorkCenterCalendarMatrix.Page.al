@@ -14,7 +14,7 @@ page 9291 "Work Center Calendar Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -457,8 +457,6 @@ page 9291 "Work Center Calendar Matrix"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Work Center Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -527,6 +525,17 @@ page 9291 "Work Center Calendar Matrix"
                         Calendarentry.SetRange("Capacity Type", Calendarentry."Capacity Type"::"Work Center");
                         REPORT.RunModal(REPORT::"Recalculate Calendar", true, true, Calendarentry);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

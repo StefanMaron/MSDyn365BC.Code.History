@@ -106,7 +106,7 @@ table 99000786 "Routing Version"
                   FieldCaption("Version Code"),
                   NoSeriesLine.FieldCaption("Starting No."),
                   RoutingHeader."Version Nos.",
-                  NoSeries.TableCaption,
+                  NoSeries.TableCaption(),
                   MaxStrLen("Version Code"));
 
             "Version Code" := VersionCode;
@@ -121,7 +121,7 @@ table 99000786 "Routing Version"
     trigger OnRename()
     begin
         if Status = Status::Certified then
-            Error(Text001, TableCaption, FieldCaption(Status), Format(Status));
+            Error(Text001, TableCaption(), FieldCaption(Status), Format(Status));
     end;
 
     var
@@ -148,7 +148,7 @@ table 99000786 "Routing Version"
                       FieldCaption("Version Code"),
                       NoSeriesLine.FieldCaption("Starting No."),
                       RoutingHeader."Version Nos.",
-                      NoSeries.TableCaption,
+                      NoSeries.TableCaption(),
                       MaxStrLen("Version Code"));
 
                 "Version Code" := VersionCode;

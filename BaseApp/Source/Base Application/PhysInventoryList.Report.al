@@ -11,7 +11,7 @@ report 722 "Phys. Inventory List"
         dataitem(PageLoop; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ShowLotSN; ShowLotSN)
@@ -127,13 +127,13 @@ report 722 "Phys. Inventory List"
                         column(QuantityBaseCaption; GetQuantityBaseCaption)
                         {
                         }
-                        column(ReservEntryBufferLotNo; ReservEntryBuffer."Lot No.")
+                        column(ReservEntryBufferLotNo; TempReservEntryBuffer."Lot No.")
                         {
                         }
-                        column(ReservEntryBufferSerialNo; ReservEntryBuffer."Serial No.")
+                        column(ReservEntryBufferSerialNo; TempReservEntryBuffer."Serial No.")
                         {
                         }
-                        column(ReservEntryBufferQtyBase; ReservEntryBuffer."Quantity (Base)")
+                        column(ReservEntryBufferQtyBase; TempReservEntryBuffer."Quantity (Base)")
                         {
                             DecimalPlaces = 0 : 0;
                         }
@@ -144,27 +144,27 @@ report 722 "Phys. Inventory List"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                ReservEntryBuffer.FindSet
+                                TempReservEntryBuffer.FindSet()
                             else
-                                ReservEntryBuffer.Next;
+                                TempReservEntryBuffer.Next();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            ReservEntryBuffer.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
-                            ReservEntryBuffer.SetRange("Source ID", "Item Journal Line"."Journal Template Name");
-                            ReservEntryBuffer.SetRange("Source Ref. No.", "Item Journal Line"."Line No.");
-                            ReservEntryBuffer.SetRange("Source Type", DATABASE::"Item Journal Line");
-                            ReservEntryBuffer.SetFilter("Source Subtype", '=%1', ReservEntryBuffer."Source Subtype"::"0");
-                            ReservEntryBuffer.SetRange("Source Batch Name", "Item Journal Line"."Journal Batch Name");
+                            TempReservEntryBuffer.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
+                            TempReservEntryBuffer.SetRange("Source ID", "Item Journal Line"."Journal Template Name");
+                            TempReservEntryBuffer.SetRange("Source Ref. No.", "Item Journal Line"."Line No.");
+                            TempReservEntryBuffer.SetRange("Source Type", DATABASE::"Item Journal Line");
+                            TempReservEntryBuffer.SetFilter("Source Subtype", '=%1', TempReservEntryBuffer."Source Subtype"::"0");
+                            TempReservEntryBuffer.SetRange("Source Batch Name", "Item Journal Line"."Journal Batch Name");
 
-                            if ReservEntryBuffer.IsEmpty() then
+                            if TempReservEntryBuffer.IsEmpty() then
                                 CurrReport.Break();
-                            SetRange(Number, 1, ReservEntryBuffer.Count);
+                            SetRange(Number, 1, TempReservEntryBuffer.Count);
 
-                            GetLotNoCaption := ReservEntryBuffer.FieldCaption("Lot No.");
-                            GetSerialNoCaption := ReservEntryBuffer.FieldCaption("Serial No.");
-                            GetQuantityBaseCaption := ReservEntryBuffer.FieldCaption("Quantity (Base)");
+                            GetLotNoCaption := TempReservEntryBuffer.FieldCaption("Lot No.");
+                            GetSerialNoCaption := TempReservEntryBuffer.FieldCaption("Serial No.");
+                            GetQuantityBaseCaption := TempReservEntryBuffer.FieldCaption("Quantity (Base)");
                         end;
                     }
 
@@ -178,7 +178,7 @@ report 722 "Phys. Inventory List"
                                     Note := NoteTxt;
                                     ShowSummary := true;
                                 end;
-                            Clear(ReservEntryBuffer);
+                            Clear(TempReservEntryBuffer);
                         end;
                     end;
                 }
@@ -230,8 +230,8 @@ report 722 "Phys. Inventory List"
 
     trigger OnPreReport()
     begin
-        ItemJnlLineFilter := "Item Journal Line".GetFilters;
-        ItemJnlBatchFilter := "Item Journal Batch".GetFilters;
+        ItemJnlLineFilter := "Item Journal Line".GetFilters();
+        ItemJnlBatchFilter := "Item Journal Batch".GetFilters();
         if ShowLotSN then begin
             ShowNote := false;
             ItemJnlLine.CopyFilters("Item Journal Line");
@@ -244,13 +244,11 @@ report 722 "Phys. Inventory List"
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJnlLine: Record "Item Journal Line";
-        ReservEntryBuffer: Record "Reservation Entry" temporary;
+        TempReservEntryBuffer: Record "Reservation Entry" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemJnlLineFilter: Text;
         ItemJnlBatchFilter: Text;
         Note: Text[1];
-        ShowQtyCalculated: Boolean;
-        ShowLotSN: Boolean;
         ShowNote: Boolean;
         ShowSummary: Boolean;
         NoteTxt: Label '*', Locked = true;
@@ -265,6 +263,10 @@ report 722 "Phys. Inventory List"
         ItemJnlLinePostDtCaptionLbl: Label 'Posting Date';
         QtyPhysInventoryCaptionLbl: Label 'Qty. (Phys. Inventory)';
         SummaryperItemCaptionLbl: Label 'Summary per Item *';
+
+    protected var
+        ShowQtyCalculated: Boolean;
+        ShowLotSN: Boolean;
 
     procedure Initialize(ShowQtyCalculated2: Boolean)
     begin
@@ -285,13 +287,11 @@ report 722 "Phys. Inventory List"
                         CreateSummary(ItemJnlLine);
                         ShowNote := true;
                     end;
-                end
-                else begin
+                end else
                     if DirectedPutAwayAndPick(ItemJnlLine."Location Code") then
                         CreateSummary(ItemJnlLine)
                     else
                         PickSNLotFromILEntry(ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code");
-                end;
             until ItemJnlLine.Next() = 0;
     end;
 
@@ -350,51 +350,50 @@ report 722 "Phys. Inventory List"
     var
         FoundRec: Boolean;
     begin
-        ReservEntryBuffer.SetCurrentKey(
+        TempReservEntryBuffer.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.");
-        ReservEntryBuffer.SetRange("Item No.", ItemJournalLine."Item No.");
-        ReservEntryBuffer.SetRange("Variant Code", ItemJournalLine."Variant Code");
-        ReservEntryBuffer.SetRange("Location Code", ItemJournalLine."Location Code");
-        ReservEntryBuffer.SetRange("Reservation Status", ReservEntryBuffer."Reservation Status"::Prospect);
-        ReservEntryBuffer.SetRange("Item Tracking", ItemTracking);
-        ReservEntryBuffer.SetRange("Serial No.", SerialNo);
-        ReservEntryBuffer.SetRange("Lot No.", LotNo);
+        TempReservEntryBuffer.SetRange("Item No.", ItemJournalLine."Item No.");
+        TempReservEntryBuffer.SetRange("Variant Code", ItemJournalLine."Variant Code");
+        TempReservEntryBuffer.SetRange("Location Code", ItemJournalLine."Location Code");
+        TempReservEntryBuffer.SetRange("Reservation Status", TempReservEntryBuffer."Reservation Status"::Prospect);
+        TempReservEntryBuffer.SetRange("Item Tracking", ItemTracking);
+        TempReservEntryBuffer.SetRange("Serial No.", SerialNo);
+        TempReservEntryBuffer.SetRange("Lot No.", LotNo);
 
-        if ReservEntryBuffer.FindSet() then begin
+        if TempReservEntryBuffer.FindSet() then
             repeat
-                if (ReservEntryBuffer."Source Ref. No." = ItemJournalLine."Line No.") and
-                   (ReservEntryBuffer."Source ID" = ItemJournalLine."Journal Template Name") and
-                   (ReservEntryBuffer."Source Batch Name" = ItemJournalLine."Journal Batch Name")
+                if (TempReservEntryBuffer."Source Ref. No." = ItemJournalLine."Line No.") and
+                   (TempReservEntryBuffer."Source ID" = ItemJournalLine."Journal Template Name") and
+                   (TempReservEntryBuffer."Source Batch Name" = ItemJournalLine."Journal Batch Name")
                 then
                     FoundRec := true;
-            until (ReservEntryBuffer.Next() = 0) or FoundRec;
-        end;
+            until (TempReservEntryBuffer.Next() = 0) or FoundRec;
 
         if not FoundRec then begin
             EntryNo += 1;
-            ReservEntryBuffer."Entry No." := EntryNo;
-            ReservEntryBuffer."Item No." := ItemJournalLine."Item No.";
-            ReservEntryBuffer."Location Code" := ItemJournalLine."Location Code";
-            ReservEntryBuffer."Quantity (Base)" := Qty;
-            ReservEntryBuffer."Variant Code" := ItemJournalLine."Variant Code";
-            ReservEntryBuffer."Reservation Status" := ReservEntryBuffer."Reservation Status"::Prospect;
-            ReservEntryBuffer."Creation Date" := WorkDate;
-            ReservEntryBuffer."Source Type" := DATABASE::"Item Journal Line";
-            ReservEntryBuffer."Source ID" := ItemJournalLine."Journal Template Name";
-            ReservEntryBuffer."Source Batch Name" := ItemJournalLine."Journal Batch Name";
-            ReservEntryBuffer."Source Ref. No." := ItemJournalLine."Line No.";
-            ReservEntryBuffer."Qty. per Unit of Measure" := ItemJournalLine."Qty. per Unit of Measure";
-            ReservEntryBuffer."Serial No." := SerialNo;
-            ReservEntryBuffer."Lot No." := LotNo;
-            ReservEntryBuffer."Item Tracking" := ItemTracking;
-            ReservEntryBuffer.Insert();
+            TempReservEntryBuffer."Entry No." := EntryNo;
+            TempReservEntryBuffer."Item No." := ItemJournalLine."Item No.";
+            TempReservEntryBuffer."Location Code" := ItemJournalLine."Location Code";
+            TempReservEntryBuffer."Quantity (Base)" := Qty;
+            TempReservEntryBuffer."Variant Code" := ItemJournalLine."Variant Code";
+            TempReservEntryBuffer."Reservation Status" := TempReservEntryBuffer."Reservation Status"::Prospect;
+            TempReservEntryBuffer."Creation Date" := WorkDate();
+            TempReservEntryBuffer."Source Type" := DATABASE::"Item Journal Line";
+            TempReservEntryBuffer."Source ID" := ItemJournalLine."Journal Template Name";
+            TempReservEntryBuffer."Source Batch Name" := ItemJournalLine."Journal Batch Name";
+            TempReservEntryBuffer."Source Ref. No." := ItemJournalLine."Line No.";
+            TempReservEntryBuffer."Qty. per Unit of Measure" := ItemJournalLine."Qty. per Unit of Measure";
+            TempReservEntryBuffer."Serial No." := SerialNo;
+            TempReservEntryBuffer."Lot No." := LotNo;
+            TempReservEntryBuffer."Item Tracking" := ItemTracking;
+            TempReservEntryBuffer.Insert();
         end
         else begin
-            ReservEntryBuffer."Quantity (Base)" += Qty;
-            if (ReservEntryBuffer."Quantity (Base)" = 0) and (ItemJournalLine."Qty. (Calculated)" <> 0) then
-                ReservEntryBuffer.Delete()
+            TempReservEntryBuffer."Quantity (Base)" += Qty;
+            if (TempReservEntryBuffer."Quantity (Base)" = 0) and (ItemJournalLine."Qty. (Calculated)" <> 0) then
+                TempReservEntryBuffer.Delete()
             else
-                ReservEntryBuffer.Modify();
+                TempReservEntryBuffer.Modify();
         end;
     end;
 

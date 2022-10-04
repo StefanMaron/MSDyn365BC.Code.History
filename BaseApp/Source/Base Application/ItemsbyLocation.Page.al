@@ -24,7 +24,7 @@ page 491 "Items by Location"
 
                     trigger OnValidate()
                     begin
-                        ShowInTransitOnAfterValidate;
+                        ShowInTransitOnAfterValidate();
                     end;
                 }
                 field(ShowColumnName; ShowColumnName)
@@ -35,7 +35,7 @@ page 491 "Items by Location"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnAfterValidate;
+                        ShowColumnNameOnAfterValidate();
                     end;
                 }
                 field(MATRIX_CaptionRange; MATRIX_CaptionRange)
@@ -63,10 +63,6 @@ page 491 "Items by Location"
                 ApplicationArea = Location;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -79,16 +75,26 @@ page 491 "Items by Location"
                 ApplicationArea = Location;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -154,15 +160,15 @@ page 491 "Items by Location"
 
         if MATRIX_CurrSetLength > 0 then begin
             TempMatrixLocation.SetPosition(MATRIX_PKFirstRecInCurrSet);
-            TempMatrixLocation.Find;
+            TempMatrixLocation.Find();
             repeat
                 MatrixRecords[CurrentMatrixRecordOrdinal].Copy(TempMatrixLocation);
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-            until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (TempMatrixLocation.Next <> 1);
+            until (CurrentMatrixRecordOrdinal > MATRIX_CurrSetLength) or (TempMatrixLocation.Next() <> 1);
         end;
 
         OnSetColumnsOnBeforeUpdateMatrixSubform(MATRIX_CaptionSet, MatrixRecords, TempMatrixLocation, MATRIX_CurrSetLength);
-        UpdateMatrixSubform;
+        UpdateMatrixSubform();
     end;
 
     local procedure SetTempMatrixLocationFilters()

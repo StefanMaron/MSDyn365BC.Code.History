@@ -487,8 +487,8 @@ page 223 "Resource Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateAccountingPeriodFilter(ResDateFilter[1], ResDateName[1], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(ResDateFilter[2], ResDateName[2], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(ResDateFilter[3], ResDateName[3], CurrentDate, -1);

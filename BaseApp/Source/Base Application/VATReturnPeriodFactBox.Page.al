@@ -31,7 +31,7 @@ page 736 "VAT Return Period FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        WarningText := CheckOpenOrOverdue;
+        WarningText := CheckOpenOrOverdue();
     end;
 
     var

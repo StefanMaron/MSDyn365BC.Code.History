@@ -187,7 +187,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         CreateResJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
         BatchName := ResJournalBatch.Name;
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalTemplate.Name, ResJournalBatch.Name);
-        ResJournalLine.Validate("Posting Date", WorkDate);
+        ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Sale);
         ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo);
         ResJournalLine.Validate("Unit Price", 100);
@@ -225,7 +225,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         CreateResJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
         BatchName := ResJournalBatch.Name;
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalTemplate.Name, ResJournalBatch.Name);
-        ResJournalLine.Validate("Posting Date", WorkDate);
+        ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Sale);
         ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo);
         ResJournalLine.Validate("Unit Price", 100);

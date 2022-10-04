@@ -61,7 +61,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [THEN] The field "Sequence No. (Forward)" in operations has numbers from 1 to 3
         // [THEN] The field "Sequence No. (Backeward)" in operations has numbers from 3 to 1
         for I := 1 to ArrayLen(RoutingLine) do begin
-            RoutingLine[I].Find;
+            RoutingLine[I].Find();
             RoutingLine[I].TestField("Sequence No. (Forward)", I);
             RoutingLine[I].TestField("Sequence No. (Backward)", ArrayLen(RoutingLine) - I + 1);
         end;
@@ -110,7 +110,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [THEN] The field "Sequence No. (Forward)" in operations has numbers from 1 to 3
         // [THEN] The field "Sequence No. (Backeward)" in operations has numbers from 3 to 1
         for I := 1 to ArrayLen(RoutingLine) do begin
-            RoutingLine[I].Find;
+            RoutingLine[I].Find();
             RoutingLine[I].TestField("Sequence No. (Forward)", I);
             RoutingLine[I].TestField("Sequence No. (Backward)", ArrayLen(RoutingLine) - I + 1);
         end;
@@ -754,7 +754,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Capacity requirements and costs are recalculated for the production order.
         // [THEN] Expected operation cost is 3 * 30 * 20 = 1800; Expected capacity overhead is 3 * 30 * 5 = 450
-        ProdOrderRoutingLine.Find;
+        ProdOrderRoutingLine.Find();
         ProdOrderRoutingLine.TestField(
           "Expected Operation Cost Amt.", ProductionOrder.Quantity * RoutingLine."Run Time" * WorkCenter[2]."Unit Cost");
         ProdOrderRoutingLine.TestField(
@@ -888,7 +888,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderLine.OpenItemTrackingLines();
 
         // [WHEN] Change Order Status to Released
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
 
         // [THEN] Released Production Order for the Item is created
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
@@ -924,7 +924,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one Routing Line associated with it"
         Assert.ExpectedError(
-          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption, WorkCenter."No.", RoutingLine.TableCaption));
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption(), WorkCenter."No.", RoutingLine.TableCaption()));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -960,7 +960,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Error is shown: "You cannot delete Work Center WKC because there is at least one Routing Line associated with it"
         Assert.ExpectedError(
-          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption, WorkCenter."No.", RoutingLine.TableCaption));
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption(), WorkCenter."No.", RoutingLine.TableCaption()));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -990,7 +990,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one Routing Line associated with it"
         Assert.ExpectedError(
-          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption, MachineCenter."No.", RoutingLine.TableCaption));
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption(), MachineCenter."No.", RoutingLine.TableCaption()));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -1026,7 +1026,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Error is shown: "You cannot delete Machine Center MC because there is at least one Routing Line associated with it"
         Assert.ExpectedError(
-          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption, MachineCenter."No.", RoutingLine.TableCaption));
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption(), MachineCenter."No.", RoutingLine.TableCaption()));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -1073,7 +1073,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Work Center was not deleted. Error "You cannot delete Work Center because there is at least one Routing Line associated with it" was thrown.
         Assert.ExpectedError(
-          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption, WorkCenter."No.", RoutingLine.TableCaption));
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, WorkCenter.TableCaption(), WorkCenter."No.", RoutingLine.TableCaption()));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -1124,7 +1124,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Machine Center was not deleted. Error "You cannot delete Machine Center because there is at least one Routing Line associated with it" was thrown.
         Assert.ExpectedError(
-          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption, MachineCenter."No.", RoutingLine.TableCaption));
+          StrSubstNo(CannotDeleteWorkMachineCenterErr, MachineCenter.TableCaption(), MachineCenter."No.", RoutingLine.TableCaption()));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -1151,7 +1151,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Routing was not certified. Error "Operation 10 has the Work Center WC that does not exist" was thrown.
         Assert.ExpectedError(
-          StrSubstNo(WorkMachineCenterNotExistErr, RoutingLine."Operation No.", WorkCenter.TableCaption, RoutingLine."No."));
+          StrSubstNo(WorkMachineCenterNotExistErr, RoutingLine."Operation No.", WorkCenter.TableCaption(), RoutingLine."No."));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -1178,7 +1178,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
 
         // [THEN] Routing was not certified. Error "Blocked must be equal to 'No' in Work Center WC" was thrown.
-        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, WorkCenter.TableCaption, WorkCenter."No."));
+        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, WorkCenter.TableCaption(), WorkCenter."No."));
         Assert.ExpectedErrorCode('TestField');
     end;
 
@@ -1207,7 +1207,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         // [THEN] Routing was not certified. Error "Operation 10 has the Machine Center MC that does not exist" was thrown.
         Assert.ExpectedError(
-          StrSubstNo(WorkMachineCenterNotExistErr, RoutingLine."Operation No.", MachineCenter.TableCaption, RoutingLine."No."));
+          StrSubstNo(WorkMachineCenterNotExistErr, RoutingLine."Operation No.", MachineCenter.TableCaption(), RoutingLine."No."));
         Assert.ExpectedErrorCode('Dialog');
     end;
 
@@ -1236,7 +1236,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
 
         // [THEN] Routing was not certified. Error "Blocked must be equal to 'No' in Machine Center MC" was thrown.
-        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, MachineCenter.TableCaption, MachineCenter."No."));
+        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, MachineCenter.TableCaption(), MachineCenter."No."));
         Assert.ExpectedErrorCode('TestField');
     end;
 
@@ -1615,7 +1615,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     begin
         ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
         for I := 1 to ArrayLen(RoutingLine) do
-            RoutingLine[I].Find;
+            RoutingLine[I].Find();
     end;
 
     local procedure ChangeRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Enum "Routing Status")

@@ -10,6 +10,7 @@ codeunit 136113 "Service Line Update Validation"
     end;
 
     var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
@@ -26,7 +27,6 @@ codeunit 136113 "Service Line Update Validation"
         QtyToShipError: Label 'You cannot ship more than %1 units.';
         QtyToInvoiceError: Label 'You cannot invoice more than %1 units.';
         QtyToConsumeError: Label 'You cannot consume more than %1 units.';
-        NothingToPostError: Label 'There is nothing to post.';
         ServiceShipmentLineError: Label '%1 must be %2 on %3 %4=%5.';
 
     [Normal]
@@ -878,7 +878,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 3. Verify: Verify error occurs "Nothing to Post" on Posting Service Order as Ship.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-        Assert.AreEqual(StrSubstNo(NothingToPostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -925,7 +925,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 3. Verify: Verify error occurs "Nothing to Post" on Posting Service Order as Invoice.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, false, false, true);
-        Assert.AreEqual(StrSubstNo(NothingToPostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -972,7 +972,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 3. Verify: Verify error occurs "Nothing to Post" on Posting Service Order as Ship and Consume.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
-        Assert.AreEqual(StrSubstNo(NothingToPostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1020,7 +1020,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 3. Verify: Verify error occurs "Nothing to Post" on Posting Service Order as Ship and Invoice.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-        Assert.AreEqual(StrSubstNo(NothingToPostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1231,7 +1231,7 @@ codeunit 136113 "Service Line Update Validation"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, '');
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForResource(ServiceHeader: Record "Service Header")
@@ -1246,7 +1246,7 @@ codeunit 136113 "Service Line Update Validation"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, '');
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     [Normal]
@@ -1258,7 +1258,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1288,7 +1288,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity - ServiceLine."Quantity Shipped");
             ServiceLine.Validate("Qty. to Invoice", 0);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1301,7 +1301,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Validate("Qty. to Ship", Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1314,7 +1314,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Validate("Qty. to Invoice", Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1327,7 +1327,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Validate("Qty. to Consume", Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1339,7 +1339,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1351,7 +1351,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity - ServiceLine."Quantity Shipped");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1365,7 +1365,7 @@ codeunit 136113 "Service Line Update Validation"
               "Qty. to Invoice",
               (ServiceLine.Quantity - ServiceLine."Quantity Invoiced" - ServiceLine."Quantity Consumed") * FractionFactor);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1377,7 +1377,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Ship", (ServiceLine.Quantity - ServiceLine."Quantity Shipped") * FractionFactor);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1391,7 +1391,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Validate("Qty. to Invoice", 0);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1404,7 +1404,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(
               "Qty. to Consume", (ServiceLine.Quantity - ServiceLine."Quantity Shipped") * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1416,7 +1416,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1430,7 +1430,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate(Quantity, ServiceLine."Quantity Shipped");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1442,7 +1442,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate(Quantity, ServiceLine.Quantity + Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1455,7 +1455,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1468,7 +1468,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
             ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1480,7 +1480,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity - ServiceLine."Quantity Shipped");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1493,7 +1493,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.Validate(
               "Qty. to Invoice", ServiceLine."Quantity Shipped" - ServiceLine."Quantity Invoiced" - ServiceLine."Quantity Consumed");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1505,7 +1505,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Unit Cost", UnitCost);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1517,7 +1517,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Unit Price", UnitPrice);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1529,7 +1529,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Consume", 0);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1541,7 +1541,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Invoice", 0);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1553,7 +1553,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.Validate("Qty. to Ship", 0);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1566,8 +1566,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField("Qty. to Ship", TempServiceLine.Quantity - TempServiceLine."Quantity Shipped");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1578,7 +1578,7 @@ codeunit 136113 "Service Line Update Validation"
         ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, Quantity);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1590,7 +1590,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.TestField(Quantity, Quantity);
             ServiceLine.TestField("Qty. to Consume", Quantity);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1602,7 +1602,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.TestField(Quantity, Quantity);
             ServiceLine.TestField("Qty. to Invoice", Quantity);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1614,7 +1614,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.TestField(Quantity, Quantity);
             ServiceLine.TestField("Qty. to Ship", Quantity);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1631,7 +1631,7 @@ codeunit 136113 "Service Line Update Validation"
                 ServiceLine.Quantity - ServiceLine."Quantity Shipped" + LibraryRandom.RandInt(10));
             Assert.AreEqual(
               StrSubstNo(QtyToConsumeError, ServiceLine.Quantity - ServiceLine."Quantity Shipped"), GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1649,7 +1649,7 @@ codeunit 136113 "Service Line Update Validation"
             Assert.AreEqual(
               StrSubstNo(QtyToInvoiceError, ServiceLine.Quantity - ServiceLine."Quantity Invoiced" - ServiceLine."Quantity Consumed"),
               GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1666,7 +1666,7 @@ codeunit 136113 "Service Line Update Validation"
                 ServiceLine.Quantity - ServiceLine."Quantity Shipped" + LibraryRandom.RandInt(10));
             Assert.AreEqual(
               StrSubstNo(QtyToShipError, ServiceLine.Quantity - ServiceLine."Quantity Shipped"), GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1679,8 +1679,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField("Qty. to Consume", TempServiceLine.Quantity - TempServiceLine."Quantity Shipped");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1695,8 +1695,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(
               "Qty. to Invoice",
               (TempServiceLine.Quantity - TempServiceLine."Quantity Invoiced" - TempServiceLine."Quantity Consumed") * FractionFactor);
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1709,8 +1709,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField("Qty. to Ship", (TempServiceLine.Quantity - TempServiceLine."Quantity Shipped") * FractionFactor);
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1724,11 +1724,11 @@ codeunit 136113 "Service Line Update Validation"
             Assert.AreEqual(
               StrSubstNo(
                 QuantityError, ServiceLine.FieldCaption(Quantity), ServiceLine.FieldCaption("Quantity Shipped"),
-                ServiceLine.TableCaption, ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type",
+                ServiceLine.TableCaption(), ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type",
                 ServiceLine.FieldCaption("Document No."), ServiceLine."Document No.",
                 ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."),
               GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1741,12 +1741,12 @@ codeunit 136113 "Service Line Update Validation"
             asserterror ServiceLine.Validate(Quantity, -Quantity);
             Assert.AreEqual(
               StrSubstNo(
-                NegativeQuantityError, ServiceLine.FieldCaption(Quantity), ServiceLine.TableCaption,
+                NegativeQuantityError, ServiceLine.FieldCaption(Quantity), ServiceLine.TableCaption(),
                 ServiceLine.FieldCaption("Document Type"),
                 ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."), ServiceLine."Document No.",
                 ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."),
               GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1759,11 +1759,11 @@ codeunit 136113 "Service Line Update Validation"
             asserterror ServiceLine.Validate("Qty. to Consume", -Quantity);
             Assert.AreEqual(
               StrSubstNo(
-                NegativeQuantityError, ServiceLine.FieldCaption("Qty. to Consume"), ServiceLine.TableCaption,
+                NegativeQuantityError, ServiceLine.FieldCaption("Qty. to Consume"), ServiceLine.TableCaption(),
                 ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
                 ServiceLine."Document No.", ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."),
               GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1776,11 +1776,11 @@ codeunit 136113 "Service Line Update Validation"
             asserterror ServiceLine.Validate("Qty. to Invoice", -Quantity);
             Assert.AreEqual(
               StrSubstNo(
-                NegativeQuantityError, ServiceLine.FieldCaption("Qty. to Invoice"), ServiceLine.TableCaption,
+                NegativeQuantityError, ServiceLine.FieldCaption("Qty. to Invoice"), ServiceLine.TableCaption(),
                 ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
                 ServiceLine."Document No.", ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."),
               GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1793,11 +1793,11 @@ codeunit 136113 "Service Line Update Validation"
             asserterror ServiceLine.Validate("Qty. to Ship", -Quantity);
             Assert.AreEqual(
               StrSubstNo(
-                NegativeQuantityError, ServiceLine.FieldCaption("Qty. to Ship"), ServiceLine.TableCaption,
+                NegativeQuantityError, ServiceLine.FieldCaption("Qty. to Ship"), ServiceLine.TableCaption(),
                 ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
                 ServiceLine."Document No.", ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."),
               GetLastErrorText, UnknownError);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1810,8 +1810,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity + Quantity);
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1825,8 +1825,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField(Quantity, TempServiceLine."Quantity Shipped");
             ServiceLine.TestField("Qty. to Ship", 0);
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1839,8 +1839,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Type, TempServiceLine.Type);
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField("Qty. to Consume", TempServiceLine.Quantity - TempServiceLine."Quantity Shipped");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1855,8 +1855,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(
               "Qty. to Invoice",
               TempServiceLine."Quantity Shipped" - TempServiceLine."Quantity Invoiced" - TempServiceLine."Quantity Consumed");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1872,8 +1872,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Qty. to Ship" + TempServiceLine."Quantity Shipped");
             ServiceLine.TestField("Quantity Invoiced", TempServiceLine."Qty. to Invoice" + TempServiceLine."Quantity Invoiced");
             ServiceLine.TestField("Quantity Consumed", TempServiceLine."Qty. to Consume" + TempServiceLine."Quantity Consumed");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLineAfterConsume(ServiceHeader: Record "Service Header")
@@ -1887,7 +1887,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Quantity, ServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", ServiceLine.Quantity - ServiceLine."Qty. to Ship");
             ServiceLine.TestField("Quantity Consumed", ServiceLine.Quantity - ServiceLine."Qty. to Ship");
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1903,8 +1903,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Quantity Shipped");
             ServiceLine.TestField("Quantity Invoiced", TempServiceLine."Qty. to Invoice");
             ServiceLine.TestField("Quantity Consumed", TempServiceLine."Qty. to Consume");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1919,8 +1919,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Quantity Shipped");
             ServiceLine.TestField("Quantity Invoiced", TempServiceLine."Qty. to Invoice" + TempServiceLine."Quantity Invoiced");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLineAfterShip(ServiceHeader: Record "Service Header")
@@ -1933,7 +1933,7 @@ codeunit 136113 "Service Line Update Validation"
         repeat
             ServiceLine.TestField(Quantity, ServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", ServiceLine.Quantity - ServiceLine."Qty. to Ship");
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1948,8 +1948,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Quantity Shipped");
             ServiceLine.TestField("Quantity Consumed", TempServiceLine."Quantity Consumed");
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1975,25 +1975,25 @@ codeunit 136113 "Service Line Update Validation"
                 TotalQuantity += ServiceShipmentLine.Quantity;
                 TotalConsumedQuantity += ServiceShipmentLine."Quantity Consumed";
                 TotalInvoicedQuantity += ServiceShipmentLine."Quantity Invoiced";
-            until ServiceShipmentLine.Next = 0;
+            until ServiceShipmentLine.Next() = 0;
             Assert.AreEqual(
               TotalQuantity,
               0, StrSubstNo(
-                ServiceShipmentLineError, ServiceShipmentLine.FieldCaption(Quantity), TotalQuantity, ServiceShipmentLine.TableCaption,
+                ServiceShipmentLineError, ServiceShipmentLine.FieldCaption(Quantity), TotalQuantity, ServiceShipmentLine.TableCaption(),
                 ServiceShipmentLine.FieldCaption("Document No."), ServiceShipmentLine."Document No."));
             Assert.AreEqual(
               TotalConsumedQuantity,
               0, StrSubstNo(
                 ServiceShipmentLineError,
-                ServiceShipmentLine.FieldCaption("Quantity Consumed"), TotalConsumedQuantity, ServiceShipmentLine.TableCaption,
+                ServiceShipmentLine.FieldCaption("Quantity Consumed"), TotalConsumedQuantity, ServiceShipmentLine.TableCaption(),
                 ServiceShipmentLine.FieldCaption("Document No."), ServiceShipmentLine."Document No."));
             Assert.AreEqual(
               TotalInvoicedQuantity,
               0, StrSubstNo(
                 ServiceShipmentLineError,
-                ServiceShipmentLine.FieldCaption("Quantity Invoiced"), TotalInvoicedQuantity, ServiceShipmentLine.TableCaption,
+                ServiceShipmentLine.FieldCaption("Quantity Invoiced"), TotalInvoicedQuantity, ServiceShipmentLine.TableCaption(),
                 ServiceShipmentLine.FieldCaption("Document No."), ServiceShipmentLine."Document No."));
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -2008,7 +2008,7 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField(Quantity, ServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", 0);
             ServiceLine.TestField("Quantity Consumed", 0);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -2019,7 +2019,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.TestField("Qty. to Consume", 0);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -2033,8 +2033,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceLine.TestField("Qty. to Invoice", 0);
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -2048,8 +2048,8 @@ codeunit 136113 "Service Line Update Validation"
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceLine.TestField("Qty. to Ship", 0);
-            ServiceLine.Next;
-        until TempServiceLine.Next = 0;
+            ServiceLine.Next();
+        until TempServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -2060,7 +2060,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.TestField("Unit Cost", UnitCost);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -2071,7 +2071,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.TestField("Unit Price", UnitPrice);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [ConfirmHandler]

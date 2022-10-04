@@ -98,7 +98,7 @@ codeunit 925 "Assembly Header-Reserve"
     begin
         ReservEntry.InitSortingAndFilters(false);
         AssemblyHeader.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     local procedure AssignForPlanning(var AssemblyHeader: Record "Assembly Header")
@@ -110,7 +110,7 @@ codeunit 925 "Assembly Header-Reserve"
                 exit;
 
             if "Item No." <> '' then
-                PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", WorkDate);
+                PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", WorkDate());
         end;
     end;
 
@@ -124,7 +124,7 @@ codeunit 925 "Assembly Header-Reserve"
 
     procedure ReservEntryExist(AssemblyHeader: Record "Assembly Header"): Boolean
     begin
-        exit(AssemblyHeader.ReservEntryExist);
+        exit(AssemblyHeader.ReservEntryExist());
     end;
 
     procedure DeleteLine(var AssemblyHeader: Record "Assembly Header")
@@ -134,7 +134,7 @@ codeunit 925 "Assembly Header-Reserve"
             if DeleteItemTracking then
                 ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
             ReservMgt.DeleteReservEntries(true, 0);
-            ReservMgt.ClearActionMessageReferences;
+            ReservMgt.ClearActionMessageReferences();
             CalcFields("Reserved Qty. (Base)");
             AssignForPlanning(AssemblyHeader);
         end;
@@ -208,9 +208,9 @@ codeunit 925 "Assembly Header-Reserve"
 
             ReservMgt.SetReservSource(NewAssemblyHeader);
             if "Qty. per Unit of Measure" <> OldAssemblyHeader."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             ReservMgt.DeleteReservEntries(false, "Remaining Quantity (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack("Remaining Quantity (Base)");
             AssignForPlanning(NewAssemblyHeader);
         end;
@@ -218,7 +218,7 @@ codeunit 925 "Assembly Header-Reserve"
 
     procedure Caption(AssemblyHeader: Record "Assembly Header") CaptionText: Text
     begin
-        CaptionText := AssemblyHeader.GetSourceCaption;
+        CaptionText := AssemblyHeader.GetSourceCaption();
     end;
 
     procedure CallItemTracking(var AssemblyHeader: Record "Assembly Header")
@@ -228,7 +228,7 @@ codeunit 925 "Assembly Header-Reserve"
     begin
         TrackingSpecification.InitFromAsmHeader(AssemblyHeader);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyHeader."Due Date");
-        ItemTrackingLines.SetInbound(AssemblyHeader.IsInbound);
+        ItemTrackingLines.SetInbound(AssemblyHeader.IsInbound());
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyHeader, ItemTrackingLines);
         ItemTrackingLines.RunModal();
     end;
@@ -236,11 +236,11 @@ codeunit 925 "Assembly Header-Reserve"
     procedure DeleteLineConfirm(var AssemblyHeader: Record "Assembly Header"): Boolean
     begin
         with AssemblyHeader do begin
-            if not ReservEntryExist then
+            if not ReservEntryExist() then
                 exit(true);
 
             ReservMgt.SetReservSource(AssemblyHeader);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -250,7 +250,6 @@ codeunit 925 "Assembly Header-Reserve"
     procedure UpdateItemTrackingAfterPosting(AssemblyHeader: Record "Assembly Header")
     var
         ReservEntry: Record "Reservation Entry";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
         ReservEntry.InitSortingAndFilters(false);
@@ -273,7 +272,7 @@ codeunit 925 "Assembly Header-Reserve"
 
         ItemJnlLine.TestItemFields(AssemblyHeader."Item No.", AssemblyHeader."Variant Code", AssemblyHeader."Location Code");
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then begin
             repeat
@@ -313,7 +312,7 @@ codeunit 925 "Assembly Header-Reserve"
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(AssemblyHeader);
-            AssemblyHeader.Find;
+            AssemblyHeader.Find();
             QtyPerUOM := AssemblyHeader.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;
@@ -327,7 +326,7 @@ codeunit 925 "Assembly Header-Reserve"
 
         AssemblyHeader.SetReservationEntry(ReservEntry);
 
-        CaptionText := AssemblyHeader.GetSourceCaption;
+        CaptionText := AssemblyHeader.GetSourceCaption();
     end;
 
     local procedure EntryStartNo(): Integer
@@ -437,7 +436,7 @@ codeunit 925 "Assembly Header-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(AssemblyHeader);
             AssemblyHeader.SetReservationFilters(ReservEntry);
-            CaptionText := AssemblyHeader.GetSourceCaption;
+            CaptionText := AssemblyHeader.GetSourceCaption();
         end;
     end;
 
@@ -503,7 +502,7 @@ codeunit 925 "Assembly Header-Reserve"
                 "Total Quantity" := TotalQuantity;
                 "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
                 if not Insert() then
-                    Modify;
+                    Modify();
             end;
     end;
 

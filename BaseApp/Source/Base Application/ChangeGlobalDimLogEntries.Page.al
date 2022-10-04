@@ -13,12 +13,12 @@ page 578 "Change Global Dim. Log Entries"
         {
             repeater(Group)
             {
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = Style;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = Style;
@@ -28,7 +28,7 @@ page 578 "Change Global Dim. Log Entries"
                     ApplicationArea = Suite;
                     StyleExpr = Style;
                 }
-                field("Total Records"; "Total Records")
+                field("Total Records"; Rec."Total Records")
                 {
                     ApplicationArea = Suite;
                 }
@@ -36,12 +36,12 @@ page 578 "Change Global Dim. Log Entries"
                 {
                     ApplicationArea = Suite;
                 }
-                field("Remaining Duration"; "Remaining Duration")
+                field("Remaining Duration"; Rec."Remaining Duration")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the remaining duration of the job.';
                 }
-                field("Earliest Start Date/Time"; "Earliest Start Date/Time")
+                field("Earliest Start Date/Time"; Rec."Earliest Start Date/Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the earliest date and time when the job should be run.';
@@ -81,7 +81,7 @@ page 578 "Change Global Dim. Log Entries"
 
                 trigger OnAction()
                 begin
-                    ShowError;
+                    ShowError();
                 end;
             }
         }
@@ -93,7 +93,7 @@ page 578 "Change Global Dim. Log Entries"
             IsRerunEnabled := true
         else
             if Status = Status::" " then
-                IsRerunEnabled := not AreAllLinesInBlankStatus
+                IsRerunEnabled := not AreAllLinesInBlankStatus()
             else
                 IsRerunEnabled := false;
     end;
@@ -101,8 +101,8 @@ page 578 "Change Global Dim. Log Entries"
     trigger OnAfterGetRecord()
     begin
         if "Total Records" <> "Completed Records" then
-            UpdateStatus;
-        SetStyle;
+            UpdateStatus();
+        SetStyle();
     end;
 
     var

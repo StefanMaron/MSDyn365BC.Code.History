@@ -18,13 +18,13 @@ codeunit 707 "RegEx Split Wrapper"
 
     procedure GetLength(): Integer
     begin
-        CheckIfArrayIsEmpty;
+        CheckIfArrayIsEmpty();
         exit(SplitArray.Length);
     end;
 
     procedure GetIndex(Index: Integer): Text
     begin
-        CheckIfArrayIsEmpty;
+        CheckIfArrayIsEmpty();
         CheckIfIndexIsWithinBoundaries(Index);
         exit(SplitArray.GetValue(Index));
     end;
@@ -37,7 +37,7 @@ codeunit 707 "RegEx Split Wrapper"
 
     local procedure CheckIfIndexIsWithinBoundaries(Index: Integer)
     begin
-        if ((Index + 1) > GetLength) or (Index < 0) then
+        if ((Index + 1) > GetLength()) or (Index < 0) then
             Error(IndexOutOfBoundsErr);
     end;
 

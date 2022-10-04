@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138907 "O365 Invoice Payment Test"
 {
     Subtype = Test;
@@ -166,7 +167,7 @@ codeunit 138907 "O365 Invoice Payment Test"
 
         // [WHEN] The user cancels the second payment
         LibraryVariableStorage.Enqueue(MarkedUnpaidMsg);
-        TempO365PaymentHistoryBuffer.Next;
+        TempO365PaymentHistoryBuffer.Next();
         TempO365PaymentHistoryBuffer.CancelPayment;
 
         // [THEN] There are only one payment left
@@ -221,7 +222,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.Init();
-            AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate);
+            AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate());
             AccountingPeriod."New Fiscal Year" := true;
             AccountingPeriod.Insert();
         end;
@@ -233,7 +234,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         O365SalesInitialSetup.Run();
         IsInitialized := true;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -339,4 +340,4 @@ codeunit 138907 "O365 Invoice Payment Test"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

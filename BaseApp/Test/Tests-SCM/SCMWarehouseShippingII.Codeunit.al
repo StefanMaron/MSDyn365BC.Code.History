@@ -192,7 +192,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         UpdateInventoryUsingWhseJournal(Bin, Item, Quantity, ItemVariant.Code);
         UpdateInventoryUsingWhseJournal(Bin, Item, Quantity, '');
         CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Quantity, LocationWhite.Code, ItemVariant.Code, false, ReservationMode::" ");
-        CreateAndReleaseTransferOrder(TransferHeader, LocationWhite.Code, LocationBlue.Code, Item."No.", '', Quantity, '', WorkDate, WorkDate);
+        CreateAndReleaseTransferOrder(TransferHeader, LocationWhite.Code, LocationBlue.Code, Item."No.", '', Quantity, '', WorkDate(), WorkDate());
         CreateWarehouseShipmentWithGetSourceDocument(LocationWhite.Code, true, true, false, Item."No.", Item."No.");  // Taking TRUE for Sales Orders.
         GetWarehouseDocumentOnWhseWorksheetLine(WhseWorksheetName, LocationWhite.Code, WhsePickRequest."Document Type"::Shipment);
 
@@ -232,7 +232,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         UpdateInventoryUsingWhseJournal(Bin, Item, Quantity, '');
         UpdateInventoryUsingWhseJournal(Bin, Item2, Quantity, ItemVariant.Code);
         CreateAndReleaseTransferOrder(
-          TransferHeader, LocationWhite.Code, LocationBlue.Code, Item."No.", Item2."No.", Quantity, ItemVariant.Code, WorkDate, WorkDate);
+          TransferHeader, LocationWhite.Code, LocationBlue.Code, Item."No.", Item2."No.", Quantity, ItemVariant.Code, WorkDate(), WorkDate());
         CreateWarehouseShipmentWithGetSourceDocument(LocationWhite.Code, true, false, false, Item."No.", Item2."No.");
         GetWarehouseDocumentOnWhseWorksheetLine(WhseWorksheetName, LocationWhite.Code, WhsePickRequest."Document Type"::Shipment);
         GetNoOfPicksOnLocation(NoOfPicks, LocationWhite.Code);
@@ -289,7 +289,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         UpdateInventoryUsingWhseJournal(Bin, ComponentItem, Quantity, '');
         UpdateInventoryUsingWhseJournal(Bin, ComponentItem2, Quantity, ItemVariant.Code);
         CreateAndRefreshProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationWhite.Code, WorkDate);
+          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationWhite.Code, WorkDate());
         GetWarehouseDocumentOnWhseWorksheetLine(WhseWorksheetName, LocationWhite.Code, WhsePickRequest."Document Type"::Production);
 
         // Exercise.
@@ -429,7 +429,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
         LotNo :=
           CreateAndRegisterPutAwayFromPurchaseOrder(
-            Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);
+            Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);
         CreateAndRegisterPickFromSalesOrder(
           SalesHeader, Item."No.", Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure", LocationWhite.Code, true, ReservationMode::" ");  // Value required for the test.
 
@@ -460,7 +460,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         FindBinForPickZone(Bin, LocationWhite.Code, true);  // PICK Zone.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
         CreateAndRegisterPutAwayFromPurchaseOrder(
-          Bin, ItemTrackingMode::AssignSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);
+          Bin, ItemTrackingMode::AssignSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);
         CreatePickFromSalesOrder(SalesHeader, '', Item."No.", Quantity, LocationWhite.Code, true, ReservationMode::" ");
         FindWarehouseActivityLine(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
@@ -492,7 +492,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         FindBinForPickZone(Bin, LocationWhite.Code, true);  // PICK Zone.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
         CreateAndRegisterPutAwayFromPurchaseOrder(
-          Bin, ItemTrackingMode::AssignSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);
+          Bin, ItemTrackingMode::AssignSerialNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);
         CreateAndRegisterPickFromSalesOrder(
           SalesHeader, Item."No.", Quantity, LocationWhite.Code, true, ReservationMode::ReserveFromCurrentLine);  // Taking TRUE for Reservation.
 
@@ -686,7 +686,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
         LotNo :=
           CreateAndRegisterPutAwayFromPurchaseOrder(
-            Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, WorkDate, true, false);
+            Bin, ItemTrackingMode::AssignLotNo, Item."No.", LocationWhite.Code, Quantity, WorkDate(), true, false);
 
         // Register Put Away. Create and Release Sales Order. Create Pick from Warehouse Shipment. Register Pick. Post Warehouse Shipment. Create and Release Credit Memo.
         LibrarySales.CreateCustomer(Customer);
@@ -705,13 +705,13 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Verify: Verify Item Ledger Entries and Posted Sales Credit Memo Line.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type"::"Purchase Receipt", Item."No.", LocationWhite.Code,
-          LotNo, '', Quantity, 0, WorkDate);  // Value required for Test.
+          LotNo, '', Quantity, 0, WorkDate());  // Value required for Test.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Shipment", Item."No.", LocationWhite.Code, LotNo, '',
-          -Quantity, 0, WorkDate);  // Value required for Test.
+          -Quantity, 0, WorkDate());  // Value required for Test.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt", Item."No.", LocationWhite.Code,
-          LotNo, '', Quantity, Quantity, WorkDate);
+          LotNo, '', Quantity, Quantity, WorkDate());
         VerifyPostedSalesCreditMemoLine(DocumentNo, Item."No.", Quantity);
     end;
 
@@ -748,7 +748,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Create and Refresh Production Order. Create and Register Pick from Production Order.
         LibrarySales.CreateCustomer(Customer);
         CreateAndRefreshProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationWhite.Code, WorkDate);
+          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationWhite.Code, WorkDate());
         CreateAndRegisterPickFromProductionOrder(ProductionOrder, true);  // Register as TRUE.
         OpenProductionJournal(ProductionOrder);  // Open and post Production Journal. Posting is done in ProductionJournalHandler function.
 
@@ -773,14 +773,14 @@ codeunit 137155 "SCM Warehouse - Shipping II"
           RegisteredWhseActivityLine."Action Type"::Place, ComponentItem."No.", Quantity2, '', LocationWhite."Shipment Bin Code");
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type"::"Purchase Receipt", ComponentItem."No.",
-          LocationWhite.Code, '', '', (Quantity * ProductionBOMLine."Quantity per") + Quantity2, 0, WorkDate);
+          LocationWhite.Code, '', '', (Quantity * ProductionBOMLine."Quantity per") + Quantity2, 0, WorkDate());
         // Value required for test.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Shipment", ComponentItem."No.", LocationWhite.Code,
-          '', '', -Quantity2, 0, WorkDate);  // Value required for test.
+          '', '', -Quantity2, 0, WorkDate());  // Value required for test.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Consumption, ItemLedgerEntry."Document Type"::" ", ComponentItem."No.", LocationWhite.Code, '', '',
-          -(Quantity * ProductionBOMLine."Quantity per"), 0, WorkDate);  // Value required for test.
+          -(Quantity * ProductionBOMLine."Quantity per"), 0, WorkDate());  // Value required for test.
     end;
 
     [Test]
@@ -890,7 +890,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemWithSalesAndPurchaseUnitOfMeasure(Item);
         FindBinForPickZone(Bin, LocationWhite.Code, true);  // PICK Zone.
-        CreateAndRegisterPutAwayFromPurchaseOrder(Bin, ItemTrackingMode, Item."No.", LocationWhite.Code, Quantity, WorkDate, false, false);
+        CreateAndRegisterPutAwayFromPurchaseOrder(Bin, ItemTrackingMode, Item."No.", LocationWhite.Code, Quantity, WorkDate(), false, false);
         CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Quantity, LocationWhite.Code, '', false, ReservationMode::AutoReserve);
 
         if LocationWhite."Always Create Pick Line" then begin
@@ -960,12 +960,12 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         Quantity := LibraryRandom.RandDec(100, 2);
         LotNo :=
           CreateAndPostItemJournalLineWithItemTracking(
-            LocationBlue.Code, '', Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate, false, false);  // Different Expiration Date as FALSE.
+            LocationBlue.Code, '', Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate(), false, false);  // Different Expiration Date as FALSE.
         LotNo2 :=
           CreateAndPostItemJournalLineWithItemTracking(
-            LocationBlue.Code, '', Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate, false, false);  // Different Expiration Date as FALSE.
+            LocationBlue.Code, '', Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate(), false, false);  // Different Expiration Date as FALSE.
         CreateAndPostTransferOrderAsShip(
-          TransferHeader, LocationBlue.Code, LocationWhite.Code, Item."No.", Quantity + Quantity, true, WorkDate, WorkDate, true);  // Value required for test. Use Tracking and Posting as True.
+          TransferHeader, LocationBlue.Code, LocationWhite.Code, Item."No.", Quantity + Quantity, true, WorkDate(), WorkDate, true);  // Value required for test. Use Tracking and Posting as True.
 
         // Exercise.
         CreateAndPostWarehouseReceiptFromTransferOrder(TransferHeader);
@@ -1035,7 +1035,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateItemWithDefaultDimension(DefaultDimension, DimensionValue);
         CreateAndPostPurchaseOrderAsReceive(DefaultDimension."No.", LocationBlue.Code, Quantity);
         CreateAndPostTransferOrderAsShip(
-          TransferHeader, LocationBlue.Code, LocationRed.Code, DefaultDimension."No.", Quantity, false, WorkDate, WorkDate, true);  // Use Tracking as FALSE and Posting as TRUE.
+          TransferHeader, LocationBlue.Code, LocationRed.Code, DefaultDimension."No.", Quantity, false, WorkDate(), WorkDate, true);  // Use Tracking as FALSE and Posting as TRUE.
 
         // Exercise.
         PostTransferOrderAsReceiveAfterUpdateDimensionOnTransferLine(TransferHeader, DimensionValue.Code);
@@ -1043,16 +1043,16 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Verify: Use 0 for Remaining Quantity.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Shipment", DefaultDimension."No.",
-          LocationBlue.Code, '', DefaultDimension."Dimension Value Code", -Quantity, 0, WorkDate);
+          LocationBlue.Code, '', DefaultDimension."Dimension Value Code", -Quantity, 0, WorkDate());
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Shipment", DefaultDimension."No.",
-          LocationInTransit.Code, '', DefaultDimension."Dimension Value Code", Quantity, 0, WorkDate);
+          LocationInTransit.Code, '', DefaultDimension."Dimension Value Code", Quantity, 0, WorkDate());
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Receipt", DefaultDimension."No.",
-          LocationInTransit.Code, '', DimensionValue.Code, -Quantity, 0, WorkDate);
+          LocationInTransit.Code, '', DimensionValue.Code, -Quantity, 0, WorkDate());
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Receipt", DefaultDimension."No.",
-          LocationRed.Code, '', DimensionValue.Code, Quantity, Quantity, WorkDate);
+          LocationRed.Code, '', DimensionValue.Code, Quantity, Quantity, WorkDate());
     end;
 
     [Test]
@@ -1074,15 +1074,15 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
         // Exercise.
         CreateAndPostItemJournalLineWithManualLotNo(
-          ItemJournalLine, Item."No.", LocationYellow.Code, Quantity, WorkDate, LotNo, true, Item."Base Unit of Measure");  // TRUE for posting.
+          ItemJournalLine, Item."No.", LocationYellow.Code, Quantity, WorkDate(), LotNo, true, Item."Base Unit of Measure");  // TRUE for posting.
         CreateAndPostItemJournalLineWithManualLotNo(
           ItemJournalLine, Item."No.", LocationGreen.Code, Quantity + LibraryRandom.RandInt(50),
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), LotNo, true, Item."Base Unit of Measure"); // TRUE for posting.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), LotNo, true, Item."Base Unit of Measure"); // TRUE for posting.
 
         // Verify.
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type", Item."No.", LocationYellow.Code, LotNo, '', Quantity,
-          Quantity, WorkDate);
+          Quantity, WorkDate());
         VerifyItemLedgerEntry(
           ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type", Item."No.", LocationGreen.Code, LotNo, '',
           ItemJournalLine.Quantity, ItemJournalLine.Quantity, ItemJournalLine."Posting Date");
@@ -1180,12 +1180,12 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
         // Exercise.
         CreateAndPostItemJournalLineWithManualLotNo(
-          ItemJournalLine, ItemJournalLine."Item No.", LocationYellow.Code, Quantity, WorkDate, LotNo, PostItemJournal,
+          ItemJournalLine, ItemJournalLine."Item No.", LocationYellow.Code, Quantity, WorkDate(), LotNo, PostItemJournal,
           ItemJournalLine."Unit of Measure Code");
 
         // Verify.
         if PostItemJournal then
-            VerifyEmptyReservationEntry(ItemJournalLine."Item No.", Item.TableCaption)
+            VerifyEmptyReservationEntry(ItemJournalLine."Item No.", Item.TableCaption())
         else
             VerifyReservationEntry(
               ItemJournalLine."Item No.", LocationYellow.Code, ReservationEntry."Reservation Status"::Prospect, Quantity, '');
@@ -1227,7 +1227,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
           TransferHeader, LocationGreen.Code, LocationYellow.Code, ItemJournalLine."Item No.", Quantity, true, ItemJournalLine."Posting Date",
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', ItemJournalLine."Posting Date"), true);  // Use Tracking and Posting as True.
         CreateAndPostItemJournalLineWithManualLotNo(
-          ItemJournalLine, ItemJournalLine."Item No.", LocationYellow.Code, Quantity, WorkDate, LotNo, true,
+          ItemJournalLine, ItemJournalLine."Item No.", LocationYellow.Code, Quantity, WorkDate(), LotNo, true,
           ItemJournalLine."Unit of Measure Code");  // Use Posting as True.
         RunCalculateRegenerativePlan(
           ItemJournalLine."Item No.", LocationYellow.Code,
@@ -1284,7 +1284,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Exercise.
         LotNo :=
           CreateAndPostItemJournalLineWithItemTracking(
-            LocationSilver.Code, Bin.Code, ItemUnitOfMeasure.Code, ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate, false, false);  // Different Expiration Date as False.
+            LocationSilver.Code, Bin.Code, ItemUnitOfMeasure.Code, ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate(), false, false);  // Different Expiration Date as False.
 
         // Verify.
         VerifyItemLedgerEntryForLotNo(
@@ -1332,7 +1332,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
         // Exercise.
         CreateAndRefreshProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationSilver.Code, WorkDate);  // Value required for the test.
+          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationSilver.Code, WorkDate());  // Value required for the test.
 
         // Verify.
         VerifyProdOrderRoutingLine(LocationSilver, OperationNo, "Capacity Type"::"Machine Center", MachineCenter."No.");
@@ -1384,7 +1384,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
         // Exercise.
         CreateAndRefreshProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationWhite.Code, WorkDate);
+          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationWhite.Code, WorkDate());
 
         // Verify.
         VerifyProductionOrderComponent(ProductionOrder."No.", Item."No.", Quantity * Quantity);  // Value required for Expected Quantity.
@@ -1731,11 +1731,11 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Exercise.
         LotNo :=
           CreateAndPostItemJournalLineWithItemTracking(
-            LocationBlack.Code, Bin.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignAutoSerialNo, Item."No.", Quantity, WorkDate,
+            LocationBlack.Code, Bin.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignAutoSerialNo, Item."No.", Quantity, WorkDate(),
             false, true);  // Update Lot No. as TRUE.
         LotNo2 :=
           CreateAndPostItemJournalLineWithItemTracking(
-            LocationBlack.Code, Bin2.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignAutoSerialNo, Item."No.", Quantity, WorkDate,
+            LocationBlack.Code, Bin2.Code, Item."Base Unit of Measure", ItemTrackingMode::AssignAutoSerialNo, Item."No.", Quantity, WorkDate(),
             false, true);  // Update Lot No. as TRUE.
 
         // Verify.
@@ -1757,7 +1757,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
                 WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
                 WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
                 WarehouseActivityLine.Modify(true);
-            until WarehouseActivityLine.Next = 0;
+            until WarehouseActivityLine.Next() = 0;
 
             // Verify.
             RegisterWarehouseActivity(
@@ -1969,7 +1969,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Exercise: Post Purchase Order and Sales Order.
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false); // Receive as TRUE.
-        SalesHeader.Find; // Require for Posting.
+        SalesHeader.Find(); // Require for Posting.
         LibrarySales.PostSalesDocument(SalesHeader, true, true); // Post as Ship and Invoice.
 
         // Verify: Verify Posted Sales Invoice Line.
@@ -2121,7 +2121,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateLotForLotSKUWithSafetyStock(Location.Code, ParentItem."No.", 1);
 
         // [WHEN] Calculate regenerative plan for "AI"
-        RunCalculateRegenerativePlan(ParentItem."No.", Location.Code, WorkDate);
+        RunCalculateRegenerativePlan(ParentItem."No.", Location.Code, WorkDate());
 
         // [THEN] "Requisition Line"."Bin Code" is equal "L"."From-Assembly Bin Code", "Planning Component"."Bin Code" is equal "L"."To-Assembly Bin Code"
         VerifyBinCodeOnReqLineAndPlanningComponent(ParentItem."No.", Location."From-Assembly Bin Code", Location."To-Assembly Bin Code");
@@ -2153,7 +2153,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateDefaultBinContent(BinContent, ComponentItem."No.", Location.Code, 0, 0);
 
         // [WHEN] Calculate regenerative plan for "AI"
-        RunCalculateRegenerativePlan(ParentItem."No.", Location.Code, WorkDate);
+        RunCalculateRegenerativePlan(ParentItem."No.", Location.Code, WorkDate());
 
         // [THEN] "Requisition Line"."Bin Code" is equal "L"."From-Assembly Bin Code", "Planning Component"."Bin Code" is equal "L"."To-Assembly Bin Code"
         VerifyBinCodeOnReqLineAndPlanningComponent(ParentItem."No.", Location."From-Assembly Bin Code", Location."To-Assembly Bin Code");
@@ -2337,13 +2337,13 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         PostStockForComponents(Item2, LibraryRandom.RandIntInRange(10, 100));
 
         Quantity := LibraryRandom.RandDec(10, 2);
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate)); // Enqueue for message triggered by sales line for assembly item
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate())); // Enqueue for message triggered by sales line for assembly item
         CreateSalesOrder(SalesHeader, Item."No.", Item2."No.", Quantity, LocationBlue.Code); // Create sales order with 2 lines.
         SalesShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Exercise and Verify.
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate)); // Enqueue for ConfirmHandler.
-        UndoSalesShipmentLine(SalesShipmentNo, StrSubstNo(BeforeWorkDateMsg, WorkDate));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate())); // Enqueue for ConfirmHandler.
+        UndoSalesShipmentLine(SalesShipmentNo, StrSubstNo(BeforeWorkDateMsg, WorkDate()));
         VerifyItemLedgerEntryForLotNo(Item2."No.", ItemLedgerEntry."Entry Type"::Sale, -Quantity, '');
 
         // Teardown.
@@ -2377,7 +2377,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateAndReleaseSalesOrderWithAssemblyItem(SalesHeader, Item."No.");
 
         // [WHEN] Run batch posting of "SO" with a direction to replace the posting date to "D2".
-        NewPostingDate := LibraryRandom.RandDateFromInRange(WorkDate, 10, 20);
+        NewPostingDate := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
         BatchPostSalesOrderWithNewPostingDate(SalesHeader, NewPostingDate);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
@@ -2407,7 +2407,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         SalesHeader.SynchronizeAsmHeader;
 
         // [THEN] Posting date of the assembly is updated to "D1".
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         AssemblyHeader.TestField("Posting Date", SalesHeader."Posting Date");
     end;
 
@@ -2431,10 +2431,10 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // [GIVEN] Item had previous inventory with LotNo
         Quantity := LibraryRandom.RandDec(10, 2);
         LotNo := CreateAndPostItemJournalLineWithItemTracking(
-            LocationBlue.Code, '', Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate, false, false);
+            LocationBlue.Code, '', Item."Base Unit of Measure", ItemTrackingMode::AssignLotNo, Item."No.", Quantity, WorkDate(), false, false);
 
         // [GIVEN] Transfer Order with Transfer Line for this Item is created
-        CreateTransferOrder(TransferHeader, LocationBlue.Code, LocationSilver.Code, Item."No.", Quantity, WorkDate, WorkDate);
+        CreateTransferOrder(TransferHeader, LocationBlue.Code, LocationSilver.Code, Item."No.", Quantity, WorkDate(), WorkDate());
 
         // [GIVEN] Item Tracking was set for this item with LotNo and Quantity accounting for all of the Transfer Line Quantity
         UpdateItemTrackingOnTransferLineWithLotNo(TransferHeader."No.", LotNo);
@@ -2650,10 +2650,10 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         InventorySetup: Record "Inventory Setup";
     begin
         with InventorySetup do begin
-            Get;
+            Get();
             OldAutomaticCostAdjValue := "Automatic Cost Adjustment";
             "Automatic Cost Adjustment" := NewAutomaticCostAdjValue;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2729,7 +2729,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         repeat
             LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignTwoLotNo); // Enqueue for ItemTrackingLinesPageHandler
             PurchaseLine.OpenItemTrackingLines();
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure CertifyProductionBOMHeader(var ProductionBOMHeader: Record "Production BOM Header")
@@ -2745,7 +2745,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         FindRequisitionLine(RequisitionLine, ItemNo);
         RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
         RequisitionLine.Modify(true);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CalcRegenPlanForSalesOrderAndVerifyBinCode(LocationCode: Code[10]; ParentItemNo: Code[20]; RequsitionLineBinCode: Code[20]; PalnningComponentBinCode: Code[20])
@@ -2755,7 +2755,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateAndReleaseSalesOrder(
           SalesHeader, '', ParentItemNo, LibraryRandom.RandInt(10), LocationCode, '', false, ReservationMode::" ");
 
-        RunCalculateRegenerativePlan(ParentItemNo, LocationCode, WorkDate);
+        RunCalculateRegenerativePlan(ParentItemNo, LocationCode, WorkDate());
         VerifyBinCodeOnReqLineAndPlanningComponent(ParentItemNo, RequsitionLineBinCode, PalnningComponentBinCode);
     end;
 
@@ -2858,7 +2858,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         ReservationEntry: Record "Reservation Entry";
         DequeueVariable: Variant;
     begin
-        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, Quantity, WorkDate, BinCode, ItemUnitOfMeasure);
+        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, Quantity, WorkDate(), BinCode, ItemUnitOfMeasure);
         LibraryVariableStorage.Enqueue(ItemTrackingMode);  // Enqueue for ItemTrackingLinesPageHandler.
         ItemJournalLine.OpenItemTrackingLines(false);
         UpdateExpirationDateOnReservationEntry(ItemNo, ExpirationDate, DifferentExpirationDate);
@@ -2939,7 +2939,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         LibraryInventory.CreateItem(Item);
         CreateAndRefreshProductionOrder(
-          ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.", Quantity, LocationCode, WorkDate);
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.", Quantity, LocationCode, WorkDate());
         CreateProductionOrderComponent(ProdOrderComponent, ProductionOrder, ItemNo, UnitOfMeasureCode, LocationCode2);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);  // Enqueue for ItemTrackingPageHandler.
         ProdOrderComponent.OpenItemTrackingLines();
@@ -2965,11 +2965,11 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
         // Calculated value of Quantity required for test.
         CreateAndPostItemJournalLineWithManualLotNo(
-          ItemJournalLine, ComponentItem."No.", LocationCode, Quantity * QuantityPer * 2, WorkDate, LotNo, true,
+          ItemJournalLine, ComponentItem."No.", LocationCode, Quantity * QuantityPer * 2, WorkDate(), LotNo, true,
           ComponentItem."Base Unit of Measure");  // TRUE for posting.
         CreateAndPostItemJournalLineWithManualLotNo(
           ItemJournalLine, ComponentItem."No.", LocationCode2, ItemJournalLine.Quantity + LibraryRandom.RandInt(50),
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), LotNo, true,
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), LotNo, true,
           ComponentItem."Base Unit of Measure");  // TRUE for posting.
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", Quantity, LocationCode,
@@ -3102,8 +3102,8 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
     local procedure CreateAndReleaseSalesOrderWithAssemblyItem(var SalesHeader: Record "Sales Header"; ItemNo: Code[20])
     begin
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate));
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate()));
         CreateAndReleaseSalesOrder(
           SalesHeader, LibrarySales.CreateCustomerNo, ItemNo, LibraryRandom.RandInt(10), LocationBlue.Code, '', false, ReservationMode::" ");
     end;
@@ -3241,7 +3241,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        CreateAndReleaseTransferOrder(TransferHeader, FromLocation, ToLocation, ItemNo, ItemNo2, Quantity, VariantCode, WorkDate, WorkDate);
+        CreateAndReleaseTransferOrder(TransferHeader, FromLocation, ToLocation, ItemNo, ItemNo2, Quantity, VariantCode, WorkDate(), WorkDate());
         CreateWarehouseShipmentWithGetSourceDocument(LocationWhite.Code, true, false, false, ItemNo, ItemNo2);  // Taking TRUE for Transfer Orders.
         CreatePickFromWarehouseShipment(WarehouseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.");
         RegisterWarehouseActivity(
@@ -3714,7 +3714,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignManualLotNo); // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(LotNo[1]);
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
-        TransferLine.Next;
+        TransferLine.Next();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignManualTwoLotNo);  // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(LotNo[1]);
         LibraryVariableStorage.Enqueue(LotNo[3]);
@@ -3862,7 +3862,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate)); // Enqueue for message triggered by sales line for assembly item
+        LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateMsg, WorkDate())); // Enqueue for message triggered by sales line for assembly item
         CreateAndReleaseSalesOrderWithMultipleSalesLines(
           SalesHeader, Customer."No.", ItemNo, ItemNo2, LibraryRandom.RandDec(10, 2), Quantity, LocationCode);
     end;
@@ -3907,11 +3907,11 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     local procedure MockSalesOrder(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            "Posting Date" := LibraryRandom.RandDateFromInRange(WorkDate, 10, 20);
-            Insert;
+            "Posting Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
+            Insert();
         end;
     end;
 
@@ -3920,24 +3920,24 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         AssembleToOrderLink: Record "Assemble-to-Order Link";
     begin
         with AssembleToOrderLink do begin
-            Init;
+            Init();
             "Assembly Document Type" := AssemblyHeader."Document Type";
             "Assembly Document No." := AssemblyHeader."No.";
             Type := Type::Sale;
             "Document Type" := SalesHeader."Document Type";
             "Document No." := SalesHeader."No.";
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockAssemblyHeader(var AssemblyHeader: Record "Assembly Header")
     begin
         with AssemblyHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Assembly Header");
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -4298,7 +4298,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
         // Exercise: Post Purchase Order and Sales Order
         PostPurchaseOrder(Item."No.", true, false);
-        SalesHeader.Find; // Require for Posting.
+        SalesHeader.Find(); // Require for Posting.
         LibrarySales.PostSalesDocument(SalesHeader, true, true); // Post as Ship and Invoice.
 
         // Verify: Verify Sales Order post successfully, Posted Sales Invoice is correct.
@@ -4480,7 +4480,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
 
-        WarehouseActivityLine.Next;
+        WarehouseActivityLine.Next();
         UpdateZoneAndBinCodeInWarehouseActivityLine(WarehouseActivityLine, 2); // Find and set 2nd bin
     end;
 
@@ -4493,7 +4493,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
 
-        WarehouseActivityLine.Next;
+        WarehouseActivityLine.Next();
         WarehouseActivityLine.Validate("Bin Code", ''); // Clear the default Bin Code and reset.
         WarehouseActivityLine.Validate("Bin Code", BinCode);
         WarehouseActivityLine.Modify(true);
@@ -4548,7 +4548,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
                 ReservationEntry.Validate("Expiration Date", CalcDate('<-' + Format(DateDifference) + 'D>', ExpirationDate));
             end;
             ReservationEntry.Modify(true);
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure UpdateBlockedAsTrueOnItem(var Item: Record Item)
@@ -4615,7 +4615,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryInventory.UpdateInventoryPostingSetup(LocationYellow);
-        CreateItemJournalLine(ItemJournalLine, Item."No.", LocationYellow.Code, Quantity, WorkDate, '', Item."Base Unit of Measure");
+        CreateItemJournalLine(ItemJournalLine, Item."No.", LocationYellow.Code, Quantity, WorkDate(), '', Item."Base Unit of Measure");
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -4804,14 +4804,14 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateItemJournalLine(ItemJournalLine, Item."No.", LocationBlue.Code, Quantity, WorkDate, '', Item."Base Unit of Measure");
+        CreateItemJournalLine(ItemJournalLine, Item."No.", LocationBlue.Code, Quantity, WorkDate(), '', Item."Base Unit of Measure");
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Explode BOM", ItemJournalLine);
         with ItemJournalLine do begin
             FindSet();
             repeat
                 if ("Location Code" = '') and ("Item No." <> '') then begin
                     Validate("Location Code", LocationBlue.Code);
-                    Modify;
+                    Modify();
                 end
             until Next = 0;
         end;
@@ -4863,7 +4863,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
             ItemLedgerEntry.TestField(Quantity, Quantity);  // Value required for Quantity.
             ItemLedgerEntry.TestField("Serial No.");
             Quantity2 += ItemLedgerEntry.Quantity;
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         Assert.AreEqual(Quantity2, TotalQuantity, ValueMustBeEqualTxt);
     end;
 
@@ -4884,7 +4884,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         repeat
             ItemLedgerEntry.TestField("Lot No.", LotNo);
             ItemLedgerEntry.TestField(Quantity, Quantity);
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Entry Type"; DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; GlobalDimension1Code: Code[20]; Quantity: Decimal; RemainingQuantity: Decimal; PostingDate: Date)
@@ -5140,7 +5140,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         for i := 1 to 4 do begin
             ItemLedgerEntry.TestField("Lot No.", LotNo[i]);
             ItemLedgerEntry.TestField(Quantity, Quantity);
-            ItemLedgerEntry.Next;
+            ItemLedgerEntry.Next();
         end;
     end;
 
@@ -5178,7 +5178,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
                     Quantity := ItemTrackingLines.Quantity3.AsDEcimal;
                     repeat
                         CreateItemTrackingLine(ItemTrackingLines);
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                         Quantity -= 1;
                     until Quantity = 0;
                 end;
@@ -5207,7 +5207,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
                 begin
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal / 2);
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal);
                 end;
@@ -5220,7 +5220,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
             ItemTrackingMode::SelectEntriesForMultipleLines:
                 begin
                     ItemTrackingLines."Select Entries".Invoke;
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     ItemTrackingLines."Select Entries".Invoke;
                 end;
             ItemTrackingMode::UpdateQty:
@@ -5233,7 +5233,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
                 begin
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal / 4);
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     UpdateLotNoOnItemTrackingLine(ItemTrackingLines);
                     ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsDEcimal / 3);
                 end;
@@ -5283,7 +5283,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Split Place lines and place item into different bins
         repeat
             SplitPutAwayLineAndUpdateZoneCodeAndBinCodeForPlace(WarehouseActivityLine, WarehouseActivityLine.Quantity / 2);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
 
         // Register Put Away.
         RegisterWarehouseActivity(

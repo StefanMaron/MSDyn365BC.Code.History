@@ -8,7 +8,7 @@ codeunit 113 "Vend. Entry-Edit"
     begin
         VendLedgEntry := Rec;
         VendLedgEntry.LockTable();
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         VendLedgEntry."On Hold" := "On Hold";
         if VendLedgEntry.Open then begin
             VendLedgEntry."Due Date" := "Due Date";
@@ -29,6 +29,7 @@ codeunit 113 "Vend. Entry-Edit"
             VendLedgEntry.Validate("Applies-to Ext. Doc. No.", "Applies-to Ext. Doc. No.");
             VendLedgEntry.Validate("Message to Recipient", "Message to Recipient");
             VendLedgEntry.Validate("Recipient Bank Account", "Recipient Bank Account");
+            VendLedgEntry.Validate("Remit-to Code", "Remit-to Code");
         end;
         VendLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");
         VendLedgEntry.Validate("Creditor No.", "Creditor No.");

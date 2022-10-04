@@ -31,7 +31,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         TurnoverInBudgetTxt: Label 'Turnover in Amount, budget';
         DeviationTxt: Label 'Deviation';
         TotalTxt: Label 'TOTAL';
-        MissingPermissionsErr: Label 'You do not have the following permissions';
+        MissingPermissionsErr: Label 'Sorry, the current permissions prevented the action.';
         InsertNotAllowedErr: Label 'New method failed because Insert is not allowed';
 
     [Test]

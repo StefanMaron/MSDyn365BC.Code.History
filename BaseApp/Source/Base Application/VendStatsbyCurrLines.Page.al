@@ -24,7 +24,7 @@ page 487 "Vend. Stats. by Curr. Lines"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a text to describe the currency code.';
                 }
-                field("Vendor Balance"; "Vendor Balance")
+                field("Vendor Balance"; Rec."Vendor Balance")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -32,7 +32,7 @@ page 487 "Vend. Stats. by Curr. Lines"
                     Caption = 'Balance';
                     ToolTip = 'Specifies the payment amount that you owe the vendor for completed purchases.';
                 }
-                field("Vendor Outstanding Orders"; "Vendor Outstanding Orders")
+                field("Vendor Outstanding Orders"; Rec."Vendor Outstanding Orders")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -40,7 +40,7 @@ page 487 "Vend. Stats. by Curr. Lines"
                     Caption = 'Outstanding Orders';
                     ToolTip = 'Specifies the number of orders for which payment has not been made.';
                 }
-                field("Vendor Amt. Rcd. Not Invoiced"; "Vendor Amt. Rcd. Not Invoiced")
+                field("Vendor Amt. Rcd. Not Invoiced"; Rec."Vendor Amt. Rcd. Not Invoiced")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -56,7 +56,7 @@ page 487 "Vend. Stats. by Curr. Lines"
                     Caption = 'Total';
                     ToolTip = 'Specifies the total amount less any invoice discount amount and excluding VAT for the purchase document.';
                 }
-                field("Vendor Balance Due"; "Vendor Balance Due")
+                field("Vendor Balance Due"; Rec."Vendor Balance Due")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -83,11 +83,11 @@ page 487 "Vend. Stats. by Curr. Lines"
     trigger OnOpenPage()
     begin
         Code := '';
-        Insert;
+        Insert();
         if Currency.FindSet() then
             repeat
                 Rec := Currency;
-                Insert;
+                Insert();
             until Currency.Next() = 0;
 
         SetRange("Vendor Ledg. Entries in Filter", true);

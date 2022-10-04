@@ -37,7 +37,7 @@ table 1507 "Workflow Step Buffer"
                 WorkflowEvent.SetRange(Description, "Event Description");
                 if not WorkflowEvent.FindFirst() then begin
                     WorkflowEvent.SetFilter(Description, '%1', '@*' + "Event Description" + '*');
-                    if not LookupEvents(WorkflowEvent.GetView, WorkflowEvent) then
+                    if not LookupEvents(WorkflowEvent.GetView(), WorkflowEvent) then
                         Error(EventNotExistErr, "Event Description");
                 end;
 
@@ -53,7 +53,7 @@ table 1507 "Workflow Step Buffer"
                 WorkflowStep.Modify(true);
 
                 UpdateCondition(WorkflowStep);
-                UpdateThen;
+                UpdateThen();
             end;
         }
         field(4; Condition; Text[100])
@@ -81,7 +81,7 @@ table 1507 "Workflow Step Buffer"
                 WorkflowResponse.SetRange(Description, "Response Description");
                 if not WorkflowResponse.FindFirst() then begin
                     WorkflowResponse.SetFilter(Description, '%1', '@*' + "Response Description" + '*');
-                    if not ResponseDescriptionLookup(WorkflowResponse.GetView, WorkflowResponse) then
+                    if not ResponseDescriptionLookup(WorkflowResponse.GetView(), WorkflowResponse) then
                         Error(ResponseNotExistErr, "Response Description");
                 end;
 
@@ -95,7 +95,7 @@ table 1507 "Workflow Step Buffer"
 
                 WorkflowStep.Validate("Function Name", WorkflowResponse."Function Name");
                 WorkflowStep.Modify(true);
-                UpdateRecFromWorkflowStep;
+                UpdateRecFromWorkflowStep();
                 Modify(true);
             end;
         }
@@ -170,7 +170,7 @@ table 1507 "Workflow Step Buffer"
         }
         field(18; Template; Boolean)
         {
-            CalcFormula = Lookup (Workflow.Template WHERE(Code = FIELD("Workflow Code")));
+            CalcFormula = Lookup(Workflow.Template WHERE(Code = FIELD("Workflow Code")));
             Caption = 'Template';
             FieldClass = FlowField;
         }
@@ -198,7 +198,7 @@ table 1507 "Workflow Step Buffer"
             WorkflowStep.Delete(true);
         end;
 
-        if "Response Step ID" = MultipleResponseID then begin
+        if "Response Step ID" = MultipleResponseID() then begin
             TempWorkflowStepBuffer.PopulateTableFromEvent("Workflow Code", "Event Step ID");
             TempWorkflowStepBuffer.DeleteAll(true);
         end;
@@ -227,7 +227,7 @@ table 1507 "Workflow Step Buffer"
             WorkflowStep.Validate("Sequence No.", "Sequence No.");
             WorkflowStep.Modify(true);
             UpdateCondition(WorkflowStep);
-            UpdateSequenceNo;
+            UpdateSequenceNo();
             "Event Step ID" := WorkflowStep.ID;
         end else begin
             if "Previous Workflow Step ID" = 0 then
@@ -259,6 +259,7 @@ table 1507 "Workflow Step Buffer"
         ResponseNotExistErr: Label 'The workflow response %1 does not exist.', Comment = '%1 = response description (e.g. The workflow response Remove record does not exist.)';
         WhenNextStepDescTxt: Label 'Next when "%1"';
         ThenNextStepDescTxt: Label 'Next then "%1"';
+        ResponseDeleteLbl: Label 'You are about to change the "When Event". This change will cause the "On Condition" and the "Then Responses" to be deleted. Do you want to continue?';
 
     [Scope('OnPrem')]
     procedure OpenEventConditions()
@@ -272,9 +273,9 @@ table 1507 "Workflow Step Buffer"
         WorkflowEvent.Get(WorkflowStep."Function Name");
 
         if WorkflowEvent."Used for Record Change" then
-            WorkflowStep.OpenAdvancedEventConditions
+            WorkflowStep.OpenAdvancedEventConditions()
         else
-            WorkflowStep.OpenEventConditions;
+            WorkflowStep.OpenEventConditions();
 
         UpdateCondition(WorkflowStep);
     end;
@@ -285,7 +286,7 @@ table 1507 "Workflow Step Buffer"
         WorkflowStep: Record "Workflow Step";
     begin
         WorkflowStep.Get("Workflow Code", "Event Step ID");
-        WorkflowStep.DeleteEventConditions;
+        WorkflowStep.DeleteEventConditions();
         UpdateCondition(WorkflowStep);
     end;
 
@@ -295,7 +296,7 @@ table 1507 "Workflow Step Buffer"
     begin
         TempWorkflowStepBuffer.PopulateTableFromEvent("Workflow Code", "Event Step ID");
         if PAGE.RunModal(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer) = ACTION::LookupOK then;
-        UpdateThen;
+        UpdateThen();
     end;
 
     [Scope('OnPrem')]
@@ -336,7 +337,7 @@ table 1507 "Workflow Step Buffer"
         if ForLookup then
             NodeID := CreateResponseTree(WorkflowCode, OrderVar, NodeID)
         else
-            NodeID := UpdateThen;
+            NodeID := UpdateThen();
     end;
 
     local procedure UpdateThen(): Integer
@@ -361,13 +362,13 @@ table 1507 "Workflow Step Buffer"
                     LastThen := CopyStr(TempWorkflowStepBuffer."Response Description", 1,
                         MaxStrLen(TempWorkflowStepBuffer."Response Description") - StrLen(ThenTextForMultipleResponsesTxt));
                     "Response Description" := StrSubstNo(ThenTextForMultipleResponsesTxt, LastThen);
-                    "Response Step ID" := MultipleResponseID;
+                    "Response Step ID" := MultipleResponseID();
                 end;
         end;
 
-        UpdateResponseDescriptionStyle;
+        UpdateResponseDescriptionStyle();
 
-        Modify;
+        Modify();
 
         if TempWorkflowStepBuffer.FindLast() then
             exit(TempWorkflowStepBuffer."Response Step ID");
@@ -411,15 +412,15 @@ table 1507 "Workflow Step Buffer"
 
     local procedure CreateResponseNode(WorkflowCode: Code[20]; var OrderVar: Integer; WorkflowStep: Record "Workflow Step"; ParentEventStepID: Integer)
     begin
-        Init;
+        Init();
         "Workflow Code" := WorkflowCode;
         Order := OrderVar;
         OrderVar += 10000;
         "Parent Event Step ID" := ParentEventStepID;
         "Response Step ID" := WorkflowStep.ID;
-        UpdateRecFromWorkflowStep;
-        UpdateNextStepDescription;
-        Insert;
+        UpdateRecFromWorkflowStep();
+        UpdateNextStepDescription();
+        Insert();
     end;
 
     procedure ClearBuffer()
@@ -463,7 +464,7 @@ table 1507 "Workflow Step Buffer"
                 repeat
                     ChildWorkflowStep.Validate("Previous Workflow Step ID", NewPreviousID);
                     ChildWorkflowStep.Modify(true);
-                until ChildWorkflowStep.Next <> 1;
+                until ChildWorkflowStep.Next() <> 1;
         end;
     end;
 
@@ -474,7 +475,7 @@ table 1507 "Workflow Step Buffer"
 
     procedure UpdateResponseDescriptionStyle()
     begin
-        if "Response Step ID" = MultipleResponseID then
+        if "Response Step ID" = MultipleResponseID() then
             "Response Description Style" := 'StandardAccent'
         else
             "Response Description Style" := 'Standard';
@@ -484,7 +485,7 @@ table 1507 "Workflow Step Buffer"
     var
         WorkflowEvent: Record "Workflow Event";
     begin
-        Init;
+        Init();
         "Workflow Code" := WorkflowCode;
         Order := OrderVar;
         OrderVar += 10000;
@@ -497,7 +498,7 @@ table 1507 "Workflow Step Buffer"
         "Sequence No." := WorkflowStep."Sequence No.";
         Indent := CurrIndent;
         CurrIndent += 1;
-        Insert;
+        Insert();
     end;
 
     procedure CalculateNewKey(BelowxRec: Boolean)
@@ -517,7 +518,7 @@ table 1507 "Workflow Step Buffer"
 
     procedure CreateNewWhenThenLine(WorkflowCode: Code[20]; BelowxRec: Boolean)
     begin
-        if xRec.Find then begin
+        if xRec.Find() then begin
             "Previous Workflow Step ID" := xRec."Previous Workflow Step ID";
             Indent := xRec.Indent;
             "Sequence No." := xRec."Sequence No.";
@@ -532,7 +533,7 @@ table 1507 "Workflow Step Buffer"
     var
         WorkflowMgt: Codeunit "Workflow Management";
     begin
-        WorkflowStep.Find;
+        WorkflowStep.Find();
         Condition := WorkflowMgt.BuildConditionDisplay(WorkflowStep);
     end;
 
@@ -590,9 +591,9 @@ table 1507 "Workflow Step Buffer"
 
         "Previous Workflow Step ID" := CurrentWorkflowStep."Previous Workflow Step ID";
         Indent -= 1;
-        Modify;
+        Modify();
 
-        UpdateSequenceNo;
+        UpdateSequenceNo();
     end;
 
     procedure MoveRight()
@@ -621,9 +622,9 @@ table 1507 "Workflow Step Buffer"
 
         "Previous Workflow Step ID" := CurrentWorkflowStep."Previous Workflow Step ID";
         Indent := TempSiblingWorkflowStepBuffer.Indent + 1;
-        Modify;
+        Modify();
 
-        UpdateSequenceNo;
+        UpdateSequenceNo();
     end;
 
     local procedure UpdateSubtree(var CurrentWorkflowStep: Record "Workflow Step"): Boolean
@@ -653,7 +654,7 @@ table 1507 "Workflow Step Buffer"
         until not CurrentWorkflowStep.HasEventsInSubtree(ChildEventWorkflowStep);
 
         Indent += 1;
-        Modify;
+        Modify();
 
         CurrentWorkflowStep.Validate("Previous Workflow Step ID", NewParentStepID);
         CurrentWorkflowStep.Modify(true);
@@ -728,9 +729,9 @@ table 1507 "Workflow Step Buffer"
         if NextStepWorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep."Next Workflow Step ID") then
             case NextStepWorkflowStep.Type of
                 NextStepWorkflowStep.Type::"Event":
-                    "Next Step Description" := StrSubstNo(WhenNextStepDescTxt, NextStepWorkflowStep.GetDescription);
+                    "Next Step Description" := StrSubstNo(WhenNextStepDescTxt, NextStepWorkflowStep.GetDescription());
                 NextStepWorkflowStep.Type::Response:
-                    "Next Step Description" := StrSubstNo(ThenNextStepDescTxt, NextStepWorkflowStep.GetDescription);
+                    "Next Step Description" := StrSubstNo(ThenNextStepDescTxt, NextStepWorkflowStep.GetDescription());
             end
         else
             "Next Step Description" := '';
@@ -750,7 +751,7 @@ table 1507 "Workflow Step Buffer"
             if WorkflowStep.LookupOtherWorkflowStepID(WorkflowStep."Next Workflow Step ID") then begin
                 WorkflowStep.Validate("Next Workflow Step ID");
                 WorkflowStep.Modify(true);
-                UpdateNextStepDescription;
+                UpdateNextStepDescription();
                 exit(true);
             end;
 
@@ -791,7 +792,7 @@ table 1507 "Workflow Step Buffer"
         if not GetWorkflowStep(WorkflowStep) then
             exit;
 
-        "Response Description" := WorkflowStep.GetDescription;
+        "Response Description" := WorkflowStep.GetDescription();
         "Previous Workflow Step ID" := WorkflowStep."Previous Workflow Step ID";
         Argument := WorkflowStep.Argument;
     end;
@@ -821,6 +822,12 @@ table 1507 "Workflow Step Buffer"
 
         TempWorkflowEvent.SetView(EventFilter);
         if PAGE.RunModal(0, TempWorkflowEvent) = ACTION::LookupOK then begin
+            If ("Event Description" <> '') and ("Event Description" <> TempWorkflowEvent.Description) then
+                if Dialog.Confirm(ResponseDeleteLbl, false) then
+                    DeleteResponse()
+                else
+                    exit(false);
+
             Validate("Event Description", TempWorkflowEvent.Description);
             WorkflowEvent.Get(TempWorkflowEvent."Function Name");
             exit(true);
@@ -870,7 +877,7 @@ table 1507 "Workflow Step Buffer"
     begin
         if WorkflowEvent.FindSet() then
             repeat
-                if not WorkflowEvent.HasPredecessors then begin
+                if not WorkflowEvent.HasPredecessors() then begin
                     TempWorkflowEvent := WorkflowEvent;
                     TempWorkflowEvent.Independent := true;
                     if TempWorkflowEvent.Insert() then;
@@ -884,12 +891,28 @@ table 1507 "Workflow Step Buffer"
     begin
         if WorkflowResponse.FindSet() then
             repeat
-                if not WorkflowResponse.HasPredecessors then begin
+                if not WorkflowResponse.HasPredecessors() then begin
                     TempWorkflowResponse := WorkflowResponse;
                     TempWorkflowResponse.Independent := true;
                     if TempWorkflowResponse.Insert() then;
                 end;
             until WorkflowResponse.Next() = 0;
+    end;
+
+    local procedure DeleteResponse()
+    var
+        WorkflowStep: Record "Workflow Step";
+        TempWorkflowStepBuffer: Record "Workflow Step Buffer" temporary;
+    begin
+        if "Response Step ID" > 0 then begin
+            WorkflowStep.Get("Workflow Code", "Response Step ID");
+            WorkflowStep.Delete(true);
+        end;
+
+        if "Response Step ID" = MultipleResponseID() then begin
+            TempWorkflowStepBuffer.PopulateTableFromEvent("Workflow Code", "Event Step ID");
+            TempWorkflowStepBuffer.DeleteAll(true);
+        end;
     end;
 }
 

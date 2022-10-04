@@ -16,7 +16,7 @@ report 14 "Consolidation - Test Database"
             dataitem(Header; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(STRSUBSTNO_Text009_ConsolidStartDate_ConsolidEndDate_; StrSubstNo(Text009, ConsolidStartDate, ConsolidEndDate))
@@ -82,7 +82,7 @@ report 14 "Consolidation - Test Database"
 
                     trigger OnPostDataItem()
                     begin
-                        ClearErrors;
+                        ClearErrors();
                     end;
 
                     trigger OnPreDataItem()
@@ -144,7 +144,7 @@ report 14 "Consolidation - Test Database"
                                not ReportedClosingDateError
                             then begin
                                 AddError(StrSubstNo(
-                                    Text008, TableCaption,
+                                    Text008, TableCaption(),
                                     FieldCaption("Posting Date"), "Posting Date"));
                                 ReportedClosingDateError := true;
                             end;
@@ -180,7 +180,7 @@ report 14 "Consolidation - Test Database"
                                         AddError(StrSubstNo(
                                             '%1 %2: %3',
                                             TableCaption, "Entry No.",
-                                            DimMgt.GetDimCombErr));
+                                            DimMgt.GetDimCombErr()));
 
                                     TableID[1] := DATABASE::"G/L Account";
                                     No[1] := "G/L Account No.";
@@ -193,7 +193,7 @@ report 14 "Consolidation - Test Database"
                                         AddError(StrSubstNo(
                                             '%1 %2: %3',
                                             TableCaption, "Entry No.",
-                                            DimMgt.GetDimValuePostingErr));
+                                            DimMgt.GetDimValuePostingErr()));
                                 end;
                             end;
                             if GLEntryAddedToDataset then
@@ -221,7 +221,7 @@ report 14 "Consolidation - Test Database"
 
                         trigger OnPostDataItem()
                         begin
-                            ClearErrors;
+                            ClearErrors();
                         end;
 
                         trigger OnPreDataItem()
@@ -232,7 +232,7 @@ report 14 "Consolidation - Test Database"
 
                     trigger OnAfterGetRecord()
                     begin
-                        TestGLAccounts;
+                        TestGLAccounts();
                     end;
                 }
 
@@ -246,7 +246,7 @@ report 14 "Consolidation - Test Database"
             begin
                 TestField("Company Name");
 
-                ClearErrors;
+                ClearErrors();
 
                 if ("Starting Date" <> 0D) or ("Ending Date" <> 0D) then begin
                     if "Starting Date" = 0D then
@@ -281,28 +281,28 @@ report 14 "Consolidation - Test Database"
                 Dim.ChangeCompany("Company Name");
                 TempDim.Reset();
                 TempDim.DeleteAll();
-                if Dim.Find('-') then begin
+                if Dim.Find('-') then
                     repeat
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
                     until Dim.Next() = 0;
-                end;
+
                 TempConsolidDim.Reset();
                 TempConsolidDim.DeleteAll();
-                if ConsolidDim.Find('-') then begin
+                if ConsolidDim.Find('-') then
                     repeat
                         TempConsolidDim.Init();
                         TempConsolidDim := ConsolidDim;
                         TempConsolidDim.Insert();
                     until ConsolidDim.Next() = 0;
-                end;
+
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object Type", 3);
                 SelectedDim.SetRange("Object ID", REPORT::"Consolidation - Test Database");
                 TempSelectedDim.Reset();
                 TempSelectedDim.DeleteAll();
-                if SelectedDim.Find('-') then begin
+                if SelectedDim.Find('-') then
                     repeat
                         TempSelectedDim.Init();
                         TempSelectedDim := SelectedDim;
@@ -313,8 +313,8 @@ report 14 "Consolidation - Test Database"
                             else
                                 AddError(StrSubstNo(
                                     Text016,
-                                    SelectedDim.TableCaption, SelectedDim."Dimension Code", "Company Name"));
-                        end else begin
+                                    SelectedDim.TableCaption(), SelectedDim."Dimension Code", "Company Name"));
+                        end else
                             if TempDim."Consolidation Code" <> '' then
                                 if not TempConsolidDim.Get(TempDim."Consolidation Code") then
                                     AddError(StrSubstNo(
@@ -322,30 +322,28 @@ report 14 "Consolidation - Test Database"
                                         SelectedDim.FieldCaption("Dimension Code"), TempDim.Code, "Company Name",
                                         TempDim.FieldCaption("Consolidation Code"), TempDim."Consolidation Code",
                                         CompanyName));
-                        end;
                         TempSelectedDim.Insert();
                     until SelectedDim.Next() = 0;
-                end;
+
                 TempDim.Reset();
                 TempDimVal.Reset();
                 TempDimVal.DeleteAll();
                 DimVal.ChangeCompany("Company Name");
-                if DimVal.Find('-') then begin
+                if DimVal.Find('-') then
                     repeat
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
                     until DimVal.Next() = 0;
-                end;
+
                 TempConsolidDimVal.Reset();
                 TempConsolidDimVal.DeleteAll();
-                if ConsolidDimVal.Find('-') then begin
+                if ConsolidDimVal.Find('-') then
                     repeat
                         TempConsolidDimVal.Init();
                         TempConsolidDimVal := ConsolidDimVal;
                         TempConsolidDimVal.Insert();
                     until ConsolidDimVal.Next() = 0;
-                end;
             end;
         }
     }
@@ -427,15 +425,6 @@ report 14 "Consolidation - Test Database"
     end;
 
     var
-        Text004: Label 'Enter the starting date for the consolidation period.';
-        Text005: Label 'Enter the ending date for the consolidation period.';
-        Text007: Label 'When using closing dates, the starting and ending dates must be the same.';
-        Text008: Label 'A %1 with %2 on a closing date (%3) was found while consolidating non-closing entries.';
-        Text009: Label 'Period: %1..%2';
-        Text015: Label 'Copy Dimensions';
-        Text016: Label '%1 %2 doesn''t exist in %3.';
-        Text017: Label '%1 %2 in %3 has a %4 %5 that doesn''t exist in %6.';
-        Text018: Label 'There are more than %1 errors.';
         ConsolidGLAcc: Record "G/L Account";
         SubsidGLSetup: Record "General Ledger Setup";
         SelectedDim: Record "Selected Dimension";
@@ -459,13 +448,23 @@ report 14 "Consolidation - Test Database"
         ReportedClosingDateError: Boolean;
         GLEntryAddedToDataset: Boolean;
         ErrorText: array[100] of Text[250];
+        Print_control: Boolean;
+
+        Text004: Label 'Enter the starting date for the consolidation period.';
+        Text005: Label 'Enter the ending date for the consolidation period.';
+        Text007: Label 'When using closing dates, the starting and ending dates must be the same.';
+        Text008: Label 'A %1 with %2 on a closing date (%3) was found while consolidating non-closing entries.';
+        Text009: Label 'Period: %1..%2';
+        Text015: Label 'Copy Dimensions';
+        Text016: Label '%1 %2 doesn''t exist in %3.';
+        Text017: Label '%1 %2 in %3 has a %4 %5 that doesn''t exist in %6.';
+        Text018: Label 'There are more than %1 errors.';
         Text020: Label '%1 for this %2 is set to %3, but there is no %4 set up in the %2.';
         Text021: Label 'Within the Subsidiary (%5), there are two G/L Accounts: %1 and %4; which refer to the same %2, but with a different %3.';
         Text022: Label '%1 %2, referenced by Subsidiary (%5) %3 %4, does not exist in the Consolidated %3 table.';
         Text023: Label 'Subsidiary (%7) %1 %2 must have the same %3 as Consolidated %1 %4.  (%5 <> %6)';
         Text031: Label '%1 must not be empty when %2 is not empty, in company %3.';
         Text032: Label 'The %1 is later than the %2 in company %3.';
-        Print_control: Boolean;
         Consolidation___Test_DatabaseCaptionLbl: Label 'Consolidation - Test Database';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Selected_dimensions_will_be_copied_CaptionLbl: Label 'Selected dimensions will be copied.';
@@ -475,9 +474,9 @@ report 14 "Consolidation - Test Database"
 
     local procedure AddError(Text: Text[250])
     begin
-        if NextErrorIndex = ArrayLen(ErrorText) then begin
-            ErrorText[NextErrorIndex] := StrSubstNo(Text018, ArrayLen(ErrorText));
-        end else begin
+        if NextErrorIndex = ArrayLen(ErrorText) then
+            ErrorText[NextErrorIndex] := StrSubstNo(Text018, ArrayLen(ErrorText))
+        else begin
             NextErrorIndex := NextErrorIndex + 1;
             ErrorText[NextErrorIndex] := Text;
         end;
@@ -502,14 +501,14 @@ report 14 "Consolidation - Test Database"
                     "G/L Account"."No.",
                     "G/L Account".FieldCaption("Consol. Debit Acc."),
                     "G/L Account".FieldCaption("Consol. Translation Method"),
-                    AccountToTest."No.", "Business Unit".TableCaption))
+                    AccountToTest."No.", "Business Unit".TableCaption()))
             else
                 AddError(StrSubstNo(
                     Text021,
                     "G/L Account"."No.",
                     "G/L Account".FieldCaption("Consol. Credit Acc."),
                     "G/L Account".FieldCaption("Consol. Translation Method"),
-                    AccountToTest."No.", "Business Unit".TableCaption));
+                    AccountToTest."No.", "Business Unit".TableCaption()));
         end else begin
             "G/L Account".Reset();
             "G/L Account".FilterGroup(2);
@@ -523,16 +522,16 @@ report 14 "Consolidation - Test Database"
                 AddError(StrSubstNo(
                     Text022,
                     "G/L Account".FieldCaption("Consol. Debit Acc."), "G/L Account"."Consol. Debit Acc.",
-                    "G/L Account".TableCaption, "G/L Account"."No.", "Business Unit".TableCaption))
+                    "G/L Account".TableCaption(), "G/L Account"."No.", "Business Unit".TableCaption()))
             else
-                CheckConsolTranslationMethod;
+                CheckConsolTranslationMethod();
         end else
             if not ConsolidGLAcc.Get(AccountToTest."No.") then
                 AddError(StrSubstNo(
                     AccountDoesNotExistTxt,
-                    "G/L Account".TableCaption, "G/L Account"."No.", "Business Unit".TableCaption))
+                    "G/L Account".TableCaption(), "G/L Account"."No.", "Business Unit".TableCaption()))
             else
-                CheckConsolTranslationMethod;
+                CheckConsolTranslationMethod();
 
         if "G/L Account"."Consol. Debit Acc." = "G/L Account"."Consol. Credit Acc." then
             exit;
@@ -542,16 +541,16 @@ report 14 "Consolidation - Test Database"
                 AddError(StrSubstNo(
                     Text022,
                     "G/L Account".FieldCaption("Consol. Credit Acc."), "G/L Account"."Consol. Credit Acc.",
-                    "G/L Account".TableCaption, "G/L Account"."No.", "Business Unit".TableCaption))
+                    "G/L Account".TableCaption(), "G/L Account"."No.", "Business Unit".TableCaption()))
             else
-                CheckConsolTranslationMethod;
+                CheckConsolTranslationMethod();
         end else
             if not ConsolidGLAcc.Get(AccountToTest."No.") then
                 AddError(StrSubstNo(
                     AccountDoesNotExistTxt,
-                    "G/L Account".TableCaption, "G/L Account"."No.", "Business Unit".TableCaption))
+                    "G/L Account".TableCaption(), "G/L Account"."No.", "Business Unit".TableCaption()))
             else
-                CheckConsolTranslationMethod;
+                CheckConsolTranslationMethod();
     end;
 
     local procedure CheckConsolTranslationMethod()
@@ -559,10 +558,10 @@ report 14 "Consolidation - Test Database"
         if "G/L Account"."Consol. Translation Method" <> ConsolidGLAcc."Consol. Translation Method" then
             AddError(StrSubstNo(
                 Text023,
-                "G/L Account".TableCaption, "G/L Account"."No.",
+                "G/L Account".TableCaption(), "G/L Account"."No.",
                 "G/L Account".FieldCaption("Consol. Translation Method"), ConsolidGLAcc."No.",
                 "G/L Account"."Consol. Translation Method", ConsolidGLAcc."Consol. Translation Method",
-                "Business Unit".TableCaption));
+                "Business Unit".TableCaption()));
     end;
 }
 

@@ -1,7 +1,7 @@
 page 8624 "Config. Package Fields"
 {
     Caption = 'Config. Package Fields';
-    DataCaptionExpression = FormCaption;
+    DataCaptionExpression = FormCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -15,7 +15,7 @@ page 8624 "Config. Package Fields"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -27,45 +27,45 @@ page 8624 "Config. Package Fields"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies whether the field in the table is part of the dimension definition set.';
                 }
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the ID of the field for the table that is part of the migration process.';
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     Editable = false;
                     ToolTip = 'Specifies the name of the field for the table that is part of the migration process. The name comes from the Name property for the field.';
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the caption of the field for the table that is part of the migration process. The caption comes from the Caption property for the field.';
                     Visible = false;
                 }
-                field("Include Field"; "Include Field")
+                field("Include Field"; Rec."Include Field")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IncludedEditable;
                     ToolTip = 'Specifies whether the field is included in the migration. Select the check box to include the field in the migration process. By default, when you select the check box, the Field Caption check box is also selected. You can clear this check box if you do not want to enable validation for the field.';
                 }
-                field("Validate Field"; "Validate Field")
+                field("Validate Field"; Rec."Validate Field")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the information in a field is to be validated during migration. Select the check box if you want to enable validation for the field. This is useful when you want to limit data to a prescribed set of options.';
                 }
-                field("Processing Order"; "Processing Order")
+                field("Processing Order"; Rec."Processing Order")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies the order in which the data from the fields in the package should be applied. If your business logic requires that a certain field be filled in before another field can contain data, you can use the Processing Order field to specify the appropriate order. To specify the order, use the Move Up and Move Down commands on the Actions tab in the Config. Package Fields window. When you export the configuration information to Excel, the order that you specify for processing is the order in which the fields will be listed in columns in Excel.';
                 }
-                field("Primary Key"; "Primary Key")
+                field("Primary Key"; Rec."Primary Key")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the field is part of the definition of the primary key for the table.';
@@ -77,30 +77,30 @@ page 8624 "Config. Package Fields"
                     ToolTip = 'Specifies whether the field has the AutoIncrement property set to Yes, but is not part of the definition of the primary key for the table.';
                     Visible = false;
                 }
-                field("Localize Field"; "Localize Field")
+                field("Localize Field"; Rec."Localize Field")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies whether the field is to be localized.';
                     Visible = false;
                 }
-                field("Relation Table ID"; "Relation Table ID")
+                field("Relation Table ID"; Rec."Relation Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the ID for the table that contains a field that is related to the one in the migration table. For example, the Post Code table has a relationship with the City field in the Company Information migration table.';
                 }
-                field("Relation Table Caption"; "Relation Table Caption")
+                field("Relation Table Caption"; Rec."Relation Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the table with a relationship to the migration field.';
                 }
-                field("Create Missing Codes"; "Create Missing Codes")
+                field("Create Missing Codes"; Rec."Create Missing Codes")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether you can create additional values in the database during the configuration migration process. Select the check box to indicate that additional codes can be added to that field in Business Central during the import of data from Excel.';
                 }
-                field("Mapping Exists"; "Mapping Exists")
+                field("Mapping Exists"; Rec."Mapping Exists")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the field has a mapping assigned to it that is to be used during data migration.';
@@ -142,8 +142,6 @@ page 8624 "Config. Package Fields"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Included';
                     Image = Completed;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Specify that the field is included in the package.';
 
                     trigger OnAction()
@@ -160,8 +158,6 @@ page 8624 "Config. Package Fields"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Clear Included';
                     Image = ResetStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Deselect the included fields. To include all fields, choose the Set Included action.';
 
                     trigger OnAction()
@@ -179,8 +175,6 @@ page 8624 "Config. Package Fields"
                     Caption = 'Mapping';
                     Ellipsis = true;
                     Image = MapAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the mapping of values from an existing ERP system into the Business Central implementation during the migration of data.';
 
                     trigger OnAction()
@@ -195,16 +189,13 @@ page 8624 "Config. Package Fields"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Move Up';
                     Image = MoveUp;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Move the selected line up in the list.';
 
                     trigger OnAction()
                     var
                         ConfigPackageField: Record "Config. Package Field";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
                         ConfigPackageField.SetRange("Package Code", "Package Code");
                         ConfigPackageField.SetRange("Table ID", "Table ID");
@@ -220,16 +211,13 @@ page 8624 "Config. Package Fields"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Move Down';
                     Image = MoveDown;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Move the selected line down in the list.';
 
                     trigger OnAction()
                     var
                         ConfigPackageField: Record "Config. Package Field";
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
                         ConfigPackageField.SetRange("Package Code", "Package Code");
                         ConfigPackageField.SetRange("Table ID", "Table ID");
@@ -246,8 +234,6 @@ page 8624 "Config. Package Fields"
                     Caption = 'Change Related Table';
                     Enabled = ChangeTableRelationEnabled;
                     Image = Splitlines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change a related table of Config. Package Field if the related field has 2 or more related tables.';
 
                     trigger OnAction()
@@ -258,15 +244,41 @@ page 8624 "Config. Package Fields"
                         Clear(Objects);
                         AllObjWithCaption.FilterGroup(2);
                         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
-                        AllObjWithCaption.SetFilter("Object ID", GetRelationTablesID);
+                        AllObjWithCaption.SetFilter("Object ID", GetRelationTablesID());
                         AllObjWithCaption.FilterGroup(0);
                         Objects.SetTableView(AllObjWithCaption);
                         Objects.LookupMode := true;
-                        if Objects.RunModal = ACTION::LookupOK then begin
+                        if Objects.RunModal() = ACTION::LookupOK then begin
                             Objects.GetRecord(AllObjWithCaption);
                             Validate("Relation Table ID", AllObjWithCaption."Object ID");
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Move Up_Promoted"; "Move Up")
+                {
+                }
+                actionref("Move Down_Promoted"; "Move Down")
+                {
+                }
+                actionref("Set Included_Promoted"; "Set Included")
+                {
+                }
+                actionref("Clear Included_Promoted"; "Clear Included")
+                {
+                }
+                actionref(Mapping_Promoted; Mapping)
+                {
+                }
+                actionref("Change Related Table_Promoted"; "Change Related Table")
+                {
                 }
             }
         }

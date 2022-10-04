@@ -90,8 +90,8 @@ codeunit 132204 "Library - Warehouse"
         Commit();
         CalcWhseAdjmt.SetItemJnlLine(ItemJournalLine);
         if (DocumentNo = '') and (ItemJournalBatch."No. Series" <> '') then
-            DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", WorkDate, false);
-        CalcWhseAdjmt.InitializeRequest(WorkDate, DocumentNo);
+            DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", WorkDate(), false);
+        CalcWhseAdjmt.InitializeRequest(WorkDate(), DocumentNo);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin
@@ -862,7 +862,7 @@ codeunit 132204 "Library - Warehouse"
         if not WarehouseJournalBatch.Get(JournalTemplateName, JournalBatchName, LocationCode) then begin
             WarehouseJournalBatch.Init();
             WarehouseJournalBatch.Validate("Journal Template Name", JournalTemplateName);
-            WarehouseJournalBatch.SetupNewBatch;
+            WarehouseJournalBatch.SetupNewBatch();
             WarehouseJournalBatch.Validate(Name, JournalBatchName);
             WarehouseJournalBatch.Validate(Description, JournalBatchName + ' journal');
             WarehouseJournalBatch.Validate("Location Code", LocationCode);
@@ -888,7 +888,7 @@ codeunit 132204 "Library - Warehouse"
         RecRef.GetTable(WarehouseJournalLine);
         WarehouseJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, WarehouseJournalLine.FieldNo("Line No.")));
         WarehouseJournalLine.Insert(true);
-        WarehouseJournalLine.Validate("Registering Date", WorkDate);
+        WarehouseJournalLine.Validate("Registering Date", WorkDate());
         WarehouseJournalLine.Validate("Entry Type", EntryType);
         if NoSeries.Get(WarehouseJournalBatch."No. Series") then
             DocumentNo := NoSeriesManagement.GetNextNo(WarehouseJournalBatch."No. Series", WarehouseJournalLine."Registering Date", false)
@@ -1095,7 +1095,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseActivityLine.SetRange("Source Subtype", SourceSubtype);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Line No.", SourceLineNo);
-        exit(WarehouseActivityLine.FindFirst);
+        exit(WarehouseActivityLine.FindFirst())
     end;
 
     procedure FindZone(var Zone: Record Zone; LocationCode: Code[10]; BinTypeCode: Code[10]; CrossDockBinZone: Boolean)
@@ -1243,7 +1243,7 @@ codeunit 132204 "Library - Warehouse"
         WhsePickRqst2.MarkedOnly(true);
         if not WhsePickRqst2.FindFirst() then begin
             WhsePickRqst2.MarkedOnly(false);
-            WhsePickRqst2.SetRecFilter;
+            WhsePickRqst2.SetRecFilter();
         end;
 
         GetOutboundSourceDocuments.UseRequestPage(false);
@@ -1271,7 +1271,7 @@ codeunit 132204 "Library - Warehouse"
     procedure NoSeriesSetup(var WarehouseSetup: Record "Warehouse Setup")
     begin
         with WarehouseSetup do begin
-            Get;
+            Get();
             Validate("Posted Whse. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Posted Whse. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Registered Whse. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1534,7 +1534,7 @@ codeunit 132204 "Library - Warehouse"
         repeat
             InternalMovementLine.Validate(Quantity, Qty);
             InternalMovementLine.Modify(true);
-        until InternalMovementLine.Next = 0;
+        until InternalMovementLine.Next() = 0;
     end;
 
     procedure SetQtyHandleInventoryMovement(WarehouseActivityHeader: Record "Warehouse Activity Header"; Qty: Decimal)
@@ -1553,7 +1553,7 @@ codeunit 132204 "Library - Warehouse"
         repeat
             WhseActivityLine.Validate(Quantity, Qty);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
     end;
 
     procedure SetRequireShipmentOnWarehouseSetup(RequireShipment: Boolean)
@@ -1643,11 +1643,11 @@ codeunit 132204 "Library - Warehouse"
         WhseSourceCreateDocument.Run();
     end;
 
-    procedure WhseGetBinContent(var BinContent: Record "Bin Content"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; DestinationType: Option)
+    procedure WhseGetBinContent(var BinContent: Record "Bin Content"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; DestinationType: Enum "Warehouse Destination Type 2")
     var
         WhseGetBinContent: Report "Whse. Get Bin Content";
     begin
-        WhseGetBinContent.InitializeReport(WhseWorksheetLine, WhseInternalPutAwayHeader, DestinationType);
+        WhseGetBinContent.SetParameters(WhseWorksheetLine, WhseInternalPutAwayHeader, DestinationType);
         WhseGetBinContent.SetTableView(BinContent);
         WhseGetBinContent.UseRequestPage(false);
         WhseGetBinContent.Run();

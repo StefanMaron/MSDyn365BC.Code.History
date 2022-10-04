@@ -27,7 +27,7 @@ page 1637 "Office Suggested Line Items"
                                 Error(ItemNeedsToBeResolvedErr);
                         end;
                     }
-                    field(Item; GetItem)
+                    field(Item; GetItem())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item';
@@ -73,7 +73,7 @@ page 1637 "Office Suggested Line Items"
                             end;
                         end;
                     }
-                    field(Description; GetDescription)
+                    field(Description; GetDescription())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Description';
@@ -119,7 +119,7 @@ page 1637 "Office Suggested Line Items"
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
             if DoNotShowAgain then
-                OnDisableMessage;
+                OnDisableMessage();
     end;
 
     var

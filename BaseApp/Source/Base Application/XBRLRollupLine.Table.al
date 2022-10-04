@@ -9,6 +9,7 @@ table 398 "XBRL Rollup Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

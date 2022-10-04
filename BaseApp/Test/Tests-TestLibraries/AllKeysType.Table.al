@@ -1,5 +1,6 @@
 table 132591 "All-Keys Type"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -33,7 +34,7 @@ table 132591 "All-Keys Type"
         Key1 := NewKey1;
         Key2 := NewKey2;
         Key3 := NewKey3;
-        Insert;
+        Insert();
     end;
 }
 

@@ -23,6 +23,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         NewInstruction: Text;
         EquallyTok: Label 'Equally';
         ByFairyDustTok: Label 'By Fairy Dust';
+        QtyToHandleMustBeErr: Label 'Qty. to Handle must be equal to ''%1''  in %2';
         IsInitialized: Boolean;
 
     [Test]
@@ -289,6 +290,96 @@ codeunit 134350 "Test Item Charge Extendibility"
         VerifyItemChargesPurchAssignedEqually(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToHandleItemChargeAssgntSales()
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        Initialize();
+
+        InitItemChargeAssignmentSales(ItemChargeAssignmentSales);
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
+        ItemChargeAssignmentSales.TestField("Qty. to Handle", ItemChargeAssignmentSales."Qty. to Assign");
+        ItemChargeAssignmentSales.TestField("Amount to Handle", ItemChargeAssignmentSales."Amount to Assign");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ZeroQtyToHandleItemChargeAssgntSales()
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        Initialize();
+
+        InitItemChargeAssignmentSales(ItemChargeAssignmentSales);
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
+        ItemChargeAssignmentSales.Validate("Qty. to Handle", 0);
+        ItemChargeAssignmentSales.TestField("Amount to Handle", 0);
+        // [WHEN] Restore "Qty. to Handle" as "Qty. to Assign"
+        ItemChargeAssignmentSales.Validate("Qty. to Handle", ItemChargeAssignmentSales."Qty. to Assign");
+        ItemChargeAssignmentSales.TestField("Amount to Handle", ItemChargeAssignmentSales."Amount to Assign");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToHandleMustbeEqualToQtyToAssignItemChargeAssgntSales()
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        Initialize();
+
+        InitItemChargeAssignmentSales(ItemChargeAssignmentSales);
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
+        asserterror ItemChargeAssignmentSales.Validate("Qty. to Handle", ItemChargeAssignmentSales."Qty. to Assign" - 1);
+        Assert.ExpectedError(StrSubstNo(QtyToHandleMustBeErr, ItemChargeAssignmentSales."Qty. to Assign", ItemChargeAssignmentSales.TableName()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToHandleItemChargeAssgntPurch()
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        Initialize();
+
+        InitItemChargeAssignmentPurch(ItemChargeAssignmentPurch);
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
+        ItemChargeAssignmentPurch.TestField("Qty. to Handle", ItemChargeAssignmentPurch."Qty. to Assign");
+        ItemChargeAssignmentPurch.TestField("Amount to Handle", ItemChargeAssignmentPurch."Amount to Assign");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ZeroQtyToHandleItemChargeAssgntPurch()
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        Initialize();
+
+        InitItemChargeAssignmentPurch(ItemChargeAssignmentPurch);
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
+        ItemChargeAssignmentPurch.Validate("Qty. to Handle", 0);
+        ItemChargeAssignmentPurch.TestField("Amount to Handle", 0);
+        // [WHEN] Restore "Qty. to Handle" as "Qty. to Assign"
+        ItemChargeAssignmentPurch.Validate("Qty. to Handle", ItemChargeAssignmentPurch."Qty. to Assign");
+        ItemChargeAssignmentPurch.TestField("Amount to Handle", ItemChargeAssignmentPurch."Amount to Assign");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToHandleMustbeEqualToQtyToAssignItemChargeAssgntPurch()
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        Initialize();
+
+        InitItemChargeAssignmentPurch(ItemChargeAssignmentPurch);
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
+        asserterror ItemChargeAssignmentPurch.Validate("Qty. to Handle", ItemChargeAssignmentPurch."Qty. to Assign" - 1);
+        Assert.ExpectedError(StrSubstNo(QtyToHandleMustBeErr, ItemChargeAssignmentPurch."Qty. to Assign", ItemChargeAssignmentPurch.TableName()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -407,7 +498,7 @@ codeunit 134350 "Test Item Charge Extendibility"
 
     local procedure SetItemChargeAssignmentStrMenuOneOptionEqually(var TestItemChargeExtendibility: Codeunit "Test Item Charge Extendibility")
     begin
-        TestItemChargeExtendibility.SetStrMenuGlobalsForSubscriber(AssignEquallyMenuText, 1, 1, 'Select from one option');
+        TestItemChargeExtendibility.SetStrMenuGlobalsForSubscriber(AssignEquallyMenuText(), 1, 1, 'Select from one option');
         BindSubscription(TestItemChargeExtendibility);
     end;
 
@@ -447,7 +538,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
     begin
         VerifyItemChargesPurchNotAssigned(PurchaseLine);
-        ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign);
+        ItemChargeAssgntPurch.SuggestAssgnt(PurchaseLine, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToAssign, TotalAmtToAssign);
     end;
 
     local procedure AssignByFairyDustSales(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -458,13 +549,17 @@ codeunit 134350 "Test Item Charge Extendibility"
         for i := ItemChargeAssignmentSales.Count downto 2 do begin
             ItemChargeAssignmentSales."Qty. to Assign" := Round(TotalQtyToAssign / (i + 1));
             ItemChargeAssignmentSales."Amount to Assign" := Round(TotalAmtToAssign / (i + 1));
+            ItemChargeAssignmentSales."Qty. to Handle" := ItemChargeAssignmentSales."Qty. to Assign";
+            ItemChargeAssignmentSales."Amount to Handle" := ItemChargeAssignmentSales."Amount to Assign";
             ItemChargeAssignmentSales.Modify();
             TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentSales."Amount to Assign";
-            ItemChargeAssignmentSales.Next;
+            ItemChargeAssignmentSales.Next();
         end;
         ItemChargeAssignmentSales."Qty. to Assign" := TotalQtyToAssign;
         ItemChargeAssignmentSales."Amount to Assign" := TotalAmtToAssign;
+        ItemChargeAssignmentSales."Qty. to Handle" := ItemChargeAssignmentSales."Qty. to Assign";
+        ItemChargeAssignmentSales."Amount to Handle" := ItemChargeAssignmentSales."Amount to Assign";
         ItemChargeAssignmentSales.Modify();
     end;
 
@@ -476,13 +571,17 @@ codeunit 134350 "Test Item Charge Extendibility"
         for i := ItemChargeAssignmentPurch.Count downto 2 do begin
             ItemChargeAssignmentPurch."Qty. to Assign" := Round(TotalQtyToAssign / (i + 1));
             ItemChargeAssignmentPurch."Amount to Assign" := Round(TotalAmtToAssign / (i + 1));
+            ItemChargeAssignmentPurch."Qty. to Handle" := ItemChargeAssignmentPurch."Qty. to Assign";
+            ItemChargeAssignmentPurch."Amount to Handle" := ItemChargeAssignmentPurch."Amount to Assign";
             ItemChargeAssignmentPurch.Modify();
             TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
-            ItemChargeAssignmentPurch.Next;
+            ItemChargeAssignmentPurch.Next();
         end;
         ItemChargeAssignmentPurch."Qty. to Assign" := TotalQtyToAssign;
         ItemChargeAssignmentPurch."Amount to Assign" := TotalAmtToAssign;
+        ItemChargeAssignmentPurch."Qty. to Handle" := ItemChargeAssignmentPurch."Qty. to Assign";
+        ItemChargeAssignmentPurch."Amount to Handle" := ItemChargeAssignmentPurch."Amount to Assign";
         ItemChargeAssignmentPurch.Modify();
     end;
 
@@ -537,10 +636,12 @@ codeunit 134350 "Test Item Charge Extendibility"
               ItemChargeAssignmentSales."Amount to Assign", 'Wrong Amount to Assign');
             TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentSales."Amount to Assign";
-            ItemChargeAssignmentSales.Next;
+            ItemChargeAssignmentSales.Next();
         end;
         Assert.AreEqual(Round(TotalQtyToAssign, 0.00001), ItemChargeAssignmentSales."Qty. to Assign", 'Wrong Qty. to Assign');
         Assert.AreEqual(TotalAmtToAssign, ItemChargeAssignmentSales."Amount to Assign", 'Wrong Amount to Assign');
+        Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Assign", ItemChargeAssignmentSales."Qty. to Handle", 'Wrong Qty. to Handle');
+        Assert.AreEqual(ItemChargeAssignmentSales."Amount to Assign", ItemChargeAssignmentSales."Amount to Handle", 'Wrong Amount to Handle');
     end;
 
     local procedure VerifyItemChargesSalesAssignedByFairyDust(SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -558,10 +659,12 @@ codeunit 134350 "Test Item Charge Extendibility"
             Assert.AreEqual(Round(TotalAmtToAssign / j), ItemChargeAssignmentSales."Amount to Assign", 'Wrong Amount to Assign');
             TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentSales."Amount to Assign";
-            ItemChargeAssignmentSales.Next;
+            ItemChargeAssignmentSales.Next();
         end;
         Assert.AreEqual(TotalQtyToAssign, ItemChargeAssignmentSales."Qty. to Assign", 'Wrong Qty. to Assign');
         Assert.AreEqual(TotalAmtToAssign, ItemChargeAssignmentSales."Amount to Assign", 'Wrong Amount to Assign');
+        Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Assign", ItemChargeAssignmentSales."Qty. to Handle", 'Wrong Qty. to Handle');
+        Assert.AreEqual(ItemChargeAssignmentSales."Amount to Assign", ItemChargeAssignmentSales."Amount to Handle", 'Wrong Amount to Handle');
     end;
 
     local procedure VerifyItemChargesPurchNotAssigned(PurchaseLine: Record "Purchase Line")
@@ -589,10 +692,12 @@ codeunit 134350 "Test Item Charge Extendibility"
               ItemChargeAssignmentPurch."Amount to Assign", 'Wrong Amount to Assign');
             TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
-            ItemChargeAssignmentPurch.Next;
+            ItemChargeAssignmentPurch.Next();
         end;
         Assert.AreEqual(Round(TotalQtyToAssign, 0.00001), ItemChargeAssignmentPurch."Qty. to Assign", 'Wrong Qty. to Assign');
         Assert.AreEqual(TotalAmtToAssign, ItemChargeAssignmentPurch."Amount to Assign", 'Wrong Amount to Assign');
+        Assert.AreEqual(ItemChargeAssignmentPurch."Qty. to Assign", ItemChargeAssignmentPurch."Qty. to Handle", 'Wrong Qty. to Handle');
+        Assert.AreEqual(ItemChargeAssignmentPurch."Amount to Assign", ItemChargeAssignmentPurch."Amount to Handle", 'Wrong Amount to Handle');
     end;
 
     local procedure VerifyItemChargesPurchAssignedByFairyDust(PurchaseLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -610,10 +715,56 @@ codeunit 134350 "Test Item Charge Extendibility"
             Assert.AreEqual(Round(TotalAmtToAssign / j), ItemChargeAssignmentPurch."Amount to Assign", 'Wrong Amount to Assign');
             TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
-            ItemChargeAssignmentPurch.Next;
+            ItemChargeAssignmentPurch.Next();
         end;
         Assert.AreEqual(TotalQtyToAssign, ItemChargeAssignmentPurch."Qty. to Assign", 'Wrong Qty. to Assign');
         Assert.AreEqual(TotalAmtToAssign, ItemChargeAssignmentPurch."Amount to Assign", 'Wrong Amount to Assign');
+        Assert.AreEqual(ItemChargeAssignmentPurch."Qty. to Assign", ItemChargeAssignmentPurch."Qty. to Handle", 'Wrong Qty. to Handle');
+        Assert.AreEqual(ItemChargeAssignmentPurch."Amount to Assign", ItemChargeAssignmentPurch."Amount to Handle", 'Wrong Amount to Handle');
+    end;
+
+    local procedure InitItemChargeAssignmentPurch(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargePurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(
+            ItemChargePurchaseLine, PurchaseHeader, "Sales Line Type"::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(20));
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        ItemChargeAssignmentPurch.Init();
+        ItemChargeAssignmentPurch."Document Type" := ItemChargePurchaseLine."Document Type";
+        ItemChargeAssignmentPurch."Document No." := ItemChargePurchaseLine."Document No.";
+        ItemChargeAssignmentPurch."Document Line No." := ItemChargePurchaseLine."Line No.";
+        ItemChargeAssignmentPurch."Applies-to Doc. Type" := PurchaseLine."Document Type";
+        ItemChargeAssignmentPurch."Applies-to Doc. No." := PurchaseLine."Document No.";
+        ItemChargeAssignmentPurch."Applies-to Doc. Line No." := PurchaseLine."Line No.";
+        ItemChargeAssignmentPurch."Unit Cost" := LibraryRandom.RandDec(100, 2);
+    end;
+
+    local procedure InitItemChargeAssignmentSales(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemChargeSalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        LibrarySales.CreateSalesLine(
+            ItemChargeSalesLine, SalesHeader, "Sales Line Type"::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(20));
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        ItemChargeAssignmentSales.Init();
+        ItemChargeAssignmentSales."Document Type" := ItemChargeSalesLine."Document Type";
+        ItemChargeAssignmentSales."Document No." := ItemChargeSalesLine."Document No.";
+        ItemChargeAssignmentSales."Document Line No." := ItemChargeSalesLine."Line No.";
+        ItemChargeAssignmentSales."Applies-to Doc. Type" := SalesLine."Document Type";
+        ItemChargeAssignmentSales."Applies-to Doc. No." := SalesLine."Document No.";
+        ItemChargeAssignmentSales."Applies-to Doc. Line No." := SalesLine."Line No.";
+        ItemChargeAssignmentSales."Unit Cost" := LibraryRandom.RandDec(100, 2);
     end;
 
     [Scope('OnPrem')]

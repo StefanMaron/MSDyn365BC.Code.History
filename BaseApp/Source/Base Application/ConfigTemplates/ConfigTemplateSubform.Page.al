@@ -18,33 +18,33 @@ page 8619 "Config. Template Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of data in the data template.';
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the field in the data template.';
 
                     trigger OnAssistEdit()
                     begin
-                        SelectFieldName;
+                        SelectFieldName();
                     end;
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the caption of the field on which the data template is based. The caption comes from the Caption property of the field.';
                 }
-                field("Template Code"; "Template Code")
+                field("Template Code"; Rec."Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the data template.';
                 }
-                field("Default Value"; "Default Value")
+                field("Default Value"; Rec."Default Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default value with reference to the data template line.';
                 }
-                field("Skip Relation Check"; "Skip Relation Check")
+                field("Skip Relation Check"; Rec."Skip Relation Check")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the relationship between the table fields should not be checked. This can useful when you want to specify a value for a field that is not yet available. For example, you may want to specify a value for a payment term that is not available in the table on which you are basing you configuration. You can specify that value, select the Skip Relation Check box, and then continue to apply data without error.';

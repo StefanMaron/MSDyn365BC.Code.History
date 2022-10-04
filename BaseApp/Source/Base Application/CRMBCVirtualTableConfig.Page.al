@@ -58,15 +58,23 @@ page 7213 "CRM BC Virtual Table Config."
                 ApplicationArea = Suite;
                 Caption = 'Open in Dataverse';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Manage configuration settings for virtual tables in your Dataverse environment.';
 
                 trigger OnAction()
                 begin
                     CDSIntegrationImpl.ShowVirtualTablesConfig(CDSConnectionSetup);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Open in Dataverse_Promoted"; "Open in Dataverse")
+                {
+                }
             }
         }
     }

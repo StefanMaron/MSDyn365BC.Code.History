@@ -89,7 +89,7 @@ codeunit 139010 "ADCS Tests"
         ClearTextPassword: Text[250];
     begin
         ADCSUser.Init();
-        ClearTextPassword := CopyStr(Format(CreateGuid), 1, 30);
+        ClearTextPassword := CopyStr(Format(CreateGuid()), 1, 30);
         UserName := CopyStr('USER.' + ClearTextPassword, 1, MaxStrLen(ADCSUser.Name));
         ADCSUser.Name := UserName;
         ADCSUser.Password := ClearTextPassword;
@@ -109,7 +109,7 @@ codeunit 139010 "ADCS Tests"
         FirstPassword: Text[250];
     begin
         ADCSUser.Init();
-        ClearTextPassword := CopyStr(Format(CreateGuid), 1, 27);
+        ClearTextPassword := CopyStr(Format(CreateGuid()), 1, 27);
         UserName := CopyStr('USER.' + ClearTextPassword, 1, 50);
         ADCSUser.Name := UserName;
         ADCSUser.Password := CopyStr('ONE' + ClearTextPassword, 1, MaxStrLen(ADCSUser.Password));
@@ -134,7 +134,7 @@ codeunit 139010 "ADCS Tests"
         ADCSUser: Record "ADCS User";
         UserNameSfx: Text[50];
     begin
-        UserNameSfx := Format(CreateGuid);
+        UserNameSfx := Format(CreateGuid());
         ADCSUser.Init();
         ADCSUser.Name := CopyStr('USER1.' + UserNameSfx, 1, MaxStrLen(ADCSUser.Name));
         ADCSUser.Password := 'MyPassword';

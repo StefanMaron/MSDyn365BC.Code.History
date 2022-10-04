@@ -1,5 +1,6 @@
 table 139141 "Update Parent Header"
 {
+    ReplicateData = false;
 
     fields
     {

@@ -103,11 +103,11 @@ table 1053 "Line Fee Note on Report Hist."
     begin
         // insert default language
         if ReminderTerms."Note About Line Fee on Report" <> '' then begin
-            DefaultLanguageCode := Language.GetUserLanguageCode;
+            DefaultLanguageCode := Language.GetUserLanguageCode();
             if not ReminderTermsTranslation.Get(ReminderTerms.Code, DefaultLanguageCode) then begin
                 AddTextOnReportDefault := GetLineFeeNoteOnReport(CustLedgerEntry, ReminderLevel,
                     ReminderTerms."Note About Line Fee on Report", DueDate);
-                InsertRec(ReminderLevel, CustLedgerEntry."Entry No.", DueDate, Language.GetUserLanguageCode, AddTextOnReportDefault);
+                InsertRec(ReminderLevel, CustLedgerEntry."Entry No.", DueDate, Language.GetUserLanguageCode(), AddTextOnReportDefault);
             end;
         end;
 
@@ -147,7 +147,7 @@ table 1053 "Line Fee Note on Report Hist."
         if ReminderLevel.FindSet() then begin
             DueDate := CalcDate(ReminderLevel."Grace Period", CustLedgerEntry."Due Date");
             InsertTransLineFeeNoteOnReport(CustLedgerEntry, ReminderTerms, ReminderLevel, DueDate);
-            while ReminderLevel.Next <> 0 do begin
+            while ReminderLevel.Next() <> 0 do begin
                 DueDate := CalcDate(ReminderLevel."Grace Period", DueDate);
                 InsertTransLineFeeNoteOnReport(CustLedgerEntry, ReminderTerms, ReminderLevel, DueDate);
             end;

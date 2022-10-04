@@ -12,12 +12,12 @@ page 5749 "Transfer Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the document number that is associated with the line or entry.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the item that is transferred.';
@@ -27,22 +27,22 @@ page 5749 "Transfer Lines"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Qty. in Transit"; "Qty. in Transit")
+                field("Qty. in Transit"; Rec."Qty. in Transit")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the quantity of the item that is in transit.';
                 }
-                field("Outstanding Quantity"; "Outstanding Quantity")
+                field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the quantity of the items that remains to be shipped.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
@@ -77,9 +77,6 @@ page 5749 "Transfer Lines"
                     ApplicationArea = Location;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -90,6 +87,17 @@ page 5749 "Transfer Lines"
                         TransferHeader.Get("Document No.");
                         PAGE.Run(PAGE::"Transfer Order", TransferHeader);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
                 }
             }
         }

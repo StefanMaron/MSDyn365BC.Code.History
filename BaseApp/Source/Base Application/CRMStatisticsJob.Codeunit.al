@@ -4,10 +4,12 @@ codeunit 5350 "CRM Statistics Job"
 
     trigger OnRun()
     begin
-        UpdateStatisticsAndInvoices(GetLastLogEntryNo);
+        UpdateStatisticsAndInvoices(GetLastLogEntryNo());
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
+
         ConnectionNotEnabledErr: Label 'The %1 connection is not enabled.', Comment = '%1 = CRM product name';
         RecordFoundTxt: Label '%1 %2 was not found.', Comment = '%1 is a table name, e.g. Customer, %2 is a number, e.g. Customer 12344 was not found.';
         AccountStatisticsUpdatedMsg: Label 'Updated account statistics. ';
@@ -19,7 +21,6 @@ codeunit 5350 "CRM Statistics Job"
         UnexpectedErrorWhenGettingInvoiceErr: Label 'Unexpected error when trying to get the CRM Invoice %1: %2', Locked = true;
         UnexpectedErrorsDetectedErr: Label 'Unexpected errors detected while updating CRM Invoices. Not moving the last processed ledger entry number.', Locked = true;
         TelemetryCategoryTok: Label 'AL CRM Integration';
-        CRMProductName: Codeunit "CRM Product Name";
 
     local procedure UpdateStatisticsAndInvoices(JobLogEntryNo: Integer)
     var
@@ -28,9 +29,9 @@ codeunit 5350 "CRM Statistics Job"
     begin
         CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
-            Error(ConnectionNotEnabledErr, CRMProductName.FULL);
+            Error(ConnectionNotEnabledErr, CRMProductName.FULL());
 
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
         CRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, CRMConnectionSetup.GetDefaultCRMConnection(ConnectionName));
@@ -129,7 +130,7 @@ codeunit 5350 "CRM Statistics Job"
             Session.LogMessage('0000DZA', FinishedRefreshingCustomerStatisticsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         end;
 
-        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetAccStatsUpdateFinalMessage);
+        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetAccStatsUpdateFinalMessage());
     end;
 
     local procedure InitializeCustomerStatisticsSynchronizationTime()
@@ -198,7 +199,7 @@ codeunit 5350 "CRM Statistics Job"
         Counter := UpdateStatusOfPaidInvoices('');
         IntegrationTableSynch.UpdateSynchJobCounters(SynchActionType::Modify, Counter);
 
-        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetInvStatusUpdateFinalMessage);
+        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetInvStatusUpdateFinalMessage());
     end;
 
     local procedure UpdateCRMAccountStatisticsForCoupledCustomer(CRMIntegrationRecordSystemId: Guid; var CustomerRecRef: RecordRef; var CRMAccountRecRef: RecordRef; var ErrorText: Text): Integer
@@ -223,9 +224,9 @@ codeunit 5350 "CRM Statistics Job"
             exit(CreateOrUpdateCRMAccountStatistics(Customer, CRMAccount));
 
         if not CRMAccountExists then
-            ErrorText := StrSubstNo(RecordFoundTxt, CRMAccount.TableCaption, CRMIntegrationRecord."CRM ID");
+            ErrorText := StrSubstNo(RecordFoundTxt, CRMAccount.TableCaption(), CRMIntegrationRecord."CRM ID");
         if not CustomerExists then
-            ErrorText := StrSubstNo(RecordFoundTxt, Customer.TableCaption, RecId);
+            ErrorText := StrSubstNo(RecordFoundTxt, Customer.TableCaption(), RecId);
 
         exit(SynchActionType::Fail);
     end;
@@ -253,19 +254,19 @@ codeunit 5350 "CRM Statistics Job"
             "Outstanding Serv Orders (LCY)" := Customer."Outstanding Serv. Orders (LCY)";
             "Serv Shipped Not Invd (LCY)" := Customer."Serv Shipped Not Invoiced(LCY)";
             "Outstd Serv Invoices (LCY)" := Customer."Outstanding Serv.Invoices(LCY)";
-            "Total (LCY)" := Customer.GetTotalAmountLCY;
+            "Total (LCY)" := Customer.GetTotalAmountLCY();
             "Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
-            "Overdue Amounts (LCY)" := Customer.CalcOverdueBalance;
-            "Overdue Amounts As Of Date" := WorkDate;
-            "Total Sales (LCY)" := Customer.GetSalesLCY;
-            "Invd Prepayment Amount (LCY)" := Customer.GetInvoicedPrepmtAmountLCY;
+            "Overdue Amounts (LCY)" := Customer.CalcOverdueBalance();
+            "Overdue Amounts As Of Date" := WorkDate();
+            "Total Sales (LCY)" := Customer.GetSalesLCY();
+            "Invd Prepayment Amount (LCY)" := Customer.GetInvoicedPrepmtAmountLCY();
             TransactionCurrencyId := CRMSynchHelper.FindNAVLocalCurrencyInCRM(LcyCRMTransactioncurrency);
             if xCRMAccountStatistics."Customer No" = '' then begin
-                Modify;
+                Modify();
                 exit(SynchActionType::Insert);
             end;
             if IsCRMAccountStatisticsModified(xCRMAccountStatistics, CRMAccountStatistics) then begin
-                Modify;
+                Modify();
                 exit(SynchActionType::Modify);
             end;
             exit(SynchActionType::IgnoreUnchanged);
@@ -298,15 +299,15 @@ codeunit 5350 "CRM Statistics Job"
                     exit(true);
             end;
         end;
-        RecRef[1].Close;
-        RecRef[2].Close;
+        RecRef[1].Close();
+        RecRef[2].Close();
     end;
 
     local procedure InitCRMAccountStatistics(var CRMAccountStatistics: Record "CRM Account Statistics")
     begin
         with CRMAccountStatistics do begin
-            Init;
-            AccountStatisticsId := CreateGuid;
+            Init();
+            AccountStatisticsId := CreateGuid();
             // Set all Money type fields to 1 temporarily, because if they have always been zero they show as '--' in CRM
             "Balance (LCY)" := 1;
             "Total (LCY)" := 1;
@@ -320,7 +321,7 @@ codeunit 5350 "CRM Statistics Job"
             "Outstanding Serv Orders (LCY)" := 1;
             "Serv Shipped Not Invd (LCY)" := 1;
             "Outstd Serv Invoices (LCY)" := 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -340,25 +341,24 @@ codeunit 5350 "CRM Statistics Job"
     begin
         with CRMAccount do
             if not CRMIntegrationRecord.IsModifiedAfterLastSynchonizedCRMRecord(AccountId, DATABASE::Customer, ModifiedOn) then begin
-                Modify;
+                Modify();
                 CRMIntegrationRecord.SetLastSynchCRMModifiedOn(AccountId, DATABASE::Customer, ModifiedOn);
             end else
-                Modify;
+                Modify();
     end;
 
     procedure UpdateStatusOfPaidInvoices(CustomerNo: Code[20]) UpdatedInvoiceCounter: Integer
     var
         CRMSynchStatus: Record "Crm Synch Status";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CurrCLENo: Integer;
         ForAllCustomers: Boolean;
         UnexpectedErrorDetected: Boolean;
     begin
-
-        if CRMSynchStatus.IsEmpty() then begin
+        if CRMSynchStatus.IsEmpty() then
             CRMIntegrationManagement.InitializeCRMSynchStatus();
-        end;
+
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
         DtldCustLedgEntry.SetFilter("Entry No.", '>%1', CRMSynchStatus."Last Update Invoice Entry No.");
         ForAllCustomers := CustomerNo = '';
@@ -375,7 +375,7 @@ codeunit 5350 "CRM Statistics Job"
             UpdatedInvoiceCounter += UpdateInvoice(CurrCLENo, UnexpectedErrorDetected);
             if ForAllCustomers then
                 if not UnexpectedErrorDetected then
-                    CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo
+                    CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo()
                 else
                     Session.LogMessage('0000EC8', StrSubstno(UnexpectedErrorsDetectedErr), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         end;
@@ -427,7 +427,7 @@ codeunit 5350 "CRM Statistics Job"
 
         with Sender do
             if ("Object Type to Run" = "Object Type to Run"::Codeunit) and ("Object ID to Run" = CODEUNIT::"CRM Statistics Job") then
-                if CRMConnectionSetup.Get and CRMConnectionSetup."Is Enabled" and CRMSynchStatus.Get then
+                if CRMConnectionSetup.Get() and CRMConnectionSetup."Is Enabled" and CRMSynchStatus.Get() then
                     if DetailedCustLedgEntry.FindLast() then
                         if CRMSynchStatus."Last Update Invoice Entry No." < DetailedCustLedgEntry."Entry No." then
                             Result := true;

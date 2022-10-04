@@ -37,6 +37,8 @@ codeunit 5332 "Lookup CRM Tables"
                 exit(LookupCRMQuote(SavedCRMId, CRMId, IntTableFilter));
             DATABASE::"CRM Uom":
                 exit(LookupCRMUom(SavedCRMId, CRMId, IntTableFilter));
+            DATABASE::"CRM Salesorder":
+                exit(LookupCRMSalesorder(SavedCRMId, CRMId, IntTableFilter));
         end;
         exit(false);
     end;
@@ -80,7 +82,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMAccountList.SetTableView(CRMAccount);
         CRMAccountList.LookupMode(true);
         Commit();
-        if CRMAccountList.RunModal = ACTION::LookupOK then begin
+        if CRMAccountList.RunModal() = ACTION::LookupOK then begin
             CRMAccountList.GetRecord(CRMAccount);
             CRMId := CRMAccount.AccountId;
             exit(true);
@@ -105,7 +107,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMContactList.SetTableView(CRMContact);
         CRMContactList.LookupMode(true);
         Commit();
-        if CRMContactList.RunModal = ACTION::LookupOK then begin
+        if CRMContactList.RunModal() = ACTION::LookupOK then begin
             CRMContactList.GetRecord(CRMContact);
             CRMId := CRMContact.ContactId;
             exit(true);
@@ -130,7 +132,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMSystemuserList.SetTableView(CRMSystemuser);
         CRMSystemuserList.LookupMode(true);
         Commit();
-        if CRMSystemuserList.RunModal = ACTION::LookupOK then begin
+        if CRMSystemuserList.RunModal() = ACTION::LookupOK then begin
             CRMSystemuserList.GetRecord(CRMSystemuser);
             CRMId := CRMSystemuser.SystemUserId;
             exit(true);
@@ -155,7 +157,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMTransactionCurrencyList.SetTableView(CRMTransactioncurrency);
         CRMTransactionCurrencyList.LookupMode(true);
         Commit();
-        if CRMTransactionCurrencyList.RunModal = ACTION::LookupOK then begin
+        if CRMTransactionCurrencyList.RunModal() = ACTION::LookupOK then begin
             CRMTransactionCurrencyList.GetRecord(CRMTransactioncurrency);
             CRMId := CRMTransactioncurrency.TransactionCurrencyId;
             exit(true);
@@ -180,7 +182,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMPricelevelList.SetTableView(CRMPricelevel);
         CRMPricelevelList.LookupMode(true);
         Commit();
-        if CRMPricelevelList.RunModal = ACTION::LookupOK then begin
+        if CRMPricelevelList.RunModal() = ACTION::LookupOK then begin
             CRMPricelevelList.GetRecord(CRMPricelevel);
             CRMId := CRMPricelevel.PriceLevelId;
             exit(true);
@@ -205,7 +207,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMProductList.SetTableView(CRMProduct);
         CRMProductList.LookupMode(true);
         Commit();
-        if CRMProductList.RunModal = ACTION::LookupOK then begin
+        if CRMProductList.RunModal() = ACTION::LookupOK then begin
             CRMProductList.GetRecord(CRMProduct);
             CRMId := CRMProduct.ProductId;
             exit(true);
@@ -230,7 +232,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMUnitGroupList.SetTableView(CRMUomschedule);
         CRMUnitGroupList.LookupMode(true);
         Commit();
-        if CRMUnitGroupList.RunModal = ACTION::LookupOK then begin
+        if CRMUnitGroupList.RunModal() = ACTION::LookupOK then begin
             CRMUnitGroupList.GetRecord(CRMUomschedule);
             CRMId := CRMUomschedule.UoMScheduleId;
             exit(true);
@@ -255,7 +257,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMOpportunityList.SetTableView(CRMOpportunity);
         CRMOpportunityList.LookupMode(true);
         Commit();
-        if CRMOpportunityList.RunModal = ACTION::LookupOK then begin
+        if CRMOpportunityList.RunModal() = ACTION::LookupOK then begin
             CRMOpportunityList.GetRecord(CRMOpportunity);
             CRMId := CRMOpportunity.OpportunityId;
             exit(true);
@@ -280,7 +282,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMSalesQuoteList.SetTableView(CRMQuote);
         CRMSalesQuoteList.LookupMode(true);
         Commit();
-        if CRMSalesQuoteList.RunModal = ACTION::LookupOK then begin
+        if CRMSalesQuoteList.RunModal() = ACTION::LookupOK then begin
             CRMSalesQuoteList.GetRecord(CRMQuote);
             CRMId := CRMQuote.QuoteId;
             exit(true);
@@ -308,6 +310,31 @@ codeunit 5332 "Lookup CRM Tables"
         if CRMUnitList.RunModal() = ACTION::LookupOK then begin
             CRMUnitList.GetRecord(CRMUom);
             CRMId := CRMUom.UoMId;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupCRMSalesorder(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        OriginalCRMSalesorder: Record "CRM Salesorder";
+        CRMSalesOrderList: Page "CRM Sales Order List";
+    begin
+        if not IsNullGuid(CRMId) then begin
+            if CRMSalesorder.Get(CRMId) then
+                CRMSalesOrderList.SetRecord(CRMSalesorder);
+            if not IsNullGuid(SavedCRMId) then
+                if OriginalCRMSalesorder.Get(SavedCRMId) then
+                    CRMSalesOrderList.SetCurrentlyCoupledCRMSalesorder(OriginalCRMSalesorder);
+        end;
+        CRMSalesorder.SetView(IntTableFilter);
+        CRMSalesOrderList.SetTableView(CRMSalesorder);
+        CRMSalesOrderList.LookupMode(true);
+        Commit();
+        if CRMSalesOrderList.RunModal() = ACTION::LookupOK then begin
+            CRMSalesOrderList.GetRecord(CRMSalesorder);
+            CRMId := CRMSalesorder.SalesOrderId;
             exit(true);
         end;
         exit(false);
@@ -412,7 +439,7 @@ codeunit 5332 "Lookup CRM Tables"
         IntegrationTableMapping.SetRange("Integration Table ID", CRMTableId);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         if IntegrationTableMapping.FindFirst() then
-            exit(IntegrationTableMapping.GetIntegrationTableFilter);
+            exit(IntegrationTableMapping.GetIntegrationTableFilter());
         exit('');
     end;
 
@@ -434,7 +461,7 @@ codeunit 5332 "Lookup CRM Tables"
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         if IntegrationTableMapping.FindSet() then
             repeat
-                FieldFilter[2] := IntegrationTableMapping.GetIntegrationTableFilter;
+                FieldFilter[2] := IntegrationTableMapping.GetIntegrationTableFilter();
                 if FieldFilter[2] <> '' then begin
                     RecRef[2].SetView(FieldFilter[2]);
 

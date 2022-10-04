@@ -6,11 +6,12 @@ codeunit 5674 FADimensionManagement
     end;
 
     var
-        Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
-        Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         TempSelectedDim: Record "Selected Dimension" temporary;
         TempSelectedDim2: Record "Selected Dimension" temporary;
         TempSelectedDim3: Record "Selected Dimension" temporary;
+
+        Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
+        Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
 
     procedure GetSelectedDim(var SelectedDim: Record "Selected Dimension")
     begin
@@ -49,8 +50,8 @@ codeunit 5674 FADimensionManagement
         if not DimMgt.CheckDimIDComb(DimSetID) then
             Error(
               Text000,
-              FAAlloc.TableCaption, FAAlloc.Code, FAAlloc."Allocation Type", FAAlloc."Line No.",
-              DimMgt.GetDimCombErr);
+              FAAlloc.TableCaption(), FAAlloc.Code, FAAlloc."Allocation Type", FAAlloc."Line No.",
+              DimMgt.GetDimCombErr());
 
         TableID[1] := DimMgt.TypeToTableID1(0);
         No[1] := FAAlloc."Account No.";
@@ -58,8 +59,8 @@ codeunit 5674 FADimensionManagement
         if not DimMgt.CheckDimValuePosting(TableID, No, DimSetID) then
             Error(
               Text001,
-              FAAlloc.TableCaption, FAAlloc.Code, FAAlloc."Allocation Type", FAAlloc."Line No.",
-              DimMgt.GetDimValuePostingErr);
+              FAAlloc.TableCaption(), FAAlloc.Code, FAAlloc."Allocation Type", FAAlloc."Line No.",
+              DimMgt.GetDimValuePostingErr());
     end;
 
     procedure GetFALedgEntryDimID(Type: Integer; DimSetID: Integer)

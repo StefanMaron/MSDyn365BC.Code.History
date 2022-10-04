@@ -1,7 +1,7 @@
 page 5146 "Assign Activity"
 {
     Caption = 'Assign Activity';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -15,7 +15,7 @@ page 5146 "Assign Activity"
             group("Activity Setup")
             {
                 Caption = 'Activity Setup';
-                field("Activity Code"; "Activity Code")
+                field("Activity Code"; Rec."Activity Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Activity Code';
@@ -40,7 +40,7 @@ page 5146 "Assign Activity"
                     Caption = 'Activity Start Date';
                     ToolTip = 'Specifies the date when the task should be started. There are certain rules for how dates should be entered found in How to: Enter Dates and Times.';
                 }
-                field("Wizard Contact Name"; "Wizard Contact Name")
+                field("Wizard Contact Name"; Rec."Wizard Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact No.';
@@ -63,7 +63,7 @@ page 5146 "Assign Activity"
                         end;
                     end;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Caption = 'Salesperson Code';
@@ -84,7 +84,7 @@ page 5146 "Assign Activity"
                                 TeamMeetingOrganizerEditable := true
                     end;
                 }
-                field("Team Code"; "Team Code")
+                field("Team Code"; Rec."Team Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Team Code';
@@ -104,7 +104,7 @@ page 5146 "Assign Activity"
                         end;
                     end;
                 }
-                field("Team Meeting Organizer"; "Team Meeting Organizer")
+                field("Team Meeting Organizer"; Rec."Team Meeting Organizer")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Meeting Organizer';
@@ -117,7 +117,7 @@ page 5146 "Assign Activity"
                         SalesPurchPerson: Page "Salespersons/Purchasers";
                     begin
                         SalesPurchPerson.LookupMode := true;
-                        if SalesPurchPerson.RunModal = ACTION::LookupOK then begin
+                        if SalesPurchPerson.RunModal() = ACTION::LookupOK then begin
                             SalesPurchPerson.GetRecord(Salesperson);
                             if TeamMeetingOrganizerEditable then
                                 "Team Meeting Organizer" := Salesperson.Code
@@ -131,7 +131,7 @@ page 5146 "Assign Activity"
                         SalesPurchPerson.Get("Team Meeting Organizer");
                     end;
                 }
-                field("Wizard Campaign Description"; "Wizard Campaign Description")
+                field("Wizard Campaign Description"; Rec."Wizard Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaign';
@@ -153,7 +153,7 @@ page 5146 "Assign Activity"
                         end;
                     end;
                 }
-                field("Segment Description"; "Segment Description")
+                field("Segment Description"; Rec."Segment Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create Tasks for Segment';
@@ -188,16 +188,26 @@ page 5146 "Assign Activity"
                 Caption = '&Finish';
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Finish assigning the activity.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    CheckAssignActivityStatus;
-                    FinishAssignActivity;
-                    CurrPage.Close;
+                    CheckAssignActivityStatus();
+                    FinishAssignActivity();
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(Finish_Promoted; Finish)
+                {
+                }
             }
         }
     }
@@ -218,7 +228,7 @@ page 5146 "Assign Activity"
     trigger OnOpenPage()
     begin
         WizardContactNameEditable := false;
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
 
         if SalesPurchPerson.Get(GetFilter("Salesperson Code")) or
            Team.Get(GetFilter("Team Code"))
@@ -243,20 +253,18 @@ page 5146 "Assign Activity"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            CheckAssignActivityStatus;
-            FinishAssignActivity;
+            CheckAssignActivityStatus();
+            FinishAssignActivity();
         end;
     end;
 
     var
-        Text000: Label 'untitled';
         Cont: Record Contact;
         SalesPurchPerson: Record "Salesperson/Purchaser";
         Team: Record Team;
         Campaign: Record Campaign;
         SegHeader: Record "Segment Header";
         Activity: Record Activity;
-        Text005: Label '(Multiple)';
         ClientTypeManagement: Codeunit "Client Type Management";
         [InDataSet]
         TeamMeetingOrganizerEditable: Boolean;
@@ -267,6 +275,9 @@ page 5146 "Assign Activity"
         [InDataSet]
         TeamCodeEditable: Boolean;
         IsOnMobile: Boolean;
+
+        Text000: Label 'untitled';
+        Text005: Label '(Multiple)';
 
     procedure Caption(): Text
     var

@@ -23,7 +23,7 @@ page 6062 "Service Contract Groups"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the contract group.';
                 }
-                field("Disc. on Contr. Orders Only"; "Disc. on Contr. Orders Only")
+                field("Disc. on Contr. Orders Only"; Rec."Disc. on Contr. Orders Only")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that contract/service discounts only apply to service lines linked to service orders created for the service contracts in the contract group.';

@@ -30,7 +30,7 @@ report 8616 "Get Package Tables"
                         begin
                             ConfigSelection.Set(TempConfigSelection);
                             Commit();
-                            if ConfigSelection.RunModal = ACTION::OK then
+                            if ConfigSelection.RunModal() = ACTION::OK then
                                 SelectedTables := ConfigSelection.Get(TempConfigSelection);
                         end;
                     }
@@ -50,7 +50,7 @@ report 8616 "Get Package Tables"
 
         trigger OnInit()
         begin
-            InitSelection;
+            InitSelection();
         end;
     }
 
@@ -119,7 +119,7 @@ report 8616 "Get Package Tables"
         ConfigLine: Record "Config. Line";
     begin
         with TempConfigSelection do begin
-            Reset;
+            Reset();
             ConfigLine.SetFilter("Table ID", '<>0');
             if ConfigLine.FindSet() then
                 repeat
@@ -127,12 +127,12 @@ report 8616 "Get Package Tables"
                        ((ConfigLine."Line Type" = ConfigLine."Line Type"::Table) and (ConfigLine."Package Code" = ''))
                     then
                         if not Get(ConfigLine."Line No.") then begin
-                            Init;
+                            Init();
                             "Line No." := ConfigLine."Line No.";
                             "Table ID" := ConfigLine."Table ID";
                             Name := ConfigLine.Name;
                             "Line Type" := ConfigLine."Line Type";
-                            Insert;
+                            Insert();
                         end;
                 until ConfigLine.Next() = 0;
         end;

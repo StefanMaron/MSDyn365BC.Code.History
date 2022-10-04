@@ -24,22 +24,22 @@ page 1010 "Job WIP Methods"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the description of the job WIP method. If the WIP method is system-defined, you cannot edit the description.';
                 }
-                field("Recognized Costs"; "Recognized Costs")
+                field("Recognized Costs"; Rec."Recognized Costs")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a Recognized Cost option to apply when creating a calculation method for WIP. You must select one of the five options:';
                 }
-                field("Recognized Sales"; "Recognized Sales")
+                field("Recognized Sales"; Rec."Recognized Sales")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a Recognized Sales option to apply when creating a calculation method for WIP. You must select one of the six options:';
                 }
-                field("WIP Cost"; "WIP Cost")
+                field("WIP Cost"; Rec."WIP Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the calculation formula, depending on the parameters that you have specified when creating a calculation method for WIP. You can edit the check box, depending on the values set in the Recognized Costs and Recognized Sales fields.';
                 }
-                field("WIP Sales"; "WIP Sales")
+                field("WIP Sales"; Rec."WIP Sales")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the parameters that apply when creating a calculation method for WIP. You can edit the check box, depending on the values set in the Recognized Costs and Recognized Sales fields.';
@@ -49,7 +49,7 @@ page 1010 "Job WIP Methods"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether a WIP method can be associated with a job when you are creating or modifying a job. If you select this check box in the Job WIP Methods window, you can then set the method as a default WIP method in the Jobs Setup window.';
                 }
-                field("System Defined"; "System Defined")
+                field("System Defined"; Rec."System Defined")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether a Job WIP Method is system-defined.';

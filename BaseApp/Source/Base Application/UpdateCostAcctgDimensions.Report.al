@@ -27,12 +27,12 @@ report 1140 "Update Cost Acctg. Dimensions"
                         trigger OnValidate()
                         begin
                             if NewCCDimension = '' then begin
-                                GetInitialDimensions;
+                                GetInitialDimensions();
                                 UpdateDimension := false;
                                 Error(Text003, CostAccSetup.FieldCaption("Cost Center Dimension"));
                             end;
                             if NewCCDimension = NewCODimension then begin
-                                GetInitialDimensions;
+                                GetInitialDimensions();
                                 UpdateDimension := false;
                                 Error(Text002);
                             end;
@@ -51,12 +51,12 @@ report 1140 "Update Cost Acctg. Dimensions"
                         trigger OnValidate()
                         begin
                             if NewCODimension = '' then begin
-                                GetInitialDimensions;
+                                GetInitialDimensions();
                                 UpdateDimension := false;
                                 Error(Text003, CostAccSetup.FieldCaption("Cost Object Dimension"));
                             end;
                             if NewCCDimension = NewCODimension then begin
-                                GetInitialDimensions;
+                                GetInitialDimensions();
                                 UpdateDimension := false;
                                 Error(Text002);
                             end;
@@ -76,7 +76,7 @@ report 1140 "Update Cost Acctg. Dimensions"
         trigger OnOpenPage()
         begin
             CostAccSetup.Get();
-            GetInitialDimensions;
+            GetInitialDimensions();
         end;
     }
 

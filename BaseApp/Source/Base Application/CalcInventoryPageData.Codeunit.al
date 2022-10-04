@@ -48,7 +48,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                 if TempInvtEventBuf.Type = TempInvtEventBuf.Type::Inventory then begin
                     InvtPageData.Init();
                     InvtPageData.Code := '';
-                    InvtPageData."Line No." := NextPageLineNo;
+                    InvtPageData."Line No." := NextPageLineNo();
                     InvtPageData."Period Type" := Date."Period Type";
                     InvtPageData."Period Start" := TempInvtEventBuf."Availability Date";
                     InvtPageData.Description := Format(TempInvtEventBuf.Type);
@@ -61,7 +61,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                     if Date.FindLast() then begin
                         InvtPageData.Init();
                         InvtPageData.Code := Format(Date."Period Start");
-                        InvtPageData."Line No." := NextPageLineNo;
+                        InvtPageData."Line No." := NextPageLineNo();
                         InvtPageData."Period Type" := Date."Period Type";
                         InvtPageData."Period Start" := Date."Period Start";
                         InvtPageData."Period End" := Date."Period End";
@@ -92,7 +92,7 @@ codeunit 5531 "Calc. Inventory Page Data"
             repeat
                 TransferToPeriodDetails(InvtPageData, TempInvtEventBuf);
                 UpdateInventory(InvtPageData, TempInvtEventBuf);
-                InvtPageData."Line No." := NextPageLineNo;
+                InvtPageData."Line No." := NextPageLineNo();
                 IsHandled := false;
                 OnDetailsForPeriodEntryOnBeforeInvtPageDataInsert(InvtPageData, IsHandled);
                 if not IsHandled then
@@ -488,7 +488,7 @@ codeunit 5531 "Calc. Inventory Page Data"
 
     local procedure UpdateInventory(var InvtPageData: Record "Inventory Page Data"; var InvtEventBuf: Record "Inventory Event Buffer")
     begin
-        with InvtEventBuf do begin
+        with InvtEventBuf do
             if "Action Message" <> "Action Message"::" " then
                 InvtPageData."Suggested Projected Inventory" += "Remaining Quantity (Base)"
             else
@@ -496,7 +496,6 @@ codeunit 5531 "Calc. Inventory Page Data"
                     InvtPageData."Forecasted Projected Inventory" += "Remaining Quantity (Base)"
                 else
                     InvtPageData."Projected Inventory" += "Remaining Quantity (Base)";
-        end;
 
         OnAfterUpdateInventory(InvtPageData, InvtEventBuf);
     end;

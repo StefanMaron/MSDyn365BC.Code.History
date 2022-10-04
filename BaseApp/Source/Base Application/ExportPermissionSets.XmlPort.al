@@ -1,3 +1,4 @@
+#if not CLEAN21
 xmlport 9173 "Export Permission Sets"
 {
     Caption = 'Export Permission Sets';
@@ -5,6 +6,9 @@ xmlport 9173 "Export Permission Sets"
     Encoding = UTF8;
     PreserveWhiteSpace = true;
     UseRequestPage = false;
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with "Export Permission Sets Tenant" or "Export Permission Sets System"';
 
     schema
     {
@@ -113,79 +117,76 @@ xmlport 9173 "Export Permission Sets"
                             currXMLport.Skip();
                     end;
                 }
-                tableelement("Tenant Permission"; "Tenant Permission")
+                tableelement("Expanded Permission"; "Expanded Permission")
                 {
-                    LinkFields = "App ID" = FIELD("App ID"), "Role ID" = FIELD("Role ID");
+                    LinkFields = "App ID" = FIELD("App ID"), "Role ID" = FIELD("Role ID"), Scope = FIELD(Scope);
                     LinkTable = "Aggregate Permission Set";
                     MinOccurs = Zero;
                     XmlName = 'TenantPermission';
                     SourceTableView = SORTING("App ID", "Role ID", "Object Type", "Object ID");
-                    fieldelement(ObjectType; "Tenant Permission"."Object Type")
+                    fieldelement(ObjectType; "Expanded Permission"."Object Type")
                     {
                     }
-                    fieldelement(ObjectID; "Tenant Permission"."Object ID")
+                    fieldelement(ObjectID; "Expanded Permission"."Object ID")
                     {
                     }
-                    fieldelement(Type; "Tenant Permission".Type)
-                    {
-                    }
-                    fieldelement(ReadPermission; "Tenant Permission"."Read Permission")
+                    fieldelement(ReadPermission; "Expanded Permission"."Read Permission")
                     {
                         MinOccurs = Zero;
 
                         trigger OnBeforePassField()
                         begin
-                            if "Tenant Permission"."Read Permission" = "Tenant Permission"."Read Permission"::" " then
+                            if "Expanded Permission"."Read Permission" = "Expanded Permission"."Read Permission"::" " then
                                 currXMLport.Skip();
                         end;
                     }
-                    fieldelement(InsertPermission; "Tenant Permission"."Insert Permission")
+                    fieldelement(InsertPermission; "Expanded Permission"."Insert Permission")
                     {
                         MinOccurs = Zero;
 
                         trigger OnBeforePassField()
                         begin
-                            if "Tenant Permission"."Insert Permission" = "Tenant Permission"."Insert Permission"::" " then
+                            if "Expanded Permission"."Insert Permission" = "Expanded Permission"."Insert Permission"::" " then
                                 currXMLport.Skip();
                         end;
                     }
-                    fieldelement(ModifyPermission; "Tenant Permission"."Modify Permission")
+                    fieldelement(ModifyPermission; "Expanded Permission"."Modify Permission")
                     {
                         MinOccurs = Zero;
 
                         trigger OnBeforePassField()
                         begin
-                            if "Tenant Permission"."Modify Permission" = "Tenant Permission"."Modify Permission"::" " then
+                            if "Expanded Permission"."Modify Permission" = "Expanded Permission"."Modify Permission"::" " then
                                 currXMLport.Skip();
                         end;
                     }
-                    fieldelement(DeletePermission; "Tenant Permission"."Delete Permission")
+                    fieldelement(DeletePermission; "Expanded Permission"."Delete Permission")
                     {
                         MinOccurs = Zero;
 
                         trigger OnBeforePassField()
                         begin
-                            if "Tenant Permission"."Delete Permission" = "Tenant Permission"."Delete Permission"::" " then
+                            if "Expanded Permission"."Delete Permission" = "Expanded Permission"."Delete Permission"::" " then
                                 currXMLport.Skip();
                         end;
                     }
-                    fieldelement(ExecutePermission; "Tenant Permission"."Execute Permission")
+                    fieldelement(ExecutePermission; "Expanded Permission"."Execute Permission")
                     {
                         MinOccurs = Zero;
 
                         trigger OnBeforePassField()
                         begin
-                            if "Tenant Permission"."Execute Permission" = "Tenant Permission"."Execute Permission"::" " then
+                            if "Expanded Permission"."Execute Permission" = "Expanded Permission"."Execute Permission"::" " then
                                 currXMLport.Skip();
                         end;
                     }
-                    fieldelement(SecurityFilter; "Tenant Permission"."Security Filter")
+                    fieldelement(SecurityFilter; "Expanded Permission"."Security Filter")
                     {
                         MinOccurs = Zero;
 
                         trigger OnBeforePassField()
                         begin
-                            if Format("Tenant Permission"."Security Filter") = '' then
+                            if Format("Expanded Permission"."Security Filter") = '' then
                                 currXMLport.Skip();
                         end;
                     }
@@ -220,4 +221,4 @@ xmlport 9173 "Export Permission Sets"
         ExportInExtensionSchema := ExtensionSchema;
     end;
 }
-
+#endif

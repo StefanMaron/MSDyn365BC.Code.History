@@ -1,4 +1,4 @@
-﻿codeunit 782 "Opportunity Chart Mgt."
+codeunit 782 "Opportunity Chart Mgt."
 {
 
     trigger OnRun()
@@ -57,8 +57,8 @@
     procedure SetDefaultPeriod(var Period: Record Date)
     begin
         Period."Period Type" := Period."Period Type"::Month;
-        Period."Period Start" := CalcDate('<-CM>', WorkDate);
-        Period."Period End" := CalcDate('<CM>', WorkDate);
+        Period."Period Start" := CalcDate('<-CM>', WorkDate());
+        Period."Period End" := CalcDate('<CM>', WorkDate());
     end;
 
     procedure SetNextPeriod(var Period: Record Date)
@@ -136,7 +136,7 @@
         with BusinessChartBuffer do begin
             Initialize();
             AddIntegerMeasure(SalespersonPurchaser.FieldCaption("No. of Opportunities"), 1, "Chart Type"::Pie);
-            SetXAxis(SalespersonPurchaser.TableCaption, "Data Type"::String);
+            SetXAxis(SalespersonPurchaser.TableCaption(), "Data Type"::String);
             if SalespersonPurchaser.FindSet() then
                 repeat
                     OppCount := GetOppCount(Period, SalespersonPurchaser.Code, OpportunityStatus);

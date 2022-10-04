@@ -260,7 +260,7 @@ codeunit 132500 "Error Message Handling"
         TempActualErrorMessage.TestField(Description, StrSubstNo(HandledErr, 1));
         Assert.AreEqual('Local Context', TempActualErrorMessage."Additional Information", 'Additional info in the handled error');
         // [THEN] Unhandled error 'B', where "Additional Info" is 'Global Context'
-        TempActualErrorMessage.Next;
+        TempActualErrorMessage.Next();
         TempActualErrorMessage.TestField(Description, UnhandledErr);
         Assert.AreEqual('Global Context', TempActualErrorMessage."Additional Information", 'Additional info in the unhandled error');
     end;
@@ -347,7 +347,7 @@ codeunit 132500 "Error Message Handling"
         // [SCENARIO] Historical error happened before activation should not be collected
         Initialize();
         // [GIVEN] A historical error 'XX'
-        ClearLastError;
+        ClearLastError();
         asserterror Error(HandledErr);
         Assert.AreEqual(HandledErr, GetLastErrorText, 'GETLASTERRORTEXT is empty');
 
@@ -372,7 +372,7 @@ codeunit 132500 "Error Message Handling"
         // [GIVEN] Subscriber 'A' is subscribed
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
         // [GIVEN] A historical error 'XX'
-        ClearLastError;
+        ClearLastError();
         asserterror Error(HandledErr);
         Assert.AreEqual(HandledErr, GetLastErrorText, 'GETLASTERRORTEXT is empty');
 
@@ -556,13 +556,13 @@ codeunit 132500 "Error Message Handling"
 
         // [THEN] "Error Messages" page shows error 'X' with context '3'
         ErrorMessagesPage.Trap;
-        ErrorMessageHandler[1].ShowErrors;
+        ErrorMessageHandler[1].ShowErrors();
         ErrorMessagesPage.Description.AssertEquals('Error3');
         ErrorMessagesPage."Additional Information".AssertEquals('3');
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
         // [THEN] Handlers 2, 3 collected no errors
-        ErrorMessageHandler[2].ShowErrors;
-        ErrorMessageHandler[3].ShowErrors;
+        ErrorMessageHandler[2].ShowErrors();
+        ErrorMessageHandler[3].ShowErrors();
     end;
 
     [Test]
@@ -607,7 +607,7 @@ codeunit 132500 "Error Message Handling"
 
         // [THEN] "Error Messages" page shows error 'X' with Sales Invoice Header 'A', Info is '3'
         ErrorMessagesPage.Trap;
-        ErrorMessageHandler.ShowErrors;
+        ErrorMessageHandler.ShowErrors();
         ErrorMessagesPage.Context.AssertEquals(Format(SalesInvoiceHeader[1].RecordId));
         ErrorMessagesPage.Description.AssertEquals('Error3');
         ErrorMessagesPage."Additional Information".AssertEquals('3');
@@ -948,7 +948,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [Register] [UI]
         Initialize();
         // [GIVEN] Error Message Register, where "Description" is 'A', "Created On" is '01.10.19 13:23', "User ID" is 'X'
-        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.ID := CreateGuid();
         ErrorMessageRegister."Created On" := CurrentDateTime;
         ErrorMessageRegister."User ID" := UserId;
         ErrorMessageRegister.Description := LibraryUtility.GenerateGUID();
@@ -1001,7 +1001,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [Register] [UI]
         Initialize();
         // [GIVEN] Error Message Register
-        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.ID := CreateGuid();
         ErrorMessageRegister.Insert();
         // [GIVEN] 3 Error Messages, where "Message Type" is 'Error'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '1');
@@ -1038,7 +1038,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [Register] [UI]
         Initialize();
         // [GIVEN] Error Message Register
-        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.ID := CreateGuid();
         ErrorMessageRegister.Insert();
         // [GIVEN] 3 Error Messages, where "Message Type" is 'Warning'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
@@ -1075,7 +1075,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [Register] [UI]
         Initialize();
         // [GIVEN] Error Message Register
-        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.ID := CreateGuid();
         ErrorMessageRegister.Insert();
         // [GIVEN] 3 Error Messages, where "Message Type" is 'Information'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '1');
@@ -1111,7 +1111,7 @@ codeunit 132500 "Error Message Handling"
         Description := LibraryUtility.GenerateGUID();
         ErrorMessageRegister.New(Description);
         // [THEN] Register is inserted, "ID" is filled automatically, "User ID" and "Created On" are filled with current values.
-        ErrorMessageRegister.Find;
+        ErrorMessageRegister.Find();
         ErrorMessageRegister.TestField(ID);
         ErrorMessageRegister.TestField(Description, Description);
         Assert.AreNearlyEqual(0, CurrentDateTime - ErrorMessageRegister."Created On", 1000, 'Created On');
@@ -1129,7 +1129,7 @@ codeunit 132500 "Error Message Handling"
         // [FEATURE] [Register] [UT]
         Initialize();
         // [GIVEN] Error message for register 'A'
-        RegisterID := CreateGuid;
+        RegisterID := CreateGuid();
         ErrorMessage."Register ID" := RegisterID;
         ErrorMessage.ID := 0;
         ErrorMessage.Insert(true);
@@ -1171,7 +1171,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessagesPage.Trap;
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         // [THEN] Error Messages list page open
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
         // [THEN] Error Register contains 2 'Error' records: 'A' and 'B'.
         ErrorMessageRegister.FindFirst();
         ErrorMessageRegister.CalcFields(Errors, Warnings);
@@ -1179,7 +1179,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
         Assert.IsTrue(ErrorMessage.Find('-'), '1st error not found');
         ErrorMessage.TestField(Description, StrSubstNo(HandledErr, 2));
-        Assert.IsTrue(ErrorMessage.Next <> 0, '2nd error not found');
+        Assert.IsTrue(ErrorMessage.Next() <> 0, '2nd error not found');
         ErrorMessage.TestField(Description, UnhandledErr);
     end;
 
@@ -1202,19 +1202,19 @@ codeunit 132500 "Error Message Handling"
         // [WHEN] Run posting with enabled error handling twice
         ErrorMessagesPage.Trap;
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
         ErrorMessagesPage.Trap;
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
         // [THEN] 2 Error Registers each contains 2 'Error' records: 'A' and 'B'.
         Assert.IsTrue(ErrorMessageRegister.Find('-'), '1st register not found');
         ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
         Assert.RecordCount(ErrorMessage, 2);
-        Assert.IsTrue(ErrorMessageRegister.Next <> 0, '2nd register not found');
+        Assert.IsTrue(ErrorMessageRegister.Next() <> 0, '2nd register not found');
         ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
         Assert.IsTrue(ErrorMessage.Find('-'), '1st error not found');
         ErrorMessage.TestField(Description, StrSubstNo(HandledErr, 2));
-        Assert.IsTrue(ErrorMessage.Next <> 0, '2nd error not found');
+        Assert.IsTrue(ErrorMessage.Next() <> 0, '2nd error not found');
         ErrorMessage.TestField(Description, UnhandledErr);
     end;
 
@@ -1340,7 +1340,7 @@ codeunit 132500 "Error Message Handling"
     var
         ErrorMessageRegister: Record "Error Message Register";
     begin
-        ClearLastError;
+        ClearLastError();
         LibraryApplicationArea.EnableFoundationSetup();
         ErrorMessageRegister.DeleteAll(true);
     end;
@@ -1352,7 +1352,7 @@ codeunit 132500 "Error Message Handling"
     begin
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.LogError(700, 'ErrorB', '');
-        ErrorMessageHandler.ShowErrors;
+        ErrorMessageHandler.ShowErrors();
     end;
 
     local procedure AddFinishCall(var TempErrorMessage: Record "Error Message" temporary)
@@ -1438,7 +1438,7 @@ codeunit 132500 "Error Message Handling"
         Counter := 0;
         if ErrorMessagesPage.First then
             Counter := 1;
-        while ErrorMessagesPage.Next do
+        while ErrorMessagesPage.Next() do
             Counter += 1;
         LibraryVariableStorage.Enqueue(Counter);
         LibraryVariableStorage.Enqueue(ErrorMessagesPage.Description.Value);

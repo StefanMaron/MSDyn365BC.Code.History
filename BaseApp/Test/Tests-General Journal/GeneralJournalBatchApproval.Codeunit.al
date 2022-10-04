@@ -60,7 +60,7 @@ codeunit 134321 "General Journal Batch Approval"
         Commit();
         GLPostingPreview.Trap;
         asserterror PreviewPost(GenJournalBatch.Name);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Verify
         GLEntry.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -1276,7 +1276,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalCommentLine.SetRange("Document Type", ApprovalEntry."Document Type");
         ApprovalCommentLine.SetRange("Document No.", ApprovalEntry."Document No.");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
-        exit(ApprovalCommentLine.FindFirst);
+        exit(ApprovalCommentLine.FindFirst())
     end;
 }
 

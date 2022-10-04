@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138921 "O365 Test Quotes"
 {
     EventSubscriberInstance = Manual;
@@ -41,7 +42,7 @@ codeunit 138921 "O365 Test Quotes"
         Assert.AreEqual(1, O365SalesQuote.Amount.AsDEcimal, '');
         Assert.AreEqual(WorkDate + 30, O365SalesQuote."Quote Valid Until Date".AsDate, '');
 
-        O365SalesQuote.Close;
+        O365SalesQuote.Close();
         CleanUp;
     end;
 
@@ -68,7 +69,7 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesQuote.OpenView;
         O365SalesQuote.Last;
         Assert.AreNotEqual(0DT, O365SalesQuote."Quote Sent to Customer".AsDateTime, '');
-        O365SalesQuote.Close;
+        O365SalesQuote.Close();
         CleanUp;
     end;
 
@@ -135,7 +136,7 @@ codeunit 138921 "O365 Test Quotes"
     local procedure CreateCustItem(var Customer: Record Customer; var Item: Record Item)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Address := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.Address));
+        Customer.Address := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Customer.Address));
         Customer."E-Mail" := 'a@b.c';
         Customer.Modify();
 
@@ -165,7 +166,7 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesInvoiceLineCard.GotoRecord(SalesLine);
         O365SalesInvoiceLineCard.Description.SetValue(Item.Description);
         O365SalesInvoiceLineCard.LineQuantity.SetValue(1);
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
 
         O365SalesQuote.GotoRecord(SalesHeader);
     end;
@@ -219,7 +220,7 @@ codeunit 138921 "O365 Test Quotes"
     [Scope('OnPrem')]
     procedure DraftInvoicePageHandler(var O365SalesInvoice: TestPage "O365 Sales Invoice")
     begin
-        O365SalesInvoice.Close;
+        O365SalesInvoice.Close();
     end;
 
     [ConfirmHandler]
@@ -236,4 +237,4 @@ codeunit 138921 "O365 Test Quotes"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

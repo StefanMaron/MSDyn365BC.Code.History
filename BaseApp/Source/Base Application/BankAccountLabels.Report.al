@@ -108,10 +108,9 @@ report 1405 "Bank Account - Labels"
                     for i := ColumnNo + 1 to NoOfColumns do
                         Clear(BankAccAddr[i]);
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
 
                 if Counter = RecPerPageNum * NoOfColumns then begin
                     GroupNo := GroupNo + 1;

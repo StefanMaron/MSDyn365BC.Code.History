@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2159 "O365 Email Preview"
 {
     Caption = 'Email Preview';
     Editable = false;
     PageType = Card;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -10,11 +14,11 @@ page 2159 "O365 Email Preview"
         {
             usercontrol(BodyHTMLMessage; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
 
                 trigger ControlAddInReady(callbackUrl: Text)
                 begin
-                    CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                    CurrPage.BodyHTMLMessage.LinksOpenInNewWindow();
                     CurrPage.BodyHTMLMessage.SetContent(BodyText);
                 end;
 
@@ -28,7 +32,7 @@ page 2159 "O365 Email Preview"
 
                 trigger Refresh(callbackUrl: Text)
                 begin
-                    CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                    CurrPage.BodyHTMLMessage.LinksOpenInNewWindow();
                     CurrPage.BodyHTMLMessage.SetContent(BodyText);
                 end;
             }
@@ -59,7 +63,7 @@ page 2159 "O365 Email Preview"
 
         Pos := StrPos(LowerCase(BodyText), '<html');
         BodyText := CopyStr(BodyText, Pos);
-        HTMLFile.Close;
+        HTMLFile.Close();
     end;
 
     procedure GetBodyText(): Text
@@ -67,4 +71,4 @@ page 2159 "O365 Email Preview"
         exit(BodyText);
     end;
 }
-
+#endif

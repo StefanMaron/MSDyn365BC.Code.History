@@ -19,12 +19,12 @@ page 9632 "Page Inspection Fields"
             {
                 ShowCaption = false;
                 Visible = HasSourceTable;
-                field("Field Info"; "Field Info")
+                field("Field Info"; Rec."Field Info")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the field''s name, ID, data type, and if it is a primary key.';
                 }
-                field("Field Value"; "Field Value")
+                field("Field Value"; Rec."Field Value")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the field for the record.';
@@ -64,7 +64,7 @@ page 9632 "Page Inspection Fields"
     procedure UpdatePage(FormServerHandleId: Text; FormServerBookmark: Text)
     begin
         // that performs actual data retrieval
-        Reset;
+        Reset();
         SetFilter("Current Form ID", '%1', FormServerHandleId);
         SetFilter("Current Form Bookmark", '%1', FormServerBookmark);
         // sets current record to the first one

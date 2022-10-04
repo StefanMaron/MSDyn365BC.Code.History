@@ -17,7 +17,7 @@ codeunit 5459 "JSON Management"
 
     procedure InitializeEmptyCollection()
     begin
-        JsonArray := JsonArray.JArray;
+        JsonArray := JsonArray.JArray();
     end;
 
     procedure InitializeObject(JSONString: Text)
@@ -39,7 +39,7 @@ codeunit 5459 "JSON Management"
 
     procedure InitializeEmptyObject()
     begin
-        JsonObject := JsonObject.JObject;
+        JsonObject := JsonObject.JObject();
     end;
 
     local procedure InitializeCollectionFromString(JSONString: Text)
@@ -48,7 +48,7 @@ codeunit 5459 "JSON Management"
         if JSONString <> '' then
             JsonArray := JsonArray.Parse(JSONString)
         else
-            InitializeEmptyCollection;
+            InitializeEmptyCollection();
     end;
 
     local procedure InitializeObjectFromString(JSONString: Text)
@@ -57,7 +57,7 @@ codeunit 5459 "JSON Management"
         if JSONString <> '' then
             JsonObject := JsonObject.Parse(JSONString)
         else
-            InitializeEmptyObject;
+            InitializeEmptyObject();
     end;
 
     procedure InitializeFromString(JSONString: Text): Boolean
@@ -66,7 +66,7 @@ codeunit 5459 "JSON Management"
         if JSONString <> '' then
             exit(TryParseJObjectFromString(JsonObject, JSONString));
 
-        InitializeEmptyObject;
+        InitializeEmptyObject();
         exit(true);
     end;
 
@@ -89,13 +89,13 @@ codeunit 5459 "JSON Management"
         if not GetJObjectFromCollectionByIndex(JObject, Index) then
             exit(false);
 
-        Object := JObject.ToString;
+        Object := JObject.ToString();
         exit(true);
     end;
 
     procedure GetJObjectFromCollectionByIndex(var JObject: DotNet JObject; Index: Integer): Boolean
     begin
-        if (GetCollectionCount = 0) or (GetCollectionCount <= Index) then
+        if (GetCollectionCount() = 0) or (GetCollectionCount() <= Index) then
             exit(false);
 
         JObject := JsonArray.Item(Index);
@@ -110,9 +110,9 @@ codeunit 5459 "JSON Management"
     begin
         Clear(JObject);
         IEnumerable := JsonArray.SelectTokens(StrSubstNo('$[?(@.%1 == ''%2'')]', propertyName, value), false);
-        IEnumerator := IEnumerable.GetEnumerator;
+        IEnumerator := IEnumerable.GetEnumerator();
 
-        if IEnumerator.MoveNext then begin
+        if IEnumerator.MoveNext() then begin
             JObject := IEnumerator.Current;
             exit(true);
         end;
@@ -296,7 +296,7 @@ codeunit 5459 "JSON Management"
         if not GetArrayPropertyValueFromJObjectByName(JsonObject, propertyName, JArray) then
             exit(false);
 
-        value := JArray.ToString;
+        value := JArray.ToString();
         exit(true);
     end;
 
@@ -386,7 +386,7 @@ codeunit 5459 "JSON Management"
         JObject: DotNet JObject;
     begin
         JObject := value;
-        JArray.Add(JObject.DeepClone);
+        JArray.Add(JObject.DeepClone());
     end;
 
     [Scope('OnPrem')]
@@ -428,7 +428,7 @@ codeunit 5459 "JSON Management"
     var
         JValue: DotNet JValue;
     begin
-        JObject.Add(propertyName, JValue.CreateNull);
+        JObject.Add(propertyName, JValue.CreateNull());
     end;
 
     [Scope('OnPrem')]
@@ -442,13 +442,13 @@ codeunit 5459 "JSON Management"
     [Scope('OnPrem')]
     procedure AddJObjectToCollection(JObject: DotNet JObject)
     begin
-        JsonArray.Add(JObject.DeepClone);
+        JsonArray.Add(JObject.DeepClone());
     end;
 
     [Scope('OnPrem')]
     procedure AddJArrayContentToCollection(JArray: DotNet JArray)
     begin
-        JsonArray.Merge(JArray.DeepClone);
+        JsonArray.Merge(JArray.DeepClone());
     end;
 
     [Scope('OnPrem')]
@@ -487,13 +487,13 @@ codeunit 5459 "JSON Management"
 
     procedure WriteCollectionToString(): Text
     begin
-        exit(JsonArray.ToString);
+        exit(JsonArray.ToString());
     end;
 
     procedure WriteObjectToString(): Text
     begin
         if not IsNull(JsonObject) then
-            exit(JsonObject.ToString);
+            exit(JsonObject.ToString());
     end;
 
     procedure FormatDecimalToJSONProperty(Value: Decimal; PropertyName: Text): Text
@@ -501,7 +501,7 @@ codeunit 5459 "JSON Management"
         JProperty: DotNet JProperty;
     begin
         JProperty := JProperty.JProperty(PropertyName, Value);
-        exit(JProperty.ToString);
+        exit(JProperty.ToString());
     end;
 
     local procedure GetLastIndexOfPeriod(String: Text) LastIndex: Integer
@@ -538,7 +538,7 @@ codeunit 5459 "JSON Management"
         containerJToken := JObject.SelectToken(containingPath);
         if IsNull(containerJToken) then begin
             DecomposeQualifiedPathToContainerObjectAndPropertyName(JObject, containingPath, containerJObject, propertyName);
-            containerJObject.Add(propertyName, JObject.JObject);
+            containerJObject.Add(propertyName, JObject.JObject());
             containerJToken := JObject.SelectToken(containingPath);
         end;
 
@@ -566,7 +566,7 @@ codeunit 5459 "JSON Management"
         XmlDocument: DotNet XmlDocument;
     begin
         XmlDocument := JsonConvert.DeserializeXmlNode(Json, DocumentElementName);
-        Xml := XmlDocument.OuterXml;
+        Xml := XmlDocument.OuterXml();
     end;
 
     [TryFunction]
@@ -593,14 +593,14 @@ codeunit 5459 "JSON Management"
     begin
         TempBlob.CreateOutStream(OutStream);
         Base64Convert.FromBase64(Value, OutStream);
-        RecordRef := BlobFieldRef.Record;
+        RecordRef := BlobFieldRef.Record();
         TempBlob.ToRecordRef(RecordRef, BlobFieldRef.Number);
     end;
 
     procedure SetValue(Path: Text; Value: Variant)
     begin
         if IsNull(JsonObject) then
-            InitializeEmptyObject;
+            InitializeEmptyObject();
         ReplaceOrAddDescendantJPropertyInJObject(JsonObject, Path, Value);
     end;
 
@@ -613,7 +613,7 @@ codeunit 5459 "JSON Management"
 
         SelectedJToken := JsonObject.SelectToken(Path);
         if not IsNull(SelectedJToken) then
-            exit(SelectedJToken.ToString);
+            exit(SelectedJToken.ToString());
     end;
 
     procedure GetValueAndSetToRecFieldNo(RecordRef: RecordRef; PropertyPath: Text; FieldNo: Integer): Boolean
@@ -636,7 +636,7 @@ codeunit 5459 "JSON Management"
     procedure AddArrayValue(Value: Variant)
     begin
         if IsNull(JsonArray) then
-            InitializeEmptyCollection;
+            InitializeEmptyCollection();
         JsonArray.Add(Value);
     end;
 
@@ -675,8 +675,8 @@ codeunit 5459 "JSON Management"
         if not JsonObject.HasValues then
             exit(false);
 
-        IEnumerable := JsonObject.Properties;
-        IEnumerator := IEnumerable.GetEnumerator;
+        IEnumerable := JsonObject.Properties();
+        IEnumerator := IEnumerable.GetEnumerator();
         exit(true);
     end;
 
@@ -687,7 +687,7 @@ codeunit 5459 "JSON Management"
         Name := '';
         Value := '';
 
-        if not IEnumerator.MoveNext then
+        if not IEnumerator.MoveNext() then
             exit(false);
 
         JProperty := IEnumerator.Current;
@@ -718,7 +718,7 @@ codeunit 5459 "JSON Management"
             SetValue('Error.code', code);
             SetValue('Error.name', name);
             SetValue('Error.description', description);
-            JsonString := WriteObjectToString;
+            JsonString := WriteObjectToString();
         end;
     end;
 

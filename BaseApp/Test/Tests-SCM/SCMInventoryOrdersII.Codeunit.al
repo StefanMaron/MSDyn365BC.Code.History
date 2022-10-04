@@ -375,7 +375,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
         // Verify: Verify Shipment Method Code of Purchase Order is copied from vendor (not from Sales Order).
         Vendor.Get(PurchHeader."Buy-from Vendor No.");
-        PurchHeader.Find; // Refresh Purchase Order.
+        PurchHeader.Find(); // Refresh Purchase Order.
         PurchHeader.TestField("Shipment Method Code", Vendor."Shipment Method Code");
     end;
 
@@ -1694,7 +1694,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
         // [GIVEN] Sales Order "S" of "I" with quantity "Q" is created and its shipment is posted
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", Qty, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", Qty, '', WorkDate());
         SalesLine.Validate(Amount, LibraryRandom.RandInt(200));
         SalesLine.Validate("Unit Cost", 10);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1705,7 +1705,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
 
         // [THEN] in "S" "Qty. to Ship" = "Q"
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Qty. to Ship", Qty);
     end;
 
@@ -1800,7 +1800,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         FindSalesShipmentLine(SalesShipmentLine, Item."No.");
         AssignItemChargeToPostedShipmentLine(SalesHeader, SalesShipmentLine.Quantity, SalesShipmentLine."Unit Price", SalesShipmentLine);
-        SalesShipmentLine.Next;
+        SalesShipmentLine.Next();
         AssignItemChargeToPostedShipmentLine(SalesHeader, SalesShipmentLine.Quantity, SalesShipmentLine."Unit Price", SalesShipmentLine);
 
         // [WHEN] Post the sales credit memo.
@@ -1862,7 +1862,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         FindSalesShipmentLine(SalesShipmentLine, Item."No.");
         AssignItemChargeToPostedShipmentLine(SalesHeader, SalesShipmentLine.Quantity, SalesShipmentLine."Unit Price", SalesShipmentLine);
-        SalesShipmentLine.Next;
+        SalesShipmentLine.Next();
         AssignItemChargeToPostedShipmentLine(SalesHeader, SalesShipmentLine.Quantity, SalesShipmentLine."Unit Price", SalesShipmentLine);
 
         // [WHEN] Post the sales credit memo.
@@ -1965,10 +1965,10 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateSalesLineWithLocationCode(SalesLine, SalesHeader, Item."No.", LocationRed.Code);
 
         // [WHEN] Calculate plan in requisition worksheet and carry out action in order to create purchase to fulfill the sales demand.
-        Item.SetRecFilter;
-        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
         CarryOutReqWkshWithRequestPage(
-          RequisitionLine, RequisitionLine."Expiration Date", RequisitionLine."Order Date", WorkDate, WorkDate);
+          RequisitionLine, RequisitionLine."Expiration Date", RequisitionLine."Order Date", WorkDate(), WorkDate());
 
         // [THEN] Only one purchase order is created.
         PurchaseHeader.SetRange("Buy-from Vendor No.", Item."Vendor No.");
@@ -2598,7 +2598,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     local procedure AssignTrackingOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; var ReservationEntry: Record "Reservation Entry")
     begin
         PurchaseLine.OpenItemTrackingLines();  // Opens ItemTrackingPageHandler.
-        UpdateReservationEntry(ReservationEntry, PurchaseLine."No.", WorkDate);
+        UpdateReservationEntry(ReservationEntry, PurchaseLine."No.", WorkDate());
     end;
 
     local procedure AssignAndUpdateItemChargeOnPurchaseLine(var PurchaseHeader: Record "Purchase Header")
@@ -3183,7 +3183,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             ReservationEntry.Modify(true);
             if DifferentExpirationDate then
                 NoOfDays += 1;
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure UpdateBinCodeOnTransferLine(var TransferLine: Record "Transfer Line"; BinCode: Code[20])
@@ -3372,7 +3372,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemJournalLine.Validate("Journal Batch Name", RevaluationItemJournalBatch.Name);
         ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, WorkDate, LibraryUtility.GetGlobalNoSeriesCode, CalculatePer::Item, true, false, false, CalcBase::" ", false);
+          ItemJournalLine, Item, WorkDate(), LibraryUtility.GetGlobalNoSeriesCode, CalculatePer::Item, true, false, false, CalcBase::" ", false);
     end;
 
     local procedure CreatePurchaseOrderWithLocation(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -3567,7 +3567,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         GLEntry.FindSet();
         repeat
             ActualAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, AmountErr);
     end;
 
@@ -3682,7 +3682,7 @@ codeunit 137068 "SCM Inventory Orders-II"
                   PurchaseLineCharge."Direct Unit Cost" * ItemChargeShare * ItemLedgerEntry.Quantity / PostedQty,
                   ValueEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision" * ItemLedgerEntry.Count,
                   PostedChargeCostAmountMsg);
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyValuedQtyAndSalesAmountOnValueEntry(DocumentNo: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; ValuedQty: Decimal; SalesAmount: Decimal)
@@ -3731,7 +3731,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         TransferReceiptLine.TestField("Transfer-to Code", TransferToCode);
         TransferReceiptLine.TestField("Transfer-from Code", TransferFromCode);
         TransferReceiptLine.TestField("Transfer-To Bin Code", TransferToBinCode);
-        TransferReceiptLine.ShowItemTrackingLines;  // Verify the Posted Item Tracking Lines in PostedItemTrackingLinesHandler.
+        TransferReceiptLine.ShowItemTrackingLines();  // Verify the Posted Item Tracking Lines in PostedItemTrackingLinesHandler.
     end;
 
     local procedure VerifyItemLedgerEntryForAdjustCost(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal)
@@ -3831,7 +3831,7 @@ codeunit 137068 "SCM Inventory Orders-II"
                     ItemTrackingLines.First;
                     while QtyNotToBeInvoiced > 0 do begin
                         ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                         QtyNotToBeInvoiced -= 1;
                     end;
                 end;
@@ -3885,9 +3885,9 @@ codeunit 137068 "SCM Inventory Orders-II"
         PostedItemTrackingLines.First;
         repeat
             PostedItemTrackingLines.Quantity.AssertEquals(TrackingQuantity / 2);  // Verify partial Quantity.
-            PostedItemTrackingLines."Expiration Date".AssertEquals(WorkDate);
+            PostedItemTrackingLines."Expiration Date".AssertEquals(WorkDate());
             if DifferentExpirationDate then begin
-                PostedItemTrackingLines.Next;
+                PostedItemTrackingLines.Next();
                 PostedItemTrackingLines."Expiration Date".AssertEquals(NewExpirationDate);  // Different Expiration Date on second Item Tracking Line.
             end;
         until PostedItemTrackingLines.Last;

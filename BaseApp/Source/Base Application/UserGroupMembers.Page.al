@@ -24,7 +24,7 @@ page 9831 "User Group Members"
 
                     trigger OnValidate()
                     begin
-                        UpdateCompany;
+                        UpdateCompany();
                     end;
                 }
             }
@@ -50,7 +50,7 @@ page 9831 "User Group Members"
                                 exit;
                             if Get("User Group Code", "User Security ID", SelectedCompany) then
                                 Delete(true);
-                            Init;
+                            Init();
                             Validate("User Security ID", User."User Security ID");
                             Validate("Company Name", SelectedCompany);
                             CalcFields("User Name");
@@ -67,7 +67,7 @@ page 9831 "User Group Members"
                             exit;
                         User.SetRange("User Name", UserName);
                         User.FindFirst();
-                        Init;
+                        Init();
                         Validate("User Security ID", User."User Security ID");
                         Validate("Company Name", SelectedCompany);
                         CalcFields("User Name");
@@ -75,20 +75,20 @@ page 9831 "User Group Members"
                         CurrPage.Update(false);
                     end;
                 }
-                field("User Full Name"; "User Full Name")
+                field("User Full Name"; Rec."User Full Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Full Name';
                     ToolTip = 'Specifies the full name of the user.';
                 }
-                field("User Group Code"; "User Group Code")
+                field("User Group Code"; Rec."User Group Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     TableRelation = "User Group".Code;
                     ToolTip = 'Specifies a user group.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the company.';
@@ -106,16 +106,23 @@ page 9831 "User Group Members"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Add Users';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'See a list of existing users and add users to the user group.';
 
                 trigger OnAction()
                 begin
                     AddUsers(Company.Name);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(AddUsers_Promoted; AddUsers)
+                {
+                }
             }
         }
     }
@@ -144,7 +151,7 @@ page 9831 "User Group Members"
     trigger OnOpenPage()
     begin
         SelectedCompany := CompanyName;
-        UpdateCompany;
+        UpdateCompany();
     end;
 
     var

@@ -60,7 +60,7 @@ table 381 "VAT Registration No. Format"
             exit(true);
 
         if CountryCode = '' then begin
-            if not CompanyInfo.Get then
+            if not CompanyInfo.Get() then
                 exit;
             SetRange("Country/Region Code", CompanyInfo."Country/Region Code");
         end else

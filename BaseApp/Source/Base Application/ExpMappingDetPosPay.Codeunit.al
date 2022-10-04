@@ -35,7 +35,7 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
                     end;
                 end;
             until PositivePayDetail.Next() = 0;
-        Window.Close;
+        Window.Close();
     end;
 
     var
@@ -61,7 +61,7 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         with DataExchLineDef do begin
-            Init;
+            Init();
             SetRange("Data Exch. Def Code", DataExchDefCode);
             SetRange("Line Type", "Line Type"::Detail);
             exit(IsEmpty);

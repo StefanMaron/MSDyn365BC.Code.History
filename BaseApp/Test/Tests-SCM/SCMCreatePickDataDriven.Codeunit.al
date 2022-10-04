@@ -89,8 +89,8 @@ codeunit 137016 "SCM Create Pick Data Driven"
                 ErrorCount += 1;
                 Log := CopyStr(Log + CopyStr(GetLastErrorText, 1, 50) + '|', 1, 1000);
             end;
-            ClearLastError;
-        until TempItem.Next = 0;
+            ClearLastError();
+        until TempItem.Next() = 0;
 
         // Verification
         Assert.IsTrue(StrLen(Log) = 0, Format(ErrorCount) + ' error(s):' + Log);
@@ -192,7 +192,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                         asserterror LibraryWarehouse.CreatePick(WhseShipmentHeader);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNothingToHandle) > 0,
                           'Creating picks with same bin on Take & Place lines not allowed');
-                        ClearLastError;
+                        ClearLastError();
                         Bin.SetRange("Location Code", LocationCode);
                         Bin.SetFilter(Code, '<>%1', WhseShipmentLine."Bin Code");
                         Bin.FindFirst();
@@ -380,7 +380,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     else begin
                         asserterror LibraryWarehouse.CreatePick(WhseShipmentHeader);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNothingToHandle) > 0, ErrorWrongMessage);
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             DocumentType::"Int. Pick":
@@ -398,7 +398,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     else begin
                         asserterror CreatePickFromInternalPick(WhseInternalPickHeader);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNothingToHandle) > 0, ErrorWrongMessage);
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             DocumentType::"Sales Order":
@@ -412,7 +412,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                         asserterror CheckPick(WhseActivityLine."Action Type"::Take, WhseActivityLine."Source Document"::"Sales Order",
                             WhseActivityLine."Whse. Document Type"::" ", SourceDocHeaderNo, '', ExpectedQty);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNoWhseLines) > 0, ErrorWrongMessage);
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             DocumentType::"Transfer Order":
@@ -426,7 +426,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                         asserterror CheckPick(WhseActivityLine."Action Type"::Take, WhseActivityLine."Source Document"::"Outbound Transfer",
                             WhseActivityLine."Whse. Document Type"::" ", SourceDocHeaderNo, '', ExpectedQty);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNoWhseLines) > 0, ErrorWrongMessage);
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             DocumentType::"Rel. Prod. Order":
@@ -440,7 +440,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     end else begin
                         asserterror ProductionOrder.CreatePick(UserId, 0, false, false, false);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNothingToHandle) > 0, ErrorWrongMessage);
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             DocumentType::"Rel. Prod. Order - Invt.":
@@ -454,7 +454,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                         asserterror CheckPick(WhseActivityLine."Action Type"::Take, WhseActivityLine."Source Document"::"Prod. Consumption",
                             WhseActivityLine."Whse. Document Type"::" ", SourceDocHeaderNo, '', ExpectedQty);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNoWhseLines) > 0, ErrorWrongMessage);
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
         end
@@ -528,7 +528,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                     BinCode := Bin.Code;
                     exit;
                 end;
-            until Bin.Next = 0;
+            until Bin.Next() = 0;
     end;
 
     [Normal]
@@ -723,7 +723,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
             then
                 WhseActivityLine."Bin Code" := PlaceBinCode;
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetCurrentKey(Type, "No.");
@@ -788,7 +788,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         ActualQty := 0;
         repeat
             ActualQty += WhseActivityLine.Quantity;
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         Assert.AreEqual(ExpectedQty, ActualQty, '');
     end;
@@ -893,7 +893,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
                 if WhseActivityLine.FindFirst() then
                     SupplyQty -= WhseActivityLine."Qty. to Handle";
             end;
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         // Expected qty to pick is minimum betqeen requested qty for the last document, and available qty to pick.
         if SupplyQty - DemandQty >= 0 then

@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2165 "O365 Coupon"
 {
     Caption = 'Coupon';
@@ -5,6 +6,9 @@ page 2165 "O365 Coupon"
     Editable = false;
     PageType = Card;
     SourceTable = "O365 Coupon Claim";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,11 +18,11 @@ page 2165 "O365 Coupon"
             {
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field("Status Text"; "Status Text")
+                field("Status Text"; Rec."Status Text")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     StyleExpr = StatusStyleExpr;
                 }
                 group(Control8)
@@ -26,7 +30,7 @@ page 2165 "O365 Coupon"
                     ShowCaption = false;
                     field(OfferText; OfferText)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Offer';
                         MultiLine = true;
                     }
@@ -36,7 +40,7 @@ page 2165 "O365 Coupon"
                     ShowCaption = false;
                     field(TermsText; TermsText)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Terms';
                         MultiLine = true;
                     }
@@ -45,14 +49,14 @@ page 2165 "O365 Coupon"
                 {
                     ShowCaption = false;
                     Visible = "Discount Value" <> 0;
-                    field("Amount Text"; "Amount Text")
+                    field("Amount Text"; Rec."Amount Text")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         ToolTip = 'Specifies the coupon amount in words.';
                     }
                     field(Expiration; Expiration)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Expiration';
                     }
                     group(Control20)
@@ -61,7 +65,7 @@ page 2165 "O365 Coupon"
                         Visible = ExpiresInDays >= 0;
                         field(ExpiresInDays; ExpiresInDays)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Days until expiration';
                             ToolTip = 'Specifies the number of days until this coupon expires.';
                         }
@@ -73,12 +77,12 @@ page 2165 "O365 Coupon"
                     Visible = ("Discount Value" = 0) AND (ExpiresInDays >= 0);
                     field(ExpirationDate2; Expiration)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Expiration';
                     }
                     field(ExpirationInDays2; ExpiresInDays)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Days until expiration';
                         ToolTip = 'Specifies the number of days until this coupon expires.';
                     }
@@ -89,7 +93,7 @@ page 2165 "O365 Coupon"
                     Visible = ("Discount Value" = 0) AND (ExpiresInDays < 0);
                     field(ExpirationDate3; Expiration)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Expiration';
                     }
                 }
@@ -103,45 +107,53 @@ page 2165 "O365 Coupon"
         {
             action(UseCoupon)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Use coupon';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Use this coupon on the current invoice.';
                 Visible = NOT "Is applied";
 
                 trigger OnAction()
                 begin
-                    ApplyCoupon;
+                    ApplyCoupon();
                 end;
             }
             action(DoNotUseCoupon)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Do not use coupon';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Do not use this coupon on the current invoice.';
                 Visible = "Is applied";
 
                 trigger OnAction()
                 begin
-                    if Unapply then
-                        CurrPage.Close;
+                    if Unapply() then
+                        CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UseCoupon_Promoted; UseCoupon)
+                {
+                }
+                actionref(DoNotUseCoupon_Promoted; DoNotUseCoupon)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        ExpiresInDays := Expiration - WorkDate;
-        UpdateStatusText;
+        ExpiresInDays := Expiration - WorkDate();
+        UpdateStatusText();
         CalcFields("Is applied");
-        OfferText := GetOffer;
-        TermsText := GetTerms;
+        OfferText := GetOffer();
+        TermsText := GetTerms();
         if ExpiresInDays < 0 then
             StatusStyleExpr := 'Unfavorable';
         if "Is applied" then
@@ -156,8 +168,8 @@ page 2165 "O365 Coupon"
 
     procedure ApplyCoupon()
     begin
-        if Apply then
-            CurrPage.Close;
+        if Apply() then
+            CurrPage.Close();
     end;
 }
-
+#endif

@@ -499,7 +499,7 @@ codeunit 137408 "SCM Warehouse VI"
 
         // Verify : Verify error message.
         Assert.AreEqual(
-          StrSubstNo(RelatedWarehouseActivityLineExistError, ProdOrderComponent.TableCaption, WarehouseActivityLine.TableCaption),
+          StrSubstNo(RelatedWarehouseActivityLineExistError, ProdOrderComponent.TableCaption(), WarehouseActivityLine.TableCaption()),
           GetLastErrorText, UnknownFailure);
     end;
 
@@ -528,7 +528,7 @@ codeunit 137408 "SCM Warehouse VI"
         with ProdOrderComponent do
             Assert.AreEqual(
               StrSubstNo(
-                RelatedWarehouseActivityLineExistError2, FieldCaption("Item No."), WarehouseActivityLine.TableCaption, TableCaption,
+                RelatedWarehouseActivityLineExistError2, FieldCaption("Item No."), WarehouseActivityLine.TableCaption(), TableCaption(),
                 FieldCaption(Status), Status::Released, FieldCaption("Prod. Order No."), "Prod. Order No.",
                 FieldCaption("Prod. Order Line No."), "Prod. Order Line No.", FieldCaption("Line No.")), GetLastErrorText, UnknownFailure);
     end;
@@ -640,7 +640,7 @@ codeunit 137408 "SCM Warehouse VI"
         Assert.AreEqual(
           StrSubstNo(
             CubageExceed, ItemUnitOfMeasure.FieldCaption(Cubage), ItemUnitOfMeasure.Cubage * ItemUnitOfMeasure.Cubage,
-            ItemUnitOfMeasure.Cubage, Bin.TableCaption, Bin.Code), ConfirmMessage, UnknownFailure);
+            ItemUnitOfMeasure.Cubage, Bin.TableCaption(), Bin.Code), ConfirmMessage, UnknownFailure);
     end;
 
     [Test]
@@ -740,7 +740,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndFindBin(Bin, Bin2, Bin3, Item, Location.Code);
 
         // Create and register two Warehouse Item Journal Lines with Item Tracking and Expiration Date.
-        ExpirationDate := CalcDate('<+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        ExpirationDate := CalcDate('<+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
         SetIncrementBatchName(WarehouseJournalBatch, true);
 
@@ -919,9 +919,9 @@ codeunit 137408 "SCM Warehouse VI"
         Item[1].MarkedOnly(true);
         PhysInvtCountMgt.UpdateItemPhysInvtCount(Item[1]);
 
-        VerifyItemLastCountingPeriodUpdate(Item[1], WorkDate);
+        VerifyItemLastCountingPeriodUpdate(Item[1], WorkDate());
         VerifyItemLastCountingPeriodUpdate(Item[2], 0D);
-        VerifyItemLastCountingPeriodUpdate(Item[3], WorkDate);
+        VerifyItemLastCountingPeriodUpdate(Item[3], WorkDate());
     end;
 
     [Test]
@@ -946,9 +946,9 @@ codeunit 137408 "SCM Warehouse VI"
         SKU[1].MarkedOnly(true);
         PhysInvtCountMgt.UpdateSKUPhysInvtCount(SKU[1]);
 
-        VerifySKULastCountingPeriodUpdate(SKU[1], WorkDate);
+        VerifySKULastCountingPeriodUpdate(SKU[1], WorkDate());
         VerifySKULastCountingPeriodUpdate(SKU[2], 0D);
-        VerifySKULastCountingPeriodUpdate(SKU[3], WorkDate);
+        VerifySKULastCountingPeriodUpdate(SKU[3], WorkDate());
     end;
 
     [Test]
@@ -970,8 +970,8 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Quantity on inventory is greater than zero for both items
-        LibraryPatterns.POSTPositiveAdjustment(Item[1], Location.Code, '', '', 1, WorkDate, 0);
-        LibraryPatterns.POSTPositiveAdjustment(Item[2], Location.Code, '', '', 1, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item[1], Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item[2], Location.Code, '', '', 1, WorkDate(), 0);
 
         // [GIVEN] Calculate physical inventory
         CalcPhysInvtDatesAndRunCalculateCountingPeriodInPhysInvtJournal(
@@ -982,10 +982,10 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // [THEN] "Last Counting Period Update" = WORKDATE in both items
-        Item[1].Find;
-        Item[1].TestField("Last Counting Period Update", WorkDate);
-        Item[2].Find;
-        Item[2].TestField("Last Counting Period Update", WorkDate);
+        Item[1].Find();
+        Item[1].TestField("Last Counting Period Update", WorkDate());
+        Item[2].Find();
+        Item[2].TestField("Last Counting Period Update", WorkDate());
     end;
 
     [Test]
@@ -1008,9 +1008,9 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Quantity on inventory is greater than zero for both SKUs
         Item.Get(SKU[1]."Item No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, SKU[1]."Location Code", '', '', 1, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, SKU[1]."Location Code", '', '', 1, WorkDate(), 0);
         Item.Get(SKU[2]."Item No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, SKU[2]."Location Code", '', '', 1, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, SKU[2]."Location Code", '', '', 1, WorkDate(), 0);
 
         // [GIVEN] Calculate physical inventory
         CalcPhysInvtDatesAndRunCalculateCountingPeriodInPhysInvtJournal(
@@ -1021,10 +1021,10 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // [THEN] "Last Counting Period Update" = WORKDATE in both stockkepping units
-        SKU[1].Find;
-        SKU[1].TestField("Last Counting Period Update", WorkDate);
-        SKU[2].Find;
-        SKU[2].TestField("Last Counting Period Update", WorkDate);
+        SKU[1].Find();
+        SKU[1].TestField("Last Counting Period Update", WorkDate());
+        SKU[2].Find();
+        SKU[2].TestField("Last Counting Period Update", WorkDate());
     end;
 
     [Test]
@@ -1227,7 +1227,7 @@ codeunit 137408 "SCM Warehouse VI"
         RegisterWarehouseActivityHeader(Location.Code, WhseActivityLine."Activity Type"::Pick);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Reservation for the Sales Order has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -7
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
@@ -2085,7 +2085,7 @@ codeunit 137408 "SCM Warehouse VI"
         RegisterWarehouseActivityHeader(FromLocation.Code, WhseActivityLine."Activity Type"::Pick);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] 1st Outbound Tracking entry for Transfer has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = - 5
         // [THEN] 2nd Outbound Tracking entry for Transfer has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = - 3
@@ -2389,7 +2389,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [GIVEN] Sort the pick lines by "Shelf or Bin".
         FindWarehouseActivityHeader(WarehouseActivityHeader, Location.Code, WarehouseActivityHeader.Type::Pick);
         WarehouseActivityHeader.Validate("Sorting Method", WarehouseActivityHeader."Sorting Method"::"Shelf or Bin");
-        WarehouseActivityHeader.SortWhseDoc;
+        WarehouseActivityHeader.SortWhseDoc();
         WarehouseActivityHeader.Modify(true);
 
         // [WHEN] Register the warehouse pick respecting the sorting.
@@ -2442,7 +2442,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [GIVEN] Sales order for 10 pcs.
         // [GIVEN] Release the sales order, create warehouse shipment and pick.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CreatePickFromSalesHeader(SalesHeader);
 
@@ -2646,7 +2646,8 @@ codeunit 137408 "SCM Warehouse VI"
         WhseWorksheetLine."Worksheet Template Name" := WhseWorksheetTemplate.Name;
         BinContent.SetRange("Item No.", Item."No.");
         BinContent.SetRange("Lot No. Filter", LotNo[1]);
-        LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 0);
+        LibraryWarehouse.WhseGetBinContent(
+		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
         FindWarehouseWorksheetLine(WhseWorksheetLine, Item."No.");
 
         // [WHEN] Choose "Lot No." = "LOT2" on the Whse. Item Tracking Line for Whse. Worksheet Line with Assist Edit
@@ -3296,7 +3297,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [GIVEN] Sales order, release.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
-          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Create inventory pick, autofill quantity to handle.
@@ -3340,7 +3341,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [GIVEN] Purchase order, release.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
-          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Create inventory put-away, autofill quantity to handle.
@@ -4411,7 +4412,7 @@ codeunit 137408 "SCM Warehouse VI"
             Quantity.SetValue(Qty);
             "Qty. to Handle".SetValue(Qty);
         end;
-        MovementWorksheetPage.Close;
+        MovementWorksheetPage.Close();
     end;
 
     local procedure CreateMovementAndVerifyMovementLinesForLot(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[50]; Quantity: Integer)
@@ -4537,7 +4538,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, Quantity, LocationCode, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, Quantity, LocationCode, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         if LotNo <> '' then begin
@@ -4754,7 +4755,7 @@ codeunit 137408 "SCM Warehouse VI"
         FindWarehouseEntry(WarehouseEntry, WarehouseEntry."Entry Type"::"Positive Adjmt.", BinCode, ItemNo);
         for i := 1 to WarehouseEntry.Count do begin
             SerialNo[i] := WarehouseEntry."Serial No.";
-            WarehouseEntry.Next;
+            WarehouseEntry.Next();
         end;
     end;
 
@@ -4878,7 +4879,7 @@ codeunit 137408 "SCM Warehouse VI"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
@@ -4952,13 +4953,13 @@ codeunit 137408 "SCM Warehouse VI"
     local procedure MockBinContent(var BinContent: Record "Bin Content")
     begin
         with BinContent do begin
-            Init;
+            Init();
             "Location Code" := LibraryUtility.GenerateGUID();
             "Bin Code" := LibraryUtility.GenerateGUID();
             "Item No." := LibraryUtility.GenerateGUID();
             "Variant Code" := LibraryUtility.GenerateGUID();
             "Unit of Measure Code" := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -4972,7 +4973,7 @@ codeunit 137408 "SCM Warehouse VI"
     local procedure MockWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; BinContentFrom: Record "Bin Content"; BinContentTo: Record "Bin Content"; EntryType: Option)
     begin
         with WarehouseJournalLine do begin
-            Init;
+            Init();
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseJournalLine, FieldNo("Line No."));
             "Entry Type" := EntryType;
             "Location Code" := BinContentFrom."Location Code";
@@ -4983,7 +4984,7 @@ codeunit 137408 "SCM Warehouse VI"
             "Unit of Measure Code" := BinContentFrom."Unit of Measure Code";
             "Qty. (Absolute)" := LibraryRandom.RandDec(10, 2);
             "Qty. (Absolute, Base)" := "Qty. (Absolute)" * LibraryRandom.RandInt(10);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5046,7 +5047,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndFindBin(Bin, Bin2, Bin3, Item, Location.Code);
 
         // Create and register two Warehouse Item Journal Lines with Item Tracking and Expiration Date.
-        ExpirationDate := CalcDate('<+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        ExpirationDate := CalcDate('<+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         Quantity := LibraryRandom.RandInt(10);
         LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
         SetIncrementBatchName(WarehouseJournalBatch, true);
@@ -5143,7 +5144,7 @@ codeunit 137408 "SCM Warehouse VI"
             LibraryVariableStorage.Enqueue(NextCountingStartDate);
             LibraryVariableStorage.Enqueue(NextCountingEndDate);
             RunCalculateCountingPeriodFromPhysicalInventoryJournalBatch(ItemJournalBatch);
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     local procedure CalcPhysInvtDatesAndRunCalculateCountingPeriodInWhseInvtJournal(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; ItemNo: Code[20]; LocationCode: Code[10]; LastCountingDate: Date; CountFrequency: Integer)
@@ -5229,7 +5230,7 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, true);
 
         ItemToAdjust.SetFilter("No.", CopyStr(ItemNoFilter, 1, StrLen(ItemNoFilter) - 1));
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(ItemToAdjust, WorkDate, '');
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(ItemToAdjust, WorkDate(), '');
         ItemJournalLine.SetRange("Location Code", LocationCode);
         ItemJournalLine.FindFirst();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -5277,7 +5278,7 @@ codeunit 137408 "SCM Warehouse VI"
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateQuantityToHandleInWarehouseActivityLineWithLot(SourceNo: Code[20]; SourceType: Integer; QuantityToHandle: Decimal; LotNo: Code[50])
@@ -5291,7 +5292,7 @@ codeunit 137408 "SCM Warehouse VI"
             WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
             WarehouseActivityLine.Validate("Lot No.", LotNo);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateShippingAdviceOnTransferOrder(TransferHeader: Record "Transfer Header"; ShippingAdvice: Enum "Sales Header Shipping Advice")
@@ -5354,7 +5355,7 @@ codeunit 137408 "SCM Warehouse VI"
             repeat
                 WhseItemTrackingLine.Validate("Expiration Date", ExpirationDate);
                 WhseItemTrackingLine.Modify(true);
-            until WhseItemTrackingLine.Next = 0
+            until WhseItemTrackingLine.Next() = 0
     end;
 
     local procedure SetupReserveOnRequisitionLine(No: Code[20]; LineType: Enum "Requisition Line Type")
@@ -5476,7 +5477,7 @@ codeunit 137408 "SCM Warehouse VI"
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField("Qty. Handled", QuantityHandled);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyQuantityToHandleInWarehouseActivityLine(SourceNo: Code[20]; ItemNo: Code[20]; QuantityToHandle: Decimal)
@@ -5488,7 +5489,7 @@ codeunit 137408 "SCM Warehouse VI"
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField("Qty. to Handle", QuantityToHandle);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyShippingAdviceOnPickWorksheet(ItemNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice")
@@ -5535,7 +5536,7 @@ codeunit 137408 "SCM Warehouse VI"
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyWarehouseActivityLine2(ItemNo: Code[20]; BinCode: Code[20]; BinCode2: Code[20])
@@ -5625,13 +5626,13 @@ codeunit 137408 "SCM Warehouse VI"
 
     local procedure VerifyItemLastCountingPeriodUpdate(Item: Record Item; ExpDate: Date)
     begin
-        Item.Find;
+        Item.Find();
         Assert.AreEqual(ExpDate, Item."Last Counting Period Update", Item.FieldCaption("Last Counting Period Update"));
     end;
 
     local procedure VerifySKULastCountingPeriodUpdate(SKU: Record "Stockkeeping Unit"; ExpDate: Date)
     begin
-        SKU.Find;
+        SKU.Find();
         Assert.AreEqual(ExpDate, SKU."Last Counting Period Update", SKU.FieldCaption("Last Counting Period Update"));
     end;
 
@@ -5821,7 +5822,7 @@ codeunit 137408 "SCM Warehouse VI"
                         TrackingQuantity -= 1;
                         WhseItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID());
                         WhseItemTrackingLines.Quantity.SetValue(1);
-                        WhseItemTrackingLines.Next;
+                        WhseItemTrackingLines.Next();
                     end;
                 end;
             TrackingActionStr::AssignGivenLotAndSerialNo:

@@ -353,6 +353,7 @@ codeunit 134995 "UT Country/Region Code"
         Customer.Validate(City, CityName);
         Customer.Modify(true);
 
+        // [THEN] Post Code was filled during validation 
         Customer.TestField("Country/Region Code", CountryCode[1]);
         Customer.TestField("Post Code", PostCode);
     end;

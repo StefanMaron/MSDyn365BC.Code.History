@@ -38,7 +38,6 @@ codeunit 137402 "SCM Costing Batch"
         IncreaseQuantity: Decimal;
         DecreaseQuantity: Decimal;
         CalculationDate: Date;
-        RoundingFactorRef: Option "None","1","1000","1000000";
         Adjust: Option "Item Card","Stockkeeping Unit Card";
         AdjustField: Option "Unit Price","Profit %","Indirect Cost %","Last Direct Cost","Standard Cost";
         AdjustmentFactor: Integer;
@@ -175,8 +174,8 @@ codeunit 137402 "SCM Costing Batch"
         PostInvtCostToGL;
 
         // Verify: Verify Item Statistics and Turnover after running Adjust Cost Item Entries.
-        RunItemStatistics(Item."No.", RoundingFactorRef::None);
-        VerifyItemStatistics(Quantity, SalesUnitAmount, PurchaseUnitAmount, PurchaseUnitAmount2, RoundingFactorRef::None);
+        RunItemStatistics(Item."No.", "Analysis Rounding Factor"::None);
+        VerifyItemStatistics(Quantity, SalesUnitAmount, PurchaseUnitAmount, PurchaseUnitAmount2, "Analysis Rounding Factor"::None);
         VerifyItemTurnover(Item."No.", Quantity, SalesUnitAmount, PurchaseUnitAmount, PurchaseUnitAmount2);
     end;
 
@@ -200,10 +199,10 @@ codeunit 137402 "SCM Costing Batch"
         CreateItemDataRoundingFactor(ItemNo, Quantity, SalesUnitAmount, 1);
 
         // [WHEN] Run Item Statistics with RoundingFactor::"1"
-        RunItemStatistics(ItemNo, RoundingFactorRef::"1");
+        RunItemStatistics(ItemNo, "Analysis Rounding Factor"::"1");
         // [THEN] Sales Amount = "X" on Item Statistics is rounded according to RoundingFactor::"1"
         // [THEN] Profit % on Item Statistics is rounded according to RoundingFactor::"1"
-        VerifyItemStatistics(Quantity, SalesUnitAmount, 0, 0, RoundingFactorRef::"1");
+        VerifyItemStatistics(Quantity, SalesUnitAmount, 0, 0, "Analysis Rounding Factor"::"1");
     end;
 
     [Test]
@@ -226,10 +225,10 @@ codeunit 137402 "SCM Costing Batch"
         CreateItemDataRoundingFactor(ItemNo, Quantity, SalesUnitAmount, 1000);
 
         // [WHEN] Run Item Statistics with RoundingFactor::"1000"
-        RunItemStatistics(ItemNo, RoundingFactorRef::"1000");
+        RunItemStatistics(ItemNo, "Analysis Rounding Factor"::"1000");
         // [THEN] Sales Amount = "X" on Item Statistics is reduced with division by 1000 and rounded to RoundingFactor::"1000"
         // [THEN] Profit % on Item Statistics is rounded according to RoundingFactor::"1000"
-        VerifyItemStatistics(Quantity, SalesUnitAmount, 0, 0, RoundingFactorRef::"1000");
+        VerifyItemStatistics(Quantity, SalesUnitAmount, 0, 0, "Analysis Rounding Factor"::"1000");
     end;
 
     [Test]
@@ -478,7 +477,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Roll Up Standard Cost with calculation date workdate.
         CountRowsBeforeRollup := GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName);
-        CalculationDate := WorkDate;  // Use CalculationDate as global for Test Request Page Handler.
+        CalculationDate := WorkDate();  // Use CalculationDate as global for Test Request Page Handler.
         RunRollUpStandardCost(StandardCostWorksheetName);
 
         // Verify: Verify some more lines added after Roll Up.
@@ -506,7 +505,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Delete all lines on Standard Cost Worksheet. Roll Up Standard Cost with calculation date random day less than workdate.
         DeleteStandardCostWorksheetLines(StandardCostWorksheetName);
-        CalculationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Use CalculationDate as global for Test Request Page Handler.
+        CalculationDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Use CalculationDate as global for Test Request Page Handler.
         RunRollUpStandardCost(StandardCostWorksheetName);
 
         // Verify: Verify some more lines added after Roll Up.
@@ -974,7 +973,7 @@ codeunit 137402 "SCM Costing Batch"
             ItemJournalLine.Validate("Run Time", 1);
             ItemJournalLine.Validate("Output Quantity", 0);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -1009,7 +1008,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         RunAdjustCostItemEntries('');
         PostInvtCostToGL();
         LibrarySetupStorage.SaveSalesSetup();
@@ -1224,7 +1223,7 @@ codeunit 137402 "SCM Costing Batch"
     begin
         // Create Sales Price with random Minimum Quantity and Unit Price.
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(100, 2));
+          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(100, 2));
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
@@ -1423,7 +1422,7 @@ codeunit 137402 "SCM Costing Batch"
         RollUpStandardCost.Run();
     end;
 
-    local procedure RunItemStatistics(ItemNo: Code[20]; RoundingFactor: Option)
+    local procedure RunItemStatistics(ItemNo: Code[20]; RoundingFactor: Enum "Analysis Rounding Factor")
     var
         ItemCard: TestPage "Item Card";
     begin
@@ -1511,7 +1510,7 @@ codeunit 137402 "SCM Costing Batch"
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Sales Amount (Actual)"), SalesAmountActual));
     end;
 
-    local procedure VerifyItemStatistics(Quantity: Decimal; SalesUnitAmount: Decimal; PurchaseUnitAmount: Decimal; PurchaseUnitAmount2: Decimal; RoundingFactor: Option "None","1","1000","1000000")
+    local procedure VerifyItemStatistics(Quantity: Decimal; SalesUnitAmount: Decimal; PurchaseUnitAmount: Decimal; PurchaseUnitAmount2: Decimal; RoundingFactor: Enum "Analysis Rounding Factor")
     var
         ItemStatisticsBuffer: Record "Item Statistics Buffer";
         MatrixMgt: Codeunit "Matrix Management";
@@ -1557,7 +1556,7 @@ codeunit 137402 "SCM Costing Batch"
         ItemTurnover.Trap;
         ItemCard."T&urnover".Invoke;
         ItemTurnover.PeriodType.SetValue(Format(ItemTurnover.PeriodType.GetOption(5)));  // Use 5 for Year Required for Test Case.
-        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(DMY2Date(1, 1, Date2DMY(WorkDate, 3))));
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(DMY2Date(1, 1, Date2DMY(WorkDate(), 3))));
 
         PurchasesQty := Quantity + Quantity;  // Total Purchase Quantity.
         Assert.AreNearlyEqual(
@@ -1675,7 +1674,7 @@ codeunit 137402 "SCM Costing Batch"
     var
         RoundingFactor: Variant;
     begin
-        ItemStatistics.DateFilter.SetValue(WorkDate);
+        ItemStatistics.DateFilter.SetValue(WorkDate());
         LibraryVariableStorage.Dequeue(RoundingFactor);
         ItemStatistics.RoundingFactor.SetValue(RoundingFactor);
         ItemStatistics.ShowMatrix.Invoke;
@@ -1686,13 +1685,13 @@ codeunit 137402 "SCM Costing Batch"
     procedure ItemStatisticsMatrixHandler(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
     begin
         SalesLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use SalesLCY2 as global for Test Page Handler.
-        ItemStatisticsMatrix.Next;
+        ItemStatisticsMatrix.Next();
         COGSLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use COGSLCY2 as global for Test Page Handler.
-        ItemStatisticsMatrix.Next;
+        ItemStatisticsMatrix.Next();
         NonInvtblCostsLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use NonInvtblCostsLCY2 as global for Test Page Handler.
-        ItemStatisticsMatrix.Next;
+        ItemStatisticsMatrix.Next();
         ProfitLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use ProfitLCY2 as global for Test Page Handler.
-        ItemStatisticsMatrix.Next;
+        ItemStatisticsMatrix.Next();
         ProfitPercentage2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use ProfitPercentage2 as global for Test Page Handler.
     end;
 
@@ -1748,7 +1747,7 @@ codeunit 137402 "SCM Costing Batch"
     var
         ViewBy: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
-        ItemStatistics.DateFilter.SetValue(StrSubstNo('%1..%2', CalcDate('<-CW>', WorkDate), CalcDate('<CW>', WorkDate)));
+        ItemStatistics.DateFilter.SetValue(StrSubstNo('%1..%2', CalcDate('<-CW>', WorkDate()), CalcDate('<CW>', WorkDate())));
         ItemStatistics.ViewBy.SetValue(ViewBy::Week);
         LibraryVariableStorage.Enqueue(ItemStatistics.MATRIX_CaptionRange.Value);
         ItemStatistics.ShowMatrix.Invoke;

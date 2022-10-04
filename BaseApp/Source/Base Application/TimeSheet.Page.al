@@ -4,7 +4,6 @@ page 950 "Time Sheet"
     Caption = 'Time Sheet';
     DataCaptionFields = "Time Sheet No.";
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Line';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Time Sheet Line";
@@ -24,9 +23,9 @@ page 950 "Time Sheet"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TimeSheetMgt.LookupOwnerTimeSheet(CurrTimeSheetNo, Rec, TimeSheetHeader);
-                        UpdateControls;
+                        UpdateControls();
                     end;
 
                     trigger OnValidate()
@@ -34,9 +33,9 @@ page 950 "Time Sheet"
                         TimeSheetHeader.Reset();
                         TimeSheetMgt.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
                         TimeSheetMgt.CheckTimeSheetNo(TimeSheetHeader, CurrTimeSheetNo);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
-                        UpdateControls;
+                        UpdateControls();
                     end;
                 }
                 field(ResourceNo; TimeSheetHeader."Resource No.")
@@ -80,11 +79,11 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        AfterGetCurrentRecord;
+                        AfterGetCurrentRecord();
                         CurrPage.Update(true);
                     end;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -93,10 +92,10 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -105,7 +104,7 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field(Description; Description)
@@ -125,10 +124,10 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Cause of Absence Code"; "Cause of Absence Code")
+                field("Cause of Absence Code"; Rec."Cause of Absence Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -137,7 +136,7 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field(Chargeable; Chargeable)
@@ -149,10 +148,10 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -161,10 +160,10 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Service Order No."; "Service Order No.")
+                field("Service Order No."; Rec."Service Order No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -173,10 +172,10 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Assembly Order No."; "Assembly Order No.")
+                field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the assembly order number that is associated with the time sheet line.';
@@ -193,9 +192,9 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(1);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
                 field(Field2; CellData[2])
@@ -209,9 +208,9 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(2);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
                 field(Field3; CellData[3])
@@ -225,9 +224,9 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(3);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
                 field(Field4; CellData[4])
@@ -241,9 +240,9 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(4);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
                 field(Field5; CellData[5])
@@ -257,9 +256,9 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(5);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
                 field(Field6; CellData[6])
@@ -273,9 +272,9 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(6);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
                 field(Field7; CellData[7])
@@ -289,12 +288,12 @@ page 950 "Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ValidateQuantity(7);
-                        CellDataOnAfterValidate;
+                        CellDataOnAfterValidate();
                     end;
                 }
-                field("Total Quantity"; "Total Quantity")
+                field("Total Quantity"; Rec."Total Quantity")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Total';
@@ -345,10 +344,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Previous Period';
                     Image = PreviousSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                     trigger OnAction()
@@ -361,9 +356,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Next Period';
                     Image = NextSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View information for the next period.';
 
                     trigger OnAction()
@@ -381,13 +373,11 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = 'Time Sheet Allocation';
                     Image = Allocate;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Allocate posted hours among days of the week on a time sheet.';
 
                     trigger OnAction()
                     begin
-                        TimeAllocation;
+                        TimeAllocation();
                     end;
                 }
                 action("Activity &Details")
@@ -395,9 +385,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = 'Activity &Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View the quantity of hours for each time sheet status.';
 
@@ -432,8 +419,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Comments;
                     Caption = '&Time Sheet Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = CONST(0);
@@ -444,8 +429,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Comments;
                     Caption = '&Line Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = FIELD("Line No.");
@@ -465,15 +448,12 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Submit';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Submit the time sheet for approval.';
 
                     trigger OnAction()
                     begin
-                        SubmitLines;
+                        SubmitLines();
                     end;
                 }
                 action(Reopen)
@@ -481,14 +461,11 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Reopen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reopen the time sheet, for example, after it has been rejected. The approver of a time sheet has permission to approve, reject, or reopen a time sheet. The approver can also submit a time sheet for approval.';
 
                     trigger OnAction()
                     begin
-                        ReopenLines;
+                        ReopenLines();
                     end;
                 }
                 separator(Action28)
@@ -499,8 +476,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Copy lines from previous time sheet';
                     Image = Copy;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a job, the job number is copied.';
 
                     trigger OnAction()
@@ -513,8 +488,6 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = 'Create lines from &job planning';
                     Image = CreateLinesFromJob;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Create time sheet lines that are based on job planning lines.';
 
                     trigger OnAction()
@@ -524,16 +497,75 @@ page 950 "Time Sheet"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Submit_Promoted; Submit)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref(PreviousPeriod_Promoted; PreviousPeriod)
+                {
+                }
+                actionref(NextPeriod_Promoted; NextPeriod)
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(CopyLinesFromPrevTS_Promoted; CopyLinesFromPrevTS)
+                {
+                }
+                actionref(CreateLinesFromJobPlanning_Promoted; CreateLinesFromJobPlanning)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Activity &Details_Promoted"; "Activity &Details")
+                {
+                }
+                actionref("Time Sheet Allocation_Promoted"; "Time Sheet Allocation")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(TimeSheetComments_Promoted; TimeSheetComments)
+                {
+                }
+                actionref(LineComments_Promoted; LineComments)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnOpenPage()
@@ -544,7 +576,7 @@ page 950 "Time Sheet"
             CurrTimeSheetNo := TimeSheetHeader.FindLastTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"));
 
         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
-        UpdateControls;
+        UpdateControls();
     end;
 
     var
@@ -608,7 +640,7 @@ page 950 "Time Sheet"
             else
                 CellData[i] := 0;
         end;
-        UpdateFactBoxes;
+        UpdateFactBoxes();
         AllowEdit := Status in [Status::Open, Status::Rejected];
     end;
 
@@ -623,17 +655,17 @@ page 950 "Time Sheet"
              ColumnRecords[ColumnNo]."Period Start")
         then begin
             if CellData[ColumnNo] <> TimeSheetDetail.Quantity then
-                TestTimeSheetLineStatus;
+                TestTimeSheetLineStatus();
 
             if CellData[ColumnNo] = 0 then
-                TimeSheetDetail.Delete
+                TimeSheetDetail.Delete()
             else begin
                 TimeSheetDetail.Quantity := CellData[ColumnNo];
                 TimeSheetDetail.Modify(true);
             end;
         end else
             if CellData[ColumnNo] <> 0 then begin
-                TestTimeSheetLineStatus;
+                TestTimeSheetLineStatus();
 
                 TimeSheetDetail.Init();
                 TimeSheetDetail.CopyFromTimeSheetLine(Rec);
@@ -649,7 +681,7 @@ page 950 "Time Sheet"
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         ActionType: Option Submit,Reopen;
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         case Action of
             Action::"Submit All":
                 FilterAllLines(TimeSheetLine, ActionType::Submit);
@@ -677,7 +709,7 @@ page 950 "Time Sheet"
 
     local procedure CellDataOnAfterValidate()
     begin
-        UpdateFactBoxes;
+        UpdateFactBoxes();
         CalcFields("Total Quantity");
     end;
 
@@ -685,7 +717,7 @@ page 950 "Time Sheet"
     begin
         CurrTimeSheetNo := TimeSheetMgt.FindTimeSheet(TimeSheetHeader, Which);
         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
-        UpdateControls;
+        UpdateControls();
     end;
 
     local procedure UpdateFactBoxes()
@@ -693,13 +725,13 @@ page 950 "Time Sheet"
         CurrPage.ActualSchedSummaryFactBox.PAGE.UpdateData(TimeSheetHeader);
         CurrPage.TimeSheetStatusFactBox.PAGE.UpdateData(TimeSheetHeader);
         if "Line No." = 0 then
-            CurrPage.ActivityDetailsFactBox.PAGE.SetEmptyLine;
+            CurrPage.ActivityDetailsFactBox.PAGE.SetEmptyLine();
     end;
 
     local procedure UpdateControls()
     begin
-        SetColumns;
-        UpdateFactBoxes;
+        SetColumns();
+        UpdateFactBoxes();
         CurrPage.Update(false);
     end;
 
@@ -708,7 +740,7 @@ page 950 "Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         TimeSheetLine.Get("Time Sheet No.", "Line No.");
-        TimeSheetLine.TestStatus;
+        TimeSheetLine.TestStatus();
     end;
 
     local procedure SubmitLines()
@@ -757,7 +789,7 @@ page 950 "Time Sheet"
         TestField(Posted, true);
         CalcFields("Total Quantity");
         TimeSheetAllocation.InitParameters("Time Sheet No.", "Line No.", "Total Quantity");
-        if TimeSheetAllocation.RunModal = ACTION::OK then begin
+        if TimeSheetAllocation.RunModal() = ACTION::OK then begin
             TimeSheetAllocation.GetAllocation(AllocatedQty);
             TimeSheetMgt.UpdateTimeAllocation(Rec, AllocatedQty);
         end;

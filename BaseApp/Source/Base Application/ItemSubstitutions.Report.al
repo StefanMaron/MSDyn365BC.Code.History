@@ -22,7 +22,7 @@ report 5701 "Item Substitutions"
             column(TIME; Time)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Item__No__; "No.")

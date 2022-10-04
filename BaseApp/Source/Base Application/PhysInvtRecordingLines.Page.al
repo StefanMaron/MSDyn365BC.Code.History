@@ -12,34 +12,34 @@ page 5882 "Phys. Invt. Recording Lines"
             repeater(Control40)
             {
                 ShowCaption = false;
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the order number.';
                 }
-                field("Recording No."; "Recording No.")
+                field("Recording No."; Rec."Recording No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a number that is assigned to the physical inventory recording.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the line.';
                     Visible = false;
                 }
-                field("Order Line No."; "Order Line No.")
+                field("Order Line No."; Rec."Order Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the Line No. of the linked physical inventory order line.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that was counted when taking the physical inventory.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -50,39 +50,39 @@ page 5882 "Phys. Invt. Recording Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the additional description of the item.';
                     Visible = false;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the unit of measure used for the item, for example bottle or piece.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the location where the item was counted during taking the physical inventory.';
                 }
-                field("Use Item Tracking"; "Use Item Tracking")
+                field("Use Item Tracking"; Rec."Use Item Tracking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if it is necessary to record the item using serial numbers or lot numbers.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the serial number of the entered item.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the lot number of the entered item.';
@@ -92,7 +92,7 @@ page 5882 "Phys. Invt. Recording Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item of the physical inventory recording line.';
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the Quantity on the line, expressed in base units of measure.';
@@ -103,19 +103,19 @@ page 5882 "Phys. Invt. Recording Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if a value was entered in Quantity of the physical inventory recording line.';
                 }
-                field("Date Recorded"; "Date Recorded")
+                field("Date Recorded"; Rec."Date Recorded")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the physical inventory was taken.';
                     Visible = false;
                 }
-                field("Time Recorded"; "Time Recorded")
+                field("Time Recorded"; Rec."Time Recorded")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the time when the physical inventory was taken.';
                     Visible = false;
                 }
-                field("Person Recorded"; "Person Recorded")
+                field("Person Recorded"; Rec."Person Recorded")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the person who performed the physical inventory.';
@@ -138,15 +138,23 @@ page 5882 "Phys. Invt. Recording Lines"
                     ApplicationArea = Warehouse;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Phys. Inventory Recording";
                     RunPageLink = "Order No." = FIELD("Order No."),
                                   "Recording No." = FIELD("Recording No.");
                     RunPageView = SORTING("Order No.", "Recording No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Show inventory count recording.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
                 }
             }
         }

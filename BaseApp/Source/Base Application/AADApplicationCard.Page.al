@@ -2,7 +2,6 @@ page 9861 "AAD Application Card"
 {
     Caption = 'Azure Active Directory Application Card', Comment = 'Azure Active Directory Application should not be translated';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report';
     RefreshOnActivate = true;
     SourceTable = "AAD Application";
 
@@ -13,7 +12,7 @@ page 9861 "AAD Application Card"
             group(General)
             {
                 Caption = 'General';
-                field("Client Id"; "Client Id")
+                field("Client Id"; Rec."Client Id")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Standard;
@@ -44,7 +43,7 @@ page 9861 "AAD Application Card"
                         UpdateControl();
                     end;
                 }
-                field("Contact Information"; "Contact Information")
+                field("Contact Information"; Rec."Contact Information")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
@@ -53,24 +52,24 @@ page 9861 "AAD Application Card"
                 }
                 group(Extension)
                 {
-                    field("App ID"; "App ID")
+                    field("App ID"; Rec."App ID")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = EditableByNotEnabled;
                         Caption = 'App ID';
                         ToolTip = 'Specifies the app ID of the extension.';
                     }
-                    field("App Name"; "App Name")
+                    field("App Name"; Rec."App Name")
                     {
-                        ApplicationArea = Basic, Suite;
                         Editable = EditableByNotEnabled;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'App Name';
                         ToolTip = 'Specifies the app name of the extension.';
                     }
                 }
                 group("User information")
                 {
-                    field("User ID"; "User id")
+                    field("User ID"; Rec."User id")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -114,7 +113,6 @@ page 9861 "AAD Application Card"
                 Enabled = SetUserPermissionEnabled;
                 SubPageLink = "User Security ID" = field("User Id");
             }
-
         }
     }
     actions
@@ -126,9 +124,6 @@ page 9861 "AAD Application Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Grant Consent';
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = not IsVEApp;
                 Scope = Repeater;
                 ToolTip = 'Grant consent for this application to access data from Business Central.';
@@ -139,6 +134,21 @@ page 9861 "AAD Application Card"
                 begin
                     GrantConsent();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Consent_Promoted; Consent)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

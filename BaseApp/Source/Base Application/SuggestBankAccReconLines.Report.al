@@ -1,4 +1,4 @@
-﻿report 1496 "Suggest Bank Acc. Recon. Lines"
+report 1496 "Suggest Bank Acc. Recon. Lines"
 {
     Caption = 'Suggest Bank Acc. Recon. Lines';
     ProcessingOnly = true;
@@ -10,6 +10,8 @@
             DataItemTableView = SORTING("No.");
 
             trigger OnAfterGetRecord()
+            var
+                LocalCheckLedgerEntry: Record "Check Ledger Entry";
             begin
                 BankAccLedgEntry.Reset();
                 BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
@@ -21,59 +23,15 @@
                     BankAccLedgEntry.SetRange(Reversed, false);
                 EOFBankAccLedgEntries := not BankAccLedgEntry.Find('-');
 
-                if IncludeChecks then begin
-                    CheckLedgEntry.Reset();
-                    CheckLedgEntry.SetCurrentKey("Bank Account No.", "Check Date");
-                    CheckLedgEntry.SetRange("Bank Account No.", "No.");
-                    CheckLedgEntry.SetRange("Check Date", StartDate, EndDate);
-                    CheckLedgEntry.SetFilter(
-                      "Entry Status", '%1|%2', CheckLedgEntry."Entry Status"::Posted,
-                      CheckLedgEntry."Entry Status"::"Financially Voided");
-                    CheckLedgEntry.SetRange(Open, true);
-                    CheckLedgEntry.SetRange("Statement Status", BankAccLedgEntry."Statement Status"::Open);
-                    EOFCheckLedgEntries := not CheckLedgEntry.Find('-');
-                end;
-
-                while (not EOFBankAccLedgEntries) or (IncludeChecks and (not EOFCheckLedgEntries)) do
-                    case true of
-                        not IncludeChecks:
-                            begin
-                                InsertBankAccLine(BankAccLedgEntry);
-                                EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
-                            end;
-                        (not EOFBankAccLedgEntries) and (not EOFCheckLedgEntries) and
-                        (BankAccLedgEntry."Posting Date" <= CheckLedgEntry."Check Date"):
-                            begin
-                                CheckLedgEntry2.Reset();
-                                CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
-                                CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
-                                CheckLedgEntry2.SetRange(Open, true);
-                                if not CheckLedgEntry2.FindFirst() then
-                                    InsertBankAccLine(BankAccLedgEntry);
-                                EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
-                            end;
-                        (not EOFBankAccLedgEntries) and (not EOFCheckLedgEntries) and
-                        (BankAccLedgEntry."Posting Date" > CheckLedgEntry."Check Date"):
-                            begin
-                                InsertCheckLine(CheckLedgEntry);
-                                EOFCheckLedgEntries := CheckLedgEntry.Next() = 0;
-                            end;
-                        (not EOFBankAccLedgEntries) and EOFCheckLedgEntries:
-                            begin
-                                CheckLedgEntry2.Reset();
-                                CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
-                                CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
-                                CheckLedgEntry2.SetRange(Open, true);
-                                if not CheckLedgEntry2.FindFirst() then
-                                    InsertBankAccLine(BankAccLedgEntry);
-                                EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
-                            end;
-                        EOFBankAccLedgEntries and (not EOFCheckLedgEntries):
-                            begin
-                                InsertCheckLine(CheckLedgEntry);
-                                EOFCheckLedgEntries := CheckLedgEntry.Next() = 0;
-                            end;
+                while not EOFBankAccLedgEntries do begin
+                    InsertBankAccLine(BankAccLedgEntry);
+                    if BankAccLedgEntry."Check Ledger Entries" <> 0 then begin
+                        LocalCheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
+                        if LocalCheckLedgerEntry.FindFirst() then
+                            OnInsertCheckLineOnBeforeBankAccReconLineInsert(BankAccReconLine, LocalCheckLedgerEntry);
                     end;
+                    EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
+                end;
             end;
 
             trigger OnPreDataItem()
@@ -130,6 +88,7 @@
                     field(IncludeChecks; IncludeChecks)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = False;
                         Caption = 'Include Checks';
                         ToolTip = 'Specifies if you want the report to include check ledger entries. If you choose this option, check ledger entries are suggested instead of the corresponding bank account ledger entries.';
                     }
@@ -153,20 +112,17 @@
     }
 
     var
-        Text000: Label 'Enter the Ending Date.';
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
-        CheckLedgEntry: Record "Check Ledger Entry";
-        CheckLedgEntry2: Record "Check Ledger Entry";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccSetStmtNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
-        CheckSetStmtNo: Codeunit "Check Entry Set Recon.-No.";
         StartDate: Date;
         EndDate: Date;
         IncludeChecks: Boolean;
         EOFBankAccLedgEntries: Boolean;
-        EOFCheckLedgEntries: Boolean;
         ExcludeReversedEntries: Boolean;
+
+        Text000: Label 'Enter the Ending Date.';
 
     procedure SetStmt(var BankAccRecon2: Record "Bank Acc. Reconciliation")
     begin
@@ -186,36 +142,11 @@
         BankAccReconLine."Statement Amount" := BankAccLedgEntry2."Remaining Amount";
         if BankAccount.Get(BankAccLedgEntry2."Bank Account No.") then
             if not BankAccount."Disable Automatic Pmt Matching" then begin
-                BankAccReconLine.Type := BankAccReconLine.Type::"Bank Account Ledger Entry";
                 BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
                 BankAccReconLine."Applied Entries" := 1;
                 BankAccSetStmtNo.SetReconNo(BankAccLedgEntry2, BankAccReconLine);
             end;
         OnBeforeInsertBankAccReconLine(BankAccReconLine, BankAccLedgEntry2);
-        BankAccReconLine.Insert();
-    end;
-
-    local procedure InsertCheckLine(var CheckLedgEntry3: Record "Check Ledger Entry")
-    var
-        BankAccLedg: Record "Bank Account Ledger Entry";
-        BankAccount: Record "Bank Account";
-    begin
-        BankAccReconLine.Init();
-        BankAccReconLine."Statement Line No." := BankAccReconLine."Statement Line No." + 10000;
-        BankAccReconLine."Transaction Date" := CheckLedgEntry3."Check Date";
-        BankAccReconLine.Description := CheckLedgEntry3.Description;
-        BankAccReconLine."Statement Amount" := -CheckLedgEntry3.Amount;
-        if BankAccLedg.Get(CheckLedgEntry3."Bank Account Ledger Entry No.") then
-            BankAccReconLine."Document No." := BankAccLedg."Document No.";
-        if BankAccount.Get(CheckLedgEntry3."Bank Account No.") then
-            if not BankAccount."Disable Automatic Pmt Matching" then begin
-                BankAccReconLine.Type := BankAccReconLine.Type::"Check Ledger Entry";
-                BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
-                BankAccReconLine."Check No." := CheckLedgEntry3."Check No.";
-                BankAccReconLine."Applied Entries" := 1;
-                CheckSetStmtNo.SetReconNo(CheckLedgEntry3, BankAccReconLine);
-            end;
-        OnInsertCheckLineOnBeforeBankAccReconLineInsert(BankAccReconLine, CheckLedgEntry3);
         BankAccReconLine.Insert();
     end;
 
@@ -226,6 +157,7 @@
             EndDate := NewEndDate
         else
             EndDate := BankAccRecon."Statement Date";
+        NewIncludeChecks := false;
         IncludeChecks := NewIncludeChecks;
         ExcludeReversedEntries := false;
     end;

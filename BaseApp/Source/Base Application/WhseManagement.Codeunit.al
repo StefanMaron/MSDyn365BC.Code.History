@@ -6,8 +6,9 @@ codeunit 5775 "Whse. Management"
     end;
 
     var
-        Text000: Label 'The Source Document is not defined.';
         UOMMgt: Codeunit "Unit of Measure Management";
+
+        Text000: Label 'The Source Document is not defined.';
 
     procedure GetWhseActivSourceDocument(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Activity Source Document"
     begin
@@ -26,13 +27,23 @@ codeunit 5775 "Whse. Management"
 
     procedure GetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Journal Source Document"
     var
+#if not CLEAN21
         SourceDocument: Option;
+#endif
+        SourceDocumentType: Enum "Warehouse Journal Source Document";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceDocumentType(SourceType, SourceSubtype, SourceDocumentType, IsHandled);
+        if IsHandled then
+            exit(SourceDocumentType);
+
+#if not CLEAN21
         IsHandled := false;
         OnBeforeGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
         if IsHandled then
             exit("Warehouse Journal Source Document".FromInteger(SourceDocument));
+#endif
 
         case SourceType of
             DATABASE::"Sales Line":
@@ -91,9 +102,17 @@ codeunit 5775 "Whse. Management"
                 exit("Warehouse Journal Source Document"::"Job Usage");
         end;
 
+        IsHandled := false;
+        OnAfterGetSourceDocumentType(SourceType, SourceSubtype, SourceDocumentType, IsHandled);
+        if IsHandled then
+            exit(SourceDocumentType);
+
+#if not CLEAN21
+        IsHandled := false;
         OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
         if IsHandled then
             exit("Warehouse Journal Source Document".FromInteger(SourceDocument));
+#endif
 
         Error(Text000);
     end;
@@ -250,7 +269,7 @@ codeunit 5775 "Whse. Management"
                                 QtyOutstanding :=
                                   Round(
                                     TransferLine."Whse Outbnd. Otsdg. Qty (Base)" / (QtyOutstanding / QtyBaseOutstanding),
-                                    UOMMgt.QtyRndPrecision);
+                                    UOMMgt.QtyRndPrecision());
                                 QtyBaseOutstanding := TransferLine."Whse Outbnd. Otsdg. Qty (Base)";
                             end;
                         1: // Direction = Inbound
@@ -258,7 +277,7 @@ codeunit 5775 "Whse. Management"
                                 QtyOutstanding :=
                                   Round(
                                     TransferLine."Whse. Inbnd. Otsdg. Qty (Base)" / (QtyOutstanding / QtyBaseOutstanding),
-                                    UOMMgt.QtyRndPrecision);
+                                    UOMMgt.QtyRndPrecision());
                                 QtyBaseOutstanding := TransferLine."Whse. Inbnd. Otsdg. Qty (Base)";
                             end;
                     end;
@@ -283,9 +302,9 @@ codeunit 5775 "Whse. Management"
                     QtyBaseOutstanding := ProdOrderLine."Remaining Qty. (Base)";
                 end;
             else begin
-                    QtyOutstanding := 0;
-                    QtyBaseOutstanding := 0;
-                end;
+                QtyOutstanding := 0;
+                QtyBaseOutstanding := 0;
+            end;
         end;
 
         OnAfterGetSrcDocLineQtyOutstanding(
@@ -361,13 +380,29 @@ codeunit 5775 "Whse. Management"
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by event OnAfterGetSourceDocumentType()', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Option; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN21
+    [Obsolete('Replaced by event OnBeforeGetSourceDocumentType()', '21.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Option; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer; var SourceDocumentType: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
     begin
     end;
 

@@ -21,7 +21,7 @@ table 5307 "Outlook Synch. Option Correl."
 
             trigger OnValidate()
             begin
-                SetDefaults;
+                SetDefaults();
             end;
 #endif
         }
@@ -151,12 +151,12 @@ table 5307 "Outlook Synch. Option Correl."
     begin
         TestField("Outlook Value");
 
-        CheckDuplicatedRecords;
+        CheckDuplicatedRecords();
     end;
 
     trigger OnModify()
     begin
-        CheckDuplicatedRecords;
+        CheckDuplicatedRecords();
     end;
 
     var
@@ -212,7 +212,7 @@ table 5307 "Outlook Synch. Option Correl."
         LookupRecRef.Open("Table No.");
         LookupFieldRef := LookupRecRef.Field("Field No.");
         FieldValue := OutlookSynchTypeConv.OptionValueToText("Option No.", LookupFieldRef.OptionCaption);
-        LookupRecRef.Close;
+        LookupRecRef.Close();
     end;
 #endif
 }

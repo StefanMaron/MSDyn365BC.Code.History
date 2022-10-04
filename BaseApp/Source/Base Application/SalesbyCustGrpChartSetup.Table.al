@@ -55,7 +55,7 @@ table 1319 "Sales by Cust. Grp.Chart Setup"
             Which::Next:
                 "Start Date" := CalcDate('<1D>', BusinessChartBuffer.CalcToDate("Start Date"));
         end;
-        Modify;
+        Modify();
     end;
 
     procedure SetPeriodLength(PeriodLength: Option)

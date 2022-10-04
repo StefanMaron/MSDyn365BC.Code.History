@@ -172,7 +172,7 @@ codeunit 134975 "ERM Dimension Report"
         for Counter := 1 to MaxCount do begin
             DimensionSetID[Counter] := CreateDimSetID(Dimension);
             CreateItemJnlLineWithDim(
-              ItemJournalBatch, ItemJournalLine, WorkDate, DimensionSetID[Counter], ItemJournalLine."Entry Type"::Purchase,
+              ItemJournalBatch, ItemJournalLine, WorkDate(), DimensionSetID[Counter], ItemJournalLine."Entry Type"::Purchase,
               Item."No.");
         end;
         // 6. Post Item Journal Lines
@@ -188,13 +188,13 @@ codeunit 134975 "ERM Dimension Report"
 
         // 10. Run Report Calculate Inventory (filtering by Item and Dimension)
 
-        CalculateInventory(ItemJournalLine, Item."No.", '', CalcDate('<+1D>', WorkDate), false, false);
+        CalculateInventory(ItemJournalLine, Item."No.", '', CalcDate('<+1D>', WorkDate()), false, false);
 
         // 11. Validate each generated line has correct Dimension SET ID
         for Counter := 1 to MaxCount do begin
             Assert.AreEqual(DimensionSetID[Counter], ItemJournalLine."Dimension Set ID",
               StrSubstNo(CheckItemJnlLineDimIDError, ItemJournalLine."Line No."));
-            ItemJournalLine.Next;
+            ItemJournalLine.Next();
         end;
 
         // 12. TearDown: Delete all lines/Cleare Selected Dimension
@@ -210,7 +210,7 @@ codeunit 134975 "ERM Dimension Report"
         Initialize();
 
         // Setup:
-        SetDimensionDetailParameters('', Format(WorkDate));
+        SetDimensionDetailParameters('', Format(WorkDate()));
 
         // Exercise & Verify:
         asserterror REPORT.Run(REPORT::"Dimensions - Detail");
@@ -241,7 +241,7 @@ codeunit 134975 "ERM Dimension Report"
 
         // 4. Run Report Calculate Inventory (filtering by Item and Dimension)
         ItemFilter := StrSubstNo('%1|%2', ItemNo[1], ItemNo[2]);
-        CalculateInventory(ItemJournalLine, ItemFilter, '', CalcDate('<+1D>', WorkDate), false, false);
+        CalculateInventory(ItemJournalLine, ItemFilter, '', CalcDate('<+1D>', WorkDate()), false, false);
 
         // 5. Validate each generated line has correct Dimension Value Code
         VerifyDimValForItemJournalLine(ItemJournalLine, DefaultDimension);
@@ -289,7 +289,7 @@ codeunit 134975 "ERM Dimension Report"
         UpdateAnalysisView(AnalysisView.Code);
 
         // Exercise:
-        SetDimensionDetailParameters(AnalysisView.Code, Format(WorkDate));
+        SetDimensionDetailParameters(AnalysisView.Code, Format(WorkDate()));
         Commit();
         REPORT.Run(REPORT::"Dimensions - Detail");
 
@@ -305,7 +305,7 @@ codeunit 134975 "ERM Dimension Report"
         Initialize();
 
         // Setup:
-        SetDimensionTotalParameters('', CreateColumnLayout, Format(WorkDate));
+        SetDimensionTotalParameters('', CreateColumnLayout, Format(WorkDate()));
 
         // Exercise & Verify:
         Commit();
@@ -326,7 +326,7 @@ codeunit 134975 "ERM Dimension Report"
         // Setup:
         LibraryERM.CreateGLAccount(GLAccount);
         CreateAnalysisView(AnalysisView, AnalysisView."Account Source"::"G/L Account", GLAccount."No.");
-        SetDimensionTotalParameters(AnalysisView.Code, '', Format(WorkDate));
+        SetDimensionTotalParameters(AnalysisView.Code, '', Format(WorkDate()));
 
         // Exercise & Verify:
         Commit();
@@ -376,7 +376,7 @@ codeunit 134975 "ERM Dimension Report"
         UpdateAnalysisView(AnalysisView.Code);
 
         // Exercise:
-        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate));
+        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate()));
         Commit();
         REPORT.Run(REPORT::"Dimensions - Total");
 
@@ -405,7 +405,7 @@ codeunit 134975 "ERM Dimension Report"
         UpdateAnalysisView(AnalysisView.Code);
 
         // Exercise:
-        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate));
+        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate()));
         Commit();
         REPORT.Run(REPORT::"Dimensions - Total");
 
@@ -566,7 +566,7 @@ codeunit 134975 "ERM Dimension Report"
         ItemNo := LibraryInventory.CreateItemNo();
         FindItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, true);
         CreateItemJnlLineWithDim(
-          ItemJournalBatch, ItemJournalLine, WorkDate, DimensionSetID, ItemJournalLine."Entry Type"::Purchase,
+          ItemJournalBatch, ItemJournalLine, WorkDate(), DimensionSetID, ItemJournalLine."Entry Type"::Purchase,
           ItemNo);
         ItemJournalLine.Validate("Location Code", Location[1].Code);
         ItemJournalLine.Modify(true);
@@ -577,7 +577,7 @@ codeunit 134975 "ERM Dimension Report"
         ObjectID := REPORT::"Calculate Inventory";
         SelectDimension(ObjectType, ObjectID, Dimension.Code);
         LocationFilter := StrSubstNo('%1|%2', Location[1].Code, Location[2].Code);
-        CalculateInventory(ItemJournalLine, ItemNo, LocationFilter, CalcDate('<+1D>', WorkDate), true, true);
+        CalculateInventory(ItemJournalLine, ItemNo, LocationFilter, CalcDate('<+1D>', WorkDate()), true, true);
 
         // [THEN] Two lines are created: one with 'Dimension Set ID' = D1, another - 0
         Assert.AreEqual(2, ItemJournalLine.Count, '');
@@ -619,7 +619,7 @@ codeunit 134975 "ERM Dimension Report"
         // [GIVEN] Bank Account Reconciliation line for the vendor
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, LibraryERM.CreateBankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::Vendor);
@@ -635,7 +635,7 @@ codeunit 134975 "ERM Dimension Report"
         Commit();
 
         // [WHEN] Run 'Bank Acc. Recon. - Test' report
-        BankAccReconciliation.SetRecFilter;
+        BankAccReconciliation.SetRecFilter();
         REPORT.Run(REPORT::"Bank Acc. Recon. - Test", true, false, BankAccReconciliation);
 
         // [THEN] Error shown that "Dim1" and "Dim2" dimensions cannot be used concurrently
@@ -826,7 +826,7 @@ codeunit 134975 "ERM Dimension Report"
         LibraryERM.CreateAnalysisView(AnalysisView);
         AnalysisView.Validate("Account Source", AccountSource);
         AnalysisView.Validate("Account Filter", AccountNo);
-        AnalysisView.Validate("Starting Date", WorkDate);
+        AnalysisView.Validate("Starting Date", WorkDate());
         AnalysisView.Validate("Dimension 1 Code", LibraryERM.GetGlobalDimensionCode(1));
         AnalysisView.Modify(true);
     end;
@@ -1132,7 +1132,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         ItemJournalLine.FindSet();
         Assert.AreEqual(DefaultDimension[1]."Dimension Value Code", ItemJournalLine."Shortcut Dimension 1 Code", FailureDimValCodeMsg);
-        ItemJournalLine.Next;
+        ItemJournalLine.Next();
         Assert.AreEqual(DefaultDimension[2]."Dimension Value Code", ItemJournalLine."Shortcut Dimension 1 Code", FailureDimValCodeMsg);
     end;
 
@@ -1256,8 +1256,8 @@ codeunit 134975 "ERM Dimension Report"
         Lines := 1;
         LinesExpected := LibraryVariableStorage.DequeueInteger;
         DimensionSelectionLevel.First;
-        DimensionSelectionLevel.Code.AssertEquals(GLAccount.TableCaption);
-        while DimensionSelectionLevel.Next do begin
+        DimensionSelectionLevel.Code.AssertEquals(GLAccount.TableCaption());
+        while DimensionSelectionLevel.Next() do begin
             DimensionSelectionLevel.Code.AssertEquals(LibraryVariableStorage.DequeueText);
             Lines += 1;
         end;

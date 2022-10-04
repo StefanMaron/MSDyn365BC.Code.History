@@ -587,7 +587,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchaseHeader2.GetPstdDocLinesToReverse();
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, false);
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         ReturnShipmentLine.SetRange("Document No.", DocumentNo);
@@ -612,7 +612,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         InventorySetup: Record "Inventory Setup";
     begin
         with InventorySetup do begin
-            Get;
+            Get();
             Validate("Automatic Cost Posting", AutomaticCostPosting);
             Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
             Modify(true);
@@ -748,7 +748,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         with ItemChargeAssignmentPurch do begin
-            Init;
+            Init();
             Validate("Document Type", PurchaseLine."Document Type");
             Validate("Document No.", PurchaseLine."Document No.");
             Validate("Document Line No.", PurchaseLine."Line No.");
@@ -879,7 +879,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         repeat
             VendorLedgerEntry.CalcFields(Amount);
             ActualVendLedgerAmount += VendorLedgerEntry.Amount;
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
 
         ExpectedPurchaseInvoiceAmount := CalcExpectedPurchaseDocAmount(TempPurchaseLine);
 

@@ -14,17 +14,17 @@ page 5053 "Contact Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("No. of Interactions"; "No. of Interactions")
+                field("No. of Interactions"; Rec."No. of Interactions")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of interactions created for this contact. The field is not editable.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total cost of all the interactions involving the contact. The field is not editable.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total duration of all the interactions involving the contact. The field is not editable.';
@@ -33,17 +33,17 @@ page 5053 "Contact Statistics"
             group(Opportunities)
             {
                 Caption = 'Opportunities';
-                field("No. of Opportunities"; "No. of Opportunities")
+                field("No. of Opportunities"; Rec."No. of Opportunities")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of open opportunities involving the contact. The field is not editable.';
                 }
-                field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+                field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total estimated value of all the opportunities involving the contact. The field is not editable.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the total calculated current value of all the opportunities involving the contact. The field is not editable.';

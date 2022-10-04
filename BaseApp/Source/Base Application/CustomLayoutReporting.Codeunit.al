@@ -1,7 +1,7 @@
 codeunit 8800 "Custom Layout Reporting"
 {
     // This codeunit implements batch printing and custom layout association on a per-object basis.
-    // Reports may be based on one table, but we may want to sepcific a layout per-customer, or per-vendor.
+    // Reports may be based on one table, but we may want to specific layout per-customer, or per-vendor.
     // This codeunit provides functions to help manage the association between the table that backs the report and the object we want custom layouts on.
     // 
     // Example code below, for Customer Statements, backed by Customer and associating custom reports per-Customer:
@@ -83,7 +83,7 @@ codeunit 8800 "Custom Layout Reporting"
     begin
         // Further filters the items in FilterRecordRef by restricting them only to items who have entries in the "* Report Selection" tables
         // This prevents us from iterating over items that aren't related to the custom layouts
-        CustomReportSelection2.SetView(CustomReportSelection.GetView);
+        CustomReportSelection2.SetView(CustomReportSelection.GetView());
 
         // Set the filters on the "* Report Selection" table and iterate through
         CustomReportSelection2.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
@@ -94,13 +94,12 @@ codeunit 8800 "Custom Layout Reporting"
                     Filter := GetCustomerFilter(CustomReportSelection2);
                 DATABASE::Vendor:
                     Filter := GetVendorFilter(CustomReportSelection2);
-                else begin
-                        repeat
-                            if Filter <> '' then
-                                Filter := Filter + '|';
-                            Filter := StrSubstNo('%1%2', Filter, CustomReportSelection2."Source No.");
-                        until CustomReportSelection2.Next() = 0;
-                    end;
+                else
+                repeat
+                    if Filter <> '' then
+                        Filter := Filter + '|';
+                    Filter := StrSubstNo('%1%2', Filter, CustomReportSelection2."Source No.");
+                until CustomReportSelection2.Next() = 0;
             end;
 
         // Set the more restrictive filter
@@ -151,7 +150,7 @@ codeunit 8800 "Custom Layout Reporting"
         if not Initialized then
             exit;
 
-        ClearLastError;
+        ClearLastError();
         AnyOutputExists := true;
 
         ErrorMessageManagement.Activate(ErrorMessageHandler);
@@ -209,10 +208,10 @@ codeunit 8800 "Custom Layout Reporting"
         if (ZipFileName <> '') and not SupressOutput and TempNameValueBuffer.FindSet() then
             // If there's a single file, download it directly instead of the zip file
             if TempNameValueBuffer.Count = 1 then
-                if IsTestMode then
+                if IsTestMode() then
                     FileManagement.CopyServerFile(TempNameValueBuffer.Value, FileManagement.CombinePath(Path, TempNameValueBuffer.Name), true)
                 else
-                    if IsBackground and FileManagement.ServerFileExists(TempNameValueBuffer.Value) then
+                    if IsBackground() and FileManagement.ServerFileExists(TempNameValueBuffer.Value) then
                         SendToReportInbox(false, ReportSelections."Report ID")
                     else
                         FileManagement.DownloadHandler(TempNameValueBuffer.Value, '', '', '', TempNameValueBuffer.Name)
@@ -227,10 +226,10 @@ codeunit 8800 "Custom Layout Reporting"
                 DataCompression.CloseZipArchive();
                 ZipFile.Close();
                 // If we're in test mode, save the zip to the save path. Otherwise send to the client.
-                if IsTestMode then
+                if IsTestMode() then
                     FileManagement.CopyServerFile(ZipFileName, FileManagement.CombinePath(Path, ZipDownloadTxt), true)
                 else
-                    if IsBackground and FileManagement.ServerFileExists(ZipFileName) then
+                    if IsBackground() and FileManagement.ServerFileExists(ZipFileName) then
                         SendToReportInbox(true, ReportSelections."Report ID")
                     else
                         FileManagement.DownloadHandler(ZipFileName, '', '', '', ZipDownloadTxt)
@@ -244,7 +243,7 @@ codeunit 8800 "Custom Layout Reporting"
             LogSimpleError(NoOutputErr);
 
         if ErrorMessageHandler.HasErrors() then
-            if not IsBackground then
+            if not IsBackground() then
                 if ErrorMessageHandler.ShowErrors() then
                     Error('');
     end;
@@ -278,10 +277,10 @@ codeunit 8800 "Custom Layout Reporting"
 
     local procedure ProcessReportPerLayout()
     var
-        ReportedLayouts: DotNet ArrayList;
-        ReportedObjects: DotNet ArrayList;
         TempRecordRef: RecordRef;
         TempRecordKeyFieldRef: FieldRef;
+        ReportedLayouts: DotNet ArrayList;
+        ReportedObjects: DotNet ArrayList;
         CustomReportLayoutCode: Code[20];
         ReportedRecordKeyVal: Text;
     begin
@@ -291,11 +290,11 @@ codeunit 8800 "Custom Layout Reporting"
             Error(NotInitializedErr);
 
         // Temporary lists to keep track of what we've reported over, used to determine what to report on using the default layout
-        ReportedLayouts := ReportedLayouts.ArrayList;
-        ReportedObjects := ReportedObjects.ArrayList;
+        ReportedLayouts := ReportedLayouts.ArrayList();
+        ReportedObjects := ReportedObjects.ArrayList();
 
         // Iterate through the layouts in the Custom Report Selection table
-        if CustomReportSelection.FindSet() then begin
+        if CustomReportSelection.FindSet() then
             repeat
                 CustomReportLayoutCode := CustomReportSelection."Custom Report Layout Code";
 
@@ -324,7 +323,6 @@ codeunit 8800 "Custom Layout Reporting"
                         until TempRecordRef.Next() = 0;
                 end;
             until CustomReportSelection.Next() = 0;
-        end;
 
         // Construct the filter for the remaining objects - iterate through all items in the data record and build a filter that contains the
         // items that are not in the list of already reported items.
@@ -364,7 +362,7 @@ codeunit 8800 "Custom Layout Reporting"
 
         // Set the data filter to be the item we're iterating over:
 
-        if ReportDataRecordRef.FindSet() then begin
+        if ReportDataRecordRef.FindSet() then
             repeat
                 // Get and set the report selection for this particular object/report combination
                 JoinValue := Format(ReportDataIteratorFieldRef.Value);
@@ -396,7 +394,6 @@ codeunit 8800 "Custom Layout Reporting"
                 ReportDataRecordRef.Get(PrevRecordID);
 
             until ReportDataRecordRef.Next() = 0;
-        end;
     end;
 
     local procedure RunReportWithCustomReportSelection(var DataRecRef: RecordRef; ReportID: Integer; var CustomReportSelection: Record "Custom Report Selection"; EmailPrintIfEmailIsMissing: Boolean)
@@ -419,18 +416,16 @@ codeunit 8800 "Custom Layout Reporting"
 
         case OutputType of
             OutputType::Email:
-                begin
-                    if CustomReportSelection.GetSendToEmail(true) = '' then begin
-                        if EmailPrintIfEmailIsMissing then
-                            if IsWordLayout(ReportID, CustomReportLayoutCode) then
-                                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
-                            else
-                                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
+                if CustomReportSelection.GetSendToEmail(true) = '' then begin
+                    if EmailPrintIfEmailIsMissing then
+                        if IsWordLayout(ReportID, CustomReportLayoutCode) then
+                            SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
                         else
-                            CheckEmailSendTo(DataRecRef, CustomReportSelection);
-                    end else
-                        EmailReport(DataRecRef, ReportID, CustomReportSelection)
-                end;
+                            SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
+                    else
+                        CheckEmailSendTo(DataRecRef, CustomReportSelection);
+                end else
+                    EmailReport(DataRecRef, ReportID, CustomReportSelection);
             OutputType::PDF:
                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Pdf);
             OutputType::Excel:
@@ -566,7 +561,7 @@ codeunit 8800 "Custom Layout Reporting"
 
         EmailBodyLayoutCode := ResolveEmailBodyLayoutCode(CustomReportSelection, ReportSelections);
         if EmailBodyLayoutCode <> '' then begin
-            TempReportLayoutCode := ReportLayoutSelection.GetTempLayoutSelected;
+            TempReportLayoutCode := ReportLayoutSelection.GetTempLayoutSelected();
             ReportLayoutSelection.SetTempLayoutSelected(EmailBodyLayoutCode);
             ReportRecordVariant := DataRecRef;
             BindSubscription(MailManagement);
@@ -587,7 +582,7 @@ codeunit 8800 "Custom Layout Reporting"
 
     local procedure PreviewReport(var DataRecRef: RecordRef; ReportID: Integer; CustomReportLayoutCode: Code[20])
     begin
-        if IsWebClient then begin
+        if IsWebClient() then begin
             if IsWordLayout(ReportID, CustomReportLayoutCode) then
                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
             else
@@ -625,7 +620,7 @@ codeunit 8800 "Custom Layout Reporting"
 
         // If we're not on the web client, use the path that was selected for saving
         // In the web client, the path isn't used since we zip up the files and send them to the client
-        if not IsWebClient then
+        if not IsWebClient() then
             BasePath := Path;
         FileName := GenerateFileNameForReport(ReportID, Extension, BasePath, DataRecRef);
 
@@ -634,10 +629,10 @@ codeunit 8800 "Custom Layout Reporting"
         File.CreateOutStream(FileStream);
         ReportSaved := BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), RepFormat, FileStream, DataRecRef);
         OnSaveAsReportOnBeforeFileClose(ReportSaved, DataRecRef, ReportID, RepFormat, FileStream);
-        File.Close;
+        File.Close();
 
         if ReportSaved and not RemoveEmptyFile(TempFilePath) and FileManagement.ServerFileExists(TempFilePath) and not SupressOutput then
-            if IsWebClient or IsBackground then
+            if IsWebClient() or IsBackground() then
                 AddFileToClientZip(TempFilePath, FileName)
             else begin
                 FileManagement.DownloadHandler(TempFilePath, '', '', '', FileName);
@@ -769,7 +764,7 @@ codeunit 8800 "Custom Layout Reporting"
         RecordRef.Open(TableNumber);
         RequestPageParametersHelper.ConvertParametersToFilters(RecordRef, TempBlob);
 
-        exit(RecordRef.GetView);
+        exit(RecordRef.GetView());
     end;
 
     local procedure GetRequestParameters()
@@ -789,7 +784,7 @@ codeunit 8800 "Custom Layout Reporting"
                 // If we're at this point, and we're set in test mode with XML output - run the report directly from here
                 // This is done to retain compatibility with report testing (which uses RequestPage.SaveAsXML and needs the traditional output options buttons)
                 // XML output can't use the layouts anyways.
-                if IsTestMode and (OutputType = OutputType::XML) then begin
+                if IsTestMode() and (OutputType = OutputType::XML) then begin
                     DataVariant := ReportDataRecordRef;
                     REPORT.RunModal(LocalRepId, true, false, DataVariant);
                     Error(''); // Exit early in an uninitialized state, prevents the full initialization flag from being set
@@ -815,7 +810,7 @@ codeunit 8800 "Custom Layout Reporting"
                 SetOutputType(LocalRepId);
 
                 // Use the temp path if we're set in test mode and the path wasn't already set
-                if (Path = '') and IsTestMode then
+                if (Path = '') and IsTestMode() then
                     Path := TemporaryPath;
 
                 // If email is chosen, ensure that email account is set up
@@ -868,7 +863,7 @@ codeunit 8800 "Custom Layout Reporting"
         end else begin
             TempBlobList.Add(TempBlob);
             TempBlobIndicesNameValueBuffer.ID := ReportID;
-            TempBlobIndicesNameValueBuffer.Value := Format(TempBlobList.Count);
+            TempBlobIndicesNameValueBuffer.Value := Format(TempBlobList.Count());
             TempBlobIndicesNameValueBuffer.Insert();
         end;
     end;
@@ -994,11 +989,11 @@ codeunit 8800 "Custom Layout Reporting"
         // This function cleans up empty files, allowing us to remove reports that do not save correctly or error out/have no output.
         File.Open(FileName);
         if File.Len = 0 then begin
-            File.Close;
+            File.Close();
             Erase(FileName);
             exit(true);
         end;
-        File.Close;
+        File.Close();
         exit(false);
     end;
 
@@ -1006,7 +1001,7 @@ codeunit 8800 "Custom Layout Reporting"
     begin
         if TestModeWebClient then
             exit(true);
-        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]);
+        exit(ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]);
     end;
 
     procedure SetOutputFileBaseName(FileBaseName: Text)
@@ -1252,11 +1247,11 @@ codeunit 8800 "Custom Layout Reporting"
                         if BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Pdf, FileStream, DataRecRef) then begin
                             TempEmailNameValueBuffer.AddNewEntry(CopyStr(FileName, 1, 250), CopyStr(TempFilePath, 1, 250));
                             OnCreateReportWithExtensionOnBeforePdfFileClose(ReportID, ReportFormatType, DataRecRef, FileStream);
-                            File.Close;
+                            File.Close();
                             exit(TempFilePath);
                         end;
                     ErasePath := File.Name;
-                    File.Close;
+                    File.Close();
                     Erase(ErasePath);
                     exit('');
                 end;
@@ -1268,11 +1263,11 @@ codeunit 8800 "Custom Layout Reporting"
                         if BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Html, FileStream, DataRecRef) then begin
                             TempEmailNameValueBuffer.AddNewEntry(CopyStr(FileName, 1, 250), CopyStr(TempFilePath, 1, 250));
                             OnCreateReportWithExtensionOnBeforeHtmlFileClose(ReportID, ReportFormatType, DataRecRef, FileStream);
-                            File.Close;
+                            File.Close();
                             exit(TempFilePath);
                         end;
                     ErasePath := File.Name;
-                    File.Close;
+                    File.Close();
                     Erase(ErasePath);
                     exit('');
                 end;
@@ -1356,13 +1351,13 @@ codeunit 8800 "Custom Layout Reporting"
     begin
         if GetLastErrorText <> '' then begin
             LogSimpleError(StrSubstNo(ErrorForDataOccuredErr, GetLastErrorText, ReportCaption, RecID));
-            ClearLastError;
+            ClearLastError();
         end;
     end;
 
     local procedure IsBackground(): Boolean
     begin
-        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Background]);
+        exit(ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Background]);
     end;
 
     local procedure IsCustomReportSelectionNull(CustomReportSelection: Record "Custom Report Selection"): Boolean
@@ -1413,12 +1408,12 @@ codeunit 8800 "Custom Layout Reporting"
         exit(XMLTxt);
     end;
 
-    local procedure SaveReportRequestPageParameters(ReportID: Integer; XMLText: Text)
+    procedure SaveReportRequestPageParameters(ReportID: Integer; XMLText: Text)
     var
         ObjectOptions: Record "Object Options";
         OutStr: OutStream;
     begin
-        if not IsObjectOptionsInsertDeleteAllowed then
+        if not IsObjectOptionsInsertDeleteAllowed() then
             exit;
 
         if IgnoreRequestParameters then
@@ -1471,7 +1466,7 @@ codeunit 8800 "Custom Layout Reporting"
     var
         CustomerLayoutStatement: Codeunit "Customer Layout - Statement";
     begin
-        CustomerLayoutStatement.CheckReportRunningInBackground;
+        CustomerLayoutStatement.CheckReportRunningInBackground();
     end;
 
     local procedure IsObjectOptionsInsertDeleteAllowed(): Boolean
@@ -1482,7 +1477,7 @@ codeunit 8800 "Custom Layout Reporting"
         if not ObjectOptions.WritePermission then
             exit(false);
 
-        if not User.Get(UserSecurityId) then
+        if not User.Get(UserSecurityId()) then
             exit(true);
 
         exit(User."License Type" <> User."License Type"::"Limited User");

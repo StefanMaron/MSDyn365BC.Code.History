@@ -41,7 +41,7 @@ report 18 "Consolidated Trial Balance (4)"
             column(STRSUBSTNO_Text003_PeriodText_; StrSubstNo(Text003, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(USERID; UserId)
@@ -325,7 +325,7 @@ report 18 "Consolidated Trial Balance (4)"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         if ConsolidStartDate = 0D then
             Error(Text000);
         if ConsolidEndDate = 0D then
@@ -337,16 +337,11 @@ report 18 "Consolidated Trial Balance (4)"
     end;
 
     var
-        Text000: Label 'Enter the starting date for the consolidation period.';
-        Text001: Label 'Enter the ending date for the consolidation period.';
-        Text002: Label 'A maximum of %1 consolidating companies can be included in this report.';
-        Text003: Label 'Period: %1';
         BusUnitColumn: array[4] of Record "Business Unit";
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;
         InThousands: Boolean;
         AmountType: Enum "Analysis Amount Type";
-        GLFilter: Text;
         EliminationAmount: Decimal;
         PeriodText: Text;
         Amount: array[4] of Decimal;
@@ -355,6 +350,11 @@ report 18 "Consolidated Trial Balance (4)"
         BUFilter: Text;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
+
+        Text000: Label 'Enter the starting date for the consolidation period.';
+        Text001: Label 'Enter the ending date for the consolidation period.';
+        Text002: Label 'A maximum of %1 consolidating companies can be included in this report.';
+        Text003: Label 'Period: %1';
         Consolidated_Trial_Balance__4_CaptionLbl: Label 'Consolidated Trial Balance (4)';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Amounts_are_in_whole_1000sCaptionLbl: Label 'Amounts are in whole 1000s.';
@@ -362,5 +362,8 @@ report 18 "Consolidated Trial Balance (4)"
         Amount_1__Amount_2__Amount_3__Amount_4_CaptionLbl: Label 'Total';
         EliminationAmountCaptionLbl: Label 'Eliminations';
         Amount_1__Amount_2__Amount_3__Amount_4__EliminationAmountCaptionLbl: Label 'Total Incl. Eliminations';
+
+    protected var
+        GLFilter: Text;
 }
 

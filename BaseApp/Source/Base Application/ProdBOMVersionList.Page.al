@@ -14,7 +14,7 @@ page 99000800 "Prod. BOM Version List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Version Code"; "Version Code")
+                field("Version Code"; Rec."Version Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version code of the production BOM.';
@@ -24,17 +24,17 @@ page 99000800 "Prod. BOM Version List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description for the production BOM version.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date for this production BOM version.';
 
                     trigger OnValidate()
                     begin
-                        StartingDateOnAfterValidate;
+                        StartingDateOnAfterValidate();
                     end;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the production BOM version card was last modified.';

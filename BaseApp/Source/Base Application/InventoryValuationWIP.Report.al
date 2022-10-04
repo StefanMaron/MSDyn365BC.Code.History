@@ -13,7 +13,7 @@ report 5802 "Inventory Valuation - WIP"
             DataItemTableView = WHERE(Status = FILTER(Released ..));
             PrintOnlyIfDetail = true;
             RequestFilterFields = Status, "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -119,7 +119,7 @@ report 5802 "Inventory Valuation - WIP"
                     AtLastDate := 0;
                     LastWIP := 0;
 
-                    if (CountRecord = LengthRecord) and IsNotWIP then begin
+                    if (CountRecord = LengthRecord) and IsNotWIP() then begin
                         ValueEntryOnPostDataItem("Value Entry");
 
                         AtLastDate := NcValueOfWIP + NcValueOfMatConsump + NcValueOfCap + NcValueOfOutput;
@@ -139,7 +139,7 @@ report 5802 "Inventory Valuation - WIP"
                         NcValueOfCostPstdToGL := 0;
                     end;
 
-                    if not IsNotWIP then begin
+                    if not IsNotWIP() then begin
                         ValueOfWIP := 0;
                         ValueOfMatConsump := 0;
                         ValueOfCap := 0;
@@ -271,7 +271,7 @@ report 5802 "Inventory Valuation - WIP"
 
             trigger OnAfterGetRecord()
             begin
-                if FinishedProdOrderIsCompletelyInvoiced then
+                if FinishedProdOrderIsCompletelyInvoiced() then
                     CurrReport.Skip();
                 EntryFound := ValueEntryExist("Production Order", StartDate, EndDate);
             end;
@@ -312,7 +312,7 @@ report 5802 "Inventory Valuation - WIP"
         trigger OnOpenPage()
         begin
             if (StartDate = 0D) and (EndDate = 0D) then
-                EndDate := WorkDate;
+                EndDate := WorkDate();
         end;
     }
 
@@ -322,9 +322,9 @@ report 5802 "Inventory Valuation - WIP"
 
     trigger OnPreReport()
     begin
-        ProdOrderFilter := "Production Order".GetFilters;
+        ProdOrderFilter := "Production Order".GetFilters();
         if (StartDate = 0D) and (EndDate = 0D) then
-            EndDate := WorkDate;
+            EndDate := WorkDate();
 
         if StartDate in [0D, 00000101D] then
             StartDateText := ''

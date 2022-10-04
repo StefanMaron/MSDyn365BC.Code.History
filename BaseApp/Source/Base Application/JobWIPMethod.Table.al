@@ -13,7 +13,7 @@ table 1006 "Job WIP Method"
 
             trigger OnValidate()
             begin
-                ValidateModification;
+                ValidateModification();
             end;
         }
         field(2; Description; Text[100])
@@ -22,7 +22,7 @@ table 1006 "Job WIP Method"
 
             trigger OnValidate()
             begin
-                ValidateModification;
+                ValidateModification();
             end;
         }
         field(3; "WIP Cost"; Boolean)
@@ -32,7 +32,7 @@ table 1006 "Job WIP Method"
 
             trigger OnValidate()
             begin
-                ValidateModification;
+                ValidateModification();
                 if "Recognized Costs" <> "Recognized Costs"::"Usage (Total Cost)" then
                     Error(Text003, FieldCaption("Recognized Costs"), "Recognized Costs");
             end;
@@ -44,7 +44,7 @@ table 1006 "Job WIP Method"
 
             trigger OnValidate()
             begin
-                ValidateModification;
+                ValidateModification();
                 if "Recognized Sales" <> "Recognized Sales"::"Contract (Invoiced Price)" then
                     Error(Text003, FieldCaption("Recognized Sales"), "Recognized Sales");
             end;
@@ -57,7 +57,7 @@ table 1006 "Job WIP Method"
 
             trigger OnValidate()
             begin
-                ValidateModification;
+                ValidateModification();
                 if "Recognized Costs" <> "Recognized Costs"::"Usage (Total Cost)" then
                     "WIP Cost" := true;
             end;
@@ -70,7 +70,7 @@ table 1006 "Job WIP Method"
 
             trigger OnValidate()
             begin
-                ValidateModification;
+                ValidateModification();
                 if "Recognized Sales" <> "Recognized Sales"::"Contract (Invoiced Price)" then
                     "WIP Sales" := true;
             end;
@@ -128,8 +128,8 @@ table 1006 "Job WIP Method"
 
         JobWIPEntry.SetRange("WIP Method Used", Code);
         JobWIPGLEntry.SetRange("WIP Method Used", Code);
-        if not (JobWIPEntry.IsEmpty and JobWIPGLEntry.IsEmpty) then
-            Error(Text004, JobWIPEntry.TableCaption, JobWIPGLEntry.TableCaption);
+        if not (JobWIPEntry.IsEmpty() and JobWIPGLEntry.IsEmpty) then
+            Error(Text004, JobWIPEntry.TableCaption(), JobWIPGLEntry.TableCaption());
 
         JobsSetup.SetRange("Default WIP Method", Code);
         if not JobsSetup.IsEmpty() then
@@ -154,8 +154,8 @@ table 1006 "Job WIP Method"
             Error(Text002, FieldCaption("System Defined"));
         JobWIPEntry.SetRange("WIP Method Used", Code);
         JobWIPGLEntry.SetRange("WIP Method Used", Code);
-        if not (JobWIPEntry.IsEmpty and JobWIPGLEntry.IsEmpty) then
-            Error(Text005, JobWIPEntry.TableCaption, JobWIPGLEntry.TableCaption);
+        if not (JobWIPEntry.IsEmpty() and JobWIPGLEntry.IsEmpty) then
+            Error(Text005, JobWIPEntry.TableCaption(), JobWIPGLEntry.TableCaption());
     end;
 }
 

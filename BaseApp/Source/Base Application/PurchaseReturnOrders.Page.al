@@ -19,7 +19,7 @@ page 6643 "Purchase Return Orders"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -29,29 +29,29 @@ page 6643 "Purchase Return Orders"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
                 }
-                field("Buy-from Vendor No."; "Buy-from Vendor No.")
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the currency that is used on the entry.';
@@ -61,12 +61,12 @@ page 6643 "Purchase Return Orders"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of units of the item specified on the line.';
                 }
-                field("Outstanding Quantity"; "Outstanding Quantity")
+                field("Outstanding Quantity"; Rec."Outstanding Quantity")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies how many units on the order line have not yet been received.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -76,12 +76,12 @@ page 6643 "Purchase Return Orders"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';

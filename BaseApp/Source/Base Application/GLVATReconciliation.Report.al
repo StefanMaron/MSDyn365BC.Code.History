@@ -29,7 +29,7 @@ report 11 "G/L - VAT Reconciliation"
                 column(VAT_Statement_Name___Statement_Template_Name_; "VAT Statement Name"."Statement Template Name")
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(USERID; UserId)
@@ -405,7 +405,7 @@ report 11 "G/L - VAT Reconciliation"
         else
             EndDate := EndDateReq;
         "VAT Statement Line".SetRange("Date Filter", StartDate, EndDate);
-        VATStmtLineFilter := "VAT Statement Line".GetFilters;
+        VATStmtLineFilter := "VAT Statement Line".GetFilters();
         if PeriodSelection = PeriodSelection::"Before and Within Period" then
             Header := BeforeAndWithinPeriodLbl
         else
@@ -420,16 +420,11 @@ report 11 "G/L - VAT Reconciliation"
         if UseAmtsInAddCurr then begin
             GLSetup.TestField("Additional Reporting Currency");
             Currency.Get(GLSetup."Additional Reporting Currency");
-            CurrencyFactor := CurrencyExchRate.ExchangeRate(WorkDate, GLSetup."Additional Reporting Currency");
+            CurrencyFactor := CurrencyExchRate.ExchangeRate(WorkDate(), GLSetup."Additional Reporting Currency");
         end;
     end;
 
     var
-        BeforeAndWithinPeriodLbl: Label 'VAT entries before and within the period';
-        PeriodLbl: Label 'Period: ';
-        OnlyClosedVATEntriesLbl: Label 'The report includes only closed VAT entries.';
-        AllVATEntriesLbl: Label 'The report includes all VAT entries.';
-        AllAmountsLbl: Label 'All amounts are in %1', Comment = '%1 = currency';
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
         VATStmtLine2: Record "VAT Statement Line";
@@ -456,6 +451,12 @@ report 11 "G/L - VAT Reconciliation"
         Identifier: Integer;
         AdjustVATEntry: Boolean;
         AdjustVATEntryConfirm: Boolean;
+
+        BeforeAndWithinPeriodLbl: Label 'VAT entries before and within the period';
+        PeriodLbl: Label 'Period: ';
+        OnlyClosedVATEntriesLbl: Label 'The report includes only closed VAT entries.';
+        AllVATEntriesLbl: Label 'The report includes all VAT entries.';
+        AllAmountsLbl: Label 'All amounts are in %1', Comment = '%1 = currency';
         VAT_Statement_Name__NameCaptionLbl: Label 'VAT Statement Name';
         VAT_Statement_Name___Statement_Template_Name_CaptionLbl: Label 'VAT Statement Template';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
@@ -484,7 +485,7 @@ report 11 "G/L - VAT Reconciliation"
         exit(
           Round(
             CurrencyExchRate.ExchangeAmtLCYToFCY(
-              WorkDate, GLSetup."Additional Reporting Currency", Amount, CurrencyFactor),
+              WorkDate(), GLSetup."Additional Reporting Currency", Amount, CurrencyFactor),
             Currency."Amount Rounding Precision"));
     end;
 

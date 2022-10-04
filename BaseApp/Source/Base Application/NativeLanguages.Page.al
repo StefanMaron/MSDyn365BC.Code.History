@@ -60,9 +60,9 @@ page 2870 "Native - Languages"
         CultureInfo := CultureInfo.CultureInfo("Language ID");
         LanguageCode := CultureInfo.Name;
         Default := false;
-        DefaultLanguageId := Language.GetDefaultApplicationLanguageId;
+        DefaultLanguageId := Language.GetDefaultApplicationLanguageId();
 
-        if UserPersonalization.Get(UserSecurityId) and (UserPersonalization."Language ID" > 0) then
+        if UserPersonalization.Get(UserSecurityId()) and (UserPersonalization."Language ID" > 0) then
             DefaultLanguageId := UserPersonalization."Language ID";
 
         if "Language ID" = DefaultLanguageId then

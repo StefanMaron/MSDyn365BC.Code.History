@@ -115,7 +115,7 @@ page 130150 "Generate Test Data"
     trigger OnAfterGetRecord()
     begin
         if "Added Records" <> "Records To Add" then
-            UpdateStatus;
+            UpdateStatus();
     end;
 
     trigger OnOpenPage()

@@ -19,7 +19,7 @@ page 6065 "Customer Service Contracts"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the status of the service contract or contract quote.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract or service contract quote.';
@@ -29,7 +29,7 @@ page 6065 "Customer Service Contracts"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the service items in the service contract/contract quote.';
@@ -40,23 +40,23 @@ page 6065 "Customer Service Contracts"
                     ToolTip = 'Specifies the name of the customer in the service contract.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service contract.';
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service contract expires.';

@@ -6,7 +6,7 @@ codeunit 5770 "Whse.-Service Release"
     end;
 
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
         ServiceLine: Record "Service Line";
         Location: Record Location;
         OldLocationCode: Code[10];
@@ -21,8 +21,6 @@ codeunit 5770 "Whse.-Service Release"
 
         if ServiceHeader."Document Type" <> "Service Document Type"::Order then
             exit;
-
-        WhseRqst."Source Document" := WhseRqst."Source Document"::"Service Order";
 
         ServiceLine.SetCurrentKey("Document Type", "Document No.", "Location Code");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
@@ -48,26 +46,26 @@ codeunit 5770 "Whse.-Service Release"
                 OldWhseType := WhseType;
             until ServiceLine.Next() = 0;
         end;
-        SetWhseRqstFiltersByStatus(ServiceHeader, WhseRqst, ServiceHeader."Release Status"::Open);
-        WhseRqst.DeleteAll(true);
+        SetWhseRqstFiltersByStatus(ServiceHeader, WarehouseRequest, ServiceHeader."Release Status"::Open);
+        WarehouseRequest.DeleteAll(true);
 
         OnAfterRelease(ServiceHeader);
     end;
 
     procedure Reopen(ServiceHeader: Record "Service Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest2: Record "Warehouse Request";
     begin
         OnBeforeReopen(ServiceHeader);
 
-        WhseRqst.Type := WhseRqst.Type::Outbound;
-        SetWhseRqstFiltersByStatus(ServiceHeader, WhseRqst, ServiceHeader."Release Status"::"Released to Ship");
-        WhseRqst.LockTable();
-        if WhseRqst.FindSet() then
+        WarehouseRequest2.Type := WarehouseRequest2.Type::Outbound;
+        SetWhseRqstFiltersByStatus(ServiceHeader, WarehouseRequest2, ServiceHeader."Release Status"::"Released to Ship");
+        WarehouseRequest2.LockTable();
+        if WarehouseRequest2.FindSet() then
             repeat
-                WhseRqst."Document Status" := ServiceHeader."Release Status"::Open;
-                WhseRqst.Modify();
-            until WhseRqst.Next() = 0;
+                WarehouseRequest2."Document Status" := ServiceHeader."Release Status"::Open;
+                WarehouseRequest2.Modify();
+            until WarehouseRequest2.Next() = 0;
 
         OnAfterReopen(ServiceHeader);
     end;
@@ -89,23 +87,24 @@ codeunit 5770 "Whse.-Service Release"
             if ServiceLine2.FindFirst() then
                 ServiceLine2.TestField("Unit of Measure Code");
 
-            WhseRqst.Type := WhseType;
-            WhseRqst."Source Type" := DATABASE::"Service Line";
-            WhseRqst."Source Subtype" := ServiceHeader."Document Type".AsInteger();
-            WhseRqst."Source No." := ServiceHeader."No.";
-            WhseRqst."Shipping Advice" := ServiceHeader."Shipping Advice";
-            WhseRqst."Document Status" := ServiceHeader."Release Status"::"Released to Ship";
-            WhseRqst."Location Code" := ServiceLine."Location Code";
-            WhseRqst."Destination Type" := "Warehouse Destination Type"::Customer;
-            WhseRqst."Destination No." := ServiceHeader."Bill-to Customer No.";
-            WhseRqst."External Document No." := '';
-            WhseRqst."Shipment Date" := ServiceLine.GetShipmentDate;
-            WhseRqst."Shipment Method Code" := ServiceHeader."Shipment Method Code";
-            WhseRqst."Shipping Agent Code" := ServiceHeader."Shipping Agent Code";
-            WhseRqst."Completely Handled" := CalcCompletelyShipped(ServiceLine);
-            OnBeforeCreateWhseRequest(WhseRqst, ServiceHeader, ServiceLine);
-            if not WhseRqst.Insert() then
-                WhseRqst.Modify();
+            WarehouseRequest.Type := WhseType;
+            WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Service Order";
+            WarehouseRequest."Source Type" := DATABASE::"Service Line";
+            WarehouseRequest."Source Subtype" := ServiceHeader."Document Type".AsInteger();
+            WarehouseRequest."Source No." := ServiceHeader."No.";
+            WarehouseRequest."Shipping Advice" := ServiceHeader."Shipping Advice";
+            WarehouseRequest."Document Status" := ServiceHeader."Release Status"::"Released to Ship";
+            WarehouseRequest."Location Code" := ServiceLine."Location Code";
+            WarehouseRequest."Destination Type" := "Warehouse Destination Type"::Customer;
+            WarehouseRequest."Destination No." := ServiceHeader."Bill-to Customer No.";
+            WarehouseRequest."External Document No." := '';
+            WarehouseRequest."Shipment Date" := ServiceLine.GetShipmentDate();
+            WarehouseRequest."Shipment Method Code" := ServiceHeader."Shipment Method Code";
+            WarehouseRequest."Shipping Agent Code" := ServiceHeader."Shipping Agent Code";
+            WarehouseRequest."Completely Handled" := CalcCompletelyShipped(ServiceLine);
+            OnBeforeCreateWhseRequest(WarehouseRequest, ServiceHeader, ServiceLine);
+            if not WarehouseRequest.Insert() then
+                WarehouseRequest.Modify();
         end;
     end;
 
@@ -125,7 +124,7 @@ codeunit 5770 "Whse.-Service Release"
 
     local procedure SetWhseRqstFiltersByStatus(ServiceHeader: Record "Service Header"; var WarehouseRequest: Record "Warehouse Request"; Status: Option)
     begin
-        WarehouseRequest.Reset;
+        WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
         WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
         WarehouseRequest.SetRange("Source Type", DATABASE::"Service Line");

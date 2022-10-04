@@ -29,7 +29,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     begin
         OnBeforeUploadFile(IncomingDocumentAttachment);
         IncomingDocumentAttachment.CalcFields(Content);
-        if IncomingDocumentAttachment.Content.HasValue then
+        if IncomingDocumentAttachment.Content.HasValue() then
             if not Confirm(ReplaceContentQst, false) then
                 Error('');
 
@@ -56,7 +56,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             "Incoming Document Entry No." := IncomingDocument."Entry No.";
             "Line No." := GetIncomingDocumentNextLineNo(IncomingDocument);
 
-            if not Content.HasValue then begin
+            if not Content.HasValue() then begin
                 if FileManagement.ServerFileExists(FileName) then
                     FileManagement.BLOBImportFromServerFile(TempBlob, FileName)
                 else
@@ -67,10 +67,10 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 RecordRef.SetTable(IncomingDocumentAttachment);
             end;
 
-            if not Content.HasValue then begin
+            if not Content.HasValue() then begin
                 Message(EmptyFileMsg);
                 if not IsTestMode then
-                    Delete;
+                    Delete();
                 exit(false);
             end;
 
@@ -88,7 +88,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             Insert(true);
 
             if Type in [Type::Image, Type::PDF] then
-                OnAttachBinaryFile;
+                OnAttachBinaryFile();
         end;
 
         OnAfterImportAttachment(IncomingDocumentAttachment);
@@ -202,7 +202,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
 
         IncomingDocument.SetRange("Document No.", DocNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
-        exit(IncomingDocument.FindFirst);
+        exit(IncomingDocument.FindFirst());
     end;
 
     local procedure CreateNewSalesPurchIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment") IncomingDocEntryNo: Integer
@@ -304,7 +304,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 IncomingDocument.Status := IncomingDocument.Status::Created;
             IncomingDocument.Released := true;
             IncomingDocument."Released Date-Time" := CurrentDateTime;
-            IncomingDocument."Released By User ID" := UserSecurityId;
+            IncomingDocument."Released By User ID" := UserSecurityId();
         end;
         IncomingDocument.Modify();
     end;
@@ -379,7 +379,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         with IncomingDocumentAttachment do begin
             SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             if FindLast() then;
-            exit("Line No." + LineIncrement);
+            exit("Line No." + LineIncrement());
         end;
     end;
 

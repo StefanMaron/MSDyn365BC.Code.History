@@ -1,7 +1,7 @@
 page 5823 "G/L - Item Ledger Relation"
 {
     Caption = 'G/L - Item Ledger Relation';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     Editable = false;
     PageType = List;
     SourceTable = "G/L - Item Ledger Relation";
@@ -293,17 +293,17 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the type of relation.';
                     Visible = false;
                 }
-                field("G/L Entry No."; "G/L Entry No.")
+                field("G/L Entry No."; Rec."G/L Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger entry where cost from the associated value entry number in this record is posted.';
                 }
-                field("Value Entry No."; "Value Entry No.")
+                field("Value Entry No."; Rec."Value Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the value entry that has its cost posted in the associated general ledger entry in this record.';
                 }
-                field("G/L Register No."; "G/L Register No.")
+                field("G/L Register No."; Rec."G/L Register No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger register, where the general ledger entry in this record was posted.';
@@ -357,7 +357,7 @@ page 5823 "G/L - Item Ledger Relation"
 
                     trigger OnAction()
                     begin
-                        ValueEntry.ShowGL;
+                        ValueEntry.ShowGL();
                     end;
                 }
             }
@@ -369,8 +369,6 @@ page 5823 "G/L - Item Ledger Relation"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -381,6 +379,17 @@ page 5823 "G/L - Item Ledger Relation"
                     Navigate.SetDoc(ValueEntry."Posting Date", ValueEntry."Document No.");
                     Navigate.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
             }
         }
     }
@@ -398,7 +407,7 @@ page 5823 "G/L - Item Ledger Relation"
     var
         GLRegister: Record "G/L Register";
     begin
-        exit(StrSubstNo('%1 %2', GLRegister.TableCaption, GetFilter("G/L Register No.")));
+        exit(StrSubstNo('%1 %2', GLRegister.TableCaption(), GetFilter("G/L Register No.")));
     end;
 }
 

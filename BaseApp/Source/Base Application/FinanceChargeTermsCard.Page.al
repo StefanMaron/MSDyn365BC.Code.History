@@ -21,67 +21,67 @@ page 494 "Finance Charge Terms Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the finance charge terms.';
                 }
-                field("Line Description"; "Line Description")
+                field("Line Description"; Rec."Line Description")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines.';
                 }
-                field("Detailed Lines Description"; "Detailed Lines Description")
+                field("Detailed Lines Description"; Rec."Detailed Lines Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines.';
                 }
-                field("Minimum Amount (LCY)"; "Minimum Amount (LCY)")
+                field("Minimum Amount (LCY)"; Rec."Minimum Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a minimum interest charge in LCY.';
                 }
-                field("Additional Fee (LCY)"; "Additional Fee (LCY)")
+                field("Additional Fee (LCY)"; Rec."Additional Fee (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a fee amount in LCY.';
                 }
-                field("Interest Rate"; "Interest Rate")
+                field("Interest Rate"; Rec."Interest Rate")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the percentage to use to calculate interest for this finance charge code.';
                 }
-                field("Interest Calculation"; "Interest Calculation")
+                field("Interest Calculation"; Rec."Interest Calculation")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies which entries should be used in interest calculation on finance charge memos.';
                 }
-                field("Interest Calculation Method"; "Interest Calculation Method")
+                field("Interest Calculation Method"; Rec."Interest Calculation Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the interest calculation method for this set of finance charge terms.';
                 }
-                field("Interest Period (Days)"; "Interest Period (Days)")
+                field("Interest Period (Days)"; Rec."Interest Period (Days)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the period that the interest rate applies to. Enter the number of days in the period.';
                 }
-                field("Due Date Calculation"; "Due Date Calculation")
+                field("Due Date Calculation"; Rec."Due Date Calculation")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a formula that determines how to calculate the due date of the finance charge memo.';
                 }
-                field("Grace Period"; "Grace Period")
+                field("Grace Period"; Rec."Grace Period")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the grace period length for this set of finance charge terms.';
                 }
-                field("Post Interest"; "Post Interest")
+                field("Post Interest"; Rec."Post Interest")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether or not interest listed on the finance charge memo should be posted to the general ledger and customer accounts when the finance charge memo is issued.';
                 }
-                field("Post Additional Fee"; "Post Additional Fee")
+                field("Post Additional Fee"; Rec."Post Additional Fee")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether or not any additional fee listed on the finance charge memo should be posted to the general ledger and customer accounts when the memo is issued.';
                 }
-                field("Add. Line Fee in Interest"; "Add. Line Fee in Interest")
+                field("Add. Line Fee in Interest"; Rec."Add. Line Fee in Interest")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that any additional fees are included in the interest calculation for the finance charge.';

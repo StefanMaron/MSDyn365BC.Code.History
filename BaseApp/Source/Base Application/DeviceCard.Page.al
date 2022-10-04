@@ -13,7 +13,7 @@ page 9814 "Device Card"
             group(General)
             {
                 Caption = 'General';
-                field("MAC Address"; "MAC Address")
+                field("MAC Address"; Rec."MAC Address")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the MAC Address for the device. MAC is an acronym for Media Access Control. A MAC Address is a unique identifier that is assigned to network interfaces for communications.';
@@ -23,7 +23,7 @@ page 9814 "Device Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a name for the device.';
                 }
-                field("Device Type"; "Device Type")
+                field("Device Type"; Rec."Device Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the device type.';

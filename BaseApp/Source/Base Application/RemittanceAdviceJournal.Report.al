@@ -263,7 +263,7 @@ report 399 "Remittance Advice - Journal"
                         if Number = 1 then
                             TempAppliedVendLedgEntry.Find('-')
                         else
-                            TempAppliedVendLedgEntry.Next;
+                            TempAppliedVendLedgEntry.Next();
                         if JnlLineRemainingAmount < 0 then
                             CurrReport.Skip();
                         TempAppliedVendLedgEntry.CalcFields("Remaining Amount", "Original Amount");
@@ -372,7 +372,7 @@ report 399 "Remittance Advice - Journal"
                     CheckNo := "Document No.";
                     JnlLineRemainingAmount := JnlLineRemainingAmount + Amount;
 
-                    FindAmountRounding;
+                    FindAmountRounding();
                     AppliedDebitAmounts := 0;
 
                     VendorTotal += Amount;
@@ -400,7 +400,7 @@ report 399 "Remittance Advice - Journal"
                 if Number = 1 then
                     TempVend.Find('-')
                 else
-                    TempVend.Next;
+                    TempVend.Next();
 
                 FormatAddr.Vendor(VendorAddr, TempVend);
 
@@ -492,7 +492,7 @@ report 399 "Remittance Advice - Journal"
         if "Gen. Journal Line"."Currency Code" = '' then begin
             Currency.Init();
             Currency.Code := '';
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         end else
             if "Gen. Journal Line"."Currency Code" <> Currency.Code then
                 Currency.Get("Gen. Journal Line"."Currency Code");

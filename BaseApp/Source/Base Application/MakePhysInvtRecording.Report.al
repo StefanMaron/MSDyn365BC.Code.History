@@ -106,10 +106,10 @@ report 5881 "Make Phys. Invt. Recording"
         NewOrderNotCreatedMsg: Label 'A physical inventory recording was not created because no valid physical inventory order lines exist.';
         NewOrderCreatedMsg: Label 'Physical inventory recording %1 %2 has been created.', Comment = '%1 = Order No. %2 = Recording No.';
         DifferentOrdersMsg: Label '%1 different orders has been created.', Comment = '%1 = counter';
-        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
 
     protected var
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         NextLineNo: Integer;
         HeaderCount: Integer;
         OnlyLinesNotInRecordings: Boolean;
@@ -121,7 +121,7 @@ report 5881 "Make Phys. Invt. Recording"
         PhysInvtRecordLine2: Record "Phys. Invt. Record Line";
     begin
         with PhysInvtOrderLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit(false);
             TestField("Item No.");
             if OnlyLinesNotInRecordings then begin
@@ -143,7 +143,7 @@ report 5881 "Make Phys. Invt. Recording"
     procedure InsertRecordingHeader(PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         with PhysInvtRecordHeader do begin
-            Init;
+            Init();
             "Order No." := PhysInvtOrderHeader."No.";
             "Recording No." := 0;
             "Person Responsible" := PhysInvtOrderHeader."Person Responsible";
@@ -158,7 +158,7 @@ report 5881 "Make Phys. Invt. Recording"
     procedure InsertRecordingLine(PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
         with PhysInvtRecordLine do begin
-            Init;
+            Init();
             "Order No." := PhysInvtRecordHeader."Order No.";
             "Recording No." := PhysInvtRecordHeader."Recording No.";
             "Line No." := NextLineNo;
@@ -173,7 +173,7 @@ report 5881 "Make Phys. Invt. Recording"
             Validate("Unit of Measure Code", PhysInvtOrderLine."Base Unit of Measure Code");
             Recorded := false;
             OnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
-            Insert;
+            Insert();
             OnAfterPhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
             NextLineNo := "Line No." + 10000;
         end;

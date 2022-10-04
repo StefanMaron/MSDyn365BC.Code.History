@@ -68,7 +68,7 @@ codeunit 9755 "Media Resources Mgt."
         MediaResources.Validate(Code, MediaResourceCode);
         MediaResources.Blob.CreateOutStream(BLOBOutStream);
         CopyStream(BLOBOutStream, BLOBInStream);
-        File.Close;
+        File.Close();
         MediaResources.Insert(true);
 
         exit(MediaResourceCode);

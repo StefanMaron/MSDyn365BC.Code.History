@@ -293,9 +293,9 @@ page 7011 "Purchase Price List Lines"
             if Rec."Currency Code" = '' then
                 Rec."Currency Code" := PriceListHeader."Currency Code";
         end;
+        Rec."Amount Type" := ViewAmountType;
         Rec.Validate("Asset Type", xRec."Asset Type");
         UpdateSourceType();
-        Rec."Amount Type" := ViewAmountType;
     end;
 
     local procedure GetHeader(): Boolean
@@ -463,22 +463,6 @@ page 7011 "Purchase Price List Lines"
         SetSourceNoEnabled();
         CurrPage.Update(true);
     end;
-
-#if not CLEAN18
-    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
-    procedure RunOnAfterSetSubFormLinkFilter()
-    var
-        SkipActivate: Boolean;
-    begin
-        OnAfterSetSubFormLinkFilter(SkipActivate);
-    end;
-
-    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSubFormLinkFilter(var SkipActivate: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Purchase Price Source Type"; var IsJobGroup: Boolean)

@@ -13,7 +13,7 @@ page 270 "Online Bank Accounts"
             repeater(Group)
             {
                 InstructionalText = 'Select which bank account to set up.';
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the online bank account.';
@@ -37,7 +37,7 @@ page 270 "Online Bank Accounts"
         OnlineBankAccLink.FindSet();
         repeat
             Rec := OnlineBankAccLink;
-            Insert;
+            Insert();
         until OnlineBankAccLink.Next() = 0
     end;
 }

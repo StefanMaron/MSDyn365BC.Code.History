@@ -11,7 +11,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
 
     var
         OSynchUserSetup: Record "Outlook Synch. User Setup";
-        ErrorConflictBuffer: Record "Outlook Synch. Link" temporary;
+        TempErrorConflictBuffer: Record "Outlook Synch. Link" temporary;
         Base64Convert: Codeunit "Base64 Convert";
         OSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
         OSynchTypeConversion: Codeunit "Outlook Synch. Type Conv";
@@ -41,7 +41,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
         StartSynchTimeText: Text[30];
         ProcessingFailed: Boolean;
     begin
-        XMLTextReader := XMLTextReader.XmlTextReader;
+        XMLTextReader := XMLTextReader.XmlTextReader();
         if not XMLTextReader.LoadXml(XMLMessage) then
             Error(Text001);
 
@@ -121,7 +121,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                                 OSynchProcessLine.SetGlobalParameters(
                                   OSynchEntity,
                                   OSynchUserSetup,
-                                  ErrorConflictBuffer,
+                                  TempErrorConflictBuffer,
                                   XMLTextReader,
                                   ErrorLogXMLWriter,
                                   RootIterator,
@@ -133,7 +133,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                                   SkipCheckForConflicts);
 
                                 Commit();
-                                if not OSynchProcessLine.Run then begin
+                                if not OSynchProcessLine.Run() then begin
                                     if GetLastErrorText <> '' then
                                         WriteErrorLog(
                                           OSynchUserSetup."User ID",
@@ -143,13 +143,13 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                                           GetLastErrorText,
                                           ErrorLogXMLWriter,
                                           Container);
-                                    ClearLastError;
-                                    ErrorConflictBuffer.Reset();
-                                    ErrorConflictBuffer.Init();
-                                    ErrorConflictBuffer."User ID" := UserID;
-                                    ErrorConflictBuffer."Record ID" := EntityRecID;
-                                    ErrorConflictBuffer."Search Record ID" := Format(EntityRecID);
-                                    if ErrorConflictBuffer.Insert() then;
+                                    ClearLastError();
+                                    TempErrorConflictBuffer.Reset();
+                                    TempErrorConflictBuffer.Init();
+                                    TempErrorConflictBuffer."User ID" := UserID;
+                                    TempErrorConflictBuffer."Record ID" := EntityRecID;
+                                    TempErrorConflictBuffer."Search Record ID" := Format(EntityRecID);
+                                    if TempErrorConflictBuffer.Insert() then;
                                 end;
                             end;
                         end else
@@ -214,11 +214,11 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
         if Format(ErrorRecordID) = '' then begin
             ErrorLogXMLWriter1.WriteStartElement('EntryID');
             ErrorLogXMLWriter1.WriteElementTextContent(Base64Convert.ToBase64(Container));
-            ErrorLogXMLWriter1.WriteEndElement;
+            ErrorLogXMLWriter1.WriteEndElement();
         end else
             OSynchNAVMgt.WriteLinkedOutlookEntryID(UserID, ErrorRecordID, ErrorLogXMLWriter1);
 
-        ErrorLogXMLWriter1.WriteEndElement;
+        ErrorLogXMLWriter1.WriteEndElement();
     end;
 
     procedure GetLastModificationTime(SynchRecordID: RecordID) LastModificationTime: DateTime
@@ -232,7 +232,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
 
         IsDeleted := not SynchRecRef.Get(SynchRecordID);
         if IsDeleted then
-            SynchRecRef := SynchRecordID.GetRecord;
+            SynchRecRef := SynchRecordID.GetRecord();
         Evaluate(RecID, Format(SynchRecRef.RecordId));
 
         ChangeLogEntry.SetCurrentKey("Table No.", "Primary Key Field 1 Value");
@@ -254,7 +254,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
         if stringToHash = '' then
             exit('');
 
-        HashAlgorithm := HashAlgorithm.Create;
+        HashAlgorithm := HashAlgorithm.Create();
         hashValue := Convert.ToBase64String(HashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(LowerCase(stringToHash))));
         Clear(HashAlgorithm);
         exit(hashValue);

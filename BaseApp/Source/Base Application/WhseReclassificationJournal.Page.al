@@ -24,7 +24,7 @@ page 7365 "Whse. Reclassification Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     LookupName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrPage.Update(false);
                 end;
@@ -32,7 +32,7 @@ page 7365 "Whse. Reclassification Journal"
                 trigger OnValidate()
                 begin
                     CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -47,18 +47,18 @@ page 7365 "Whse. Reclassification Journal"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Registering Date"; "Registering Date")
+                field("Registering Date"; Rec."Registering Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date the line is registered.';
                 }
-                field("Whse. Document No."; "Whse. Document No.")
+                field("Whse. Document No."; Rec."Whse. Document No.")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Whse. Document No.';
                     ToolTip = 'Specifies the warehouse document number of the journal line.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item on the journal line.';
@@ -68,7 +68,7 @@ page 7365 "Whse. Reclassification Journal"
                         GetItem("Item No.", ItemDescription);
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -79,22 +79,22 @@ page 7365 "Whse. Reclassification Journal"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item.';
                 }
-                field("From Zone Code"; "From Zone Code")
+                field("From Zone Code"; Rec."From Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone from which the item on the journal line is taken.';
                 }
-                field("From Bin Code"; "From Bin Code")
+                field("From Bin Code"; Rec."From Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin from which the item on the journal line is taken.';
                 }
-                field("To Zone Code"; "To Zone Code")
+                field("To Zone Code"; Rec."To Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone to which the item on the journal line will be moved.';
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin to which the item on the journal line will be moved.';
@@ -105,12 +105,12 @@ page 7365 "Whse. Reclassification Journal"
                     MinValue = 0;
                     ToolTip = 'Specifies the number of units of the item in the adjustment (positive or negative) or the reclassification.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Reason Code';
@@ -206,7 +206,6 @@ page 7365 "Whse. Reclassification Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Ledger E&ntries';
                     Image = ItemLedger;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Item Ledger Entries";
@@ -254,8 +253,6 @@ page 7365 "Whse. Reclassification Journal"
                     ApplicationArea = Warehouse;
                     Caption = '&Register';
                     Image = Confirm;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Register the warehouse entry in question, such as a bin code change. ';
 
@@ -271,8 +268,6 @@ page 7365 "Whse. Reclassification Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Register and &Print';
                     Image = ConfirmAndPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Register the warehouse entry adjustments and print an overview of the changes. ';
 
@@ -282,6 +277,23 @@ page 7365 "Whse. Reclassification Journal"
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Register_Promoted; Register)
+                {
+                }
+                actionref("Register and &Print_Promoted"; "Register and &Print")
+                {
+                }
+                actionref(ItemTrackingLines_Promoted; ItemTrackingLines)
+                {
                 }
             }
         }
@@ -301,7 +313,7 @@ page 7365 "Whse. Reclassification Journal"
     var
         JnlSelected: Boolean;
     begin
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             CurrentLocationCode := Rec."Location Code";
             Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
@@ -321,7 +333,7 @@ page 7365 "Whse. Reclassification Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

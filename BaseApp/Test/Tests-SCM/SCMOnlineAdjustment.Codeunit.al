@@ -30,7 +30,7 @@ codeunit 137001 "SCM Online Adjustment"
         ErrorValueEntry: Label 'Value mismatch in value entry %1, field %2. ';
         ErrorZeroQty: Label 'Transfer Qty should not be 0.';
         DummyMessage: Label 'Message?';
-        ItemDeletionErr: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.', Comment = '%1= Item.TABLECAPTION,%2= Item.No,%3=Planning Component.TABLECAPTION';
+        ItemDeletionErr: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.', Comment = '%1= Item.TableCaption(),%2= Item.No,%3=Planning Component.TABLECAPTION';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -172,7 +172,7 @@ codeunit 137001 "SCM Online Adjustment"
         TempPurchInvHeader.FindSet();
         repeat
             CheckPurchInvEntries(Item."No.", TempPurchInvHeader."No.");
-        until TempPurchInvHeader.Next = 0;
+        until TempPurchInvHeader.Next() = 0;
 
         CheckRevalEntries(TempItemJournalLine, Item."No.");
         CheckOutboundValueEntries(
@@ -245,7 +245,7 @@ codeunit 137001 "SCM Online Adjustment"
         asserterror Item.Delete(true);
 
         // Verify: Verifying error message.
-        Assert.ExpectedError(StrSubstNo(ItemDeletionErr, Item.TableCaption, Item."No.", PlanningComponent.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ItemDeletionErr, Item.TableCaption(), Item."No.", PlanningComponent.TableCaption()));
     end;
 
     [Test]
@@ -489,7 +489,7 @@ codeunit 137001 "SCM Online Adjustment"
                 LibraryWarehouse.CreateTransferHeader(TransferHeader, TempLocation.Code, Location.Code, Location1.Code);
                 LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", PurchaseLine.Quantity);
                 LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
-            until TempLocation.Next = 0;
+            until TempLocation.Next() = 0;
 
         // Execute: Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -620,7 +620,7 @@ codeunit 137001 "SCM Online Adjustment"
     begin
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseHeader.Validate("Order Date", WorkDate);
+        PurchaseHeader.Validate("Order Date", WorkDate());
         PurchaseHeader.Modify(true);
 
         CreatePurchaseLine(PurchaseHeader, ItemNo, LineType);
@@ -681,8 +681,8 @@ codeunit 137001 "SCM Online Adjustment"
                 PurchaseLine.Validate(Quantity, PurchInvLine.Quantity);
                 PurchaseLine.Validate("Location Code", PurchInvLine."Location Code");
                 PurchaseLine.Modify(true);
-                PurchInvLine.Next;
-            until PurchInvLine.Next = 0;
+                PurchInvLine.Next();
+            until PurchInvLine.Next() = 0;
 
         exit(PurchaseHeader."No.");
     end;
@@ -809,7 +809,7 @@ codeunit 137001 "SCM Online Adjustment"
         repeat
             TempItemJournalLine := ItemJournalLine;
             TempItemJournalLine.Insert();
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -835,7 +835,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Calculate inventory value for selected item.
         Item1.SetRange("No.", Item."No.");
-        LibraryCosting.CreateRevaluationJnlLines(Item1, ItemJournalLine1, CopyStr(Item."No.", 1, 5), 1, 0, true, true, false, WorkDate);
+        LibraryCosting.CreateRevaluationJnlLines(Item1, ItemJournalLine1, CopyStr(Item."No.", 1, 5), 1, 0, true, true, false, WorkDate());
 
         // Collect and post the resulted Item Journal Line.
         ItemJournalLine1.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
@@ -909,7 +909,7 @@ codeunit 137001 "SCM Online Adjustment"
             repeat
                 SumValue := SumValue + ValueEntry."Cost Amount (Actual)";
                 SumQty := SumQty + ValueEntry."Invoiced Quantity";
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
 
         if SumQty <> 0 then
             exit(Round(SumValue / SumQty, LibraryERM.GetUnitAmountRoundingPrecision));
@@ -1048,7 +1048,7 @@ codeunit 137001 "SCM Online Adjustment"
               ValueEntry."Cost Amount (Actual)",
               0.01,
               StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure CheckAverageCost(ItemNo: Code[20])
@@ -1099,7 +1099,7 @@ codeunit 137001 "SCM Online Adjustment"
               ValueEntry."Cost Amount (Actual)",
               0.01,
               StrSubstNo(ErrorValueEntry, ValueEntry."Entry No.", 'Cost Amount (Actual)'));
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
 
         // Calculate expected cost.
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");

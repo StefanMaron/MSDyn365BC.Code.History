@@ -47,10 +47,10 @@ table 5502 "Tax Rate Buffer"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        if GeneralLedgerSetup.UseVat then
-            LoadVATRates
+        if GeneralLedgerSetup.UseVat() then
+            LoadVATRates()
         else
-            LoadSalesTaxRates;
+            LoadSalesTaxRates();
     end;
 
     local procedure LoadVATRates()
@@ -62,8 +62,8 @@ table 5502 "Tax Rate Buffer"
         if not VATPostingSetup.FindSet() then
             exit;
 
-        TempTaxGroupBuffer.LoadRecords;
-        TempTaxAreaBuffer.LoadRecords;
+        TempTaxGroupBuffer.LoadRecords();
+        TempTaxAreaBuffer.LoadRecords();
 
         repeat
             InsertTaxRate(
@@ -81,39 +81,39 @@ table 5502 "Tax Rate Buffer"
         TaxGroupsForTaxAreas: Query "Tax Groups For Tax Areas";
         TaxRate: Decimal;
     begin
-        TempTaxAreaBuffer.LoadRecords;
+        TempTaxAreaBuffer.LoadRecords();
         if not TempTaxAreaBuffer.Find('-') then
             exit;
 
         TempSearchTaxAreaBuffer.Copy(TempTaxAreaBuffer, true);
-        TempTaxGroupBuffer.LoadRecords;
+        TempTaxGroupBuffer.LoadRecords();
 
         repeat
             TaxGroupsForTaxAreas.SetRange(Tax_Area_Code, TempTaxAreaBuffer.Code);
-            if not TaxGroupsForTaxAreas.Open then
+            if not TaxGroupsForTaxAreas.Open() then
                 exit;
 
-            if not TaxGroupsForTaxAreas.Read then
+            if not TaxGroupsForTaxAreas.Read() then
                 exit;
 
             repeat
-                TaxRate := DummyTaxDetail.GetSalesTaxRate(TempTaxAreaBuffer.Code, TaxGroupsForTaxAreas.Tax_Group_Code, WorkDate, true);
+                TaxRate := DummyTaxDetail.GetSalesTaxRate(TempTaxAreaBuffer.Code, TaxGroupsForTaxAreas.Tax_Group_Code, WorkDate(), true);
                 InsertTaxRate(
                   TaxGroupsForTaxAreas.Tax_Group_Code, TempTaxAreaBuffer.Code, TaxRate, TempSearchTaxAreaBuffer, TempTaxGroupBuffer);
-            until not TaxGroupsForTaxAreas.Read;
+            until not TaxGroupsForTaxAreas.Read();
         until TempTaxAreaBuffer.Next() = 0;
     end;
 
     local procedure FindTaxGroupByCode(TaxGroupCode: Code[20]; var TempTaxGroupBuffer: Record "Tax Group Buffer" temporary): Boolean
     begin
         TempTaxGroupBuffer.SetRange(Code, TaxGroupCode);
-        exit(TempTaxGroupBuffer.FindFirst);
+        exit(TempTaxGroupBuffer.FindFirst());
     end;
 
     local procedure FindTaxAreaByCode(TaxAreaCode: Code[20]; var TempTaxAreaBuffer: Record "Tax Area Buffer" temporary): Boolean
     begin
         TempTaxAreaBuffer.SetRange(Code, TaxAreaCode);
-        exit(TempTaxAreaBuffer.FindFirst);
+        exit(TempTaxAreaBuffer.FindFirst());
     end;
 
     local procedure InsertTaxRate(TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxRate: Decimal; var TempTaxAreaBuffer: Record "Tax Area Buffer" temporary; var TempTaxGroupBuffer: Record "Tax Group Buffer" temporary)

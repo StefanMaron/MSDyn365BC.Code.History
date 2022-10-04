@@ -1037,7 +1037,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         SalesHeader.Modify(true);
 
         // [THEN] Address fields for Customer are not changed.
-        Customer.Find;
+        Customer.Find();
         VerifyCustomerAddressHasNotChanged(Customer, Customer2);
     end;
 
@@ -1067,7 +1067,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         PurchaseHeader.Modify(true);
 
         // [THEN] Address fields for Vendor are not changed.
-        Vendor.Find;
+        Vendor.Find();
         VerifyVendorAddressHasNotChanged(Vendor, Vendor2);
     end;
 
@@ -1091,7 +1091,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         Assert.IsTrue(SalesSetupPage."Ignore Updated Addresses".Visible, '');
         Assert.IsTrue(SalesSetupPage."Ignore Updated Addresses".Editable, '');
         SalesSetupPage."Ignore Updated Addresses".SetValue(true);
-        SalesSetupPage.Close;
+        SalesSetupPage.Close();
 
         // [THEN] "Ignore Updated Addresses" table field is set to TRUE.
         SalesSetup.Get();
@@ -1120,7 +1120,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         Assert.IsTrue(PurchasesSetupPage."Ignore Updated Addresses".Visible, '');
         Assert.IsTrue(PurchasesSetupPage."Ignore Updated Addresses".Editable, '');
         PurchasesSetupPage."Ignore Updated Addresses".SetValue(true);
-        PurchasesSetupPage.Close;
+        PurchasesSetupPage.Close();
 
         // [THEN] "Ignore Updated Addresses" table field is set to TRUE.
         PurchasesSetup.Get();
@@ -1340,7 +1340,7 @@ codeunit 134772 "Doc. Address Propagation Test"
     begin
         // Create Service header, return document No
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerCode);
-        ServiceHeader.Validate("Posting Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify(true);
     end;
 

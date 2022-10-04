@@ -59,17 +59,17 @@ table 560 "VAT Clause"
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     local procedure SetLastModifiedDateTime()
@@ -235,8 +235,8 @@ table 560 "VAT Clause"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         IssuedReminderHeader: Record "Issued Reminder Header";
-        RecRef: RecordRef;
         DataTypeManagement: Codeunit "Data Type Management";
+        RecRef: RecordRef;
         IsHandled: Boolean;
     begin
         if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then

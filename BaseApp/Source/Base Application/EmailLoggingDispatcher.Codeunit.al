@@ -133,13 +133,13 @@ codeunit 5064 "Email Logging Dispatcher"
         end;
 
         SetErrorContext(Text103);
-        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetQueueFolderUID, QueueFolder) then begin
+        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetQueueFolderUID(), QueueFolder) then begin
             Session.LogMessage('0000BVQ', QueueFolderNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text002, MarketingSetup."Queue Folder Path");
         end;
 
         SetErrorContext(Text104);
-        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetStorageFolderUID, StorageFolder) then begin
+        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetStorageFolderUID(), StorageFolder) then begin
             Session.LogMessage('0000BVR', StorageFolderNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text002, MarketingSetup."Storage Folder Path");
         end;
@@ -202,8 +202,8 @@ codeunit 5064 "Email Logging Dispatcher"
                 PageSize := EmailsLeftInBatch;
             // Keep using zero offset, since all processed messages are deleted from the queue folder
             QueueFindResults := QueueFolder.FindEmailMessages(PageSize, 0);
-            QueueEnumerator := QueueFindResults.GetEnumerator;
-            while QueueEnumerator.MoveNext do begin
+            QueueEnumerator := QueueFindResults.GetEnumerator();
+            while QueueEnumerator.MoveNext() do begin
                 QueueMessage := QueueEnumerator.Current;
                 RescanQueueFolder := ProcessMessage(QueueMessage, QueueFolder, StorageFolder, StorageMessage);
                 SetErrorContext(Text108);
@@ -213,14 +213,14 @@ codeunit 5064 "Email Logging Dispatcher"
                 if not EmailMovedToStorage then
                     DeleteMessage(QueueMessage, QueueFolder);
                 if RescanQueueFolder then begin
-                    QueueFolder.UpdateFolder;
+                    QueueFolder.UpdateFolder();
                     QueueFindResults := QueueFolder.FindEmailMessages(PageSize, 0);
-                    QueueEnumerator := QueueFindResults.GetEnumerator;
+                    QueueEnumerator := QueueFindResults.GetEnumerator();
                 end;
                 RescanQueueFolder := false;
             end;
             EmailsLeftInBatch := EmailsLeftInBatch - PageSize;
-            QueueFolder.UpdateFolder;
+            QueueFolder.UpdateFolder();
         until (not QueueFindResults.MoreAvailable) or ((BatchSize <> 0) and (EmailsLeftInBatch <= 0));
     end;
 
@@ -266,7 +266,7 @@ codeunit 5064 "Email Logging Dispatcher"
             exit(false);
         end;
         repeat
-            if Attachment.GetMessageID = MessageId then begin
+            if Attachment.GetMessageID() = MessageId then begin
                 Session.LogMessage('0000BVZ', ItemLinkedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(true);
             end;
@@ -299,8 +299,8 @@ codeunit 5064 "Email Logging Dispatcher"
     begin
         Session.LogMessage('0000BW3', CollectSalespersonRecipientsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        RecepientEnumerator := Message.Recipients.GetEnumerator;
-        while RecepientEnumerator.MoveNext do begin
+        RecepientEnumerator := Message.Recipients.GetEnumerator();
+        while RecepientEnumerator.MoveNext() do begin
             Recepient := RecepientEnumerator.Current;
             RecepientAddress := Recepient.Address;
             if IsSalesperson(RecepientAddress, SegLine."Salesperson Code") then begin
@@ -325,8 +325,8 @@ codeunit 5064 "Email Logging Dispatcher"
     begin
         Session.LogMessage('0000BW7', CollectContactRecipientsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        RecepientEnumerator := Message.Recipients.GetEnumerator;
-        while RecepientEnumerator.MoveNext do begin
+        RecepientEnumerator := Message.Recipients.GetEnumerator();
+        while RecepientEnumerator.MoveNext() do begin
             RecepientAddress := RecepientEnumerator.Current;
             if IsContact(RecepientAddress.Address, SegLine) then begin
                 SegLine.Insert();
@@ -362,7 +362,7 @@ codeunit 5064 "Email Logging Dispatcher"
         end;
 
         Sender := QueueMessage.SenderAddress;
-        SenderIsEmpty := Sender.IsEmpty or (QueueMessage.RecipientsCount = 0);
+        SenderIsEmpty := Sender.IsEmpty() or (QueueMessage.RecipientsCount = 0);
         OnIsMessageToLogOnAfterCalcSenderIsEmpty(SenderIsEmpty);
         if SenderIsEmpty then begin
             Session.LogMessage('0000BWB', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
@@ -592,7 +592,7 @@ codeunit 5064 "Email Logging Dispatcher"
         InteractLogEntry.CopyFromSegment(SegLine);
         InteractLogEntry."E-Mail Logged" := true;
         InteractLogEntry.Insert();
-        OnAfterInsertInteractionLogEntry;
+        OnAfterInsertInteractionLogEntry();
     end;
 
     procedure IsSalesperson(Email: Text; var SalespersonCode: Code[20]) Result: Boolean
@@ -715,7 +715,7 @@ codeunit 5064 "Email Logging Dispatcher"
 
         // Since we have no guarantees that the Interaction Template for Emails exists, we check for it here.
         InteractionTemplate.SetFilter(Code, '=%1', InteractionTemplateSetup."E-Mails");
-        if not InteractionTemplate.FindFirst() then begin
+        if InteractionTemplate.IsEmpty() then begin
             Session.LogMessage('0000BX0', InteractionTemplateSetupNotFoundForEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := Text110;
             exit(false);
@@ -749,8 +749,8 @@ codeunit 5064 "Email Logging Dispatcher"
             Session.LogMessage('0000BX3', ProcessSimilarMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
             if FindResults.TotalCount > 0 then begin
-                Enumerator := FindResults.GetEnumerator;
-                while Enumerator.MoveNext do begin
+                Enumerator := FindResults.GetEnumerator();
+                while Enumerator.MoveNext() do begin
                     TempSegLine.DeleteAll();
                     TempSegLine.Init();
                     TargetMessage := Enumerator.Current;
@@ -760,7 +760,7 @@ codeunit 5064 "Email Logging Dispatcher"
                         Sender := TargetMessage.SenderAddress;
                         if (PrimaryStorageMessage.Subject = TargetMessage.Subject) and
                            (PrimaryStorageMessage.Body = TargetMessage.Body)
-                        then begin
+                        then
                             if ExchangeWebServicesServer.CompareEmailAttachments(PrimaryStorageMessage, TargetMessage) then begin
                                 MessageId := PrimaryStorageMessage.Id;
                                 if ItemLinkedFromAttachment(MessageId, Attachment) then begin
@@ -774,8 +774,7 @@ codeunit 5064 "Email Logging Dispatcher"
                                         DeleteMessage(TargetMessage, QueueFolder);
                                     EmailLogged := true;
                                 end;
-                            end
-                        end;
+                            end;
                         if not EmailLogged then
                             if AttachmentRecordAlreadyExists(TargetMessage.NavAttachmentNo, Attachment) then begin
                                 LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage);
@@ -809,7 +808,7 @@ codeunit 5064 "Email Logging Dispatcher"
                 Session.LogMessage('0000BX4', MessageNotInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(false);
             end;
-        end else begin
+        end else
             if IsContact(SenderAddress, SegLine) then begin
                 SegLine."Information Flow" := SegLine."Information Flow"::Inbound;
                 if not SalespersonRecipients(QueueMessage, SegLine) then begin
@@ -820,7 +819,6 @@ codeunit 5064 "Email Logging Dispatcher"
                 Session.LogMessage('0000BX6', MessageNotInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(false);
             end;
-        end;
 
         Session.LogMessage('0000BX7', MessageInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(true);

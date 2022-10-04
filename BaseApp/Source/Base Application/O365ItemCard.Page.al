@@ -1,11 +1,14 @@
+#if not CLEAN21
 page 2106 "O365 Item Card"
 {
     Caption = 'Price';
     DataCaptionExpression = Description;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Item,History,Special Prices & Discounts,Approve,Request Approval,Details';
     RefreshOnActivate = true;
     SourceTable = Item;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,20 +19,20 @@ page 2106 "O365 Item Card"
                 Caption = 'Price';
                 field(Description2; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies what you are selling.';
                     Visible = NOT IsPhoneApp;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ShowCaption = false;
                     ToolTip = 'Specifies what you are selling.';
                     Visible = IsPhoneApp;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price';
                     ToolTip = 'Specifies the price for one unit.';
                 }
@@ -39,7 +42,7 @@ page 2106 "O365 Item Card"
                 Caption = 'Details';
                 field(UnitOfMeasureDescription; UnitOfMeasureDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price is per';
                     Editable = IsPageEditable;
                     QuickEntry = false;
@@ -56,9 +59,9 @@ page 2106 "O365 Item Card"
                         end;
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Tax Group';
                     NotBlank = true;
                     ToolTip = 'Specifies the tax group code for the tax-detail entry.';
@@ -66,7 +69,7 @@ page 2106 "O365 Item Card"
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT';
                     Editable = IsPageEditable;
                     NotBlank = true;
@@ -90,6 +93,37 @@ page 2106 "O365 Item Card"
 
     actions
     {
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'History', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Special Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 6.';
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 7.';
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Details', Comment = 'Generated from the PromotedActionCategories property index 8.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -97,11 +131,11 @@ page 2106 "O365 Item Card"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        CreateItemFromTemplate;
+        CreateItemFromTemplate();
         if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
         if UnitOfMeasure.Get("Base Unit of Measure") then
-            UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage;
+            UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage();
         IsPageEditable := CurrPage.Editable;
     end;
 
@@ -109,8 +143,8 @@ page 2106 "O365 Item Card"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
-        IsPhoneApp := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
+        IsPhoneApp := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -135,7 +169,7 @@ page 2106 "O365 Item Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        OnNewRec;
+        OnNewRec();
     end;
 
     trigger OnOpenPage()
@@ -148,7 +182,7 @@ page 2106 "O365 Item Card"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        exit(CanExitAfterProcessingItem);
+        exit(CanExitAfterProcessingItem());
     end;
 
     var
@@ -167,7 +201,7 @@ page 2106 "O365 Item Card"
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        if GuiAllowed and DocumentNoVisibility.ItemNoSeriesIsDefault then
+        if GuiAllowed and DocumentNoVisibility.ItemNoSeriesIsDefault() then
             NewMode := true;
     end;
 
@@ -212,4 +246,4 @@ page 2106 "O365 Item Card"
         end;
     end;
 }
-
+#endif

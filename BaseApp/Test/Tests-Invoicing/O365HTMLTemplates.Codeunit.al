@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138929 "O365 HTML Templates"
 {
     EventSubscriberInstance = Manual;
@@ -609,7 +610,7 @@ codeunit 138929 "O365 HTML Templates"
 
         // [GIVEN] TempBlob record which contains some text
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::Windows);
-        OutStream.WriteText(Format(CreateGuid));
+        OutStream.WriteText(Format(CreateGuid()));
 
         // [WHEN] Function TempBlob.GetHTMLImgSrc is being called
         TempBlob.CreateInStream(InStream);
@@ -713,7 +714,7 @@ codeunit 138929 "O365 HTML Templates"
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         DisableStockoutWarning;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -761,7 +762,7 @@ codeunit 138929 "O365 HTML Templates"
             DummyImageFormat::Tiff:
                 Bitmap.Save(InStr, ImageFormat.Tiff);
         end;
-        Bitmap.Dispose;
+        Bitmap.Dispose();
     end;
 
     local procedure CreatePostedSalesDocument(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -826,14 +827,14 @@ codeunit 138929 "O365 HTML Templates"
         ImageFormat: DotNet ImageFormat;
         InStream: InStream;
     begin
-        MediaResourcesRef := Format(CreateGuid);
+        MediaResourcesRef := Format(CreateGuid());
 
         TempBlob.CreateInStream(InStream);
         Bitmap := Bitmap.Bitmap(100, 100);
         Bitmap.Save(InStream, ImageFormat.Png);
 
         MediaResourcesMgt.InsertMediaFromInstream(MediaResourcesRef, InStream);
-        Bitmap.Dispose;
+        Bitmap.Dispose();
     end;
 
     local procedure DisableStockoutWarning()
@@ -841,9 +842,9 @@ codeunit 138929 "O365 HTML Templates"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesSetup do begin
-            Get;
+            Get();
             Validate("Stockout Warning", false);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -855,7 +856,7 @@ codeunit 138929 "O365 HTML Templates"
 
     local procedure GetGUIDValue(Length: Integer): Text
     begin
-        exit(CopyStr(Format(CreateGuid), 1, Length));
+        exit(CopyStr(Format(CreateGuid()), 1, Length));
     end;
 
     local procedure InitCompanyInfoData()
@@ -893,7 +894,7 @@ codeunit 138929 "O365 HTML Templates"
             InStream.ReadText(TextLine, 1000);
             HTMLText := HTMLText + TextLine;
         end;
-        HTMLFile.Close;
+        HTMLFile.Close();
     end;
 
     local procedure MockMailTo(): Text[30]
@@ -961,7 +962,7 @@ codeunit 138929 "O365 HTML Templates"
             repeat
                 VerifyValueExists(HTMLText, O365SocialNetwork.Name, O365SocialNetwork.FieldName(Name));
                 VerifyValueExists(HTMLText, O365SocialNetwork.URL, O365SocialNetwork.FieldName(URL));
-            until O365SocialNetwork.Next = 0;
+            until O365SocialNetwork.Next() = 0;
     end;
 
     local procedure VerifyNoSocialsPart(var O365SocialNetwork: Record "O365 Social Network"; HTMLText: Text)
@@ -970,7 +971,7 @@ codeunit 138929 "O365 HTML Templates"
             repeat
                 VerifyValueDoesNotExist(HTMLText, O365SocialNetwork.Name, O365SocialNetwork.FieldName(Name));
                 VerifyValueDoesNotExist(HTMLText, O365SocialNetwork.URL, O365SocialNetwork.FieldName(URL));
-            until O365SocialNetwork.Next = 0;
+            until O365SocialNetwork.Next() = 0;
     end;
 
     [SendNotificationHandler(true)]
@@ -980,4 +981,5 @@ codeunit 138929 "O365 HTML Templates"
         Assert.Fail('No notification should be thrown.');
     end;
 }
+#endif
 

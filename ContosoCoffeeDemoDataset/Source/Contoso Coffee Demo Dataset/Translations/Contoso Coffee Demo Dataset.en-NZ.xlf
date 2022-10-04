@@ -327,7 +327,7 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XAirpotDuoTok</note>
         </trans-unit>
-        <trans-unit id="Codeunit 68986151 - NamedType 3876593487" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 68986151 - NamedType 3876593487" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Airpot lite</source>
           <target state="translated">Airpot lite</target>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -460,8 +460,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XGlassCarafeTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 68986151 - NamedType 3899518690" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Heating element.</source>
-          <target state="translated">Heating element.</target>
+          <source>Heating element</source>
+          <target state="translated">Heating element</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XHeatingElementTok</note>
         </trans-unit>
@@ -556,8 +556,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XReservoirTestKitTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 68986151 - NamedType 597323651" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Reservoir.</source>
-          <target state="translated">Reservoir.</target>
+          <source>Reservoir</source>
+          <target state="translated">Reservoir</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XReservoirTok</note>
         </trans-unit>

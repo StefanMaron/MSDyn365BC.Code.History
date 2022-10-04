@@ -23,7 +23,7 @@ page 7368 "Bin Creation Wksh. Templ. List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the warehouse worksheet template you are creating.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = Objects;

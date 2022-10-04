@@ -16,13 +16,13 @@ report 5691 "Index Insurance"
                 if Blocked or Inactive then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
-                InsuranceTmp.DeleteAll();
+                TempInsurance.DeleteAll();
                 InsCoverageLedgEntry.SetRange("FA No.", "No.");
                 InsCoverageLedgEntry.SetRange("Posting Date", 0D, PostingDate);
                 if InsCoverageLedgEntry.Find('-') then
                     repeat
-                        InsuranceTmp."No." := InsCoverageLedgEntry."Insurance No.";
-                        if InsuranceTmp.Insert() then begin
+                        TempInsurance."No." := InsCoverageLedgEntry."Insurance No.";
+                        if TempInsurance.Insert() then begin
                             InsCoverageLedgEntry.SetRange("Insurance No.", InsCoverageLedgEntry."Insurance No.");
                             InsCoverageLedgEntry.CalcSums(Amount);
                             InsCoverageLedgEntry.SetRange("Insurance No.");
@@ -129,16 +129,11 @@ report 5691 "Index Insurance"
     end;
 
     var
-        Text000: Label 'You must specify %1.';
-        Text001: Label 'Posting Date must not be a closing date.';
-        Text002: Label 'Index Figure must not be 100.';
-        Text003: Label 'Index Figure must be positive.';
-        Text004: Label 'Indexing insurance    #1##########';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         Insurance: Record Insurance;
         FAJnlSetup: Record "FA Journal Setup";
-        InsuranceTmp: Record Insurance temporary;
+        TempInsurance: Record Insurance temporary;
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         InsuranceJnlLine: Record "Insurance Journal Line";
         Window: Dialog;
@@ -148,6 +143,12 @@ report 5691 "Index Insurance"
         NoSeries: Code[20];
         PostingDescription: Text[100];
         NextLineNo: Integer;
+
+        Text000: Label 'You must specify %1.';
+        Text001: Label 'Posting Date must not be a closing date.';
+        Text002: Label 'Index Figure must not be 100.';
+        Text003: Label 'Index Figure must be positive.';
+        Text004: Label 'Indexing insurance    #1##########';
 
     procedure InitializeRequest(DocumentNoFrom: Code[20]; PostingDescriptionFrom: Text[100]; PostingDateFrom: Date; IndexFigureFrom: Decimal)
     begin

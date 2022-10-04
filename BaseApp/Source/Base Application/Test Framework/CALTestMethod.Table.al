@@ -29,7 +29,7 @@ table 130404 "CAL Test Method"
 
     procedure InsertEntry(CodeunitID: Integer; FunctionName: Text[128])
     begin
-        Init;
+        Init();
 
         Validate("Test Codeunit ID", CodeunitID);
         Validate("Test Method Name", FunctionName);

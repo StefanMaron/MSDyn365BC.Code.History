@@ -38,7 +38,7 @@ report 901 "Copy Assembly Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
                     }
                     field(IncludeHeader; IncludeHeader)

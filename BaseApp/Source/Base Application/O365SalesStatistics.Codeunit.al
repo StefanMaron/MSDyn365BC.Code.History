@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2100 "O365 Sales Statistics"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -21,7 +25,7 @@ codeunit 2100 "O365 Sales Statistics"
         GLSetup.Get();
         GetCurrentAccountingPeriod(AccountingPeriod);
 
-        TotalMonthsInCurrentFY := GetNumberOfElapsedMonthsInFYByDate(WorkDate, AccountingPeriod);
+        TotalMonthsInCurrentFY := GetNumberOfElapsedMonthsInFYByDate(WorkDate(), AccountingPeriod);
 
         for Month := 1 to TotalMonthsInCurrentFY do begin
             // Get transactions for the month
@@ -34,7 +38,7 @@ codeunit 2100 "O365 Sales Statistics"
             TempNameValueBuffer.Init();
             TempNameValueBuffer.ID := Month;
             TempNameValueBuffer.Name := Format(CalcDate(StrSubstNo('<%1M>', Month - 1), AccountingPeriod."Starting Date"), 0, '<Month Text>');
-            TempNameValueBuffer.Value := GLSetup.GetCurrencySymbol + ' ' +
+            TempNameValueBuffer.Value := GLSetup.GetCurrencySymbol() + ' ' +
               Format(O365SalesCue."Invoiced CM", 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, GLSetup.GetCurrencyCode('')));
             TempNameValueBuffer.Insert();
         end;
@@ -72,7 +76,7 @@ codeunit 2100 "O365 Sales Statistics"
             TempNameValueBuffer.ID := CurrentWeek;
             TempNameValueBuffer.Name :=
               Format(CalcDate(StrSubstNo('<%1M+%2W+1D>', Month, CurrentWeek), CalcDate('<CM>', AccountingPeriod."Starting Date")));
-            TempNameValueBuffer.Value := GLSetup.GetCurrencySymbol + ' ' + Format(O365SalesCue."Invoiced CM");
+            TempNameValueBuffer.Value := GLSetup.GetCurrencySymbol() + ' ' + Format(O365SalesCue."Invoiced CM");
             TempNameValueBuffer.Insert();
 
             // Ensure next week is still the same month
@@ -101,9 +105,9 @@ codeunit 2100 "O365 Sales Statistics"
         TempNameValueBuffer.FindSet();
         for I := 0 to TempNameValueBuffer.Count - 1 do begin
             TempBusinessChartBuffer.AddColumn(TempNameValueBuffer.Name);
-            Evaluate(Amount, CopyStr(TempNameValueBuffer.Value, StrLen(GLSetup.GetCurrencySymbol) + 1));
+            Evaluate(Amount, CopyStr(TempNameValueBuffer.Value, StrLen(GLSetup.GetCurrencySymbol()) + 1));
             TempBusinessChartBuffer.SetValueByIndex(0, I, Amount);
-            TempNameValueBuffer.Next;
+            TempNameValueBuffer.Next();
         end;
 
         TempBusinessChartBuffer.Update(Chart);
@@ -133,14 +137,14 @@ codeunit 2100 "O365 Sales Statistics"
     var
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
-        if IsEmptyAccountingPeriod then begin
+        if IsEmptyAccountingPeriod() then begin
             AccountingPeriod.Reset();
-            AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate);
+            AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate());
             exit;
         end;
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.SetFilter("Starting Date", '..%1', WorkDate);
+        AccountingPeriod.SetFilter("Starting Date", '..%1', WorkDate());
 
         if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.SetRange("New Fiscal Year");
@@ -204,7 +208,7 @@ codeunit 2100 "O365 Sales Statistics"
         AccountingPeriod: Record "Accounting Period";
     begin
         GetCurrentAccountingPeriod(AccountingPeriod);
-        exit(GetNumberOfElapsedMonthsInFYByDate(WorkDate, AccountingPeriod));
+        exit(GetNumberOfElapsedMonthsInFYByDate(WorkDate(), AccountingPeriod));
     end;
 
     local procedure IsEmptyAccountingPeriod(): Boolean
@@ -214,4 +218,5 @@ codeunit 2100 "O365 Sales Statistics"
         exit(AccountingPeriod.IsEmpty);
     end;
 }
+#endif
 

@@ -8,12 +8,13 @@ codeunit 211 "Res. Jnl.-Check Line"
     end;
 
     var
-        Text000: Label 'cannot be a closing date';
-        Text002: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
-        Text003: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         GLSetup: Record "General Ledger Setup";
         DimMgt: Codeunit DimensionManagement;
         TimeSheetMgt: Codeunit "Time Sheet Management";
+
+        Text000: Label 'cannot be a closing date';
+        Text002: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
+        Text003: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
 
     procedure RunCheck(var ResJnlLine: Record "Res. Journal Line")
     var
@@ -26,7 +27,7 @@ codeunit 211 "Res. Jnl.-Check Line"
 
         GLSetup.Get();
         with ResJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             TestField("Resource No.", ErrorInfo.Create());
@@ -82,7 +83,7 @@ codeunit 211 "Res. Jnl.-Check Line"
                 Error(
                   Text002,
                   TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr);
+                  DimMgt.GetDimCombErr());
 
             TableID[1] := DATABASE::Resource;
             No[1] := "Resource No.";
@@ -96,9 +97,9 @@ codeunit 211 "Res. Jnl.-Check Line"
                     Error(
                       Text003,
                       TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                      DimMgt.GetDimValuePostingErr)
+                      DimMgt.GetDimValuePostingErr())
                 else
-                    Error(DimMgt.GetDimValuePostingErr);
+                    Error(DimMgt.GetDimValuePostingErr());
         end;
     end;
 

@@ -178,7 +178,7 @@ codeunit 5790 "Available to Promise"
     var
         Date: Record Date;
         DummyItem: Record Item;
-        AvailabilityAtDate: Record "Availability at Date" temporary;
+        TempAvailabilityAtDate: Record "Availability at Date" temporary;
         CalendarManagement: Codeunit "Calendar Management";
         QtyIsAvailable: Boolean;
         ExactDateFound: Boolean;
@@ -194,30 +194,31 @@ codeunit 5790 "Available to Promise"
 
         Item.CopyFilter("Date Filter", DummyItem."Date Filter");
         Item.SetRange("Date Filter", 0D, GetForwardPeriodEndDate(LookaheadDateFormula, PeriodType, StartDate));
-        CalculateAvailability(Item, AvailabilityAtDate);
-        UpdateScheduledReceipt(AvailabilityAtDate, ExcludeOnDate, ExcludeQty);
-        CalculateAvailabilityByPeriod(AvailabilityAtDate, PeriodType);
+        CalculateAvailability(Item, TempAvailabilityAtDate);
+        UpdateScheduledReceipt(TempAvailabilityAtDate, ExcludeOnDate, ExcludeQty);
+        CalculateAvailabilityByPeriod(TempAvailabilityAtDate, PeriodType);
 
         IsHandled := false;
 #if not CLEAN20
         OnEarliestAvailabilityDateOnBeforeFilterDate(
-            Item, NeededQty, StartDate, AvailableQty, PeriodType.AsInteger(), LookaheadDateFormula, AvailabilityAtDate, AvailableDate, IsHandled);
+            Item, NeededQty, StartDate, AvailableQty, PeriodType.AsInteger(), LookaheadDateFormula, TempAvailabilityAtDate, AvailableDate, IsHandled);
 #endif
-        OnCalcEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, AvailabilityAtDate, AvailableDate, IsHandled);
+        OnCalcEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, TempAvailabilityAtDate, AvailableDate, IsHandled);
         if IsHandled then
             exit(AvailableDate);
 
+        PeriodStart := 0D;
         Date.SetRange("Period Type", PeriodType);
         Date.SetRange("Period Start", 0D, StartDate);
         if Date.FindLast() then begin
-            AvailabilityAtDate.SetRange("Period Start", 0D, Date."Period Start");
-            if AvailabilityAtDate.FindSet() then
+            TempAvailabilityAtDate.SetRange("Period Start", 0D, Date."Period Start");
+            if TempAvailabilityAtDate.FindSet() then
                 repeat
                     if PeriodStart = 0D then
-                        PeriodStart := AvailabilityAtDate."Period Start";
-                    ScheduledReceipt += AvailabilityAtDate."Scheduled Receipt";
-                    GrossRequirement += AvailabilityAtDate."Gross Requirement";
-                until AvailabilityAtDate.Next() = 0;
+                        PeriodStart := TempAvailabilityAtDate."Period Start";
+                    ScheduledReceipt += TempAvailabilityAtDate."Scheduled Receipt";
+                    GrossRequirement += TempAvailabilityAtDate."Gross Requirement";
+                until TempAvailabilityAtDate.Next() = 0;
             AvailableQty := Item.Inventory - Item."Reserved Qty. on Inventory" + ScheduledReceipt - GrossRequirement;
             if AvailableQty >= NeededQty then begin
                 QtyIsAvailable := true;
@@ -228,29 +229,29 @@ codeunit 5790 "Available to Promise"
         end;
 
         if Format(LookaheadDateFormula) = '' then
-            AvailabilityAtDate.SetRange("Period Start", StartDate + 1, CalendarManagement.GetMaxDate)
+            TempAvailabilityAtDate.SetRange("Period Start", StartDate + 1, CalendarManagement.GetMaxDate())
         else
-            AvailabilityAtDate.SetRange("Period Start", StartDate + 1, CalcDate(LookaheadDateFormula, StartDate));
+            TempAvailabilityAtDate.SetRange("Period Start", StartDate + 1, CalcDate(LookaheadDateFormula, StartDate));
 
-        AvailabilityAtDate."Period Start" := 0D;
-        while AvailabilityAtDate.Next <> 0 do begin
-            AvailableQtyPeriod := AvailabilityAtDate."Scheduled Receipt" - AvailabilityAtDate."Gross Requirement";
-            if AvailabilityAtDate."Scheduled Receipt" <= AvailabilityAtDate."Gross Requirement" then begin
+        TempAvailabilityAtDate."Period Start" := 0D;
+        while TempAvailabilityAtDate.Next() <> 0 do begin
+            AvailableQtyPeriod := TempAvailabilityAtDate."Scheduled Receipt" - TempAvailabilityAtDate."Gross Requirement";
+            if TempAvailabilityAtDate."Scheduled Receipt" <= TempAvailabilityAtDate."Gross Requirement" then begin
                 AvailableQty := AvailableQty + AvailableQtyPeriod;
-                AvailableDate := AvailabilityAtDate."Period End";
+                AvailableDate := TempAvailabilityAtDate."Period End";
                 if AvailableQty < NeededQty then
                     QtyIsAvailable := false;
             end else
                 if QtyIsAvailable then
-                    AvailabilityAtDate.FindLast()
+                    TempAvailabilityAtDate.FindLast()
                 else begin
                     AvailableQty := AvailableQty + AvailableQtyPeriod;
                     if AvailableQty >= NeededQty then begin
                         QtyIsAvailable := true;
-                        AvailableDate := AvailabilityAtDate."Period End";
-                        PeriodStart := AvailabilityAtDate."Period Start";
-                        PeriodEnd := AvailabilityAtDate."Period End";
-                        AvailabilityAtDate.FindLast();
+                        AvailableDate := TempAvailabilityAtDate."Period End";
+                        PeriodStart := TempAvailabilityAtDate."Period Start";
+                        PeriodEnd := TempAvailabilityAtDate."Period End";
+                        TempAvailabilityAtDate.FindLast();
                     end;
                 end;
         end;
@@ -258,23 +259,23 @@ codeunit 5790 "Available to Promise"
         if QtyIsAvailable then begin
             if PeriodType <> PeriodType::Day then begin
                 Item.SetRange("Date Filter", PeriodStart, PeriodEnd);
-                CalculateAvailability(Item, AvailabilityAtDate);
+                CalculateAvailability(Item, TempAvailabilityAtDate);
                 if (ExcludeOnDate >= PeriodStart) and (ExcludeOnDate <= PeriodEnd) then
-                    UpdateScheduledReceipt(AvailabilityAtDate, ExcludeOnDate, ExcludeQty);
+                    UpdateScheduledReceipt(TempAvailabilityAtDate, ExcludeOnDate, ExcludeQty);
             end;
-            AvailabilityAtDate.SetRange("Period Start", PeriodStart, PeriodEnd);
-            if AvailabilityAtDate.Find('+') then
+            TempAvailabilityAtDate.SetRange("Period Start", PeriodStart, PeriodEnd);
+            if TempAvailabilityAtDate.Find('+') then
                 repeat
-                    if (AvailableQty - AvailabilityAtDate."Scheduled Receipt") < NeededQty then begin
+                    if (AvailableQty - TempAvailabilityAtDate."Scheduled Receipt") < NeededQty then begin
                         ExactDateFound := true;
-                        AvailableDate := AvailabilityAtDate."Period Start";
+                        AvailableDate := TempAvailabilityAtDate."Period Start";
                     end else
-                        AvailableQty := AvailableQty - AvailabilityAtDate."Scheduled Receipt";
-                until (AvailabilityAtDate.Next(-1) = 0) or ExactDateFound;
+                        AvailableQty := AvailableQty - TempAvailabilityAtDate."Scheduled Receipt";
+                until (TempAvailabilityAtDate.Next(-1) = 0) or ExactDateFound;
             if not ExactDateFound then begin
                 AvailableDate := StartDate;
-                if AvailabilityAtDate.Find then
-                    AvailableQty := AvailableQty + AvailabilityAtDate."Scheduled Receipt";
+                if TempAvailabilityAtDate.Find() then
+                    AvailableQty := AvailableQty + TempAvailabilityAtDate."Scheduled Receipt";
             end;
         end else
             AvailableDate := 0D;
@@ -295,29 +296,29 @@ codeunit 5790 "Available to Promise"
     procedure CalculateForward(var Item: Record Item; PeriodType: Enum "Analysis Period Type"; StartDate: Date; EndDate: Date): Decimal
     var
         DummyItem: Record Item;
-        AvailabilityAtDate: Record "Availability at Date" temporary;
+        TempAvailabilityAtDate: Record "Availability at Date" temporary;
         ForwardQty: Decimal;
         Stop: Boolean;
     begin
         Item.CopyFilter("Date Filter", DummyItem."Date Filter");
         Item.SetRange("Date Filter", StartDate, EndDate);
-        CalculateAvailability(Item, AvailabilityAtDate);
-        CalculateAvailabilityByPeriod(AvailabilityAtDate, PeriodType);
-        AvailabilityAtDate.SetRange("Period Start", 0D, StartDate - 1);
-        if AvailabilityAtDate.FindSet() then
+        CalculateAvailability(Item, TempAvailabilityAtDate);
+        CalculateAvailabilityByPeriod(TempAvailabilityAtDate, PeriodType);
+        TempAvailabilityAtDate.SetRange("Period Start", 0D, StartDate - 1);
+        if TempAvailabilityAtDate.FindSet() then
             repeat
-                ForwardQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt";
-            until AvailabilityAtDate.Next() = 0;
+                ForwardQty += TempAvailabilityAtDate."Gross Requirement" - TempAvailabilityAtDate."Scheduled Receipt";
+            until TempAvailabilityAtDate.Next() = 0;
 
-        AvailabilityAtDate.SetRange("Period Start", StartDate, EndDate);
-        if AvailabilityAtDate.FindSet() then
+        TempAvailabilityAtDate.SetRange("Period Start", StartDate, EndDate);
+        if TempAvailabilityAtDate.FindSet() then
             repeat
-                if AvailabilityAtDate."Gross Requirement" > AvailabilityAtDate."Scheduled Receipt" then
-                    ForwardQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt"
+                if TempAvailabilityAtDate."Gross Requirement" > TempAvailabilityAtDate."Scheduled Receipt" then
+                    ForwardQty += TempAvailabilityAtDate."Gross Requirement" - TempAvailabilityAtDate."Scheduled Receipt"
                 else
-                    if AvailabilityAtDate."Gross Requirement" < AvailabilityAtDate."Scheduled Receipt" then
+                    if TempAvailabilityAtDate."Gross Requirement" < TempAvailabilityAtDate."Scheduled Receipt" then
                         Stop := true;
-            until (AvailabilityAtDate.Next() = 0) or Stop;
+            until (TempAvailabilityAtDate.Next() = 0) or Stop;
 
         if ForwardQty < 0 then
             ForwardQty := 0;
@@ -381,7 +382,7 @@ codeunit 5790 "Available to Promise"
             RecordExists := true
         else begin
             AvailabilityAtDate."Period Start" := Date;
-            if AvailabilityAtDate.Find then
+            if AvailabilityAtDate.Find() then
                 RecordExists := true
             else begin
                 AvailabilityAtDate.Init();
@@ -393,7 +394,7 @@ codeunit 5790 "Available to Promise"
         AvailabilityAtDate."Gross Requirement" += GrossRequirement;
 
         if RecordExists then
-            AvailabilityAtDate.Modify
+            AvailabilityAtDate.Modify()
         else
             AvailabilityAtDate.Insert();
 
@@ -449,7 +450,7 @@ codeunit 5790 "Available to Promise"
         CalendarManagement: Codeunit "Calendar Management";
     begin
         if Format(LookaheadDateFormula) = '' then
-            exit(CalendarManagement.GetMaxDate);
+            exit(CalendarManagement.GetMaxDate());
 
         exit(GetPeriodEndingDate(CalcDate(LookaheadDateFormula, StartDate), PeriodType));
     end;
@@ -507,7 +508,7 @@ codeunit 5790 "Available to Promise"
             SalesLine."Planned Shipment Date" := SalesLine.CalcPlannedDeliveryDate(SalesLine.FieldNo("Planned Delivery Date"))
         else
             SalesLine."Planned Shipment Date" := SalesLine.CalcPlannedShptDate(SalesLine.FieldNo("Planned Delivery Date"));
-        exit(SalesLine.CalcShipmentDate);
+        exit(SalesLine.CalcShipmentDate());
     end;
 
     local procedure CalcAllItemFields(var Item: Record Item)
@@ -552,7 +553,7 @@ codeunit 5790 "Available to Promise"
 
         AllFieldCalculated := true;
         PrevItemNo := Item."No.";
-        PrevItemFilters := Item.GetFilters;
+        PrevItemFilters := Item.GetFilters();
     end;
 
     procedure ResetItemNo()
@@ -576,13 +577,12 @@ codeunit 5790 "Available to Promise"
     var
         ReqLine: Record "Requisition Line";
     begin
-        with ReqLine do begin
+        with ReqLine do
             if FindLinesWithItemToPlan(Item) then
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Quantity (Base)" - "Reserved Qty. (Base)");
                 until Next() = 0;
-        end;
     end;
 
     local procedure UpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)

@@ -477,7 +477,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         NextDocumentNo: Code[20];
         i: Integer;
     begin
-        NextDocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NextDocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         for i := 1 to ArrayLen(PostedDocumentNo) do begin
             PostedDocumentNo[i] := NextDocumentNo;
             NoSeriesManagement.IncrementNoText(NextDocumentNo, 1);
@@ -503,7 +503,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
             TempGenJournalLine.Init();
             TempGenJournalLine := GenJournalLine;
             TempGenJournalLine.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure UpdateForceDocBalanceOnGenJnlTemplate(GenJnlTemplateName: Code[20]; ForceDocBalance: Boolean)
@@ -540,14 +540,14 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GLEntry.SetRange("Journal Batch Name", GenJournalBatchName);
         Assert.RecordCount(GLEntry, 8);
 
-        GLEntry.SetRange("Posting Date", WorkDate);
+        GLEntry.SetRange("Posting Date", WorkDate());
         for i := 1 to ArrayLen(Amount) do begin
             GLEntry.SetRange("Document No.", PostedDocumentNo[i]);
             Assert.RecordCount(GLEntry, 2);
             GLEntry.FindFirst();
             GLAmount := GLEntry.Amount;
             Assert.AreEqual(Amount[i], Abs(GLAmount), '');
-            GLEntry.Next;
+            GLEntry.Next();
             GLEntry.TestField(Amount, -GLAmount);
         end;
 
@@ -559,7 +559,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
             GLEntry.FindFirst();
             GLAmount := GLEntry.Amount;
             Assert.AreEqual(Amount[i], Abs(GLAmount), '');
-            GLEntry.Next;
+            GLEntry.Next();
             GLEntry.TestField(Amount, -GLAmount);
         end;
     end;

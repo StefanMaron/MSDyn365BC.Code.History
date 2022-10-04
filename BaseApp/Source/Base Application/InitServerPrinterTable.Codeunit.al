@@ -17,7 +17,7 @@ codeunit 9655 "Init. Server Printer Table"
         PrinterName: Text;
         i: Integer;
     begin
-        PrinterSettings := PrinterSettings.PrinterSettings;
+        PrinterSettings := PrinterSettings.PrinterSettings();
         PrinterSettingsCollection := PrinterSettings.InstalledPrinters;
         for i := 0 to PrinterSettingsCollection.Count - 1 do begin
             PrinterName := PrinterSettingsCollection.Item(i);
@@ -65,7 +65,7 @@ codeunit 9655 "Init. Server Printer Table"
     begin
         PrinterName := GetPrinterSelection(ReportID);
         if PrinterName = '' then
-            PrinterName := GetLocalDefaultPrinter;
+            PrinterName := GetLocalDefaultPrinter();
         if not FindPrinterName(PrinterName, false) then begin
             PrinterName := '';
             if FindPrinterName(PrinterName, true) then;
@@ -81,9 +81,9 @@ codeunit 9655 "Init. Server Printer Table"
         PrinterName: Text;
         i: Integer;
     begin
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows then
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Windows then
             exit('');
-        PrinterSettings := PrinterSettings.PrinterSettings;
+        PrinterSettings := PrinterSettings.PrinterSettings();
         PrinterName := DelChr(PrinterSettings.PrinterName, '<', '\');
         i := StrPos(PrinterName, '\');
         if i > 1 then

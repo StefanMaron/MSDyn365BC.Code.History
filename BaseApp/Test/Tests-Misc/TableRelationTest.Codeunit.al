@@ -31,7 +31,7 @@ codeunit 134926 "Table Relation Test"
                       TempTableRelationsMetadata."Related Table ID", TempTableRelationsMetadata."Related Field No.");
             CurrentTableID := TempTableRelationsMetadata."Table ID";
             CurrentFieldID := TempTableRelationsMetadata."Field No.";
-        until TempTableRelationsMetadata.Next = 0;
+        until TempTableRelationsMetadata.Next() = 0;
     end;
 
     local procedure ValidateFieldRelation(var TempTableRelationsMetadata: Record "Table Relations Metadata" temporary): Boolean
@@ -60,7 +60,7 @@ codeunit 134926 "Table Relation Test"
             RequiredFieldType := FindRequiredFieldType(RequiredFieldType, Format(RelatedField.Type));
             if TempTableRelationsMetadataBufferIter."Condition Field No." = 0 then
                 MustHaveTableRelation := true;
-        until TempTableRelationsMetadataBufferIter.Next = 0;
+        until TempTableRelationsMetadataBufferIter.Next() = 0;
 
         // Verify this field has correct length and type
         Field.Get(TempTableRelationsMetadata."Table ID", TempTableRelationsMetadata."Field No.");
@@ -135,7 +135,7 @@ codeunit 134926 "Table Relation Test"
         repeat
             TempTableRelationsMetadata := TableRelationsMetadata;
             TempTableRelationsMetadata.Insert();
-        until TableRelationsMetadata.Next = 0;
+        until TableRelationsMetadata.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -58,7 +58,7 @@ page 5755 "Transfer Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         CalculateTotals();
     end;

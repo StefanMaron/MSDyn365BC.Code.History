@@ -5,7 +5,6 @@ page 1294 "Pmt. Reconciliation Journals"
     Caption = 'Payment Reconciliation Journals';
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Bank';
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = WHERE("Statement Type" = CONST("Payment Application"));
     UsageCategory = Lists;
@@ -17,25 +16,25 @@ page 1294 "Pmt. Reconciliation Journals"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
                 }
-                field("Statement No."; "Statement No.")
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the bank account statement.';
                 }
-                field("Total Transaction Amount"; "Total Transaction Amount")
+                field("Total Transaction Amount"; Rec."Total Transaction Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the sum of values in the Statement Amount field on all the lines in the Bank Acc. Reconciliation and Payment Reconciliation Journal windows.';
                 }
-                field("Total Difference"; "Total Difference")
+                field("Total Difference"; Rec."Total Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -45,7 +44,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     StyleExpr = TRUE;
                     ToolTip = 'Specifies the total amount that exists on the bank account per the last time it was reconciled.';
                 }
-                field("Copy VAT Setup to Jnl. Line"; "Copy VAT Setup to Jnl. Line")
+                field("Copy VAT Setup to Jnl. Line"; Rec."Copy VAT Setup to Jnl. Line")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the program to calculate VAT for accounts and balancing accounts on the journal line of the selected bank account reconciliation.';
@@ -81,15 +80,11 @@ page 1294 "Pmt. Reconciliation Journals"
                     Caption = '&Import Bank Transactions';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'To start the process of reconciling new payments, import a bank feed or electronic file containing the related bank transactions.';
 
                     trigger OnAction()
                     begin
-                        ImportAndProcessToNewStatement
+                        ImportAndProcessToNewStatement();
                     end;
                 }
                 action(EditJournal)
@@ -97,10 +92,6 @@ page 1294 "Pmt. Reconciliation Journals"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit Journal';
                     Image = OpenWorksheet;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ShortCutKey = 'Return';
                     ToolTip = 'Modify an existing payment reconciliation journal for a bank account.';
 
@@ -120,15 +111,11 @@ page 1294 "Pmt. Reconciliation Journals"
                     Caption = '&New Journal';
                     Ellipsis = true;
                     Image = NewDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Create a payment reconciliation journal for a bank account to set up payments that have been recorded as transactions in an electronic bank and need to be applied to related open entries.';
 
                     trigger OnAction()
                     begin
-                        OpenNewWorksheet
+                        OpenNewWorksheet();
                     end;
                 }
             }
@@ -140,10 +127,6 @@ page 1294 "Pmt. Reconciliation Journals"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account Card';
                     Image = BankAccount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Payment Bank Account Card";
                     RunPageLink = "No." = FIELD("Bank Account No.");
                     ToolTip = 'View or edit information about the bank account that is related to the payment reconciliation journal.';
@@ -153,13 +136,41 @@ page 1294 "Pmt. Reconciliation Journals"
                     ApplicationArea = Basic, Suite;
                     Caption = 'List of Bank Accounts';
                     Image = List;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Payment Bank Account List";
                     ToolTip = 'View and edit information about the bank accounts that are associated with the payment reconciliation journals that you use to reconcile payment transactions.';
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(EditJournal_Promoted; EditJournal)
+                {
+                }
+                actionref(ImportBankTransactionsToNew_Promoted; ImportBankTransactionsToNew)
+                {
+                }
+                actionref(NewJournal_Promoted; NewJournal)
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                    actionref("Bank Account Card_Promoted"; "Bank Account Card")
+                    {
+                    }
+                    actionref("List of Bank Accounts_Promoted"; "List of Bank Accounts")
+                    {
+                    }
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

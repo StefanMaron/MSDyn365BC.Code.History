@@ -8,7 +8,7 @@ codeunit 5059 ProfileManagement
     var
         Text000: Label 'General';
         Text001: Label 'No profile questionnaire is created for this contact.';
-        ProfileQuestnHeaderTemp: Record "Profile Questionnaire Header" temporary;
+        TempProfileQuestionnaireHeader: Record "Profile Questionnaire Header" temporary;
 
     local procedure FindLegalProfileQuestionnaire(Cont: Record Contact)
     var
@@ -19,14 +19,14 @@ codeunit 5059 ProfileManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindLegalProfileQuestionnaire(ProfileQuestnHeaderTemp, Cont, IsHandled);
+        OnBeforeFindLegalProfileQuestionnaire(TempProfileQuestionnaireHeader, Cont, IsHandled);
         if IsHandled then
             exit;
 
-        ProfileQuestnHeaderTemp.DeleteAll();
+        TempProfileQuestionnaireHeader.DeleteAll();
 
         with ProfileQuestnHeader do begin
-            Reset;
+            Reset();
             if Find('-') then
                 repeat
                     Valid := true;
@@ -49,8 +49,8 @@ codeunit 5059 ProfileManagement
                             Valid := true;
                     end;
                     if Valid then begin
-                        ProfileQuestnHeaderTemp := ProfileQuestnHeader;
-                        ProfileQuestnHeaderTemp.Insert();
+                        TempProfileQuestionnaireHeader := ProfileQuestnHeader;
+                        TempProfileQuestionnaireHeader.Insert();
                     end;
                 until Next() = 0;
         end;
@@ -74,10 +74,10 @@ codeunit 5059 ProfileManagement
     begin
         FindLegalProfileQuestionnaire(Cont);
 
-        if ProfileQuestnHeaderTemp.Get(ProfileQuestnHeaderCode) then
+        if TempProfileQuestionnaireHeader.Get(ProfileQuestnHeaderCode) then
             exit(ProfileQuestnHeaderCode);
-        if ProfileQuestnHeaderTemp.FindFirst() then
-            exit(ProfileQuestnHeaderTemp.Code);
+        if TempProfileQuestionnaireHeader.FindFirst() then
+            exit(TempProfileQuestionnaireHeader.Code);
 
         Error(Text001);
     end;
@@ -87,9 +87,9 @@ codeunit 5059 ProfileManagement
         ProfileQuestnLine: Record "Profile Questionnaire Line";
         ContProfileAnswers: Page "Contact Profile Answers";
     begin
-        Cont.CheckIfMinorForProfiles;
+        Cont.CheckIfMinorForProfiles();
         ContProfileAnswers.SetParameters(Cont, ProfileQuestionnaireAllowed(Cont, ''), ProfileQuestnLineCode, ProfileQuestnLineLineNo);
-        if ProfileQuestnHeaderTemp.Get(ProfileQuestnLineCode) then begin
+        if TempProfileQuestionnaireHeader.Get(ProfileQuestnLineCode) then begin
             ProfileQuestnLine.Get(ProfileQuestnLineCode, ProfileQuestnLineLineNo);
             ContProfileAnswers.SetRecord(ProfileQuestnLine);
         end;
@@ -99,7 +99,7 @@ codeunit 5059 ProfileManagement
     procedure CheckName(CurrentQuestionsChecklistCode: Code[20]; var Cont: Record Contact)
     begin
         FindLegalProfileQuestionnaire(Cont);
-        ProfileQuestnHeaderTemp.Get(CurrentQuestionsChecklistCode);
+        TempProfileQuestionnaireHeader.Get(CurrentQuestionsChecklistCode);
     end;
 
     procedure SetName(ProfileQuestnHeaderCode: Code[20]; var ProfileQuestnLine: Record "Profile Questionnaire Line"; ContactProfileAnswerLine: Integer)
@@ -115,11 +115,11 @@ codeunit 5059 ProfileManagement
     begin
         Commit();
         FindLegalProfileQuestionnaire(Cont);
-        if ProfileQuestnHeaderTemp.Get(ProfileQuestnHeaderCode) then;
+        if TempProfileQuestionnaireHeader.Get(ProfileQuestnHeaderCode) then;
         if PAGE.RunModal(
-             PAGE::"Profile Questionnaire List", ProfileQuestnHeaderTemp) = ACTION::LookupOK
+             PAGE::"Profile Questionnaire List", TempProfileQuestionnaireHeader) = ACTION::LookupOK
         then
-            ProfileQuestnHeaderCode := ProfileQuestnHeaderTemp.Code;
+            ProfileQuestnHeaderCode := TempProfileQuestionnaireHeader.Code;
 
         SetName(ProfileQuestnHeaderCode, ProfileQuestnLine, 0);
     end;

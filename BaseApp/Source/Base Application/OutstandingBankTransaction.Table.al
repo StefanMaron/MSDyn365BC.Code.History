@@ -88,9 +88,9 @@
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccNo);
         BankAccountLedgerEntry.SetRange(Open, true);
-        if BankAccountLedgerEntry.FindSet() then begin
+        if BankAccountLedgerEntry.FindSet() then
             repeat
-                RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
+                    RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                 if RemainingAmt <> 0 then begin
                     TempOutstandingBankTransaction.Init();
                     TempOutstandingBankTransaction."Posting Date" := BankAccountLedgerEntry."Posting Date";
@@ -110,7 +110,6 @@
                     TempOutstandingBankTransaction.Insert();
                 end;
             until BankAccountLedgerEntry.Next() = 0;
-        end;
     end;
 
     procedure GetCurrencyCode(): Code[10]
@@ -144,7 +143,7 @@
 
     procedure CopyFromBankAccLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankTransacType: Integer; StatementType: Integer; StatementNo: Code[20]; RemainingAmt: Decimal)
     begin
-        Init;
+        Init();
         "Entry No." := BankAccountLedgerEntry."Entry No.";
         "Posting Date" := BankAccountLedgerEntry."Posting Date";
         "Document Type" := BankAccountLedgerEntry."Document Type".AsInteger();
@@ -155,7 +154,7 @@
         Type := BankTransacType;
         "Statement Type" := StatementType;
         "Statement No." := StatementNo;
-        Insert;
+        Insert();
     end;
 
     procedure GetAppliedAmount(EntryNo: Integer) AppliedAmt: Decimal
@@ -163,11 +162,10 @@
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
         AppliedPaymentEntry.SetRange("Applies-to Entry No.", EntryNo);
-        if AppliedPaymentEntry.FindSet() then begin
+        if AppliedPaymentEntry.FindSet() then
             repeat
-                AppliedAmt += AppliedPaymentEntry."Applied Amount";
+                    AppliedAmt += AppliedPaymentEntry."Applied Amount";
             until AppliedPaymentEntry.Next() = 0;
-        end;
 
         exit(AppliedAmt);
     end;

@@ -109,8 +109,6 @@ page 5342 "CRM Contact List"
                 ApplicationArea = Suite;
                 Caption = 'Create Contact in Business Central';
                 Image = NewCustomer;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create a contact in Dynamics 365 that is linked to the Dataverse contact.';
 
                 trigger OnAction()
@@ -127,8 +125,6 @@ page 5342 "CRM Contact List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Contacts';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled contacts.';
 
                 trigger OnAction()
@@ -141,14 +137,29 @@ page 5342 "CRM Contact List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Contacts';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled contacts.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CreateFromCRM_Promoted; CreateFromCRM)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

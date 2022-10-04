@@ -174,22 +174,22 @@ codeunit 312 "Cust-Check Cr. Limit"
         if IsHandled then
             exit;
 
-        if AdditionalContextId = GetBothNotificationsId then begin
-            CreateAndSendNotification(RecordId, GetCreditLimitNotificationId, CustCheckCreditLimit.GetHeading);
-            CreateAndSendNotification(RecordId, GetOverdueBalanceNotificationId, CustCheckCreditLimit.GetSecondHeading);
+        if AdditionalContextId = GetBothNotificationsId() then begin
+            CreateAndSendNotification(RecordId, GetCreditLimitNotificationId(), CustCheckCreditLimit.GetHeading());
+            CreateAndSendNotification(RecordId, GetOverdueBalanceNotificationId(), CustCheckCreditLimit.GetSecondHeading());
             exit;
         end;
 
         if Heading = '' then
-            Heading := CustCheckCreditLimit.GetHeading;
+            Heading := CustCheckCreditLimit.GetHeading();
 
         case Heading of
             CreditLimitNotificationMsg:
-                NotificationToSend.Id(GetCreditLimitNotificationId);
+                NotificationToSend.Id(GetCreditLimitNotificationId());
             OverdueBalanceNotificationMsg:
-                NotificationToSend.Id(GetOverdueBalanceNotificationId);
+                NotificationToSend.Id(GetOverdueBalanceNotificationId());
             else
-                NotificationToSend.Id(CreateGuid);
+                NotificationToSend.Id(CreateGuid());
         end;
 
         NotificationToSend.Message(Heading);
@@ -218,14 +218,14 @@ codeunit 312 "Cust-Check Cr. Limit"
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabledForRecord(GetCreditLimitNotificationId, Customer));
+        exit(MyNotifications.IsEnabledForRecord(GetCreditLimitNotificationId(), Customer));
     end;
 
     procedure IsOverdueBalanceNotificationEnabled(Customer: Record Customer): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabledForRecord(GetOverdueBalanceNotificationId, Customer));
+        exit(MyNotifications.IsEnabledForRecord(GetOverdueBalanceNotificationId(), Customer));
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
@@ -233,11 +233,11 @@ codeunit 312 "Cust-Check Cr. Limit"
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefaultWithTableNum(GetCreditLimitNotificationId,
+        MyNotifications.InsertDefaultWithTableNum(GetCreditLimitNotificationId(),
           CreditLimitNotificationMsg,
           CreditLimitNotificationDescriptionTxt,
           DATABASE::Customer);
-        MyNotifications.InsertDefaultWithTableNum(GetOverdueBalanceNotificationId,
+        MyNotifications.InsertDefaultWithTableNum(GetOverdueBalanceNotificationId(),
           OverdueBalanceNotificationMsg,
           OverdueBalanceNotificationDescriptionTxt,
           DATABASE::Customer);

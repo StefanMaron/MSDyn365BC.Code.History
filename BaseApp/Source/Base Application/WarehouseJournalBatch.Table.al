@@ -33,7 +33,7 @@ table 7310 "Warehouse Journal Batch"
                     WhseJnlLine.SetRange("Journal Batch Name", Name);
                     WhseJnlLine.SetRange("Location Code", "Location Code");
                     WhseJnlLine.ModifyAll("Reason Code", "Reason Code");
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -62,7 +62,7 @@ table 7310 "Warehouse Journal Batch"
                 WhseJnlLine.SetRange("Journal Batch Name", Name);
                 WhseJnlLine.SetRange("Location Code", "Location Code");
                 WhseJnlLine.ModifyAll("Registering No. Series", "Registering No. Series");
-                Modify;
+                Modify();
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -134,14 +134,15 @@ table 7310 "Warehouse Journal Batch"
         WhseJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         WhseJnlLine.SetRange("Journal Batch Name", xRec.Name);
         WhseJnlLine.SetRange("Location Code", xRec."Location Code");
-        while WhseJnlLine.FindFirst do
+        while WhseJnlLine.FindFirst() do
             WhseJnlLine.Rename("Journal Template Name", Name, "Location Code", WhseJnlLine."Line No.");
     end;
 
     var
-        Text000: Label 'must not be %1';
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlLine: Record "Warehouse Journal Line";
+
+        Text000: Label 'must not be %1';
 
     procedure SetupNewBatch()
     begin

@@ -10,7 +10,7 @@ page 9834 "User Group Permission Sets"
         {
             repeater(Group)
             {
-                field("Role ID"; "Role ID")
+                field("Role ID"; Rec."Role ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -23,7 +23,7 @@ page 9834 "User Group Permission Sets"
                         PermissionSets: Page "Permission Sets";
                     begin
                         PermissionSets.LookupMode(true);
-                        if PermissionSets.RunModal = ACTION::LookupOK then begin
+                        if PermissionSets.RunModal() = ACTION::LookupOK then begin
                             PermissionSets.GetRecord(TempPermissionSetBuffer);
                             "Role ID" := TempPermissionSetBuffer."Role ID";
                             Scope := TempPermissionSetBuffer.Scope;
@@ -51,9 +51,9 @@ page 9834 "User Group Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Caption = 'Name';
-					ToolTip = 'Specifies the name of the permission set.';
+                    ToolTip = 'Specifies the name of the permission set.';
                 }
-                field("App Name"; "Extension Name")
+                field("App Name"; Rec."Extension Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -72,10 +72,9 @@ page 9834 "User Group Permission Sets"
         if Scope = Scope::Tenant then begin
             if TenantPermissionSetRec.Get("App ID", "Role ID") then
                 AppRoleName := TenantPermissionSetRec.Name
-        end else begin
+        end else
             if PermissionSetRec.Get("Role ID") then
-                AppRoleName := PermissionSetRec.Name
-        end
+                AppRoleName := PermissionSetRec.Name;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

@@ -1,7 +1,7 @@
 page 5128 "Close Opportunity"
 {
     Caption = 'Close Opportunity';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -27,9 +27,9 @@ page 5128 "Close Opportunity"
                         CloseOpportunityCode: Record "Close Opportunity Code";
                     begin
                         if "Action Taken" = "Action Taken"::Lost then
-                            LostActionTakenOnValidate;
+                            LostActionTakenOnValidate();
                         if "Action Taken" = "Action Taken"::Won then
-                            WonActionTakenOnValidate;
+                            WonActionTakenOnValidate();
 
                         case "Action Taken" of
                             "Action Taken"::Won:
@@ -45,7 +45,7 @@ page 5128 "Close Opportunity"
                                 end;
                         end;
 
-                        UpdateEstimates;
+                        UpdateEstimates();
                         case "Action Taken" of
                             "Action Taken"::Won:
                                 begin
@@ -66,26 +66,26 @@ page 5128 "Close Opportunity"
                         end;
                     end;
                 }
-                field("Close Opportunity Code"; "Close Opportunity Code")
+                field("Close Opportunity Code"; Rec."Close Opportunity Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Close Opportunity Code';
                     ToolTip = 'Specifies the code for closing the opportunity.';
                 }
-                field("Date of Change"; "Date of Change")
+                field("Date of Change"; Rec."Date of Change")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Closing Date';
                     ToolTip = 'Specifies the date this opportunity entry was last changed.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Sales (LCY)';
                     Enabled = CalcdCurrentValueLCYEnable;
                     ToolTip = 'Specifies the calculated current value of the opportunity entry.';
                 }
-                field("Cancel Old To Do"; "Cancel Old To Do")
+                field("Cancel Old To Do"; Rec."Cancel Old To Do")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Cancel Old Tasks';
@@ -105,15 +105,14 @@ page 5128 "Close Opportunity"
                 Caption = '&Finish';
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Finish closing the opportunity.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    CheckStatus;
-                    FinishWizard;
-                    CurrPage.Close;
+                    CheckStatus();
+                    FinishWizard();
+                    CurrPage.Close();
                 end;
             }
             action(SalesQuote)
@@ -123,7 +122,6 @@ page 5128 "Close Opportunity"
                 Enabled = SalesQuoteEnable;
                 Image = Quote;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Create a sales quote based on the opportunity.';
 
                 trigger OnAction()
@@ -131,13 +129,27 @@ page 5128 "Close Opportunity"
                     SalesHeader: Record "Sales Header";
                 begin
                     if Opp.Get("Opportunity No.") then begin
-                        Opp.ShowQuote;
+                        Opp.ShowQuote();
                         if SalesHeader.Get(SalesHeader."Document Type"::Quote, Opp."Sales Document No.") then begin
                             "Calcd. Current Value (LCY)" := GetSalesDocValue(SalesHeader);
                             CurrPage.Update();
                         end;
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(Finish_Promoted; Finish)
+                {
+                }
+                actionref(SalesQuote_Promoted; SalesQuote)
+                {
+                }
             }
         }
     }
@@ -152,21 +164,20 @@ page 5128 "Close Opportunity"
 
     trigger OnOpenPage()
     begin
-        UpdateEditable;
+        UpdateEditable();
         "Cancel Old To Do" := true;
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            CheckStatus;
-            FinishWizard;
+            CheckStatus();
+            FinishWizard();
         end;
     end;
 
     var
-        Text000: Label 'untitled';
         Cont: Record Contact;
         ClientTypeManagement: Codeunit "Client Type Management";
         [InDataSet]
@@ -175,8 +186,10 @@ page 5128 "Close Opportunity"
         OptionWonEnable: Boolean;
         [InDataSet]
         OptionLostEnable: Boolean;
-        IsNotAValidSelectionErr: Label '%1 is not a valid selection.', Comment = '%1 - Field Value';
         IsOnMobile: Boolean;
+
+        Text000: Label 'untitled';
+        IsNotAValidSelectionErr: Label '%1 is not a valid selection.', Comment = '%1 - Field Value';
 
     protected var
         Opp: Record Opportunity;

@@ -143,8 +143,8 @@ table 841 "Cash Flow Account"
                 GLAccList: Page "G/L Account List";
             begin
                 GLAccList.LookupMode(true);
-                if GLAccList.RunModal = ACTION::LookupOK then
-                    "G/L Account Filter" := CopyStr(GLAccList.GetSelectionFilter, 1, MaxStrLen("G/L Account Filter"));
+                if GLAccList.RunModal() = ACTION::LookupOK then
+                    "G/L Account Filter" := CopyStr(GLAccList.GetSelectionFilter(), 1, MaxStrLen("G/L Account Filter"));
             end;
         }
     }

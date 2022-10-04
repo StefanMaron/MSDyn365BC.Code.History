@@ -15,13 +15,13 @@ page 9844 "Plan Permission Set"
         {
             repeater(Group)
             {
-                field("Plan Name"; "Plan Name")
+                field("Plan Name"; Rec."Plan Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Plan';
                     ToolTip = 'Specifies the name of the subscription plan.';
                 }
-                field("Permission Set ID"; "Permission Set ID")
+                field("Permission Set ID"; Rec."Permission Set ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';

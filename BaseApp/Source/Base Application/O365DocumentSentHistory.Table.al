@@ -3,6 +3,14 @@ table 2158 "O365 Document Sent History"
     Caption = 'O365 Document Sent History';
     Permissions = TableData "O365 Document Sent History" = rimd;
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -44,7 +52,6 @@ table 2158 "O365 Document Sent History"
             Caption = 'Job Last Status';
             OptionCaption = ',In Process,Finished,Error';
             OptionMembers = ,"In Process",Finished,Error;
-
             trigger OnValidate()
             var
                 JobQueueLogEntry: Record "Job Queue Log Entry";
@@ -93,13 +100,14 @@ table 2158 "O365 Document Sent History"
     fieldgroups
     {
     }
-
+#if not CLEAN21
     var
         DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Locked = true;
         FailedToSetStatusTelemetryErr: Label 'Failed to set Document Sent History status to %1 because of error %2.', Locked = true;
         UnrecognizedParentRecordErr: Label 'Unsupported parent record: Table %1', Locked = true;
         StatusSetTelemetryMsg: Label 'Document Sent History status set to %1.', Locked = true;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure NewInProgressFromJobQueue(var JobQueueEntry: Record "Job Queue Entry"): Boolean
     var
         RecRef: RecordRef;
@@ -123,6 +131,7 @@ table 2158 "O365 Document Sent History"
         exit(Modify(true));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure DeleteSentHistoryForDocument(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; DocPosted: Boolean)
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
@@ -134,6 +143,7 @@ table 2158 "O365 Document Sent History"
         O365DocumentSentHistory.DeleteAll();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure ShowJobQueueErrorMessage()
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
@@ -142,9 +152,10 @@ table 2158 "O365 Document Sent History"
         if not JobQueueLogEntry.FindFirst() then
             exit;
 
-        JobQueueLogEntry.ShowErrorMessage;
+        JobQueueLogEntry.ShowErrorMessage();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetJobQueueErrorMessage(): Text
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
@@ -156,6 +167,7 @@ table 2158 "O365 Document Sent History"
         exit(JobQueueLogEntry."Error Message");
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure NewInProgressFromSalesHeader(SalesHeader: Record "Sales Header"): Boolean
     begin
         SetHistoryForDocumentAsNotified(SalesHeader."Document Type", SalesHeader."No.", false);
@@ -171,6 +183,7 @@ table 2158 "O365 Document Sent History"
         exit(Insert(true));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure NewInProgressFromSalesInvoiceHeader(SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
         SetHistoryForDocumentAsNotified("Document Type"::Invoice, SalesInvoiceHeader."No.", true);
@@ -186,6 +199,7 @@ table 2158 "O365 Document Sent History"
         exit(Insert(true));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure NewInProgressFromRecRef(RecRef: RecordRef) Result: Boolean
     var
         SalesHeader: Record "Sales Header";
@@ -215,6 +229,7 @@ table 2158 "O365 Document Sent History"
         end;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetHistoryForDocumentAsNotified(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; IsPosted: Boolean)
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
@@ -227,6 +242,7 @@ table 2158 "O365 Document Sent History"
         O365DocumentSentHistory.ModifyAll(NotificationCleared, true);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetStatusAsFailed(): Boolean
     begin
         Validate("Job Last Status", "Job Last Status"::Error);
@@ -240,6 +256,7 @@ table 2158 "O365 Document Sent History"
         exit(false);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetStatusAsSuccessfullyFinished(): Boolean
     begin
         Validate("Job Last Status", "Job Last Status"::Finished);
@@ -257,5 +274,6 @@ table 2158 "O365 Document Sent History"
     local procedure OnBeforeNewInProgressFromRecRef(RecRef: RecordRef; var Result: Boolean; var IsHandled: Boolean; var O365DocumentSentHistory: Record "O365 Document Sent History")
     begin
     end;
+#endif
 }
 

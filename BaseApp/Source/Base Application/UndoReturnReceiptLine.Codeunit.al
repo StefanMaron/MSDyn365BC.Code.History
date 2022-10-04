@@ -1,4 +1,4 @@
-﻿codeunit 5816 "Undo Return Receipt Line"
+codeunit 5816 "Undo Return Receipt Line"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Item Entry Relation" = ri,
@@ -22,7 +22,7 @@
                 exit;
 
         ReturnRcptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := ReturnRcptLine;
     end;
 
@@ -33,13 +33,14 @@
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
         UndoPostingMgt: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        WhseUndoQty: Codeunit "Whse. Undo Quantity";
+        HideDialog: Boolean;
+        NextLineNo: Integer;
+
         Text000: Label 'Do you really want to undo the selected Return Receipt lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
-        WhseUndoQty: Codeunit "Whse. Undo Quantity";
-        HideDialog: Boolean;
         Text003: Label 'Checking lines...';
-        NextLineNo: Integer;
         Text004: Label 'This receipt has already been invoiced. Undo Return Receipt can be applied only to posted, but not invoiced receipts.';
         AlreadyReversedErr: Label 'This return receipt has already been reversed.';
 
@@ -228,7 +229,7 @@
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
                 DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.",
-                TempWhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.", TempWhseJnlLine, NextLineNo);
+                TempWhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.".AsInteger(), TempWhseJnlLine, NextLineNo);
 
             if "Item Rcpt. Entry No." <> 0 then begin
                 ItemJnlPostLine.Run(ItemJnlLine);

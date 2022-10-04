@@ -12,13 +12,13 @@ page 580 "Dimension Translations"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Language ID"; "Language ID")
+                field("Language ID"; Rec."Language ID")
                 {
                     ApplicationArea = Dimensions;
                     LookupPageID = "Windows Languages";
                     ToolTip = 'Specifies a language code.';
                 }
-                field("Language Name"; "Language Name")
+                field("Language Name"; Rec."Language Name")
                 {
                     ApplicationArea = Dimensions;
                     DrillDown = false;
@@ -30,12 +30,12 @@ page 580 "Dimension Translations"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the name of the dimension code.';
                 }
-                field("Code Caption"; "Code Caption")
+                field("Code Caption"; Rec."Code Caption")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the name of the dimension code as you want it to appear as a field name after the Language ID code is selected.';
                 }
-                field("Filter Caption"; "Filter Caption")
+                field("Filter Caption"; Rec."Filter Caption")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension filter caption.';

@@ -5,21 +5,11 @@ codeunit 380 "Bank Acc. Recon. Test"
     begin
     end;
 
-    procedure TotalOutstandingPayments(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
-    begin
-        if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then
-            exit(
-                BankAccReconciliation."Total Outstd Payments" -
-                BankAccReconciliation."Total Applied Amount Payments"
-            );
-        exit(OutstandingPayments(BankAccReconciliation));
-    end;
-
     procedure TotalPositiveDifference(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
     begin
         case BankAccReconciliation."Statement Type" of
             BankAccReconciliation."Statement Type"::"Bank Reconciliation":
-                exit(BankAccReconciliation."Total Positive Difference");
+                exit(0);
             BankAccReconciliation."Statement Type"::"Payment Application":
                 exit(BankAccReconciliation."Total Positive Adjustments");
         end;
@@ -29,24 +19,10 @@ codeunit 380 "Bank Acc. Recon. Test"
     begin
         case BankAccReconciliation."Statement Type" of
             BankAccReconciliation."Statement Type"::"Bank Reconciliation":
-                exit(BankAccReconciliation."Total Negative Difference");
+                exit(0);
             BankAccReconciliation."Statement Type"::"Payment Application":
                 exit(BankAccReconciliation."Total Negative Adjustments");
         end;
-    end;
-
-    procedure TotalOutstandingBankTransactions(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
-    var
-        Total: Decimal;
-    begin
-        case BankAccReconciliation."Statement Type" of
-            BankAccReconciliation."Statement Type"::"Bank Reconciliation":
-                Total := OutstandingBankTransactions(BankAccReconciliation);
-            BankAccReconciliation."Statement Type"::"Payment Application":
-                Total := BankAccReconciliation."Total Outstd Bank Transactions" -
-                    (BankAccReconciliation."Total Applied Amount" - BankAccReconciliation."Total Applied Amount Payments" - BankAccReconciliation."Total Unposted Applied Amount");
-        end;
-        exit(Total);
     end;
 
     local procedure SetOutstandingFilters(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
@@ -58,37 +34,98 @@ codeunit 380 "Bank Acc. Recon. Test"
             BankAccountLedgerEntry.SetRange("Posting Date", 0D, BankAccReconciliation."Statement Date");
     end;
 
-    local procedure OutstandingBankTransactions(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
+    procedure TotalOutstandingBankTransactions(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Total: Decimal;
     begin
-        Total := 0;
         SetOutstandingFilters(BankAccReconciliation, BankAccountLedgerEntry);
         BankAccountLedgerEntry.SetRange("Check Ledger Entries", 0);
 
-        if BankAccountLedgerEntry.FindSet() then
-            repeat
-                Total += BankAccountLedgerEntry.Amount;
-            until BankAccountLedgerEntry.Next() = 0;
+        BankAccountLedgerEntry.CalcSums(Amount);
+        Total := BankAccountLedgerEntry.Amount;
+
+        if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
+            // When the BankAccReconciliation is created from the Payment Reconciliation Journal:
+            // we subtract the "Applied Amount" to Bank Ledger Entries with no CLE, since those are no longer outstanding.
+            BankAccReconciliation.SetFiltersOnBankAccReconLineTable(BankAccReconciliation, BankAccReconciliationLine);
+            BankAccReconciliationLine.SetRange("Account Type", BankAccReconciliationLine."Account Type"::"Bank Account");
+            if BankAccReconciliationLine.FindSet() then
+                repeat
+                    // We will just subtract the "Applied Amount" if there is no Check Ledger Entry
+                    // associated to that BLE
+                    BankAccountLedgerEntry.Reset();
+                    BankAccountLedgerEntry.SetFilter("Document No.", BankAccReconciliationLine.GetAppliedToDocumentNo('|'));
+                    BankAccountLedgerEntry.SetRange("Check Ledger Entries", 0);
+                    if not BankAccountLedgerEntry.IsEmpty() then
+                        Total -= BankAccReconciliationLine."Applied Amount";
+                until BankAccReconciliationLine.Next() = 0;
+        end;
         exit(Total);
     end;
 
-    local procedure OutstandingPayments(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
+    procedure TotalOutstandingPayments(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Total: Decimal;
     begin
-        Total := 0;
         SetOutstandingFilters(BankAccReconciliation, BankAccountLedgerEntry);
         BankAccountLedgerEntry.SetFilter("Check Ledger Entries", '<>0');
 
-        if BankAccountLedgerEntry.FindSet() then
-            repeat
-                Total += BankAccountLedgerEntry.Amount;
-            until BankAccountLedgerEntry.Next() = 0;
+        BankAccountLedgerEntry.CalcSums(Amount);
+        Total := BankAccountLedgerEntry.Amount;
+
+        if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
+            // When the BankAccReconciliation is created from the Payment Reconciliation Journal:
+            // we subtract the "Applied Amount" to Bank Ledger Entries with CLEs, since those are no longer outstanding.
+            BankAccReconciliation.SetFiltersOnBankAccReconLineTable(BankAccReconciliation, BankAccReconciliationLine);
+            BankAccReconciliationLine.SetRange("Account Type", BankAccReconciliationLine."Account Type"::"Bank Account");
+            if BankAccReconciliationLine.FindSet() then
+                repeat
+                    // We will just subtract the "Applied Amount" if there are Check Ledger Entry
+                    // associated to that BLE
+                    BankAccountLedgerEntry.Reset();
+                    BankAccountLedgerEntry.SetFilter("Document No.", BankAccReconciliationLine.GetAppliedToDocumentNo('|'));
+                    BankAccountLedgerEntry.SetFilter("Check Ledger Entries", '<>0');
+                    if not BankAccountLedgerEntry.IsEmpty() then
+                        Total -= BankAccReconciliationLine."Applied Amount";
+                until BankAccReconciliationLine.Next() = 0;
+        end;
         exit(Total);
     end;
 
+    procedure GetGLAccountBalanceLCY(BankAcc: Record "Bank Account"; BankAccPostingGroup: Record "Bank Account Posting Group"; StatementDate: Date): Decimal
+    var
+        GLAccount: Record "G/L Account";
+        GLEntries: Record "G/L Entry";
+    begin
+        if BankAccPostingGroup."G/L Account No." = '' then
+            exit(0);
+
+        if not GLAccount.Get(BankAccPostingGroup."G/L Account No.") then
+            exit(0);
+
+        GLEntries.SetRange("G/L Account No.", BankAccPostingGroup."G/L Account No.");
+        if (StatementDate <> 0D) then
+            GLEntries.SetFilter("Posting Date", '<= %1', StatementDate);
+        GLEntries.SetFilter("Source No.", '''''| %1', BankAcc."No.");
+
+        if GLEntries.IsEmpty() then
+            exit(0);
+
+        GLEntries.CalcSums(Amount);
+        exit(GLEntries.Amount);
+    end;
+
+    procedure GetGLAccountBalance(TotalBalOnGLAccountLCY: Decimal; StatementDate: Date; CurrencyCode: Code[10]): Decimal
+    var
+        Currency: Record "Currency Exchange Rate";
+        ExchangeRate: Decimal;
+    begin
+        ExchangeRate := Currency.ExchangeRate(StatementDate, CurrencyCode);
+        exit(TotalBalOnGLAccountLCY * ExchangeRate);
+    end;
 }
 

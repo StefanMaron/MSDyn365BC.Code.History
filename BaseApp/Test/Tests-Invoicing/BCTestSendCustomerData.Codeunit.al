@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138963 "BC Test Send Customer Data"
 {
     EventSubscriberInstance = Manual;
@@ -108,7 +109,7 @@ codeunit 138963 "BC Test Send Customer Data"
         // [THEN] There will be created an excel sheet with all relevant customer data and sent to the customer
         // Verify Customer sheet
         TempExcelBuffer.OpenBook(ServerFileName, CustomerInformationTxt);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.Get(1, 1);
         Assert.AreEqual(CustomerInformationTxt, TempExcelBuffer."Cell Value as Text", 'Unexpected excel content');
         TempExcelBuffer.Get(3, 1);
@@ -124,7 +125,7 @@ codeunit 138963 "BC Test Send Customer Data"
         Clear(TempExcelBuffer);
         Assert.IsTrue(File.Exists(ServerFileName), 'Server file does not exist (sent invoices)'); // We see random errors on OpenBook in this function, this is to verify that the file wasn't deleted for some reason
         TempExcelBuffer.OpenBook(ServerFileName, SentInvoicesTxt);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.Get(1, 1);
         Assert.AreEqual(SentInvoicesTxt, TempExcelBuffer."Cell Value as Text", 'Unexpected excel content');
         TempExcelBuffer.Get(4, 2);
@@ -137,7 +138,7 @@ codeunit 138963 "BC Test Send Customer Data"
         Clear(TempExcelBuffer);
         Assert.IsTrue(File.Exists(ServerFileName), 'Server file does not exist (Draft Invoices)'); // We see random errors on OpenBook in this function, this is to verify that the file wasn't deleted for some reason
         TempExcelBuffer.OpenBook(ServerFileName, DraftInvoicesTxt);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.Get(1, 1);
         Assert.AreEqual(DraftInvoicesTxt, TempExcelBuffer."Cell Value as Text", 'Unexpected excel content');
         TempExcelBuffer.Get(4, 2);
@@ -150,7 +151,7 @@ codeunit 138963 "BC Test Send Customer Data"
         Clear(TempExcelBuffer);
         Assert.IsTrue(File.Exists(ServerFileName), 'Server file does not exist (Estimates)'); // We see random errors on OpenBook in this function, this is to verify that the file wasn't deleted for some reason
         TempExcelBuffer.OpenBook(ServerFileName, QuotesTxt);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.Get(1, 1);
         Assert.AreEqual(QuotesTxt, TempExcelBuffer."Cell Value as Text", 'Unexpected excel content');
         TempExcelBuffer.Get(4, 2);
@@ -192,7 +193,7 @@ codeunit 138963 "BC Test Send Customer Data"
         // [THEN] There will be created an excel sheet with all relevant customer data
         // Verify Customer sheet
         TempExcelBuffer.OpenBook(ServerFileName, CustomerInformationTxt);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.SetRange("Column No.", 1);
         TempExcelBuffer.SetRange("Cell Value as Text", Customer.FieldCaption("Responsibility Center"));
         Assert.IsTrue(TempExcelBuffer.IsEmpty, '"Responsibility Center" was not expected');
@@ -221,7 +222,7 @@ codeunit 138963 "BC Test Send Customer Data"
     begin
         CreateCustomer(Customer);
         // We use Customer."Responsibility Center" to test the data sensitivity.
-        Customer."Responsibility Center" := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer."Responsibility Center"));
+        Customer."Responsibility Center" := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Customer."Responsibility Center"));
         Customer.Modify();
         if DataSensitivity.Get(CompanyName, DATABASE::Customer, Customer.FieldNo("Responsibility Center")) then
             DataSensitivity.Delete();
@@ -279,4 +280,4 @@ codeunit 138963 "BC Test Send Customer Data"
         DoNotScheduleTask := true;
     end;
 }
-
+#endif

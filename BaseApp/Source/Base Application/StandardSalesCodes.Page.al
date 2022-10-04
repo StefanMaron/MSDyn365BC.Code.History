@@ -27,7 +27,7 @@ page 172 "Standard Sales Codes"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the standard sales code.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the amounts on the standard sales lines.';

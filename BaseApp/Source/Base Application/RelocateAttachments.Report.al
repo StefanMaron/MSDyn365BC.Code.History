@@ -24,10 +24,10 @@ report 5181 "Relocate Attachments"
                 then begin
                     RMSetup.TestField("Attachment Storage Location");
                     if "Storage Pointer" <> RMSetup."Attachment Storage Location" then begin
-                        FromDiskFileName := ConstDiskFileName;
+                        FromDiskFileName := ConstDiskFileName();
                         "Storage Pointer" := RMSetup."Attachment Storage Location";
-                        Modify;
-                        FileManagement.CopyServerFile(FromDiskFileName, ConstDiskFileName, false); // Copy from UNC location to another UNC location
+                        Modify();
+                        FileManagement.CopyServerFile(FromDiskFileName, ConstDiskFileName(), false); // Copy from UNC location to another UNC location
                         Commit();
                         FileManagement.DeleteServerFile(FromDiskFileName);
                     end;
@@ -40,9 +40,9 @@ report 5181 "Relocate Attachments"
                 then begin
                     RMSetup.TestField("Attachment Storage Location");
                     CalcFields("Attachment File");
-                    if "Attachment File".HasValue then begin
+                    if "Attachment File".HasValue() then begin
                         "Storage Pointer" := RMSetup."Attachment Storage Location";
-                        ServerFileName := ConstDiskFileName;
+                        ServerFileName := ConstDiskFileName();
                         ExportAttachmentToServerFile(ServerFileName); // Export blob to UNC location
                         "Storage Type" := "Storage Type"::"Disk File";
                         Clear("Attachment File");
@@ -56,8 +56,8 @@ report 5181 "Relocate Attachments"
                 if ("Storage Type" = "Storage Type"::"Disk File") and
                    (RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::Embedded)
                 then begin
-                    FromDiskFileName := ConstDiskFileName;
-                    ImportAttachmentFromServerFile(GetServerFileName(ConstDiskFileName), false, true); // Import file from UNC location
+                    FromDiskFileName := ConstDiskFileName();
+                    ImportAttachmentFromServerFile(GetServerFileName(ConstDiskFileName()), false, true); // Import file from UNC location
                     Commit();
                     FileManagement.DeleteServerFile(FromDiskFileName);
                     CurrReport.Skip();
@@ -85,7 +85,7 @@ report 5181 "Relocate Attachments"
     trigger OnInitReport()
     begin
         if not Confirm(Text000, true) then
-            CurrReport.Quit;
+            CurrReport.Quit();
     end;
 
     trigger OnPreReport()

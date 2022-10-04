@@ -33,7 +33,7 @@ table 7354 Bin
                 if "Zone Code" <> xRec."Zone Code" then begin
                     CheckEmptyBin(Text007);
                     if Code = '' then
-                        SetUpNewLine;
+                        SetUpNewLine();
                     BinContent.Reset();
                     BinContent.SetRange("Location Code", "Location Code");
                     BinContent.SetRange("Bin Code", Code);
@@ -251,7 +251,7 @@ table 7354 Bin
             ItemJnlLine.SetRange("Location Code", "Location Code");
             if ItemJnlLine.FindFirst() then
                 if not Confirm(
-                     Text002, false, StrSubstNo(ItemJnlLine.TableCaption, TableCaption))
+                     Text002, false, StrSubstNo(ItemJnlLine.TableCaption(), TableCaption))
                 then
                     Error(Text003);
         end;
@@ -305,13 +305,14 @@ table 7354 Bin
     var
         Location: Record Location;
         Zone: Record Zone;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        WMSMgt: Codeunit "WMS Management";
+
         Text000: Label 'You cannot %1 the %2 with %3 = %4, %5 = %6, because the %2 contains items.';
         Text001: Label 'You cannot %1 the %2 with %3 = %4, %5 = %6, because one or more %7 exists for this %2.';
         Text002: Label 'One or more %1 exists for this bin. Do you still want to delete this %2?';
         Text003: Label 'Cancelled.';
-        BinContent: Record "Bin Content";
-        Item: Record Item;
-        WMSMgt: Codeunit "WMS Management";
         Text005: Label 'The total cubage %1 of the %2 in the bin contents exceeds the entered %3 %4.\Do you still want to enter this %3?';
         Text006: Label 'The total weight %1 of the %2 in the bin contents exceeds the entered %3 %4.\Do you still want to enter this %3?';
         Text007: Label 'modify';
@@ -543,7 +544,7 @@ table 7354 Bin
         if WarehouseEntry."Qty. (Base)" <> 0 then
             Error(
               Text000,
-              ErrorText, TableCaption, FieldCaption("Location Code"),
+              ErrorText, TableCaption(), FieldCaption("Location Code"),
               "Location Code", FieldCaption(Code), Code);
 
         WhseActivLine.SetRange("Bin Code", Code);
@@ -552,16 +553,16 @@ table 7354 Bin
         if not WhseActivLine.IsEmpty() then
             Error(
               Text001,
-              ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
-              FieldCaption(Code), Code, WhseActivLine.TableCaption);
+              ErrorText, TableCaption(), FieldCaption("Location Code"), "Location Code",
+              FieldCaption(Code), Code, WhseActivLine.TableCaption());
 
         WarehouseJnl.SetRange("Location Code", "Location Code");
         WarehouseJnl.SetRange("From Bin Code", Code);
         if not WarehouseJnl.IsEmpty() then
             Error(
               Text001,
-              ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
-              FieldCaption(Code), Code, WarehouseJnl.TableCaption);
+              ErrorText, TableCaption(), FieldCaption("Location Code"), "Location Code",
+              FieldCaption(Code), Code, WarehouseJnl.TableCaption());
 
         WarehouseJnl.Reset();
         WarehouseJnl.SetRange("To Bin Code", Code);
@@ -569,24 +570,24 @@ table 7354 Bin
         if not WarehouseJnl.IsEmpty() then
             Error(
               Text001,
-              ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
-              FieldCaption(Code), Code, WarehouseJnl.TableCaption);
+              ErrorText, TableCaption(), FieldCaption("Location Code"), "Location Code",
+              FieldCaption(Code), Code, WarehouseJnl.TableCaption());
 
         WhseRcptLine.SetRange("Bin Code", Code);
         WhseRcptLine.SetRange("Location Code", "Location Code");
         if not WhseRcptLine.IsEmpty() then
             Error(
               Text001,
-              ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
-              FieldCaption(Code), Code, WhseRcptLine.TableCaption);
+              ErrorText, TableCaption(), FieldCaption("Location Code"), "Location Code",
+              FieldCaption(Code), Code, WhseRcptLine.TableCaption());
 
         WhseShptLine.SetRange("Bin Code", Code);
         WhseShptLine.SetRange("Location Code", "Location Code");
         if not WhseShptLine.IsEmpty() then
             Error(
               Text001,
-              ErrorText, TableCaption, FieldCaption("Location Code"), "Location Code",
-              FieldCaption(Code), Code, WhseShptLine.TableCaption);
+              ErrorText, TableCaption(), FieldCaption("Location Code"), "Location Code",
+              FieldCaption(Code), Code, WhseShptLine.TableCaption());
 
         OnAfterCheckEmptyBin(Rec);
     end;
@@ -622,13 +623,13 @@ table 7354 Bin
 
                 if ("Maximum Cubage" <> 0) and (PutawayCubage > AvailableCubage) then
                     WMSMgt.CheckPutAwayAvailability(
-                      BinCode, WhseActivLine.FieldCaption(Cubage), TableCaption, PutawayCubage, AvailableCubage,
+                      BinCode, WhseActivLine.FieldCaption(Cubage), TableCaption(), PutawayCubage, AvailableCubage,
                       (Location."Bin Capacity Policy" =
                        Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
 
                 if ("Maximum Weight" <> 0) and (PutawayWeight > AvailableWeight) then
                     WMSMgt.CheckPutAwayAvailability(
-                      BinCode, WhseActivLine.FieldCaption(Weight), TableCaption, PutawayWeight, AvailableWeight,
+                      BinCode, WhseActivLine.FieldCaption(Weight), TableCaption(), PutawayWeight, AvailableWeight,
                       (Location."Bin Capacity Policy" =
                        Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
             end;

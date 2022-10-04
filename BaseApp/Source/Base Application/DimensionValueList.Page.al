@@ -1,7 +1,7 @@
 page 560 "Dimension Value List"
 {
     Caption = 'Dimension Value List';
-    DataCaptionExpression = GetFormCaption;
+    DataCaptionExpression = GetFormCaption();
     Editable = false;
     PageType = List;
     SourceTable = "Dimension Value";
@@ -30,7 +30,7 @@ page 560 "Dimension Value List"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies a descriptive name for the dimension value.';
                 }
-                field("Dimension Value Type"; "Dimension Value Type")
+                field("Dimension Value Type"; Rec."Dimension Value Type")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the purpose of the dimension value.';
@@ -48,7 +48,7 @@ page 560 "Dimension Value List"
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                     Visible = false;
                 }
-                field("Consolidation Code"; "Consolidation Code")
+                field("Consolidation Code"; Rec."Consolidation Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code that is used for consolidation.';
@@ -78,7 +78,7 @@ page 560 "Dimension Value List"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLines;
+        FormatLines();
     end;
 
     trigger OnOpenPage()

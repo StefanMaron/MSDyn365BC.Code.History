@@ -3,8 +3,8 @@ table 7828 "MS-QBO Sync Buffer"
     Caption = 'MS-QBO Sync Buffer';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Removed;
-    ReplicateData = false;
     ObsoleteTag = '18.0';
+    ReplicateData = false;
 
     fields
     {

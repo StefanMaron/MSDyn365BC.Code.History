@@ -93,9 +93,10 @@ table 276 "Bank Account Statement Line"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CheckLedgEntry: Record "Check Ledger Entry";
+
+        Text000: Label 'You cannot rename a %1.';
 
     procedure DisplayApplication()
     var

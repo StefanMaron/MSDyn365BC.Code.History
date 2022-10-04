@@ -18,7 +18,7 @@ codeunit 6502 "Late Binding Management"
 
     local procedure CleanUpVariables()
     begin
-        ClearAll;
+        ClearAll();
         TempReservEntryDelete.Reset();
         TempReservEntryDelete.DeleteAll();
         TempReservEntryModify.Reset();
@@ -172,7 +172,7 @@ codeunit 6502 "Late Binding Management"
 
         TempCurrDemandReservEntry.Get(SupplyReservEntry."Entry No.", not SupplyReservEntry.Positive); // Demand
 
-        if TempCurrDemandReservEntry.TrackingExists then // The reservation is not open
+        if TempCurrDemandReservEntry.TrackingExists() then // The reservation is not open
             exit; // The entry is a specific allocation and cannot be reshuffled
 
         if QtyToReshuffle <= 0 then
@@ -322,6 +322,8 @@ codeunit 6502 "Late Binding Management"
                 ReservEntry.Modify();
             until TempReservEntryModify.Next() = 0;
 
+        PrevNegEntryNo := 0;
+        LastInsertedEntryNo := 0;
         if TempReservEntryInsert.FindSet() then
             repeat
                 ReservEntry := TempReservEntryInsert;
@@ -414,7 +416,7 @@ codeunit 6502 "Late Binding Management"
                 if ReservEntry.FindSet(true, true) then
                     repeat
                         ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive); // Get demand
-                        if not ReservEntry2.TrackingExists then begin
+                        if not ReservEntry2.TrackingExists() then begin
                             TempCurrSupplyReservEntry := ReservEntry;
                             TempCurrSupplyReservEntry.Insert();
                             TempTrackingSpecification."Buffer Value5" += ReservEntry."Quantity (Base)";
@@ -506,7 +508,7 @@ codeunit 6502 "Late Binding Management"
 
         repeat
             ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);  // Get demand
-            if not ReservEntry2.TrackingExists then
+            if not ReservEntry2.TrackingExists() then
                 UnspecificQty -= ReservEntry2."Quantity (Base)"; // Sum up negative entries to a positive value
         until ReservEntry.Next() = 0;
     end;
@@ -541,7 +543,7 @@ codeunit 6502 "Late Binding Management"
         // Local procedure used when doing item tracking specific reservations
         // "Buffer Value4" : Qty for reallocation (negative = need for reallocation)
 
-        CleanUpVariables;
+        CleanUpVariables();
         TempTrackingSpecification."Item No." := ItemNo;
         TempTrackingSpecification."Variant Code" := VariantCode;
         TempTrackingSpecification."Location Code" := LocationCode;
@@ -607,7 +609,7 @@ codeunit 6502 "Late Binding Management"
         ReservEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
           "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
-        ReservEntry.SetPointerFilter;
+        ReservEntry.SetPointerFilter();
         ReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.FindSet() then

@@ -85,7 +85,7 @@ report 952 "Suggest Job Jnl. Lines"
         QtyToPost: Decimal;
     begin
         DateFilter := TimeSheetMgt.GetDateFilter(StartingDate, EndingDate);
-        FillTimeSheetLineBuffer;
+        FillTimeSheetLineBuffer();
 
         if TempTimeSheetLine.FindSet() then begin
             JobJnlLine.LockTable();
@@ -111,7 +111,7 @@ report 952 "Suggest Job Jnl. Lines"
                 TimeSheetDetail.SetRange(Posted, false);
                 if TimeSheetDetail.FindSet() then
                     repeat
-                        QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
+                        QtyToPost := TimeSheetDetail.GetMaxQtyToPost();
                         if QtyToPost <> 0 then begin
                             JobJnlLine.Init();
                             LineNo := LineNo + 10000;

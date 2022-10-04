@@ -33,16 +33,25 @@ page 1271 "OCR Service Document Templates"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update Document Template List';
                 Image = Template;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Check for new document templates that the OCR service supports, and add them to the list.';
 
                 trigger OnAction()
                 var
                     OCRServiceMgt: Codeunit "OCR Service Mgt.";
                 begin
-                    OCRServiceMgt.UpdateOcrDocumentTemplates;
+                    OCRServiceMgt.UpdateOcrDocumentTemplates();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(GetDefaults_Promoted; GetDefaults)
+                {
+                }
             }
         }
     }

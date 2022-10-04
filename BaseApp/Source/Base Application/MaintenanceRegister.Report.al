@@ -13,7 +13,7 @@ report 5633 "Maintenance Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -158,7 +158,7 @@ report 5633 "Maintenance Register"
 
     trigger OnPreReport()
     begin
-        MaintenanceRegFilter := "FA Register".GetFilters;
+        MaintenanceRegFilter := "FA Register".GetFilters();
     end;
 
     var

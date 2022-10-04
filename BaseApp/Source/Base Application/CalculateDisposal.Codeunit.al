@@ -21,7 +21,7 @@ codeunit 5605 "Calculate Disposal"
         IsHandled: Boolean;
     begin
         OnBeforeCalcGainLoss(FANo, DeprBookCode, EntryAmounts);
-        ClearAll;
+        ClearAll();
         Clear(EntryAmounts);
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
@@ -61,7 +61,7 @@ codeunit 5605 "Calculate Disposal"
     var
         NewGainLoss: Decimal;
     begin
-        ClearAll;
+        ClearAll();
         Clear(EntryAmounts);
         with FADeprBook do begin
             Get(FANo, DeprBookCode);
@@ -125,7 +125,7 @@ codeunit 5605 "Calculate Disposal"
         FALedgEntry: Record "FA Ledger Entry";
         DeprBook: Record "Depreciation Book";
     begin
-        ClearAll;
+        ClearAll();
         MaxDisposalNo := 0;
         SalesEntryNo := 0;
         DisposalType := DisposalType::FirstDisposal;
@@ -144,12 +144,11 @@ codeunit 5605 "Calculate Disposal"
                     DeprBook.Get(DeprBookCode);
                     DeprBook.TestField("Allow Correction of Disposal");
                     DisposalType := DisposalType::SecondDisposal;
-                end else begin
+                end else
                     if MaxDisposalNo = 1 then
                         DisposalType := DisposalType::LastErrorDisposal
                     else
                         DisposalType := DisposalType::ErrorDisposal;
-                end;
             end;
         end;
     end;
@@ -166,7 +165,7 @@ codeunit 5605 "Calculate Disposal"
         FALedgEntry: Record "FA Ledger Entry";
         i: Integer;
     begin
-        ClearAll;
+        ClearAll();
         Clear(EntryNumbers);
         with FALedgEntry do begin
             DepreciationCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);

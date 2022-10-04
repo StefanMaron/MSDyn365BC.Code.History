@@ -567,7 +567,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         repeat
             DimSetupArray[i] [j] := DimensionValue.Code;
             j += 1;
-        until DimensionValue.Next = 0;
+        until DimensionValue.Next() = 0;
     end;
 
     local procedure CreateDuplicateDimValues()

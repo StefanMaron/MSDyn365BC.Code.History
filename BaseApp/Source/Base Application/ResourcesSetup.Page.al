@@ -16,22 +16,22 @@ page 462 "Resources Setup"
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("Resource Nos."; "Resource Nos.")
+                field("Resource Nos."; Rec."Resource Nos.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number series code you can use to assign numbers to resources.';
                 }
-                field("Time Sheet Nos."; "Time Sheet Nos.")
+                field("Time Sheet Nos."; Rec."Time Sheet Nos.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number series code you can use to assign document numbers to time sheets.';
                 }
-                field("Time Sheet First Weekday"; "Time Sheet First Weekday")
+                field("Time Sheet First Weekday"; Rec."Time Sheet First Weekday")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the first weekday to use on a time sheet. The default is Monday.';
                 }
-                field("Time Sheet by Job Approval"; "Time Sheet by Job Approval")
+                field("Time Sheet by Job Approval"; Rec."Time Sheet by Job Approval")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether time sheets must be approved on a per job basis by the user specified for the job.';
@@ -59,10 +59,10 @@ page 462 "Resources Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

@@ -342,7 +342,7 @@ codeunit 134560 "Cash Flow Setup Test"
         AzureMLURI: Label 'http://%1.services.azureml.net', Locked = true;
     begin
         CashFlowSetup.Get();
-        APIKey := CreateGuid;
+        APIKey := CreateGuid();
         APIURL := StrSubstNo(AzureMLURI, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(50, 1), 1, 50));
         CashFlowSetup.SaveUserDefinedAPIKey(APIKey);
         CashFlowSetup.Validate("API URL", APIURL);

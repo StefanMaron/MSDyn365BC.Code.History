@@ -15,7 +15,7 @@ report 99000753 "Quantity Explosion of BOM"
             column(AsOfCalcDate; Text000 + Format(CalculateDate))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -189,7 +189,7 @@ report 99000753 "Quantity Explosion of BOM"
 
             trigger OnPreDataItem()
             begin
-                ItemFilter := GetFilters;
+                ItemFilter := GetFilters();
 
                 SetFilter("Production BOM No.", '<>%1', '');
             end;
@@ -222,7 +222,7 @@ report 99000753 "Quantity Explosion of BOM"
 
         trigger OnInit()
         begin
-            CalculateDate := WorkDate;
+            CalculateDate := WorkDate();
         end;
     }
 
@@ -233,7 +233,6 @@ report 99000753 "Quantity Explosion of BOM"
     var
         Text000: Label 'As of ';
         ProdBOM: Record "Production BOM Header";
-        BomComponent: array[99] of Record "Production BOM Line";
         CompItem: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
@@ -243,7 +242,6 @@ report 99000753 "Quantity Explosion of BOM"
         VersionCode: array[99] of Code[20];
         Quantity: array[99] of Decimal;
         QtyPerUnitOfMeasure: Decimal;
-        Level: Integer;
         NextLevel: Integer;
         BOMQty: Decimal;
         QtyExplosionofBOMCaptLbl: Label 'Quantity Explosion of BOM';
@@ -256,5 +254,9 @@ report 99000753 "Quantity Explosion of BOM"
         BomCompLevelUOMCodeCaptLbl: Label 'Unit of Measure Code';
         NoListType: array[99] of Option " ",Item,"Production BOM";
         ProdBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
+
+    protected var
+        BomComponent: array[99] of Record "Production BOM Line";
+        Level: Integer;
 }
 

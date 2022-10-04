@@ -21,11 +21,11 @@ page 130400 "CAL Test Suites"
                 {
                     ApplicationArea = All;
                 }
-                field("Update Test Coverage Map"; "Update Test Coverage Map")
+                field("Update Test Coverage Map"; Rec."Update Test Coverage Map")
                 {
                     ApplicationArea = All;
                 }
-                field("Tests to Execute"; "Tests to Execute")
+                field("Tests to Execute"; Rec."Tests to Execute")
                 {
                     ApplicationArea = All;
                 }
@@ -33,7 +33,7 @@ page 130400 "CAL Test Suites"
                 {
                     ApplicationArea = All;
                 }
-                field("Tests not Executed"; "Tests not Executed")
+                field("Tests not Executed"; Rec."Tests not Executed")
                 {
                     ApplicationArea = All;
                 }
@@ -53,8 +53,6 @@ page 130400 "CAL Test Suites"
                     ApplicationArea = All;
                     Caption = '&Run All';
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+Ctrl+L';
 
                     trigger OnAction()
@@ -79,12 +77,10 @@ page 130400 "CAL Test Suites"
                     {
                         ApplicationArea = All;
                         Caption = 'E&xport';
-                        Promoted = true;
-                        PromotedCategory = Process;
 
                         trigger OnAction()
                         begin
-                            ExportTestSuiteSetup;
+                            ExportTestSuiteSetup();
                         end;
                     }
                     action("I&mport")
@@ -94,7 +90,7 @@ page 130400 "CAL Test Suites"
 
                         trigger OnAction()
                         begin
-                            ImportTestSuiteSetup;
+                            ImportTestSuiteSetup();
                         end;
                     }
                 }
@@ -113,7 +109,7 @@ page 130400 "CAL Test Suites"
 
                         trigger OnAction()
                         begin
-                            ExportTestSuiteResult;
+                            ExportTestSuiteResult();
                         end;
                     }
                     action(Action24)
@@ -123,9 +119,23 @@ page 130400 "CAL Test Suites"
 
                         trigger OnAction()
                         begin
-                            ImportTestSuiteResult;
+                            ImportTestSuiteResult();
                         end;
                     }
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Run All_Promoted"; "&Run All")
+                {
+                }
+                actionref("E&xport_Promoted"; "E&xport")
+                {
                 }
             }
         }

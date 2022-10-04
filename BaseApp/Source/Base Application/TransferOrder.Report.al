@@ -295,25 +295,28 @@ report 5703 "Transfer Order"
     }
 
     var
-        Text000: Label 'COPY';
-        Text001: Label 'Transfer Order %1';
-        Text002: Label 'Page %1';
-        ShipmentMethod: Record "Shipment Method";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        FormatAddr: Codeunit "Format Address";
         TransferFromAddr: array[8] of Text[100];
         TransferToAddr: array[8] of Text[100];
-        NoOfCopies: Integer;
-        NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
         OldDimText: Text[75];
-        ShowInternalInfo: Boolean;
         Continue: Boolean;
-        OutputNo: Integer;
+
+        Text000: Label 'COPY';
+        Text001: Label 'Transfer Order %1';
+        Text002: Label 'Page %1';
         HdrDimensionsCaptionLbl: Label 'Header Dimensions';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         TransferOrderNoCaptionLbl: Label 'Transfer Order No.';
+
+    protected var
+        ShipmentMethod: Record "Shipment Method";
+        FormatAddr: Codeunit "Format Address";
+        NoOfCopies: Integer;
+        NoOfLoops: Integer;
+        OutputNo: Integer;
+        ShowInternalInfo: Boolean;
 }
 

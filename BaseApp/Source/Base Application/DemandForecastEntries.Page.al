@@ -12,12 +12,12 @@ page 99000922 "Demand Forecast Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Production Forecast Name"; "Production Forecast Name")
+                field("Production Forecast Name"; Rec."Production Forecast Name")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the name of the demand forecast to which the entry belongs.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item identification number of the entry.';
@@ -27,49 +27,49 @@ page 99000922 "Demand Forecast Entries"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a brief description of your forecast.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant that is linked to the entry.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the location that is linked to the entry.';
                 }
-                field("Forecast Quantity (Base)"; "Forecast Quantity (Base)")
+                field("Forecast Quantity (Base)"; Rec."Forecast Quantity (Base)")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity of the entry stated, in base units of measure.';
                 }
-                field("Forecast Date"; "Forecast Date")
+                field("Forecast Date"; Rec."Forecast Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date of the demand forecast to which the entry belongs.';
                 }
-                field("Forecast Quantity"; "Forecast Quantity")
+                field("Forecast Quantity"; Rec."Forecast Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantities you have entered in the demand forecast within the selected time interval.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     Visible = false;
                     ToolTip = 'Specifies the valid number of units that the unit of measure code represents for the demand forecast entry.';
                 }
-                field("Component Forecast"; "Component Forecast")
+                field("Component Forecast"; Rec."Component Forecast")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies that the forecast entry is for a component item.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Planning;
                     Editable = false;

@@ -17,12 +17,12 @@ page 192 "Incoming Document Approvers"
         {
             repeater(Group)
             {
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user''s name. If the user is required to present credentials when starting the client, this is the name that the user must present.';
                 }
-                field("Full Name"; "Full Name")
+                field("Full Name"; Rec."Full Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the full name of the user.';
@@ -38,7 +38,7 @@ page 192 "Incoming Document Approvers"
                         IncomingDocumentApprover.SetIsApprover(Rec, IsApprover);
                     end;
                 }
-                field("License Type"; "License Type")
+                field("License Type"; Rec."License Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of license that applies to the user. For more information, see License Types.';
@@ -58,7 +58,7 @@ page 192 "Incoming Document Approvers"
 
     trigger OnOpenPage()
     begin
-        HideExternalUsers;
+        HideExternalUsers();
     end;
 
     var
@@ -70,7 +70,7 @@ page 192 "Incoming Document Approvers"
         EnvironmentInfo: Codeunit "Environment Information";
         OriginalFilterGroup: Integer;
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
         OriginalFilterGroup := FilterGroup;

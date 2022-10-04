@@ -1,5 +1,9 @@
+#if NOT CLEAN21
 codeunit 130411 "Sys. Warmup Scenarios"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The codeunit will be deleted';
+    ObsoleteTag = '21.0';
     Subtype = Test;
 
     trigger OnRun()
@@ -29,7 +33,7 @@ codeunit 130411 "Sys. Warmup Scenarios"
 
     local procedure GetRandomString(): Text
     begin
-        exit(DelChr(Format(CreateGuid), '=', '{}-'));
+        exit(DelChr(Format(CreateGuid()), '=', '{}-'));
     end;
 
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; Customer: Record Customer; Item: Record Item)
@@ -48,7 +52,7 @@ codeunit 130411 "Sys. Warmup Scenarios"
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
     begin
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader."No." := CopyStr(GetRandomString, 1, MaxStrLen(SalesHeader."No."));
+        SalesHeader."No." := CopyStr(GetRandomString(), 1, MaxStrLen(SalesHeader."No."));
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
         SalesHeader.Modify(true);
@@ -79,4 +83,4 @@ codeunit 130411 "Sys. Warmup Scenarios"
     begin
     end;
 }
-
+#endif

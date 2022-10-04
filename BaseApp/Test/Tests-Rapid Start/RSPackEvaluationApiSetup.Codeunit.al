@@ -33,7 +33,7 @@ codeunit 138401 "RS Pack Evaluation Api Setup"
             SalesHeader.SetRange("No.", SalesQuoteEntityBuffer."No.");
             SalesHeader.SetRange(SystemId, SalesQuoteEntityBuffer.Id);
             Assert.RecordIsNotEmpty(SalesHeader);
-        until SalesQuoteEntityBuffer.Next = 0;
+        until SalesQuoteEntityBuffer.Next() = 0;
     end;
 
     local procedure VerifySalesInvoiceEntityTable()
@@ -48,7 +48,7 @@ codeunit 138401 "RS Pack Evaluation Api Setup"
             SalesInvoiceEntityAggregate.SetRange("No.", SalesHeader."No.");
             SalesInvoiceEntityAggregate.SetRange(Id, SalesHeader.SystemId);
             Assert.RecordIsNotEmpty(SalesInvoiceEntityAggregate);
-        until SalesHeader.Next = 0;
+        until SalesHeader.Next() = 0;
     end;
 
     local procedure VerifySalesOrderEntityTable()
@@ -62,7 +62,7 @@ codeunit 138401 "RS Pack Evaluation Api Setup"
             SalesHeader.SetRange("No.", SalesOrderEntityBuffer."No.");
             SalesHeader.SetRange(SystemId, SalesOrderEntityBuffer.Id);
             Assert.RecordIsNotEmpty(SalesHeader);
-        until SalesOrderEntityBuffer.Next = 0;
+        until SalesOrderEntityBuffer.Next() = 0;
     end;
 
     local procedure VerifyPurchaseInvoiceEntityTable()
@@ -77,7 +77,7 @@ codeunit 138401 "RS Pack Evaluation Api Setup"
             PurchInvEntityAggregate.SetRange("No.", PurchaseHeader."No.");
             PurchInvEntityAggregate.SetRange(Id, PurchaseHeader.SystemId);
             Assert.RecordIsNotEmpty(PurchInvEntityAggregate);
-        until PurchaseHeader.Next = 0;
+        until PurchaseHeader.Next() = 0;
     end;
 }
 

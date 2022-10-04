@@ -218,6 +218,10 @@ codeunit 5336 "Integration Record Synch."
                 exit(IsModified);
             end;
 
+        if DestinationFieldRef.Type in [FieldType::Date, FieldType::DateTime] then
+            if Format(NewValue) = '' then
+                NeedsConversion := true;
+
         if not NeedsConversion and
            (SourceFieldRef.Type = DestinationFieldRef.Type) and (DestinationFieldRef.Length >= SourceFieldRef.Length)
         then begin

@@ -26,7 +26,7 @@ codeunit 99000772 "Prod. Order Route Management"
         ProdOrderRtngLine.SetRange(Recalculate, true);
         ProdOrderRtngLine.SetFilter("Routing Status", '<>%1', ProdOrderRtngLine."Routing Status"::Finished);
 
-        exit(ProdOrderRtngLine.FindFirst);
+        exit(ProdOrderRtngLine.FindFirst());
     end;
 
     local procedure ErrorInRouting(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingNo: Code[20]; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
@@ -149,10 +149,9 @@ codeunit 99000772 "Prod. Order Route Management"
                         if TotalCalculation then begin
                             if (ProdOrderRtngLine2."Sequence No. (Backward)" + 1) > ProdOrderRtngLine."Sequence No. (Backward)" then
                                 ProdOrderRtngLine."Sequence No. (Backward)" := ProdOrderRtngLine2."Sequence No. (Backward)" + 1;
-                        end else begin
+                        end else
                             if (ProdOrderRtngLine2."Sequence No. (Actual)" + 1) > ProdOrderRtngLine."Sequence No. (Actual)" then
                                 ProdOrderRtngLine."Sequence No. (Actual)" := ProdOrderRtngLine2."Sequence No. (Actual)" + 1;
-                        end;
                     until ProdOrderRtngLine2.Next() = 0;
             end;
             ProdOrderRtngLine.Modify();
@@ -175,7 +174,7 @@ codeunit 99000772 "Prod. Order Route Management"
             SetRoutingFilter(
               ProdOrderRtngLine2, ProdOrderRtngLine.Status, ProdOrderRtngLine."Prod. Order No.",
               ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            if ProdOrderRtngLine2.Find then
+            if ProdOrderRtngLine2.Find() then
                 repeat
                     if TotalCalculation then
                         ProdOrderRtngLine2."Sequence No. (Backward)" := SequenceNo
@@ -217,11 +216,10 @@ codeunit 99000772 "Prod. Order Route Management"
                         if TotalCalculation then begin
                             if (ProdOrderRtngLine2."Sequence No. (Forward)" + 1) > ProdOrderRtngLine."Sequence No. (Forward)" then
                                 ProdOrderRtngLine."Sequence No. (Forward)" := ProdOrderRtngLine2."Sequence No. (Forward)" + 1;
-                        end else begin
+                        end else
                             if (ProdOrderRtngLine2."Sequence No. (Actual)" + 1) > ProdOrderRtngLine."Sequence No. (Actual)" then
                                 ProdOrderRtngLine."Sequence No. (Actual)" :=
                                   ProdOrderRtngLine."Sequence No. (Actual)" + 1;
-                        end;
                     until ProdOrderRtngLine2.Next() = 0;
             end;
             ProdOrderRtngLine.Modify();
@@ -244,7 +242,7 @@ codeunit 99000772 "Prod. Order Route Management"
             SetRoutingFilter(
               ProdOrderRtngLine2, ProdOrderRtngLine.Status, ProdOrderRtngLine."Prod. Order No.",
               ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            if ProdOrderRtngLine2.Find then
+            if ProdOrderRtngLine2.Find() then
                 repeat
                     if TotalCalculation then
                         ProdOrderRtngLine2."Sequence No. (Forward)" := SequenceNo
@@ -520,7 +518,7 @@ codeunit 99000772 "Prod. Order Route Management"
                     if ProdOrderComponent.FindSet(true) then
                         repeat
                             if IgnoreErrors then
-                                ProdOrderComponent.SetIgnoreErrors;
+                                ProdOrderComponent.SetIgnoreErrors();
                             BinCode := ProdOrderComponent.GetDefaultConsumptionBin(FilteredProdOrderRtngLineSet);
                             if BinCode <> ProdOrderComponent."Bin Code" then begin
                                 if not AutoUpdateCompBinCode then
@@ -530,7 +528,7 @@ codeunit 99000772 "Prod. Order Route Management"
                                         exit;
                                 ProdOrderComponent.Validate("Bin Code", BinCode);
                                 ProdOrderComponent.Modify();
-                                if ProdOrderComponent.HasErrorOccured then
+                                if ProdOrderComponent.HasErrorOccured() then
                                     ErrorOccured := true;
                             end;
                         until ProdOrderComponent.Next() = 0;

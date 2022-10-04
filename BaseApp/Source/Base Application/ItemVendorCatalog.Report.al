@@ -14,7 +14,7 @@ report 720 "Item/Vendor Catalog"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Item_TABLECAPTION__________ItemFilter; TableCaption + ': ' + ItemFilter)
@@ -62,7 +62,7 @@ report 720 "Item/Vendor Catalog"
             column(ExtendedPriceFeatureEnabled; ExtendedPriceEnabled)
             {
             }
-#if not CLEAN19
+#if not CLEAN21
             dataitem("Purchase Price"; "Purchase Price")
             {
                 DataItemLink = "Item No." = FIELD("No.");
@@ -165,7 +165,7 @@ report 720 "Item/Vendor Catalog"
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 

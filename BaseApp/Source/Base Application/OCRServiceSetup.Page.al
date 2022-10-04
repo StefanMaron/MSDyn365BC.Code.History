@@ -7,7 +7,6 @@ page 1270 "OCR Service Setup"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Encryption,Navigate';
     ShowFilter = false;
     SourceTable = "OCR Service Setup";
     UsageCategory = Administration;
@@ -22,7 +21,7 @@ page 1270 "OCR Service Setup"
                 group(Control23)
                 {
                     ShowCaption = false;
-                    field("User Name"; "User Name")
+                    field("User Name"; Rec."User Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = EditableByNotEnabled;
@@ -31,7 +30,7 @@ page 1270 "OCR Service Setup"
 
                         trigger OnValidate()
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     }
                     field(Password; Password)
@@ -47,7 +46,7 @@ page 1270 "OCR Service Setup"
                         begin
                             SavePassword("Password Key", Password);
                             if Password <> '' then
-                                CheckEncryption;
+                                CheckEncryption();
                         end;
                     }
                     field(AuthorizationKey; AuthorizationKey)
@@ -63,10 +62,10 @@ page 1270 "OCR Service Setup"
                         begin
                             SavePassword("Authorization Key", AuthorizationKey);
                             if AuthorizationKey <> '' then
-                                CheckEncryption;
+                                CheckEncryption();
                         end;
                     }
-                    field("Default OCR Doc. Template"; "Default OCR Doc. Template")
+                    field("Default OCR Doc. Template"; Rec."Default OCR Doc. Template")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = EditableByNotEnabled;
@@ -74,14 +73,14 @@ page 1270 "OCR Service Setup"
 
                         trigger OnValidate()
                         begin
-                            CurrPage.Update
+                            CurrPage.Update();
                         end;
                     }
                 }
                 group(Control25)
                 {
                     ShowCaption = false;
-                    field("Master Data Sync Enabled"; "Master Data Sync Enabled")
+                    field("Master Data Sync Enabled"; Rec."Master Data Sync Enabled")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = EditableByNotEnabled;
@@ -89,10 +88,10 @@ page 1270 "OCR Service Setup"
 
                         trigger OnValidate()
                         begin
-                            UpdateBasedOnSyncEnable;
+                            UpdateBasedOnSyncEnable();
                         end;
                     }
-                    field("Master Data Last Sync"; "Master Data Last Sync")
+                    field("Master Data Last Sync"; Rec."Master Data Last Sync")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -105,8 +104,8 @@ page 1270 "OCR Service Setup"
 
                         trigger OnValidate()
                         begin
-                            UpdateBasedOnEnable;
-                            CurrPage.Update
+                            UpdateBasedOnEnable();
+                            CurrPage.Update();
                         end;
                     }
                     field(ShowEnableWarning; ShowEnableWarning)
@@ -119,7 +118,7 @@ page 1270 "OCR Service Setup"
 
                         trigger OnDrillDown()
                         begin
-                            DrilldownCode;
+                            DrilldownCode();
                         end;
                     }
                 }
@@ -127,20 +126,20 @@ page 1270 "OCR Service Setup"
             group(Service)
             {
                 Caption = 'Service';
-                field("Sign-up URL"; "Sign-up URL")
+                field("Sign-up URL"; Rec."Sign-up URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
                     ToolTip = 'Specifies the web page where you sign up for the OCR service.';
                 }
-                field("Service URL"; "Service URL")
+                field("Service URL"; Rec."Service URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the address of the OCR service. The service specified in the Service URL field is called when you send and receive files for OCR.';
                 }
-                field("Sign-in URL"; "Sign-in URL")
+                field("Sign-in URL"; Rec."Sign-in URL")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = EditableByNotEnabled;
@@ -150,20 +149,20 @@ page 1270 "OCR Service Setup"
             group(CustomerStatus)
             {
                 Caption = 'Status';
-                field("Customer Name"; "Customer Name")
+                field("Customer Name"; Rec."Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies your company''s name at the provider of the OCR service.';
                 }
-                field("Customer ID"; "Customer ID")
+                field("Customer ID"; Rec."Customer ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies your company''s customer ID at the provider of the OCR service.';
                 }
-                field("Customer Status"; "Customer Status")
+                field("Customer Status"; Rec."Customer Status")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -184,13 +183,11 @@ page 1270 "OCR Service Setup"
                 Caption = 'Set URLs to Default';
                 Enabled = EditableByNotEnabled;
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Change the service and sign-up URLs to their default values. You cannot cancel this action to revert back to the current values.';
 
                 trigger OnAction()
                 begin
-                    SetURLsToDefault;
+                    SetURLsToDefault();
                 end;
             }
             action(TestConnection)
@@ -198,8 +195,6 @@ page 1270 "OCR Service Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Test Connection';
                 Image = Link;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Check that the settings that you added are correct and the connection to the Data Exchange Service is working.';
 
                 trigger OnAction()
@@ -214,15 +209,13 @@ page 1270 "OCR Service Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update OCR Doc. Template List';
                 Image = Template;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Check for new document templates that the OCR service supports, and add them to the list.';
 
                 trigger OnAction()
                 var
                     OCRServiceMgt: Codeunit "OCR Service Mgt.";
                 begin
-                    OCRServiceMgt.UpdateOcrDocumentTemplates;
+                    OCRServiceMgt.UpdateOcrDocumentTemplates();
                 end;
             }
             action(ResyncMasterData)
@@ -231,8 +224,6 @@ page 1270 "OCR Service Setup"
                 Caption = 'Resync Master Data';
                 Enabled = EditableBySyncEnabled;
                 Image = CopyFromChartOfAccounts;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Synchronize master data for vendors and vendor bank accounts with the OCR service.';
 
                 trigger OnAction()
@@ -240,7 +231,7 @@ page 1270 "OCR Service Setup"
                     ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
                 begin
                     Clear("Master Data Last Sync");
-                    Modify;
+                    Modify();
                     ReadSoftOCRMasterDataSync.SyncMasterData(false, false);
                 end;
             }
@@ -250,13 +241,11 @@ page 1270 "OCR Service Setup"
                 Caption = 'Job Queue Entry';
                 Enabled = Enabled;
                 Image = JobListSetup;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'View or edit the jobs that automatically process the incoming and outgoing electronic documents.';
 
                 trigger OnAction()
                 begin
-                    ShowJobQueueEntry;
+                    ShowJobQueueEntry();
                 end;
             }
         }
@@ -268,9 +257,6 @@ page 1270 "OCR Service Setup"
                 Caption = 'Encryption Management';
                 Enabled = EditableByNotEnabled;
                 Image = EncryptionKeys;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Data Encryption Management";
                 RunPageMode = View;
                 ToolTip = 'Enable or disable data encryption. Data encryption helps make sure that unauthorized users cannot read business data.';
@@ -280,8 +266,6 @@ page 1270 "OCR Service Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Activity Log';
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ToolTip = 'See the status and any errors for the electronic document or OCR file that you send through the document exchange service.';
 
                 trigger OnAction()
@@ -290,6 +274,49 @@ page 1270 "OCR Service Setup"
                 begin
                     ActivityLog.ShowEntries(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SetURLsToDefault_Promoted; SetURLsToDefault)
+                {
+                }
+                actionref(TestConnection_Promoted; TestConnection)
+                {
+                }
+                actionref(UpdateOCRDocTemplateList_Promoted; UpdateOCRDocTemplateList)
+                {
+                }
+                actionref(ResyncMasterData_Promoted; ResyncMasterData)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Encryption', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EncryptionManagement_Promoted; EncryptionManagement)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(JobQueueEntry_Promoted; JobQueueEntry)
+                {
+                }
+                actionref(ActivityLog_Promoted; ActivityLog)
+                {
+                }
             }
         }
     }
@@ -302,18 +329,18 @@ page 1270 "OCR Service Setup"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateBasedOnEnable;
+        UpdateBasedOnEnable();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
+        Reset();
+        if not Get() then begin
+            Init();
             Insert(true);
-            SetURLsToDefault;
+            SetURLsToDefault();
         end;
-        UpdateBasedOnEnable;
+        UpdateBasedOnEnable();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -341,7 +368,7 @@ page 1270 "OCR Service Setup"
         ShowEnableWarning := '';
         if CurrPage.Editable and Enabled then
             ShowEnableWarning := EnabledWarningTok;
-        UpdateBasedOnSyncEnable;
+        UpdateBasedOnSyncEnable();
     end;
 
     local procedure UpdateBasedOnSyncEnable()
@@ -352,14 +379,14 @@ page 1270 "OCR Service Setup"
         if "Master Data Last Sync" = 0DT then
             exit;
         Clear("Master Data Last Sync");
-        Modify;
+        Modify();
     end;
 
     local procedure DrilldownCode()
     begin
         if Confirm(DisableEnableQst, true) then begin
             Enabled := false;
-            UpdateBasedOnEnable;
+            UpdateBasedOnEnable();
             CurrPage.Update();
         end;
     end;
@@ -374,9 +401,9 @@ page 1270 "OCR Service Setup"
 
     local procedure CheckEncryption()
     begin
-        if not CheckedEncryption and not EncryptionEnabled then begin
+        if not CheckedEncryption and not EncryptionEnabled() then begin
             CheckedEncryption := true;
-            if not EncryptionEnabled then
+            if not EncryptionEnabled() then
                 if Confirm(EncryptionIsNotActivatedQst) then
                     PAGE.Run(PAGE::"Data Encryption Management");
         end;

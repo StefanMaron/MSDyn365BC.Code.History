@@ -68,7 +68,7 @@ table 1518 "My Notifications"
     begin
         if Get(UserId, NotificationId) then begin
             Validate(Enabled, false);
-            Modify;
+            Modify();
             exit(true)
         end;
         exit(false);
@@ -78,7 +78,7 @@ table 1518 "My Notifications"
     begin
         if Get(UserId, NotificationId) then begin
             Validate(Enabled, Enable);
-            Modify;
+            Modify();
             exit(true)
         end;
         exit(false);
@@ -98,7 +98,7 @@ table 1518 "My Notifications"
         OutStream: OutStream;
     begin
         if not Get(UserId, NotificationId) then begin
-            Init;
+            Init();
             "User Id" := UserId;
             "Notification Id" := NotificationId;
             Enabled := true;
@@ -120,7 +120,7 @@ table 1518 "My Notifications"
     begin
         if InitRecord(NotificationId, NotificationName, DescriptionText) then begin
             Enabled := DefaultState;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -128,7 +128,7 @@ table 1518 "My Notifications"
     begin
         if InitRecord(NotificationId, NotificationName, DescriptionText) then begin
             "Apply to Table Id" := TableNum;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -143,9 +143,9 @@ table 1518 "My Notifications"
             "Apply to Table Filter".CreateOutStream(FiltersOutStream);
             FiltersOutStream.Write(GetXmlFromTableView(TableNum, Filters));
             if NewRecord then
-                Insert
+                Insert()
             else
-                Modify;
+                Modify();
         end;
     end;
 
@@ -154,7 +154,7 @@ table 1518 "My Notifications"
         InStream: InStream;
     begin
         CalcFields(Description);
-        if not Description.HasValue then
+        if not Description.HasValue() then
             exit;
         Description.CreateInStream(InStream, TextEncoding::UTF8);
         InStream.Read(Ret);
@@ -173,15 +173,14 @@ table 1518 "My Notifications"
         RequestPageParametersHelper.ConvertParametersToFilters(RecordRef, TempBlob);
     end;
 
-    [Scope('OnPrem')]
     procedure GetFiltersAsDisplayText(): Text
     var
         RecordRef: RecordRef;
     begin
-        if not IsFilterEnabled then
+        if not IsFilterEnabled() then
             exit;
 
-        GetFilteredRecord(RecordRef, GetFiltersAsText);
+        GetFilteredRecord(RecordRef, GetFiltersAsText());
 
         if RecordRef.GetFilters <> '' then
             exit(RecordRef.GetFilters);
@@ -193,11 +192,11 @@ table 1518 "My Notifications"
     var
         FiltersInStream: InStream;
     begin
-        if not IsFilterEnabled then
+        if not IsFilterEnabled() then
             exit;
 
         CalcFields("Apply to Table Filter");
-        if not "Apply to Table Filter".HasValue then
+        if not "Apply to Table Filter".HasValue() then
             exit;
         "Apply to Table Filter".CreateInStream(FiltersInStream);
         FiltersInStream.Read(Filters);
@@ -211,7 +210,7 @@ table 1518 "My Notifications"
         XmlDoc: DotNet XmlDocument;
         ReportParametersXmlNode: DotNet XmlNode;
     begin
-        XmlDoc := XmlDoc.XmlDocument;
+        XmlDoc := XmlDoc.XmlDocument();
 
         XMLDOMMgt.AddRootElement(XmlDoc, 'ReportParameters', ReportParametersXmlNode);
         XMLDOMMgt.AddDeclaration(XmlDoc, '1.0', 'utf-8', 'yes');
@@ -223,7 +222,6 @@ table 1518 "My Notifications"
         exit(XmlDoc.InnerXml);
     end;
 
-    [Scope('OnPrem')]
     procedure OpenFilterSettings() Changed: Boolean
     var
         DummyMyNotifications: Record "My Notifications";
@@ -231,11 +229,11 @@ table 1518 "My Notifications"
         FiltersOutStream: OutStream;
         NewFilters: Text;
     begin
-        if not IsFilterEnabled then
+        if not IsFilterEnabled() then
             exit;
 
         if RunDynamicRequestPage(NewFilters,
-             GetFiltersAsText,
+             GetFiltersAsText(),
              "Apply to Table Id")
         then begin
             GetFilteredRecord(RecordRef, NewFilters);
@@ -245,7 +243,7 @@ table 1518 "My Notifications"
                 "Apply to Table Filter".CreateOutStream(FiltersOutStream);
                 FiltersOutStream.Write(NewFilters);
             end;
-            Modify;
+            Modify();
             Changed := true;
         end;
     end;
@@ -265,7 +263,7 @@ table 1518 "My Notifications"
                 exit(false);
 
         FilterPageBuilder.PageCaption := DefineFiltersTxt;
-        if not FilterPageBuilder.RunModal then
+        if not FilterPageBuilder.RunModal() then
             exit(false);
 
         ReturnFilters :=
@@ -279,8 +277,8 @@ table 1518 "My Notifications"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        if NotificationId = InstructionMgt.GetClosingUnpostedDocumentNotificationId then begin
-            InstructionMgt.InsertDefaultUnpostedDoucumentNotification;
+        if NotificationId = InstructionMgt.GetClosingUnpostedDocumentNotificationId() then begin
+            InstructionMgt.InsertDefaultUnpostedDoucumentNotification();
             Get(UserId, NotificationId);
         end;
     end;
@@ -299,18 +297,18 @@ table 1518 "My Notifications"
 
         RecordRefPassed.GetTable(Record);
         RecordRefPassed.FilterGroup(2);
-        RecordRefPassed.SetRecFilter;
+        RecordRefPassed.SetRecFilter();
         RecordRefPassed.FilterGroup(0);
 
         if not Get(UserId, NotificationId) then
             InsertNotificationWithDefaultFilter(NotificationId);
 
-        Filters := GetFiltersAsText;
+        Filters := GetFiltersAsText();
         if Filters = '' then
             exit(true);
 
         GetFilteredRecord(RecordRef, Filters);
-        RecordRefPassed.SetView(RecordRef.GetView);
+        RecordRefPassed.SetView(RecordRef.GetView());
         exit(not RecordRefPassed.IsEmpty);
     end;
 

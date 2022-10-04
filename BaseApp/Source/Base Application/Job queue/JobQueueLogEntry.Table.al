@@ -182,7 +182,7 @@ table 474 "Job Queue Log Entry"
             SetFilter("End Date/Time", '<=%1', CreateDateTime(Today - DaysOld, Time));
         OnDeleteEntriesOnBeforeDeleteAll(Rec);
         DeleteAll();
-        Window.Close;
+        Window.Close();
         SetRange("End Date/Time");
         SetRange(Status);
         Message(DeletedMsg);
@@ -197,19 +197,18 @@ table 474 "Job Queue Log Entry"
         if ErrorMessage.FindSet() then begin
             ErrorMessages.SetRecords(ErrorMessage);
             ErrorMessages.Run();
-        end else begin
+        end else
             if "Error Message" = '' then
                 Message(NoErrorMessageTxt)
             else
                 Message("Error Message");
-        end;
 
     end;
 
     procedure ShowErrorCallStack()
     begin
         if Status = Status::Error then
-            Message(GetErrorCallStack);
+            Message(GetErrorCallStack());
     end;
 
     procedure MarkAsError()
@@ -228,7 +227,7 @@ table 474 "Job Queue Log Entry"
 
         Status := Status::Error;
         "Error Message" := CopyStr(ErrorMessage, 1, 2048);
-        Modify;
+        Modify();
     end;
 
     procedure Duration(): Duration
@@ -268,7 +267,7 @@ table 474 "Job Queue Log Entry"
     begin
         CalcFields("Error Call Stack");
         "Error Call Stack".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 }
 

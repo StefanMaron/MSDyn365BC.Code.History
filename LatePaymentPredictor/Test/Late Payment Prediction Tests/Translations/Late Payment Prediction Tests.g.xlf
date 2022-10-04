@@ -20,7 +20,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 1671929504" size-unit="char" translate="yes" xml:space="preserve">
           <source>To predict a late payment, choose the %1 action. Want to learn more about the late payment predictions?</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">%1 = Predict action caption label</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType LearnMoreNotificationTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 2640373066" size-unit="char" translate="yes" xml:space="preserve">

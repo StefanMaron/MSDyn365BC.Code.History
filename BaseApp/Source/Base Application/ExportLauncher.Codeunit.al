@@ -13,7 +13,7 @@ codeunit 1268 "Export Launcher"
 
         DataExchDef.Get("Data Exch. Def Code");
 
-        CreateDataExch(DataExch, "Data Exch. Def Code", "Data Exch. Line Def Code", SourceRecRef.GetView);
+        CreateDataExch(DataExch, "Data Exch. Def Code", "Data Exch. Line Def Code", SourceRecRef.GetView());
 
         if DataExchDef."Data Handling Codeunit" > 0 then
             CODEUNIT.Run(DataExchDef."Data Handling Codeunit", Rec);
@@ -52,7 +52,7 @@ codeunit 1268 "Export Launcher"
             Source.IsRecordId:
                 begin
                     SourceRecordID := Source;
-                    SourceRecRef := SourceRecordID.GetRecord;
+                    SourceRecRef := SourceRecordID.GetRecord();
                 end;
             Source.IsRecordRef:
                 SourceRecRef := Source;

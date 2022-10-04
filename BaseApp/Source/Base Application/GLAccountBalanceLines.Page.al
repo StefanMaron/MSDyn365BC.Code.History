@@ -16,14 +16,14 @@ page 416 "G/L Account Balance Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     Editable = false;
                     ToolTip = 'Specifies the start date of the period defined on the line for the bank account balance.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -42,7 +42,7 @@ page 416 "G/L Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown;
+                        BalanceDrillDown();
                     end;
                 }
                 field(CreditAmount; "Credit Amount")

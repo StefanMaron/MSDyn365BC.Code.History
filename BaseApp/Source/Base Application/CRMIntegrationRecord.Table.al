@@ -85,17 +85,22 @@ table 5331 "CRM Integration Record"
             Caption = 'Option Mapping Failure';
             Editable = false;
             ObsoleteReason = 'This field is deprecated.';
-#if not CLEAN18
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#endif
         }
         field(13; "Statistics Uploaded"; Boolean)
         {
             Caption = 'Statistics Uploaded';
+        }
+        field(14; "Archived Sales Order"; Boolean)
+        {
+            Caption = 'Archived Sales Order';
+            Editable = false;
+        }
+        field(15; "Archived Sales Order Updated"; Boolean)
+        {
+            Caption = 'Archived Sales Order Updated';
+            Editable = false;
         }
     }
 
@@ -140,13 +145,33 @@ table 5331 "CRM Integration Record"
     trigger OnDelete()
     var
         CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
     begin
         CDSFailedOptionMapping.SetRange("CRM Integration Record Id", Rec.SystemId);
         if not CDSFailedOptionMapping.IsEmpty() then
             CDSFailedOptionMapping.DeleteAll();
+
+        if Rec."Table ID" = Database::"Sales Header" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                if SalesHeader.GetBySystemId(Rec."Integration ID") then begin
+                    SalesLine.SetRange("Document No.", SalesHeader."No.");
+                    SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+                    if SalesLine.FindSet() then
+                        repeat
+                            CRMIntegrationRecord.SetRange("Integration ID", SalesLine.SystemId);
+                            CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Line");
+                            if CRMIntegrationRecord.FindFirst() then
+                                CRMIntegrationRecord.Delete();
+                        until SalesLine.Next() = 0;
+                end;
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
+
         IntegrationRecordNotFoundErr: Label 'The integration record for entity %1 was not found.';
         CRMIdAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = Dataverse service name';
         RecordRefAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = table caption';
@@ -155,7 +180,6 @@ table 5331 "CRM Integration Record"
         ZeroTableIdTxt: Label 'Table ID is zero in CRM Integration Record. System ID: %1, CRM ID: %2', Locked = true;
         FixedTableIdTxt: Label 'Table ID has been fixed in CRM Integration Record. New Table ID: %1, System ID: %2, CRM ID: %3', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
-        CRMProductName: Codeunit "CRM Product Name";
 
     local procedure CheckTableID()
     begin
@@ -278,7 +302,7 @@ table 5331 "CRM Integration Record"
     begin
         Found := GetCRMRecordRef(IntegrationTableID, RecRef);
         CRMRecID := RecRef.RecordId;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure GetCRMRecordRef(IntegrationTableID: Integer; var RecRef: RecordRef): Boolean
@@ -293,7 +317,7 @@ table 5331 "CRM Integration Record"
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
         FieldRef.SetRange("CRM ID");
-        exit(RecRef.FindFirst);
+        exit(RecRef.FindFirst());
     end;
 
     procedure GetLatestJobIDFilter(): Text
@@ -346,8 +370,8 @@ table 5331 "CRM Integration Record"
 
     procedure InsertRecord(CRMID: Guid; SysId: Guid; TableId: Integer)
     begin
-        Reset;
-        Init;
+        Reset();
+        Init();
         "CRM ID" := CRMID;
         "Integration ID" := SysId;
         "Table ID" := TableId;
@@ -375,9 +399,9 @@ table 5331 "CRM Integration Record"
 
     procedure FindByCRMID(CRMID: Guid): Boolean
     begin
-        Reset;
+        Reset();
         SetRange("CRM ID", CRMID);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure FindValidByCRMID(CRMID: Guid) Found: Boolean
@@ -386,7 +410,7 @@ table 5331 "CRM Integration Record"
         RecId: RecordId;
     begin
         Clear("CRM ID");
-        Reset;
+        Reset();
         SetRange("CRM ID", CRMID);
         if FindFirst() then
             if FindRecordId(RecId) then
@@ -623,16 +647,16 @@ table 5331 "CRM Integration Record"
 
     procedure SetNewCRMId(CRMId: Guid)
     begin
-        Delete;
+        Delete();
         Validate("CRM ID", CRMId);
-        Insert;
+        Insert();
     end;
 
     procedure SetNewIntegrationId(IntegrationId: Guid)
     begin
-        Delete;
+        Delete();
         Validate("Integration ID", IntegrationId);
-        Insert;
+        Insert();
     end;
 
     procedure AssertRecordIDCanBeCoupled(RecordID: RecordID; CRMID: Guid)
@@ -875,14 +899,14 @@ table 5331 "CRM Integration Record"
         CRMIntegrationRecord.SetRange("CRM ID", CRMID);
         if DestinationTableID <> 0 then
             CRMIntegrationRecord.SetFilter("Table ID", Format(DestinationTableID));
-        exit(CRMIntegrationRecord.FindFirst);
+        exit(CRMIntegrationRecord.FindFirst());
     end;
 
     local procedure FindRowFromIntegrationID(IntegrationID: Guid; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
     begin
         CRMIntegrationRecord.SetCurrentKey("Integration ID");
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationID);
-        exit(CRMIntegrationRecord.FindFirst);
+        exit(CRMIntegrationRecord.FindFirst());
     end;
 
     [IntegrationEvent(false, false)]

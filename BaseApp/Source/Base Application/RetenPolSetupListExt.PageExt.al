@@ -11,11 +11,13 @@ pageextension 3999 "Reten. Pol. Setup List Ext." extends "Retention Policy Setup
                 Caption = 'Job Queue Entries';
                 ToolTip = 'Open the Job Queue Entries page to view a list of all jobs.';
                 RunObject = Page "Job Queue Entries";
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Category4;
                 AccessByPermission = TableData "Job Queue Entry" = R;
+            }
+        }
+        addfirst(Category_Category4)
+        {
+            actionref(JobQueueEntries_Promoted; JobQueueEntries)
+            {
             }
         }
     }

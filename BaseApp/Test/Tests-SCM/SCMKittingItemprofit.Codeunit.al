@@ -37,7 +37,7 @@ codeunit 137312 "SCM Kitting - Item profit"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - Item profit");
         // Initialize setup.
-        ClearLastError;
+        ClearLastError();
         LibraryVariableStorage.Clear();
 
         if isInitialized then
@@ -125,7 +125,7 @@ codeunit 137312 "SCM Kitting - Item profit"
                         -(ItemLedgerEntry."Cost Amount (Expected)" + ItemLedgerEntry."Cost Amount (Actual)")))
                 else
                     AddSaleToList(TempATOSalesBuffer, ItemLedgerEntry);
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure ProcessComponentsToList(var TempATOSalesBuffer: Record "ATO Sales Buffer" temporary; ParentItemNo: Code[20]; OrderNo: Code[20]; ParentProfit: Decimal)
@@ -142,7 +142,7 @@ codeunit 137312 "SCM Kitting - Item profit"
                   "Cost Amount (Expected)", "Cost Amount (Actual)", "Sales Amount (Expected)", "Sales Amount (Actual)");
                 AddATOConsumptionToList(TempATOSalesBuffer, ParentProfit, ItemLedgerEntry, TempATOSalesBuffer.Type::Assembly);
                 AddATOConsumptionToList(TempATOSalesBuffer, ParentProfit, ItemLedgerEntry, TempATOSalesBuffer.Type::"Total Assembly");
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure AddSaleToList(var TempATOSalesBuffer: Record "ATO Sales Buffer" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
@@ -279,7 +279,7 @@ codeunit 137312 "SCM Kitting - Item profit"
                 ParentItem.Get(BOMComponent."Parent Item No.");
                 if ParentItem."Assembly Policy" = ParentItem."Assembly Policy"::"Assemble-to-Order" then
                     exit(true);
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
 
         exit(false);
     end;
@@ -312,7 +312,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         if BOMComponent.FindSet() then
             repeat
                 Filters += Format('|' + BOMComponent."No.");
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
 
         exit(Filters);
     end;
@@ -417,7 +417,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         end;
 
         SalesLine.AsmToOrderExists(AssemblyHeader);
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, '', '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, '', '');
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
     end;
 
@@ -426,7 +426,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         AssemblyHeader: Record "Assembly Header";
     begin
         CreateAssemblyOrder(AssemblyHeader, Item, '', '', '', DueDate, OrderQty);
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, '', '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, '', '');
         PostAssemblyOrderQty(AssemblyHeader, ATSPercentage / 100 * OrderQty);
 
         exit(AssemblyHeader."No.");
@@ -501,7 +501,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
                 Assert.AreEqual(NoOfRows, ActualNoOfRows,
                   'Wrong no. of rows for item ' + TempATOSalesBuffer."Item No." + ' and type ' + Format(TempATOSalesBuffer.Type));
-            until TempATOSalesBuffer.Next = 0;
+            until TempATOSalesBuffer.Next() = 0;
     end;
 
     [Normal]
@@ -572,7 +572,7 @@ codeunit 137312 "SCM Kitting - Item profit"
           LibraryRandom.RandInt(3), LibraryRandom.RandInt(3), LibraryRandom.RandInt(3),
           LibraryRandom.RandDec(100, 2));
         OrderQty := LibraryRandom.RandDec(100, 2) + 1;
-        DueDate := CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate);
+        DueDate := CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate());
 
         if IsATO then begin
             CreateSalesOrder(SalesHeader, Item."No.", '', LibraryRandom.RandDec(100, 2), OrderQty, DueDate, '');
@@ -582,7 +582,7 @@ codeunit 137312 "SCM Kitting - Item profit"
             CreateAssemblyOrder(AssemblyHeader, Item, '', '', '', DueDate, OrderQty);
 
         // Add enough inventory for comp and post
-        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate, 0, '', '');
+        LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate(), 0, '', '');
 
         if FullPosting then begin
             if IsATO then
@@ -591,11 +591,11 @@ codeunit 137312 "SCM Kitting - Item profit"
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty)
         end else begin
             if IsATO then begin
-                SalesLine.Find;
+                SalesLine.Find();
                 SalesLine.Validate("Qty. to Ship", Round(SalesLine."Qty. to Ship" / 2, 0.00001));
                 SalesLine.Modify(true);
                 LibrarySales.PostSalesDocument(SalesHeader, true, ShouldInvoice);
-                AssemblyHeader.Find;
+                AssemblyHeader.Find();
             end else
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty / 2);
         end;
@@ -682,14 +682,14 @@ codeunit 137312 "SCM Kitting - Item profit"
           LibraryRandom.RandDec(100, 2));
         if ATO then
             CreateAndPostATO(
-              Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate),
+              Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()),
               100);
 
         // Find a component and sell it
         FindComponent(Item, BOMComponent, 1);
         CreateSalesOrder(
           SalesHeader, BOMComponent."No.", '', LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2),
-          CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), '');
+          CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), '');
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Exercise - for the component only
@@ -812,9 +812,9 @@ codeunit 137312 "SCM Kitting - Item profit"
           LibraryRandom.RandInt(3), LibraryRandom.RandInt(3), LibraryRandom.RandInt(3),
           LibraryRandom.RandDec(100, 2));
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
         CreateAndPostATS(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - all items from asm list
         Item.SetFilter("No.", GetItemsFromAsmListAsFilter(Item));
@@ -840,9 +840,9 @@ codeunit 137312 "SCM Kitting - Item profit"
           LibraryRandom.RandInt(3), LibraryRandom.RandInt(3), LibraryRandom.RandInt(3),
           LibraryRandom.RandDec(100, 2));
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - all items from asm list
         Item.SetFilter("No.", GetItemsFromAsmListAsFilter(Item));
@@ -892,9 +892,9 @@ codeunit 137312 "SCM Kitting - Item profit"
           BOMComponent."Resource Usage Type"::Direct, BOMComponent."Unit of Measure Code", LibraryRandom.RandDec(100, 2));
         // Create ATOs
         CreateAndPostATO(
-          Item1, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item1, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
         CreateAndPostATO(
-          Item2, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item2, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - all items from asm list
         Item1.SetFilter("No.", BOMComponent."No.");
@@ -924,11 +924,11 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Create ATOs
         CreateAndPostATO(
-          Item1, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item1, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - only BOM component and outside the date range
         Item1.SetFilter("No.", BOMComponent."No.");
-        Item1.SetFilter("Date Filter", '%1..', CalcDate('<+1Y>', WorkDate));
+        Item1.SetFilter("Date Filter", '%1..', CalcDate('<+1Y>', WorkDate()));
         ValidateNoFileCreated(TempATOSalesBuffer, Item1);
     end;
 
@@ -950,7 +950,7 @@ codeunit 137312 "SCM Kitting - Item profit"
           LibraryRandom.RandInt(3), LibraryRandom.RandInt(3), LibraryRandom.RandInt(3),
           LibraryRandom.RandDec(100, 2));
         FindComponent(Item1, BOMComponent, 1);
-        DueDate := CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate);
+        DueDate := CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate());
 
         // Create ATOs
         CreateAndPostATO(Item1, LibraryRandom.RandDec(100, 2) + 1, DueDate, 100);
@@ -983,7 +983,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Create ATOs
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - all items from asm list
         Item.SetFilter("No.", GetItemsFromAsmListAsFilter(Item));
@@ -1007,7 +1007,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Create ATOs
         CreateAndPostATO(
-          Item1, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item1, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - only BOM component and one entry outside the date range
         Item1.SetFilter("No.", GetItemsFromAsmListAsFilter(Item1));
@@ -1034,7 +1034,7 @@ codeunit 137312 "SCM Kitting - Item profit"
           LibraryRandom.RandInt(3), LibraryRandom.RandInt(3), LibraryRandom.RandInt(3),
           LibraryRandom.RandDec(100, 2));
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Undo shipment
         SalesShipmentLine.SetRange("No.", Item."No.");
@@ -1069,7 +1069,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Sell component
         CreateSalesOrder(SalesHeader, BOMComponent."No.", '', LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2) + 1,
-          CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), '');
+          CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), '');
         FindSalesLine(SalesHeader, SalesLine);
         LibraryVariableStorage.Enqueue(LibrarySales.PostSalesDocument(SalesHeader, true, false)); // Posted Document No. is used in page handler.
 
@@ -1085,7 +1085,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Create ATO
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - all asm "tree"
         Item.SetFilter("No.", GetItemsFromAsmListAsFilter(Item));
@@ -1149,7 +1149,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // ATO order
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Create Sales invoice and post it
         SalesShptLine.SetRange("No.", Item."No.");
@@ -1195,7 +1195,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Create ATOs
         CreateAndPostATO(
-          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate), 100);
+          Item, LibraryRandom.RandDec(100, 2) + 1, CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate()), 100);
 
         // Exercise - all items in the asm "trees"
         Item1.SetFilter("No.", GetItemsFromAsmListAsFilter(Item1) + '|' + GetItemsFromAsmListAsFilter(Item));

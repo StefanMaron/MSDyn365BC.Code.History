@@ -6,9 +6,10 @@ codeunit 5617 "FA Date Calculation"
     end;
 
     var
+        DeprBook: Record "Depreciation Book";
+
         Text000: Label 'is later than %1';
         Text001: Label 'It was not possible to find a %1 in %2.';
-        DeprBook: Record "Depreciation Book";
 
     procedure GetFiscalYear(DeprBookCode: Code[10]; EndingDate: Date): Date
     var

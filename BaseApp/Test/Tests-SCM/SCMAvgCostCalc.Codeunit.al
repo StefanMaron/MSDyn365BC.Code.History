@@ -38,12 +38,12 @@ codeunit 137070 "SCM Avg. Cost Calc."
         Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item);
-        PostPurch(Item, '', WorkDate, 142.7, 8.458);
-        PostSaleOrder(Item, '', WorkDate, 132.5, true, true, '');
+        PostPurch(Item, '', WorkDate(), 142.7, 8.458);
+        PostSaleOrder(Item, '', WorkDate(), 132.5, true, true, '');
         PostNegPurch(Item, PurchaseLine, '', -28.7);
         UndoNegPurch(PurchaseLine);
         AdjustCost(Item);
-        PostSaleOrder(Item, '', WorkDate, 3.9, true, true, '');
+        PostSaleOrder(Item, '', WorkDate(), 3.9, true, true, '');
         AdjustCost(Item);
         VerifyExpectedCostunit(Item."No.", 8.458, 0.001);
     end;
@@ -61,12 +61,12 @@ codeunit 137070 "SCM Avg. Cost Calc."
         Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
         CreateItem(Item);
-        PostPurch(Item, '', WorkDate, 142.7, 8.458);
+        PostPurch(Item, '', WorkDate(), 142.7, 8.458);
         PostTrans(Item, '', SelectLocBlue, 132.5);
         PostNegPurch(Item, PurchaseLine, '', -28.7);
         UndoNegPurch(PurchaseLine);
         AdjustCost(Item);
-        PostSaleOrder(Item, SelectLocBlue, WorkDate, 3.9, true, true, '');
+        PostSaleOrder(Item, SelectLocBlue, WorkDate(), 3.9, true, true, '');
         AdjustCost(Item);
         VerifyExpectedCostunit(Item."No.", 8.458, 0.001);
     end;
@@ -93,7 +93,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Document No.", 'my no');  // find a number
-        ItemJnlLine.Validate("Posting Date", WorkDate);
+        ItemJnlLine.Validate("Posting Date", WorkDate());
         ItemJnlLine.Validate("Item No.", Item."No.");
         ItemJnlLine.Validate(Quantity, 3);
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Purchase);
@@ -104,7 +104,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         for i := 1 to 3 do begin
             ItemJnlLine.Init();
             ItemJnlLine.Validate("Document No.", 'my no');
-            ItemJnlLine.Validate("Posting Date", WorkDate);
+            ItemJnlLine.Validate("Posting Date", WorkDate());
             ItemJnlLine.Validate("Item No.", Item."No.");
             ItemJnlLine.Validate(Quantity, 1);
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Sale);
@@ -121,7 +121,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
             repeat
                 ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
                 TotalCost += ItemLedgerEntry."Cost Amount (Actual)";
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
 
         Assert.AreEqual(0, TotalCost, '');
         // entry no   Cost per unit            Cost amount              qty
@@ -159,7 +159,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         // Steps
         // Day 1
-        InbndDate := WorkDate;
+        InbndDate := WorkDate();
         InbndQty := 10;
         UnitCost := 100;
         PostPurch(Item, '', InbndDate, InbndQty, UnitCost); // Step 2 & 3 Inbnd entry shipped and invoiced to be revaluated
@@ -214,7 +214,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         // Steps
         // Day 1
-        InbndDate := WorkDate;
+        InbndDate := WorkDate();
         InbndQty := 10;
         UnitCost := 100;
         PostPurch(Item, '', InbndDate, InbndQty, UnitCost); // Step 2 & 3 Inbnd entry shipped and invoiced to be revaluated
@@ -277,7 +277,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         // Steps
         // Day 1
-        InbndDate := WorkDate;
+        InbndDate := WorkDate();
         InbndQty := 10;
         UnitCost := 100;
         PostPurch(Item, '', InbndDate, InbndQty, UnitCost); // Step 2 & 3 Inbnd entry shipped and invoiced to be revaluated
@@ -488,7 +488,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         // [GIVEN] Posted purchase receipt of "I"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Adjust cost item entries of "I"
@@ -520,7 +520,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         // [GIVEN] Purchase 10 pcs of item "I", "Unit Cost" = 100
         CreateItem(Item);
-        PostPurch(Item, '', WorkDate, LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(100, 200));
+        PostPurch(Item, '', WorkDate(), LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(100, 200));
 
         // [GIVEN] Post a purchase order with linked job for the same item "I", "Unit Cost" = 300
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -560,7 +560,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [GIVEN] Item "I" tracked by serial number
         CreateItem(Item);
         LibraryPatterns.ADDSerialNoTrackingInfo(Item."No.");
-        Item.Find;
+        Item.Find();
 
         // [GIVEN] Purchase 10 pcs of item "I", "Unit Cost" = 100
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(10, 20));
@@ -588,7 +588,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         repeat
             VerifyItemLedgEntryActualCost(ItemLedgerEntry, -PurchaseLine."Direct Unit Cost");
             VerifyCostApplication(ItemLedgerEntry."Entry No.");
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -744,7 +744,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Document No.", 'my no');
-        ItemJnlLine.Validate("Posting Date", WorkDate);
+        ItemJnlLine.Validate("Posting Date", WorkDate());
         ItemJnlLine.Validate("Item No.", Item."No.");
         ItemJnlLine.Validate("Location Code", FromLocationCode);
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
@@ -849,7 +849,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
                 ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(expectedValue, ValueEntry."Cost per Unit", tolerance, '');
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyItemUnitCost(ItemNo: Code[20]; ExpectedUnitCost: Decimal)
@@ -886,14 +886,14 @@ codeunit 137070 "SCM Avg. Cost Calc."
     local procedure MockItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Qty: Decimal; RemQty: Decimal; CostAmt: Decimal; CostAmtACY: Decimal)
     begin
         with ItemLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
             "Item No." := ItemNo;
             Quantity := Qty;
             "Remaining Quantity" := RemQty;
             Open := "Remaining Quantity" <> 0;
             Positive := Quantity > 0;
-            Insert;
+            Insert();
         end;
 
         MockValueEntry(ItemLedgerEntry, CostAmt, CostAmtACY);
@@ -904,14 +904,14 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ValueEntry: Record "Value Entry";
     begin
         with ValueEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
             "Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
             "Item No." := ItemLedgerEntry."Item No.";
             "Item Ledger Entry Quantity" := ItemLedgerEntry.Quantity;
             "Cost Amount (Actual)" := CostAmt;
             "Cost Amount (Actual) (ACY)" := CostAmtACY;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -996,7 +996,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     local procedure UpdateAdditionalReportingCurrencyInGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup"; ACYCode: Code[10]) OldACYCode: Code[10]
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             OldACYCode := "Additional Reporting Currency";
             "Additional Reporting Currency" := ACYCode;
             Modify(true);

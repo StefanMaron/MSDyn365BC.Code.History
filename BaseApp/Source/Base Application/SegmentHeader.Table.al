@@ -72,7 +72,7 @@ table 5076 "Segment Header"
                 if ErrorText <> '' then
                     Error(
                       Text000 + ErrorText,
-                      FieldCaption("Correspondence Type (Default)"), "Correspondence Type (Default)", TableCaption, "No.");
+                      FieldCaption("Correspondence Type (Default)"), "Correspondence Type (Default)", TableCaption(), "No.");
                 if "Correspondence Type (Default)" <> "Correspondence Type (Default)"::" " then
                     UpdateSegLinesByFieldNo(FieldNo("Correspondence Type (Default)"), CurrFieldNo <> 0);
             end;
@@ -216,7 +216,7 @@ table 5076 "Segment Header"
             var
                 SegInteractLanguage: Record "Segment Interaction Language";
             begin
-                Modify;
+                Modify();
                 Commit();
 
                 SegInteractLanguage.SetRange("Segment No.", "No.");
@@ -227,7 +227,7 @@ table 5076 "Segment Header"
                     Get("No.");
                     "Language Code (Default)" := SegInteractLanguage."Language Code";
                     "Subject (Default)" := SegInteractLanguage.Subject;
-                    Modify;
+                    Modify();
                 end else
                     Get("No.");
                 CalcFields("Attachment No.");
@@ -242,7 +242,7 @@ table 5076 "Segment Header"
 
                 if not SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
                     "Subject (Default)" := '';
-                    if Confirm(Text010, true, SegInteractLanguage.TableCaption, "Language Code (Default)") then begin
+                    if Confirm(Text010, true, SegInteractLanguage.TableCaption(), "Language Code (Default)") then begin
                         SegInteractLanguage.Init();
                         SegInteractLanguage."Segment No." := "No.";
                         SegInteractLanguage."Segment Line No." := 0;
@@ -296,7 +296,7 @@ table 5076 "Segment Header"
                 if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
                     SegInteractLanguage.Subject := "Subject (Default)";
                     SegInteractLanguage.Modify();
-                    Modify;
+                    Modify();
                 end;
 
                 if not UpdateLines then
@@ -378,23 +378,24 @@ table 5076 "Segment Header"
         end;
 
         if "Salesperson Code" = '' then
-            SetDefaultSalesperson;
+            SetDefaultSalesperson();
 
-        Date := WorkDate;
+        Date := WorkDate();
     end;
 
     var
-        Text000: Label '%1 = %2 can not be specified for %3 %4.\';
-        Text002: Label 'You have modified %1.\\Do you want to update the segment lines where the Interaction Template Code is %2?';
-        Text003: Label '%1 may not be modified without updating lines when inherited attachments exist.';
-        Text005: Label 'Segment %1 already contains %2 %3.\Are you sure you want to reuse a %4?';
-        Text006: Label 'Segment %1 already contains %2 %3.\Are you sure you want to reuse a %4?';
         RMSetup: Record "Marketing Setup";
         SegHeader: Record "Segment Header";
         SegLine: Record "Segment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         SegCriteriaManagement: Codeunit SegCriteriaManagement;
         SegHistMgt: Codeunit SegHistoryManagement;
+
+        Text000: Label '%1 = %2 can not be specified for %3 %4.\';
+        Text002: Label 'You have modified %1.\\Do you want to update the segment lines where the Interaction Template Code is %2?';
+        Text003: Label '%1 may not be modified without updating lines when inherited attachments exist.';
+        Text005: Label 'Segment %1 already contains %2 %3.\Are you sure you want to reuse a %4?';
+        Text006: Label 'Segment %1 already contains %2 %3.\Are you sure you want to reuse a %4?';
         Text010: Label 'Do you want to create %1 %2?';
         Text011: Label 'You have modified %1.\\Do you want to update the corresponding segment lines?';
         Text012: Label 'You have modified %1.\\Do you want to apply the %1 %2 to all segment lines?', Comment = 'You have modified Meeting.\\Do you want to apply the Meeting BUS to all segment lines?';
@@ -424,7 +425,7 @@ table 5076 "Segment Header"
         SegmentLine.SetFilter("Contact No.", '<>%1', '');
         if SegmentLine.FindSet() then
             repeat
-                SegmentLine.CreateOpportunity;
+                SegmentLine.CreateOpportunity();
             until SegmentLine.Next() = 0;
     end;
 
@@ -502,12 +503,11 @@ table 5076 "Segment Header"
             if not Confirm(Question, true) then begin
                 if ChangedFieldNo = FieldNo("Interaction Template Code") then begin
                     SegLine.SetRange("Segment No.", "No.");
-                    if SegLine.Find('-') then begin
+                    if SegLine.Find('-') then
                         repeat
-                            if SegLine.AttachmentInherited then
+                            if SegLine.AttachmentInherited() then
                                 Error(Text003, FieldCaption("Interaction Template Code"));
                         until SegLine.Next() = 0;
-                    end
                 end;
                 UpdateSegHeader("Interaction Template Code",
                   ChangedFieldNo = FieldNo("Interaction Template Code"));
@@ -584,7 +584,7 @@ table 5076 "Segment Header"
             if "No. of Criteria Actions" <> 0 then
                 if not Confirm(
                      Text005, false,
-                     "No.", "No. of Criteria Actions", FieldCaption("No. of Criteria Actions"), LoggedSeg.TableCaption)
+                     "No.", "No. of Criteria Actions", FieldCaption("No. of Criteria Actions"), LoggedSeg.TableCaption())
                 then
                     exit;
             if PAGE.RunModal(PAGE::"Logged Segments", LoggedSeg) <> ACTION::LookupOK then
@@ -639,7 +639,7 @@ table 5076 "Segment Header"
         if "No. of Criteria Actions" <> 0 then
             if not Confirm(
                  Text006, false,
-                 "No.", "No. of Criteria Actions", FieldCaption("No. of Criteria Actions"), SavedSegCriteria.TableCaption)
+                 "No.", "No. of Criteria Actions", FieldCaption("No. of Criteria Actions"), SavedSegCriteria.TableCaption())
             then
                 exit;
 
@@ -788,9 +788,9 @@ table 5076 "Segment Header"
             Error(WordTemplateUsedErr);
 
         if "Attachment No." <> 0 then
-            OpenAttachment
+            OpenAttachment()
         else begin
-            CreateAttachment;
+            CreateAttachment();
             CalcFields("Attachment No.");
         end;
     end;
@@ -811,7 +811,7 @@ table 5076 "Segment Header"
             SegInteractLanguage.Description := Format("Interaction Template Code") + ' ' + Format("Language Code (Default)");
             SegInteractLanguage.Subject := "Subject (Default)";
         end;
-        SegInteractLanguage.CreateAttachment;
+        SegInteractLanguage.CreateAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -824,7 +824,7 @@ table 5076 "Segment Header"
 
         if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then
             if SegInteractLanguage."Attachment No." <> 0 then
-                SegInteractLanguage.OpenAttachment;
+                SegInteractLanguage.OpenAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -844,7 +844,7 @@ table 5076 "Segment Header"
               Format("Interaction Template Code") + ' ' + Format("Language Code (Default)");
             SegInteractLanguage.Insert(true);
         end;
-        SegInteractLanguage.ImportAttachment;
+        SegInteractLanguage.ImportAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -857,7 +857,7 @@ table 5076 "Segment Header"
 
         if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then
             if SegInteractLanguage."Attachment No." <> 0 then
-                SegInteractLanguage.ExportAttachment;
+                SegInteractLanguage.ExportAttachment();
     end;
 
     [Scope('OnPrem')]
@@ -881,7 +881,7 @@ table 5076 "Segment Header"
         OnBeforeUpdateSegHeader(Rec, InteractTmplCode, InteractTmplChange, IsHandled);
 
         if InteractTmplChange then begin
-            Modify;
+            Modify();
             Get("No.");
             "Interaction Template Code" := InteractTmplCode;
             "Subject (Default)" := '';
@@ -898,7 +898,7 @@ table 5076 "Segment Header"
                     "Campaign No." := '';
             end;
 
-            Modify;
+            Modify();
             CalcFields("Attachment No.");
         end;
 

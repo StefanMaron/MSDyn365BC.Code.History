@@ -360,7 +360,7 @@ table 130 "Incoming Document"
         TestField(Posted, false);
 
         DeleteApprovalEntries();
-        ClearRelatedRecords;
+        ClearRelatedRecords();
 
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         if not IncomingDocumentAttachment.IsEmpty() then
@@ -370,16 +370,16 @@ table 130 "Incoming Document"
         if not ActivityLog.IsEmpty() then
             ActivityLog.DeleteAll();
 
-        ClearErrorMessages;
+        ClearErrorMessages();
     end;
 
     trigger OnInsert()
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        if OCRServiceSetup.Get then;
+        if OCRServiceSetup.Get() then;
         "Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
-        "Created By User ID" := UserSecurityId;
+        "Created By User ID" := UserSecurityId();
         if "OCR Service Doc. Template Code" = '' then
             "OCR Service Doc. Template Code" := OCRServiceSetup."Default OCR Doc. Template";
     end;
@@ -387,14 +387,15 @@ table 130 "Incoming Document"
     trigger OnModify()
     begin
         "Last Date-Time Modified" := RoundDateTime(CurrentDateTime, 60000);
-        "Last Modified By User ID" := UserSecurityId;
+        "Last Modified By User ID" := UserSecurityId();
     end;
 
     var
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
-        UrlTooLongErr: Label 'Only URLs with a maximum of %1 characters are allowed.', Comment = '%1 = length of the URL field (e.g. 1024).';
         TempErrorMessage: Record "Error Message" temporary;
         DocumentType: Option Invoice,"Credit Memo";
+
+        UrlTooLongErr: Label 'Only URLs with a maximum of %1 characters are allowed.', Comment = '%1 = length of the URL field (e.g. 1024).';
         NoDocumentMsg: Label 'There is no incoming document for this combination of posting date and document number.';
         AlreadyUsedInJnlErr: Label 'The incoming document has already been assigned to journal batch %1, line number. %2.', Comment = '%1 = journal batch name, %2=line number.';
         AlreadyUsedInDocHdrErr: Label 'The incoming document has already been assigned to %1 %2 (%3).', Comment = '%1=document type, %2=document number, %3=table name, e.g. Sales Header.';
@@ -488,15 +489,15 @@ table 130 "Incoming Document"
 
     procedure TryCreateDocumentWithDataExchange()
     begin
-        CreateDocumentWithDataExchange
+        CreateDocumentWithDataExchange();
     end;
 
     procedure CreateReleasedDocumentWithDataExchange()
     var
         PurchaseHeader: Record "Purchase Header";
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
-        Variant: Variant;
         RecordRef: RecordRef;
+        Variant: Variant;
     begin
         CreateWithDataExchange("Document Type"::" ");
         GetRecord(Variant);
@@ -514,30 +515,30 @@ table 130 "Incoming Document"
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
         OldStatus: Option;
     begin
-        Find;
+        Find();
 
         if ApprovalsMgmt.IsIncomingDocApprovalsWorkflowEnabled(Rec) and (Status = Status::New) then
             Error(DocWhenApprovalIsCompleteErr);
 
-        OnCheckIncomingDocCreateDocRestrictions;
+        OnCheckIncomingDocCreateDocRestrictions();
 
         if "Data Exchange Type" = '' then
             Error(DataExchangeTypeEmptyErr);
 
         "Document Type" := DocumentType;
-        Modify;
+        Modify();
 
-        ClearErrorMessages;
+        ClearErrorMessages();
         TestReadyForProcessing();
 
-        CheckNotCreated;
+        CheckNotCreated();
 
         if Status in [Status::New, Status::Failed] then begin
             OldStatus := Status;
             CODEUNIT.Run(CODEUNIT::"Release Incoming Document", Rec);
             TestField(Status, Status::Released);
             Status := OldStatus;
-            Modify;
+            Modify();
         end;
 
         Commit();
@@ -554,7 +555,7 @@ table 130 "Incoming Document"
         end;
 
         // identify the created doc
-        if not UpdateDocumentFields then begin
+        if not UpdateDocumentFields() then begin
             SetProcessFailed('');
             exit;
         end;
@@ -673,9 +674,9 @@ table 130 "Incoming Document"
             OnAfterCreateGenJnlLineFromIncomingDocFail(Rec);
 
         if GenJnlLine.HasLinks then
-            GenJnlLine.DeleteLinks;
-        if GetURL <> '' then
-            GenJnlLine.AddLink(GetURL, Description);
+            GenJnlLine.DeleteLinks();
+        if GetURL() <> '' then
+            GenJnlLine.AddLink(GetURL(), Description);
 
         IsHandled := false;
         OnCreateGenJnlLineOnBeforeShowRecord(Rec, IsHandled);
@@ -740,7 +741,7 @@ table 130 "Incoming Document"
     [Scope('OnPrem')]
     procedure TryCreateGeneralJournalLineWithDataExchange()
     begin
-        CreateGeneralJournalLineWithDataExchange
+        CreateGeneralJournalLineWithDataExchange();
     end;
 
     procedure RemoveReferenceToWorkingDocument(EntryNo: Integer)
@@ -763,7 +764,7 @@ table 130 "Incoming Document"
         else
             Status := Status::New;
 
-        ClearErrorMessages;
+        ClearErrorMessages();
         "Created Doc. Error Msg. Type" := "Created Doc. Error Msg. Type"::Error;
 
         OnRemoveReferenceToWorkingDocumentOnBeforeModify(Rec);
@@ -789,9 +790,9 @@ table 130 "Incoming Document"
 
     procedure CreateIncomingDocument(NewDescription: Text; NewURL: Text): Integer
     begin
-        Reset;
+        Reset();
         Clear(Rec);
-        Init;
+        Init();
         Description := CopyStr(NewDescription, 1, MaxStrLen(Description));
         SetURL(NewURL);
         Insert(true);
@@ -827,13 +828,13 @@ table 130 "Incoming Document"
                 begin
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     if SalesHeader.FindFirst() then
-                        Error(AlreadyUsedInDocHdrErr, SalesHeader."Document Type", SalesHeader."No.", SalesHeader.TableCaption);
+                        Error(AlreadyUsedInDocHdrErr, SalesHeader."Document Type", SalesHeader."No.", SalesHeader.TableCaption());
                 end;
             "Document Type"::"Purchase Invoice", "Document Type"::"Purchase Credit Memo":
                 begin
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     if PurchaseHeader.FindFirst() then
-                        Error(AlreadyUsedInDocHdrErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader.TableCaption);
+                        Error(AlreadyUsedInDocHdrErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader.TableCaption());
                 end;
             else
                 OnTestIfAlreadyExists("Document Type", "Entry No.");
@@ -850,7 +851,7 @@ table 130 "Incoming Document"
         if not ForcePosted and Posted then
             Error(DocPostedErr);
 
-        IncomingDocumentsSetup.Fetch;
+        IncomingDocumentsSetup.Fetch();
         if IncomingDocumentsSetup."Require Approval To Create" and (not Released) then
             Error(DocApprovedErr);
     end;
@@ -862,14 +863,6 @@ table 130 "Incoming Document"
         SetRange("Posting Date", PostingDate);
         exit(not IsEmpty);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by GetRelatedPostedDocType().', '18.0')]
-    procedure GetPostedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean): Integer
-    begin
-        exit(GetRelatedDocType(PostingDate, DocNo, IsPosted).AsInteger());
-    end;
-#endif
 
     procedure GetRelatedDocType(PostingDate: Date; DocNo: Code[20]; var IsPosted: Boolean): Enum "Incoming Related Document Type"
     var
@@ -905,7 +898,7 @@ table 130 "Incoming Document"
             else
                 GLEntry.SetRange("Posting Date", PostingDate);
                 GLEntry.SetRange("Document No.", DocNo);
-                IsPosted := not GLEntry.IsEmpty;
+                IsPosted := not GLEntry.IsEmpty();
                 exit("Document Type"::Journal);
         end;
         IsPosted := false;
@@ -920,8 +913,8 @@ table 130 "Incoming Document"
     procedure SetPostedDocFieldsForcePosted(PostingDate: Date; DocNo: Code[20]; ForcePosted: Boolean)
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
-        RelatedRecord: Variant;
         RelatedRecordRef: RecordRef;
+        RelatedRecord: Variant;
     begin
         TestReadyForProcessingForcePosted(ForcePosted);
         Posted := true;
@@ -934,7 +927,7 @@ table 130 "Incoming Document"
             RelatedRecordRef.GetTable(RelatedRecord);
             "Related Record ID" := RelatedRecordRef.RecordId;
         end;
-        ClearErrorMessages;
+        ClearErrorMessages();
         Modify(true);
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.ModifyAll("Document No.", "Document No.");
@@ -1038,8 +1031,8 @@ table 130 "Incoming Document"
         OnBeforeCreateSalesHeaderFromIncomingDoc(SalesHeader);
         SalesHeader.Insert(true);
         OnAfterCreateSalesHeaderFromIncomingDoc(SalesHeader);
-        if GetURL <> '' then
-            SalesHeader.AddLink(GetURL, Description);
+        if GetURL() <> '' then
+            SalesHeader.AddLink(GetURL(), Description);
         SalesHeader."Incoming Document Entry No." := "Entry No.";
         SalesHeader.Modify();
         "Document No." := SalesHeader."No.";
@@ -1074,8 +1067,8 @@ table 130 "Incoming Document"
         OnCreatePurchDocOnBeforePurchHeaderInsert(PurchHeader);
         PurchHeader.Insert(true);
         OnAfterCreatePurchHeaderFromIncomingDoc(PurchHeader);
-        if GetURL <> '' then
-            PurchHeader.AddLink(GetURL, Description);
+        if GetURL() <> '' then
+            PurchHeader.AddLink(GetURL(), Description);
         PurchHeader."Incoming Document Entry No." := "Entry No.";
         PurchHeader.Modify();
         "Document No." := PurchHeader."No.";
@@ -1098,7 +1091,7 @@ table 130 "Incoming Document"
         "Document Type" := "Document Type"::Journal;
         Modify(true);
         if not DocLinkExists(GenJnlLine) then
-            GenJnlLine.AddLink(GetURL, Description);
+            GenJnlLine.AddLink(GetURL(), Description);
     end;
 
     procedure SetSalesDoc(var SalesHeader: Record "Sales Header")
@@ -1114,9 +1107,9 @@ table 130 "Incoming Document"
             SalesHeader."Document Type"::"Credit Memo":
                 "Document Type" := "Document Type"::"Sales Credit Memo";
         end;
-        Modify;
+        Modify();
         if not DocLinkExists(SalesHeader) then
-            SalesHeader.AddLink(GetURL, Description);
+            SalesHeader.AddLink(GetURL(), Description);
     end;
 
     procedure SetPurchDoc(var PurchaseHeader: Record "Purchase Header")
@@ -1132,9 +1125,9 @@ table 130 "Incoming Document"
             PurchaseHeader."Document Type"::"Credit Memo":
                 "Document Type" := "Document Type"::"Purchase Credit Memo";
         end;
-        Modify;
+        Modify();
         if not DocLinkExists(PurchaseHeader) then
-            PurchaseHeader.AddLink(GetURL, Description);
+            PurchaseHeader.AddLink(GetURL(), Description);
     end;
 
     procedure DocLinkExists(RecVar: Variant): Boolean
@@ -1142,7 +1135,7 @@ table 130 "Incoming Document"
         RecordLink: Record "Record Link";
         RecRef: RecordRef;
     begin
-        if GetURL = '' then
+        if GetURL() = '' then
             exit(true);
         RecRef.GetTable(RecVar);
         RecordLink.SetRange("Record ID", RecRef.RecordId);
@@ -1172,8 +1165,8 @@ table 130 "Incoming Document"
             Message(NoDocumentMsg);
             exit(true);
         end;
-        if GetURL <> '' then begin
-            HyperLink(GetURL);
+        if GetURL() <> '' then begin
+            HyperLink(GetURL());
             exit(true);
         end;
     end;
@@ -1184,7 +1177,7 @@ table 130 "Incoming Document"
         SetRange("Posting Date", PostingDate);
         if not FindFirst() then
             exit;
-        SetRecFilter;
+        SetRecFilter();
         PAGE.Run(PAGE::"Incoming Document", Rec);
     end;
 
@@ -1193,7 +1186,7 @@ table 130 "Incoming Document"
         if EntryNo = 0 then
             exit;
         Get(EntryNo);
-        SetRecFilter;
+        SetRecFilter();
         PAGE.Run(PAGE::"Incoming Document", Rec);
     end;
 
@@ -1202,7 +1195,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        IncomingDocumentAttachment.NewAttachment;
+        IncomingDocumentAttachment.NewAttachment();
         IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.")
     end;
 
@@ -1227,7 +1220,7 @@ table 130 "Incoming Document"
         OutStr.WriteText(XmlText);
         IncomingDocumentAttachment.Insert(true);
         if IncomingDocumentAttachment.Type in [IncomingDocumentAttachment.Type::Image, IncomingDocumentAttachment.Type::PDF] then
-            IncomingDocumentAttachment.OnAttachBinaryFile;
+            IncomingDocumentAttachment.OnAttachBinaryFile();
     end;
 
     procedure AddAttachmentFromStream(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; OrgFileName: Text; FileExtension: Text; var InStr: InStream)
@@ -1266,7 +1259,7 @@ table 130 "Incoming Document"
             exit;
         File.CreateInStream(InStr);
         AddAttachmentFromStream(IncomingDocumentAttachment, FileName, FileManagement.GetExtension(FileName), InStr);
-        File.Close;
+        File.Close();
         if Erase(FilePath) then;
     end;
 
@@ -1279,7 +1272,7 @@ table 130 "Incoming Document"
 
         if ErrorMsg = '' then begin
             ErrorMsg := CopyStr(GetLastErrorText, 1, MaxStrLen(ErrorMessage.Description));
-            ClearLastError;
+            ClearLastError();
         end;
 
         if ErrorMsg <> '' then begin
@@ -1362,13 +1355,13 @@ table 130 "Incoming Document"
             IncomingDocument.Get(EntryNo);
             IncomingDocuments.SetRecord(IncomingDocument);
         end;
-        if IncomingDocumentsSetup.Get then
+        if IncomingDocumentsSetup.Get() then
             if IncomingDocumentsSetup."Require Approval To Create" then
                 IncomingDocument.SetRange(Released, true);
         IncomingDocument.SetRange(Posted, false);
         IncomingDocuments.SetTableView(IncomingDocument);
         IncomingDocuments.LookupMode := true;
-        if IncomingDocuments.RunModal = ACTION::LookupOK then begin
+        if IncomingDocuments.RunModal() = ACTION::LookupOK then begin
             IncomingDocuments.GetRecord(IncomingDocument);
             IncomingDocument.Validate("Related Record ID", RelatedRecordID);
             IncomingDocument.Modify();
@@ -1458,13 +1451,13 @@ table 130 "Incoming Document"
         IncomingDocumentCopy.Reset();
         SendIncomingDocumentToOCR.SetShowMessages(ShowMessages);
         SendIncomingDocumentToOCR.SendDocToOCR(IncomingDocumentCopy);
-        SendIncomingDocumentToOCR.ScheduleJobQueueReceive;
+        SendIncomingDocumentToOCR.ScheduleJobQueueReceive();
     end;
 
     procedure SetStatus(NewStatus: Option)
     begin
         Status := NewStatus;
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1480,7 +1473,7 @@ table 130 "Incoming Document"
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetRange("Generated from OCR", true);
-        exit(IncomingDocumentAttachment.FindFirst)
+        exit(IncomingDocumentAttachment.FindFirst());
     end;
 
     procedure GetDataExchangePath(FieldNumber: Integer): Text
@@ -1679,7 +1672,7 @@ table 130 "Incoming Document"
         RelatedRecordID := "Related Record ID";
         if RelatedRecordID.TableNo = 0 then
             exit(false);
-        RelatedRecordRef := RelatedRecordID.GetRecord;
+        RelatedRecordRef := RelatedRecordID.GetRecord();
         exit(RelatedRecordRef.Get(RelatedRecordID));
     end;
 
@@ -1699,7 +1692,7 @@ table 130 "Incoming Document"
         NavRecordVariant: Variant;
     begin
         if Posted then
-            UndoPostedDocFields
+            UndoPostedDocFields()
         else begin
             if not Confirm(DoYouWantToRemoveReferenceQst) then
                 exit;
@@ -1711,7 +1704,7 @@ table 130 "Incoming Document"
                     exit;
                 end;
 
-            RemoveIncomingDocumentEntryNoFromUnpostedDocument;
+            RemoveIncomingDocumentEntryNoFromUnpostedDocument();
             RemoveReferenceToWorkingDocument("Entry No.");
         end;
     end;
@@ -1731,7 +1724,7 @@ table 130 "Incoming Document"
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetRange("Main Attachment", true);
-        exit(IncomingDocumentAttachment.FindFirst);
+        exit(IncomingDocumentAttachment.FindFirst())
     end;
 
     procedure GetMainAttachmentFileName(): Text
@@ -1739,7 +1732,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         if GetMainAttachment(IncomingDocumentAttachment) then
-            exit(IncomingDocumentAttachment.GetFullName);
+            exit(IncomingDocumentAttachment.GetFullName());
 
         exit('');
     end;
@@ -1797,8 +1790,8 @@ table 130 "Incoming Document"
 
     local procedure GetRecordCaption(var RecRef: RecordRef): Text
     var
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyNo: Integer;
         FieldNo: Integer;
         RecCaption: Text;
@@ -1826,7 +1819,7 @@ table 130 "Incoming Document"
     begin
         FileName := '';
         if GetGeneratedFromOCRAttachment(IncomingDocumentAttachment) then
-            FileName := IncomingDocumentAttachment.GetFullName;
+            FileName := IncomingDocumentAttachment.GetFullName();
 
         exit(FileName);
     end;
@@ -1837,7 +1830,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         if not GetMainAttachment(IncomingDocumentAttachment) then begin
-            IncomingDocumentAttachment.NewAttachment;
+            IncomingDocumentAttachment.NewAttachment();
             exit;
         end;
 
@@ -1858,11 +1851,11 @@ table 130 "Incoming Document"
         NewIncomingDocumentAttachment: Record "Incoming Document Attachment";
         ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
     begin
-        if not CanReplaceMainAttachment then
+        if not CanReplaceMainAttachment() then
             Error(CannotReplaceMainAttachmentErr);
 
         if not GetMainAttachment(MainIncomingDocumentAttachment) then begin
-            MainIncomingDocumentAttachment.NewAttachment;
+            MainIncomingDocumentAttachment.NewAttachment();
             exit;
         end;
 
@@ -1907,7 +1900,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetRange("Main Attachment", false);
         IncomingDocumentAttachment.SetRange("Generated from OCR", false);
-        exit(IncomingDocumentAttachment.FindSet);
+        exit(IncomingDocumentAttachment.FindSet());
     end;
 
     procedure DefaultAttachmentIsXML(): Boolean
@@ -2011,7 +2004,7 @@ table 130 "Incoming Document"
                 end;
         end;
 
-        exit(IncomingDocument.FindFirst);
+        exit(IncomingDocument.FindFirst());
     end;
 
     procedure FindByDocumentNoAndPostingDate(var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean
@@ -2027,7 +2020,7 @@ table 130 "Incoming Document"
         IncomingDocument.SetRange("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
 
-        exit(IncomingDocument.FindFirst);
+        exit(IncomingDocument.FindFirst());
     end;
 
     procedure FindFromIncomingDocumentEntryNo(MainRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document") Result: Boolean
@@ -2090,7 +2083,7 @@ table 130 "Incoming Document"
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        if not OCRServiceSetup.Get then
+        if not OCRServiceSetup.Get() then
             exit(false);
         exit(OCRServiceSetup.Enabled);
     end;
@@ -2100,7 +2093,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        if GetURL = '' then
+        if GetURL() = '' then
             if IncomingDocumentAttachment.IsEmpty() then
                 exit(false);
         exit(true);
@@ -2108,7 +2101,7 @@ table 130 "Incoming Document"
 
     procedure TestReadyForApproval()
     begin
-        if IsADocumentAttached then
+        if IsADocumentAttached() then
             exit;
         Error(NoDocAttachErr);
     end;
@@ -2122,9 +2115,9 @@ table 130 "Incoming Document"
 
     procedure CanReplaceMainAttachment(): Boolean
     begin
-        if not HasAttachment then
+        if not HasAttachment() then
             exit(true);
-        exit(not WasSentToOCR);
+        exit(not WasSentToOCR());
     end;
 
     local procedure WasSentToOCR(): Boolean

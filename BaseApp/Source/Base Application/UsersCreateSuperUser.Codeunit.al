@@ -8,13 +8,8 @@ codeunit 9000 "Users - Create Super User"
         if not User.IsEmpty() then
             exit;
 
-        SafeCreateUser(UserId, Sid);
+        SafeCreateUser(UserId, Sid());
     end;
-
-#if not CLEAN18
-    var
-        SuperPermissonSetDescTxt: Label 'This user has all permissions.';
-#endif
 
     [Scope('OnPrem')]
     procedure SafeCreateUser(UserID: Code[50]; SID: Text[119])
@@ -32,29 +27,8 @@ codeunit 9000 "Users - Create Super User"
     end;
 
     local procedure GetSuperRole(var PermissionSet: Record "Permission Set")
-#if not CLEAN18
-    var
-        Permission: Record Permission;
-#endif
     begin
-#if CLEAN18
         PermissionSet.Get('SUPER');
-#else
-        if PermissionSet.Get('SUPER') then
-            exit;
-        PermissionSet."Role ID" := 'SUPER';
-        PermissionSet.Name := CopyStr(SuperPermissonSetDescTxt, 1, MaxStrLen(PermissionSet.Name));
-        PermissionSet.Insert(true);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::"Table Data", 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Table, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Report, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Codeunit, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::XMLport, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::MenuSuite, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Page, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Query, 0);
-        AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::System, 0);
-#endif
     end;
 
     local procedure CreateUser(var User: Record User; UserName: Code[50]; WindowsSecurityID: Text[119])
@@ -62,35 +36,12 @@ codeunit 9000 "Users - Create Super User"
         EnvironmentInformation: Codeunit "Environment Information";
     begin
         User.Init();
-        User."User Security ID" := CreateGuid;
+        User."User Security ID" := CreateGuid();
         User."User Name" := UserName;
         if not EnvironmentInformation.IsSaaSInfrastructure() then
             User."Windows Security ID" := WindowsSecurityID;
         User.Insert(true);
     end;
-
-#if not CLEAN18
-    local procedure AddPermissionToPermissionSet(var PermissionSet: Record "Permission Set"; ObjectType: Option; ObjectID: Integer)
-    var
-        Permission: Record Permission;
-    begin
-        with Permission do begin
-            Init;
-            "Role ID" := PermissionSet."Role ID";
-            "Object Type" := ObjectType;
-            "Object ID" := ObjectID;
-            if "Object Type" = "Object Type"::"Table Data" then
-                "Execute Permission" := "Execute Permission"::" "
-            else begin
-                "Read Permission" := "Read Permission"::" ";
-                "Insert Permission" := "Insert Permission"::" ";
-                "Modify Permission" := "Modify Permission"::" ";
-                "Delete Permission" := "Delete Permission"::" ";
-            end;
-            Insert(true);
-        end;
-    end;
-#endif
 
     local procedure AssignPermissionSetToUser(var User: Record User; var PermissionSet: Record "Permission Set")
     var

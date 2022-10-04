@@ -104,7 +104,7 @@ codeunit 134836 "Test Vendor Lookup"
         LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
 
         // Exercise.
-        VendName := CopyStr(Format(CreateGuid), 1, 50);
+        VendName := CopyStr(Format(CreateGuid()), 1, 50);
 
         PurchaseQuote.OpenNew();
         PurchaseQuote.PurchLines.First;
@@ -212,7 +212,7 @@ codeunit 134836 "Test Vendor Lookup"
             Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Vendor));
             Validate("Address 2", LibraryUtility.GenerateRandomCode(FieldNo("Address 2"), DATABASE::Vendor));
             Validate("Post Code", LibraryUtility.GenerateRandomCode(FieldNo("Post Code"), DATABASE::Vendor));
-            Modify;
+            Modify();
         end;
     end;
 

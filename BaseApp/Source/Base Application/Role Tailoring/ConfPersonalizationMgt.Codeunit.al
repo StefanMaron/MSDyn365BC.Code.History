@@ -22,12 +22,12 @@ codeunit 9170 "Conf./Personalization Mgt."
 
     procedure DefaultRoleCenterID(): Integer
     var
+        AzureADPlan: Codeunit "Azure AD Plan";
         EnvironmentInfo: Codeunit "Environment Information";
         RoleCenterID: Integer;
-        AzureADPlan: Codeunit "Azure AD Plan";
     begin
-        if EnvironmentInfo.IsSaaS then
-            if AzureADPlan.TryGetAzureUserPlanRoleCenterId(RoleCenterID, UserSecurityId) then;
+        if EnvironmentInfo.IsSaaS() then
+            if AzureADPlan.TryGetAzureUserPlanRoleCenterId(RoleCenterID, UserSecurityId()) then;
 
         if RoleCenterID = 0 then
             RoleCenterID := PAGE::"Business Manager Role Center"; // BUSINESS MANAGER
@@ -53,7 +53,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserPersonalization: Record "User Personalization";
     begin
         // Try to find the current profile, otherwise it means we are using the default one for this user (coming from Azure or from demodata)
-        if UserPersonalization.Get(UserSecurityId) then
+        if UserPersonalization.Get(UserSecurityId()) then
             if UserPersonalization."Profile ID" <> '' then
                 exit(AllProfile.Get(UserPersonalization.Scope, UserPersonalization."App ID", UserPersonalization."Profile ID"));
 
@@ -83,7 +83,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserPersonalization: Record "User Personalization";
         PrevAllProfile: Record "All Profile";
     begin
-        if UserPersonalization.Get(UserSecurityId) then begin
+        if UserPersonalization.Get(UserSecurityId()) then begin
             if PrevAllProfile.Get(UserPersonalization.Scope, UserPersonalization."App ID", UserPersonalization."Profile ID") then;
             UserPersonalization."Profile ID" := AllProfile."Profile ID";
             UserPersonalization.Scope := AllProfile.Scope;
@@ -91,7 +91,7 @@ codeunit 9170 "Conf./Personalization Mgt."
             UserPersonalization.Modify(true);
         end else begin
             UserPersonalization.Init();
-            UserPersonalization."User SID" := UserSecurityId;
+            UserPersonalization."User SID" := UserSecurityId();
             UserPersonalization."Profile ID" := AllProfile."Profile ID";
             UserPersonalization.Scope := AllProfile.Scope;
             UserPersonalization."App ID" := AllProfile."App ID";
@@ -329,13 +329,13 @@ codeunit 9170 "Conf./Personalization Mgt."
 
     procedure RaiseOnOpenRoleCenterEvent()
     begin
-        OnRoleCenterOpen;
+        OnRoleCenterOpen();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Default Role Center", 'OnBeforeGetDefaultRoleCenter', '', false, false)]
     local procedure SetDefaultRoleCenterId(var RoleCenterId: Integer; var Handled: Boolean)
     begin
-        RoleCenterId := DefaultRoleCenterID;
+        RoleCenterId := DefaultRoleCenterID();
     end;
 
 #if not CLEAN19
@@ -377,7 +377,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserPersonalization: Record "User Personalization";
     begin
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
-        if UserGroupMember.FindSet() then begin
+        if UserGroupMember.FindSet() then
             repeat
                 UserPersonalization.Get(UserGroupMember."User Security ID");
                 if (UserPersonalization."Profile ID" = OldProfileID) and
@@ -386,8 +386,7 @@ codeunit 9170 "Conf./Personalization Mgt."
                     UserPersonalization.Validate("Profile ID", NewProfileID);
                     UserPersonalization.Modify(true);
                 end;
-            until UserGroupMember.Next() = 0
-        end;
+            until UserGroupMember.Next() = 0;
     end;
 
     local procedure UserHasOtherUserGroupsSupportingProfile(UserSecurityID: Guid; ProfileID: Code[30]; UserGroupCode: Code[20]): Boolean
@@ -397,14 +396,13 @@ codeunit 9170 "Conf./Personalization Mgt."
     begin
         UserGroupMember.SetRange("User Security ID", UserSecurityID);
         UserGroupMember.SetFilter("User Group Code", '<>%1', UserGroupCode);
-        if UserGroupMember.FindSet() then begin
+        if UserGroupMember.FindSet() then
             repeat
                 if UserGroup.Get(UserGroupMember."User Group Code") and
                    (UserGroup."Default Profile ID" = ProfileID)
                 then
                     exit(true);
             until UserGroupMember.Next() = 0;
-        end;
         exit(false);
     end;
 
@@ -429,7 +427,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         ZipArchive := ZipFile.Open(ZipFilePath, ZipArchiveMode.Read);
         Zip.ExtractToDirectory(ZipArchive, DestinationFolder);
         if not IsNull(ZipArchive) then
-            ZipArchive.Dispose;
+            ZipArchive.Dispose();
     end;
 
     procedure GetProfileConfigurationUrlForWeb(AllProfile: Record "All Profile"): Text

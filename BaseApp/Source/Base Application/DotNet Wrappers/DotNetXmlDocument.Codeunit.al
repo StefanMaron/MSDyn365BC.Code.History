@@ -10,7 +10,7 @@ codeunit 3013 DotNet_XmlDocument
 
     procedure InitXmlDocument()
     begin
-        DotNetXmlDocument := DotNetXmlDocument.XmlDocument
+        DotNetXmlDocument := DotNetXmlDocument.XmlDocument();
     end;
 
     procedure PreserveWhitespace(PreserveWhitespace: Boolean)

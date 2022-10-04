@@ -1,4 +1,4 @@
-﻿page 954 "Manager Time Sheet by Job"
+page 954 "Manager Time Sheet by Job"
 {
     ApplicationArea = Jobs;
     AutoSplitKey = true;
@@ -6,7 +6,6 @@
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Show';
     SourceTable = "Time Sheet Line";
     SourceTableView = WHERE(Type = CONST(Job));
     UsageCategory = Tasks;
@@ -36,14 +35,14 @@
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
                     Visible = false;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -62,7 +61,7 @@
                         CurrPage.Update();
                     end;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = WorkTypeCodeAllowEdit;
@@ -154,7 +153,7 @@
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies information about the status of a time sheet line.';
                 }
-                field("Total Quantity"; "Total Quantity")
+                field("Total Quantity"; Rec."Total Quantity")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total number of hours that have been entered on a time sheet.';
@@ -176,9 +175,6 @@
                     ApplicationArea = Jobs;
                     Caption = '&Previous Period';
                     Image = PreviousSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                     trigger OnAction()
@@ -191,9 +187,6 @@
                     ApplicationArea = Jobs;
                     Caption = '&Next Period';
                     Image = NextSet;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View information for the next period.';
 
                     trigger OnAction()
@@ -211,8 +204,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Time Sheet Comment Sheet";
                     RunPageLink = "No." = FIELD("Time Sheet No."),
                                   "Time Sheet Line No." = FIELD("Line No.");
@@ -223,8 +214,6 @@
                     ApplicationArea = Jobs;
                     Caption = 'Posting E&ntries';
                     Image = PostingEntries;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the resource ledger entries that have been posted in connection with the.';
 
@@ -238,8 +227,6 @@
                     ApplicationArea = Jobs;
                     Caption = 'Activity &Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View the quantity of hours for each time sheet status.';
 
@@ -261,15 +248,12 @@
                     ApplicationArea = Jobs;
                     Caption = '&Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Approve the lines on the time sheet. Choose All to approve all lines. Choose Selected to approve only selected lines.';
 
                     trigger OnAction()
                     begin
-                        ApproveLines;
+                        ApproveLines();
                     end;
                 }
                 action(Reject)
@@ -277,14 +261,11 @@
                     ApplicationArea = Jobs;
                     Caption = '&Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reject to approve the lines on the time sheet. Choose All to reject all lines. Choose Selected to reject only selected lines.';
 
                     trigger OnAction()
                     begin
-                        RejectLines;
+                        RejectLines();
                     end;
                 }
                 action(Reopen)
@@ -292,23 +273,70 @@
                     ApplicationArea = Jobs;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Reopen the time sheet to change it.';
 
                     trigger OnAction()
                     begin
-                        ReopenLines;
+                        ReopenLines();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref("&Previous Period_Promoted"; "&Previous Period")
+                {
+                }
+                actionref("&Next Period_Promoted"; "&Next Period")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+            }
+            group(Category_Line)
+            {
+                Caption = 'Line';
+
+                actionref("Posting E&ntries_Promoted"; "Posting E&ntries")
+                {
+                }
+                actionref("Activity &Details_Promoted"; "Activity &Details")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnOpenPage()
@@ -386,7 +414,7 @@
         SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
         SetRange("Approver ID", UserId);
         FilterGroup(0);
-        SetColumns;
+        SetColumns();
         CurrPage.Update(false);
     end;
 
@@ -424,7 +452,7 @@
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         ActionType: Option Approve,Reopen,Reject;
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         case Action of
             Action::"Approve All",
           Action::"Reject All":

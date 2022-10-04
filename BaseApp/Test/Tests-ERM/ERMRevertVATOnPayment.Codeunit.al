@@ -65,7 +65,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         // Create Customer with Currency and Payment Terms.
         CustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, Customer."Currency Code", '', WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, Customer."Currency Code", '', WorkDate());
         AmountToApply := Amount * (1 - (GetPaymentTermsDiscountPercentage(PaymentTerms) / 100));
 
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -121,7 +121,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         // Create Vendor with Currency and Payment Terms.
         VendorWithCurrency(Vendor, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, Vendor."Currency Code", '', WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, Vendor."Currency Code", '', WorkDate());
         AmountToApply := Amount * (1 - (GetPaymentTermsDiscountPercentage(PaymentTerms) / 100));
 
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -188,7 +188,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Create new exchange rates with random values.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CreateCurrency, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CreateCurrency, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100 * LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 2 * CurrencyExchangeRate."Exchange Rate Amount");
@@ -240,12 +240,12 @@ codeunit 134917 "ERM Revert VAT On Payment"
         Assert.AreNearlyEqual(
           Amount, CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, CustLedgerEntry.FieldCaption(Amount), AmountLCY, CustLedgerEntry.TableCaption,
+            AmountError, CustLedgerEntry.FieldCaption(Amount), AmountLCY, CustLedgerEntry.TableCaption(),
             CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
         Assert.AreNearlyEqual(
           AmountLCY, CustLedgerEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, CustLedgerEntry.FieldCaption("Amount (LCY)"), AmountLCY, CustLedgerEntry.TableCaption,
+            AmountError, CustLedgerEntry.FieldCaption("Amount (LCY)"), AmountLCY, CustLedgerEntry.TableCaption(),
             CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 
@@ -262,12 +262,12 @@ codeunit 134917 "ERM Revert VAT On Payment"
         Assert.AreNearlyEqual(
           Amount, VendorLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, VendorLedgerEntry.FieldCaption(Amount), AmountLCY, VendorLedgerEntry.TableCaption,
+            AmountError, VendorLedgerEntry.FieldCaption(Amount), AmountLCY, VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
         Assert.AreNearlyEqual(
           AmountLCY, VendorLedgerEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
-            AmountError, VendorLedgerEntry.FieldCaption("Amount (LCY)"), AmountLCY, VendorLedgerEntry.TableCaption,
+            AmountError, VendorLedgerEntry.FieldCaption("Amount (LCY)"), AmountLCY, VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 

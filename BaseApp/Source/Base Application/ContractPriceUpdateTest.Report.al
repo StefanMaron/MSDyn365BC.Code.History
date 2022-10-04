@@ -15,7 +15,7 @@ report 5985 "Contract Price Update - Test"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(UpdateToDate; Format(UpdateToDate))
@@ -145,7 +145,7 @@ report 5985 "Contract Price Update - Test"
 
                     if OldUpdateDate > UpdateToDate then begin
                         NewAnnualAmount := 0;
-                        CurrReport.Break
+                        CurrReport.Break();
                     end;
                 end;
 
@@ -198,7 +198,7 @@ report 5985 "Contract Price Update - Test"
 
                 SetFilter("Next Price Update Date", '<>%1&<=%2', 0D, UpdateToDate);
 
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
             end;
         }
     }
@@ -242,20 +242,15 @@ report 5985 "Contract Price Update - Test"
     trigger OnInitReport()
     begin
         if UpdateToDate = 0D then
-            UpdateToDate := WorkDate;
+            UpdateToDate := WorkDate();
     end;
 
     trigger OnPreReport()
     begin
-        ServContractFilters := "Service Contract Header".GetFilters;
+        ServContractFilters := "Service Contract Header".GetFilters();
     end;
 
     var
-        Text000: Label 'You must fill in the Price Update % field.';
-        Text001: Label 'The price update % is unusually large.\\Do you want to update it anyway?';
-        Text002: Label 'The program has stopped the batch job at your request.';
-        Text003: Label 'You must fill in the Update to Date field.';
-        Text005: Label 'The price update period is empty.';
         ServContract: Record "Service Contract Header";
         Currency: Record Currency;
         ServContractLine: Record "Service Contract Line";
@@ -270,6 +265,12 @@ report 5985 "Contract Price Update - Test"
         OldUpdateDate: Date;
         OldUpdateDate2: Date;
         UpdateToDate: Date;
+
+        Text000: Label 'You must fill in the Price Update % field.';
+        Text001: Label 'The price update % is unusually large.\\Do you want to update it anyway?';
+        Text002: Label 'The program has stopped the batch job at your request.';
+        Text003: Label 'You must fill in the Update to Date field.';
+        Text005: Label 'The price update period is empty.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Contract_Price_Update___TestCaptionLbl: Label 'Contract Price Update - Test';
         Update_to_dateCaptionLbl: Label 'Update to Date';

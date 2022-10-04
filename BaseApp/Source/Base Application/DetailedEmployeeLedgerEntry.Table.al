@@ -14,11 +14,9 @@ table 5223 "Detailed Employee Ledger Entry"
             Caption = 'Employee Ledger Entry No.';
             TableRelation = "Employee Ledger Entry";
         }
-        field(3; "Entry Type"; Option)
+        field(3; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = ',Initial Entry,Application';
-            OptionMembers = ,"Initial Entry",Application;
         }
         field(4; "Posting Date"; Date)
         {
@@ -174,7 +172,7 @@ table 5223 "Detailed Employee Ledger Entry"
 
     trigger OnInsert()
     begin
-        SetLedgerEntryAmount;
+        SetLedgerEntryAmount();
     end;
 
     procedure GetLastEntryNo(): Integer;
@@ -210,11 +208,11 @@ table 5223 "Detailed Employee Ledger Entry"
         DtldEmplLedgEntry.SetRange("Transaction No.", TransactionNo);
         if DtldEmplLedgEntry.FindSet(true) then begin
             ApplicationNo := DtldEmplLedgEntry."Entry No.";
-            repeat
-                DtldEmplLedgEntry."Transaction No." := 0;
-                DtldEmplLedgEntry."Application No." := ApplicationNo;
-                DtldEmplLedgEntry.Modify();
-            until DtldEmplLedgEntry.Next() = 0;
+                                                    repeat
+                                                        DtldEmplLedgEntry."Transaction No." := 0;
+                                                        DtldEmplLedgEntry."Application No." := ApplicationNo;
+                                                        DtldEmplLedgEntry.Modify();
+                                                    until DtldEmplLedgEntry.Next() = 0;
         end;
     end;
 

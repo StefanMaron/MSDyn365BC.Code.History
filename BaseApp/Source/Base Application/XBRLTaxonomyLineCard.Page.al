@@ -17,13 +17,13 @@ page 584 "XBRL Taxonomy Line Card"
             group(General)
             {
                 Caption = 'General';
-                field("XBRL Taxonomy Name"; "XBRL Taxonomy Name")
+                field("XBRL Taxonomy Name"; Rec."XBRL Taxonomy Name")
                 {
                     ApplicationArea = XBRL;
                     Editable = false;
                     ToolTip = 'Specifies the name of the XBRL taxonomy.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the line number that is assigned if the taxonomy is imported. This keeps the taxonomy in the same order as the file.';
@@ -52,12 +52,12 @@ page 584 "XBRL Taxonomy Line Card"
             group("Mapped Data")
             {
                 Caption = 'Mapped Data';
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the source of the information for this line that you want to export. You can only export one type of information for each line. The Tuple option means that the line represents a number of related lines. The related lines are listed below this line and are indented.';
                 }
-                field("Constant Amount"; "Constant Amount")
+                field("Constant Amount"; Rec."Constant Amount")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the amount that will be exported if the source type is Constant.';

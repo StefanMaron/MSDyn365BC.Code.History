@@ -307,7 +307,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         RangeAmount2 := LibraryRandom.RandDec(99, 2);
 
         with AdditionalFeeSetup2 do begin
-            Init;
+            Init();
             "Charge Per Line" := AdditionalFeeSetup1."Charge Per Line";
             "Reminder Terms Code" := AdditionalFeeSetup1."Reminder Terms Code";
             "Reminder Level No." := AdditionalFeeSetup1."Reminder Level No.";
@@ -693,7 +693,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         RangeAmount2 := LibraryRandom.RandDec(99, 2);
 
         with AdditionalFeeSetup2 do begin
-            Init;
+            Init();
             "Charge Per Line" := AdditionalFeeSetup1."Charge Per Line";
             "Reminder Terms Code" := AdditionalFeeSetup1."Reminder Terms Code";
             "Reminder Level No." := AdditionalFeeSetup1."Reminder Level No.";
@@ -1114,7 +1114,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         ReminderTermsCode := CreateReminderTerms(true, true);
         CreateReminderLevel(ReminderLevel, ReminderTermsCode, CalcType);
         with AdditionalFeeSetup do begin
-            Init;
+            Init();
             "Reminder Terms Code" := ReminderTermsCode;
             "Charge Per Line" := ChargePerLine;
             "Reminder Level No." := ReminderLevel."No.";
@@ -1133,7 +1133,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         CurrencyForReminderLevel: Record "Currency for Reminder Level";
     begin
         with CurrencyForReminderLevel do begin
-            Init;
+            Init();
             "Reminder Terms Code" := ReminderLevel."Reminder Terms Code";
             "No." := ReminderLevel."No.";
             "Currency Code" := CurrencyCode;
@@ -1148,7 +1148,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         ReminderTerms: Record "Reminder Terms";
     begin
         with ReminderTerms do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Reminder Terms");
             "Post Additional Fee" := PostAddFee;
             "Post Add. Fee per Line" := PostAddFeePerLine;

@@ -21,7 +21,7 @@ page 443 "Reminder Comment List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document the comment is attached to: either Reminder or Issued Reminder.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

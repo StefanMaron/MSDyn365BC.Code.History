@@ -79,7 +79,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         Quantity := LibraryRandom.RandInt(50);  // Random Integer Value required.
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, ProductionItem."No.", Quantity,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder2, ProductionOrder2.Status::"Firm Planned", ProductionOrder2."Source Type"::Item, ComponentItem2."No.", Quantity,
           WorkDate);
@@ -240,18 +240,18 @@ codeunit 137250 "SCM Inventory Order Tracking"
           LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
             ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1));  // Component Item per quantity is 1 in BOM Line.
         Quantity := LibraryRandom.RandInt(15);  // Random Integer Value required.
-        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate);
+        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate());
         UntrackedQuantity := Quantity;  // Save Planning Line Quantity for ComponentItem2 as a Untracked Quantity.
         CreateRequisitiontLine(
           RequisitionLine, TemplateType::Planning, ProductionItem."No.", Quantity + LibraryRandom.RandInt(5),
-          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
 
         // Refresh Planning and Production Order & Create Released Production Orders.
         FindRequisitionLine(RequisitionLine, ProductionItem."No.", '');  // Used blank for Location.
         LibraryPlanning.RefreshPlanningLine(RequisitionLine, SchedulingDirection::Back, true, true);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ComponentItem2."No.",
-          RequisitionLine.Quantity, WorkDate);
+          RequisitionLine.Quantity, WorkDate());
         Quantity := RequisitionLine.Quantity - UntrackedQuantity;  // Calculate Order Tracking quantity.
         EnqueueForOrderTracking(ProductionOrder.Quantity, Quantity, UntrackedQuantity, ProductionOrder."Source No.");  // Enqueue values for Order Tracking page handler.
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."Source No.", '');  // Use blank for Location Code.
@@ -362,18 +362,18 @@ codeunit 137250 "SCM Inventory Order Tracking"
           LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
             ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1));  // Component Item per Quantity is 1 in BOM Line.
         Quantity := LibraryRandom.RandInt(10);  // Random Integer Value required.
-        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate);
+        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate());
         UntrackedQuantity := Quantity;  // Save Planning Line Quantity for ComponentItem2 as a Untracked Quantity.
         CreateRequisitiontLine(
           RequisitionLine, TemplateType::Planning, ProductionItem."No.", Quantity + LibraryRandom.RandInt(10),
-          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         FindRequisitionLine(RequisitionLine, ProductionItem."No.", '');
         LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Forward, true, true);
 
         // Creation of Released Production Order.
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ComponentItem2."No.",
-          RequisitionLine.Quantity, WorkDate);
+          RequisitionLine.Quantity, WorkDate());
         Quantity := ProductionOrder.Quantity - UntrackedQuantity;  // Save Reserve Quantity from Rel. Prod. Order as a Quantity.
         EnqueueForOrderTracking(ProductionOrder.Quantity, Quantity, UntrackedQuantity, ProductionOrder."Source No.");  // Enqueue values for Order Tracking page handler.
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."Source No.", '');  // Use blank for Location Code.
@@ -583,10 +583,10 @@ codeunit 137250 "SCM Inventory Order Tracking"
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking & Action Msg.");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Simulated, ProductionOrder."Source Type"::Item, Item."No.",
-          LibraryRandom.RandInt(35), WorkDate);
+          LibraryRandom.RandInt(35), WorkDate());
         CreateAndRefreshProdOrder(
           ProductionOrder2, ProductionOrder2.Status::Simulated, ProductionOrder2."Source Type"::Item, Item."No.",
-          LibraryRandom.RandInt(30), WorkDate);
+          LibraryRandom.RandInt(30), WorkDate());
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer(''));  // Used blank for Location Code.
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", ProductionOrder.Quantity + ProductionOrder2.Quantity);
@@ -669,7 +669,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
         FindRequisitionLine(RequisitionLine, Item."No.", LocationCode);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
@@ -759,7 +759,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(LocationCode));
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, No, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate),
+          SalesLine, SalesHeader, SalesLine.Type::Item, No, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()),
           Quantity);  // Use Random days to calculate Shipment Date.
     end;
 
@@ -911,10 +911,10 @@ codeunit 137250 "SCM Inventory Order Tracking"
           LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
             ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1));  // Component Item per quantity is 1 in BOM Line.
         CreateAndRefreshProdOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ComponentItem."No.", Quantity, WorkDate);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ComponentItem."No.", Quantity, WorkDate());
         CreateAndRefreshProdOrder(
           ProductionOrder2, ProductionOrder2.Status::"Firm Planned", ProductionOrder2."Source Type"::Item, ProductionItem."No.", Quantity,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder3, ProductionOrder3.Status::"Firm Planned", ProductionOrder3."Source Type"::Item, ComponentItem2."No.", Quantity,
           WorkDate);
@@ -959,13 +959,13 @@ codeunit 137250 "SCM Inventory Order Tracking"
             ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1));  // Component Item per Quantity is 1 in BOM Line.
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ComponentItem."No.",
-          LibraryRandom.RandInt(50), WorkDate);
+          LibraryRandom.RandInt(50), WorkDate());
         CreateAndRefreshProdOrder(
           ProductionOrder2, ProductionOrder2.Status::"Firm Planned", ProductionOrder2."Source Type"::Item, ProductionItem."No.",
-          ProductionOrder.Quantity, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          ProductionOrder.Quantity, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder3, ProductionOrder3.Status::"Firm Planned", ProductionOrder3."Source Type"::Item, ComponentItem2."No.",
-          ProductionOrder.Quantity, WorkDate);
+          ProductionOrder.Quantity, WorkDate());
 
         if IsComponentOrderTracking then
             ProductionOrder3 := ProductionOrder2;
@@ -996,11 +996,11 @@ codeunit 137250 "SCM Inventory Order Tracking"
           ProductionItem."No.",
           LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
             ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1));  // Component Item per quantity is 1 in BOM Line.
-        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate);
+        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate());
         CreateAndPostPurchaseOrder(PurchaseHeader, ComponentItem."No.", PurchaseQuantity);
         CreateRequisitiontLine(
           RequisitionLine, TemplateType::Planning, ProductionItem."No.", PurchaseQuantity + LibraryRandom.RandInt(5),
-          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         FindRequisitionLine(RequisitionLine, ProductionItem."No.", '');  // Used blank for Location.
         LibraryPlanning.RefreshPlanningLine(RequisitionLine, SchedulingDirection::Back, true, true);
     end;
@@ -1033,12 +1033,12 @@ codeunit 137250 "SCM Inventory Order Tracking"
             ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1));  // Component Item per Quantity is 1 in BOM Line.
 
         // Creation of Planning Worksheet and Recieve/Invoice of Purchase Order.
-        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate);
+        CreateRequisitiontLine(RequisitionLine, TemplateType::Planning, ComponentItem2."No.", Quantity, WorkDate());
         FindRequisitionLine(RequisitionLine, ComponentItem2."No.", '');
         CreateAndPostPurchaseOrder(PurchaseHeader, ComponentItem."No.", PurchaseQuantity);
         CreateRequisitiontLine(
           RequisitionLine, TemplateType::Planning, ProductionItem."No.", PurchaseQuantity + LibraryRandom.RandInt(5),
-          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         FindRequisitionLine(RequisitionLine, ProductionItem."No.", '');
         LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Forward, true, true);
     end;
@@ -1114,13 +1114,13 @@ codeunit 137250 "SCM Inventory Order Tracking"
             ProductionBOMHeader, ComponentItem2."No.", ComponentItem."No.", 1));  // Component Item per Quantity is 1 in BOM Line.
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ComponentItem2."No.",
-          LibraryRandom.RandInt(50), CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          LibraryRandom.RandInt(50), CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateRequisitiontLine(
           RequisitionLine, TemplateType::"Req.", ComponentItem."No.", ProductionOrder.Quantity,
-          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder2, ProductionOrder2.Status::Released, ProductionOrder2."Source Type"::Item, ProductionItem2."No.",
-          ProductionOrder.Quantity, WorkDate);
+          ProductionOrder.Quantity, WorkDate());
     end;
 
     local procedure UpdateInventoryFromWarehouseJournal(var WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; Item: Record Item)

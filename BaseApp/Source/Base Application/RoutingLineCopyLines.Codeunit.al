@@ -25,14 +25,14 @@ codeunit 99000753 "Routing Line-Copy Lines"
         FromRoutingCommentLine: Record "Routing Comment Line";
     begin
         if (FromRoutingHeaderNo = RoutingHeader."No.") and (FromVersionCode = ToVersionCode) then
-            Error(Text000, RoutingHeader.TableCaption);
+            Error(Text000, RoutingHeader.TableCaption());
 
         if ToVersionCode = '' then begin
             if RoutingHeader.Status = RoutingHeader.Status::Certified then
                 Error(
                   Text001,
                   RoutingHeader.FieldCaption(Status),
-                  RoutingHeader.TableCaption,
+                  RoutingHeader.TableCaption(),
                   RoutingHeader."No.",
                   RoutingHeader.Status);
         end else begin
@@ -41,7 +41,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 Error(
                   Text002,
                   RoutingVersion.FieldCaption(Status),
-                  RoutingVersion.TableCaption,
+                  RoutingVersion.TableCaption(),
                   RoutingVersion."Routing No.",
                   RoutingVersion."Version Code",
                   RoutingVersion.Status);
@@ -120,7 +120,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 Error(
                   Text002,
                   OldRoutingVersion.FieldCaption(Status),
-                  OldRoutingVersion.TableCaption,
+                  OldRoutingVersion.TableCaption(),
                   OldRoutingVersion."Routing No.",
                   OldRoutingVersion."Version Code",
                   OldRoutingVersion.Status);

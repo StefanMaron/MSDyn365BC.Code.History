@@ -45,7 +45,7 @@ report 951 "Suggest Res. Jnl. Lines"
                         TimeSheetDetail.SetFilter(Quantity, '<>0');
                         if TimeSheetDetail.FindSet() then
                             repeat
-                                QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
+                                QtyToPost := TimeSheetDetail.GetMaxQtyToPost();
                                 if QtyToPost <> 0 then begin
                                     ResJnlLine.Init();
                                     LineNo := LineNo + 10000;

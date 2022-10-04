@@ -15,9 +15,10 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     end;
 
     var
-        NamespaceTxt: Label 'urn:ec.europa.eu:taxud:vies:services:checkVat:types', Locked = true;
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+
+        NamespaceTxt: Label 'urn:ec.europa.eu:taxud:vies:services:checkVat:types', Locked = true;
         VatRegNrValidationWebServiceURLTxt: Label 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService', Locked = true;
         NoVATNoToValidateErr: Label 'Specify the VAT registration number that you want to verify.';
         EUVATRegNoValidationServiceTok: Label 'EUVATRegNoValidationServiceTelemetryCategoryTok', Locked = true;
@@ -44,7 +45,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         InStream: InStream;
         ResponseOutStream: OutStream;
     begin
-        VATRegistrationURL := VATRegNoSrvConfig.GetVATRegNoURL;
+        VATRegistrationURL := VATRegNoSrvConfig.GetVATRegNoURL();
 
         if VATRegistrationLog."VAT Registration No." = '' then
             Error(NoVATNoToValidateErr);
@@ -53,12 +54,12 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
         TempBlobBody.CreateInStream(InStream);
         SOAPWebServiceRequestMgt.SetGlobals(InStream, VATRegistrationURL, '', '');
-        SOAPWebServiceRequestMgt.DisableHttpsCheck;
+        SOAPWebServiceRequestMgt.DisableHttpsCheck();
         SOAPWebServiceRequestMgt.SetTimeout(60000);
         SOAPWebServiceRequestMgt.SetContentType('text/xml;charset=utf-8');
 
         OnSendRequestToVatRegistrationServiceOnBeforeSendRequestToWebService(SOAPWebServiceRequestMgt, TempBlobBody);
-        if SOAPWebServiceRequestMgt.SendRequestToWebService then begin
+        if SOAPWebServiceRequestMgt.SendRequestToWebService() then begin
             SOAPWebServiceRequestMgt.GetResponseContent(ResponseInStream);
 
             TempBlobBody.CreateOutStream(ResponseOutStream);
@@ -89,15 +90,15 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         AccountPostCode: Text;
     begin
         TempBlob.CreateInStream(BodyContentInputStream);
-        BodyContentXmlDoc := BodyContentXmlDoc.XmlDocument;
+        BodyContentXmlDoc := BodyContentXmlDoc.XmlDocument();
 
         XMLDOMMgt.AddRootElementWithPrefix(BodyContentXmlDoc, 'checkVatApprox', '', NamespaceTxt, EnvelopeXmlNode);
-        XMLDOMMgt.AddElement(EnvelopeXmlNode, 'countryCode', VATRegistrationLog.GetCountryCode, NamespaceTxt, CreatedXmlNode);
-        XMLDOMMgt.AddElement(EnvelopeXmlNode, 'vatNumber', VATRegistrationLog.GetVATRegNo, NamespaceTxt, CreatedXmlNode);
+        XMLDOMMgt.AddElement(EnvelopeXmlNode, 'countryCode', VATRegistrationLog.GetCountryCode(), NamespaceTxt, CreatedXmlNode);
+        XMLDOMMgt.AddElement(EnvelopeXmlNode, 'vatNumber', VATRegistrationLog.GetVATRegNo(), NamespaceTxt, CreatedXmlNode);
         XMLDOMMgt.AddElement(
-          EnvelopeXmlNode, 'requesterCountryCode', VATRegistrationLog.GetCountryCode, NamespaceTxt, CreatedXmlNode);
+          EnvelopeXmlNode, 'requesterCountryCode', VATRegistrationLog.GetCountryCode(), NamespaceTxt, CreatedXmlNode);
         XMLDOMMgt.AddElement(
-          EnvelopeXmlNode, 'requesterVatNumber', VATRegistrationLog.GetVATRegNo, NamespaceTxt, CreatedXmlNode);
+          EnvelopeXmlNode, 'requesterVatNumber', VATRegistrationLog.GetVATRegNo(), NamespaceTxt, CreatedXmlNode);
 
         InitializeVATRegistrationLog(VATRegistrationLog);
 

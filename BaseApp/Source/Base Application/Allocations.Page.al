@@ -4,7 +4,6 @@ page 284 Allocations
     Caption = 'Allocations';
     DataCaptionFields = "Journal Batch Name";
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Account';
     SourceTable = "Gen. Jnl. Allocation";
 
     layout
@@ -14,7 +13,7 @@ page 284 Allocations
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the account number that the allocation will be posted to.';
@@ -24,19 +23,19 @@ page 284 Allocations
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Account Name"; "Account Name")
+                field("Account Name"; Rec."Account Name")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the account that the allocation will be posted to.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -126,51 +125,51 @@ page 284 Allocations
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of transaction.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("Allocation Quantity"; "Allocation Quantity")
+                field("Allocation Quantity"; Rec."Allocation Quantity")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity that will be used to calculate the amount in the allocation journal line.';
 
                     trigger OnValidate()
                     begin
-                        AllocationQuantityOnAfterValid;
+                        AllocationQuantityOnAfterValid();
                     end;
                 }
-                field("Allocation %"; "Allocation %")
+                field("Allocation %"; Rec."Allocation %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the percentage that will be used to calculate the amount in the allocation journal line.';
 
                     trigger OnValidate()
                     begin
-                        Allocation37OnAfterValidate;
+                        Allocation37OnAfterValidate();
                     end;
                 }
                 field(Amount; Amount)
@@ -180,7 +179,7 @@ page 284 Allocations
 
                     trigger OnValidate()
                     begin
-                        AmountOnAfterValidate;
+                        AmountOnAfterValidate();
                     end;
                 }
             }
@@ -250,15 +249,13 @@ page 284 Allocations
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -271,8 +268,6 @@ page 284 Allocations
                     ApplicationArea = Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "G/L Account Card";
                     RunPageLink = "No." = FIELD("Account No.");
                     ShortCutKey = 'Shift+F7';
@@ -283,8 +278,6 @@ page 284 Allocations
                     ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = FIELD("Account No.");
                     RunPageView = SORTING("G/L Account No.");
@@ -293,11 +286,37 @@ page 284 Allocations
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Card_Promoted; Card)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateAllocationAmount;
+        UpdateAllocationAmount();
     end;
 
     trigger OnAfterGetRecord()
@@ -313,7 +332,7 @@ page 284 Allocations
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateAllocationAmount;
+        UpdateAllocationAmount();
         Clear(ShortcutDimCode);
     end;
 

@@ -2,7 +2,7 @@
 page 5310 "Outlook Synch. Setup Details"
 {
     Caption = 'Outlook Synch. Setup Details';
-    DataCaptionExpression = GetFormCaption;
+    DataCaptionExpression = GetFormCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Outlook Synch. Setup Detail";
@@ -17,7 +17,7 @@ page 5310 "Outlook Synch. Setup Details"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Outlook Collection"; "Outlook Collection")
+                field("Outlook Collection"; Rec."Outlook Collection")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -49,7 +49,7 @@ page 5310 "Outlook Synch. Setup Details"
         OSynchEntity: Record "Outlook Synch. Entity";
     begin
         OSynchEntity.Get("Synch. Entity Code");
-        exit(StrSubstNo('%1 %2', OSynchEntity.TableCaption, "Synch. Entity Code"));
+        exit(StrSubstNo('%1 %2', OSynchEntity.TableCaption(), "Synch. Entity Code"));
     end;
 }
 #endif

@@ -40,7 +40,7 @@ table 6704 "Booking Mailbox"
         BookingMailboxList.SetRecord(Rec);
         BookingMailboxList.SetTableView(Rec);
         BookingMailboxList.LookupMode(true);
-        if BookingMailboxList.RunModal in [ACTION::OK, ACTION::LookupOK] then begin
+        if BookingMailboxList.RunModal() in [ACTION::OK, ACTION::LookupOK] then begin
             BookingMailboxList.GetRecord(BookingMailbox);
             exit(true);
         end;

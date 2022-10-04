@@ -13,12 +13,12 @@ page 9283 "Conf. Info. Overview Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(FullName; FullName)
+                field(FullName; FullName())
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Full Name';
@@ -465,7 +465,7 @@ page 9283 "Conf. Info. Overview Matrix"
 
     trigger OnOpenPage()
     begin
-        SetColumnVisibility;
+        SetColumnVisibility();
     end;
 
     var

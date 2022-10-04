@@ -10,6 +10,7 @@ permissionset 8783 "Dataverse - View"
                   tabledata "CDS Environment" = R,
                   tabledata "CDS Solution" = R,
                   tabledata "CDS Teamroles" = R,
+                  tabledata "Dataverse Entity Change" = Rd,
                   tabledata "CRM Account" = R,
                   tabledata "CRM Businessunit" = R,
                   tabledata "CRM Contact" = R,

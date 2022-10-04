@@ -1,4 +1,4 @@
-﻿codeunit 7322 "Create Inventory Pick/Movement"
+codeunit 7322 "Create Inventory Pick/Movement"
 {
     Permissions = TableData "Whse. Item Tracking Line" = rimd;
     TableNo = "Warehouse Activity Header";
@@ -7,7 +7,7 @@
     begin
         OnBeforeOnRun(Rec);
         WhseActivHeader := Rec;
-        Code;
+        Code();
         Rec := WhseActivHeader;
     end;
 
@@ -185,7 +185,7 @@
             WhseRequest."Source Document"::"Prod. Consumption":
                 begin
                     ProdHeader.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
-                    PostingDate := WorkDate;
+                    PostingDate := WorkDate();
                 end;
             WhseRequest."Source Document"::"Assembly Consumption":
                 begin
@@ -240,7 +240,7 @@
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -318,7 +318,7 @@
             end;
             CompleteShipment := true;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -421,7 +421,7 @@
             end;
             CompleteShipment := true;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -509,7 +509,7 @@
                 exit;
             end;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -566,7 +566,7 @@
             if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Pick" then // no support for inventory pick on assembly
                 exit;
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 IsHandled := false;
@@ -604,31 +604,6 @@
         end;
     end;
 
-    local procedure ShouldPickLineCreationBeSkippedForItem(var PickItem: Record Item): Boolean
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingCode: Record "Item Tracking Code";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-    begin
-        if PickItem.IsNonInventoriableType() then
-            exit(true);
-
-        if PickItem."Item Tracking Code" = '' then
-            exit(false);
-
-        if ItemTrackingMgt.GetWhseItemTrkgSetup(PickItem."No.") then begin
-            FeatureTelemetry.LogUsage('0000GRS', 'Picks on jobs', 'Skip Inv. Pick: Warehouse Tracking Enabled');
-            exit(true);
-        end;
-
-        ItemTrackingCode.Code := PickItem."Item Tracking Code";
-        ItemTrackingMgt.GetItemTrackingSetup(ItemTrackingCode, "Item Ledger Entry Type"::" ", false, ItemTrackingSetup);
-        if ItemTrackingSetup."Serial No. Required" or ItemTrackingSetup."Lot No. Required" then begin
-            FeatureTelemetry.LogUsage('0000GRT', 'Picks on jobs', 'Skip Inv. Pick: SN Tracking Enabled');
-            exit(true);
-        end;
-    end;
-
     local procedure CreatePickOrMoveFromJobPlanning(Job: Record Job)
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -646,7 +621,7 @@
 
         repeat
             if PickItem.Get(JobPlanningLine."No.") then
-                if not ShouldPickLineCreationBeSkippedForItem(PickItem) then
+                if PickItem.IsInventoriableType() then
                     if not
                        NewWhseActivLine.ActivityExists(DATABASE::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", 0)
                     then begin
@@ -800,7 +775,7 @@
              NewWhseActivLine."Source Type", NewWhseActivLine."Source Subtype", NewWhseActivLine."Source No.",
              NewWhseActivLine."Source Line No.", ATOSalesLine)
         then
-            QtyAvailToPickBase += ATOSalesLine.QtyToAsmBaseOnATO;
+            QtyAvailToPickBase += ATOSalesLine.QtyToAsmBaseOnATO();
 
         OnCreatePickOrMoveLineOnAfterCalcQtyAvailToPickBase(
             NewWhseActivLine, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required",
@@ -812,9 +787,8 @@
         end;
 
         if RemQtyToPickBase > 0 then begin
-            ItemTrackingMgt.GetWhseItemTrkgSetup(NewWhseActivLine."Item No.", WhseItemTrackingSetup);
-            OnCreatePickOrMoveLineOnAfterGetWhseItemTrkgSetup(NewWhseActivLine, WhseItemTrackingSetup);
-            if WhseItemTrackingSetup.TrackingRequired() then begin
+            if ItemTrackingMgt.GetWhseItemTrkgSetup(NewWhseActivLine."Item No.", WhseItemTrackingSetup) then begin
+                OnCreatePickOrMoveLineOnAfterGetWhseItemTrkgSetup(NewWhseActivLine, WhseItemTrackingSetup);
                 if IsBlankInvtMovement then
                     ItemTrackingMgt.SumUpItemTrackingOnlyInventoryOrATO(TempReservEntry, TempHandlingSpecification, true, true)
                 else begin
@@ -881,7 +855,7 @@
                               RemQtyToPickBase + ITQtyToPickBase +
                               TempHandlingSpecification."Qty. to Handle (Base)";
                         end;
-                        NewWhseActivLine.ClearTracking;
+                        NewWhseActivLine.ClearTracking();
                     until (TempHandlingSpecification.Next() = 0) or (RemQtyToPickBase <= 0);
 
                 RemQtyToPickBase := Minimum(RemQtyToPickBase, OriginalRemQtyToPickBase - TotalITQtyToPickBase);
@@ -935,7 +909,7 @@
                 "Source Line No.", "Source Subline No.");
 
             if WMSMgt.GetATOSalesLine("Source Type", "Source Subtype", "Source No.", "Source Line No.", ATOSalesLine) then
-                MaxQtyToPickBase += ATOSalesLine.QtyAsmRemainingBaseOnATO;
+                MaxQtyToPickBase += ATOSalesLine.QtyAsmRemainingBaseOnATO();
 
             if RemQtyToPickBase > MaxQtyToPickBase then begin
                 RemQtyToPickBase := MaxQtyToPickBase;
@@ -1162,7 +1136,7 @@
         if IsHandled then
             exit(Result);
 
-        GetSourceDocHeader;
+        GetSourceDocHeader();
         CheckLineExist := true;
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
@@ -1243,15 +1217,22 @@
     local procedure SetFilterReservEntry(var ReservationEntry: Record "Reservation Entry"; WhseActivLine: Record "Warehouse Activity Line")
     begin
         with ReservationEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
             SetRange("Source ID", WhseActivLine."Source No.");
             if WhseActivLine."Source Type" = DATABASE::"Prod. Order Component" then
                 SetRange("Source Ref. No.", WhseActivLine."Source Subline No.")
             else
                 SetRange("Source Ref. No.", WhseActivLine."Source Line No.");
-            SetRange("Source Type", WhseActivLine."Source Type");
-            SetRange("Source Subtype", WhseActivLine."Source Subtype");
+
+            if WhseActivLine."Source Type" = Database::Job then begin
+                SetRange("Source Type", Database::"Job Planning Line");
+                SetRange("Source Subtype", 2);
+            end else begin
+                SetRange("Source Type", WhseActivLine."Source Type");
+                SetRange("Source Subtype", WhseActivLine."Source Subtype");
+            end;
+
             if WhseActivLine."Source Type" = DATABASE::"Prod. Order Component" then
                 SetRange("Source Prod. Order Line", WhseActivLine."Source Line No.");
             SetRange(Positive, false);
@@ -1346,7 +1327,7 @@
         OnCreateTempHandlingSpecOnAfterWhseItemTrackingFEFOSetSource(WhseItemTrackingFEFO, WhseActivLine, WhseRequest);
         WhseItemTrackingFEFO.CreateEntrySummaryFEFO(Location, WhseActivLine."Item No.", WhseActivLine."Variant Code", true);
         if WhseItemTrackingFEFO.FindFirstEntrySummaryFEFO(EntrySummary) then begin
-            InitTempHandlingSpec;
+            InitTempHandlingSpec();
             RemQtyToPickBase := TotalQtyToPickBase;
             repeat
                 WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
@@ -1385,14 +1366,14 @@
                 end;
             until not WhseItemTrackingFEFO.FindNextEntrySummaryFEFO(EntrySummary) or (RemQtyToPickBase = 0);
         end;
-        HasExpiredItems := WhseItemTrackingFEFO.GetHasExpiredItems;
-        ExpiredItemMessageText := WhseItemTrackingFEFO.GetResultMessageForExpiredItem;
+        HasExpiredItems := WhseItemTrackingFEFO.GetHasExpiredItems();
+        ExpiredItemMessageText := WhseItemTrackingFEFO.GetResultMessageForExpiredItem();
     end;
 
     local procedure InitTempHandlingSpec()
     begin
         with TempHandlingSpecification do begin
-            Reset;
+            Reset();
             if FindLast() then
                 LastTempHandlingSpecNo := "Entry No."
             else
@@ -1403,7 +1384,7 @@
     local procedure InsertTempHandlingSpec(EntrySummary: Record "Entry Summary"; WhseActivLine: Record "Warehouse Activity Line"; QuantityBase: Decimal)
     begin
         with TempHandlingSpecification do begin
-            Init;
+            Init();
             "Entry No." := LastTempHandlingSpecNo + 1;
             if WhseActivLine."Source Type" = DATABASE::"Prod. Order Component" then
                 SetSource(
@@ -1421,7 +1402,7 @@
             Correction := true;
             OnInsertTempHandlingSpecOnBeforeValidateQtyBase(TempHandlingSpecification, EntrySummary);
             Validate("Quantity (Base)", -QuantityBase);
-            Insert;
+            Insert();
             LastTempHandlingSpecNo := "Entry No.";
         end;
     end;
@@ -1470,7 +1451,7 @@
             OnInvtMvntWithoutSourceOnBeforeWhseActivHeaderModify(WhseActivHeader, InternalMovementHeader);
             WhseActivHeader.Modify();
 
-            FindNextLineNo;
+            FindNextLineNo();
 
             repeat
                 NewWhseActivLine.Init();
@@ -1542,7 +1523,7 @@
                         OnDeleteHandledInternalMovementLinesOnBeforeModifyTempInternalMovementLine(
                           TempInternalMovementLine, InternalMovementLine);
                         if TempInternalMovementLine.Quantity = 0 then
-                            TempInternalMovementLine.Delete
+                            TempInternalMovementLine.Delete()
                         else
                             TempInternalMovementLine.Modify();
                         Delete(true);
@@ -1591,7 +1572,7 @@
                 TempReservEntry."Reservation Status" := TempReservEntry."Reservation Status"::Surplus;
                 TempReservEntry.Validate("Quantity (Base)", TempReservEntry."Quantity (Base)" * SignFactor);
                 TempReservEntry.Positive := (TempReservEntry."Quantity (Base)" > 0);
-                TempReservEntry.UpdateItemTracking;
+                TempReservEntry.UpdateItemTracking();
                 OnBeforeTempReservEntryInsert(TempReservEntry, WhseItemTrackingLine);
                 TempReservEntry.Insert();
             until WhseItemTrackingLine.Next() = 0;
@@ -1752,7 +1733,7 @@
                 "Qty. (Base)" += WarehouseActivityLine."Qty. (Base)";
                 OnUpdateHandledWhseActivityLineBufferOnBeforeTempInternalMovementLineModify(
                   TempInternalMovementLine, WarehouseActivityLine);
-                Modify;
+                Modify();
             end else begin
                 "No." := WarehouseActivityLine."No.";
                 "Line No." := WarehouseActivityLine."Line No.";
@@ -1766,7 +1747,7 @@
                 "Unit of Measure Code" := WarehouseActivityLine."Unit of Measure Code";
                 OnUpdateHandledWhseActivityLineBufferOnBeforeTempInternalMovementLineInsert(
                   TempInternalMovementLine, WarehouseActivityLine);
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -1790,18 +1771,18 @@
              ATOSalesLine)
         then begin
             ATOSalesLine.AsmToOrderExists(AsmHeader);
-            if NewWhseActivLine.TrackingExists then begin
+            if NewWhseActivLine.TrackingExists() then begin
                 AsmHeader.SetReservationFilters(ReservationEntry);
                 ReservationEntry.SetTrackingFilterFromWhseActivityLine(NewWhseActivLine);
                 ReservationEntry.SetRange(Positive, true);
                 if ItemTrackingMgt.SumUpItemTracking(ReservationEntry, TempTrackingSpecification, true, true) then
                     QtyToAsmBase := Abs(TempTrackingSpecification."Qty. to Handle (Base)");
             end else
-                QtyToAsmBase := ATOSalesLine.QtyToAsmBaseOnATO;
+                QtyToAsmBase := ATOSalesLine.QtyToAsmBaseOnATO();
             WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(NewWhseActivLine);
             QtyToPickBase := QtyToAsmBase - WMSMgt.CalcQtyBaseOnATOInvtPick(ATOSalesLine, WhseItemTrackingSetup);
             if QtyToPickBase > 0 then begin
-                MakeHeader;
+                MakeHeader();
                 if Location."Bin Mandatory" and (BinCode = '') then
                     ATOSalesLine.GetATOBin(Location, BinCode);
                 NewWhseActivLine."Assemble to Order" := true;

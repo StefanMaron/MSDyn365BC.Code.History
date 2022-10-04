@@ -13,7 +13,7 @@ page 9231 "Items by Location Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -464,7 +464,7 @@ page 9231 "Items by Location Matrix"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -518,7 +518,7 @@ page 9231 "Items by Location Matrix"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                 }
@@ -661,7 +661,7 @@ page 9231 "Items by Location Matrix"
         TempItem.SetRange("Location Filter", MatrixRecords[ColumnID].Code);
         TempItem.CalcFields(Inventory);
         MATRIX_CellData[ColumnID] := TempItem.Inventory;
-        SetVisible;
+        SetVisible();
 
         OnAfterMATRIX_OnAfterGetRecord(MATRIX_CellData, MatrixRecords, TempItem, ColumnID);
     end;

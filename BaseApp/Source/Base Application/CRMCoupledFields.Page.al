@@ -13,7 +13,7 @@ page 5337 "CRM Coupled Fields"
         {
             repeater(Group)
             {
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the field''s name in Dynamics 365 Sales.';
@@ -23,7 +23,7 @@ page 5337 "CRM Coupled Fields"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the field''s name in Dynamics 365 Sales.';
                 }
-                field("Integration Value"; "Integration Value")
+                field("Integration Value"; Rec."Integration Value")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the field''s value in Dynamics 365 Sales.';
@@ -33,7 +33,7 @@ page 5337 "CRM Coupled Fields"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the direction of data integration.';
                 }
-                field("Validate Field"; "Validate Field")
+                field("Validate Field"; Rec."Validate Field")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether to validate the field''s value in Business Central.';
@@ -55,8 +55,8 @@ page 5337 "CRM Coupled Fields"
         CRMRecordIsSet: Boolean;
     begin
         RecordID := CouplingRecordBuffer."NAV Record ID";
-        NAVRecordRef := RecordID.GetRecord;
-        NAVRecordRef.Find;
+        NAVRecordRef := RecordID.GetRecord();
+        NAVRecordRef.Find();
 
         CRMRecordIsSet := not IsNullGuid(CouplingRecordBuffer."CRM ID");
         if CRMRecordIsSet then begin
@@ -70,7 +70,7 @@ page 5337 "CRM Coupled Fields"
         IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
         if IntegrationFieldMapping.FindSet() then
             repeat
-                Init;
+                Init();
                 if CouplingRecordBuffer."Is Option" then
                     "Field Name" := GetFieldCaption(CouplingRecordBuffer."NAV Table ID", IntegrationFieldMapping."Field No.")
                 else
@@ -91,7 +91,7 @@ page 5337 "CRM Coupled Fields"
                     "Integration Value" := CouplingRecordBuffer."CRM Name";
                 Direction := IntegrationFieldMapping.Direction;
                 "Validate Field" := IntegrationFieldMapping."Validate Field";
-                Insert;
+                Insert();
             until IntegrationFieldMapping.Next() = 0;
     end;
 
@@ -103,7 +103,7 @@ page 5337 "CRM Coupled Fields"
         RecRef.Open(TableNo);
         FieldRef := RecRef.Field(FieldNo);
         FieldCaption := CopyStr(FieldRef.Caption, 1, MaxStrLen(FieldCaption));
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetFieldValue(RecordRef: RecordRef; FieldNo: Integer): Text[250]
@@ -123,7 +123,7 @@ page 5337 "CRM Coupled Fields"
         PrimaryKeyRef := RecordRef.KeyIndex(1);
         FieldRef := PrimaryKeyRef.FieldIndex(1);
         FieldRef.SetRange(CRMId);
-        exit(RecordRef.FindFirst);
+        exit(RecordRef.FindFirst());
     end;
 }
 

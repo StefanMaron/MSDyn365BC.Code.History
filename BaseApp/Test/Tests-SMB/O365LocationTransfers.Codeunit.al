@@ -661,7 +661,7 @@ codeunit 137281 "O365 Location Transfers"
 
         // [THEN] Posting fails
         // [THEN] Shipped quantity on the transfer line is 0
-        TransferLine.Find;
+        TransferLine.Find();
         TransferLine.TestField("Qty. Shipped (Base)", 0);
     end;
 

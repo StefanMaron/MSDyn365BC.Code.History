@@ -45,11 +45,11 @@ table 99000829 "Planning Component"
                     exit;
                 end;
 
-                GetItem;
+                GetItem();
                 Description := Item.Description;
                 OnItemNoOnValidateOnAfterInitFromItem(Rec, Item);
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
-                GetUpdateFromSKU;
+                GetUpdateFromSKU();
                 CreateDimFromDefaultDim();
 
                 OnAfterValidateItemNo(Rec, Item);
@@ -68,7 +68,7 @@ table 99000829 "Planning Component"
             begin
                 TestField("Item No.");
 
-                GetItem;
+                GetItem();
                 GetGLSetup();
 
                 "Unit Cost" := Item."Unit Cost";
@@ -85,7 +85,7 @@ table 99000829 "Planning Component"
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
-                "Indirect Cost %" := Round(Item."Indirect Cost %" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                "Indirect Cost %" := Round(Item."Indirect Cost %" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                 "Overhead Rate" := Item."Overhead Rate";
 
@@ -150,7 +150,7 @@ table 99000829 "Planning Component"
                         "Due Date" := ReqLine."Ending Date";
                     "Due Date" :=
                       "Due Date" -
-                      (CalcDate("Lead-Time Offset", WorkDate) - WorkDate);
+                      (CalcDate("Lead-Time Offset", WorkDate()) - WorkDate());
                     "Due Time" := 0T;
                 end;
 
@@ -180,7 +180,7 @@ table 99000829 "Planning Component"
                 ReservePlanningComponent.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. (Base)");
                 TestField("Reserved Qty. (Base)", 0);
-                GetUpdateFromSKU;
+                GetUpdateFromSKU();
             end;
         }
         field(22; "Qty. Rounding Precision"; Decimal)
@@ -225,9 +225,9 @@ table 99000829 "Planning Component"
 
                 if ("Qty. Rounding Precision" > 0) and (BaseUOMPrecRoundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity) then
                     if UnroundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity then
-                        Error(WrongPrecisionItemAndUOMExpectedQtyErr, Item.FieldCaption("Rounding Precision"), Item.TableCaption, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"))
+                        Error(WrongPrecisionItemAndUOMExpectedQtyErr, Item.FieldCaption("Rounding Precision"), Item.TableCaption(), ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption(), Rec.FieldCaption("Expected Quantity"))
                     else
-                        Error(WrongPrecOnUOMExpectedQtyErr, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"));
+                        Error(WrongPrecOnUOMExpectedQtyErr, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption(), Rec.FieldCaption("Expected Quantity"));
 
                 "Expected Quantity" := BaseUOMPrecRoundedExpectedQuantity;
                 "Expected Quantity (Base)" := CalcBaseQty("Expected Quantity", FieldCaption("Expected Quantity"), FieldCaption("Expected Quantity (Base)"));
@@ -256,8 +256,8 @@ table 99000829 "Planning Component"
             trigger OnValidate()
             begin
                 ReservePlanningComponent.VerifyChange(Rec, xRec);
-                GetUpdateFromSKU;
-                GetDefaultBin;
+                GetUpdateFromSKU();
+                GetDefaultBin();
                 CreateDimFromDefaultDim();
             end;
         }
@@ -271,7 +271,7 @@ table 99000829 "Planning Component"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(32; "Shortcut Dimension 2 Code"; Code[20])
@@ -284,7 +284,7 @@ table 99000829 "Planning Component"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
         field(33; "Bin Code"; Code[20])
@@ -371,13 +371,13 @@ table 99000829 "Planning Component"
                     "Calculation Formula"::" ":
                         Quantity := "Quantity per";
                     "Calculation Formula"::Length:
-                        Quantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::"Length * Width":
-                        Quantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::"Length * Width * Depth":
-                        Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::Weight:
-                        Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                        Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision());
                     "Calculation Formula"::"Fixed Quantity":
                         Quantity := "Quantity per";
                     else
@@ -418,7 +418,7 @@ table 99000829 "Planning Component"
             begin
                 TestField("Item No.");
 
-                GetItem;
+                GetItem();
                 GetGLSetup();
 
                 if Item."Costing Method" = Item."Costing Method"::Standard then begin
@@ -430,7 +430,7 @@ table 99000829 "Planning Component"
                     "Unit Cost" :=
                       Round(Item."Unit Cost" * "Qty. per Unit of Measure");
                     "Indirect Cost %" :=
-                      Round(Item."Indirect Cost %" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                      Round(Item."Indirect Cost %" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                     "Overhead Rate" := Item."Overhead Rate";
                     "Direct Unit Cost" :=
                       Round(("Unit Cost" - "Overhead Rate" * "Qty. per Unit of Measure") / (1 + "Indirect Cost %" / 100),
@@ -454,7 +454,7 @@ table 99000829 "Planning Component"
                 CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
             begin
                 CheckDateConflict.PlanningComponentCheck(Rec, CurrFieldNo <> 0);
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(53; "Due Time"; Time)
@@ -463,7 +463,7 @@ table 99000829 "Planning Component"
 
             trigger OnValidate()
             begin
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(55; "Direct Unit Cost"; Decimal)
@@ -591,12 +591,10 @@ table 99000829 "Planning Component"
         {
             Caption = 'Critical';
         }
-        field(99000915; "Planning Line Origin"; Option)
+        field(99000915; "Planning Line Origin"; Enum "Planning Line Origin Type")
         {
             Caption = 'Planning Line Origin';
             Editable = false;
-            OptionCaption = ' ,Action Message,Planning,Order Planning';
-            OptionMembers = " ","Action Message",Planning,"Order Planning";
         }
     }
 
@@ -643,7 +641,7 @@ table 99000829 "Planning Component"
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
-        GetReqLine;
+        GetReqLine();
         "Planning Line Origin" := ReqLine."Planning Line Origin";
         if "Planning Line Origin" <> "Planning Line Origin"::"Order Planning" then
             TestField("Worksheet Template Name");
@@ -704,7 +702,7 @@ table 99000829 "Planning Component"
             "Worksheet Batch Name", ReqWkshName.Description, ReqLine.Type, ReqLine."No.", ReqLine.Description));
     end;
 
-    local procedure PlanningNeeds(): Decimal
+    procedure PlanningNeeds(): Decimal
     var
         PlanningRtngLine: Record "Planning Routing Line";
         NeededQty: Decimal;
@@ -715,7 +713,7 @@ table 99000829 "Planning Component"
         if IsHandled then
             exit(NeededQty);
 
-        GetReqLine;
+        GetReqLine();
 
         "Due Date" := ReqLine."Starting Date";
 
@@ -810,7 +808,7 @@ table 99000829 "Planning Component"
         "Quantity (Base)" := ProdOrderComp."Quantity (Base)";
         "Expected Quantity (Base)" := ProdOrderComp."Expected Qty. (Base)";
         "Original Expected Qty. (Base)" := ProdOrderComp."Expected Qty. (Base)";
-        UpdateDatetime;
+        UpdateDatetime();
 
         OnAfterTransferFromComponent(Rec, ProdOrderComp);
     end;
@@ -845,7 +843,7 @@ table 99000829 "Planning Component"
         "Quantity (Base)" := AsmLine."Quantity per";
         "Expected Quantity (Base)" := AsmLine."Quantity (Base)";
         "Original Expected Qty. (Base)" := AsmLine."Quantity (Base)";
-        UpdateDatetime;
+        UpdateDatetime();
 
         OnAfterTransferFromAsmLine(Rec, AsmLine);
     end;
@@ -909,7 +907,7 @@ table 99000829 "Planning Component"
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        GetReqLine;
+        GetReqLine();
         DimensionSetIDArr[1] :=
           DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         DimensionSetIDArr[2] := ReqLine."Dimension Set ID";
@@ -928,7 +926,7 @@ table 99000829 "Planning Component"
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        GetReqLine;
+        GetReqLine();
         DimensionSetIDArr[1] :=
           DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         DimensionSetIDArr[2] := ReqLine."Dimension Set ID";
@@ -994,7 +992,7 @@ table 99000829 "Planning Component"
 
         "Bin Code" := '';
         if ("Location Code" <> '') and ("Item No." <> '') then
-            Validate("Bin Code", GetToBin);
+            Validate("Bin Code", GetToBin());
     end;
 
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
@@ -1016,7 +1014,7 @@ table 99000829 "Planning Component"
 
     procedure GetSourceCaption(): Text
     begin
-        GetReqLine;
+        GetReqLine();
         exit(StrSubstNo('%1 %2 %3 %4', "Worksheet Template Name", "Worksheet Batch Name", ReqLine.Type, ReqLine."No."));
     end;
 
@@ -1062,12 +1060,12 @@ table 99000829 "Planning Component"
             end;
         end;
 
-        exit(PlanningRoutingLine.FindFirst);
+        exit(PlanningRoutingLine.FindFirst());
     end;
 
     local procedure FilterLinesWithItemToPlan(var Item: Record Item)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.");
         SetRange("Item No.", Item."No.");
         SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
@@ -1088,7 +1086,7 @@ table 99000829 "Planning Component"
 
     procedure FindLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Variant Code", "Location Code", "Due Date");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange("Variant Code", ReservationEntry."Variant Code");
@@ -1135,11 +1133,11 @@ table 99000829 "Planning Component"
     local procedure GetToBin() BinCode: Code[20]
     begin
         GetLocation("Location Code");
-        GetReqLine;
-        BinCode := GetRefOrderTypeBin;
+        GetReqLine();
+        BinCode := GetRefOrderTypeBin();
         if BinCode <> '' then
             exit;
-        exit(GetWMSDefaultBin);
+        exit(GetWMSDefaultBin());
     end;
 
     local procedure GetRefOrderTypeBin() BinCode: Code[20]
@@ -1157,7 +1155,7 @@ table 99000829 "Planning Component"
                                     PlanningRoutingLine.Type, PlanningRoutingLine."No.", "Location Code", true, "Flushing Method".AsInteger());
                     if BinCode <> '' then
                         exit(BinCode);
-                    BinCode := GetFlushingMethodBin;
+                    BinCode := GetFlushingMethodBin();
                 end;
             ReqLine."Ref. Order Type"::Assembly:
                 BinCode := Location."To-Assembly Bin Code";

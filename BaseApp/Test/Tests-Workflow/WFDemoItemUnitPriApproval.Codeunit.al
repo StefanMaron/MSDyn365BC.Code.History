@@ -269,7 +269,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
 
         // Cleanup
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [GIVEN] Item unit price change approval workflow and Item approval workflow are enabled.
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
@@ -291,7 +291,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         Assert.IsFalse(ItemCard.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(ItemCard.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(ItemCard.Delegate.Visible, 'Delegate should NOT be visible');
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [WHEN] Item card is opened.
         ItemCard.OpenEdit;
@@ -321,7 +321,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         Assert.IsFalse(ItemCard.Delegate.Visible, 'Delegate should be visible');
 
         // Clenup
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -357,7 +357,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
 
         // Cleanup
-        ItemList.Close;
+        ItemList.Close();
 
         // [GIVEN] Item unit price change approval workflow and Item approval workflow are enabled.
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
@@ -376,7 +376,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        ItemList.Close;
+        ItemList.Close();
 
         // [WHEN] Item unit price (LCY) is changed.
         LibraryVariableStorage.Enqueue('The item unit price change was sent for approval.');
@@ -397,7 +397,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        ItemList.Close;
+        ItemList.Close();
     end;
 
     [Test]
@@ -701,7 +701,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         CreateItemAndChangeUnitPriceAndSendForApproval(Item, NewUnitPrice);
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 0);
 
         // Verify - Record change for the Item record was created
@@ -716,7 +716,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         UpdateApprovalEntryWithTempUser(CurrentUserSetup, Item);
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 0);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 0);
 
@@ -834,7 +834,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Approve.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure RejectItemUnitPriceChange(var Item: Record Item)
@@ -851,7 +851,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Reject.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CancelItemApproval(var Item: Record Item)
@@ -861,7 +861,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ItemCard.OpenView;
         ItemCard.GotoRecord(Item);
         ItemCard.CancelApprovalRequest.Invoke;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     local procedure DelegateItemUnitPriceChange(var Item: Record Item)
@@ -878,7 +878,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Delegate.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; Item: Record Item)
@@ -905,9 +905,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID3, Status3);
     end;
 
@@ -929,7 +929,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
 
     local procedure VerifyUnitPriceForItem(Item: Record Item; UnitPrice: Decimal)
     begin
-        Item.Find;
+        Item.Find();
         Assert.AreEqual(UnitPrice, Item."Unit Price", 'The unit price was not applied');
     end;
 
@@ -948,12 +948,12 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -971,12 +971,12 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(Item: Record Item; CancelActionExpectedEnabled: Boolean)
@@ -987,12 +987,12 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ItemCard.OpenView;
         ItemCard.GotoRecord(Item);
         Assert.AreEqual(CancelActionExpectedEnabled, ItemCard.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        ItemCard.Close;
+        ItemCard.Close();
 
         ItemList.OpenView;
         ItemList.GotoRecord(Item);
         Assert.AreEqual(CancelActionExpectedEnabled, ItemList.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        ItemList.Close;
+        ItemList.Close();
     end;
 }
 

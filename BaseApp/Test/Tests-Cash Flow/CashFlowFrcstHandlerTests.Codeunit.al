@@ -32,8 +32,8 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         CashFlowForecastHandler.Initialize();
 
         // [GIVEN] There are 6 historical periods
-        CreateTestData(WorkDate, true);
-        CreateVATTestData(WorkDate, true);
+        CreateTestData(WorkDate(), true);
+        CreateVATTestData(WorkDate(), true);
 
         // [THEN] Forecast is prepared and there are 12 Forecast entries 6 for payables and 6 for receivables
         LibraryLowerPermissions.SetAccountReceivables;
@@ -64,11 +64,11 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] There are 6 historical periods the last 20 years and another 6 before that
-        oldWorkDate := WorkDate;
-        WorkDate := CalcDate('<+20Y>', WorkDate);
-        CreateTestData(WorkDate, true);
-        WorkDate := CalcDate('<+20Y>', WorkDate);
-        CreateTestData(WorkDate, false);
+        oldWorkDate := WorkDate();
+        WorkDate := CalcDate('<+20Y>', WorkDate());
+        CreateTestData(WorkDate(), true);
+        WorkDate := CalcDate('<+20Y>', WorkDate());
+        CreateTestData(WorkDate(), false);
 
         LibraryLowerPermissions.SetAccountReceivables;
         TimeSeriesManagement.Initialize('https://ussouthcentral.services.azureml.net', 'dummykey', 120, false);

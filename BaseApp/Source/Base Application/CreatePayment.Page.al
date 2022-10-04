@@ -29,7 +29,7 @@
                         GenJnlTemplate.FilterGroup(0);
                         GeneralJournalTemplates.SetTableView(GenJnlTemplate);
                         GeneralJournalTemplates.LookupMode := true;
-                        if GeneralJournalTemplates.RunModal = ACTION::LookupOK then begin
+                        if GeneralJournalTemplates.RunModal() = ACTION::LookupOK then begin
                             GeneralJournalTemplates.GetRecord(GenJnlTemplate);
                             JournalTemplateName := GenJnlTemplate.Name;
                             BatchSelection(JournalTemplateName, JournalBatchName, false);
@@ -64,7 +64,7 @@
 
                         GeneralJournalBatches.SetTableView(GenJournalBatch);
                         GeneralJournalBatches.LookupMode := true;
-                        if GeneralJournalBatches.RunModal = ACTION::LookupOK then begin
+                        if GeneralJournalBatches.RunModal() = ACTION::LookupOK then begin
                             GeneralJournalBatches.GetRecord(GenJournalBatch);
                             JournalBatchName := GenJournalBatch.Name;
                             BatchSelection(JournalTemplateName, JournalBatchName, false);
@@ -131,7 +131,7 @@
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlManagement: Codeunit GenJnlManagement;
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
 
         if not GenJnlTemplate.Get(JournalTemplateName) then
             Clear(JournalTemplateName);
@@ -205,6 +205,7 @@
         PaymentAmt: Decimal;
         SummarizePerVend: Boolean;
         VendorLedgerEntryView: Text;
+        ThereAreNoPaymentsToProccesErr: Label 'There are no payments to process for the selected entries . They might be included in another payment process. If so, the Applies-to ID field will contain a value. You might need to use Page Inspection (Ctrl+Alt+F1) to find the field.';
     begin
         TempPaymentBuffer.Reset();
         TempPaymentBuffer.DeleteAll();
@@ -235,6 +236,7 @@
                     TempPaymentBuffer."Dimension Set ID" := VendorLedgerEntry."Dimension Set ID";
                     TempPaymentBuffer."Vendor Ledg. Entry No." := VendorLedgerEntry."Entry No.";
                     TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendorLedgerEntry."Document Type";
+                    TempPaymentBuffer."Remit-to Code" := VendorLedgerEntry."Remit-to Code";
 
                     if CheckCalcPmtDiscGenJnlVend(VendorLedgerEntry."Remaining Amount", VendorLedgerEntry, 0, false) then
                         PaymentAmt := -(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible")
@@ -260,7 +262,8 @@
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
                 end;
             until VendorLedgerEntry.Next() = 0;
-
+        if TempPaymentBuffer.IsEmpty() then
+            error(ThereAreNoPaymentsToProccesErr);
         CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, SummarizePerVend);
         VendorLedgerEntry.SetView(VendorLedgerEntryView);
     end;
@@ -290,7 +293,7 @@
         if TempPaymentBuffer.Find('-') then
             repeat
                 with GenJnlLine do begin
-                    Init;
+                    Init();
                     Validate("Journal Template Name", JournalTemplateName);
                     Validate("Journal Batch Name", JournalBatchName);
                     LastLineNo += 10000;
@@ -333,11 +336,13 @@
 
                     Validate("Payment Method Code", TempPaymentBuffer."Payment Method Code");
 
+                    "Remit-to Code" := TempPaymentBuffer."Remit-to Code";
+
                     TempPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
 
                     OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
                     UpdateDimensions(GenJnlLine, TempPaymentBuffer);
-                    Insert;
+                    Insert();
                 end;
             until TempPaymentBuffer.Next() = 0;
     end;
@@ -417,7 +422,7 @@
             if GenJournalLine.FindLast() then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
-                NextDocNo := NoSeriesMgt.GetNextNo3(GenJournalBatchNoSeries, PostingDate, false, true);
+                NextDocNo := NoSeriesMgt.DoGetNextNo(GenJournalBatchNoSeries, PostingDate, false, true);
             Clear(NoSeriesMgt);
         end;
     end;

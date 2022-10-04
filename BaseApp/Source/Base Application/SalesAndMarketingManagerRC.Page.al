@@ -556,7 +556,7 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Item Attributes';
                     RunObject = page "Item Attributes";
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
@@ -625,7 +625,7 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Inventory Order Details';
                         RunObject = report "Inventory Order Details";
                     }
-#if not CLEAN19
+#if not CLEAN21
                     action("Price List")
                     {
                         ApplicationArea = Basic, Suite;
@@ -795,17 +795,6 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Return Reasons';
                     RunObject = page "Return Reasons";
                 }
-#if not CLEAN18
-                action("Contact Conversion Templates")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Contact Conversion Templates';
-                    RunObject = page "Customer Template List";
-                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Customer Templates".';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 action("Customer Templates")
                 {
                     ApplicationArea = RelationshipMgmt;

@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138949 "BC O365 Settings Tests"
 {
     EventSubscriberInstance = Manual;
@@ -134,7 +135,7 @@ codeunit 138949 "BC O365 Settings Tests"
             VerifyFullAddress(CompanyInformation, FullAddress.Value);
         end;
 
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
     end;
 
     local procedure SetBusinessInformationInSettings(CompanyInformation: Record "Company Information")
@@ -152,7 +153,7 @@ codeunit 138949 "BC O365 Settings Tests"
             FullAddress.AssistEdit;
         end;
 
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
     end;
 
     local procedure FillRandomCompanyInformation(var OutputCompanyInformation: Record "Company Information")
@@ -220,4 +221,4 @@ codeunit 138949 "BC O365 Settings Tests"
         Assert.IsTrue(BCO365MySettings.Editable, 'MySettings page for Invoicing is not editable.');
     end;
 }
-
+#endif

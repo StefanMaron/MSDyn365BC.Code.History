@@ -15,12 +15,12 @@ page 1299 "Posted Payment Reconciliations"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account that the posted payment was processed for.';
                 }
-                field("Statement No."; "Statement No.")
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank statement that contained the line that represented the posted payment.';
@@ -52,9 +52,6 @@ page 1299 "Posted Payment Reconciliations"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
@@ -64,6 +61,17 @@ page 1299 "Posted Payment Reconciliations"
                 begin
                     DocPrint.PrintPostedPaymentReconciliation(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
             }
         }
     }

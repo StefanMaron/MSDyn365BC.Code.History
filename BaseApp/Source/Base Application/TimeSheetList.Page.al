@@ -19,17 +19,17 @@ page 951 "Time Sheet List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the starting date for a time sheet.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the ending date for a time sheet.';
@@ -40,46 +40,46 @@ page 951 "Time Sheet List"
                     ToolTip = 'Specifies the description for a time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the resource for the time sheet.';
                 }
-                field("Resource Name"; "Resource Name")
+                field("Resource Name"; Rec."Resource Name")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the name of the resource for the time sheet.';
                     Visible = false;
                 }
-                field("Quantity"; "Quantity")
+                field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Total';
                     ToolTip = 'Specifies the total number of hours that are registered on the time sheet.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Open"; "Quantity Open")
+                field("Quantity Open"; Rec."Quantity Open")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Open';
                     ToolTip = 'Specifies the number of hours for the time sheet with status Open.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Submitted"; "Quantity Submitted")
+                field("Quantity Submitted"; Rec."Quantity Submitted")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Submitted';
                     ToolTip = 'Specifies the number of hours for the time sheet with status Submitted.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Approved"; "Quantity Approved")
+                field("Quantity Approved"; Rec."Quantity Approved")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Approved';
                     ToolTip = 'Specifies the number of hours for the time sheet with status Approved.';
                     Visible = TimeSheetV2Enabled;
                 }
-                field("Quantity Rejected"; "Quantity Rejected")
+                field("Quantity Rejected"; Rec."Quantity Rejected")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Rejected';
@@ -104,9 +104,6 @@ page 951 "Time Sheet List"
                 ApplicationArea = Jobs;
                 Caption = 'Create Time Sheets';
                 Image = NewTimesheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = Report "Create Time Sheets";
                 ToolTip = 'Create new time sheets for resources.';
                 Visible = TimeSheetAdminActionsVisible;
@@ -116,17 +113,13 @@ page 951 "Time Sheet List"
                 ApplicationArea = Jobs;
                 Caption = '&Edit Time Sheet';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the time sheet in edit mode.';
                 Visible = not TimeSheetV2Enabled;
 
                 trigger OnAction()
                 begin
-                    OpenTimeSheetPage;
+                    OpenTimeSheetPage();
                 end;
             }
             action(MoveTimeSheetsToArchive)
@@ -134,9 +127,6 @@ page 951 "Time Sheet List"
                 ApplicationArea = Jobs;
                 Caption = 'Move Time Sheets to Archive';
                 Image = Archive;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = Report "Move Time Sheets to Archive";
                 ToolTip = 'Archive time sheets.';
                 Visible = TimeSheetAdminActionsVisible;
@@ -157,6 +147,26 @@ page 951 "Time Sheet List"
                     RunPageLink = "No." = FIELD("No."),
                                   "Time Sheet Line No." = CONST(0);
                     ToolTip = 'View or add comments for the record.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(EditTimeSheet_Promoted; EditTimeSheet)
+                {
+                }
+                actionref("Create Time Sheets_Promoted"; "Create Time Sheets")
+                {
+                }
+                actionref(MoveTimeSheetsToArchive_Promoted; MoveTimeSheetsToArchive)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
                 }
             }
         }

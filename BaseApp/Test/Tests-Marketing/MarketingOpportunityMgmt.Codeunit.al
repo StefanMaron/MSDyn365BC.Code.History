@@ -206,7 +206,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // 3. Verify: Verify Close Opportunity Code Deleted.
         Assert.IsFalse(
           CloseOpportunityCode.Get(CloseOpportunityCode.Code),
-          StrSubstNo(CloseOpportunityErr, CloseOpportunityCode.TableCaption, CloseOpportunityCode.Code));
+          StrSubstNo(CloseOpportunityErr, CloseOpportunityCode.TableCaption(), CloseOpportunityCode.Code));
     end;
 
     [Test]
@@ -280,11 +280,11 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.Delete(true);
 
         // 3. Verify: Verify Opportunity and Opportunity Entry deleted.
-        Assert.IsFalse(Opportunity.FindFirst, StrSubstNo(ExistErr, Opportunity.TableCaption, Contact.TableCaption, Contact."No."));
+        Assert.IsFalse(Opportunity.FindFirst, StrSubstNo(ExistErr, Opportunity.TableCaption(), Contact.TableCaption(), Contact."No."));
 
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
         Assert.IsFalse(
-          OpportunityEntry.FindFirst, StrSubstNo(ExistErr, OpportunityEntry.TableCaption, Opportunity.TableCaption, Opportunity."No."));
+          OpportunityEntry.FindFirst, StrSubstNo(ExistErr, OpportunityEntry.TableCaption(), Opportunity.TableCaption(), Opportunity."No."));
     end;
 
     [Test]
@@ -312,7 +312,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.SetRange("Contact No.", Contact."No.");
         Opportunity.FindFirst();
         asserterror Opportunity.UpdateOpportunity;
-        Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption()));
     end;
 
     [Test]
@@ -369,7 +369,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 3. Verify: Verify error occurs on selecting Skip Option on Update opportunity wizard.
         asserterror UpdateOpportunityValue(Contact."No.");
-        Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption));
+        Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption()));
     end;
 
     [Test]
@@ -486,7 +486,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 3. Verify: Verify To-Do for opportunity deleted.
         Task.SetRange("Opportunity No.", Opportunity."No.");
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(ExistErr, Task.TableCaption, Opportunity.TableCaption, Task."No."));
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(ExistErr, Task.TableCaption(), Opportunity.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -653,7 +653,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // 3. Verify: Verify Sale Quote Deleted and Sale Order Created.
         Assert.IsFalse(
           SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteNo),
-          StrSubstNo(ExistErr, SalesHeader.TableCaption, SalesHeader."Document Type", SalesQuoteNo));
+          StrSubstNo(ExistErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesQuoteNo));
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Quote No.", SalesQuoteNo);
         SalesHeader.FindFirst();
@@ -691,7 +691,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.Get(Opportunity."No.");
         asserterror Opportunity.CreateQuote;
         Assert.AreEqual(
-          StrSubstNo(AssignSalesQuoteServiceTierErr, Opportunity.FieldCaption(Status), Opportunity.TableCaption,
+          StrSubstNo(AssignSalesQuoteServiceTierErr, Opportunity.FieldCaption(Status), Opportunity.TableCaption(),
             Opportunity.FieldCaption("No."), Opportunity."No.", ActionTaken::Lost),
           GetLastErrorText,
           UnknownErr);
@@ -866,7 +866,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesQuote."Sell-to Customer Templ. Code".AssertEquals(CustomerTemplateCode);
         Customer.Get(SalesQuote."Sell-to Customer No.");
         Customer.TestField(Name, Contact."Company Name");
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -903,7 +903,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
         SalesQuote."Sell-to Customer No.".AssertEquals('');
         SalesQuote."Sell-to Customer Templ. Code".AssertEquals(CustomerTemplateCode);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -936,7 +936,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
         SalesQuote."Sell-to Customer No.".AssertEquals('');
         SalesQuote."Sell-to Customer Templ. Code".AssertEquals('');
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -966,7 +966,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
         SalesQuote."Sell-to Customer No.".AssertEquals('');
         SalesQuote."Sell-to Customer Templ. Code".AssertEquals('');
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -1137,7 +1137,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         OpportunityCard."Sales Cycle Code".SetValue(CreateSalesCycleWithStage);
         Opportunity.Get(OpportunityCard."No.".Value);
         // [WHEN] Close Opportunity card and click "OK" for first stage activation question
-        OpportunityCard.Close;
+        OpportunityCard.Close();
         // [THEN] Opportunity created, first stage is activated, Status = "In Progress"
         Opportunity.Get(Opportunity."No.");
         Assert.IsTrue(Opportunity.Status = Opportunity.Status::"In Progress", OppStatusErr);
@@ -1159,7 +1159,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         OpportunityCard."Sales Cycle Code".SetValue(CreateSalesCycleWithStage);
         Opportunity.Get(OpportunityCard."No.".Value);
         // [WHEN] Close Opportunity card and click "Cancel" for first stage activation question
-        OpportunityCard.Close;
+        OpportunityCard.Close();
         // [THEN] Opportunity created, first stage is not activated, Status = "Not Started"
         Opportunity.Get(Opportunity."No.");
         Assert.IsTrue(Opportunity.Status = Opportunity.Status::"Not Started", OppStatusErr);
@@ -1175,7 +1175,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [SCENARIO 186663] Opportunity "Creation Date" is equal to WORKDATE after it was created
         Initialize();
         // [GIVEN] Creation Date = "CD" = WORKDATE
-        CreationDate := WorkDate;
+        CreationDate := WorkDate();
         // [WHEN] Create opportunity "O"
         LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo);
         // [THEN] "O"."Creation Date" = "CD"
@@ -1197,7 +1197,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         CleanCampaignAndSegmentTables;
         // [GIVEN] Creation Date = WORKDATE
         // [GIVEN] Campaign "C1" with Starting Date = WORKDATE - 1 and Ending Date = WORKDATE + 1
-        CampaignNo := CreateCampaignWithDates(WorkDate - 1, WorkDate + 1);
+        CampaignNo := CreateCampaignWithDates(WorkDate() - 1, WorkDate + 1);
         LibraryVariableStorage.Enqueue(CampaignNo);
         // [GIVEN] Campaign "C2" with Starting Date = WORKDATE + 1 and Ending Date = WORKDATE + 2
         CreateCampaignWithDates(WorkDate + 1, WorkDate + 2);
@@ -1227,7 +1227,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // Only Segments related to "Campaign No." in the Opportunity card are available for selection.
         CleanCampaignAndSegmentTables;
         // [GIVEN] Campaign "C1"
-        CampaignNo := CreateCampaignWithDates(WorkDate - 1, WorkDate + 1);
+        CampaignNo := CreateCampaignWithDates(WorkDate() - 1, WorkDate + 1);
         // [GIVEN] Segment "S1" with "Campaign No." = "C1"."No."
         SegmentHeaderNo := CreateSegmentWithCampaign(CampaignNo);
         LibraryVariableStorage.Enqueue(SegmentHeaderNo);
@@ -1444,7 +1444,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // [THEN] "O"."Sales Document Type" = " " and "OC"."Sales Document Type" = " "
         OpportunityCard."Sales Document Type".AssertEquals(Opportunity."Sales Document Type"::" ");
-        OpportunityCard.Close;
+        OpportunityCard.Close();
         Opportunity.Get(Opportunity."No.");
         Opportunity.TestField("Sales Document Type", Opportunity."Sales Document Type"::" ");
     end;
@@ -1469,7 +1469,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // [THEN] "O"."Sales Document Type" = Order and "OC"."Sales Document Type" = Order
         OpportunityCard."Sales Document Type".AssertEquals(Opportunity."Sales Document Type"::Order);
-        OpportunityCard.Close;
+        OpportunityCard.Close();
         Opportunity.Get(Opportunity."No.");
         Opportunity.TestField("Sales Document Type", Opportunity."Sales Document Type"::Order);
     end;
@@ -1494,7 +1494,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // [THEN] "O"."Sales Document Type" = Quote and "OC"."Sales Document Type" = Quote
         OpportunityCard."Sales Document Type".AssertEquals(Opportunity."Sales Document Type"::Quote);
-        OpportunityCard.Close;
+        OpportunityCard.Close();
         Opportunity.Get(Opportunity."No.");
         Opportunity.TestField("Sales Document Type", Opportunity."Sales Document Type"::Quote);
     end;
@@ -1848,10 +1848,10 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         RecRef: RecordRef;
     begin
         with RlshpMgtCommentLine do begin
-            Init;
+            Init();
             Validate("Table Name", "Table Name"::Opportunity);
             Validate("No.", Opportunity."No.");
-            Validate(Date, WorkDate);
+            Validate(Date, WorkDate());
             RecRef.GetTable(RlshpMgtCommentLine);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
             Comment := LibraryUtility.GenerateRandomCode(FieldNo(Comment), DATABASE::"Rlshp. Mgt. Comment Line");
@@ -1967,9 +1967,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
     begin
         with InteractionLogEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2207,7 +2207,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
             TempOpportunity.Validate("Activate First Stage", true);
             TempOpportunity.Validate("Wizard Estimated Value (LCY)", WizardEstimatedValueLCY);
             TempOpportunity.Validate("Wizard Chances of Success %", WizardChancesOfSuccessPercent);
-            TempOpportunity.Validate("Wizard Estimated Closing Date", CalcDate('<1D>', WorkDate));
+            TempOpportunity.Validate("Wizard Estimated Closing Date", CalcDate('<1D>', WorkDate()));
         end;
 
         TempOpportunity.CheckStatus;
@@ -2233,7 +2233,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         TempOpportunityEntry.Validate("Estimated Value (LCY)", WizardEstimatedValueLCY);
         SalesCycleStage.Get(TempOpportunityEntry."Sales Cycle Code", CurrentSalesCycleStage);
         TempOpportunityEntry.Validate("Chances of Success %", SalesCycleStage."Chances of Success %");
-        TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<1D>', WorkDate));
+        TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<1D>', WorkDate()));
         TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;
@@ -2252,7 +2252,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         TempTask.Insert();
         TempTask.Validate(Type, TempTask.Type::Meeting);
         TempTask.Validate(Description, TempTask."Opportunity No.");
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
         TempTask.Validate("All Day Event", true);
         CreateAttendee(TempAttendee, SalespersonCode, TempAttendee."Attendance Type"::"To-do Organizer");
 
@@ -2421,7 +2421,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         OpportunityEntry: Record "Opportunity Entry";
     begin
         CloseOpportunity.OptionWon.AssertEquals(OpportunityEntry."Action Taken"::Won);
-        CloseOpportunity."Date of Change".AssertEquals(WorkDate);
+        CloseOpportunity."Date of Change".AssertEquals(WorkDate());
         CloseOpportunity."Cancel Old To Do".AssertEquals(true);
         CloseOpportunity."Close Opportunity Code".SetValue(LibraryVariableStorage.DequeueText);
         CloseOpportunity."Calcd. Current Value (LCY)".AssertEquals(LibraryVariableStorage.DequeueDecimal);
@@ -2432,7 +2432,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     [Scope('OnPrem')]
     procedure FormHandlerSalesOrder(var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [ModalPageHandler]

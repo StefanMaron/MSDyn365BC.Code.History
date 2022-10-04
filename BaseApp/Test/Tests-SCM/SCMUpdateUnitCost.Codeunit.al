@@ -296,7 +296,7 @@ codeunit 137211 "SCM Update Unit Cost"
             repeat
                 Item.Get(ProdOrderComponent."Item No.");
                 ProdOrderCost += Item."Unit Cost" * ProdOrderComponent."Expected Qty. (Base)";
-            until ProdOrderComponent.Next = 0;
+            until ProdOrderComponent.Next() = 0;
 
         Item.Get(ProductionOrder."Source No.");
         if Item."Costing Method" = Item."Costing Method"::Standard then

@@ -49,7 +49,7 @@ table 7152 "Item Analysis View"
             begin
                 if not Blocked and "Refresh When Unblocked" then begin
                     ValidateDelete(FieldCaption(Blocked));
-                    ItemAnalysisViewReset;
+                    ItemAnalysisViewReset();
                     "Refresh When Unblocked" := false;
                 end;
             end;
@@ -79,7 +79,7 @@ table 7152 "Item Analysis View"
                     Item.SetRange("No.");
                     if Item.Find('-') then
                         repeat
-                            if not Item.Mark then begin
+                            if not Item.Mark() then begin
                                 ItemAnalysisViewEntry.SetRange("Analysis Area", "Analysis Area");
                                 ItemAnalysisViewEntry.SetRange("Analysis View Code", Code);
                                 ItemAnalysisViewEntry.SetRange("Item No.", Item."No.");
@@ -93,7 +93,7 @@ table 7152 "Item Analysis View"
                 end;
                 if ("Last Entry No." <> 0) and ("Item Filter" <> xRec."Item Filter") and (xRec."Item Filter" <> '') then begin
                     ValidateDelete(FieldCaption("Item Filter"));
-                    ItemAnalysisViewReset;
+                    ItemAnalysisViewReset();
                 end;
             end;
         }
@@ -142,7 +142,7 @@ table 7152 "Item Analysis View"
                    ("Location Filter" <> xRec."Location Filter")
                 then begin
                     ValidateDelete(FieldCaption("Location Filter"));
-                    ItemAnalysisViewReset;
+                    ItemAnalysisViewReset();
                 end;
             end;
         }
@@ -155,7 +155,7 @@ table 7152 "Item Analysis View"
                 TestField(Blocked, false);
                 if ("Last Entry No." <> 0) and ("Starting Date" <> xRec."Starting Date") then begin
                     ValidateDelete(FieldCaption("Starting Date"));
-                    ItemAnalysisViewReset;
+                    ItemAnalysisViewReset();
                 end;
             end;
         }
@@ -171,7 +171,7 @@ table 7152 "Item Analysis View"
                 TestField(Blocked, false);
                 if ("Last Entry No." <> 0) and ("Date Compression" <> xRec."Date Compression") then begin
                     ValidateDelete(FieldCaption("Date Compression"));
-                    ItemAnalysisViewReset;
+                    ItemAnalysisViewReset();
                 end;
             end;
         }
@@ -184,9 +184,9 @@ table 7152 "Item Analysis View"
             begin
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 1 Code", 20, '', Code, "Analysis Area".AsInteger()) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 ModifyDim(FieldCaption("Dimension 1 Code"), "Dimension 1 Code", xRec."Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(14; "Dimension 2 Code"; Code[20])
@@ -198,9 +198,9 @@ table 7152 "Item Analysis View"
             begin
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 2 Code", 21, '', Code, "Analysis Area".AsInteger()) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 ModifyDim(FieldCaption("Dimension 2 Code"), "Dimension 2 Code", xRec."Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
         field(15; "Dimension 3 Code"; Code[20])
@@ -212,9 +212,9 @@ table 7152 "Item Analysis View"
             begin
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 3 Code", 22, '', Code, "Analysis Area".AsInteger()) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 ModifyDim(FieldCaption("Dimension 3 Code"), "Dimension 3 Code", xRec."Dimension 3 Code");
-                Modify;
+                Modify();
             end;
         }
         field(17; "Include Budgets"; Boolean)
@@ -227,7 +227,7 @@ table 7152 "Item Analysis View"
                 TestField(Blocked, false);
                 if ("Last Entry No." <> 0) and xRec."Include Budgets" and not "Include Budgets" then begin
                     ValidateDelete(FieldCaption("Include Budgets"));
-                    AnalysisviewBudgetReset;
+                    AnalysisviewBudgetReset();
                 end;
             end;
         }
@@ -253,13 +253,19 @@ table 7152 "Item Analysis View"
     var
         ItemAnalysisViewFilter: Record "Item Analysis View Filter";
     begin
-        ItemAnalysisViewReset;
+        ItemAnalysisViewReset();
         ItemAnalysisViewFilter.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewFilter.SetRange("Analysis View Code", Code);
         ItemAnalysisViewFilter.DeleteAll();
     end;
 
     var
+        ItemAnalysisViewEntry: Record "Item Analysis View Entry";
+        NewItemAnalysisViewEntry: Record "Item Analysis View Entry";
+        ItemAnalysisViewBudgetEntry: Record "Item Analysis View Budg. Entry";
+        NewItemAnalysisViewBudgetEntry: Record "Item Analysis View Budg. Entry";
+        Dim: Record Dimension;
+
         Text000: Label '%1\You cannot use the same dimension twice in the same analysis view.';
         Text001: Label 'The dimension %1 is used in the analysis view %2 %3.';
         Text002: Label ' You must therefore retain the dimension to keep consistency between the analysis view and the Item entries.';
@@ -274,11 +280,6 @@ table 7152 "Item Analysis View"
         Text013: Label 'The update has been interrupted in response to the warning.';
         Text014: Label 'If you change the contents of the %1 field, the analysis view entries will be changed as well.\\';
         Text015: Label 'Do you want to enter a new value in the %1 field?';
-        ItemAnalysisViewEntry: Record "Item Analysis View Entry";
-        NewItemAnalysisViewEntry: Record "Item Analysis View Entry";
-        ItemAnalysisViewBudgetEntry: Record "Item Analysis View Budg. Entry";
-        NewItemAnalysisViewBudgetEntry: Record "Item Analysis View Budg. Entry";
-        Dim: Record Dimension;
         Text017: Label 'When you enable %1, you need to update the analysis view. Do you want to update the analysis view now?';
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
@@ -286,7 +287,7 @@ table 7152 "Item Analysis View"
         if ("Last Entry No." <> 0) and (DimValue <> xDimValue) then begin
             if DimValue <> '' then begin
                 ValidateDelete(DimFieldName);
-                ItemAnalysisViewReset;
+                ItemAnalysisViewReset();
             end;
             if DimValue = '' then begin
                 ValidateModify(DimFieldName);
@@ -323,7 +324,7 @@ table 7152 "Item Analysis View"
                             FieldCaption("Dimension 3 Code"):
                                 NewItemAnalysisViewEntry."Dimension 3 Value Code" := '';
                         end;
-                        InsertItemAnalysisViewEntry;
+                        InsertItemAnalysisViewEntry();
                     until ItemAnalysisViewEntry.Next() = 0;
                 if ItemAnalysisViewBudgetEntry.Find('-') then
                     repeat
@@ -337,7 +338,7 @@ table 7152 "Item Analysis View"
                             FieldCaption("Dimension 3 Code"):
                                 NewItemAnalysisViewBudgetEntry."Dimension 3 Value Code" := '';
                         end;
-                        InsertAnalysisViewBudgetEntry;
+                        InsertAnalysisViewBudgetEntry();
                     until ItemAnalysisViewBudgetEntry.Next() = 0;
             end;
         end;
@@ -346,7 +347,7 @@ table 7152 "Item Analysis View"
     local procedure InsertItemAnalysisViewEntry()
     begin
         if not NewItemAnalysisViewEntry.Insert() then begin
-            NewItemAnalysisViewEntry.Find;
+            NewItemAnalysisViewEntry.Find();
             NewItemAnalysisViewEntry."Sales Amount (Actual)" :=
               NewItemAnalysisViewEntry."Sales Amount (Actual)" + ItemAnalysisViewEntry."Sales Amount (Actual)";
             NewItemAnalysisViewEntry."Cost Amount (Actual)" :=
@@ -362,7 +363,7 @@ table 7152 "Item Analysis View"
     local procedure InsertAnalysisViewBudgetEntry()
     begin
         if not NewItemAnalysisViewBudgetEntry.Insert() then begin
-            NewItemAnalysisViewBudgetEntry.Find;
+            NewItemAnalysisViewBudgetEntry.Find();
             NewItemAnalysisViewBudgetEntry."Sales Amount" :=
               NewItemAnalysisViewBudgetEntry."Sales Amount" + ItemAnalysisViewBudgetEntry."Sales Amount";
             NewItemAnalysisViewBudgetEntry.Modify();
@@ -378,12 +379,12 @@ table 7152 "Item Analysis View"
         ItemAnalysisViewEntry.DeleteAll();
         "Last Entry No." := 0;
         "Last Date Updated" := 0D;
-        AnalysisviewBudgetReset;
+        AnalysisviewBudgetReset();
     end;
 
     procedure CheckDimensionsAreRetained(ObjectType: Integer; ObjectID: Integer; OnlyIfIncludeBudgets: Boolean)
     begin
-        Reset;
+        Reset();
         if OnlyIfIncludeBudgets then
             SetRange("Include Budgets", true);
         if Find('-') then
@@ -413,9 +414,9 @@ table 7152 "Item Analysis View"
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         NoNotUpdated: Integer;
     begin
-        if ValueEntry.FindLast or ItemBudgetEntry.FindLast() then begin
+        if ValueEntry.FindLast() or ItemBudgetEntry.FindLast() then begin
             NoNotUpdated := 0;
-            Reset;
+            Reset();
             if Find('-') then
                 repeat
                     if ("Last Entry No." < ValueEntry."Entry No.") or
@@ -436,7 +437,7 @@ table 7152 "Item Analysis View"
                             if Blocked then begin
                                 "Refresh When Unblocked" := true;
                                 "Last Budget Entry No." := 0;
-                                Modify;
+                                Modify();
                             end else
                                 UpdateItemAnalysisView.Update(Rec, 2, true);
                         until Next() = 0;
@@ -482,7 +483,7 @@ table 7152 "Item Analysis View"
         if Get(AnalysisArea, AnalysisViewCode) then begin
             if "Item Filter" <> '' then
                 if AnalysisSelectedDim.Get(
-                     UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Item.TableCaption)
+                     UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Item.TableCaption())
                 then begin
                     if AnalysisSelectedDim."Dimension Value Filter" = '' then begin
                         AnalysisSelectedDim."Dimension Value Filter" := "Item Filter";
@@ -495,13 +496,13 @@ table 7152 "Item Analysis View"
                     AnalysisSelectedDim."Object ID" := ObjectID;
                     AnalysisSelectedDim."Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                     AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
-                    AnalysisSelectedDim."Dimension Code" := Item.TableCaption;
+                    AnalysisSelectedDim."Dimension Code" := Item.TableCaption();
                     AnalysisSelectedDim."Dimension Value Filter" := "Item Filter";
                     AnalysisSelectedDim.Insert();
                 end;
             if "Location Filter" <> '' then
                 if AnalysisSelectedDim.Get(
-                     UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Location.TableCaption)
+                     UserId, ObjectType, ObjectID, AnalysisArea, AnalysisViewCode, Location.TableCaption())
                 then begin
                     if AnalysisSelectedDim."Dimension Value Filter" = '' then begin
                         AnalysisSelectedDim."Dimension Value Filter" := "Location Filter";
@@ -514,7 +515,7 @@ table 7152 "Item Analysis View"
                     AnalysisSelectedDim."Object ID" := ObjectID;
                     AnalysisSelectedDim."Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                     AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
-                    AnalysisSelectedDim."Dimension Code" := Location.TableCaption;
+                    AnalysisSelectedDim."Dimension Code" := Location.TableCaption();
                     AnalysisSelectedDim."Dimension Value Filter" := "Location Filter";
                     AnalysisSelectedDim.Insert();
                 end;
@@ -532,9 +533,9 @@ table 7152 "Item Analysis View"
 
         "Update on Posting" := NewUpdateOnPosting;
         if "Update on Posting" then begin
-            Modify;
+            Modify();
             CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", Rec);
-            Find;
+            Find();
         end;
     end;
 }

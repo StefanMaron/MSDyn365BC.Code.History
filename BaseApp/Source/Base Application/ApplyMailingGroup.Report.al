@@ -11,7 +11,7 @@ report 5184 "Apply Mailing Group"
 
             trigger OnAfterGetRecord()
             begin
-                Delete;
+                Delete();
             end;
 
             trigger OnPreDataItem()
@@ -80,7 +80,7 @@ report 5184 "Apply Mailing Group"
     begin
         Message(
           Text001,
-          "Mailing Group".TableCaption, MailingGroupCode, "Segment Header"."No.");
+          "Mailing Group".TableCaption(), MailingGroupCode, "Segment Header"."No.");
     end;
 
     trigger OnPreReport()

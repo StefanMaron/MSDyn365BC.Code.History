@@ -7,7 +7,6 @@ codeunit 311 "Item-Check Avail."
     end;
 
     var
-        Text000: Label 'The update has been interrupted to respect the warning.';
         AvailableToPromise: Codeunit "Available to Promise";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -30,12 +29,14 @@ codeunit 311 "Item-Check Avail."
         EarliestAvailDate: Date;
         InventoryQty: Decimal;
         OldItemShipmentDate: Date;
+        ContextInfo: Dictionary of [Text, Text];
+
+        Text000: Label 'The update has been interrupted to respect the warning.';
         NotificationMsg: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         DetailsTxt: Label 'Show details';
         ItemAvailabilityNotificationTxt: Label 'Item availability is low.';
         ItemAvailabilityNotificationDescriptionTxt: Label 'Show a warning when someone creates a sales order or sales invoice for an item that is out of stock.';
         DontShowAgainTxt: Label 'Don''t show again';
-        ContextInfo: Dictionary of [Text, Text];
 
     procedure ItemJnlCheckLine(ItemJnlLine: Record "Item Journal Line") Rollback: Boolean
     begin
@@ -166,9 +167,9 @@ codeunit 311 "Item-Check Avail."
 
         if SalesLine."Drop Shipment" then
             exit(false);
-        if SalesLine.IsNonInventoriableItem then
+        if SalesLine.IsNonInventoriableItem() then
             exit(false);
-        if SalesLine.FullQtyIsForAsmToOrder then
+        if SalesLine.FullQtyIsForAsmToOrder() then
             exit(false);
         if not ShowWarningForThisItem(SalesLine."No.") then
             exit(false);
@@ -177,7 +178,7 @@ codeunit 311 "Item-Check Avail."
 
         OldItemNetChange := 0;
         OldSalesLine := SalesLine;
-        if OldSalesLine.Find then begin // Find previous quantity within Check-Avail. Period
+        if OldSalesLine.Find() then begin // Find previous quantity within Check-Avail. Period
             CompanyInfo.Get();
             LookAheadDate :=
               AvailableToPromise.GetForwardPeriodEndDate(
@@ -199,7 +200,7 @@ codeunit 311 "Item-Check Avail."
                 end;
         end;
 
-        NewItemNetResChange := -(SalesLine."Qty. to Asm. to Order (Base)" - OldSalesLine.QtyBaseOnATO);
+        NewItemNetResChange := -(SalesLine."Qty. to Asm. to Order (Base)" - OldSalesLine.QtyBaseOnATO());
 
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then
             UseOrderPromise := true;
@@ -259,7 +260,7 @@ codeunit 311 "Item-Check Avail."
         if UseOrderPromise then
             Item.SetRange("Date Filter", 0D, ShipmentDate)
         else
-            Item.SetRange("Date Filter", 0D, WorkDate);
+            Item.SetRange("Date Filter", 0D, WorkDate());
     end;
 
     local procedure Calculate(var Item: Record Item)
@@ -329,14 +330,14 @@ codeunit 311 "Item-Check Avail."
     begin
         if QtyPerUnitOfMeasure = 0 then
             QtyPerUnitOfMeasure := 1;
-        exit(Round(Qty / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision));
+        exit(Round(Qty / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure ConvertQtyToBaseQty(Qty: Decimal): Decimal
     begin
         if QtyPerUnitOfMeasure = 0 then
             QtyPerUnitOfMeasure := 1;
-        exit(Round(Qty * QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision));
+        exit(Round(Qty * QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision()));
     end;
 
     procedure TransferLineShowWarning(TransLine: Record "Transfer Line") IsWarning: Boolean
@@ -355,7 +356,7 @@ codeunit 311 "Item-Check Avail."
         UseOrderPromise := true;
 
         OldTransLine := TransLine;
-        if OldTransLine.Find then // Find previous quantity
+        if OldTransLine.Find() then // Find previous quantity
             if (OldTransLine."Item No." = TransLine."Item No.") and
                (OldTransLine."Variant Code" = TransLine."Variant Code") and
                (OldTransLine."Transfer-from Code" = TransLine."Transfer-from Code")
@@ -395,7 +396,7 @@ codeunit 311 "Item-Check Avail."
 
         OldServLine := ServLine;
 
-        if OldServLine.Find then // Find previous quantity
+        if OldServLine.Find() then // Find previous quantity
             if (OldServLine."Document Type" = OldServLine."Document Type"::Order) and
                (OldServLine."No." = ServLine."No.") and
                (OldServLine."Variant Code" = ServLine."Variant Code") and
@@ -438,7 +439,7 @@ codeunit 311 "Item-Check Avail."
 
         OldJobPlanningLine := JobPlanningLine;
 
-        if OldJobPlanningLine.Find then // Find previous quantity
+        if OldJobPlanningLine.Find() then // Find previous quantity
             if (OldJobPlanningLine.Type = OldJobPlanningLine.Type::Item) and
                (OldJobPlanningLine."No." = JobPlanningLine."No.") and
                (OldJobPlanningLine."Variant Code" = JobPlanningLine."Variant Code") and
@@ -483,7 +484,7 @@ codeunit 311 "Item-Check Avail."
 
         OldAssemblyLine := AssemblyLine;
 
-        if OldAssemblyLine.Find then // Find previous quantity
+        if OldAssemblyLine.Find() then // Find previous quantity
             if (OldAssemblyLine."Document Type" = OldAssemblyLine."Document Type"::Order) and
                (OldAssemblyLine.Type = OldAssemblyLine.Type::Item) and
                (OldAssemblyLine."No." = AssemblyLine."No.") and
@@ -528,13 +529,13 @@ codeunit 311 "Item-Check Avail."
             UseOrderPromise := true;
 
             if "Due Date" = 0D then
-                "Due Date" := WorkDate;
+                "Due Date" := WorkDate();
             SetFilterOnItem(Item, "Item No.", "Variant Code", "Location Code", "Due Date");
             CompanyInfo.Get();
             QtyAvailToPromise(Item, CompanyInfo);
 
             OldAssemblyHeader := AssemblyHeader;
-            if OldAssemblyHeader.Find then // Find previous quantity
+            if OldAssemblyHeader.Find() then // Find previous quantity
                 if (OldAssemblyHeader."Document Type" = OldAssemblyHeader."Document Type"::Order) and
                    (OldAssemblyHeader."No." = "No.") and
                    (OldAssemblyHeader."Item No." = "Item No.") and
@@ -630,7 +631,7 @@ codeunit 311 "Item-Check Avail."
         if IsHandled then
             exit(Rollback);
 
-        AvailabilityCheckNotification.Id(CreateGuid);
+        AvailabilityCheckNotification.Id(CreateGuid());
         AvailabilityCheckNotification.Message(StrSubstNo(NotificationMsg, ItemNo));
         AvailabilityCheckNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         AvailabilityCheckNotification.AddAction(DetailsTxt, CODEUNIT::"Item-Check Avail.", 'ShowNotificationDetails');
@@ -640,7 +641,7 @@ codeunit 311 "Item-Check Avail."
           TotalQuantity, EarliestAvailDate, LocationCode);
         ItemAvailabilityCheck.PopulateDataOnNotification(AvailabilityCheckNotification, 'VariantCode', VariantCode);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-          AvailabilityCheckNotification, RecordId, GetItemAvailabilityNotificationId);
+          AvailabilityCheckNotification, RecordId, GetItemAvailabilityNotificationId());
         exit(false);
     end;
 
@@ -659,7 +660,7 @@ codeunit 311 "Item-Check Avail."
         if IsHandled then
             exit(ShowWarning);
 
-        if Item.IsNonInventoriableType then
+        if Item.IsNonInventoriableType() then
             exit(false);
 
         if not IsItemAvailabilityNotificationEnabled(Item) then

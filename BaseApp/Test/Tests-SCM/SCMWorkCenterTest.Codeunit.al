@@ -55,11 +55,11 @@ codeunit 137800 "SCM Work Center Test"
         RunTime := 0.16123;
         Quantity := 45236;
 
-        WorkCenterNo := CreateWorkCenter(CapacityUnitOfMeasure.Type::Minutes, CreateThreeShiftsShopCalendar, WorkDate);
-        MachineCenterNo := CreateMachineCenter(WorkCenterNo, WorkDate);
+        WorkCenterNo := CreateWorkCenter(CapacityUnitOfMeasure.Type::Minutes, CreateThreeShiftsShopCalendar, WorkDate());
+        MachineCenterNo := CreateMachineCenter(WorkCenterNo, WorkDate());
         CreateMachineCenterCCR(MachineCenterNo);
         CreateItem(Item, CreateSimpleRouting(RoutingLine.Type::"Machine Center", MachineCenterNo, SetupTime, RunTime, 0, 0));
-        CreateProdOrder(Item, Quantity, WorkDate);
+        CreateProdOrder(Item, Quantity, WorkDate());
 
         // Prepare expected values
         DayCapacity := 24 * 60;
@@ -67,7 +67,7 @@ codeunit 137800 "SCM Work Center Test"
         AllocatedTotal :=
           Round(SetupTime + RunTime * Quantity, WorkCenter."Calendar Rounding Precision");
         NumOfDaysNeeded := Round(AllocatedTotal / DayCapacity, 1, '>');
-        CurrentDate := CalcDate('<-1D>', WorkDate);
+        CurrentDate := CalcDate('<-1D>', WorkDate());
 
         // Verify Allocation Load per Day starting from Ending Day
         VerifyDayAllocatedQty(MachineCenterNo, CurrentDate, AllocatedTotal, LastDayAllocated);
@@ -98,7 +98,7 @@ codeunit 137800 "SCM Work Center Test"
 
         Initialize();
         WaitTime := 15; // value is specific for rounding issues
-        DueDate := CalcDate('<CW+5D>', WorkDate); // next friday
+        DueDate := CalcDate('<CW+5D>', WorkDate()); // next friday
 
         ShopCalendarCode := FindShopCalendar;
         WorkCenterNo := CreateWorkCenter(CapacityUnitOfMeasure.Type::Days, ShopCalendarCode, DueDate);
@@ -256,20 +256,20 @@ codeunit 137800 "SCM Work Center Test"
 
         ShopCalendarCode := CreateFourShiftsShopCalendar;
         for i := 1 to 4 do begin
-            WorkCenterNo[i] := CreateWorkCenter(CapacityUnitOfMeasure.Type::Minutes, ShopCalendarCode, WorkDate);
-            MachineCenterNo[i] := CreateMachineCenter(WorkCenterNo[i], WorkDate);
+            WorkCenterNo[i] := CreateWorkCenter(CapacityUnitOfMeasure.Type::Minutes, ShopCalendarCode, WorkDate());
+            MachineCenterNo[i] := CreateMachineCenter(WorkCenterNo[i], WorkDate());
         end;
         CreateMachineCenterCCR(MachineCenterNo[2]);
 
         RoutingNo := CreateFourLinesRouting(RoutingLine.Type::"Machine Center", MachineCenterNo, SetupTime, RunTime, WaitTime, MoveTime);
         for i := 1 to 4 do begin
             CreateItem(Item[i], RoutingNo);
-            CreateReleaseSalesOrder(Item[i], Quantity, WorkDate);
+            CreateReleaseSalesOrder(Item[i], Quantity, WorkDate());
         end;
 
         ItemNoFilter := StrSubstNo('%1|%2|%3|%4', Item[1]."No.", Item[2]."No.", Item[3]."No.", Item[4]."No.");
         Item[1].SetFilter("No.", ItemNoFilter);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], WorkDate(), WorkDate());
         CarryOutActionFirmPlannedProdOrder(ItemNoFilter);
 
         MachineCenterNoFilter :=
@@ -293,17 +293,17 @@ codeunit 137800 "SCM Work Center Test"
         // [SCENARIO] Prodution order can be refreshed when allocated time is rounded due to capacity constrained resource restriction
 
         // [GIVEN] Create work center "W" with a capacity constraint, critical load = 97%
-        WorkCenterNo := CreateWorkCenter(CapacityUnitOfMeasure.Type::Days, CreateThreeShiftsShopCalendar, WorkDate);
+        WorkCenterNo := CreateWorkCenter(CapacityUnitOfMeasure.Type::Days, CreateThreeShiftsShopCalendar, WorkDate());
         WorkCenterCriticalLoad := 77;
         CreateWorkCenterCCR(WorkCenterNo, WorkCenterCriticalLoad);
         // [GIVEN] Create routing with work center "W"
         CreateItem(Item, CreateSimpleRouting(RoutingLine.Type::"Work Center", WorkCenterNo, 0, 1, 0, 0));
         // [WHEN] Create and refresh production order
-        CreateProdOrder(Item, 1, WorkDate);
+        CreateProdOrder(Item, 1, WorkDate());
 
         // [THEN] Production order successfully refreshed
         ProdOrderCapNeed.SetRange("Work Center No.", WorkCenterNo);
-        ProdOrderCapNeed.SetRange(Date, CalcDate('<-1D>', WorkDate));
+        ProdOrderCapNeed.SetRange(Date, CalcDate('<-1D>', WorkDate()));
         ProdOrderCapNeed.CalcSums("Allocated Time");
         Assert.AreNearlyEqual(WorkCenterCriticalLoad / 100, ProdOrderCapNeed."Allocated Time", 0.01, ProdOrderCapNeedRoundErr);
     end;
@@ -340,7 +340,7 @@ codeunit 137800 "SCM Work Center Test"
         Initialize();
         RunTime := 60; // values are specific
         Quantity := 3;
-        OrderDate := CalcDate('<CW+5D>', WorkDate); // next friday
+        OrderDate := CalcDate('<CW+5D>', WorkDate()); // next friday
 
         ShopCalendarCode := FindShopCalendar;
         for i := 1 to 2 do
@@ -545,7 +545,7 @@ codeunit 137800 "SCM Work Center Test"
             Validate("Run Time", RunTime);
             Validate("Wait Time", WaitTime);
             Validate("Move Time", MoveTime);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -673,10 +673,10 @@ codeunit 137800 "SCM Work Center Test"
         MfgSetup: Record "Manufacturing Setup";
     begin
         with MfgSetup do begin
-            Get;
+            Get();
             Validate("Normal Starting Time", StartingTime);
             Validate("Normal Ending Time", EndingTime);
-            Modify;
+            Modify();
         end;
     end;
 

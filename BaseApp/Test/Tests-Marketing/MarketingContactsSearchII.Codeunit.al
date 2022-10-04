@@ -102,7 +102,7 @@ codeunit 136212 "Marketing Contacts Search II"
         ContactDuplicate.SetRange("Duplicate Contact No.", DuplicateContactNo);
         Assert.IsTrue(
           ContactDuplicate.FindFirst,
-          StrSubstNo(ContactExistError, ContactDuplicate."Duplicate Contact No.", ContactDuplicate.TableCaption));
+          StrSubstNo(ContactExistError, ContactDuplicate."Duplicate Contact No.", ContactDuplicate.TableCaption()));
 
         // 4. Tear Down: Rollback setup done.
         UpdateMarketingSetup(MarketingSetup."Autosearch for Duplicates", MarketingSetup."Search Hit %");
@@ -221,7 +221,7 @@ codeunit 136212 "Marketing Contacts Search II"
         DuplicateSearchStringSetupPage.OpenNew();
         // [WHEN] Look up in the "Field Name" field and select any from suggested (FieldListPageHandler)
         DuplicateSearchStringSetupPage."Field Name".Lookup;
-        DuplicateSearchStringSetupPage.Close;
+        DuplicateSearchStringSetupPage.Close();
         // [THEN] Duplicate Search String created with selected field
         DuplicateSearchStringSetup.FindFirst();
         Assert.AreEqual(Contact.FieldName("No."), DuplicateSearchStringSetup."Field Name", WrongFieldSelectedErr);
@@ -376,7 +376,7 @@ codeunit 136212 "Marketing Contacts Search II"
         ContactDuplicate.SetRange("Duplicate Contact No.", ContactNo);
         Assert.IsFalse(
           ContactDuplicate.FindFirst,
-          StrSubstNo(ContactNotExistError, ContactDuplicate."Duplicate Contact No.", ContactDuplicate.TableCaption));
+          StrSubstNo(ContactNotExistError, ContactDuplicate."Duplicate Contact No.", ContactDuplicate.TableCaption()));
     end;
 
     [ConfirmHandler]

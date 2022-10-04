@@ -11,6 +11,8 @@
     end;
 
     var
+        UOMMgt: Codeunit "Unit of Measure Management";
+
         SuggestItemChargeMsg: Label 'Select how to distribute the assigned item charge when the document has more than one line of type Item.';
         EquallyTok: Label 'Equally';
         ByAmountTok: Label 'By Amount';
@@ -19,7 +21,6 @@
         ItemChargesNotAssignedErr: Label 'No item charges were assigned.';
         ItemChargeAssignedMenu4Lbl: Label '%1,%2,%3,%4', Locked = true;
         ItemChargeAssignedMenu3Lbl: Label '%1,%2,%3', Locked = true;
-        UOMMgt: Codeunit "Unit of Measure Management";
 
     procedure InsertItemChargeAssignment(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Enum "Purchase Applies-to Document Type"; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer)
     begin
@@ -77,9 +78,13 @@
                         ToItemChargeAssignmentPurch := TempToItemChargeAssignmentPurch;
                         ToItemChargeAssignmentPurch."Qty. to Assign" := 0;
                         ToItemChargeAssignmentPurch."Amount to Assign" := 0;
+                        ToItemChargeAssignmentPurch."Qty. to Handle" := 0;
+                        ToItemChargeAssignmentPurch."Amount to Handle" := 0;
                     end;
                     ToItemChargeAssignmentPurch."Qty. to Assign" += "Qty. to Assign";
                     ToItemChargeAssignmentPurch."Amount to Assign" += "Amount to Assign";
+                    ToItemChargeAssignmentPurch."Qty. to Handle" += "Qty. to Handle";
+                    ToItemChargeAssignmentPurch."Amount to Handle" += "Amount to Handle";
                 until Next() = 0;
             if ToItemChargeAssignmentPurch."Line No." <> 0 then
                 ToItemChargeAssignmentPurch.Insert();
@@ -254,6 +259,11 @@
     end;
 
     procedure SuggestAssgnt(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
+    begin
+        SuggestAssgnt(PurchLine, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToAssign, TotalAmtToAssign)
+    end;
+
+    procedure SuggestAssgnt(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal)
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         Selection: Integer;
@@ -303,16 +313,38 @@
 
         SelectionTxt := SelectStr(Selection, SuggestItemChargeMenuTxt);
         OnSuggestAssgntOnBeforeAssignItemCharges(PurchLine, ItemChargeAssgntPurch);
-        AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, SelectionTxt);
+        AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToHandle, TotalAmtToHandle, SelectionTxt);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by AssignItemCharges()', '21.0')]
     procedure SuggestAssgnt2(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; Selection: Option Equally,"By Amount","By Weight","By Volume")
     begin
         // this function will be deprecated. Please use AssignItemCharges instead.
         AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, Format(Selection));
     end;
+#endif
+
+    procedure AssignItemCharges(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; SelectedOptionValue: Integer)
+    begin
+        AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, GetSelectionText(SelectedOptionValue));
+    end;
+
+    local procedure GetSelectionText(OptionValue: Integer): Text
+    var
+        SuggestItemChargeMenuTxt: Text;
+    begin
+        SuggestItemChargeMenuTxt :=
+            StrSubstNo(ItemChargeAssignedMenu4Lbl, AssignEquallyMenuText(), AssignByAmountMenuText(), AssignByWeightMenuText(), AssignByVolumeMenuText());
+        exit(SelectStr(OptionValue + 1, SuggestItemChargeMenuTxt));
+    end;
 
     procedure AssignItemCharges(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; SelectionTxt: Text)
+    begin
+        AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToAssign, TotalAmtToAssign, SelectionTxt);
+    end;
+
+    procedure AssignItemCharges(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal; SelectionTxt: Text)
     var
         Currency: Record Currency;
         PurchHeader: Record "Purchase Header";
@@ -327,33 +359,35 @@
 
         PurchLine.TestField("Qty. to Invoice");
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
-
         if not Currency.Get(PurchHeader."Currency Code") then
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
 
         ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
 
-        if ItemChargeAssgntPurch.FindFirst() then begin
+        if not ItemChargeAssgntPurch.IsEmpty() then begin
             ItemChargeAssgntPurch.ModifyAll("Amount to Assign", 0);
             ItemChargeAssgntPurch.ModifyAll("Qty. to Assign", 0);
+            ItemChargeAssgntPurch.ModifyAll("Amount to Handle", 0);
+            ItemChargeAssgntPurch.ModifyAll("Qty. to Handle", 0);
+            ItemChargeAssgntPurch.FindSet();
 
             case SelectionTxt of
                 AssignEquallyMenuText():
-                    AssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign);
+                    AssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToHandle, TotalAmtToHandle);
                 AssignByAmountMenuText():
-                    AssignByAmount(ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign);
+                    AssignByAmount(ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToHandle, TotalAmtToHandle);
                 AssignByWeightMenuText():
                     AssignByWeight(ItemChargeAssgntPurch, Currency, TotalQtyToAssign);
                 AssignByVolumeMenuText():
                     AssignByVolume(ItemChargeAssgntPurch, Currency, TotalQtyToAssign);
                 else begin
-                        OnAssignItemCharges(
-                          SelectionTxt, ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
-                        if not ItemChargesAssigned then
-                            Error(ItemChargesNotAssignedErr);
-                    end;
+                    OnAssignItemCharges(
+                      SelectionTxt, ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
+                    if not ItemChargesAssigned then
+                        Error(ItemChargesNotAssignedErr);
+                end;
             end;
         end;
     end;
@@ -378,7 +412,7 @@
         exit(ByVolumeTok)
     end;
 
-    local procedure AssignEqually(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
+    local procedure AssignEqually(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal)
     var
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         RemainingNumOfLines: Integer;
@@ -390,7 +424,7 @@
             exit;
 
         repeat
-            if not ItemChargeAssgntPurch.PurchLineInvoiced then begin
+            if not ItemChargeAssgntPurch.PurchLineInvoiced() then begin
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 TempItemChargeAssgntPurch.Insert();
             end;
@@ -404,14 +438,18 @@
                   TempItemChargeAssgntPurch."Document No.",
                   TempItemChargeAssgntPurch."Document Line No.",
                   TempItemChargeAssgntPurch."Line No.");
-                ItemChargeAssgntPurch."Qty. to Assign" := Round(TotalQtyToAssign / RemainingNumOfLines, UOMMgt.QtyRndPrecision);
+                ItemChargeAssgntPurch."Qty. to Assign" := Round(TotalQtyToAssign / RemainingNumOfLines, UOMMgt.QtyRndPrecision());
                 ItemChargeAssgntPurch."Amount to Assign" :=
                   Round(
                     ItemChargeAssgntPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmtToAssign,
                     Currency."Amount Rounding Precision");
+                ItemChargeAssgntPurch."Qty. to Handle" := ItemChargeAssgntPurch."Qty. to Assign";
+                ItemChargeAssgntPurch."Amount to Handle" := ItemChargeAssgntPurch."Amount to Assign";
                 OnAssignEquallyOnAfterAmountToAssignCalculated(ItemChargeAssgntPurch);
                 TotalQtyToAssign -= ItemChargeAssgntPurch."Qty. to Assign";
                 TotalAmtToAssign -= ItemChargeAssgntPurch."Amount to Assign";
+                TotalQtyToHandle -= ItemChargeAssgntPurch."Qty. to Handle";
+                TotalAmtToHandle -= ItemChargeAssgntPurch."Amount to Handle";
                 RemainingNumOfLines := RemainingNumOfLines - 1;
                 OnAssignEquallyOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                 ItemChargeAssgntPurch.Modify();
@@ -421,7 +459,7 @@
         TempItemChargeAssgntPurch.DeleteAll();
     end;
 
-    local procedure AssignByAmount(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; PurchHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
+    local procedure AssignByAmount(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; PurchHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal)
     var
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         PurchLine: Record "Purchase Line";
@@ -434,7 +472,7 @@
         TotalAppliesToDocLineAmount: Decimal;
     begin
         repeat
-            if not ItemChargeAssgntPurch.PurchLineInvoiced then begin
+            if not ItemChargeAssgntPurch.PurchLineInvoiced() then begin
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 case ItemChargeAssgntPurch."Applies-to Doc. Type" of
                     ItemChargeAssgntPurch."Applies-to Doc. Type"::Quote,
@@ -452,7 +490,7 @@
                             PurchRcptLine.Get(
                               ItemChargeAssgntPurch."Applies-to Doc. No.",
                               ItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                            CurrencyCode := PurchRcptLine.GetCurrencyCodeFromHeader;
+                            CurrencyCode := PurchRcptLine.GetCurrencyCodeFromHeader();
                             if CurrencyCode = PurchHeader."Currency Code" then
                                 TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" :=
                                   Abs(PurchRcptLine."Item Charge Base Amount")
@@ -510,10 +548,12 @@
                 end;
                 OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, PurchHeader, TotalQtyToAssign, TotalAmtToAssign);
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
-                    TempItemChargeAssgntPurch.Insert
+                    TempItemChargeAssgntPurch.Insert()
                 else begin
                     ItemChargeAssgntPurch."Amount to Assign" := 0;
                     ItemChargeAssgntPurch."Qty. to Assign" := 0;
+                    ItemChargeAssgntPurch."Amount to Handle" := 0;
+                    ItemChargeAssgntPurch."Qty. to Handle" := 0;
                     ItemChargeAssgntPurch.Modify();
                 end;
                 TotalAppliesToDocLineAmount += TempItemChargeAssgntPurch."Applies-to Doc. Line Amount";
@@ -531,14 +571,18 @@
                     ItemChargeAssgntPurch."Qty. to Assign" :=
                       Round(
                         TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" / TotalAppliesToDocLineAmount * TotalQtyToAssign,
-                        UOMMgt.QtyRndPrecision);
+                        UOMMgt.QtyRndPrecision());
                     ItemChargeAssgntPurch."Amount to Assign" :=
                       Round(
                         ItemChargeAssgntPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmtToAssign,
                         Currency."Amount Rounding Precision");
+                    ItemChargeAssgntPurch."Qty. to Handle" := ItemChargeAssgntPurch."Qty. to Assign";
+                    ItemChargeAssgntPurch."Amount to Handle" := ItemChargeAssgntPurch."Amount to Assign";
                     OnAssignByAmountOnAfterAmountToAssignCalculated(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
                     TotalQtyToAssign -= ItemChargeAssgntPurch."Qty. to Assign";
                     TotalAmtToAssign -= ItemChargeAssgntPurch."Amount to Assign";
+                    TotalQtyToHandle -= ItemChargeAssgntPurch."Qty. to Handle";
+                    TotalAmtToHandle -= ItemChargeAssgntPurch."Amount to Handle";
                     TotalAppliesToDocLineAmount -= TempItemChargeAssgntPurch."Applies-to Doc. Line Amount";
                     OnAssignByAmountOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                     ItemChargeAssgntPurch.Modify();
@@ -569,7 +613,7 @@
         AmountRemainder: Decimal;
     begin
         repeat
-            if not ItemChargeAssgntPurch.PurchLineInvoiced then begin
+            if not ItemChargeAssgntPurch.PurchLineInvoiced() then begin
                 TempItemChargeAssgntPurch.Init();
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 TempItemChargeAssgntPurch.Insert();
@@ -579,6 +623,8 @@
         until ItemChargeAssgntPurch.Next() = 0;
         OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssgntPurch, TotalGrossWeight, TempItemChargeAssgntPurch);
 
+        QtyRemainder := 0;
+        AmountRemainder := 0;
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
                 GetItemValues(TempItemChargeAssgntPurch, LineAray);
@@ -587,6 +633,7 @@
                       (TotalQtyToAssign * LineAray[2] * LineAray[1]) / TotalGrossWeight + QtyRemainder
                 else
                     TempItemChargeAssgntPurch."Qty. to Assign" := 0;
+                TempItemChargeAssgntPurch."Qty. to Handle" := TempItemChargeAssgntPurch."Qty. to Assign";
                 AssignPurchItemCharge(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, Currency, QtyRemainder, AmountRemainder);
             until TempItemChargeAssgntPurch.Next() = 0;
         OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(ItemChargeAssgntPurch, QtyRemainder, TotalQtyToAssign, Currency);
@@ -602,7 +649,7 @@
         AmountRemainder: Decimal;
     begin
         repeat
-            if not ItemChargeAssgntPurch.PurchLineInvoiced then begin
+            if not ItemChargeAssgntPurch.PurchLineInvoiced() then begin
                 TempItemChargeAssgntPurch.Init();
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 TempItemChargeAssgntPurch.Insert();
@@ -612,6 +659,7 @@
         until ItemChargeAssgntPurch.Next() = 0;
         OnAssignByVolumeOnAfterCalcTotalUnitVolume(ItemChargeAssgntPurch, TotalUnitVolume, TempItemChargeAssgntPurch);
 
+        QtyRemainder := 0;
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
                 GetItemValues(TempItemChargeAssgntPurch, LineAray);
@@ -620,6 +668,7 @@
                       (TotalQtyToAssign * LineAray[3] * LineAray[1]) / TotalUnitVolume + QtyRemainder
                 else
                     TempItemChargeAssgntPurch."Qty. to Assign" := 0;
+                TempItemChargeAssgntPurch."Qty. to Handle" := TempItemChargeAssgntPurch."Qty. to Assign";
                 AssignPurchItemCharge(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, Currency, QtyRemainder, AmountRemainder);
             until TempItemChargeAssgntPurch.Next() = 0;
         TempItemChargeAssgntPurch.DeleteAll();
@@ -632,7 +681,7 @@
           ItemChargeAssgntPurch2."Document No.",
           ItemChargeAssgntPurch2."Document Line No.",
           ItemChargeAssgntPurch2."Line No.");
-        ItemChargeAssgntPurch."Qty. to Assign" := Round(ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision);
+        ItemChargeAssgntPurch."Qty. to Assign" := Round(ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision());
         ItemChargeAssgntPurch."Amount to Assign" :=
           ItemChargeAssgntPurch."Qty. to Assign" * ItemChargeAssgntPurch."Unit Cost" + AmountRemainder;
         AmountRemainder := ItemChargeAssgntPurch."Amount to Assign" -
@@ -640,6 +689,8 @@
         QtyRemainder := ItemChargeAssgntPurch2."Qty. to Assign" - ItemChargeAssgntPurch."Qty. to Assign";
         ItemChargeAssgntPurch."Amount to Assign" :=
           Round(ItemChargeAssgntPurch."Amount to Assign", Currency."Amount Rounding Precision");
+        ItemChargeAssgntPurch."Qty. to Handle" := ItemChargeAssgntPurch."Qty. to Assign";
+        ItemChargeAssgntPurch."Amount to Handle" := ItemChargeAssgntPurch."Amount to Assign";
         ItemChargeAssgntPurch.Modify();
     end;
 
@@ -719,13 +770,15 @@
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         TotalAmountToAssign: Decimal;
         TotalQtyToAssign: Decimal;
+        TotalAmountToHandle: Decimal;
+        TotalQtyToHandle: Decimal;
         ItemChargeAssgntLineAmt: Decimal;
         ItemChargeAssgntLineQty: Decimal;
     begin
         with FromItemChargeAssignmentPurch do begin
             PurchHeader.Get("Document Type", "Document No.");
             if not Currency.Get(PurchHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
 
             GetItemChargeAssgntLineAmounts(
               "Document Type", "Document No.", "Document Line No.",
@@ -736,29 +789,36 @@
 
             ItemChargeAssignmentPurch."Qty. to Assign" := "Qty. to Assign";
             ItemChargeAssignmentPurch."Amount to Assign" := "Amount to Assign";
+            ItemChargeAssignmentPurch."Qty. to Handle" := "Qty. to Handle";
+            ItemChargeAssignmentPurch."Amount to Handle" := "Amount to Handle";
             ItemChargeAssignmentPurch.Modify();
 
             ItemChargeAssignmentPurch.SetRange("Document Type", "Document Type");
             ItemChargeAssignmentPurch.SetRange("Document No.", "Document No.");
             ItemChargeAssignmentPurch.SetRange("Document Line No.", "Document Line No.");
-            ItemChargeAssignmentPurch.CalcSums("Qty. to Assign", "Amount to Assign");
+            ItemChargeAssignmentPurch.CalcSums("Qty. to Assign", "Amount to Assign", "Qty. to Handle", "Amount to Handle");
             TotalQtyToAssign := ItemChargeAssignmentPurch."Qty. to Assign";
             TotalAmountToAssign := ItemChargeAssignmentPurch."Amount to Assign";
+            TotalQtyToHandle := ItemChargeAssignmentPurch."Qty. to Handle";
+            TotalAmountToHandle := ItemChargeAssignmentPurch."Amount to Handle";
 
-            if TotalAmountToAssign = ItemChargeAssgntLineAmt then
+            if TotalAmountToAssign = ItemChargeAssgntLineAmt then begin
+                FromItemChargeAssignmentPurch.Find();
                 exit;
+            end;
 
             if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
                 TotalAmountToAssign := ItemChargeAssgntLineAmt;
+                TotalAmountToHandle := ItemChargeAssgntLineAmt;
                 ItemChargeAssignmentPurch.FindSet();
                 repeat
-                    if not ItemChargeAssignmentPurch.PurchLineInvoiced then begin
+                    if not ItemChargeAssignmentPurch.PurchLineInvoiced() then begin
                         TempItemChargeAssgntPurch := ItemChargeAssignmentPurch;
                         TempItemChargeAssgntPurch.Insert();
                     end;
                 until ItemChargeAssignmentPurch.Next() = 0;
 
-                if TempItemChargeAssgntPurch.FindSet() then begin
+                if TempItemChargeAssgntPurch.FindSet() then
                     repeat
                         ItemChargeAssignmentPurch.Get(
                           TempItemChargeAssgntPurch."Document Type",
@@ -770,12 +830,18 @@
                               Round(
                                 ItemChargeAssignmentPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmountToAssign,
                                 Currency."Amount Rounding Precision");
+                            if TotalQtyToHandle <> 0 then
+                                ItemChargeAssignmentPurch."Amount to Handle" :=
+                                  Round(
+                                    ItemChargeAssignmentPurch."Qty. to Handle" / TotalQtyToHandle * TotalAmountToHandle,
+                                    Currency."Amount Rounding Precision");
                             TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
                             TotalAmountToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
+                            TotalQtyToHandle -= ItemChargeAssignmentPurch."Qty. to Handle";
+                            TotalAmountToHandle -= ItemChargeAssignmentPurch."Amount to Handle";
                             ItemChargeAssignmentPurch.Modify();
                         end;
                     until TempItemChargeAssgntPurch.Next() = 0;
-                end;
             end;
 
             ItemChargeAssignmentPurch.Get("Document Type", "Document No.", "Document Line No.", "Line No.");
@@ -792,7 +858,7 @@
     begin
         PurchHeader.Get(DocumentType, DocumentNo);
         if not Currency.Get(PurchHeader."Currency Code") then
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
 
         with PurchLine do begin
             Get(DocumentType, DocumentNo, DocumentLineNo);

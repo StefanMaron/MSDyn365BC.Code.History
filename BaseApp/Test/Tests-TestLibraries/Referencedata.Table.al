@@ -1,5 +1,6 @@
 table 130061 "Reference data"
 {
+    ReplicateData = false;
 
     fields
     {

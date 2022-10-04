@@ -19,7 +19,7 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
         Commit();
 
         if GuiAllowed then
-            if OfficeMgt.AttachAvailable then
+            if OfficeMgt.AttachAvailable() then
                 PAGE.Run(PAGE::"Sales Invoice", InvoiceSalesHeader)
             else
                 if Confirm(StrSubstNo(OpenNewInvoiceQst, InvoiceSalesHeader."No."), true) then

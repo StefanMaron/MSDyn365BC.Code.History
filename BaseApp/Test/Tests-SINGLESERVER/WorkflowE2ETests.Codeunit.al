@@ -167,7 +167,7 @@ codeunit 134302 "Workflow E2E Tests"
         UnbindSubscription(LibraryJobQueue);
 
         // Verify
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::"Pending Approval");
         FindNotificationEntry(NotificationEntry,
           ApproverUserSetup."User ID", NotificationEntry.Type::Approval, RequestorUserSetup."User ID");
@@ -213,7 +213,7 @@ codeunit 134302 "Workflow E2E Tests"
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
 
         // Verify
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Released);
         Assert.IsFalse(
           IsEmailNotificationEntryCreated(ApproverUserSetup."User ID", DATABASE::"Approval Entry", RequestorUserSetup."User ID"),
@@ -560,7 +560,7 @@ codeunit 134302 "Workflow E2E Tests"
         // Exercise
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         FindApprovalEntry(ApprovalEntry, DATABASE::"Purchase Header", PurchaseHeader."Document Type"::Invoice, DocumentNo);
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
 
         // Post-Exercise
@@ -626,11 +626,11 @@ codeunit 134302 "Workflow E2E Tests"
         // CL 10941868 introduced new User Card Page behavior. It inserts current user as Super User when user table is empty. So we try to insert current user twice.
         // Stub user helps to avoid unwanted default user insertion.
         StubUser.Init();
-        StubUser."User Security ID" := CreateGuid;
+        StubUser."User Security ID" := CreateGuid();
         StubUser.Insert();
 
         if not LibraryDocumentApprovals.UserExists(UserId) then
-            LibraryDocumentApprovals.CreateUser(Format(CreateGuid), UserId);
+            LibraryDocumentApprovals.CreateUser(Format(CreateGuid()), UserId);
 
         LibraryDocumentApprovals.GetUser(RequestorUser, UserId);
 
@@ -767,7 +767,7 @@ codeunit 134302 "Workflow E2E Tests"
                 ApprovalEntry."Approver ID" := ApproverID;
             ApprovalEntry."Sender ID" := SenderID;
             ApprovalEntry.Modify();
-        until ApprovalEntry.Next = 0;
+        until ApprovalEntry.Next() = 0;
     end;
 
     local procedure SetCurrentUserApprovalAdiministrator(ApprovalAdministrator: Boolean)

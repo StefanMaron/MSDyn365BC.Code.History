@@ -1,0 +1,1353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-GB" original="API Reports - Finance">
+    <body>
+      <group id="body">
+        <trans-unit id="Page 4192068966 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Acc Periods</source>
+          <target state="translated">API Finance - Acc Periods</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounting Periods</source>
+          <target state="translated">Accounting Periods</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 245570718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Closed</source>
+          <target state="translated">Closed</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control closed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name</source>
+          <target state="translated">Display Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 2786197837 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Ending Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control endingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 3298568402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fiscal Year End Date</source>
+          <target state="translated">Fiscal Year End Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control fiscalYearEndDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 3893425251 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fiscal Year Start Date</source>
+          <target state="translated">Fiscal Year Start Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control fiscalYearStartDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 1563494139 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New Fiscal Year</source>
+          <target state="translated">New Fiscal Year</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control newFiscalYear - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4192068966 - Control 1751904704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Starting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Acc Periods - Control startingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Business Unit</source>
+          <target state="translated">API Finance - Business Unit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Unit</source>
+          <target state="translated">Business Unit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 2786197837 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Ending Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control endingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 2741087206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GL Accounts</source>
+          <target state="translated">GL Accounts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control generalLedgerAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 1751904704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Starting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control startingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Customer</source>
+          <target state="translated">API Finance - Customer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer</source>
+          <target state="translated">Customer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 412705190 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance Due</source>
+          <target state="translated">Balance Due</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control balanceDue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 4247538596 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 2754366897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>City</source>
+          <target state="translated">City</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control city - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 2807065388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Country/Region Code</source>
+          <target state="translated">Country/Region Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control country - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 3468600852 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Limit</source>
+          <target state="translated">Credit Limit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control creditLimit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name</source>
+          <target state="translated">Display Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <target state="translated">Last Modified Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post Code</source>
+          <target state="translated">Postcode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control postalCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 4231590924 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Salesperson Code</source>
+          <target state="translated">Salesperson Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control salespersonCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 1405163793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State</source>
+          <target state="translated">County</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control state - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3270520675 - Control 3175374588 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <target state="translated">Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Dim Set Entries</source>
+          <target state="translated">API Finance - Dim Set Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set Entries</source>
+          <target state="translated">Dimension Set Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 3904902575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Code</source>
+          <target state="translated">Dimension Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control dimensionCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 2727472343 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Name</source>
+          <target state="translated">Dimension Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control dimensionDisplayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 1355182586 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value Code</source>
+          <target state="translated">Dimension Value Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control dimensionValueCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 2713332634 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value Name</source>
+          <target state="translated">Dimension Value Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control dimensionValueDisplayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 3463544090 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value ID</source>
+          <target state="translated">Dimension Value ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control dimensionValueId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2050804695 - Control 2504269705 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dim Set Entries - Control setId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Dimension Values</source>
+          <target state="translated">API Finance - Dimension Values</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Values</source>
+          <target state="translated">Dimension Values</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 4247538596 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 434177305 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consolidation Code</source>
+          <target state="translated">Consolidation Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control consolidationCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 3904902575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Code</source>
+          <target state="translated">Dimension Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control dimensionCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 66710475 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set Entries</source>
+          <target state="translated">Dimension Set Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control dimensionSets - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 1355182586 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value Code</source>
+          <target state="translated">Dimension Value Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control dimensionValueCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 3463544090 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value Id</source>
+          <target state="translated">Dimension Value Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control dimensionValueId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 2362895424 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value Name</source>
+          <target state="translated">Dimension Value Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control dimensionValueName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 1253680333 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Value Type</source>
+          <target state="translated">Dimension Value Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control dimensionValueType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 4112524756 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension Number</source>
+          <target state="translated">Global Dimension Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control globalDimensionNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 4224352675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indentation</source>
+          <target state="translated">Indentation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control indentation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1476094511 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Dimension Values - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - GL Account</source>
+          <target state="translated">API Finance - GL Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General Ledger Account</source>
+          <target state="translated">General Ledger Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 2642785491 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Category</source>
+          <target state="translated">Account Category</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control accountCategory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1158613746 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Name</source>
+          <target state="translated">Account Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control accountName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 3033425374 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Number</source>
+          <target state="translated">Account Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control accountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 2808340301 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Subcategory Description</source>
+          <target state="translated">Account Subcategory Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control accountSubcategoryDescription - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1154419302 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Subcategory Entry Number</source>
+          <target state="translated">Account Subcategory Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control accountSubcategoryEntryNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1486462331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Type</source>
+          <target state="translated">Account Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control accountType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1906396055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Filter</source>
+          <target state="translated">Budget Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control budgetFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 3363030172 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Unit Filter</source>
+          <target state="translated">Business Unit Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control businessUnitFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1087635687 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Income Balance</source>
+          <target state="translated">Income Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control incomeBalance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 4224352675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indentation</source>
+          <target state="translated">Indentation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control indentation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1867129195 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Change</source>
+          <target state="translated">Net Change</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control netChange - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1271282065 - Control 1753620658 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parent Account Number</source>
+          <target state="translated">Parent Account Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Account - Control parentAccountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - GL Budgets</source>
+          <target state="translated">API Finance - GL Budgets</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General Ledger Budgets</source>
+          <target state="translated">General Ledger Budgets</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 4247538596 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 4196384355 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 1 Code</source>
+          <target state="translated">Budget Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control budgetDimension1Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 4029997806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 2 Code</source>
+          <target state="translated">Budget Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control budgetDimension2Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 3586218965 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 3 Code</source>
+          <target state="translated">Budget Dimension 3 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control budgetDimension3Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 1348480088 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 4 Code</source>
+          <target state="translated">Budget Dimension 4 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control budgetDimension4Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name</source>
+          <target state="translated">Display Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 706230764 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - GL Budgets - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3028937253 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Global Settings</source>
+          <target state="translated">API Finance - Global Settings</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Global Settings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3028937253 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Settings</source>
+          <target state="translated">Global Settings</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Global Settings - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3028937253 - Control 3373486276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Additional Reporting Currency</source>
+          <target state="translated">Additional Reporting Currency</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Global Settings - Control additionalReportingCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3028937253 - Control 3341719881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>id</source>
+          <target state="translated">id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Global Settings - Control company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3028937253 - Control 1408747468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <target state="translated">Company Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Global Settings - Control companyName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3028937253 - Control 2528260897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Local Currency Code</source>
+          <target state="translated">Local Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Global Settings - Control localCurrencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - Vendor</source>
+          <target state="translated">API Finance - Vendor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor</source>
+          <target state="translated">Vendor</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2130846610 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 4247538596 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2754366897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>City</source>
+          <target state="translated">City</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control city - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2807065388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Country/Region Code</source>
+          <target state="translated">Country/Region Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control country - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name</source>
+          <target state="translated">Display Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <target state="translated">Last Modified Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 561803164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Method Id</source>
+          <target state="translated">Payment Method Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control paymentMethodId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 3603481462 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Terms Id</source>
+          <target state="translated">Payment Terms Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control paymentTermsId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post Code</source>
+          <target state="translated">Postcode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control postalCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 1405163793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State</source>
+          <target state="translated">County</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control state - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1622772827 - Control 2795513406 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tax Liable</source>
+          <target state="translated">VAT Liable</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control taxLiable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Fin - Cust Ledg Entry</source>
+          <target state="translated">API Fin - Cust Ledg Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Ledger Entry</source>
+          <target state="translated">Customer Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2879902802 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount (LCY)</source>
+          <target state="translated">Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn amountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2661940603 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balancing Account Number</source>
+          <target state="translated">Balancing Account Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn balancingAccountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1814384590 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bal. Account Type</source>
+          <target state="translated">Bal. Account Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn balancingAccountType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2032829267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount</source>
+          <target state="translated">Credit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn creditAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2711021973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount (LCY)</source>
+          <target state="translated">Credit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn creditAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 3226897001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Number</source>
+          <target state="translated">Customer Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn customerNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 4095993742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount</source>
+          <target state="translated">Debit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn debitAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2754266164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount (LCY)</source>
+          <target state="translated">Debit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn debitAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 3741515601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn dimensionSetID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1150262424 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Number</source>
+          <target state="translated">Document Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn documentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 305869689 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Type</source>
+          <target state="translated">Document Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn documentType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2190624577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry Number</source>
+          <target state="translated">Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn entryNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 138905291 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>External Document Number</source>
+          <target state="translated">External Document Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn externalDocumentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 520546656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">Open</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn open - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Filter</source>
+          <target state="translated">Date Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Fin - Dtld Cust Ledg Entry</source>
+          <target state="translated">API Fin - Dtld Cust Ledg Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Detailed Customer Ledger Entry</source>
+          <target state="translated">Detailed Customer Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2879902802 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount (LCY)</source>
+          <target state="translated">Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn amountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2032829267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount</source>
+          <target state="translated">Credit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn creditAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2711021973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount (LCY)</source>
+          <target state="translated">Credit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn creditAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 3226897001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Number</source>
+          <target state="translated">Customer Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn customerNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 4095993742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount</source>
+          <target state="translated">Debit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn debitAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2754266164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount (LCY)</source>
+          <target state="translated">Debit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn debitAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2190624577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry Number</source>
+          <target state="translated">Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn entryNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 4002976000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry Number</source>
+          <target state="translated">Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn entryType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 1572653612 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial Entry Global Dimension 1</source>
+          <target state="translated">Initial Entry Global Dimension 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn initialEntryGLobalDim1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2210350229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial Entry Global Dimension 1</source>
+          <target state="translated">Initial Entry Global Dimension 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn initialEntryGLobalDim2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 389033821 - QueryColumn 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Filter</source>
+          <target state="translated">Date Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Cust Ledg Entry - QueryColumn postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Fin - Dtld Vend Ledg Entry</source>
+          <target state="translated">API Fin - Dtld Vend Ledg Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Detailed Vendor Ledger Entry</source>
+          <target state="translated">Detailed Vendor Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2879902802 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount (LCY)</source>
+          <target state="translated">Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn amountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2032829267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount</source>
+          <target state="translated">Credit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn creditAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2711021973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount (LCY)</source>
+          <target state="translated">Credit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn creditAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 4095993742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount</source>
+          <target state="translated">Debit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn debitAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2754266164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount (LCY)</source>
+          <target state="translated">Debit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn debitAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2190624577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry Number</source>
+          <target state="translated">Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn entryNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 4002976000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry Number</source>
+          <target state="translated">Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn entryType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 1572653612 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial Entry Global Dimension 1</source>
+          <target state="translated">Initial Entry Global Dimension 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn initialEntryGLobalDim1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2210350229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial Entry Global Dimension 1</source>
+          <target state="translated">Initial Entry Global Dimension 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn initialEntryGLobalDim2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Filter</source>
+          <target state="translated">Date Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3908709429 - QueryColumn 712552689 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Number</source>
+          <target state="translated">Vendor Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Dtld Vend Ledg Entry - QueryColumn vendorNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Fin - Vend Ledg Entry</source>
+          <target state="translated">API Fin - Vend Ledg Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Ledger Entry</source>
+          <target state="translated">Vendor Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2879902802 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount (LCY)</source>
+          <target state="translated">Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn amountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2661940603 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balancing Account Number</source>
+          <target state="translated">Balancing Account Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn balancingAccountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 1814384590 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bal. Account Type</source>
+          <target state="translated">Bal. Account Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn balancingAccountType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2032829267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount</source>
+          <target state="translated">Credit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn creditAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2711021973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount (LCY)</source>
+          <target state="translated">Credit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn creditAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Currency Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 4095993742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount</source>
+          <target state="translated">Debit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn debitAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2754266164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount (LCY)</source>
+          <target state="translated">Debit Amount (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn debitAmountLocalCurrency - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 3741515601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn dimensionSetID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 1150262424 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Number</source>
+          <target state="translated">Document Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn documentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 305869689 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Type</source>
+          <target state="translated">Document Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn documentType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2190624577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry Number</source>
+          <target state="translated">Entry Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn entryNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 138905291 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>External Document Number</source>
+          <target state="translated">External Document Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn externalDocumentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 520546656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">Open</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn open - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Filter</source>
+          <target state="translated">Date Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2011073221 - QueryColumn 712552689 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Number</source>
+          <target state="translated">Vendor Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Vend Ledg Entry - QueryColumn vendorNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - GL Budget Entry</source>
+          <target state="translated">API Finance - GL Budget Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General Budget Entry</source>
+          <target state="translated">General Budget Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 1007289100 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Number</source>
+          <target state="translated">Account Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn accountNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 4196384355 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 1 Code</source>
+          <target state="translated">Budget Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn budgetDimension1Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 4029997806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 2 Code</source>
+          <target state="translated">Budget Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn budgetDimension2Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 3586218965 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 3 Code</source>
+          <target state="translated">Budget Dimension 3 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn budgetDimension3Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 1348480088 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Dimension 4 Code</source>
+          <target state="translated">Budget Dimension 4 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn budgetDimension4Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 3289431782 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Budget Name</source>
+          <target state="translated">Budget Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn budgetName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 768536247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Unit Code</source>
+          <target state="translated">Business Unit Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn businessUnitCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 895206272 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <target state="translated">Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 3741515601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn dimensionSetID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 622001707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account No.</source>
+          <target state="translated">G/L Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn generalLedgerAccountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 2895345465 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 1 Code</source>
+          <target state="translated">Global Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn globalDimension1Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 2945582944 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 2 Code</source>
+          <target state="translated">Global Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn globalDimension2Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 4038548433 - QueryColumn 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number</source>
+          <target state="translated">Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Budget Entry - QueryColumn number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Finance - GL Entry</source>
+          <target state="translated">API Finance - GL Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General Ledger Entry</source>
+          <target state="translated">General Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 3033425374 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Number</source>
+          <target state="translated">Account Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn accountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 3633511510 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Additional Currency Amount</source>
+          <target state="translated">Additional Currency Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn additionalCurrencyAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 768536247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Unit Code</source>
+          <target state="translated">Business Unit Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn businessUnitCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2032829267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit Amount</source>
+          <target state="translated">Credit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn creditAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 4095993742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit Amount</source>
+          <target state="translated">Debit Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn debitAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 3741515601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn dimensionSetID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 1150262424 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Number</source>
+          <target state="translated">Document Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn documentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 138905291 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>External Document Number</source>
+          <target state="translated">External Document Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn externalDocumentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2895345465 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 1 Code</source>
+          <target state="translated">Global Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn globalDimension1Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2945582944 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 2 Code</source>
+          <target state="translated">Global Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn globalDimension2Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last  Modified Date Time</source>
+          <target state="translated">Last  Modified Date Time</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number</source>
+          <target state="translated">Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Date</source>
+          <target state="translated">Posting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 371519688 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reversed</source>
+          <target state="translated">Reversed</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn reveresd - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 725927060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Code</source>
+          <target state="translated">Source Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn sourceCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 1267861810 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Number</source>
+          <target state="translated">Source Number</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn sourceNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 458640351 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Type</source>
+          <target state="translated">Source Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn sourceType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1155807422 - QueryColumn 2061133889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Amount</source>
+          <target state="translated">VAT Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Finance - GL Entry - QueryColumn vatAmount - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

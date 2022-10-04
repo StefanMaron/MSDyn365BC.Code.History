@@ -31,7 +31,7 @@ codeunit 5370 "Excel Buffer Dialog Management"
     procedure Close()
     begin
         if WindowOpen then begin
-            Window.Close;
+            Window.Close();
             WindowOpen := false;
         end;
     end;

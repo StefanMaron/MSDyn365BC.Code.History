@@ -1,4 +1,4 @@
-﻿table 5850 "Invt. Document Header"
+table 5850 "Invt. Document Header"
 {
     Caption = 'Item Document Header';
     DataCaptionFields = "Document Type", "No.";

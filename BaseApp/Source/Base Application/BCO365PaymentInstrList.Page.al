@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2342 "BC O365 Payment Instr. List"
 {
     Caption = 'Payment Instructions';
@@ -6,9 +7,11 @@ page 2342 "BC O365 Payment Instr. List"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     ShowFilter = false;
     SourceTable = "O365 Payment Instructions";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,13 +21,13 @@ page 2342 "BC O365 Payment Instr. List"
             {
                 field(NameText; NameText)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
                     Width = 10;
                 }
-                field(GetPaymentInstructionsInCurrentLanguage; GetPaymentInstructionsInCurrentLanguage)
+                field(GetPaymentInstructionsInCurrentLanguage; GetPaymentInstructionsInCurrentLanguage())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment instructions';
                 }
             }
@@ -37,30 +40,22 @@ page 2342 "BC O365 Payment Instr. List"
         {
             action(_NEW_TEMP_)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = New;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create new payment instructions for your customers.';
 
                 trigger OnAction()
                 begin
-                    if O365SalesInvoiceMgmt.OpenNewPaymentInstructionsCard and CurrPage.LookupMode then
-                        CurrPage.Close;
+                    if O365SalesInvoiceMgmt.OpenNewPaymentInstructionsCard() and CurrPage.LookupMode then
+                        CurrPage.Close();
                 end;
             }
             action(Edit)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Edit';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Open these payment instructions in an editable way.';
 
@@ -72,31 +67,48 @@ page 2342 "BC O365 Payment Instr. List"
                     OldDefaultState := Default;
                     BCO365PaymentInstrCard.SetPaymentInstructionsOnPage(Rec);
                     BCO365PaymentInstrCard.LookupMode(true);
-                    if BCO365PaymentInstrCard.RunModal = ACTION::OK then;
+                    if BCO365PaymentInstrCard.RunModal() = ACTION::OK then;
 
                     // Check if the default was changed, if we are in lookup mode close the page
-                    Find;
+                    Find();
                     if CurrPage.LookupMode and (Default <> OldDefaultState) then
-                        CurrPage.Close;
+                        CurrPage.Close();
                 end;
             }
             action(Delete)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete';
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Delete these payment instructions.';
 
                 trigger OnAction()
                 begin
-                    if Find then
+                    if Find() then
                         Delete(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(_NEW_TEMP__Promoted; _NEW_TEMP_)
+                {
+                }
+                actionref(Edit_Promoted; Edit)
+                {
+                }
+                actionref(Delete_Promoted; Delete)
+                {
+                }
             }
         }
     }
@@ -104,9 +116,9 @@ page 2342 "BC O365 Payment Instr. List"
     trigger OnAfterGetRecord()
     begin
         if Default then
-            NameText := StrSubstNo(DefaultTxt, GetNameInCurrentLanguage)
+            NameText := StrSubstNo(DefaultTxt, GetNameInCurrentLanguage())
         else
-            NameText := GetNameInCurrentLanguage;
+            NameText := GetNameInCurrentLanguage();
     end;
 
     var
@@ -114,4 +126,4 @@ page 2342 "BC O365 Payment Instr. List"
         NameText: Text;
         DefaultTxt: Label '%1 (default)', Comment = '%1: the description of the payment instructions';
 }
-
+#endif

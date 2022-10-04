@@ -212,7 +212,7 @@ codeunit 136906 "Job Reports"
     local procedure SetJobNoSeries(var JobsSetup: Record "Jobs Setup"; var NoSeries: Record "No. Series")
     begin
         with JobsSetup do begin
-            Get;
+            Get();
             if "Job Nos." = '' then
                 if not NoSeries.Get(XJOBTxt) then
                     InsertSeries("Job Nos.", XJOBTxt, XJOBTxt, XJ10Txt, XJ99990Txt, '', '', 10, true)
@@ -223,7 +223,7 @@ codeunit 136906 "Job Reports"
                     InsertSeries("Job WIP Nos.", XJOBWIPTxt, XJobWIPDescriptionTxt, XDefaultJobWIPNoTxt, XDefaultJobWIPEndNoTxt, '', '', 1, true)
                 else
                     "Job WIP Nos." := XJOBWIPTxt;
-            Modify;
+            Modify();
         end
     end;
 
@@ -297,7 +297,7 @@ codeunit 136906 "Job Reports"
                 JobPostingGroup.Validate("WIP Costs Account", LibraryERM.CreateGLAccountNo);
                 JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo);
                 JobPostingGroup.Modify(true);
-            until JobPostingGroup.Next = 0;
+            until JobPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyWIPAmountOnJobWIPToGL("Code": Code[20]; TotalCost: Decimal)
@@ -315,7 +315,7 @@ codeunit 136906 "Job Reports"
     [Scope('OnPrem')]
     procedure JobPostWIPToGLHandler(var JobPostWIPToGL: TestRequestPage "Job Post WIP to G/L")
     begin
-        JobPostWIPToGL.ReversalPostingDate.SetValue(Format(WorkDate));
+        JobPostWIPToGL.ReversalPostingDate.SetValue(Format(WorkDate()));
         JobPostWIPToGL.ReversalDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));  // Use random Reversal Document No.
         JobPostWIPToGL.UseReversalDate.SetValue(true);
         JobPostWIPToGL.OK.Invoke;

@@ -6,17 +6,7 @@ page 5497 "Retained Earnings Entity"
     InsertAllowed = false;
     ModifyAllowed = false;
     SourceTable = "Acc. Schedule Line Entity";
-#if not CLEAN18
-    PageType = API;
-    EntityName = 'retainedEarningsStatement';
-    EntitySetName = 'retainedEarningsStatement';
-    DelayedInsert = true;
-#else
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
-    ObsoleteTag = '18.0';
     PageType = List;
-#endif
     SourceTableTemporary = true;
 
     layout

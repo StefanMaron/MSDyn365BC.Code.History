@@ -52,9 +52,6 @@ page 546 "Dim. Allowed Values per Acc."
                 ApplicationArea = Dimensions;
                 Caption = 'Set Allowed';
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Set selected dimension values allowed.';
 
                 trigger OnAction()
@@ -75,9 +72,6 @@ page 546 "Dim. Allowed Values per Acc."
                 ApplicationArea = Dimensions;
                 Caption = 'Set Disallowed';
                 Image = Reject;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Specify the dimension values that cannot be used for an account.';
 
                 trigger OnAction()
@@ -92,6 +86,20 @@ page 546 "Dim. Allowed Values per Acc."
                             Modify();
                         until DimValuePerAccount.Next() = 0;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SetAllowed_Promoted; SetAllowed)
+                {
+                }
+                actionref(SetDisallowed_Promoted; SetDisallowed)
+                {
+                }
             }
         }
     }

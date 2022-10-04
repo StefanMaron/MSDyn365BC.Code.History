@@ -1,6 +1,10 @@
+#if not CLEAN21
 page 2147 "O365 Service Configuration"
 {
     Caption = 'Services';
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +18,7 @@ page 2147 "O365 Service Configuration"
                     Caption = 'VAT Registration Service';
                     field(ViesEnabled; VATRegNoSrvConfig.Enabled)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Enabled';
                         ToolTip = 'Specifies if the service is enabled.';
 
@@ -29,7 +33,7 @@ page 2147 "O365 Service Configuration"
                     }
                     field(TermsOfServiceLbl; TermsOfServiceLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
 
@@ -37,7 +41,7 @@ page 2147 "O365 Service Configuration"
                         var
                             VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
                         begin
-                            HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR);
+                            HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR());
                         end;
                     }
                 }
@@ -52,7 +56,7 @@ page 2147 "O365 Service Configuration"
     trigger OnOpenPage()
     begin
         if not VATRegNoSrvConfig.FindFirst() then
-            InitVATRegNrValidationSetup;
+            InitVATRegNrValidationSetup();
     end;
 
     var
@@ -68,9 +72,9 @@ page 2147 "O365 Service Configuration"
             exit;
 
         VATRegNoSrvConfig.Init();
-        VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
+        VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL();
         VATRegNoSrvConfig.Enabled := true;
         VATRegNoSrvConfig.Insert();
     end;
 }
-
+#endif

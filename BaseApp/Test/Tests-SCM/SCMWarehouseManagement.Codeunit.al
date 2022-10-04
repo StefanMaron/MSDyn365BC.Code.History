@@ -2946,7 +2946,7 @@ codeunit 137064 "SCM Warehouse Management"
     local procedure CreateMockWarehouseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20]; ZoneCode: Code[10])
     begin
         with WhseWorksheetLine do begin
-            Init;
+            Init();
             "Location Code" := LocationCode;
             "Item No." := ItemNo;
             "From Zone Code" := ZoneCode;
@@ -2966,8 +2966,8 @@ codeunit 137064 "SCM Warehouse Management"
         CreateBinAndBinContent(Bin[2], LocationOrange.Code, Item."No.", Item."Base Unit of Measure", IsDefault[2]);
 
         StockQuantity := Quantity + LibraryRandom.RandInt(Quantity);
-        LibraryPatterns.POSTPositiveAdjustment(Item, LocationOrange.Code, '', Bin[1].Code, StockQuantity, WorkDate, 0);
-        LibraryPatterns.POSTPositiveAdjustment(Item, LocationOrange.Code, '', Bin[2].Code, StockQuantity, WorkDate, 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, LocationOrange.Code, '', Bin[1].Code, StockQuantity, WorkDate(), 0);
+        LibraryPatterns.POSTPositiveAdjustment(Item, LocationOrange.Code, '', Bin[2].Code, StockQuantity, WorkDate(), 0);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         CreateSalesLine(SalesHeader, SalesLine, Item."No.", LocationOrange.Code, Quantity);
@@ -3099,7 +3099,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentLine.FindSet();
         WarehouseShipmentLine.Validate("Qty. to Ship", QtyToShip);
         WarehouseShipmentLine.Modify(true);
-        WarehouseShipmentLine.Next;
+        WarehouseShipmentLine.Next();
         WarehouseShipmentLine.Validate("Qty. to Ship", 0);  // Value important for Test.
         WarehouseShipmentLine.Modify(true);
     end;
@@ -3110,7 +3110,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseReceiptLine.FindSet();
         WarehouseReceiptLine.Validate("Qty. to Receive", 0);  // Value important for Test.
         WarehouseReceiptLine.Modify(true);
-        WarehouseReceiptLine.Next;
+        WarehouseReceiptLine.Next();
         WarehouseReceiptLine.Validate("Qty. to Receive", QtyToReceive);
         WarehouseReceiptLine.Modify(true);
     end;
@@ -3156,7 +3156,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         with WarehouseEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
             "Location Code" := LocationCode;
             "Bin Code" := BinCode;
@@ -3169,7 +3169,7 @@ codeunit 137064 "SCM Warehouse Management"
             "Whse. Document No." := WhseDocNo;
             "Entry Type" := EntryType;
             "Reference Document" := RefDoc;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3258,7 +3258,7 @@ codeunit 137064 "SCM Warehouse Management"
                 Bin.SetRange("Bin Type Code", BinType.Code);
                 if Bin.FindFirst() then
                     exit;
-            until BinType.Next = 0;
+            until BinType.Next() = 0;
     end;
 
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10]; BinTypeCode: Code[10])
@@ -3350,7 +3350,7 @@ codeunit 137064 "SCM Warehouse Management"
         repeat
             WarehouseReceiptLine.Validate("Bin Code", BinCode);
             WarehouseReceiptLine.Modify(true);
-        until WarehouseReceiptLine.Next = 0;
+        until WarehouseReceiptLine.Next() = 0;
     end;
 
     local procedure UpdateInventoryOnLocationWithWhseAdjustment(Location: Record Location; Item: Record Item; Quantity: Decimal)
@@ -3391,7 +3391,7 @@ codeunit 137064 "SCM Warehouse Management"
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateLocationWhite(var Location: Record Location; AlwaysCreatePutAwayLine: Boolean)
@@ -3461,7 +3461,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseReceiptLine.FindSet();
         repeat
             WarehouseReceiptLine.TestField("Bin Code", WarehouseReceiptHeader."Bin Code");
-        until WarehouseReceiptLine.Next = 0;
+        until WarehouseReceiptLine.Next() = 0;
     end;
 
     local procedure VerifyWarehouseShipment(Location: Record Location)
@@ -3475,7 +3475,7 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentLine.FindSet();
         repeat
             WarehouseShipmentLine.TestField("Bin Code", WarehouseShipmentHeader."Bin Code");
-        until WarehouseShipmentLine.Next = 0;
+        until WarehouseShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyWarehouseShipmentLine(No: Code[20]; ItemNo: Code[20]; Quantity: Decimal; QtyOutstanding: Decimal; QtyToShip: Decimal; QtyPicked: Decimal; QtyShipped: Decimal)

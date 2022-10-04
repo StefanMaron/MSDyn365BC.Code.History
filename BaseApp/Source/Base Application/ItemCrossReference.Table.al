@@ -132,7 +132,7 @@ table 5717 "Item Cross Reference"
             exit(true);
         ItemUnitOfMeasure.SetRange("Item No.", "Item No.");
         ItemUnitOfMeasure.SetRange(Code, "Unit of Measure");
-        exit(ItemUnitOfMeasure.FindFirst);
+        exit(ItemUnitOfMeasure.FindFirst());
     end;
 
     [Obsolete('Replaced by Item Reference feature.', '19.0')]

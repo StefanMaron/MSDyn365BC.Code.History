@@ -1,14 +1,17 @@
+#if not CLEAN21
 page 2153 "O365 Payment Terms List"
 {
     Caption = 'Payment Terms';
     Editable = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "O365 Payment Terms";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,31 +21,31 @@ page 2153 "O365 Payment Terms List"
             {
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Short name';
                     ToolTip = 'Specifies the short name of the payment term';
                 }
                 field(Days; Days)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Days';
                     ToolTip = 'Specifies the number of days until payments are due when this payment term is used.';
                 }
                 field(DummyText; DummyText)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the payment term.';
                     Visible = false;
                 }
-                field("Due Date Calculation"; "Due Date Calculation")
+                field("Due Date Calculation"; Rec."Due Date Calculation")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = false;
                 }
             }
@@ -55,13 +58,9 @@ page 2153 "O365 Payment Terms List"
         {
             action(_NEW_TEMP_)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = New;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunPageMode = Create;
                 ToolTip = 'Create new payment term';
 
@@ -72,13 +71,9 @@ page 2153 "O365 Payment Terms List"
             }
             action(EditPaymentTerms)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Edit';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Edit this payment term';
 
@@ -90,9 +85,27 @@ page 2153 "O365 Payment Terms List"
                     if PaymentTerms.Get(Code) then begin
                         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
                         BCO365PaymentTermsCard.LookupMode(true);
-                        if BCO365PaymentTermsCard.RunModal = ACTION::LookupOK then;
+                        if BCO365PaymentTermsCard.RunModal() = ACTION::LookupOK then;
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(_NEW_TEMP__Promoted; _NEW_TEMP_)
+                {
+                }
+                actionref(EditPaymentTerms_Promoted; EditPaymentTerms)
+                {
+                }
             }
         }
     }
@@ -104,7 +117,7 @@ page 2153 "O365 Payment Terms List"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        RefreshRecords;
+        RefreshRecords();
 
         exit(Find(Which));
     end;
@@ -118,4 +131,4 @@ page 2153 "O365 Payment Terms List"
         Days: Integer;
         DummyText: Code[10];
 }
-
+#endif

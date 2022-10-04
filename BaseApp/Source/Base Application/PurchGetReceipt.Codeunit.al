@@ -61,8 +61,8 @@ codeunit 74 "Purch.-Get Receipt"
                             Message(
                               Text000,
                               PurchHeader.FieldCaption("Currency Code"),
-                              PurchHeader.TableCaption, PurchHeader."No.",
-                              PurchRcptHeader.TableCaption, PurchRcptHeader."No.");
+                              PurchHeader.TableCaption(), PurchHeader."No.",
+                              PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
                             TransferLine := false;
                         end;
                         ShowDifferentPayToVendMsg := PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No.";
@@ -71,8 +71,8 @@ codeunit 74 "Purch.-Get Receipt"
                             Message(
                               Text000,
                               PurchHeader.FieldCaption("Pay-to Vendor No."),
-                              PurchHeader.TableCaption, PurchHeader."No.",
-                              PurchRcptHeader.TableCaption, PurchRcptHeader."No.");
+                              PurchHeader.TableCaption(), PurchHeader."No.",
+                              PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
                             TransferLine := false;
                         end;
                         OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
@@ -206,7 +206,7 @@ codeunit 74 "Purch.-Get Receipt"
                     if ItemChargeAssgntPurch."Qty. to Assign" <> 0 then begin
                         ItemChargeAssgntPurch2 := ItemChargeAssgntPurch;
                         ItemChargeAssgntPurch2."Qty. to Assign" :=
-                          Round(QtyFactor * ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision);
+                          Round(QtyFactor * ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision());
                         PurchLine2.SetRange("Receipt No.", PurchRcptLine."Document No.");
                         PurchLine2.SetRange("Receipt Line No.", PurchRcptLine."Line No.");
                         if PurchLine2.Find('-') then
@@ -307,8 +307,8 @@ codeunit 74 "Purch.-Get Receipt"
            (PurchaseLine."Document Type" = PurchaseLine."Document Type"::Invoice)
         then begin
             PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, PurchRcptLine."Order No.", PurchRcptLine."Order Line No.");
-            Fraction := PurchRcptLine."Qty. Rcd. Not Invoiced" / PurchOrderLine.Quantity;
-            FractionAmount := Fraction * PurchOrderLine."Prepmt. Amt. Inv.";
+            Fraction := (PurchRcptline.Quantity - PurchRcptLine."Quantity Invoiced") / (PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced");
+            FractionAmount := Fraction * (PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted");
             RoundingAmount += PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
         end;
     end;

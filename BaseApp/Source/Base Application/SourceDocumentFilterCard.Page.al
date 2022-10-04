@@ -202,8 +202,6 @@ page 5786 "Source Document Filter Card"
                 ApplicationArea = Warehouse;
                 Caption = '&Run';
                 Image = Start;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Get the specified source documents.';
 
                 trigger OnAction()
@@ -234,9 +232,20 @@ page 5786 "Source Document Filter Card"
                     GetSourceBatch.UseRequestPage(Rec."Show Filter Request");
                     OnActionRunOnBeforeGetSourceBatchRunModal(Rec, GetSourceBatch);
                     GetSourceBatch.RunModal();
-                    if GetSourceBatch.NotCancelled then
+                    if GetSourceBatch.NotCancelled() then
                         CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Run_Promoted; Run)
+                {
+                }
             }
         }
     }

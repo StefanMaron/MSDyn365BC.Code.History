@@ -27,34 +27,34 @@ page 5847 "Average Cost Calc. Overview"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies either that the entry is a summary entry, Closing Entry, or the type that was used in the calculation of the average cost of the item.';
                 }
-                field("Valuation Date"; "Valuation Date")
+                field("Valuation Date"; Rec."Valuation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the valuation date associated with the average cost calculation.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the item associated with the entry.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the location code associated with the entry.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(AverageCostCntrl; CalculateAverageCost)
+                field(AverageCostCntrl; CalculateAverageCost())
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 2;
@@ -63,13 +63,13 @@ page 5847 "Average Cost Calc. Overview"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the average cost for this entry.';
                 }
-                field("Cost is Adjusted"; "Cost is Adjusted")
+                field("Cost is Adjusted"; Rec."Cost is Adjusted")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies whether the cost is adjusted for the entry.';
                 }
-                field("Item Ledger Entry No."; "Item Ledger Entry No.")
+                field("Item Ledger Entry No."; Rec."Item Ledger Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -77,35 +77,35 @@ page 5847 "Average Cost Calc. Overview"
                     ToolTip = 'Specifies the number of the item ledger entry that this entry is linked to.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     HideValue = EntryTypeHideValue;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of document that the average cost applies to.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a document number for the entry.';
                     Visible = false;
                 }
-                field("Document Line No."; "Document Line No.")
+                field("Document Line No."; Rec."Document Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -120,14 +120,14 @@ page 5847 "Average Cost Calc. Overview"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the quantity associated with the entry.';
                 }
-                field("Cost Amount (Expected)"; "Cost Amount (Expected)")
+                field("Cost Amount (Expected)"; Rec."Cost Amount (Expected)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the expected cost in LCY of the quantity posting.';
                 }
-                field("Cost Amount (Actual)"; "Cost Amount (Actual)")
+                field("Cost Amount (Actual)"; Rec."Cost Amount (Actual)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -218,8 +218,6 @@ page 5847 "Average Cost Calc. Overview"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -230,6 +228,17 @@ page 5847 "Average Cost Calc. Overview"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -238,24 +247,24 @@ page 5847 "Average Cost Calc. Overview"
         EntryTypeHideValue := false;
         ItemLedgerEntryNoHideValue := false;
         TypeIndent := 0;
-        SetExpansionStatus;
+        SetExpansionStatus();
         if Type = Type::"Closing Entry" then begin
-            Quantity := CalculateRemainingQty;
+            Quantity := CalculateRemainingQty();
             "Cost Amount (Expected)" := CalculateCostAmt(false);
             "Cost Amount (Actual)" := CalculateCostAmt(true);
         end;
-        TypeOnFormat;
-        ItemLedgerEntryNoOnFormat;
-        EntryTypeOnFormat;
-        DocumentLineNoOnFormat;
+        TypeOnFormat();
+        ItemLedgerEntryNoOnFormat();
+        EntryTypeOnFormat();
+        DocumentLineNoOnFormat();
     end;
 
     trigger OnOpenPage()
     begin
-        InitTempTable;
-        ExpandAll(AvgCostCalcOverview);
+        InitTempTable();
+        ExpandAll(TempAvgCostCalcOverview);
 
-        SetRecFilters;
+        SetRecFilters();
         CurrPage.Update(false);
 
         ItemName := StrSubstNo('%1  %2', Item."No.", Item.Description);
@@ -263,7 +272,7 @@ page 5847 "Average Cost Calc. Overview"
 
     var
         Item: Record Item;
-        AvgCostCalcOverview: Record "Average Cost Calc. Overview" temporary;
+        TempAvgCostCalcOverview: Record "Average Cost Calc. Overview" temporary;
         ItemLedgEntry: Record "Item Ledger Entry";
         GetAvgCostCalcOverview: Codeunit "Get Average Cost Calc Overview";
         Navigate: Page Navigate;
@@ -294,24 +303,24 @@ page 5847 "Average Cost Calc. Overview"
     var
         AvgCostCalcOverviewFilters: Record "Average Cost Calc. Overview";
     begin
-        AvgCostCalcOverview."Item No." := Item."No.";
-        AvgCostCalcOverview.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
-        AvgCostCalcOverview.SetFilter("Location Code", Item.GetFilter("Location Filter"));
-        AvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        OnInitTempTableOnAfterAvgCostCalcOverviewSetFilters(AvgCostCalcOverview, Item);
+        TempAvgCostCalcOverview."Item No." := Item."No.";
+        TempAvgCostCalcOverview.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
+        TempAvgCostCalcOverview.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        TempAvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        OnInitTempTableOnAfterAvgCostCalcOverviewSetFilters(TempAvgCostCalcOverview, Item);
 
-        GetAvgCostCalcOverview.Run(AvgCostCalcOverview);
-        AvgCostCalcOverview.Reset();
+        GetAvgCostCalcOverview.Run(TempAvgCostCalcOverview);
+        TempAvgCostCalcOverview.Reset();
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
-        Reset;
+        Reset();
         DeleteAll();
-        if AvgCostCalcOverview.Find('-') then
+        if TempAvgCostCalcOverview.Find('-') then
             repeat
-                if AvgCostCalcOverview.Level = 0 then begin
-                    Rec := AvgCostCalcOverview;
-                    Insert;
+                if TempAvgCostCalcOverview.Level = 0 then begin
+                    Rec := TempAvgCostCalcOverview;
+                    Insert();
                 end;
-            until AvgCostCalcOverview.Next() = 0;
+            until TempAvgCostCalcOverview.Next() = 0;
         CopyFilters(AvgCostCalcOverviewFilters);
     end;
 
@@ -319,54 +328,54 @@ page 5847 "Average Cost Calc. Overview"
     var
         AvgCostCalcOverviewFilters: Record "Average Cost Calc. Overview";
     begin
-        AvgCostCalcOverview."Item No." := Item."No.";
-        AvgCostCalcOverview.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
-        AvgCostCalcOverview.SetFilter("Location Code", Item.GetFilter("Location Filter"));
-        AvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        TempAvgCostCalcOverview."Item No." := Item."No.";
+        TempAvgCostCalcOverview.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
+        TempAvgCostCalcOverview.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        TempAvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
         OnExpandAllOnAfterAvgCostCalcOverviewSetFilters(AvgCostCalcOverview, Item);
 
         GetAvgCostCalcOverview.Run(AvgCostCalcOverview);
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
-        Reset;
+        Reset();
         DeleteAll();
 
-        if AvgCostCalcOverview.Find('+') then
+        if TempAvgCostCalcOverview.Find('+') then
             repeat
                 Rec := AvgCostCalcOverview;
                 GetAvgCostCalcOverview.Calculate(AvgCostCalcOverview);
-                AvgCostCalcOverview.Reset();
+                TempAvgCostCalcOverview.Reset();
                 AvgCostCalcOverview := Rec;
-            until AvgCostCalcOverview.Next(-1) = 0;
+            until TempAvgCostCalcOverview.Next(-1) = 0;
 
-        if AvgCostCalcOverview.Find('+') then
+        if TempAvgCostCalcOverview.Find('+') then
             repeat
                 Rec := AvgCostCalcOverview;
-                Insert;
-            until AvgCostCalcOverview.Next(-1) = 0;
+                Insert();
+            until TempAvgCostCalcOverview.Next(-1) = 0;
 
         CopyFilters(AvgCostCalcOverviewFilters);
     end;
 
     local procedure IsExpanded(ActualAvgCostCalcOverview: Record "Average Cost Calc. Overview"): Boolean
     var
-        xAvgCostCalcOverview: Record "Average Cost Calc. Overview" temporary;
+        AvgCostCalcOverview: Record "Average Cost Calc. Overview";
         Found: Boolean;
     begin
-        xAvgCostCalcOverview := Rec;
+        AvgCostCalcOverview := Rec;
         SetCurrentKey("Attached to Valuation Date", "Attached to Entry No.", Type);
         Rec := ActualAvgCostCalcOverview;
-        Found := (Next(GetDirection) <> 0);
+        Found := (Next(GetDirection()) <> 0);
         if Found then
             Found := (Level > ActualAvgCostCalcOverview.Level);
-        Rec := xAvgCostCalcOverview;
+        Rec := AvgCostCalcOverview;
         exit(Found);
     end;
 
     local procedure HasChildren(var ActualAvgCostCalcOverview: Record "Average Cost Calc. Overview"): Boolean
     begin
-        AvgCostCalcOverview := ActualAvgCostCalcOverview;
+        TempAvgCostCalcOverview := ActualAvgCostCalcOverview;
         if Type = Type::"Closing Entry" then
-            exit(GetAvgCostCalcOverview.EntriesExist(AvgCostCalcOverview));
+            exit(GetAvgCostCalcOverview.EntriesExist(TempAvgCostCalcOverview));
         exit(false);
     end;
 
@@ -379,7 +388,7 @@ page 5847 "Average Cost Calc. Overview"
 
     procedure SetRecFilters()
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Attached to Valuation Date", "Attached to Entry No.", Type);
         CurrPage.Update(false);
     end;

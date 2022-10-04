@@ -27,12 +27,12 @@ page 7366 "Whse. Worksheet Template List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies information about the activity you can plan in the warehouse worksheets that will be defined by this template.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the displayed name of the journal or worksheet that uses the template.';

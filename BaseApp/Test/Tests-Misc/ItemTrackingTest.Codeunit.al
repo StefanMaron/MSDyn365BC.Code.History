@@ -84,7 +84,7 @@ codeunit 133008 "Item Tracking Test"
         // [THEN] He still can not edit the expiration calculation again
         Assert.IsFalse(ItemCard."Expiration Calculation".Editable, 'Expiration calculation should not be editable at this point.');
 
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -385,7 +385,7 @@ codeunit 133008 "Item Tracking Test"
         ItemCard.GotoRecord(Item);
         // Fix the item by removing the expiration date calculation
         ItemCard."Expiration Calculation".Value := '';
-        ItemCard.Close;
+        ItemCard.Close();
 
         // Decrease the number of expected calls
         ModalHandlerExpectedToBeCalledNTimes -= 1;

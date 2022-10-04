@@ -21,12 +21,12 @@ page 1140 "OAuth 2.0 Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description.';
                 }
-                field("Service URL"; "Service URL")
+                field("Service URL"; Rec."Service URL")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the service URL.';
                 }
-                field("Redirect URL"; "Redirect URL")
+                field("Redirect URL"; Rec."Redirect URL")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the redirect URL.';
@@ -42,17 +42,17 @@ page 1140 "OAuth 2.0 Setup"
                 Caption = 'Request URL Paths';
                 Editable = false;
 
-                field("Authorization URL Path"; "Authorization URL Path")
+                field("Authorization URL Path"; Rec."Authorization URL Path")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the authorization URL path.';
                 }
-                field("Access Token URL Path"; "Access Token URL Path")
+                field("Access Token URL Path"; Rec."Access Token URL Path")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the access token URL path.';
                 }
-                field("Refresh Token URL Path"; "Refresh Token URL Path")
+                field("Refresh Token URL Path"; Rec."Refresh Token URL Path")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the refresh token URL path.';
@@ -70,7 +70,7 @@ page 1140 "OAuth 2.0 Setup"
 
                     trigger OnValidate()
                     begin
-                        ValidateAuthorizationCode;
+                        ValidateAuthorizationCode();
                     end;
                 }
             }
@@ -86,14 +86,11 @@ page 1140 "OAuth 2.0 Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Request Authorization Code';
                 Image = EncryptionKeys;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Open the service authorization web page. Login credentials will be prompted. The authorization code must be copied into the Enter Authorization Code field.';
 
                 trigger OnAction()
                 begin
-                    RequestAuthorizationCode;
+                    RequestAuthorizationCode();
                     RequestAuthorizationCodeInvoked := true;
                 end;
             }
@@ -102,9 +99,6 @@ page 1140 "OAuth 2.0 Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Refresh Access Token';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Refresh the access and refresh tokens.';
 
                 trigger OnAction()
@@ -147,13 +141,27 @@ page 1140 "OAuth 2.0 Setup"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(RequestAuthorizationCode_Promoted; RequestAuthorizationCode)
+                {
+                }
+                actionref(RefreshAccessToken_Promoted; RefreshAccessToken)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        IsSaas := EnvironmentInfo.IsSaaS;
+        IsSaas := EnvironmentInfo.IsSaaS();
     end;
 
     var

@@ -1,4 +1,4 @@
-﻿codeunit 5944 SignServContractDoc
+codeunit 5944 SignServContractDoc
 {
     Permissions = TableData "Filed Service Contract Header" = rimd;
     TableNo = "Service Contract Header";
@@ -59,7 +59,7 @@
         OnBeforeSignContractQuote(FromServContractHeader, HideDialog);
 
         if not HideDialog then
-            ClearAll;
+            ClearAll();
         CheckServContractQuote(FromServContractHeader);
         if not HideDialog then
             if not ConfirmManagement.GetResponseOrDefault(Text011, true) then
@@ -171,7 +171,7 @@
         CopyServHours(ToServContractHeader);
         DeleteServContractHeader(FromServContractHeader);
 
-        Window.Close;
+        Window.Close();
 
         if not HideDialog then
             if ServHeaderNo <> '' then
@@ -194,7 +194,7 @@
             exit;
 
         if not HideDialog then
-            ClearAll;
+            ClearAll();
 
         if not HideDialog then
             if not ConfirmManagement.GetResponseOrDefault(
@@ -281,7 +281,7 @@
 
         Clear(FromServContractHeader);
 
-        Window.Close;
+        Window.Close();
 
         if not HideDialog then
             if ServHeaderNo <> '' then
@@ -305,7 +305,7 @@
         OnBeforeAddendumToContract(ServContractHeader);
 
         if not HideDialog then
-            ClearAll;
+            ClearAll();
 
         FromServContractHeader := ServContractHeader;
         if (FromServContractHeader."Invoice Period" = FromServContractHeader."Invoice Period"::None) or
@@ -316,14 +316,14 @@
         ServContractMgt.CheckContractGroupAccounts(ServContractHeader);
 
         ServMgtSetup.Get();
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
 
         ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Contract Type", "Contract No.", Credited, "New Line");
         ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         ServContractLine.SetRange("New Line", true);
-        StartingDate := WorkDate;
+        StartingDate := WorkDate();
         OnAddendumToContractOnAfterSetStartingDate(FromServContractHeader, StartingDate);
         if ServContractLine.FindSet() then
             repeat
@@ -362,11 +362,11 @@
         InvoicePrepaid := FromServContractHeader.Prepaid;
 
         TempDate := FromServContractHeader."Next Invoice Period Start";
-        if StartingDate < TempDate then begin
-            TempDate := TempDate - 1;
-        end else begin
+        if StartingDate < TempDate then
+            TempDate := TempDate - 1
+        else begin
             if StartingDate > CalcDate('<CM>', TempDate) then begin
-                Window.Close;
+                Window.Close();
                 Error(Text018);
             end;
             TempDate := CalcDate('<CM>', StartingDate);
@@ -473,7 +473,7 @@
         end;
 
         if InvoicePrepaid and FromServContractHeader.Prepaid then begin
-            ServContractMgt.InitCodeUnit;
+            ServContractMgt.InitCodeUnit();
             ShouldCreateServHeader := ServHeaderNo = '';
             OnAddendumToContractOnAfterCalcShouldCreateServHeader(ServHeaderNo, ServContractMgt, FromServContractHeader, PostingDate, ShouldCreateServHeader);
             if ShouldCreateServHeader then
@@ -534,7 +534,7 @@
         FromServContractHeader.Modify();
 
         ClearServContractLineNewLine();
-        Window.Close;
+        Window.Close();
 
         if not HideDialog then
             if ServHeaderNo <> '' then
@@ -760,10 +760,11 @@
         if IsHandled then
             exit(Result);
 
-        if ServContractHeader.Status = ServContractHeader.Status::Signed then
+        if ServContractHeader.Status = "Service Contract Status"::Signed then
             exit(true);
-        if ServContractHeader.Status = ServContractHeader.Status::Canceled then
+        if ServContractHeader.Status = "Service Contract Status"::Cancelled then
             Error(Text024);
+
         ServContractHeader.TestField("Serv. Contract Acc. Gr. Code");
         CheckContractHeaderServicePeriod(ServContractHeader);
         ServContractHeader.CalcFields("Calcd. Annual Amount");
@@ -839,21 +840,18 @@
         if IsHandled then
             exit;
 
-        if ServContractHeader.IsInvoicePeriodInTimeSegment then
+        if ServContractHeader.IsInvoicePeriodInTimeSegment() then
             if ServContractHeader.Prepaid then begin
                 if CalcDate('<-CM>', ServContractHeader."Next Invoice Date") <> ServContractHeader."Next Invoice Date"
                 then
                     Error(Text003, ServContractHeader.FieldCaption("Next Invoice Date"));
-            end else begin
-                if
-                   CalcDate('<CM>', ServContractHeader."Next Invoice Date") <> ServContractHeader."Next Invoice Date"
-                then
+            end else
+                if CalcDate('<CM>', ServContractHeader."Next Invoice Date") <> ServContractHeader."Next Invoice Date" then
                     if not HideDialog then
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(Text005, ServContractHeader.FieldCaption("Next Invoice Date")), true)
                         then
                             exit;
-            end;
     end;
 
     local procedure CheckServContractNextPlannedServiceDate(ServContractHeader: Record "Service Contract Header"): Boolean
@@ -920,7 +918,7 @@
         IsHandled := false;
         OnBeforeCreateServiceLinesLedgerEntries(ServContractHeader, NewLine, IsHandled);
         if not IsHandled then begin
-            ServContractMgt.InitCodeUnit;
+            ServContractMgt.InitCodeUnit();
             ServHeaderNo :=
               ServContractMgt.CreateServHeader(ServContractHeader, PostingDate, false);
 
@@ -971,7 +969,7 @@
             end;
 
             ServContractHeader.Modify();
-            ServContractMgt.FinishCodeunit;
+            ServContractMgt.FinishCodeunit();
         end;
 
         OnAfterCreateServiceLinesLedgerEntries(ServHeader, ServContractHeader);

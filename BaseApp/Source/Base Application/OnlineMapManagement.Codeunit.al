@@ -31,7 +31,7 @@ codeunit 802 "Online Map Management"
         if IsHandled then
             exit;
 
-        if LocationProvider.IsAvailable then
+        if LocationProvider.IsAvailable() then
             MainMenu := StrSubstNo('%1,%2,%3', ThisAddressTxt, DirectionsFromLocationTxt, OtherDirectionsTxt)
         else
             MainMenu := StrSubstNo('%1,%2', ThisAddressTxt, OtherDirectionsTxt);
@@ -42,7 +42,7 @@ codeunit 802 "Online Map Management"
             1:
                 ProcessMap(TableID, Position);
             2:
-                if LocationProvider.IsAvailable then
+                if LocationProvider.IsAvailable() then
                     SelectAddress(TableID, Position, 4)
                 else
                     ShowOtherMenu(TableID, Position);
@@ -78,7 +78,7 @@ codeunit 802 "Online Map Management"
         url: Text[1024];
         IsHandled: Boolean;
     begin
-        GetSetup;
+        GetSetup();
         BuildParameters(TableNo, ToRecPosition, Parameters, OnlineMapSetup."Distance In", OnlineMapSetup.Route);
 
         url := OnlineMapParameterSetup."Map Service";
@@ -96,7 +96,7 @@ codeunit 802 "Online Map Management"
         url: Text[1024];
         IsHandled: Boolean;
     begin
-        GetSetup;
+        GetSetup();
         BuildParameters(FromNo, FromRecPosition, Parameters[1], Distance, Route);
         BuildParameters(ToNo, ToRecPosition, Parameters[2], Distance, Route);
 
@@ -118,13 +118,13 @@ codeunit 802 "Online Map Management"
 
     procedure ProcessMap(TableNo: Integer; ToRecPosition: Text[1000])
     begin
-        TestSetupExists;
+        TestSetupExists();
         ProcessWebMap(TableNo, ToRecPosition);
     end;
 
     procedure ProcessDirections(FromNo: Integer; FromRecPosition: Text[1000]; ToNo: Integer; ToRecPosition: Text[1000]; Distance: Option; Route: Option)
     begin
-        TestSetupExists;
+        TestSetupExists();
         ProcessWebDirections(FromNo, FromRecPosition, ToNo, ToRecPosition, Distance, Route);
     end;
 
@@ -157,7 +157,7 @@ codeunit 802 "Online Map Management"
             for i := 1 to 6 do
                 Parameters[i] := CopyStr(URLEncode(Parameters[i]), 1, MaxStrLen(Parameters[i]));
 
-        Parameters[7] := GetCultureInfo;
+        Parameters[7] := GetCultureInfo();
         if OnlineMapParameterSetup."Miles/Kilometers Option List" <> '' then
             Parameters[8] := SelectStr(Distance + 1, OnlineMapParameterSetup."Miles/Kilometers Option List");
         if OnlineMapParameterSetup."Quickest/Shortest Option List" <> '' then
@@ -257,7 +257,7 @@ codeunit 802 "Online Map Management"
         if IsHandled then
             exit;
 
-        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility;
+        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility();
         exit(CopyStr(SystemWebHttpUtility.UrlEncode(InText), 1, MaxStrLen(InText)));
     end;
 
@@ -266,14 +266,14 @@ codeunit 802 "Online Map Management"
         CultureInfo: DotNet CultureInfo;
     begin
         CultureInfo := CultureInfo.CultureInfo(WindowsLanguage);
-        exit(CopyStr(CultureInfo.ToString, 1, 30));
+        exit(CopyStr(CultureInfo.ToString(), 1, 30));
     end;
 
     local procedure TestSetupExists(): Boolean
     var
         OnlineMapSetup: Record "Online Map Setup";
     begin
-        if not OnlineMapSetup.Get then
+        if not OnlineMapSetup.Get() then
             Error(Text002);
         exit(true);
     end;
@@ -295,9 +295,9 @@ codeunit 802 "Online Map Management"
         Route: Option Quickest,Shortest;
     begin
         if Direction in [Direction::"To Other", Direction::"From Other"] then begin
-            if not (OnlineMapAddressSelector.RunModal = ACTION::OK) then
+            if not (OnlineMapAddressSelector.RunModal() = ACTION::OK) then
                 exit;
-            if OnlineMapAddressSelector.GetRecPosition = '' then
+            if OnlineMapAddressSelector.GetRecPosition() = '' then
                 exit;
             OnlineMapAddressSelector.Getdefaults(Distance, Route)
         end else begin
@@ -309,21 +309,21 @@ codeunit 802 "Online Map Management"
             Direction::"To Other":
                 ProcessDirections(
                   TableNo, RecPosition,
-                  OnlineMapAddressSelector.GetTableNo, OnlineMapAddressSelector.GetRecPosition,
+                  OnlineMapAddressSelector.GetTableNo(), OnlineMapAddressSelector.GetRecPosition(),
                   Distance, Route);
             Direction::"From Other":
                 ProcessDirections(
-                  OnlineMapAddressSelector.GetTableNo, OnlineMapAddressSelector.GetRecPosition,
+                  OnlineMapAddressSelector.GetTableNo(), OnlineMapAddressSelector.GetRecPosition(),
                   TableNo, RecPosition,
                   Distance, Route);
             Direction::"To Company":
                 ProcessDirections(
                   TableNo, RecPosition,
-                  DATABASE::"Company Information", CompanyInfo.GetPosition,
+                  DATABASE::"Company Information", CompanyInfo.GetPosition(),
                   OnlineMapSetup."Distance In", OnlineMapSetup.Route);
             Direction::"From Company":
                 ProcessDirections(
-                  DATABASE::"Company Information", CompanyInfo.GetPosition,
+                  DATABASE::"Company Information", CompanyInfo.GetPosition(),
                   TableNo, RecPosition,
                   OnlineMapSetup."Distance In", OnlineMapSetup.Route);
             Direction::"From my location":
@@ -424,7 +424,7 @@ codeunit 802 "Online Map Management"
         OnlineMapSetup: Record "Online Map Setup";
         RecRef: RecordRef;
     begin
-        if not OnlineMapSetup.Get then begin
+        if not OnlineMapSetup.Get() then begin
             if not OnlineMapSetup.WritePermission then
                 exit;
             OnlineMapSetup.Init();
@@ -438,7 +438,7 @@ codeunit 802 "Online Map Management"
             if OnlineMapSetup.Enabled then
                 ServiceConnection.Status := ServiceConnection.Status::Enabled;
             ServiceConnection.InsertServiceConnection(
-              ServiceConnection, RecRef.RecordId, TableCaption, '', PAGE::"Online Map Setup");
+              ServiceConnection, RecRef.RecordId, TableCaption(), '', PAGE::"Online Map Setup");
         end;
     end;
 

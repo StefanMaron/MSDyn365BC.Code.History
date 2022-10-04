@@ -36,7 +36,7 @@ codeunit 1630 "Office Management"
 
         OfficeHostManagement.InitializeContext(TempNewOfficeAddinContext);
         OfficeHostManagement.InitializeExchangeObject();
-        if AddinDeploymentHelper.CheckVersion(GetHostType, TempNewOfficeAddinContext.Version) then
+        if AddinDeploymentHelper.CheckVersion(GetHostType(), TempNewOfficeAddinContext.Version) then
             HandleRedirection(TempNewOfficeAddinContext);
     end;
 

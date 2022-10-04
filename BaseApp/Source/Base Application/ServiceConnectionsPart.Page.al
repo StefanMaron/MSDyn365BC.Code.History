@@ -23,7 +23,7 @@ page 1278 "Service Connections Part"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the service. The description is based on the name of the setup page that opens when you choose the Setup.';
                     }
-                    field("Host Name"; "Host Name")
+                    field("Host Name"; Rec."Host Name")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the name of the web service. This is typically a URL.';
@@ -53,7 +53,7 @@ page 1278 "Service Connections Part"
 
                 trigger OnAction()
                 begin
-                    CallSetup;
+                    CallSetup();
                 end;
             }
         }
@@ -75,8 +75,8 @@ page 1278 "Service Connections Part"
 
     local procedure CallSetup()
     var
-        RecordRefVariant: Variant;
         RecordRef: RecordRef;
+        RecordRefVariant: Variant;
     begin
         if not SetupActive then
             exit;
@@ -87,7 +87,7 @@ page 1278 "Service Connections Part"
         end else
             Page.RunModal("Page ID");
 
-        Delete;
+        Delete();
         OnRegisterServiceConnection(Rec);
         if Get(xRec."No.") then;
         CurrPage.Update(false);

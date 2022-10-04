@@ -28,7 +28,7 @@ codeunit 5480 "Graph Mgt - Account"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        EnableAccountODataWebService;
+        EnableAccountODataWebService();
     end;
 }
 

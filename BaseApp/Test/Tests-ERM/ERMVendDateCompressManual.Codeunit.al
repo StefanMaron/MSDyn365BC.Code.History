@@ -157,7 +157,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         VendorLedgerEntry.FindSet();
         repeat
             Assert.AreNotEqual(LastPostingDate, VendorLedgerEntry."Posting Date", EntryError);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     [ConfirmHandler]

@@ -358,7 +358,7 @@ codeunit 1655 "Office Add-In Sample Emails"
              FirstHeaderTxt + '</span><span style=''font-size:9.0pt;' +
           '  font-family:"Segoe UI",sans-serif;color:#00B0F0''><o:p></o:p></span></p>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
-          '  color:#595959''>' + StrSubstNo(FirstParagraph_Part1Txt, PRODUCTNAME.Short) + '<o:p></o:p></span></p>' +
+          '  color:#595959''>' + StrSubstNo(FirstParagraph_Part1Txt, PRODUCTNAME.Short()) + '<o:p></o:p></span></p>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
           '  color:#595959''><o:p>&nbsp;</o:p></span></p>' +
           '  </td>' +
@@ -375,7 +375,7 @@ codeunit 1655 "Office Add-In Sample Emails"
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
           '  color:#008489''>' + OutlookHeaderTxt + '</span></p>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
-          '  color:#595959''>' + StrSubstNo(OutlookParagraphTxt, PRODUCTNAME.Short) + '<o:p></o:p></span></p>' +
+          '  color:#595959''>' + StrSubstNo(OutlookParagraphTxt, PRODUCTNAME.Short()) + '<o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p>&nbsp;</o:p></span></p>' +
           '  <p class=MsoNormal align=left style=''text-align:left''><span' +
@@ -395,7 +395,7 @@ codeunit 1655 "Office Add-In Sample Emails"
           '  <span style=''mso-no-proof:yes''></v:shape><![endif]--><![if !vml]><img width=21 height=14' +
           '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookEllipse.png') + '"' +
           '  alt="Outlook Ellipse" v:shapes="Picture_x0020_1058"><![endif]></span><span' +
-          '  style=''mso-spacerun:yes''> </span>' + CloseParenTxt + StrSubstNo(OWAParagraph2Txt, PRODUCTNAME.Short) + '</span><span' +
+          '  style=''mso-spacerun:yes''> </span>' + CloseParenTxt + StrSubstNo(OWAParagraph2Txt, PRODUCTNAME.Short()) + '</span><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif''> <o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif''><o:p>&nbsp;</o:p></span></p>' +

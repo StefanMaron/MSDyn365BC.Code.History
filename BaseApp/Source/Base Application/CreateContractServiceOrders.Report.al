@@ -48,7 +48,7 @@ report 6036 "Create Contract Service Orders"
                         if ServItemLine.FindFirst() then
                             CurrReport.Skip();
                     end;
-                    CreateOrAddToServOrder;
+                    CreateOrAddToServOrder();
                 end;
 
                 trigger OnPreDataItem()
@@ -58,12 +58,11 @@ report 6036 "Create Contract Service Orders"
                     if EndDate < StartDate then
                         Error(Text003);
 
-                    if StartDate <> 0D then begin
+                    if StartDate <> 0D then
                         if EndDate - StartDate + 1 > ServMgtSetup."Contract Serv. Ord.  Max. Days" then
                             Error(
                               Text004,
-                              ServMgtSetup.TableCaption);
-                    end;
+                              ServMgtSetup.TableCaption());
 
                     SetRange("Next Planned Service Date", StartDate, EndDate);
                 end;
@@ -71,12 +70,12 @@ report 6036 "Create Contract Service Orders"
 
             trigger OnAfterGetRecord()
             begin
-                VerifyServiceContractHeader;
+                VerifyServiceContractHeader();
             end;
 
             trigger OnPostDataItem()
             begin
-                OnServiceContractHeaderPostDataItem;
+                OnServiceContractHeaderPostDataItem();
             end;
 
             trigger OnPreDataItem()
@@ -165,11 +164,6 @@ report 6036 "Create Contract Service Orders"
     end;
 
     var
-        Text000: Label '%1 service orders were created.';
-        Text001: Label '%1 service order was created.';
-        Text002: Label 'You must fill in the ending date field.';
-        Text003: Label 'The starting date is after the ending date.';
-        Text004: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
@@ -183,6 +177,12 @@ report 6036 "Create Contract Service Orders"
         CreateServOrders: Option "Create Service Order","Print Only";
         ServOrderExist: Boolean;
         HideDialog: Boolean;
+
+        Text000: Label '%1 service orders were created.';
+        Text001: Label '%1 service order was created.';
+        Text002: Label 'You must fill in the ending date field.';
+        Text003: Label 'The starting date is after the ending date.';
+        Text004: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
         Text005: Label 'A service order cannot be created for contract no. %1 because customer no. %2 does not have a %3.';
 
     local procedure CreateOrAddToServOrder()
@@ -225,7 +225,7 @@ report 6036 "Create Contract Service Orders"
     begin
         Clear(ServiceHeader);
         with ServiceHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             OnBeforeInsertServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
             Insert(true);
@@ -257,7 +257,7 @@ report 6036 "Create Contract Service Orders"
         RepairStatus: Record "Repair Status";
     begin
         with ServItemLine do begin
-            Init;
+            Init();
             SetHideDialogBox(true);
             "Document No." := ServiceHeader."No.";
             "Document Type" := ServiceHeader."Document Type";
@@ -278,7 +278,7 @@ report 6036 "Create Contract Service Orders"
             "Variant Code" := "Service Contract Line"."Variant Code";
             "Contract No." := "Service Contract Line"."Contract No.";
             "Contract Line No." := "Service Contract Line"."Line No.";
-            UpdateResponseTimeHours;
+            UpdateResponseTimeHours();
             OnBeforeInsertServiceItemLine(ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
             Insert(true);
         end;

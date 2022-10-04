@@ -53,7 +53,7 @@ report 92 "Import Consolidation from File"
                     end;
                 end;
 
-                Consolidate.SelectAllImportedDimensions;
+                Consolidate.SelectAllImportedDimensions();
             end;
 
             trigger OnPreDataItem()
@@ -92,7 +92,7 @@ report 92 "Import Consolidation from File"
                             ClientTypeMgt: Codeunit "Client Type Management";
                         begin
                             FilePath := FileManagement.UploadFile(Text031, FileName);
-                            if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
+                            if ClientTypeMgt.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
                                 ServerFileName := FilePath;
                             FileName := GetFileName(FilePath);
                         end;
@@ -124,9 +124,10 @@ report 92 "Import Consolidation from File"
               '', '', BusUnit."Company Name",
               SubsidCurrencyCode, AdditionalCurrencyCode, ParentCurrencyCode,
               0, ConsolidStartDate, ConsolidEndDate);
-        GLSetup.Get();
-        Consolidate.UpdateGLEntryDimSetID;
+
+        Consolidate.UpdateGLEntryDimSetID();
         Consolidate.SetDocNo(GLDocNo);
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then
             Consolidate.SetGenJnlBatch(GenJnlBatch);
         Consolidate.Run(BusUnit);
@@ -146,7 +147,7 @@ report 92 "Import Consolidation from File"
               ProductVersion, FormatVersion, BusUnit."Company Name",
               SubsidCurrencyCode, AdditionalCurrencyCode, ParentCurrencyCode,
               CheckSum, ConsolidStartDate, ConsolidEndDate);
-            CalculatedCheckSum := Consolidate.CalcCheckSum;
+            CalculatedCheckSum := Consolidate.CalcCheckSum();
             if CheckSum <> CalculatedCheckSum then
                 Error(Text036, CheckSum, CalculatedCheckSum);
             TransferPerDay := true;
@@ -169,12 +170,12 @@ report 92 "Import Consolidation from File"
         if not ConfirmManagement.GetResponseOrDefault(
              StrSubstNo(Text023, ConsolidStartDate, ConsolidEndDate), true)
         then
-            CurrReport.Quit;
+            CurrReport.Quit();
 
         BusUnit.SetCurrentKey("Company Name");
         BusUnit.SetRange("Company Name", BusUnit."Company Name");
         BusUnit.Find('-');
-        if BusUnit.Next <> 0 then
+        if BusUnit.Next() <> 0 then
             Error(
               Text005 +
               Text006,
@@ -186,14 +187,14 @@ report 92 "Import Consolidation from File"
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
                    FileFormatQst, BusUnit.FieldCaption("File Format"), BusUnit2."File Format",
-                   BusUnit.TableCaption, BusUnit."File Format"), true)
+                   BusUnit.TableCaption(), BusUnit."File Format"), true)
             then
-                CurrReport.Quit;
+                CurrReport.Quit();
 
         if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then begin
             if SubsidCurrencyCode = '' then
                 SubsidCurrencyCode := BusUnit."Currency Code";
-            GLSetup.Get();
+            GLSetup.GetRecordOnce();
             if (SubsidCurrencyCode <> BusUnit."Currency Code") and
                (SubsidCurrencyCode <> GLSetup."LCY Code") and
                not ((BusUnit."Currency Code" = '') and (GLSetup."LCY Code" = ''))
@@ -201,7 +202,7 @@ report 92 "Import Consolidation from File"
                 Error(
                   Text002,
                   BusUnit.FieldCaption("Currency Code"), SubsidCurrencyCode,
-                  BusUnit.TableCaption, BusUnit."Currency Code");
+                  BusUnit.TableCaption(), BusUnit."Currency Code");
         end else begin
             SubsidCurrencyCode := BusUnit."Currency Code";
             Window.Open(
@@ -216,17 +217,6 @@ report 92 "Import Consolidation from File"
     end;
 
     var
-        Text001: Label 'The file to be imported has an unknown format.';
-        Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
-        Text005: Label 'The business unit %1 %2 is not unique.\\';
-        Text006: Label 'Delete %1 in the extra records.';
-        Text015: Label 'Enter a document number.';
-        Text023: Label 'Do you want to consolidate in the period from %1 to %2?';
-        Text024: Label 'Business Unit Code   #2##########\';
-        Text025: Label 'G/L Account No.      #3##########\';
-        Text026: Label 'Date                 #4######';
-        Text027: Label 'Reading File...';
-        Text031: Label 'Import from File';
         BusUnit: Record "Business Unit";
         GLSetup: Record "General Ledger Setup";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -248,8 +238,20 @@ report 92 "Import Consolidation from File"
         AdditionalCurrencyCode: Code[10];
         ProductVersion: Code[10];
         FormatVersion: Code[10];
-        Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         ServerFileName: Text;
+
+        Text001: Label 'The file to be imported has an unknown format.';
+        Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
+        Text005: Label 'The business unit %1 %2 is not unique.\\';
+        Text006: Label 'Delete %1 in the extra records.';
+        Text015: Label 'Enter a document number.';
+        Text023: Label 'Do you want to consolidate in the period from %1 to %2?';
+        Text024: Label 'Business Unit Code   #2##########\';
+        Text025: Label 'G/L Account No.      #3##########\';
+        Text026: Label 'Date                 #4######';
+        Text027: Label 'Reading File...';
+        Text031: Label 'Import from File';
+        Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         FileFormatQst: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.\Do you want to continue?', Comment = '%1 - field caption, %2 - field value, %3 - table captoin, %4 - field value';
 
     procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewGLDocNo: Code[20])

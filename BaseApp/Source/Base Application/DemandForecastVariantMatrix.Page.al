@@ -709,18 +709,6 @@ page 2900 "Demand Forecast Variant Matrix"
     end;
 
     var
-        MatrixRecords: array[32] of Record Date;
-        QtyType: Enum "Analysis Amount Type";
-        ForecastType: Enum "Demand Forecast Type";
-        ProductionForecastName: Code[10];
-        DateFilter: Text;
-        ShowVariants: Boolean;
-        ShowLocations: Boolean;
-        MaxRowsToLoadVal: Integer;
-        MaxNumberOfRowsReachedMsg: Label 'Maximum number of rows to be loaded in the matrix has been set to %1 and hence only top %1 number of rows are loaded. Consider using %2 to load relevant rows.', Comment = '%1 is the default row limit set in MaxRowsToLoad(), %2 is Item Filter Field Caption';
-        Text000Err: Label 'The Forecast On field must be Sales Items or Component.';
-        Text001Tok: Label 'A forecast was previously made on the %1. Do you want all forecasts of the period %2-%3 moved to the start of the period?', Comment = '%1 = Date e.g. 01-10-11, %2 = Start Period e.g. 12/02/2012, %3 = End Period e.g. 12/03/2012';
-        Text004Err: Label 'You must change view to Sales Items or Component.';
         [InDataSet]
         Field1Visible: Boolean;
         [InDataSet]
@@ -786,7 +774,20 @@ page 2900 "Demand Forecast Variant Matrix"
         [InDataSet]
         Field32Visible: Boolean;
 
+        MaxNumberOfRowsReachedMsg: Label 'Maximum number of rows to be loaded in the matrix has been set to %1 and hence only top %1 number of rows are loaded. Consider using %2 to load relevant rows.', Comment = '%1 is the default row limit set in MaxRowsToLoad(), %2 is Item Filter Field Caption';
+        Text000Err: Label 'The Forecast On field must be Sales Items or Component.';
+        Text001Tok: Label 'A forecast was previously made on the %1. Do you want all forecasts of the period %2-%3 moved to the start of the period?', Comment = '%1 = Date e.g. 01-10-11, %2 = Start Period e.g. 12/02/2012, %3 = End Period e.g. 12/03/2012';
+        Text004Err: Label 'You must change view to Sales Items or Component.';
+
     protected var
+        MatrixRecords: array[32] of Record Date;
+        QtyType: Enum "Analysis Amount Type";
+        ForecastType: Enum "Demand Forecast Type";
+        ProductionForecastName: Code[10];
+        DateFilter: Text;
+        ShowVariants: Boolean;
+        ShowLocations: Boolean;
+        MaxRowsToLoadVal: Integer;
         MATRIX_NoOfMatrixColumns: Integer;
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_CaptionSet: array[32] of Text[80];
@@ -843,7 +844,7 @@ page 2900 "Demand Forecast Variant Matrix"
         ShowVariants := UseVariant;
         ShowLocations := UseLocation;
         Item.SetView(ItemFilter);
-        if Item.IsEmpty then
+        if Item.IsEmpty() then
             exit;
 
         case GetQueryForMatrix(UseVariant, UseLocation) of
@@ -928,7 +929,7 @@ page 2900 "Demand Forecast Variant Matrix"
 
         //Point to the first row of the matrix
         OnLoadDataOnBeforeRecFindFirst(Rec, ItemFilter, LocationFilter, UseLocation, UseVariant, VariantFilter);
-        if not Rec.IsEmpty then
+        if not Rec.IsEmpty() then
             Rec.FindFirst();
     end;
 

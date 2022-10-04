@@ -65,7 +65,7 @@ codeunit 139148 "UT REST"
         // [SCENARIO 227335] SOAPWebServiceRequestMgt.HasJWTExpired function throws the error in case of invalid token format
 
         // [GIVEN] Mock token with invalid format
-        AccessToken := Format(CreateGuid);
+        AccessToken := Format(CreateGuid());
 
         // [WHEN] Function SOAPWebServiceRequestMgt.HasJWTExpired is being run
         asserterror SOAPWebServiceRequestMgt.HasJWTExpired(AccessToken);
@@ -358,7 +358,7 @@ codeunit 139148 "UT REST"
         TempBlob.CreateOutStream(OutStream);
         Bitmap := Bitmap.Bitmap(1, 1);
         Bitmap.Save(OutStream, ImageFormat.Jpeg);
-        Bitmap.Dispose;
+        Bitmap.Dispose();
     end;
 
     local procedure CreateTempBLOBXML(var TempBlob: Codeunit "Temp Blob"): Text
@@ -441,7 +441,7 @@ codeunit 139148 "UT REST"
         TypeHelper: Codeunit "Type Helper";
     begin
         ExpectedJsonText := DelChr(ExpectedJsonText, '=', ' ');
-        JsonText := DelChr(JsonText, '=', TypeHelper.CRLFSeparator + ' ');
+        JsonText := DelChr(JsonText, '=', TypeHelper.CRLFSeparator() + ' ');
         Assert.AreEqual(ExpectedJsonText, JsonText, InvalidValueErr);
     end;
 
@@ -450,7 +450,7 @@ codeunit 139148 "UT REST"
         XMLRootNode: DotNet XmlNode;
     begin
         XMLDOMMgt.LoadXMLNodeFromText(ExpectedXMLText, XMLRootNode);
-        ExpectedXMLText := XMLRootNode.OuterXml;
+        ExpectedXMLText := XMLRootNode.OuterXml();
         Assert.AreEqual(ExpectedXMLText, XMLText, InvalidValueErr);
     end;
 }

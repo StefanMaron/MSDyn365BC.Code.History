@@ -15,7 +15,7 @@ report 5500 "Prod. Order Comp. and Routing"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Status_ProductionOrder; Status)

@@ -15,7 +15,7 @@ page 1610 "Office Add-in Management"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Application ID"; "Application ID")
+                field("Application ID"; Rec."Application ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the application that is being added. ';
@@ -37,13 +37,13 @@ page 1610 "Office Add-in Management"
                     Editable = false;
                     ToolTip = 'Specifies the version of the record';
                 }
-                field("Manifest Codeunit"; "Manifest Codeunit")
+                field("Manifest Codeunit"; Rec."Manifest Codeunit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the codeunit where the Office add-in is defined for deployment.';
                 }
 #if not CLEAN19
-                field("Deployment Date"; "Deployment Date")
+                field("Deployment Date"; Rec."Deployment Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -67,15 +67,11 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Upload Add-in', Comment = 'Action - Uploads a default XML manifest definition';
                 Image = Import;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Import an XML manifest file to the add-in. The manifest determines how an add-in is activated in Office applications where it is deployed.';
 
                 trigger OnAction()
                 begin
-                    UploadManifest;
+                    UploadManifest();
                 end;
             }
             action("Download Add-in Manifest")
@@ -83,9 +79,6 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Download Add-in', Comment = 'Action - downloads the XML manifest document for the add-in';
                 Image = Export;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Scope = Repeater;
                 ToolTip = 'Export the add-in''s manifest to an XML file. You can then modify the manifest and upload it again.';
 
@@ -101,8 +94,6 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Deploy Add-in', Comment = 'Action - deploys the XML manifest document for the add-in to an O365 account or tenant';
                 Image = UpdateXML;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = false;
                 ToolTip = 'Deploy the add-in to the Office application so that it can be enabled and used by end users.';
                 ObsoleteState = Pending;
@@ -117,7 +108,7 @@ page 1610 "Office Add-in Management"
                     ProgressWindow.Update(1, ConnectingMsg);
                     ProgressWindow.Update(2, 3000);
 
-                    AddinDeploymentHelper.InitializeAndValidate;
+                    AddinDeploymentHelper.InitializeAndValidate();
 
                     ProgressWindow.Update(1, StrSubstNo(DeployingMsg, Name));
                     ProgressWindow.Update(2, 6000);
@@ -125,7 +116,7 @@ page 1610 "Office Add-in Management"
                     DeployManifest(Rec);
                     Message(AppInstalledMsg);
 
-                    ProgressWindow.Close;
+                    ProgressWindow.Close();
                 end;
             }
             action("Deploy All Add-ins")
@@ -133,8 +124,6 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Deploy All Add-ins', Comment = 'Action - deploys the XML manifest document for all add-ins to your account';
                 Image = UpdateXML;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = false;
                 ToolTip = 'Deploy all the add-ins to your Outlook account.';
                 ObsoleteState = Pending;
@@ -150,7 +139,7 @@ page 1610 "Office Add-in Management"
                     ProgressWindow.Update(1, ConnectingMsg);
                     ProgressWindow.Update(2, 3000);
 
-                    AddinDeploymentHelper.InitializeAndValidate;
+                    AddinDeploymentHelper.InitializeAndValidate();
 
                     if OfficeAddin.GetAddins() then
                         repeat
@@ -160,7 +149,7 @@ page 1610 "Office Add-in Management"
                         until OfficeAddin.Next() = 0;
                     Message(AppsInstalledMsg);
 
-                    ProgressWindow.Close;
+                    ProgressWindow.Close();
                 end;
             }
             action("Remove Add-in")
@@ -168,8 +157,6 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Remove Add-in', Comment = 'Action - to remove an add-in from O365/Exchange';
                 Image = DeleteXML;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = false;
                 ToolTip = 'Remove a deployed add-in from the Office application.';
                 ObsoleteState = Pending;
@@ -190,9 +177,6 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Set up Centralized Deployment';
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Deploy Business Central Outlook Add-ins for specific users, groups, or the entire organization.';
                 RunObject = Page "Outlook Centralized Deployment";
                 RunPageMode = Edit;
@@ -202,9 +186,6 @@ page 1610 "Office Add-in Management"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reset Default Add-ins';
                 Image = Restore;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Reset the system add-ins to their default state.';
 
                 trigger OnAction()
@@ -212,6 +193,46 @@ page 1610 "Office Add-in Management"
                     if Confirm(ResetWarningQst) then
                         AddinManifestManagement.CreateDefaultAddins(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Upload Default Add-in Manifest_Promoted"; "Upload Default Add-in Manifest")
+                {
+                }
+                actionref("Download Add-in Manifest_Promoted"; "Download Add-in Manifest")
+                {
+                }
+#if not CLEAN19
+                actionref("Deploy Add-in_Promoted"; "Deploy Add-in")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removing legacy basic authentication. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.';
+                    ObsoleteTag = '19.0';
+                }
+                actionref("Deploy All Add-ins_Promoted"; "Deploy All Add-ins")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removing legacy basic authentication. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.';
+                    ObsoleteTag = '19.0';
+                }
+                actionref("Remove Add-in_Promoted"; "Remove Add-in")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Removing legacy basic authentication. Outlook Add-ins must be removed manually.';
+                    ObsoleteTag = '19.0';
+                }
+#endif
+                actionref("Outlook add-in centralized deployment_Promoted"; "Outlook add-in centralized deployment")
+                {
+                }
+                actionref("Reset Default Add-ins_Promoted"; "Reset Default Add-ins")
+                {
+                }
             }
         }
     }

@@ -31,8 +31,8 @@ table 7132 "Item Budget Name"
             begin
                 if "Budget Dimension 1 Code" <> xRec."Budget Dimension 1 Code" then begin
                     if Dim.CheckIfDimUsed("Budget Dimension 1 Code", 17, Name, '', "Analysis Area".AsInteger()) then
-                        Error(Text000, Dim.GetCheckDimErr);
-                    Modify;
+                        Error(Text000, Dim.GetCheckDimErr());
+                    Modify();
                 end;
             end;
         }
@@ -45,8 +45,8 @@ table 7132 "Item Budget Name"
             begin
                 if "Budget Dimension 2 Code" <> xRec."Budget Dimension 2 Code" then begin
                     if Dim.CheckIfDimUsed("Budget Dimension 2 Code", 18, Name, '', "Analysis Area".AsInteger()) then
-                        Error(Text000, Dim.GetCheckDimErr);
-                    Modify;
+                        Error(Text000, Dim.GetCheckDimErr());
+                    Modify();
                 end;
             end;
         }
@@ -59,8 +59,8 @@ table 7132 "Item Budget Name"
             begin
                 if "Budget Dimension 3 Code" <> xRec."Budget Dimension 3 Code" then begin
                     if Dim.CheckIfDimUsed("Budget Dimension 3 Code", 19, Name, '', "Analysis Area".AsInteger()) then
-                        Error(Text000, Dim.GetCheckDimErr);
-                    Modify;
+                        Error(Text000, Dim.GetCheckDimErr());
+                    Modify();
                 end;
             end;
         }
@@ -94,7 +94,8 @@ table 7132 "Item Budget Name"
     end;
 
     var
-        Text000: Label '%1\You cannot use the same dimension twice in the same budget.';
         Dim: Record Dimension;
+
+        Text000: Label '%1\You cannot use the same dimension twice in the same budget.';
 }
 

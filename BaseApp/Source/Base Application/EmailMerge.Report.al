@@ -67,13 +67,11 @@ report 5084 "Email Merge"
     {
     }
 
-    var
-        SegmentLine: Record "Segment Line";
-
     protected var
         CompanyInformation: Record "Company Information";
         Contact: Record Contact;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        SegmentLine: Record "Segment Line";
         Content: Text;
         Contact_Mail_Address: Text;
         Formal_Salutation: Text;

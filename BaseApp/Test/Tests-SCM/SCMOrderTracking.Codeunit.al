@@ -45,7 +45,7 @@ codeunit 137066 "SCM Order Tracking"
         Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking & Action Msg.");
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", WorkDate, Quantity);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", WorkDate(), Quantity);
         SelectProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status, Item."No.");
 
         // Enqueue value for message handler and OrderTrackingPageHandler.
@@ -73,8 +73,8 @@ codeunit 137066 "SCM Order Tracking"
         Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking & Action Msg.");
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item2."No.", WorkDate, Quantity);
-        CreateAndRefreshReleasedProdOrder(ProductionOrder2, Item."No.", GetRequiredDate(5, 10, WorkDate), Quantity);  // Due Date based on Work Date.
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item2."No.", WorkDate(), Quantity);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder2, Item."No.", GetRequiredDate(5, 10, WorkDate()), Quantity);  // Due Date based on Work Date.
 
         // Create Requisition line for Child Item.
         CreateRequisitionLine(Item3."No.", Quantity);
@@ -125,7 +125,7 @@ codeunit 137066 "SCM Order Tracking"
         LibraryInventory.CreateItemVariant(ItemVariant2, Item3."No.");
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item2."No.", ItemVariant.Code, Quantity);
         CreatePurchaseLineWithVariantCode(PurchaseHeader, PurchaseLine, Item3."No.", ItemVariant2.Code, Quantity);
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate), Quantity);  // Due Date based on Work Date.
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate()), Quantity);  // Due Date based on Work Date.
         UpdateVariantCodeOnProdOrderComponent(ProductionOrder."No.", Item2."No.", ItemVariant.Code);
 
         // Exercise & Verify: Open and verify Order Tracking from Production Order Component.Verification is inside test page handler.
@@ -159,7 +159,7 @@ codeunit 137066 "SCM Order Tracking"
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only", '');
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", '', Quantity);
         UpdateExpectedReceiptDateOnPurchaseLine(
-          PurchaseLine, CalcDate('<-' + Format(LibraryRandom.RandInt(5) + 10) + 'D>', WorkDate));  // Expected Receipt Date based on Work Date.
+          PurchaseLine, CalcDate('<-' + Format(LibraryRandom.RandInt(5) + 10) + 'D>', WorkDate()));  // Expected Receipt Date based on Work Date.
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Quantity);
 
         // Enqueue value for page handler.
@@ -258,7 +258,7 @@ codeunit 137066 "SCM Order Tracking"
         FindBin(Bin, LocationOrange.Code);
         CreatePurchaseOrderWithLocationAndVariant(PurchaseHeader, PurchaseLine, Item2."No.", Quantity, '', LocationOrange.Code, Bin.Code);  // Variant Code as Blank.
         CreatePurchaseLineWithLocationAndVariant(PurchaseHeader, PurchaseLine2, Item3."No.", Quantity, '', LocationOrange.Code, Bin.Code);  // Variant Code as Blank.
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate), Quantity);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate()), Quantity);
         UpdateLocationAndVariantOnProdOrderComponent(ProductionOrder."No.", Item2."No.", '', LocationOrange.Code, Bin.Code);
         UpdateLocationAndVariantOnProdOrderComponent(ProductionOrder."No.", Item3."No.", '', LocationOrange.Code, Bin.Code);
 
@@ -292,7 +292,7 @@ codeunit 137066 "SCM Order Tracking"
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking Only");
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate), Quantity);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate()), Quantity);
         UpdateVariantCodeOnProdOrder(ProdOrderLine, ProductionOrder."No.", Item."No.", ItemVariant.Code);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Quantity);
         UpdateVariantCodeOnSalesOrder(SalesLine, ItemVariant.Code);
@@ -358,7 +358,7 @@ codeunit 137066 "SCM Order Tracking"
         CreatePurchaseOrderWithTwoLinesAndLocation(
           PurchaseHeader, Bin, Item2."No.", Item3."No.", ItemVariant.Code, LocationOrange.Code, LibraryRandom.RandDec(10, 2));
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.", Item2."No.");
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate), PurchaseLine.Quantity);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item."No.", GetRequiredDate(5, 10, WorkDate()), PurchaseLine.Quantity);
         UpdateLocationAndVariantOnProdOrderComponent(ProductionOrder."No.", Item2."No.", ItemVariant.Code, LocationOrange.Code, Bin.Code);
         UpdateLocationAndVariantOnProdOrderComponent(ProductionOrder."No.", Item3."No.", ItemVariant2.Code, LocationOrange.Code, Bin.Code);
 
@@ -415,17 +415,17 @@ codeunit 137066 "SCM Order Tracking"
 
         // [GIVEN] Released Production Order for "I2".
         // [GIVEN] Two output lines of "I2" with quantities "Q1" and "Q2" are posted (i.e. "Q1" = 3 pcs; "Q2" = 5 pcs).
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, ChildItemMfg."No.", WorkDate, Quantity[1] + Quantity[2]);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, ChildItemMfg."No.", WorkDate(), Quantity[1] + Quantity[2]);
         OutputItemLedgEntryNo[1] := PostOutput(ProductionOrder, Quantity[1]);
         OutputItemLedgEntryNo[2] := PostOutput(ProductionOrder, Quantity[2]);
 
         // [GIVEN] Part of each output of "I2" is consumed in another Production Order. Consumption quantity = "Q4" (i.e. "Q4" = 1).
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, ParentItemMfg."No.", WorkDate, 2 * Quantity[4]);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, ParentItemMfg."No.", WorkDate(), 2 * Quantity[4]);
         PostConsumption(ProductionOrder, Quantity[4], OutputItemLedgEntryNo[1]);
         PostConsumption(ProductionOrder, Quantity[4], OutputItemLedgEntryNo[2]);
 
         // [GIVEN] Released Production Order "PO" for "I3". Quantity = "Q3" (i.e. "Q3" = 5 pcs).
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, ParentItemMfg."No.", WorkDate, Quantity[3]);
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, ParentItemMfg."No.", WorkDate(), Quantity[3]);
 
         // [WHEN] Show Order Tracking for the Prod. Order Component "I2" in "PO".
         SelectProdOrderComponent(ProdOrderComponent, ProductionOrder."No.", ChildItemMfg."No.");
@@ -472,10 +472,10 @@ codeunit 137066 "SCM Order Tracking"
     begin
         // Create Item with Production BOM and create Firm Planned and Released Production Order.
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking Only");
-        CreateAndRefreshFirmPlannedProdOrder(ProductionOrder, Item2."No.", WorkDate, LibraryRandom.RandDec(10, 2) + 100);  // Using Large Value for Quantity.
-        CreateAndRefreshFirmPlannedProdOrder(ProductionOrder2, Item2."No.", WorkDate, LibraryRandom.RandDec(10, 2) + 50);  // Using Large Value for Quantity.
+        CreateAndRefreshFirmPlannedProdOrder(ProductionOrder, Item2."No.", WorkDate(), LibraryRandom.RandDec(10, 2) + 100);  // Using Large Value for Quantity.
+        CreateAndRefreshFirmPlannedProdOrder(ProductionOrder2, Item2."No.", WorkDate(), LibraryRandom.RandDec(10, 2) + 50);  // Using Large Value for Quantity.
         CreateAndRefreshReleasedProdOrder(
-          ProductionOrder3, Item."No.", GetRequiredDate(5, 10, WorkDate), LibraryRandom.RandDec(10, 2) + 10);  // Using Large Value for Quantity.
+          ProductionOrder3, Item."No.", GetRequiredDate(5, 10, WorkDate()), LibraryRandom.RandDec(10, 2) + 10);  // Using Large Value for Quantity.
 
         if FirmPlannedProdOrderTracking then begin
             SelectProdOrderComponent(ProdOrderComponent, ProductionOrder3."No.", Item2."No.");
@@ -530,9 +530,9 @@ codeunit 137066 "SCM Order Tracking"
         RequiredDate: Date;
     begin
         // Create Item with Production BOM, create Released Production Order and Purchase Order.
-        RequiredDate := GetRequiredDate(5, 5, WorkDate);  // Calculate Required Date based on Workdate.
+        RequiredDate := GetRequiredDate(5, 5, WorkDate());  // Calculate Required Date based on Workdate.
         CreateItemWithProductionBOMSetup(Item, Item2, Item3, Item."Order Tracking Policy"::"Tracking Only");
-        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item2."No.", WorkDate, LibraryRandom.RandDec(10, 2));
+        CreateAndRefreshReleasedProdOrder(ProductionOrder, Item2."No.", WorkDate(), LibraryRandom.RandDec(10, 2));
 
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", '', LibraryRandom.RandDec(10, 2) + 10);  // Using Large Value for Quantity.
         UpdateExpectedReceiptDateOnPurchaseLine(PurchaseLine, RequiredDate);  // Expected Receipt Date based on Work Date.
@@ -574,7 +574,7 @@ codeunit 137066 "SCM Order Tracking"
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Order Tracking Policy"::"Tracking Only", '');
         CreateAndPostItemJournal(Item."No.", ItemJournalLine."Entry Type"::"Negative Adjmt.", Quantity, true);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", '', Quantity);
-        UpdateExpectedReceiptDateOnPurchaseLine(PurchaseLine, GetRequiredDate(5, 5, WorkDate));  // Expected Receipt Date based on Work Date.
+        UpdateExpectedReceiptDateOnPurchaseLine(PurchaseLine, GetRequiredDate(5, 5, WorkDate()));  // Expected Receipt Date based on Work Date.
 
         // Exercise & Verify: Open and verify Order Tracking from Purchase Order. Verification is inside test page handler - OrderTrackingDetailsPageHandler.
         // Enqueue value for page handler.
@@ -663,7 +663,7 @@ codeunit 137066 "SCM Order Tracking"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
 
         // [GIVEN] Set Special Order Purchasing Code in the Sales Line
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));
@@ -672,18 +672,18 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] Purchase Order with 10 PCS of the Item
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", Qty,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
 
         // [WHEN] Validate Expected Receipt Date = 1/1/2021 in the Purchase Line
-        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<-CM>', WorkDate));
+        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<-CM>', WorkDate()));
 
         // [THEN] Surplus Reservation Entry for the Sales Line with Shipment Date = 28/1/2021
         VerifyReservationEntryStatusQtyShipAndRcptDates(
-          DATABASE::"Sales Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, -Qty, WorkDate, 0D);
+          DATABASE::"Sales Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, -Qty, WorkDate(), 0D);
 
         // [THEN] Surplus Reservation Entry for the Purchase Line with Expected Receipt Date = 1/1/2021 and <blank> Shipment Date
         VerifyReservationEntryStatusQtyShipAndRcptDates(
-          DATABASE::"Purchase Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, Qty, 0D, CalcDate('<-CM>', WorkDate));
+          DATABASE::"Purchase Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, Qty, 0D, CalcDate('<-CM>', WorkDate()));
     end;
 
     [Test]
@@ -715,7 +715,7 @@ codeunit 137066 "SCM Order Tracking"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
 
         // [GIVEN] Set Drop Shipment Purchasing Code in the Sales Line
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));
@@ -724,18 +724,18 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] Purchase Order with 10 PCS of the Item
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", Qty,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
 
         // [WHEN] Validate Expected Receipt Date = 1/1/2021 in the Purchase Line
-        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<-CM>', WorkDate));
+        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<-CM>', WorkDate()));
 
         // [THEN] Surplus Reservation Entry for the Sales Line with Shipment Date = 28/1/2021
         VerifyReservationEntryStatusQtyShipAndRcptDates(
-          DATABASE::"Sales Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, -Qty, WorkDate, 0D);
+          DATABASE::"Sales Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, -Qty, WorkDate(), 0D);
 
         // [THEN] Surplus Reservation Entry for the Purchase Line with Expected Receipt Date = 1/1/2021 and <blank> Shipment Date
         VerifyReservationEntryStatusQtyShipAndRcptDates(
-          DATABASE::"Purchase Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, Qty, 0D, CalcDate('<-CM>', WorkDate));
+          DATABASE::"Purchase Line", Item."No.", DummyReservationEntry."Reservation Status"::Surplus, Qty, 0D, CalcDate('<-CM>', WorkDate()));
     end;
 
     [Test]
@@ -767,7 +767,7 @@ codeunit 137066 "SCM Order Tracking"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));
         SalesLine.Modify(true);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -785,7 +785,7 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] 2nd Sales Order with the same Item
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
 
         // [WHEN] Validate Quantity = 1 in 2nd Sales Order Line
         SalesLine.Validate(Quantity, Qty - 1);
@@ -833,7 +833,7 @@ codeunit 137066 "SCM Order Tracking"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));
         SalesLine.Modify(true);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -851,7 +851,7 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] 2nd Sales Order with the same Item
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0,
-          Location.Code, WorkDate);
+          Location.Code, WorkDate());
 
         // [WHEN] Validate Quantity = 1 in 2nd Sales Order Line
         SalesLine.Validate(Quantity, Qty - 1);
@@ -1105,7 +1105,7 @@ codeunit 137066 "SCM Order Tracking"
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         RequisitionLine.Validate("No.", ItemNo);
         RequisitionLine.Validate(Quantity, Quantity);
-        RequisitionLine.Validate("Due Date", WorkDate);
+        RequisitionLine.Validate("Due Date", WorkDate());
         RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
         RequisitionLine.Modify(true);
     end;
@@ -1178,7 +1178,7 @@ codeunit 137066 "SCM Order Tracking"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate, false);
+        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate(), false);
 
         with ItemJournalLine do begin
             SetRange("Order Type", "Order Type"::Production);
@@ -1291,7 +1291,7 @@ codeunit 137066 "SCM Order Tracking"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseOrderWithLocationAndVariant(PurchaseHeader, PurchaseLine, ItemNo, Quantity, ItemVariantCode, LocationCode, Bin.Code);
-        Bin.Next;
+        Bin.Next();
         CreatePurchaseLineWithLocationAndVariant(PurchaseHeader, PurchaseLine, ItemNo2, Quantity, '', LocationCode, Bin.Code);  // Variant Code as Blank.
     end;
 
@@ -1369,7 +1369,7 @@ codeunit 137066 "SCM Order Tracking"
         // Verify required Quantity values - Total Quantity, Untracked Qty and Quantity.
         VerifyOrderTracking(OrderTracking);
         VerifyQuantityOnOrderTracking(OrderTracking);
-        OrderTracking.Next;
+        OrderTracking.Next();
         VerifyQuantityOnOrderTracking(OrderTracking);
     end;
 

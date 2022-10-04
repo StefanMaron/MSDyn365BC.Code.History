@@ -496,7 +496,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGeneralJournalLine(GenJournalLine, DocumentType2, CustomerNo, CurrencyCode2, AmounttoApply);
 
-        UpdateGenJournalLine(GenJournalLine, CustomerNo, DocumentType, WorkDate);
+        UpdateGenJournalLine(GenJournalLine, CustomerNo, DocumentType, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify : Verify Customer Ledger Entry for Remaining Pmt. Disc. Possible.
@@ -527,7 +527,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         FindAndUpdateSetup(SalesReceivablesSetup, VATPostingSetup);
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
         GetPaymentTermDiscount(PaymentTerms, CustomerNo);
-        PaymentDiscountDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate);
+        PaymentDiscountDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Exercise: Create Update and Post General Journal Line.
@@ -713,7 +713,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; RemainingPmtDiscPossible: Decimal)
@@ -725,12 +725,12 @@ codeunit 134916 "ERM Discount On Credit Memo"
         CustLedgerEntry.FindSet();
         repeat
             ActualRemainingPmtDiscPossible += CustLedgerEntry."Remaining Pmt. Disc. Possible";
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
 
         Assert.AreNearlyEqual(
           RemainingPmtDiscPossible, ActualRemainingPmtDiscPossible, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, CustLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"),
-            RemainingPmtDiscPossible, CustLedgerEntry.TableCaption));
+            RemainingPmtDiscPossible, CustLedgerEntry.TableCaption()));
     end;
 
     [ModalPageHandler]

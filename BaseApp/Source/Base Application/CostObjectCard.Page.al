@@ -23,7 +23,7 @@ page 1112 "Cost Object Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the cost object card.';
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the purpose of the cost object, such as Cost Object, Heading, or Begin-Total. Newly created cost objects are automatically assigned the Cost Object type, but you can change this.';
@@ -38,23 +38,23 @@ page 1112 "Cost Object Card"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies a comment that applies to the cost object.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = CostAccounting;
                     Importance = Promoted;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                 }
-                field("Sorting Order"; "Sorting Order")
+                field("Sorting Order"; Rec."Sorting Order")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the sorting order of the cost object.';
                 }
-                field("Blank Line"; "Blank Line")
+                field("Blank Line"; Rec."Blank Line")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies whether you want a blank line to appear immediately after this cost center when you print the chart of cost centers. The New Page, Blank Line, and Indentation fields define the layout of the chart of cost centers.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies if you want a new page to start immediately after this cost center when you print the chart of cash flow accounts.';
@@ -119,8 +119,6 @@ page 1112 "Cost Object Card"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimension Values';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the dimension values for the current dimension.';
 
                 trigger OnAction()
@@ -130,6 +128,17 @@ page 1112 "Cost Object Card"
                 begin
                     CostAccMgt.OpenDimValueListFiltered(CostAccSetup.FieldNo("Cost Object Dimension"));
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PageDimensionValues_Promoted; PageDimensionValues)
+                {
+                }
             }
         }
     }

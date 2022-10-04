@@ -27,6 +27,9 @@ table 5955 "Skill Code"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Description)
+        {
+        }
     }
 }
 

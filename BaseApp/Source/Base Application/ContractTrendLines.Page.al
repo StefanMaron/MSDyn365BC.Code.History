@@ -14,19 +14,19 @@ page 6061 "Contract Trend Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field("ServContract.""Contract Prepaid Amount"""; "Prepaid Income")
+                field("ServContract.""Contract Prepaid Amount"""; Rec."Prepaid Income")
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Prepaid Income';
@@ -47,7 +47,7 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field("ServContract.""Contract Invoice Amount"""; "Posted Income")
+                field("ServContract.""Contract Invoice Amount"""; Rec."Posted Income")
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Income';
@@ -67,7 +67,7 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field("ServContract.""Contract Cost Amount"""; "Posted Cost")
+                field("ServContract.""Contract Cost Amount"""; Rec."Posted Cost")
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Cost';
@@ -86,7 +86,7 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field("ServContract.""Contract Discount Amount"""; "Discount Amount")
+                field("ServContract.""Contract Discount Amount"""; Rec."Discount Amount")
                 {
                     ApplicationArea = Service;
                     Caption = 'Discount Amount';

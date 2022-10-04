@@ -58,7 +58,7 @@ page 5757 "Transfer Receipt Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         CalculateTotals();
     end;

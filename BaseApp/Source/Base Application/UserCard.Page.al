@@ -16,14 +16,14 @@ page 9807 "User Card"
             group(General)
             {
                 Caption = 'General';
-                field("User Security ID"; "User Security ID")
+                field("User Security ID"; Rec."User Security ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Security ID';
                     ToolTip = 'Specifies an ID that uniquely identifies the user. This value is generated automatically and should not be changed.';
                     Visible = false;
                 }
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Name';
@@ -33,17 +33,17 @@ page 9807 "User Card"
                     trigger OnValidate()
                     begin
                         if xRec."User Name" <> "User Name" then
-                            ValidateUserName;
+                            ValidateUserName();
                     end;
                 }
-                field("Full Name"; "Full Name")
+                field("Full Name"; Rec."Full Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Full Name';
                     Editable = not IsSaaS;
                     ToolTip = 'Specifies the full name of the user.';
                 }
-                field("License Type"; "License Type")
+                field("License Type"; Rec."License Type")
                 {
                     ApplicationArea = All;
                     Caption = 'License Type';
@@ -54,6 +54,7 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Status';
+                    OptionCaption = 'Active, Inactive';
                     Importance = Promoted;
                     ToolTip = 'Specifies if the user''s login is enabled.';
                     AboutTitle = 'Control the user''s access';
@@ -64,14 +65,14 @@ page 9807 "User Card"
                         ValidateState();
                     end;
                 }
-                field("Expiry Date"; "Expiry Date")
+                field("Expiry Date"; Rec."Expiry Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Expiry Date';
                     ToolTip = 'Specifies a date past which the user will no longer be authorized to log on to the Windows client.';
                     Visible = not IsSaaS;
                 }
-                field("Contact Email"; "Contact Email")
+                field("Contact Email"; Rec."Contact Email")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact Email';
@@ -95,7 +96,7 @@ page 9807 "User Card"
                 {
                     Caption = 'Microsoft 365', Comment = '{Locked="Microsoft 365"}';
 
-                    field("Authentication Email"; "Authentication Email")
+                    field("Authentication Email"; Rec."Authentication Email")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Authentication Email';
@@ -108,7 +109,7 @@ page 9807 "User Card"
                         trigger OnValidate()
                         begin
                             IdentityManagement.SetAuthenticationEmail("User Security ID", "Authentication Email");
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                             AuthenticationStatus := IdentityManagement.GetAuthenticationStatus("User Security ID");
                         end;
                     }
@@ -162,7 +163,7 @@ page 9807 "User Card"
                             if not AllowCreateWebServiceAccessKey then
                                 Error(CannotCreateWebServiceAccessKeyErr);
 
-                            EditWebServiceID;
+                            EditWebServiceID();
                         end;
                     }
                     field(WebServiceExpiryDate; WebServiceExpiryDate)
@@ -179,7 +180,7 @@ page 9807 "User Card"
             {
                 Caption = 'Windows Authentication';
                 Visible = (not DeployedToAzure) and (not IsSaaS);
-                field("Windows Security ID"; "Windows Security ID")
+                field("Windows Security ID"; Rec."Windows Security ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Windows Security ID';
@@ -197,7 +198,7 @@ page 9807 "User Card"
 
                     trigger OnValidate()
                     begin
-                        ValidateWindowsUserName;
+                        ValidateWindowsUserName();
                     end;
                 }
             }
@@ -218,7 +219,7 @@ page 9807 "User Card"
 
                     trigger OnAssistEdit()
                     begin
-                        EditACSStatus;
+                        EditACSStatus();
                     end;
                 }
             }
@@ -238,10 +239,10 @@ page 9807 "User Card"
 
                     trigger OnAssistEdit()
                     begin
-                        EditNavPassword;
+                        EditNavPassword();
                     end;
                 }
-                field("Change Password"; "Change Password")
+                field("Change Password"; Rec."Change Password")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User must change password at next login';
@@ -300,15 +301,12 @@ page 9807 "User Card"
                     ApplicationArea = Basic, Suite;
                     Caption = '&ACS Setup';
                     Image = ServiceSetup;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Set up Access Control Service authentication, such as generating an authentication key that the user can use to connect to Azure.';
                     Visible = not IsSaaS;
 
                     trigger OnAction()
                     begin
-                        EditACSStatus;
+                        EditACSStatus();
                     end;
                 }
                 action(ChangePassword)
@@ -316,15 +314,12 @@ page 9807 "User Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Change &Password';
                     Image = EncryptionKeys;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Change the user''s password if the user connects using password authentication.';
                     Visible = not IsSaaS;
 
                     trigger OnAction()
                     begin
-                        EditNavPassword;
+                        EditNavPassword();
                     end;
                 }
                 action(ChangeWebServiceAccessKey)
@@ -337,9 +332,24 @@ page 9807 "User Card"
 
                     trigger OnAction()
                     begin
-                        EditWebServiceID;
+                        EditWebServiceID();
                     end;
                 }
+                Action(RemoveWSAccessKey)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Clear Web Service Access Key';
+                    Enabled = AllowChangeWebServiceAccessKey;
+                    Image = ServiceCode;
+                    ToolTip = 'By clearing the Web Service Access Key field on the User Card page, you can ensure that access keys cannot be used to authenticate from another service.';
+
+                    trigger OnAction()
+                    begin
+                        if WebServiceID <> '' then
+                            RemoveWebServiceAccessKey(Rec."User Security ID");
+                    end;
+                }
+
                 action(DeleteExchangeIdentifier)
                 {
                     ApplicationArea = Basic, Suite;
@@ -367,10 +377,6 @@ page 9807 "User Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Effective Permissions';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'View this user''s actual permissions for all objects per assigned permission set, and edit the user''s permissions in permission sets of type User-Defined.';
 
                     trigger OnAction()
@@ -387,8 +393,6 @@ page 9807 "User Card"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this user.';
-                Promoted = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -420,6 +424,29 @@ page 9807 "User Card"
                     begin
                         Email.OpenSentEmails(Database::User, Rec.SystemId);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Effective Permissions_Promoted"; "Effective Permissions")
+                {
+                }
+                actionref(AcsSetup_Promoted; AcsSetup)
+                {
+                }
+                actionref(ChangePassword_Promoted; ChangePassword)
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+                actionref("Sent Emails_Promoted"; "Sent Emails")
+                {
                 }
             }
         }
@@ -469,24 +496,24 @@ page 9807 "User Card"
     begin
         if DeleteUserIsAllowed(Rec) then
             exit(true);
-        if not ManageUsersIsAllowed then
+        if not ManageUsersIsAllowed() then
             Error('');
     end;
 
     trigger OnInit()
     begin
-        DeployedToAzure := IdentityManagement.IsAzure;
+        DeployedToAzure := IdentityManagement.IsAzure();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        "User Security ID" := CreateGuid;
+        "User Security ID" := CreateGuid();
         TestField("User Name");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        if not ManageUsersIsAllowed then
+        if not ManageUsersIsAllowed() then
             Error('');
         WindowsUserName := '';
         Password := '';
@@ -502,15 +529,15 @@ page 9807 "User Card"
         EnvironmentInfo: Codeunit "Environment Information";
         UserManagement: Codeunit "User Management";
     begin
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
         if not IsSaaS then
             IsWebServiceAccesskeyAllowed := true
         else
             IsWebServiceAccesskeyAllowed := SetWebServiceAccressKey();
 
-        HideExternalUsers;
+        HideExternalUsers();
 
-        OnPremAskFirstUserToCreateSuper;
+        OnPremAskFirstUserToCreateSuper();
 
         Usermanagement.BasicAuthDepricationNotificationDefault(true);
         if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
@@ -520,7 +547,7 @@ page 9807 "User Card"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if "User Name" <> '' then
-            exit(ValidateAuthentication);
+            exit(ValidateAuthentication());
     end;
 
     var
@@ -577,28 +604,40 @@ page 9807 "User Card"
             Error(Text002Err, User."User Name");
     end;
 
+    procedure RemoveWebServiceAccessKey(UserSecurityId: Guid): Boolean
+    var
+        UserProperty: Record "User Property";
+    begin
+        if UserProperty.Get(UserSecurityId) then begin
+            UserProperty."WebServices Key" := '';
+            UserProperty."WebServices Key Expiry Date" := CreateDateTime(20220901D, 020000T);
+            UserProperty.Modify();
+            exit(true);
+        end;
+        exit(false);
+    end;
+
     local procedure ValidateAuthentication(): Boolean
     var
         ValidationField: Text;
         ShowConfirmDisableUser: Boolean;
     begin
         UserSecID.Reset();
-        if (UserSecID.Count = 1) or (UserSecurityId = "User Security ID") then begin
-            if IdentityManagement.IsWindowsAuthentication and ("Windows Security ID" = '') then
+        if (UserSecID.Count = 1) or (UserSecurityId() = "User Security ID") then begin
+            if IdentityManagement.IsWindowsAuthentication() and ("Windows Security ID" = '') then
                 ValidationField := 'Windows User Name';
 
-            if IdentityManagement.IsUserNamePasswordAuthentication and (Password = '') then
+            if IdentityManagement.IsUserNamePasswordAuthentication() and (Password = '') then
                 ValidationField := 'Password';
 
-            if IdentityManagement.IsAccessControlServiceAuthentication and (ACSStatus = 0) and (AuthenticationStatus = 0) then
+            if IdentityManagement.IsAccessControlServiceAuthentication() and (ACSStatus = 0) and (AuthenticationStatus = 0) then
                 ValidationField := 'ACSStatus / AuthenticationStatus';
 
             if ValidationField <> '' then
                 exit(Confirm(Confirm002Qst, false, ValidationField));
-        end else begin
+        end else
             if ("Windows Security ID" = '') and (Password = '') and (ACSStatus = 0) and (AuthenticationStatus = 0) then
                 exit(Confirm(Confirm004Qst, false));
-        end;
 
         ShowConfirmDisableUser := (InitialState = State::Enabled) and (State = State::Disabled);
         OnValidateAuthenticationOnAfterCalcShowConfirmDisableUser(InitialState, Rec, ShowConfirmDisableUser);
@@ -654,7 +693,7 @@ page 9807 "User Card"
     begin
         TestField("User Name");
 
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         Commit();
 
         Password := PasswordDialogManagement.OpenPasswordDialog();
@@ -676,7 +715,7 @@ page 9807 "User Card"
         UserSecID.SetRange("User Security ID", "User Security ID", "User Security ID");
         UserACSSetup.SetRecord(UserSecID);
         UserACSSetup.SetTableView(UserSecID);
-        if UserACSSetup.RunModal = Action::OK then
+        if UserACSSetup.RunModal() = Action::OK then
             CurrPage.Update();
     end;
 
@@ -720,7 +759,7 @@ page 9807 "User Card"
             exit(true);
 
         if Confirm(CannotManageUsersQst, true) then
-            HyperLink(UrlHelper.GetOfficePortalUrl);
+            HyperLink(UrlHelper.GetOfficePortalUrl());
 
         exit(false);
     end;
@@ -728,7 +767,7 @@ page 9807 "User Card"
     local procedure SetUserName()
     begin
         "User Name" := WindowsUserName;
-        ValidateUserName;
+        ValidateUserName();
     end;
 
     local procedure HideExternalUsers()
@@ -755,8 +794,8 @@ page 9807 "User Card"
             WindowsUserName := IdentityManagement.UserName(UserSID);
             if WindowsUserName <> '' then begin
                 "Windows Security ID" := UserSID;
-                ValidateSid;
-                SetUserName;
+                ValidateSid();
+                SetUserName();
             end else
                 Error(Text001Err, WindowsUserName);
         end;

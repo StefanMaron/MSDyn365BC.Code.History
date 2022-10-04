@@ -15,7 +15,7 @@ report 5908 "Service Order - Response Time"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ServShipHeadFilter1; TableCaption + ': ' + ServShipmentHeaderFilter)
@@ -140,7 +140,7 @@ report 5908 "Service Order - Response Time"
 
     trigger OnPreReport()
     begin
-        ServShipmentHeaderFilter := "Service Shipment Header".GetFilters;
+        ServShipmentHeaderFilter := "Service Shipment Header".GetFilters();
     end;
 
     var

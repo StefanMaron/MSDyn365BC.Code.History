@@ -11,7 +11,7 @@ page 9150 "My Customers"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer numbers that are displayed in the My Customer Cue on the Role Center.';
@@ -19,7 +19,7 @@ page 9150 "My Customers"
 
                     trigger OnValidate()
                     begin
-                        SyncFieldsWithCustomer;
+                        SyncFieldsWithCustomer();
                     end;
                 }
                 field(Name; Name)
@@ -31,7 +31,7 @@ page 9150 "My Customers"
                     ToolTip = 'Specifies the name of the customer.';
                     Width = 20;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Phone No.';
@@ -41,7 +41,7 @@ page 9150 "My Customers"
                     ToolTip = 'Specifies the customer''s phone number.';
                     Width = 8;
                 }
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
@@ -77,7 +77,7 @@ page 9150 "My Customers"
 
     trigger OnAfterGetRecord()
     begin
-        SyncFieldsWithCustomer;
+        SyncFieldsWithCustomer();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -104,7 +104,7 @@ page 9150 "My Customers"
                 Name := Customer.Name;
                 "Phone No." := Customer."Phone No.";
                 if MyCustomer.Get("User ID", "Customer No.") then
-                    Modify;
+                    Modify();
             end;
     end;
 }

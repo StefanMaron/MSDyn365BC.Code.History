@@ -47,7 +47,7 @@ codeunit 133 "Send Incoming Document to OCR"
 
             "OCR Status" := "OCR Status"::" ";
             ReleaseIncomingDocument.Reopen(IncomingDocument);
-            Modify;
+            Modify();
             ShowMessage(RemovedFromJobQueueTxt);
         end;
     end;
@@ -84,14 +84,14 @@ codeunit 133 "Send Incoming Document to OCR"
         CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);
 
         IncomingDocument.LockTable();
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         // Check OCR Status due to it could be changed by another user in the meantime
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Ready then begin
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             IncomingDocumentAttachment.SetRange("Use for OCR", true);
             if not IncomingDocumentAttachment.FindFirst() then
                 Error(NoAttachmentMarkedForOcrErr);
-            IncomingDocumentAttachment.SendToOCR;
+            IncomingDocumentAttachment.SendToOCR();
             IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::Sent;
             IncomingDocument.Modify();
         end;
@@ -103,7 +103,7 @@ codeunit 133 "Send Incoming Document to OCR"
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        OCRServiceSetup.ScheduleJobQueueReceive;
+        OCRServiceSetup.ScheduleJobQueueReceive();
     end;
 
     [Scope('OnPrem')]
@@ -117,9 +117,9 @@ codeunit 133 "Send Incoming Document to OCR"
             if not ("OCR Status" in ["OCR Status"::Sent, "OCR Status"::"Awaiting Verification"]) then
                 TestField("OCR Status", "OCR Status"::Sent);
 
-            CheckNotCreated;
+            CheckNotCreated();
             LockTable();
-            Find;
+            Find();
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
             IncomingDocumentAttachment.SetRange("Use for OCR", true);
             if IncomingDocumentAttachment.FindFirst() then begin
@@ -128,7 +128,7 @@ codeunit 133 "Send Incoming Document to OCR"
                     Error('');
             end;
 
-            Find;
+            Find();
 
             case OCRStatus of
                 "OCR Status"::Success:
@@ -144,13 +144,13 @@ codeunit 133 "Send Incoming Document to OCR"
     procedure SetStatusToReceived(var IncomingDocument: Record "Incoming Document")
     begin
         with IncomingDocument do begin
-            Find;
+            Find();
             if ("OCR Status" = "OCR Status"::Success) and "OCR Process Finished" then
                 exit;
 
             "OCR Status" := "OCR Status"::Success;
             "OCR Process Finished" := true;
-            Modify;
+            Modify();
             Commit();
 
             OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
@@ -160,10 +160,10 @@ codeunit 133 "Send Incoming Document to OCR"
     procedure SetStatusToFailed(var IncomingDocument: Record "Incoming Document")
     begin
         with IncomingDocument do begin
-            Find;
+            Find();
             "OCR Status" := "OCR Status"::Error;
             "OCR Process Finished" := true;
-            Modify;
+            Modify();
             Commit();
 
             OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
@@ -173,9 +173,9 @@ codeunit 133 "Send Incoming Document to OCR"
     procedure SetStatusToVerify(var IncomingDocument: Record "Incoming Document")
     begin
         with IncomingDocument do begin
-            Find;
+            Find();
             "OCR Status" := "OCR Status"::"Awaiting Verification";
-            Modify;
+            Modify();
             Commit();
         end;
     end;
@@ -196,7 +196,7 @@ codeunit 133 "Send Incoming Document to OCR"
     begin
         with IncomingDocument do begin
             TestField(Posted, false);
-            CheckNotCreated;
+            CheckNotCreated();
 
             if not (Status in [Status::New, Status::Released, Status::"Pending Approval"]) then begin
                 ShowMessage(StrSubstNo(ErrorMessage, Format(Status)));
@@ -208,7 +208,7 @@ codeunit 133 "Send Incoming Document to OCR"
                 exit(false);
             end;
 
-            OnCheckIncomingDocSetForOCRRestrictions;
+            OnCheckIncomingDocSetForOCRRestrictions();
 
             if ApprovalsMgmt.IsIncomingDocApprovalsWorkflowEnabled(IncomingDocument) and (Status = Status::New) then
                 Error(OCRWhenApprovalIsCompleteErr);

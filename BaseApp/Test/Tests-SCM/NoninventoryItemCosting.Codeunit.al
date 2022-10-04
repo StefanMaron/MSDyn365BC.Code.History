@@ -45,7 +45,7 @@ codeunit 137120 "Non-inventory Item Costing"
           LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
           LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
 
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalcDate('<+14D>', WorkDate), Item."No.", '', LibraryRandom.RandInt(10), '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalcDate('<+14D>', WorkDate()), Item."No.", '', LibraryRandom.RandInt(10), '');
 
         LibraryInventory.CreateNonInventoryTypeItem(ItemNonInventory);
         ItemNonInventory.Validate("Unit Cost", 15);
@@ -70,7 +70,7 @@ codeunit 137120 "Non-inventory Item Costing"
         AssemblyLineNonInventory.Validate(Quantity, 1);
         AssemblyLineNonInventory.Modify();
 
-        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, 1);
+        LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), 1);
 
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
@@ -111,7 +111,7 @@ codeunit 137120 "Non-inventory Item Costing"
         Item.Modify(true);
         LibraryPatterns.POSTItemJournalLineWithApplication(
           ItemJournalBatch."Template Type"::Item, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", Item, '', '',
-          10, WorkDate, 0, ItemLedgerEntry."Entry No.");
+          10, WorkDate(), 0, ItemLedgerEntry."Entry No.");
 
         ProdOrderComponent.Validate("Item No.", Item."No.");
         ProdOrderComponent.Validate("Quantity per", 1);
@@ -126,8 +126,8 @@ codeunit 137120 "Non-inventory Item Costing"
         ProdOrderComponent.Validate("Quantity per", 1);
         ProdOrderComponent.Modify(true);
 
-        LibraryPatterns.POSTConsumption(ProdOrderLine, Item, '', '', 1, WorkDate, Item."Standard Cost");
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ItemNonInventory, '', '', 1, WorkDate, ItemNonInventory."Unit Cost");
+        LibraryPatterns.POSTConsumption(ProdOrderLine, Item, '', '', 1, WorkDate(), Item."Standard Cost");
+        LibraryPatterns.POSTConsumption(ProdOrderLine, ItemNonInventory, '', '', 1, WorkDate(), ItemNonInventory."Unit Cost");
 
         VerifyEntries(Item, ItemNonInventory, 1);
     end;

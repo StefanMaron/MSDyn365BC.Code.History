@@ -29,7 +29,7 @@ codeunit 139430 "Permission Test Verification"
         LibraryLowerPermissions.SetO365Full;
 
         asserterror GLEntry.Insert();
-        Assert.ExpectedError('You do not have the following permissions on TableData 17: Insert');
+        Assert.ExpectedError('Sorry, the current permissions prevented the action. (TableData');
     end;
 }
 

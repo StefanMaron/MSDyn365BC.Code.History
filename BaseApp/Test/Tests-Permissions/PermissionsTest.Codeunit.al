@@ -602,6 +602,7 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(TextPosition > 1, 'Tenant permission set is not found in exported file');
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ImportTenantPermissions()
@@ -646,6 +647,7 @@ codeunit 139400 "Permissions Test"
         TenantPermissionSet.Get(ZeroGuid, 'PS11');
         TenantPermission.Get(ZeroGuid, 'PS11', Permission."Object Type"::"Table Data", Database::"Sales Header");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -734,6 +736,7 @@ codeunit 139400 "Permissions Test"
         Assert.AreEqual(RoleIdFilter, SelectedRoleIdFilter, 'Role Id selection filter is wrong.');
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure PermissionsPageWithRemovedObject()
@@ -821,6 +824,7 @@ codeunit 139400 "Permissions Test"
         TenantPermissions.Next();
         Assert.AreEqual(0, TenantPermissions."Object ID".AsInteger(), 'Wrong object ID.');
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

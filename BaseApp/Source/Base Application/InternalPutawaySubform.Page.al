@@ -15,7 +15,7 @@ page 7355 "Internal Put-away Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that you want to put away and have entered on the line.';
@@ -25,7 +25,7 @@ page 7355 "Internal Put-away Subform"
                         ItemNoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -36,19 +36,19 @@ page 7355 "Internal Put-away Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location of the internal put-away line.';
                     Visible = false;
                 }
-                field("From Zone Code"; "From Zone Code")
+                field("From Zone Code"; Rec."From Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone from which the items to be put away should be taken.';
                     Visible = false;
                 }
-                field("From Bin Code"; "From Bin Code")
+                field("From Bin Code"; Rec."From Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin from which the items to be put away should be taken.';
@@ -56,10 +56,10 @@ page 7355 "Internal Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        FromBinCodeOnAfterValidate;
+                        FromBinCodeOnAfterValidate();
                     end;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number that is recorded on the item card or the stockkeeping unit card of the item being moved.';
@@ -70,62 +70,62 @@ page 7355 "Internal Put-away Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be put away.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be put away, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                     Visible = true;
                 }
-                field("Qty. Put Away"; "Qty. Put Away")
+                field("Qty. Put Away"; Rec."Qty. Put Away")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the line that is registered as put away.';
                 }
-                field("Qty. Put Away (Base)"; "Qty. Put Away (Base)")
+                field("Qty. Put Away (Base)"; Rec."Qty. Put Away (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the line that is registered as put away, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Put-away Qty."; "Put-away Qty.")
+                field("Put-away Qty."; Rec."Put-away Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity in the put-away instructions that is assigned to be put away.';
                 }
-                field("Put-away Qty. (Base)"; "Put-away Qty. (Base)")
+                field("Put-away Qty. (Base)"; Rec."Put-away Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity in the put-away instructions assigned to be put away, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, expressed in the base unit of measure.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
 
                     trigger OnValidate()
                     begin
-                        DueDateOnAfterValidate;
+                        DueDateOnAfterValidate();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure, that are in the unit of measure, specified for the item on the line.';
@@ -152,7 +152,7 @@ page 7355 "Internal Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
                 action("Item &Tracking Lines")

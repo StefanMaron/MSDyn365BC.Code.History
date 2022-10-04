@@ -19,7 +19,7 @@ codeunit 770 "Analysis Report Chart Mgt."
     begin
         with AnalysisReportChartSetup do begin
             if Get(UserId, AnalysisArea, ChartName) then begin
-                SetLastViewed;
+                SetLastViewed();
                 exit;
             end;
 
@@ -27,23 +27,23 @@ codeunit 770 "Analysis Report Chart Mgt."
             SetRange("Analysis Area", AnalysisArea);
             SetRange("Last Viewed", true);
             Found := FindFirst();
-            Reset;
+            Reset();
             if Found then
                 exit;
 
             ChartName := DefaultTXT;
 
             if not Get(UserId, AnalysisArea, ChartName) then begin
-                Init;
+                Init();
                 "User ID" := UserId;
                 "Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                 Name := ChartName;
                 "Base X-Axis on" := "Base X-Axis on"::Period;
-                "Start Date" := WorkDate;
+                "Start Date" := WorkDate();
                 "Period Length" := "Period Length"::Day;
-                Insert;
+                Insert();
             end;
-            SetLastViewed;
+            SetLastViewed();
         end;
     end;
 
@@ -84,29 +84,25 @@ codeunit 770 "Analysis Report Chart Mgt."
 
             case AnalysisReportChartSetup."Base X-Axis on" of
                 AnalysisReportChartSetup."Base X-Axis on"::Period:
-                    begin
-                        if Period = Period::" " then begin
-                            FromDate := 0D;
-                            ToDate := 0D;
-                        end else
-                            if FindMidColumn(BusChartMapColumn) then
-                                GetPeriodFromMapColumn(BusChartMapColumn.Index, FromDate, ToDate);
-                    end;
+                    if Period = Period::" " then begin
+                        FromDate := 0D;
+                        ToDate := 0D;
+                    end else
+                        if FindMidColumn(BusChartMapColumn) then
+                            GetPeriodFromMapColumn(BusChartMapColumn.Index, FromDate, ToDate);
                 AnalysisReportChartSetup."Base X-Axis on"::Line,
                 AnalysisReportChartSetup."Base X-Axis on"::Column:
-                    begin
-                        if ("Period Filter Start Date" = 0D) and (AnalysisReportChartSetup."Start Date" <> 0D) then
-                            InitializePeriodFilter(AnalysisReportChartSetup."Start Date", AnalysisReportChartSetup."End Date")
-                        else
-                            RecalculatePeriodFilter("Period Filter Start Date", "Period Filter End Date", Period);
-                    end;
+                    if ("Period Filter Start Date" = 0D) and (AnalysisReportChartSetup."Start Date" <> 0D) then
+                        InitializePeriodFilter(AnalysisReportChartSetup."Start Date", AnalysisReportChartSetup."End Date")
+                    else
+                        RecalculatePeriodFilter("Period Filter Start Date", "Period Filter End Date", Period);
             end;
 
             Initialize();
             case AnalysisReportChartSetup."Base X-Axis on" of
                 AnalysisReportChartSetup."Base X-Axis on"::Period:
                     begin
-                        SetPeriodXAxis;
+                        SetPeriodXAxis();
                         NoOfPeriods := AnalysisReportChartSetup."No. of Periods";
                         CalcAndInsertPeriodAxis(BusChartBuf, AnalysisReportChartSetup, Period, NoOfPeriods, FromDate, ToDate);
                     end;
@@ -236,10 +232,10 @@ codeunit 770 "Analysis Report Chart Mgt."
         PeriodDate: Date;
     begin
         if (StartDate = 0D) and (AnalysisReportChartSetup."Start Date" <> 0D) then
-            PeriodDate := CalcDate(StrSubstNo('<-1%1>', BusChartBuf.GetPeriodLength), AnalysisReportChartSetup."Start Date")
+            PeriodDate := CalcDate(StrSubstNo('<-1%1>', BusChartBuf.GetPeriodLength()), AnalysisReportChartSetup."Start Date")
         else begin
             BusChartBuf.RecalculatePeriodFilter(StartDate, EndDate, Period);
-            PeriodDate := CalcDate(StrSubstNo('<-%1%2>', MaxPeriodNo - (MaxPeriodNo div 2), BusChartBuf.GetPeriodLength), EndDate);
+            PeriodDate := CalcDate(StrSubstNo('<-%1%2>', MaxPeriodNo - (MaxPeriodNo div 2), BusChartBuf.GetPeriodLength()), EndDate);
         end;
 
         BusChartBuf.AddPeriods(
@@ -307,8 +303,8 @@ codeunit 770 "Analysis Report Chart Mgt."
     begin
         AnalysisLineDescCountQuery.SetRange(Analysis_Area, AnalysisArea);
         AnalysisLineDescCountQuery.SetRange(AnalysisLineDescCountQuery.Analysis_Line_Template_Name, AnalysisLineTemplate);
-        AnalysisLineDescCountQuery.Open;
-        if AnalysisLineDescCountQuery.Read then
+        AnalysisLineDescCountQuery.Open();
+        if AnalysisLineDescCountQuery.Read() then
             Error(DuplicateDescERR, AnalysisLineTemplate);
     end;
 
@@ -318,8 +314,8 @@ codeunit 770 "Analysis Report Chart Mgt."
     begin
         AnalysisColHeaderCountQuery.SetRange(Analysis_Area, AnalysisArea);
         AnalysisColHeaderCountQuery.SetRange(Analysis_Column_Template, AnalysisColumnTemplate);
-        AnalysisColHeaderCountQuery.Open;
-        if AnalysisColHeaderCountQuery.Read then
+        AnalysisColHeaderCountQuery.Open();
+        if AnalysisColHeaderCountQuery.Read() then
             Error(DuplicateColHdrERR, AnalysisColumnTemplate);
     end;
 

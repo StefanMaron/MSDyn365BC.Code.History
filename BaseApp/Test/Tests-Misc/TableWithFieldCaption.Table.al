@@ -1,7 +1,8 @@
 table 135001 TableWithFieldCaption
 {
     DataClassification = SystemMetadata;
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "Entry No."; Integer)

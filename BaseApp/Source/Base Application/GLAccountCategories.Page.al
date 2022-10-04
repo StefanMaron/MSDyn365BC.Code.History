@@ -6,7 +6,6 @@ page 790 "G/L Account Categories"
     Caption = 'G/L Account Categories';
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,General';
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "G/L Account Category";
@@ -29,7 +28,7 @@ page 790 "G/L Account Categories"
                     StyleExpr = "Has Children" OR (Indentation = 0);
                     ToolTip = 'Specifies a description of the record.';
                 }
-                field("Account Category"; "Account Category")
+                field("Account Category"; Rec."Account Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category of the G/L account.';
@@ -43,7 +42,7 @@ page 790 "G/L Account Categories"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupTotaling;
+                        LookupTotaling();
                         CurrPage.Update(false);
                     end;
 
@@ -52,12 +51,12 @@ page 790 "G/L Account Categories"
                         ValidateTotaling(GLAccTotaling);
                     end;
                 }
-                field("Additional Report Definition"; "Additional Report Definition")
+                field("Additional Report Definition"; Rec."Additional Report Definition")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional attributes that are used to create the cash flow statement.';
                 }
-                field(GetBalance; GetBalance)
+                field(GetBalance; GetBalance())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance';
@@ -96,16 +95,12 @@ page 790 "G/L Account Categories"
                 Caption = 'New';
                 Enabled = PageEditable;
                 Image = NewChartOfAccounts;
-                Promoted = true;
-                PromotedCategory = New;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Create a new G/L account category.';
 
                 trigger OnAction()
                 begin
-                    SetRow(InsertRow);
+                    SetRow(InsertRow());
                 end;
             }
         }
@@ -117,15 +112,12 @@ page 790 "G/L Account Categories"
                 Caption = 'Move Up';
                 Enabled = PageEditable;
                 Image = MoveUp;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Change the sorting of the account categories.';
 
                 trigger OnAction()
                 begin
-                    MoveUp;
+                    MoveUp();
                 end;
             }
             action(MoveDown)
@@ -134,15 +126,12 @@ page 790 "G/L Account Categories"
                 Caption = 'Move Down';
                 Enabled = PageEditable;
                 Image = MoveDown;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Change the sorting of the account categories.';
 
                 trigger OnAction()
                 begin
-                    MoveDown;
+                    MoveDown();
                 end;
             }
             action(Indent)
@@ -151,15 +140,11 @@ page 790 "G/L Account Categories"
                 Caption = 'Indent';
                 Enabled = PageEditable;
                 Image = Indent;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Move the account category to the right.';
 
                 trigger OnAction()
                 begin
-                    MakeChildOfPreviousSibling;
+                    MakeChildOfPreviousSibling();
                 end;
             }
             action(Outdent)
@@ -168,26 +153,19 @@ page 790 "G/L Account Categories"
                 Caption = 'Outdent';
                 Enabled = PageEditable;
                 Image = DecreaseIndent;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Move the account category to the left.';
 
                 trigger OnAction()
                 begin
-                    MakeSiblingOfParent;
+                    MakeSiblingOfParent();
                 end;
             }
             action(GenerateAccSched)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Generate Account Schedules';
+                Caption = 'Generate Financial Reports';
                 Image = CreateLinesFromJob;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
-                ToolTip = 'Generate account schedules.';
+                ToolTip = 'Generate financial reports.';
 
                 trigger OnAction()
                 var
@@ -204,22 +182,61 @@ page 790 "G/L Account Categories"
                 ApplicationArea = Basic, Suite;
                 Caption = 'General Ledger Setup';
                 Image = GeneralLedger;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "General Ledger Setup";
                 ToolTip = 'View or edit the way to handle certain accounting issues in your company.';
             }
             action(AccSchedules)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Account Schedules';
+                Caption = 'Financial Reporting';
                 Image = Accounts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                RunObject = Page "Account Schedule Names";
-                ToolTip = 'Open your account schedules to analyze figures in general ledger accounts or to compare general ledger entries with general ledger budget entries.';
+                RunObject = Page "Financial Reports";
+                ToolTip = 'Open your financial reports to analyze figures in general ledger accounts or to compare general ledger entries with general ledger budget entries.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(New_Promoted; New)
+                {
+                }
+                actionref(Outdent_Promoted; Outdent)
+                {
+                }
+                actionref(Indent_Promoted; Indent)
+                {
+                }
+                actionref(MoveUp_Promoted; MoveUp)
+                {
+                }
+                actionref(MoveDown_Promoted; MoveDown)
+                {
+                }
+                actionref(GenerateAccSched_Promoted; GenerateAccSched)
+                {
+                }
+                actionref(GLSetup_Promoted; GLSetup)
+                {
+                }
+                actionref(AccSchedules_Promoted; AccSchedules)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'General', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -232,13 +249,13 @@ page 790 "G/L Account Categories"
     trigger OnAfterGetRecord()
     begin
         CalcFields("Has Children");
-        GLAccTotaling := GetTotaling;
+        GLAccTotaling := GetTotaling();
     end;
 
     trigger OnOpenPage()
     begin
         if IsEmpty() then
-            InitializeDataSet;
+            InitializeDataSet();
         SetAutoCalcFields("Has Children");
 
         PageEditable := CurrPage.Editable;

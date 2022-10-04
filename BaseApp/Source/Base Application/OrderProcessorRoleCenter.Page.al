@@ -51,7 +51,17 @@ page 9006 "Order Processor Role Center"
                 AccessByPermission = TableData "My Item" = R;
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN21
             part(Control13; "Power BI Report Spinner Part")
+            {
+                ApplicationArea = Basic, Suite;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = Basic, Suite;
             }
@@ -619,73 +629,6 @@ page 9006 "Order Processor Role Center"
                     ToolTip = 'Opens the list of issued finance charge memos.';
                 }
             }
-#if not CLEAN18
-            group(SetupAndExtensions)
-            {
-                Caption = 'Setup & Extensions';
-                Image = Setup;
-                ToolTip = 'Overview and change system and application settings, and manage extensions and services';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                ObsoleteTag = '18.0';
-                action("Assisted Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Manual Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Manual Setup';
-                    RunObject = Page "Manual Setup";
-                    ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Service Connections")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Service Connections';
-                    Image = ServiceTasks;
-                    RunObject = Page "Service Connections";
-                    ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Extensions)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extensions';
-                    Image = NonStockItemSetup;
-                    RunObject = Page "Extension Management";
-                    ToolTip = 'Install Extensions for greater functionality of the system.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Workflows)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Workflows';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page Workflows;
-                    ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-            }
-#endif
         }
         area(creation)
         {
@@ -763,7 +706,7 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Sales Journal";
                     ToolTip = 'Open a sales journal where you can batch post sales transactions to G/L, bank, customer, vendor and fixed assets accounts.';
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Sales Price &Worksheet")
                 {
                     ApplicationArea = Basic, Suite;
@@ -790,7 +733,7 @@ page 9006 "Order Processor Role Center"
             group(Action42)
             {
                 Caption = 'Sales';
-#if not CLEAN19
+#if not CLEAN21
                 action("&Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -870,7 +813,7 @@ page 9006 "Order Processor Role Center"
                         RunObject = Report "Salesperson - Sales Statistics";
                         ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
                     }
-#if not CLEAN19 
+#if not CLEAN21 
                     action("Price &List")
                     {
                         ApplicationArea = Basic, Suite;

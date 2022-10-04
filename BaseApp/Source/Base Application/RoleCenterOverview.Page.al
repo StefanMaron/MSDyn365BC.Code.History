@@ -16,9 +16,9 @@ page 1486 "Role Center Overview"
                     RolecenterSelectorMgt: Codeunit "Rolecenter Selector Mgt.";
                     Json: Text;
                 begin
-                    Json := RolecenterSelectorMgt.BuildPageDataJsonForRolecenterSelector;
+                    Json := RolecenterSelectorMgt.BuildPageDataJsonForRolecenterSelector();
                     CurrPage.ControlAddin.LoadPageDataFromJson(Json);
-                    SendJsonToControlAddIn;
+                    SendJsonToControlAddIn();
                     CurrPage.ControlAddin.SetCurrentProfileId(Format(CurrAllProfile.RecordId));
                 end;
 
@@ -27,7 +27,7 @@ page 1486 "Role Center Overview"
                     AcceptAction := true;
                     if not SkipSessionUpdateRequest then
                         ChangeProfile(CurrAllProfile);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
 
                 trigger OnProfileSelected(profileId: Text)
@@ -37,7 +37,7 @@ page 1486 "Role Center Overview"
                     Evaluate(AllProfileRecordId, profileId);
                     if CurrAllProfile.Get(AllProfileRecordId) then begin
                         CurrRoleCenterID := CurrAllProfile."Role Center ID";
-                        SendJsonToControlAddIn;
+                        SendJsonToControlAddIn();
                     end;
                 end;
             }
@@ -100,10 +100,10 @@ page 1486 "Role Center Overview"
 
         ConfPersonalizationMgt.SetCurrentProfile(NewAllProfile);
 
-        UserPersonalization.Get(UserSecurityId);
+        UserPersonalization.Get(UserSecurityId());
 
         with SessionSet do begin
-            Init;
+            Init();
             ProfileId := NewAllProfile."Profile ID";
             ProfileAppId := NewAllProfile."App ID";
             ProfileSystemScope := NewAllProfile.Scope = NewAllProfile.Scope::System;

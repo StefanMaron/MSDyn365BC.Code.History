@@ -18,7 +18,7 @@ report 6 "Trial Balance"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PeriodText; PeriodText)
@@ -157,13 +157,12 @@ report 6 "Trial Balance"
     trigger OnPreReport()
     begin
         "G/L Account".SecurityFiltering(SecurityFilter::Filtered);
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         PeriodText := "G/L Account".GetFilter("Date Filter");
     end;
 
     var
         Text000: Label 'Period: %1';
-        GLFilter: Text;
         PeriodText: Text[30];
         Trial_BalanceCaptionLbl: Label 'Trial Balance';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
@@ -177,5 +176,8 @@ report 6 "Trial Balance"
         PageGroupNo: Integer;
         ChangeGroupNo: Boolean;
         BlankLineNo: Integer;
+
+    protected var
+        GLFilter: Text;
 }
 

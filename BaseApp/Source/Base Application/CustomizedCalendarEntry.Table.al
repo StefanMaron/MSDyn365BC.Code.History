@@ -45,7 +45,7 @@ table 7603 "Customized Calendar Entry"
 
             trigger OnValidate()
             begin
-                UpdateExceptionEntry;
+                UpdateExceptionEntry();
             end;
         }
     }

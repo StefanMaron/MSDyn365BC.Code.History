@@ -14,14 +14,14 @@ page 1004 "Job Task List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the number of the related job.';
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Style = Strong;
@@ -33,12 +33,12 @@ page 1004 "Job Task List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the job task. You can enter anything that is meaningful in describing the task. The description is copied and used in descriptions on the job planning line.';
                 }
-                field("Job Task Type"; "Job Task Type")
+                field("Job Task Type"; Rec."Job Task Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this. Choose the field to select one of the following five options:';
                 }
-                field("WIP-Total"; "WIP-Total")
+                field("WIP-Total"; Rec."WIP-Total")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job tasks you want to group together when calculating Work In Process (WIP) and Recognition.';
@@ -48,7 +48,7 @@ page 1004 "Job Task List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies an interval or a list of job task numbers.';
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job posting group of the task.';
@@ -121,8 +121,6 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Split Planning Lines';
                 Image = Splitlines;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Job Split Planning Line";
                 ToolTip = 'Split planning lines of type Budget and Billable into two separate planning lines: Budget and Billable.';
             }
@@ -131,7 +129,6 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Change Planning Line Dates';
                 Image = ChangeDates;
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = Process;
                 RunObject = Report "Change Job Dates";
@@ -143,8 +140,6 @@ page 1004 "Job Task List"
                 Caption = 'Copy Job Task From';
                 Ellipsis = true;
                 Image = CopyFromTask;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Use a batch job to help you copy job task lines and job planning lines from one job task to another. You can copy from a job task within the job you are working with or from a job task linked to a different job.';
 
                 trigger OnAction()
@@ -164,8 +159,6 @@ page 1004 "Job Task List"
                 Caption = 'Copy Job Task To';
                 Ellipsis = true;
                 Image = CopyToTask;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Use a batch job to help you copy job task lines and job planning lines from one job task to another. You can copy from a job task within the job you are working with or from a job task linked to a different job.';
 
                 trigger OnAction()
@@ -187,8 +180,6 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual to Budget';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Actual To Budget";
                 ToolTip = 'Compare budgeted and usage amounts for selected jobs. All lines of the selected job show quantity, total cost, and line amount.';
             }
@@ -197,8 +188,6 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Job Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Analysis";
                 ToolTip = 'Analyze the job, such as the budgeted prices, usage prices, and billable prices, and then compares the three sets of prices.';
             }
@@ -207,8 +196,6 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Job - Planning Lines';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job - Planning Lines";
                 ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that he should pay for the job (billable).';
             }
@@ -217,8 +204,6 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Job - Suggested Billing';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Suggested Billing";
                 ToolTip = 'View a list of all jobs, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
             }
@@ -227,11 +212,44 @@ page 1004 "Job Task List"
                 ApplicationArea = Jobs;
                 Caption = 'Jobs - Transaction Detail';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Job - Transaction Detail";
                 ToolTip = 'View all postings with entries for a selected job for a selected period, which have been charged to a certain job. At the end of each job list, the amounts are totaled separately for the Sales and Usage entry types.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Split Planning Lines_Promoted"; "Split Planning Lines")
+                {
+                }
+                actionref("Copy Job Task From_Promoted"; "Copy Job Task From")
+                {
+                }
+                actionref("Copy Job Task To_Promoted"; "Copy Job Task To")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Job Actual to Budget_Promoted"; "Job Actual to Budget")
+                {
+                }
+                actionref("Job Analysis_Promoted"; "Job Analysis")
+                {
+                }
+                actionref("Job - Planning Lines_Promoted"; "Job - Planning Lines")
+                {
+                }
+                actionref("Job - Suggested Billing_Promoted"; "Job - Suggested Billing")
+                {
+                }
             }
         }
     }

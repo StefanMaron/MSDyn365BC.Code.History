@@ -5,13 +5,4 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 589505220 - Method 2579726715 - NamedType 2388912512" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected value in %1. Expected %2, Actual %3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Setup Card Test - Method LogsAreGeneratedAfterTheExecution - NamedType UnexpectedNoOfSqlStmtsLbl)]]></Cmt>
-    </Cmts>
-  </Item>
 </LCX>

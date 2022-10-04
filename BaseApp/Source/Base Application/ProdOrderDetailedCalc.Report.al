@@ -15,7 +15,7 @@ report 99000768 "Prod. Order - Detailed Calc."
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ProdOrderTableCaptionFilter; TableCaption + ':' + ProdOrderFilter)
@@ -143,7 +143,7 @@ report 99000768 "Prod. Order - Detailed Calc."
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
             end;
         }
     }
