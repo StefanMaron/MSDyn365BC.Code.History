@@ -153,6 +153,7 @@ page 900 "Assembly Order"
                 Caption = 'Lines';
                 SubPageLink = "Document Type" = FIELD("Document Type"),
                               "Document No." = FIELD("No.");
+                UpdatePropagation = Both;
             }
             group(Posting)
             {
@@ -673,7 +674,8 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        RefreshBOM();
+                        Rec.TestStatusOpen();
+                        Rec.RefreshBOM();
                         CurrPage.Update();
                     end;
                 }

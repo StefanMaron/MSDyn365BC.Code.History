@@ -2853,6 +2853,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Reten. Pol. Filtering Param - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4010026032 - Field 3956982287 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expired Record Expiration Date</source>
+          <target state="translated">Utløpsdato for utløpt post</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Reten. Pol. Filtering Param - Field Expired Record Expiration Date - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4010026032 - Field 3331310294 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Null Date Replacement value</source>
           <target state="translated">Erstatningsverdi for nulldato</target>
@@ -3230,6 +3236,312 @@
           <target state="translated">Sikkerhets-ID for bruker</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Sent Email - Field User Security Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SharePoint File</source>
+          <target state="translated">SharePoint-fil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 1249475212 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created</source>
+          <target state="translated">Opprettet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Created - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 2938565236 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exists</source>
+          <target state="translated">Finnes</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Exists - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Lengde</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Navn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 3182961509 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.EditLink</source>
+          <target state="translated">Odata.EditLink</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field OdataEditLink - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 3861415142 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Id</source>
+          <target state="translated">Odata.Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field OdataId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 4066987345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Type</source>
+          <target state="translated">Odata.Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field OdataType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 2123145358 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Relative Url</source>
+          <target state="translated">Serverrelativ nettadresse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Server Relative Url - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 329424276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">Tittel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Title - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 796130729 - Field 4284597114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unique Id</source>
+          <target state="translated">Unik ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint File - Field Unique Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SharePoint Folder</source>
+          <target state="translated">SharePoint-mappe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 1249475212 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created</source>
+          <target state="translated">Opprettet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field Created - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 2938565236 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exists</source>
+          <target state="translated">Finnes</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field Exists - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 2398032778 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Count</source>
+          <target state="translated">Vareantall</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field Item Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">Tittel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 3182961509 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.EditLink</source>
+          <target state="translated">Odata.EditLink</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field OdataEditLink - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 3861415142 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Id</source>
+          <target state="translated">Odata.Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field OdataId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 4066987345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Type</source>
+          <target state="translated">Odata.Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field OdataType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 2123145358 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Relative Url</source>
+          <target state="translated">Serverrelativ nettadresse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field Server Relative Url - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3247020001 - Field 4284597114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unique Id</source>
+          <target state="translated">Unik ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint Folder - Field Unique Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SharePoint List</source>
+          <target state="translated">SharePoint-liste</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 1134601319 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Base Template</source>
+          <target state="translated">Basismal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Base Template - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 2071228903 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Base Type</source>
+          <target state="translated">Basistype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Base Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 1249475212 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created</source>
+          <target state="translated">Opprettet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Created - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 4284502563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Is Catalog</source>
+          <target state="translated">Er katalog</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Is Catalog - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 638218256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>List Item Entity Type Full Name</source>
+          <target state="translated">Fullt navn for enhetstype for listeelement</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field List Item Entity Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 3182961509 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.EditLink</source>
+          <target state="translated">Odata.EditLink</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field OdataEditLink - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 3861415142 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Id</source>
+          <target state="translated">Odata.Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field OdataId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 4066987345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Type</source>
+          <target state="translated">Odata.Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field OdataType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1610173013 - Field 329424276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">Tittel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List - Field Title - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SharePoint List Item</source>
+          <target state="translated">SharePoint-listeelement</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 1225782422 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachments</source>
+          <target state="translated">Vedlegg</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field Attachments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 3816519696 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Content Type Id</source>
+          <target state="translated">Innholdstype-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field Content Type Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 1249475212 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created</source>
+          <target state="translated">Opprettet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field Created - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 1552101202 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File System Object Type</source>
+          <target state="translated">Objekttype for filsystem</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field File System Object Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 263390385 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field Guid - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 1924927433 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>List Id</source>
+          <target state="translated">Liste-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field List Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 3182961509 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.editLink</source>
+          <target state="translated">Odata.editLink</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field OdataEditLink - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1835319050 - Field 329424276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">Tittel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item - Field Title - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SharePoint List Item Attachment</source>
+          <target state="translated">Vedlegg for SharePoint-listeelement</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 804481195 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Name</source>
+          <target state="translated">Filnavn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field File Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 1924927433 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>List Id</source>
+          <target state="translated">Liste-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field List Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 2355966854 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>List Item Id</source>
+          <target state="translated">ID for listeelement</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field List Item Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 3182961509 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.editLink</source>
+          <target state="translated">Odata.editLink</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field OdataEditLink - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 3861415142 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Id</source>
+          <target state="translated">Odata.Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field OdataId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 4066987345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Odata.Type</source>
+          <target state="translated">Odata.Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field OdataType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1595900732 - Field 2123145358 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Relative Url</source>
+          <target state="translated">Serverrelativ nettadresse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SharePoint List Item Atch - Field Server Relative Url - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3456148789 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Signature Key</source>
@@ -6357,6 +6669,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sampling Perf. Profiler Impl. - NamedType NotSupportedCpuProfileKindErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3583618770 - NamedType 3575726745" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect response.</source>
+          <target state="translated">Feil svar.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SharePoint Client Impl. - NamedType IncorrectResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3583618770 - NamedType 683667025" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not read response.</source>
+          <target state="translated">Kan ikke lese svaret.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SharePoint Client Impl. - NamedType ReadResponseFailedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1822149866 - NamedType 3201883211" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>An error has occurred</source>
+          <target state="translated">Det har oppstått en feil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SharePoint Request Helper - NamedType OperationNotSuccessfulErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 144710759 - NamedType 569519751" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unable to initialize certificate!</source>
           <target state="translated">Kan ikke initialisere sertifikatet.</target>
@@ -7846,20 +8176,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Company Size Cache Part - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3183728555 - Control 552006252 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the company.</source>
-          <target state="translated">Navnet på selskapet.</target>
+          <source>Specifies the name of the company.</source>
+          <target state="translated">Angir navnet på selskapet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Company Size Cache Part - Control CompanyName - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3183728555 - Control 501800200 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the company occupies in the database (in kilobytes)</source>
-          <target state="translated">Hvor mye plass selskapet opptar i databasen (i kilobyte)</target>
+          <source>Specifies how much space the company occupies in the database (in kilobytes)</source>
+          <target state="translated">Angir hvor mye plass selskapet opptar i databasen (i kilobyte)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Company Size Cache Part - Control SizeKB - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3183728555 - Control 2393372713 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space all companies occupy in the database (in kilobytes)</source>
-          <target state="translated">Hvor mye plass alle selskapene opptar i databasen (i kilobyte)</target>
+          <source>Specifies how much space all companies occupy in the database (in kilobytes)</source>
+          <target state="translated">Angir hvor mye plass alle selskapene opptar i databasen (i kilobyte)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Company Size Cache Part - Control TotalSize - Property ToolTip</note>
         </trans-unit>
@@ -8503,6 +8833,12 @@
           <target state="translated">Fullfør</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Action ActionFinish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1105213220 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Manage,View</source>
+          <target state="translated">Ny,Prosess,Rapport,Administrer,Vis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 1105213220 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Classification Worksheet</source>
@@ -9355,6 +9691,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Action TestEmail - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3389183890 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Navigate</source>
+          <target state="translated">Ny,Prosess,Rapport,Naviger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="Page 3389183890 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Accounts</source>
           <target state="translated">E-postkontoer</target>
@@ -9594,6 +9936,12 @@
           <target state="translated">Sendte e-poster de siste 30 dagene</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Activities - Control Sent Emails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4217154468 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Full Address Lists</source>
+          <target state="translated">Ny,Prosess,Rapport,Fullstendige adresselister</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Address Lookup - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 4217154468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Suggested Email Addresses</source>
@@ -11444,6 +11792,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Logo Part - Control Logo - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2005578726 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Details,Manage</source>
+          <target state="translated">Ny,Prosess,Rapport,Detaljer,Administrer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="Page 2005578726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension Management</source>
           <target state="translated">Administrasjon av utvidelse</target>
@@ -11940,6 +12294,12 @@
           <target state="translated">Installasjonen kan ta et par minutter. Du kan arbeide på andre oppgaver mens du venter og kontrollere statusen senere på siden Installasjonsstatus for utvidelse.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extn. Installation Progress - Control Instruction - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Data Update</source>
+          <target state="translated">Ny,Prosess,Rapport,Dataoppdatering</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 4061016505 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Feature Management</source>
@@ -13050,6 +13410,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set - Property AboutTitle</note>
         </trans-unit>
+        <trans-unit id="Page 3338462467 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Navigation</source>
+          <target state="translated">Navigasjon</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="Page 3338462467 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Permission sets let admins manage multiple permissions for multiple objects in one record.</source>
           <target state="translated">Med tillatelsessett kan administratorer administrere flere tillatelser for flere objekter i én oppføring.</target>
@@ -13254,6 +13620,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Control Type - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3414198013 - Action 282965274 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View a flat list of the permissions in the set.</source>
+          <target state="translated">Vis en flat liste over tillatelsene i settet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Action ViewPermisions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3414198013 - Action 282965274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View Permissions In Set</source>
+          <target state="translated">Vis tillatelser i settet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Action ViewPermisions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3414198013 - Action 1035760768 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View Permission Set</source>
+          <target state="translated">Vis tillatelsessett</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Action ViewPermissionSet - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3414198013 - Action 1035760768 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View Permission Set</source>
+          <target state="translated">Vis tillatelsessett</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Action ViewPermissionSet - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3654121945 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Permission Sets</source>
           <target state="translated">Tillatelsessett</target>
@@ -13313,6 +13703,18 @@
           <target state="translated">Utelat</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Tree - Action ExcludeSelectedPermissionSet - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3654121945 - Action 282965274 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View a flat list of the permissions in the set.</source>
+          <target state="translated">Vis en flat liste over tillatelsene i settet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Tree - Action ViewPermisions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3654121945 - Action 282965274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View Permissions In Set</source>
+          <target state="translated">Vis tillatelser i settet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Tree - Action ViewPermisions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3654121945 - Action 1035760768 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View Permission Set</source>
@@ -13629,6 +14031,12 @@
           <target state="translated">Ikke godta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Power Automate Privacy Notice - Action Reject - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Manage</source>
+          <target state="translated">Ny,Prosess,Rapport,Administrer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 1215073847 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Printer Management</source>
@@ -14764,11 +15172,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Log Entries - Control User Id - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 1206474225 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New, Process, Report, Navigate</source>
+          <target state="translated">Ny,Prosess,Rapport,Naviger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="Page 1206474225 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retention Policy</source>
           <target state="translated">Oppbevaringspolicy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - NamedType 1825302534" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The number of expired records is being calculated in the background. This may take a while.</source>
+          <target state="translated">Antall utløpte poster beregnes i bakgrunnen. Dette kan ta litt tid.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - NamedType PBTNotificationMsg</note>
         </trans-unit>
         <trans-unit id="Page 1206474225 - NamedType 2824899842" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The retention policy is not enabled. Would you like to enable it now?</source>
@@ -14847,6 +15267,18 @@
           <target state="translated">Utløpte poster</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Control Expired Record Count - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Control 3956982287 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Displays the earliest expiration date for which there are more expired records than the maximum to be deleted in a single run.</source>
+          <target state="translated">Viser den tidligste utløpsdatoen når det er flere utløpte poster enn det som maksimalt skal slettes, for hver enkelt kjøring.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Control Expired Record Expiration Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Control 3956982287 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expired Records Expiration Date</source>
+          <target state="translated">Utløpsdato for utløpte poster</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Control Expired Record Expiration Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1206474225 - Control 1508634494 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the retention policy can only be run manually.</source>
@@ -14943,6 +15375,12 @@
           <target state="translated">Angir filteret i tekstformat som definerer et delsett med poster.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Lines - Control Table Filter Text - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918924451 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New, Process, Report, Navigate</source>
+          <target state="translated">Ny,Prosess,Rapport,Naviger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup List - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3918924451 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retention Policies</source>
@@ -15412,14 +15850,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Property AdditionalSearchTerms</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the company the table belongs to</source>
-          <target state="translated">Navnet på selskapet som tabellen tilhører</target>
+          <source>Specifies the name of the company the table belongs to.</source>
+          <target state="translated">Angir navnet på selskapet som tabellen tilhører.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Company Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 2901901922 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The compression state of the table in the database</source>
-          <target state="translated">Komprimeringsstatusen for tabellen i databasen</target>
+          <source>Specifies the type of compression that is applied to the table in the database.</source>
+          <target state="translated">Angir komprimeringstypen som brukes på tabellen i databasen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Compression - Property ToolTip</note>
         </trans-unit>
@@ -15430,44 +15868,44 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Compression - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 720611327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table data occupies in the database (in kilobytes)</source>
-          <target state="translated">Hvor mye plass tabelldataene opptar i databasen (i kilobyte)</target>
+          <source>Specifies how much space the table data occupies in the database (in kilobytes).</source>
+          <target state="translated">Angir hvor mye plass tabellen opptar i databasen (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Data Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 3599723277 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table indexes occupy in the database (in kilobytes)</source>
-          <target state="translated">Hvor mye plass tabellindeksene opptar i databasen (i kilobyte)</target>
+          <source>Specifies how much space the table indexes (keys) occupy in the database (in kilobytes).</source>
+          <target state="translated">Angir hvor mye plass tabellindeksene (nøklene) opptar i databasen (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Index Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 2065755396 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The number of records in the table</source>
-          <target state="translated">Angir antallet poster i tabellen</target>
+          <source>Specifies the total number of records stored in the table.</source>
+          <target state="translated">Angir antall poster som er lagret i tabellen, totalt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control No. of Records - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 54790405 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The average size of a record (in bytes)</source>
-          <target state="translated">Den gjennomsnittlige størrelsen på en post (i byte)</target>
+          <source>Specifies the average record size (in bytes).</source>
+          <target state="translated">Angir den gjennomsnittlige poststørrelsen (i byte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Record Size (Byte</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 3391158951 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table occupies in the database (in kilobytes)</source>
-          <target state="translated">Hvor mye plass tabellen opptar i databasen (i kilobyte)</target>
+          <source>Specifies the total amount of space the table occupies in the database (in kilobytes).</source>
+          <target state="translated">Angir den totale plassen tabellen opptar i databasen (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 3808951907 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the table</source>
-          <target state="translated">Navnet på tabellen</target>
+          <source>Specifies the name of the table.</source>
+          <target state="translated">Angir navnet på tabellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Table Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 3017471043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The ID number for the table</source>
-          <target state="translated">ID-nummeret for tabellen</target>
+          <source>Specifies the ID of the table.</source>
+          <target state="translated">Angir ID-en for tabellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Table No. - Property ToolTip</note>
         </trans-unit>
@@ -15484,14 +15922,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Property AdditionalSearchTerms</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the company the table belongs to</source>
-          <target state="translated">Navnet på selskapet som tabellen tilhører</target>
+          <source>Specifies the name of the company the table belongs to.</source>
+          <target state="translated">Angir navnet på selskapet som tabellen tilhører.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Company Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 2901901922 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The compression state of the table in the database.</source>
-          <target state="translated">Komprimeringsstatusen for tabellen i databasen.</target>
+          <source>Specifies the type of compression that is applied to the table in the database.</source>
+          <target state="translated">Angir komprimeringstypen som brukes på tabellen i databasen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Compression - Property ToolTip</note>
         </trans-unit>
@@ -15502,62 +15940,62 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Compression - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 720611327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table data occupies in the database (in kilobytes).</source>
-          <target state="translated">Hvor mye plass tabelldataene opptar i databasen (i kilobyte).</target>
+          <source>Specifies how much space the table data occupies in the database (in kilobytes).</source>
+          <target state="translated">Angir hvor mye plass tabellen opptar i databasen (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Data Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 709111184 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much the table size grew in 30 daya (in percent).</source>
-          <target state="translated">Hvor mye tabellstørrelsen vokste på 30 dager (i prosent).</target>
+          <source>Specifies how much the table size grew in 30 days (in percent).</source>
+          <target state="translated">Angir hvor mye tabellstørrelsen vokste på 30 dager (i prosent).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Growth % - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 3599723277 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table indexes occupy in the database (in kilobytes).</source>
-          <target state="translated">Hvor mye plass tabellindeksene opptar i databasen (i kilobyte).</target>
+          <source>Specifies how much space the table indexes (keys) occupy in the database (in kilobytes).</source>
+          <target state="translated">Angir hvor mye plass tabellindeksene (nøklene) opptar i databasen (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Index Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 1726982313 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The number of records in the table 30 days ago.</source>
+          <source>Specifies the number of records in the table 30 days ago.</source>
           <target state="translated">Angir antallet poster i tabellen for 30 dager siden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Last Period No. of Records - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 4277812446 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table occupied in the database 30 days ago (in kilobytes).</source>
-          <target state="translated">Hvor mye plass tabellen opptok i databasen for 30 dager siden (i kilobyte).</target>
+          <source>Specifies how much space the table occupied in the database 30 days ago (in kilobytes).</source>
+          <target state="translated">Angir hvor mye plass tabellen opptok i databasen for 30 dager siden (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Last Period Size - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 2065755396 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The number of records in the table.</source>
-          <target state="translated">Angir antallet poster i tabellen.</target>
+          <source>Specifies the total number of records stored in the table.</source>
+          <target state="translated">Angir antall poster som er lagret i tabellen, totalt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control No. of Records - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 54790405 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The average size of a record (in bytes).</source>
-          <target state="translated">Den gjennomsnittlige størrelsen på en post (i byte).</target>
+          <source>Specifies the average record size (in bytes).</source>
+          <target state="translated">Angir den gjennomsnittlige poststørrelsen (i byte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Record Size (Byte</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 3391158951 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table occupies in the database (in kilobytes).</source>
-          <target state="translated">Hvor mye plass tabellen opptar i databasen (i kilobyte).</target>
+          <source>Specifies the total amount of space the table occupies in the database (in kilobytes).</source>
+          <target state="translated">Angir den totale plassen tabellen opptar i databasen (i kilobyte).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 3808951907 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the table</source>
-          <target state="translated">Navnet på tabellen</target>
+          <source>Specifies the name of the table.</source>
+          <target state="translated">Angir navnet på tabellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Table Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 3017471043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The ID number for the table.</source>
-          <target state="translated">ID-nummeret for tabellen.</target>
+          <source>Specifies the ID of the table.</source>
+          <target state="translated">Angir ID-en for tabellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Table No. - Property ToolTip</note>
         </trans-unit>
@@ -17191,6 +17629,12 @@
           <target state="translated">Ny mal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template To Text Wizard - Action New - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2359842671 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process</source>
+          <target state="translated">Ny,Prosess</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 2359842671 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Word Templates</source>

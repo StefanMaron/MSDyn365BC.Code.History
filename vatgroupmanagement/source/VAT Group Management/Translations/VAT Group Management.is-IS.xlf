@@ -1763,6 +1763,13 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
         </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 109811416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Sannvottunargerð</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
         <trans-unit id="TableExtension 4146260181 - Field 2703061601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Group Representative Product Version</source>
           <target state="translated">Afurðastig fulltrúa hóps</target>
@@ -1804,6 +1811,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2925949834</note>
+        </trans-unit>
+        <trans-unit id="Enum 1793979745 - EnumValue 1970998423 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2</source>
+          <target state="translated">OAuth2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type OnPrem - EnumValue OAuth2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1793979745 - EnumValue 3742023362 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <target state="translated">Aðgangslykill vefþjónustu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type OnPrem - EnumValue WebServiceAccessKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1793979745 - EnumValue 3367207849 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Windows Authentication</source>
+          <target state="translated">Windows-sannvottun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type OnPrem - EnumValue WindowsAuthentication - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 49222336 - EnumValue 1970998423 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2</source>
+          <target state="translated">OAuth2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type Saas - EnumValue OAuth2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 49222336 - EnumValue 3742023362 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <target state="translated">Aðgangslykill vefþjónustu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type Saas - EnumValue WebServiceAccessKey - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3476321473 - EnumValue 1970998423 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>OAuth2</source>

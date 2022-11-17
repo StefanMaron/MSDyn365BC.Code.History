@@ -1408,6 +1408,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension VAT Report Setup Extension - Field VAT Due Box No. - Property Caption</note>
         </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 109811416 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 456029390">
+          <source>Authentication Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension VAT Report Setup Extension - Field VAT Group Authentication Type - Property Caption</note>
+        </trans-unit>
         <trans-unit id="TableExtension 4146260181 - Field 2703061601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 456029390">
           <source>Group Representative Product Version</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1437,6 +1442,31 @@
           <source>Representative Amount</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension VAT Stmt. Rep. Line Extension - Field Representative Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1793979745 - EnumValue 1970998423 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type OnPrem - EnumValue OAuth2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1793979745 - EnumValue 3742023362 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type OnPrem - EnumValue WebServiceAccessKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1793979745 - EnumValue 3367207849 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Windows Authentication</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type OnPrem - EnumValue WindowsAuthentication - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 49222336 - EnumValue 1970998423 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type Saas - EnumValue OAuth2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 49222336 - EnumValue 3742023362 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Auth Type Saas - EnumValue WebServiceAccessKey - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3476321473 - EnumValue 1970998423 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>OAuth2</source>

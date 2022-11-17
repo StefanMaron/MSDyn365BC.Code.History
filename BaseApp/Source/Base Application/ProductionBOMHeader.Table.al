@@ -82,6 +82,7 @@ table 99000771 "Production BOM Header"
                 PlanningAssignment: Record "Planning Assignment";
                 MfgSetup: Record "Manufacturing Setup";
                 ProdBOMCheck: Codeunit "Production BOM-Check";
+                IsHandled: Boolean;
             begin
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
                     ProdBOMLineRec.SetLoadFields(Type, "No.", "Variant Code");
@@ -97,18 +98,20 @@ table 99000771 "Production BOM Header"
                     ProdBOMCheck.Run(Rec);
                     PlanningAssignment.NewBOM("No.");
                 end;
-                if Status = Status::Closed then
-                    if Confirm(
-                         Text001, false)
-                    then begin
-                        ProdBOMVersion.SetRange("Production BOM No.", "No.");
-                        if ProdBOMVersion.Find('-') then
-                            repeat
-                                ProdBOMVersion.Status := ProdBOMVersion.Status::Closed;
-                                ProdBOMVersion.Modify();
-                            until ProdBOMVersion.Next() = 0;
-                    end else
-                        Status := xRec.Status;
+                if Status = Status::Closed then begin
+                    IsHandled := false;
+                    OnValidateStatusOnBeforeConfirm(Rec, xRec, IsHandled);
+                    If not IsHandled then
+                        if Confirm(Text001, false) then begin
+                            ProdBOMVersion.SetRange("Production BOM No.", "No.");
+                            if ProdBOMVersion.Find('-') then
+                                repeat
+                                    ProdBOMVersion.Status := ProdBOMVersion.Status::Closed;
+                                    ProdBOMVersion.Modify();
+                                until ProdBOMVersion.Next() = 0;
+                        end else
+                            Status := xRec.Status;
+                end;
             end;
         }
         field(50; "Version Nos."; Code[20])
@@ -223,6 +226,11 @@ table 99000771 "Production BOM Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAsistEdit(var ProductionBOMHeader: Record "Production BOM Header"; OldProductionBOMHeader: Record "Production BOM Header"; var SeriesSelected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStatusOnBeforeConfirm(var ProductionBOMHeader: Record "Production BOM Header"; xProductionBOMHeader: Record "Production BOM Header"; var IsHandled: Boolean)
     begin
     end;
 }

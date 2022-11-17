@@ -299,6 +299,7 @@
         CampaignTargetGr.SetRange(Type, CampaignTargetGr.Type::Customer);
         CampaignTargetGr.SetRange("No.", CustomerNo);
         Found := CampaignTargetGr.CopyTo(TempCampaignTargetGr);
+        OnAfterFindCustomerCampaigns(CustomerNo, TempCampaignTargetGr, Found);
     end;
 
     local procedure FindContactCompanyCampaigns(ContactNo: Code[20]; var TempCampaignTargetGr: Record "Campaign Target Group" temporary) Found: Boolean
@@ -310,6 +311,7 @@
             CampaignTargetGr.SetRange(Type, CampaignTargetGr.Type::Contact);
             CampaignTargetGr.SetRange("No.", Contact."Company No.");
             Found := CampaignTargetGr.CopyTo(TempCampaignTargetGr);
+            OnAfterFindContactCompanyCampaigns(ContactNo, TempCampaignTargetGr, Found);
         end;
     end;
 
@@ -368,6 +370,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindContactCompanyCampaigns(ContactNo: Code[20]; var TempCampaignTargetGr: Record "Campaign Target Group" temporary; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindCustomerCampaigns(CustomerNo: Code[20]; var TempCampaignTargetGr: Record "Campaign Target Group" temporary; var Found: Boolean)
     begin
     end;
 }

@@ -294,6 +294,8 @@ table 133 "Incoming Document Attachment"
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
     begin
+        OnBeforeExport(Rec);
+
         if "Incoming Document Entry No." = 0 then
             exit;
         CalcFields(Content);
@@ -583,15 +585,15 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Journal Line No. Filter", GenJournalLine."Line No.");
                 end;
             else begin
-                    if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, GenJournalLine.FieldName("Document No.")) then
-                        if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, PurchInvHeader.FieldName("No.")) then
-                            exit;
-                    if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, GenJournalLine.FieldName("Posting Date")) then
+                if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, GenJournalLine.FieldName("Document No.")) then
+                    if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, PurchInvHeader.FieldName("No.")) then
                         exit;
-                    IncomingDocumentAttachment.SetRange("Document No.", Format(DocumentNoFieldRef.Value));
-                    Evaluate(PostingDate, Format(PostingDateFieldRef.Value));
-                    IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
-                end;
+                if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, GenJournalLine.FieldName("Posting Date")) then
+                    exit;
+                IncomingDocumentAttachment.SetRange("Document No.", Format(DocumentNoFieldRef.Value));
+                Evaluate(PostingDate, Format(PostingDateFieldRef.Value));
+                IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
+            end;
         end;
     end;
 
@@ -626,6 +628,11 @@ table 133 "Incoming Document Attachment"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeExtractHeaderFields(var TempFieldBuffer: Record "Field Buffer" temporary; var IncomingDocument: Record "Incoming Document")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExport(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     begin
     end;
 

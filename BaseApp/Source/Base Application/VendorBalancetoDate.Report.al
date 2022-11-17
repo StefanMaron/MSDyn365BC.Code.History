@@ -497,13 +497,20 @@ report 321 "Vendor - Balance to Date"
     begin
         if VendorLedgerEntry.Get(EntryNo) and (VendorLedgerEntry."Posting Date" <= MaxDate) then begin
             VendorLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
-            VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry.CalcFields("Remaining Amount", "Original Amount", Amount);
             if VendorLedgerEntry."Remaining Amount" <> 0 then
                 exit(true);
             // if "Show Entries with Zero Balance" is checked, show only closed entries that were closed within the report date filter
-            if ShowEntriesWithZeroBalance then
+            if ShowEntriesWithZeroBalance then begin
                 if ClosingVendorLedgerEntry.Get(VendorLedgerEntry."Closed by Entry No.") then
                     exit((ClosingVendorLedgerEntry."Posting Date" >= MinDate) and (ClosingVendorLedgerEntry."Posting Date" <= MaxDate));
+                if (VendorLedgerEntry.Amount = 0) and
+                   (VendorLedgerEntry."Original Amount" = 0) and
+                   not VendorLedgerEntry.Open and
+                   (VendorLedgerEntry."Posting Date" >= MinDate) and
+                   (VendorLedgerEntry."Posting Date" <= MaxDate) then
+                    exit(true);
+            end;
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));
         end;

@@ -546,5 +546,10 @@ codeunit 46 SelectionFilterManagement
         end else
             NoFiltersRecRef.Open(FilteredRecRef.Number);
     end;
+
+    procedure GetMaximumNumberOfParametersInSQLQuery(): Integer
+    begin
+        exit(2000);
+    end;
 }
 

@@ -186,12 +186,16 @@ page 600 "IC Dimensions"
         ICDim: Record "IC Dimension";
         ICDimVal: Record "IC Dimension Value";
         ConfirmManagement: Codeunit "Confirm Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ICDimValEmpty: Boolean;
         ICDimValExists: Boolean;
         PrevIndentation: Integer;
     begin
         if not ConfirmManagement.GetResponseOrDefault(Text004, true) then
             exit;
+
+        FeatureTelemetry.LogUptake('0000IL2', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
 
         ICDimVal.LockTable();
         ICDim.LockTable();
@@ -234,6 +238,8 @@ page 600 "IC Dimensions"
     local procedure ImportFromXML()
     var
         ICSetup: Record "IC Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ICDimIO: XMLport "IC Dimension Import/Export";
         IFile: File;
         IStr: InStream;
@@ -252,6 +258,8 @@ page 600 "IC Dimensions"
         if not Upload(StrSubstNo(Text001, TableCaption), '', Text006, StartFileName, FileName) then
             Error(Text005);
 
+        FeatureTelemetry.LogUptake('0000IL3', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+
         IFile.Open(FileName);
         IFile.CreateInStream(IStr);
         ICDimIO.SetSource(IStr);
@@ -262,6 +270,8 @@ page 600 "IC Dimensions"
     var
         ICSetup: Record "IC Setup";
         FileMgt: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ICDimIO: XMLport "IC Dimension Import/Export";
         OFile: File;
         OStr: OutStream;
@@ -279,6 +289,8 @@ page 600 "IC Dimensions"
         FileName := FileMgt.ServerTempFileName('xml');
         if FileName = '' then
             exit;
+
+        FeatureTelemetry.LogUptake('0000IL4', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
 
         OFile.Create(FileName);
         OFile.CreateOutStream(OStr);

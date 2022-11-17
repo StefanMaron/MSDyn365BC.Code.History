@@ -51,6 +51,15 @@ page 9006 "Order Processor Role Center"
                 AccessByPermission = TableData "My Item" = R;
                 ApplicationArea = Basic, Suite;
             }
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control21; "Report Inbox Part")
+            {
+                AccessByPermission = TableData "Report Inbox" = R;
+                ApplicationArea = Suite;
+            }
 #if not CLEAN21
             part(Control13; "Power BI Report Spinner Part")
             {
@@ -61,15 +70,6 @@ page 9006 "Order Processor Role Center"
                 ObsoleteTag = '21.0';
             }
 #endif
-            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
-            {
-                ApplicationArea = Basic, Suite;
-            }
-            part(Control21; "Report Inbox Part")
-            {
-                AccessByPermission = TableData "Report Inbox" = R;
-                ApplicationArea = Suite;
-            }
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Basic, Suite;

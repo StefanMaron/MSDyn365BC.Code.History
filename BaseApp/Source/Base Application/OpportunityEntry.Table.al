@@ -817,7 +817,13 @@ table 5093 "Opportunity Entry"
     var
         Opp: Record Opportunity;
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestQuote(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Opp.Get("Opportunity No.");
         if not SalesHeader.Get(SalesHeader."Document Type"::Quote, Opp."Sales Document No.") then
             Error(Text005);
@@ -1018,6 +1024,11 @@ table 5093 "Opportunity Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOppFromOppOnBeforeStartWizard2(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQuote(OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
     begin
     end;
 }

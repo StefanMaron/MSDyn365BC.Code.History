@@ -297,16 +297,24 @@ report 7391 "Whse. Get Bin Content"
 #endif
 
     local procedure InsertItemJournalLine(BinContent: Record "Bin Content")
+    var
+        ItemLedgerEntryType: Enum "Item Ledger Entry Type";
+        IsHandled: Boolean;
     begin
         with ItemJournalLine do begin
             Init();
             "Line No." := "Line No." + 10000;
-            Validate("Entry Type", "Entry Type"::Transfer);
+            ItemLedgerEntryType := Enum::"Item Ledger Entry Type"::Transfer;
+            OnInsertItemJournalLineOnBeforeValidateEntryType(ItemJournalLine, BinContent, ItemLedgerEntryType);
+            Validate("Entry Type", ItemLedgerEntryType);
             Validate("Item No.", BinContent."Item No.");
             Validate("Posting Date", PostingDate);
             Validate("Document No.", DocNo);
             Validate("Location Code", BinContent."Location Code");
-            Validate("New Location Code", BinContent."Location Code");
+            IsHandled := false;
+            OnInsertItemJournalLineOnBeforeValidateNewLocationCode(ItemJournalLine, BinContent, IsHandled);
+            if not IsHandled then
+                Validate("New Location Code", BinContent."Location Code");
             Validate("Variant Code", BinContent."Variant Code");
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate("Bin Code", BinContent."Bin Code");
@@ -594,6 +602,16 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemJournalLineOnBeforeInsert(var ItemJournalLine: Record "Item Journal Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJournalLineOnBeforeValidateEntryType(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content"; var ItemLedgerEntryType: Enum "Item Ledger Entry Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJournalLineOnBeforeValidateNewLocationCode(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content"; var IsHandled: Boolean)
     begin
     end;
 }

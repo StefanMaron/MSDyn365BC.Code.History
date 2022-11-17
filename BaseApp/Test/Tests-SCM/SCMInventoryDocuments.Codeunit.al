@@ -210,7 +210,7 @@ codeunit 137140 "SCM Inventory Documents"
         Qty: Integer;
     begin
         // [FEATURE] [Location] [Warehouse] [Direct Transfer]
-        // [SCENARIO 253751] Direct transfer to location with inbound warehouse handling should be posted without warehouse receipt
+        // [SCENARIO 253751] Direct transfer to location with inbound warehouse handling should not be posted
 
         Initialize();
 
@@ -231,14 +231,8 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [WHEN] Post the transfer using "Direct Transfer Posting" = "Direct Transfer"
         SetDirectTransferPosting(1);
-        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+        asserterror LibraryInventory.PostDirectTransferOrder(TransferHeader);
         SetDirectTransferPosting(0);
-
-        // [THEN] Item ledger shows 100 pcs of item "I" moved to location "B"
-        VerifyItemInventory(Item, ToLocation.Code, Qty);
-
-        // [THEN] Positive adjustment for 100 pcs of item "I" is posted on location "B"
-        VerifyWarehouseEntry(ToLocation.Code, Item."No.", WarehouseEntry."Entry Type"::"Positive Adjmt.", Qty);
     end;
 
     [Test]
@@ -284,6 +278,39 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [THEN] Negative adjustment for -100 pcs of item "I" is posted on location "B"
         VerifyWarehouseEntry(FromLocation.Code, Item."No.", WarehouseEntry."Entry Type"::"Negative Adjmt.", -Qty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDirectTransferWithDirectedPutawayAndPickForToLocation()
+    var
+        Item: Record Item;
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        Bin: Record Bin;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        Qty: Integer;
+    begin
+        // [FEATURE] [Location] [Warehouse] [Direct Transfer] 
+        // [SCENARIO 449256] Direct transfer to location with directed put-away and pick cannot be posted
+
+        Initialize();
+
+        // [GIVEN] Two locations: "A" without warehouse setup, and "B" with "Directed Put-Away and Pick" enabled
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWMS(ToLocation, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, ToLocation.Code, '', '', '');
+        ToLocation."Directed Put-away and Pick" := true;
+        ToLocation.Modify();
+
+        // [GIVEN] Item "I" with stock of 100 pcs on location "A"
+        Qty := CreateAndPostItemJournalLine(Item."No.", FromLocation.Code, '');
+
+        // [GIVEN] Create a direct transfer order from location "A" to location "B"
+        asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
     end;
 
     [Test]

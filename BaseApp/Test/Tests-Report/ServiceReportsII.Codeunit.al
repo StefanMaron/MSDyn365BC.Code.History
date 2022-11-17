@@ -17,6 +17,7 @@ codeunit 136905 "Service Reports - II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -681,6 +682,48 @@ codeunit 136905 "Service Reports - II"
         // [THEN] Number of warranty ledger entries are correct.
         WarrantyLedgerEntry.SetRange("Document No.", DocumentNo);
         VerifyDocumentEntriesReport(WarrantyLedgerEntry.TableCaption(), WarrantyLedgerEntry.Count);
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesProFormaInvRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VerifyTaxAmountOnStandardSalesProFormaInv()
+    var
+        SalesHeader: Record "Sales Header";
+        TaxArea: Record "Tax Area";
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DocumentPrint: Codeunit "Document-Print";
+        AutoFormat: Codeunit "Auto Format";
+        AutoFormatType: Enum "Auto Format";
+    begin
+        // [SCENARIO 449267]Verify the Tax Amount on the Pro Forma Invoice should match the Tax Amount from the Sales Header
+        Initialize();
+
+        // [GIVEN] Create Tax Area with Lines
+        GeneralLedgerSetup.Get();
+        CreateTaxAreaWithTaxAreaLine(TaxArea, false);
+
+        // [GIVEN] Create Sales Header, Sales Line
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Tax Liable", true);
+        SalesHeader.Validate("Tax Area Code", TaxArea.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
+        SalesLine.Modify(true);
+
+        // [WHEN] Run the report 1302 "Standard Sales - Pro Forma Inv"
+        DocumentPrint.PrintProformaSalesInvoice(SalesHeader);
+
+        // [THEN] Verify the TotalVATAmount value in report 1302
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('TotalVATAmount', Format((SalesLine."Amount Including VAT" - SalesLine.Amount), 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, GeneralLedgerSetup."LCY Code")));
     end;
 
     local procedure NavigateForServiceShipment(WarrantyStartingDate: Date; WarrantyEndingDate: Date): Code[20]
@@ -1755,6 +1798,34 @@ codeunit 136905 "Service Reports - II"
             exit(ServCrMemoLine."Amount Including VAT");
     end;
 
+    local procedure CreateTaxAreaWithTaxAreaLine(var TaxArea: Record "Tax Area"; UseExternalTaxEngine: Boolean): Code[10]
+    var
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+    begin
+        CreateTaxDetailWithJurisdiction(TaxDetail);
+        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        // TFS ID 387685: Check that TaxArea with maxstrlen Description doesn't raise StringOverflow
+        TaxArea.Description := LibraryUtility.GenerateRandomXMLText(MaxStrLen(TaxArea.Description));
+        TaxArea.Insert();
+        TaxAreaLine."Tax Area" := TaxArea.Code;
+        TaxAreaLine."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";
+        TaxAreaLine.Insert();
+        exit(TaxDetail."Tax Group Code");
+    end;
+
+    local procedure CreateTaxDetailWithJurisdiction(var TaxDetail: Record "Tax Detail")
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Insert();
+        TaxDetail."Tax Jurisdiction Code" := TaxJurisdiction.Code;
+        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10;
+        TaxDetail."Tax Below Maximum" := LibraryRandom.RandDecInRange(5, 10, 2);
+        TaxDetail.Insert();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceShipmentReportlHandler(var ServiceShipment: TestRequestPage "Service - Shipment")
@@ -1767,6 +1838,13 @@ codeunit 136905 "Service Reports - II"
     procedure ServicePricingProfitabilityReportlHandler(var ServPricingProfitability: TestRequestPage "Serv. Pricing Profitability")
     begin
         ServPricingProfitability.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesProFormaInvRequestPageHandler(var StandardSalesProFormaInv: TestRequestPage "Standard Sales - Pro Forma Inv")
+    begin
+        StandardSalesProFormaInv.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

@@ -26,6 +26,9 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         NoAllowedValuesSelectedErr: Label 'There are no allowed dimension values selected.';
         ValuePostingErr: Label 'Value Posting must be equal to ''Code Mandatory''';
         GLAccountFilter: Text;
+        ExpectedErrLbl: Label 'The Dim. Value per Account does not exist. Identification fields and values: Table ID=''%1'',No.=''%2'',Dimension Code=''%3'',Dimension Value Code=''%4''',
+                                Comment = '%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code';
+        NoRecordExpected: Label 'No record expected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1098,6 +1101,46 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         Assert.RecordCount(DimValuePerAccount, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('DefaultDimensionsMultipleModalPageHandlerAssistEdit,DimAllowedValuesPerAccSetValueModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDefaultMultipleDimension()
+    var
+        DefaultDimension: Record "Default Dimension";
+        GLAccount: Record "G/L Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        // [SCENARIO 450783] Dimension values are mixed up when use dimension value filter
+        Initialize();
+
+        // [GIVEN] Created Dimension "DIM01" with Value "DV0101" and "DV0102"
+        CreateDimensionWithValue(DimensionValue[1]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], DimensionValue[1]."Dimension Code");
+
+        // [GIVEN] Created Dimension "DIM02" with Value "DV0201" and "DV0202"
+        CreateDimensionWithValue(DimensionValue[2]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], DimensionValue[2]."Dimension Code");
+
+        // [GIVEN] Create G/L Account "A1"
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] New mandatory Default Dimension for the G/L Account "A1" - "Dimension Code" = "DIM01"
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount."No.", DimensionValue[1]."Dimension Code");
+
+        // [GIVEN] New mandatory Default Dimension for the G/L Account "A1" - "Dimension Code" = "DIM02"
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code");
+
+        // [WHEN] Action Dimension-Multiple for selected accounts "A1" from page Chart of Accouts, assist edit for "Allowed Values Filter", set Allowed = false for "DV0202"
+        LibraryVariableStorage.Enqueue(DimensionValue[2]."Dimension Code");
+        EnqueueForDimAllowedValuesPerAccSetValueModalPageHandler(DimensionValue[2].Code, false, true);
+        MockGLAccountDimensionMultiple(GLAccount);
+
+        // [VERIFY] "Dim. Value per Account" for DIM02, doesn't have the value from DIM01
+        asserterror DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[1].Code);
+        assert.AreEqual(StrSubstNo(ExpectedErrLbl, Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[1].Code), GetLastErrorText(), NoRecordExpected);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1194,6 +1237,18 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
+    end;
+
+    local procedure MockGLAccountDimensionMultiple(SelectedGLAccount: Record "G/L Account")
+    var
+        GLAccount: Record "G/L Account";
+        ChartOfAccounts: TestPage "Chart of Accounts";
+        ERMDimensionAllowedByAcc: Codeunit "ERM Dimension Allowed by Acc.";
+    begin
+        BindSubscription(ERMDimensionAllowedByAcc);
+        ERMDimensionAllowedByAcc.SetGLAccountFilter(SelectedGLAccount."No.");
+        ChartOfAccounts.OpenView();
+        ChartOfAccounts."Dimensions-&Multiple".Invoke();
     end;
 
     local procedure VerifyDimValuePerAccountEmpty(DefaultDimension: Record "Default Dimension")

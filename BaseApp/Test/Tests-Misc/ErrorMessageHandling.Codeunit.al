@@ -1234,7 +1234,7 @@ codeunit 132500 "Error Message Handling"
         NamedForwardLink.Init();
         NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForAllowedPostingDate;
         NamedForwardLink.Description := NamedForwardLink.Name;
-        NamedForwardLink.Link := 'https://docs.microsoft.com/en-us/dynamics365/business-central/finance-how-specify-posting-periods';
+        NamedForwardLink.Link := 'https://go.microsoft.com/fwlink/?linkid=2208139';
         NamedForwardLink.Insert();
 
         ForwardLinks.OpenEdit;

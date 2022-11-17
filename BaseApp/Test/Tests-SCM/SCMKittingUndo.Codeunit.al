@@ -30,6 +30,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         GenProdPostingGr: Code[20];
         AsmInvtPostingGr: Code[20];
@@ -218,6 +219,19 @@ codeunit 137097 "SCM Kitting - Undo"
     begin
         LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, ToBinCode);
         LibraryWarehouse.GetBinContentInternalMovement(InternalMovementHeader, LocationCode, ItemNo, BinContentFilter);
+    end;
+
+    local procedure CreateItemReclassificationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[50]; Qty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Transfer, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Transfer, ItemNo, Qty);
     end;
 
     [Normal]
@@ -1945,6 +1959,78 @@ codeunit 137097 "SCM Kitting - Undo"
         FindAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
         AssemblyLine.TestField("Unit Cost", ComponentItem."Unit Cost");
         AssemblyLine.TestField("Cost Amount", OrderQty * ComponentItem."Unit Cost");
+    end;
+
+    [Test]
+    procedure ExistingExpirationDateForLotWhenUndoAssemblyWithItemTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNo: Code[50];
+        InventoryQty: Decimal;
+        AssemblyQty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 451161] The program must look for newest expiration date for a lot when undoing assembly order with item tracking.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        InventoryQty := LibraryRandom.RandIntInRange(11, 20);
+        AssemblyQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Assembled item "A", component item "C".
+        // [GIVEN] Component "C" is a lot-tracked item with mandatory expiration date.
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryItemTracking.CreateItemTrackingCodeWithExpirationDate(ItemTrackingCode, false, true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(CompItem, ItemTrackingCode);
+        AddComponentToAssemblyList(
+          BOMComponent, "BOM Component Type"::Item, CompItem."No.", AsmItem."No.", '', 0, CompItem."Base Unit of Measure", 1);
+
+        // [GIVEN] Post 10 qty. of item "C" to inventory, set lot no. = "L" and expiration date = "WorkDate".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', InventoryQty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+        ReservationEntry.Validate("Expiration Date", WorkDate2);
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Assembly order for 1 qty., select lot no. "L" for assembly line.
+        // [GIVEN] Post the assembly order.
+        CreateAssemblyOrder(AssemblyHeader, AsmItem, '', '', '', WorkDate2, AssemblyQty);
+        FindAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNo, AssemblyLine.Quantity);
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Change expiration date for remaining inventory of component "C" from "WorkDate" to "WorkDate + 1 day" using reclassification journal.
+        Clear(ItemJournalLine);
+        CreateItemReclassificationJournalLine(ItemJournalLine, CompItem."No.", InventoryQty - AssemblyQty);
+        LibraryItemTracking.CreateItemReclassJnLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+        ReservationEntry.Validate("New Lot No.", LotNo);
+        ReservationEntry.Validate("New Expiration Date", WorkDate2 + 1);
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Undo the assembly order.
+        FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");
+        LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
+
+        // [THEN] Expiration date on item entry for undone component consumption = "WorkDate + 1 day".
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Assembly Consumption");
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
+        ItemLedgerEntry.TestField("Expiration Date", WorkDate2 + 1);
     end;
 }
 

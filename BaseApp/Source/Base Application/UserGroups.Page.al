@@ -49,11 +49,13 @@ page 9830 "User Groups"
                     var
                         AllProfileTable: Record "All Profile";
                     begin
-                        AllProfileTable.SetFilter("Profile ID", Rec."Default Profile ID");
-                        if AllProfileTable.FindFirst() then
-                            UpdateProfile(AllProfileTable)
-                        else
-                            Error(InvalidProfileCodeErr);
+                        if Rec."Default Profile ID" <> '' then begin
+                            AllProfileTable.SetFilter("Profile ID", Rec."Default Profile ID");
+                            if not AllProfileTable.FindFirst() then
+                                Error(InvalidProfileCodeErr);
+                        end;
+
+                        UpdateProfile(AllProfileTable)
                     end;
                 }
             }

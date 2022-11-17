@@ -150,21 +150,21 @@ page 682 "Schedule a Report"
         ReportDescription: Text[250];
         IsHandled: Boolean;
     begin
-        Init();
-        Status := Status::"On Hold";
-        Validate("Object Type to Run", "Object Type to Run"::Report);
-        Validate("Object ID to Run", ReportId);
+        Rec.Init();
+        Rec.Status := Rec.Status::"On Hold";
+        Rec.Validate("Object Type to Run", Rec."Object Type to Run"::Report);
+        Rec.Validate("Object ID to Run", ReportId);
 
-        OnGetReportDescription(ReportDescription, RequestPageXml, ReportId, IsHandled);
+        OnGetReportDescription(ReportDescription, RequestPageXml, ReportId, IsHandled, Rec);
         if IsHandled then
-            Description := ReportDescription;
+            Rec.Description := ReportDescription;
 
-        Insert(true);
-        SetReportParameters(RequestPageXml);
+        Rec.Insert(true);
+        Rec.SetReportParameters(RequestPageXml);
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnGetReportDescription(var ReportDescription: Text[250]; RequestPageXml: Text; ReportId: Integer; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnGetReportDescription(var ReportDescription: Text[250]; RequestPageXml: Text; ReportId: Integer; var IsHandled: Boolean; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 

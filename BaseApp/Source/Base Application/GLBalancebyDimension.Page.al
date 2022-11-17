@@ -929,7 +929,7 @@ page 408 "G/L Balance by Dimension"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindRecCaseElse(AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; DimOption: Integer; GeneralLedgerSetup: Record "General Ledger Setup"; var Found: Boolean; var DimensionCodeBuffer: Record "Dimension Code Buffer"; Which: Text[250])
     begin
     end;
@@ -939,7 +939,7 @@ page 408 "G/L Balance by Dimension"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnNextRecCaseElse(AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; DimOption: Integer; GeneralLedgerSetup: Record "General Ledger Setup"; var ResultSteps: Integer; var DimensionCodeBuffer: Record "Dimension Code Buffer"; Steps: Integer)
     begin
     end;

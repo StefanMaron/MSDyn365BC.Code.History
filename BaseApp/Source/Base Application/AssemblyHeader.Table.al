@@ -1851,7 +1851,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
 
 #if not CLEAN20
@@ -1897,7 +1897,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var AssemblyHeader: Record "Assembly Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var AssemblyHeader: Record "Assembly Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
     begin
     end;
 

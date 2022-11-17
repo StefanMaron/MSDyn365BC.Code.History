@@ -288,7 +288,7 @@ page 5339 "Integration Synch. Error List"
         HelpLink: Text;
         PermissionsTok: Label ' prv', Locked = true;
         PermissionsHelpTitleTxt: Label 'Insufficient permissions', Locked = true;
-        FixPermissionsUrlTxt: Label 'https://docs.microsoft.com/en-us/power-platform/admin/troubleshooting-user-needs-read-write-access-organization#user-doesnt-have-sufficient-permissions', Locked = true;
+        FixPermissionsUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2206174', Locked = true;
         HasRecords: Boolean;
         ShowDataIntegrationActions: Boolean;
         ShowCDSIntegrationActions: Boolean;

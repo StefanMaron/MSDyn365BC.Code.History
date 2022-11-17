@@ -671,6 +671,13 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Control PaperTray - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
+          <target state="translated">Nouveau, Traitement, État, Gérer, Impression par e-mail, Impression universelle</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>universal printers,universalprint</source>
           <target state="translated">imprimantes universelles,impression universelle</target>

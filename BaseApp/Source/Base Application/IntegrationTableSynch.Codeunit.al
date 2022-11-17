@@ -116,7 +116,6 @@ codeunit 5335 "Integration Table Synch."
         IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
         SynchAction: Option;
         IsHandled: Boolean;
-
     begin
         OnBeforeSynchronize(SourceRecordRef, DestinationRecordRef, ForceModify, IgnoreSynchOnlyCoupledRecords, IsHandled);
         if IsHandled then
@@ -414,9 +413,9 @@ codeunit 5335 "Integration Table Synch."
                 "Integration Table ID":
                     SynchDirection := Direction::FromIntegrationTable;
                 else begin
-                        ErrorMessage := UnableToDetectSynchDirectionErr;
-                        exit(false);
-                    end;
+                    ErrorMessage := UnableToDetectSynchDirectionErr;
+                    exit(false);
+                end;
             end;
 
             if not (Direction in [SynchDirection, Direction::Bidirectional]) then begin

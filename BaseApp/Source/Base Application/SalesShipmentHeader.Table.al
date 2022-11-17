@@ -760,7 +760,7 @@ table 110 "Sales Shipment Header"
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]

@@ -286,9 +286,9 @@ report 11 "G/L - VAT Reconciliation"
                             VATEntry.SetRange("VAT Prod. Posting Group", "VAT Statement Line"."VAT Prod. Posting Group");
                             if (EndDateReq <> 0D) or (StartDate <> 0D) then
                                 if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                                    VATEntry.SetRange("Posting Date", 0D, EndDate)
+                                    VATEntry.SetRange("VAT Reporting Date", 0D, EndDate)
                                 else
-                                    VATEntry.SetRange("Posting Date", StartDate, EndDate);
+                                    VATEntry.SetRange("VAT Reporting Date", StartDate, EndDate);
                             VATEntry.SetRange(Reversed, false);
                         end;
                         VATEntryCopy.Copy(VATEntry);

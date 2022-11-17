@@ -2600,7 +2600,6 @@ codeunit 136208 "Marketing Interaction"
         User.Delete();
     end;
 
-    /*
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandlerVerifyAttachment,CloseEmailEditorHandler')]
     procedure LogSegmentWithWordTemplateAndSendAsAttachmentToggle()
@@ -2651,14 +2650,13 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry: Record "Interaction Log Entry";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         Segment: TestPage Segment;
-        ExpectedEntryNo: Integer;
+        ExpectedCount: Integer;
     begin
         // [SCENARIO] User log segment and sends email with Word template using given wizard action
         Initialize();
         LibraryWorkflow.SetUpEmailAccount();
 
-        InteractionLogEntry.FindLast();
-        ExpectedEntryNo := InteractionLogEntry."Entry No." + 1;
+        ExpectedCount := InteractionLogEntry.Count() + 1;
         Clear(InteractionLogEntry);
 
         // [GIVEN] Segment for email and Interaction Template with Word template and given wizard action
@@ -2671,10 +2669,9 @@ codeunit 136208 "Marketing Interaction"
 
         // [THEN] Email dialog launched (verification in handler) and verify that a new log entry was added.
         InteractionLogEntry.FindLast();
-        Assert.AreEqual(ExpectedEntryNo, InteractionLogEntry."Entry No.", 'One new interaction log entry should have been added.');
+        Assert.AreEqual(ExpectedCount, InteractionLogEntry.Count(), 'One new interaction log entry should have been added.');
         ClearVariables(SegmentHeader);
     end;
-    */
 
     [Test]
     [Scope('OnPrem')]

@@ -176,12 +176,17 @@
             trigger OnValidate()
             var
                 ItemTrackingMgt: Codeunit "Item Tracking Management";
+                IsHandled: Boolean;
             begin
                 WMSManagement.CheckItemTrackingChange(Rec, xRec);
-                if "Buffer Status2" = "Buffer Status2"::"ExpDate blocked" then begin
-                    "Expiration Date" := xRec."Expiration Date";
-                    Message(Text004);
-                end;
+
+                IsHandled := false;
+                OnValidateExpirationDateOnBeforeResetExpirationDate(Rec, xRec, IsHandled);
+                If not IsHandled then
+                    if "Buffer Status2" = "Buffer Status2"::"ExpDate blocked" then begin
+                        "Expiration Date" := xRec."Expiration Date";
+                        Message(Text004);
+                    end;
 
                 if "Expiration Date" <> xRec."Expiration Date" then
                     ItemTrackingMgt.UpdateExpirationDateForLot(Rec);
@@ -365,39 +370,11 @@
             trigger OnValidate()
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
-                IsHandled: Boolean;
             begin
                 if "Appl.-from Item Entry" = 0 then
                     exit;
 
-                case "Source Type" of
-                    DATABASE::"Sales Line":
-                        if (("Source Subtype" in [3, 5]) and ("Quantity (Base)" < 0)) or
-                           (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0)) // sale
-                        then
-                            FieldError("Quantity (Base)");
-                    DATABASE::"Item Journal Line":
-                        if (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" < 0)) or
-                           (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" > 0))
-                        then
-                            FieldError("Quantity (Base)");
-                    DATABASE::"Service Line":
-                        if (("Source Subtype" in [3]) and ("Quantity (Base)" < 0)) or
-                           (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0))
-                        then
-                            FieldError("Quantity (Base)");
-                    DATABASE::"Invt. Document Line":
-                        if (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" < 0)) or
-                           (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" > 0))
-                        then
-                            FieldError("Quantity (Base)");
-                    else begin
-                            IsHandled := false;
-                            OnValidateApplFromItemEntryOnSourceTypeCaseElse(Rec, IsHandled);
-                            if not IsHandled then
-                                FieldError("Source Subtype");
-                        end;
-                end;
+                CheckApplyFromItemEntrySourceType();
 
                 if not TrackingExists() then
                     TestTrackingFieldsAreBlank();
@@ -822,6 +799,45 @@
         end;
 
         OnAfterInitFromTransLine(Rec, TransLine, Direction);
+    end;
+
+    local procedure CheckApplyFromItemEntrySourceType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckApplyFromItemEntrySourceType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        case "Source Type" of
+            DATABASE::"Sales Line":
+                if (("Source Subtype" in [3, 5]) and ("Quantity (Base)" < 0)) or
+                    (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0)) // sale
+                then
+                    FieldError("Quantity (Base)");
+            DATABASE::"Item Journal Line":
+                if (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" < 0)) or
+                    (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" > 0))
+                then
+                    FieldError("Quantity (Base)");
+            DATABASE::"Service Line":
+                if (("Source Subtype" in [3]) and ("Quantity (Base)" < 0)) or
+                    (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0))
+                then
+                    FieldError("Quantity (Base)");
+            DATABASE::"Invt. Document Line":
+                if (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" < 0)) or
+                    (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" > 0))
+                then
+                    FieldError("Quantity (Base)");
+            else begin
+                IsHandled := false;
+                OnValidateApplFromItemEntryOnSourceTypeCaseElse(Rec, IsHandled);
+                if not IsHandled then
+                    FieldError("Source Subtype");
+            end;
+        end;
     end;
 
     local procedure CheckSerialNoQty()
@@ -1837,6 +1853,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityBaseOnBeforeCheckItemTrackingChange(var TrackingSpecification: Record "Tracking Specification"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateExpirationDateOnBeforeResetExpirationDate(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApplyFromItemEntrySourceType(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -144,7 +144,13 @@ table 5405 "Production Order"
             var
                 Item: Record Item;
                 StockkeepingUnit: Record "Stockkeeping Unit";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVariantCode(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Rec."Variant Code" = xRec."Variant Code" then
                     exit;
 
@@ -1396,7 +1402,7 @@ table 5405 "Production Order"
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Source No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
 
 #if not CLEAN20
@@ -1442,7 +1448,7 @@ table 5405 "Production Order"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ProductionOrder: Record "Production Order"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
     begin
     end;
 
@@ -1530,6 +1536,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVariantCode(var ProductionOrder: Record "Production Order"; xProductionOrder: Record "Production Order"; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
 

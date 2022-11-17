@@ -479,9 +479,11 @@ page 1275 "Doc. Exch. Service Setup"
 
     trigger OnOpenPage()
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ClientId: Text;
     begin
         Reset();
+        FeatureTelemetry.LogUptake('0000IM8', DocExchServiceMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Discovered);
         if not Get() then begin
             Init();
             SetURLsToDefault(false);

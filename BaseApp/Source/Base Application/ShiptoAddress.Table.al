@@ -49,7 +49,7 @@ table 222 "Ship-to Address"
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
 
-                OnAfterLookupCity(Rec, PostCode);
+                OnAfterLookupCity(Rec, PostCode, xRec);
             end;
 
             trigger OnValidate()
@@ -60,6 +60,7 @@ table 222 "Ship-to Address"
                 OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                OnAfterValidateCity(Rec, PostCode);
             end;
         }
         field(8; Contact; Text[100])
@@ -152,7 +153,7 @@ table 222 "Ship-to Address"
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
 
-                OnAfterLookupPostCode(Rec, PostCode);
+                OnAfterLookupPostCode(Rec, PostCode, xRec);
             end;
 
             trigger OnValidate()
@@ -163,6 +164,7 @@ table 222 "Ship-to Address"
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                OnAfterValidatePostCode(Rec, PostCode);
             end;
         }
         field(92; County; Text[30])
@@ -286,12 +288,22 @@ table 222 "Ship-to Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookupPostCode(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    local procedure OnAfterLookupPostCode(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code"; xShipToAddress: Record "Ship-to Address");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookupCity(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    local procedure OnAfterLookupCity(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code"; xShipToAddress: Record "Ship-to Address");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCity(var ShipToAddress: Record "Ship-to Address"; var PostCode: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePostCode(var ShipToAddress: Record "Ship-to Address"; var PostCode: Record "Post Code");
     begin
     end;
 

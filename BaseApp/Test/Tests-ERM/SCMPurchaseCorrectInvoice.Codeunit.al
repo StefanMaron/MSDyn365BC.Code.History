@@ -30,6 +30,8 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         AmountPurchInvErr: Label 'Amount must have a value in Purch. Inv. Header';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
         CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
+        TransactionTypeErr: Label 'Transaction Type are not equal';
+        TransportMethodErr: Label 'Transport Method are not equal';
 
     [Test]
     [Scope('OnPrem')]
@@ -971,6 +973,42 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyTransportAndTransactionTransferredInPurchCreditMemoHeader()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PurchInvHeaderNo: Code[20];
+    begin
+        // [SCENARIO 452722]  Fields “Transaction Type” and “Transport Method” are not transferred to Purchase Credit Memo Header
+        Initialize();
+
+        // [GIVEN] Create Purchase Header with Transaction Type & Transport Method
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader."Transaction Specification" := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Transaction Type" := LibraryUtility.GenerateGUID();
+        PurchaseHeader."Transport Method" := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        // [GIVEN] Post the Purchase Invoice
+        PurchInvHeaderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PurchInvHeaderNo);
+
+        // [WHEN] Create Corrective Credit Memo for Purchase Invoice
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader2);
+
+        // [THEN] Verify Transaction Type & Transport Method are transferred to Credit Memo
+        Assert.AreEqual(PurchaseHeader."Transaction Type", PurchaseHeader2."Transaction Type", TransactionTypeErr);
+        Assert.AreEqual(PurchaseHeader."Transport Method", PurchaseHeader2."Transport Method", TransportMethodErr);
     end;
 
     local procedure Initialize()

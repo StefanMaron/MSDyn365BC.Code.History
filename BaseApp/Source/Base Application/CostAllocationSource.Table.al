@@ -36,7 +36,14 @@ table 1106 "Cost Allocation Source"
             TableRelation = "Cost Center";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCostCenterCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Cost Center Code" <> '') and ("Cost Object Code" <> '') then
                     Error(Text003);
             end;
@@ -47,7 +54,14 @@ table 1106 "Cost Allocation Source"
             TableRelation = "Cost Object";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCostObjectCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Cost Center Code" <> '') and ("Cost Object Code" <> '') then
                     Error(Text003);
             end;
@@ -154,6 +168,16 @@ table 1106 "Cost Allocation Source"
     begin
         "Last Date Modified" := Today;
         "User ID" := UserId;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCostCenterCode(var CostAllocationSource: Record "Cost Allocation Source"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCostObjectCode(var CostAllocationSource: Record "Cost Allocation Source"; var IsHandled: Boolean)
+    begin
     end;
 }
 

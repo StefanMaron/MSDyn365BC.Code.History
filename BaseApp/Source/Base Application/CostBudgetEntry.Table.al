@@ -137,9 +137,9 @@ table 1109 "Cost Budget Entry"
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
         CheckEntries();
-        CostBudgetEntry.Get("Entry No.");
-        if Amount <> CostBudgetEntry.Amount then
-            CostAccMgt.UpdateCostBudgetRegister(CurrRegNo, "Entry No.", Amount - CostBudgetEntry.Amount);
+        CostBudgetEntry.Get(Rec."Entry No.");
+        if ShouldUpdateCostRegister(CostBudgetEntry) then
+            CostAccMgt.UpdateCostBudgetRegister(CurrRegNo, "Entry No.", Rec.Amount - CostBudgetEntry.Amount);
         Modified();
     end;
 
@@ -258,7 +258,13 @@ table 1109 "Cost Budget Entry"
     local procedure HandleCostBudgetRegister()
     var
         CostBudgetReg: Record "Cost Budget Register";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleCostBudgetRegister(Rec, CurrRegNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if CostBudgetReg.Get(CurrRegNo) then;
         if (CurrRegNo = 0) or (CostBudgetReg."To Cost Budget Entry No." <> "Entry No." - 1) then
             CurrRegNo := CostAccMgt.InsertCostBudgetRegister("Entry No.", "Budget Name", Amount)
@@ -329,6 +335,13 @@ table 1109 "Cost Budget Entry"
         exit('')
     end;
 
+    local procedure ShouldUpdateCostRegister(CostBudgetEntry: Record "Cost Budget Entry") ShouldUpdate: Boolean
+    begin
+        ShouldUpdate := Rec.Amount <> CostBudgetEntry.Amount;
+
+        OnAfterShouldUpdateCostRegister(Rec, CostBudgetEntry, CurrRegNo, ShouldUpdate);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompressBudgetEntries(BudName: Code[20]; var IsHandled: Boolean)
     begin
@@ -336,6 +349,16 @@ table 1109 "Cost Budget Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckEntries(CostBudgetEntry: Record "Cost Budget Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleCostBudgetRegister(var CostBudgetEntry: Record "Cost Budget Entry"; var CurrRegNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldUpdateCostRegister(var Rec: Record "Cost Budget Entry"; var CostBudgetEntry: Record "Cost Budget Entry"; CurrRegNo: Integer; var ShouldUpdate: Boolean)
     begin
     end;
 }

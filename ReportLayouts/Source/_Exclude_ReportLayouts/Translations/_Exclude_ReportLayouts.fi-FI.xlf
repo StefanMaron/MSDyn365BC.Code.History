@@ -260,6 +260,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout New Dialog - Control ReportName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2855939321 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Approve</source>
+          <target state="translated">Uusi,Käsittely,Raportti,Hyväksyntä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layouts - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="Page 2855939321 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Report Layouts</source>
           <target state="translated">Raporttiasettelut</target>

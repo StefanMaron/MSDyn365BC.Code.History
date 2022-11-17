@@ -356,7 +356,7 @@ codeunit 1252 "Match Bank Rec. Lines"
     begin
         exit((TempMatchingDetailsBankStatementMatchingBuffer."Date Difference" = 0) and
             (TempMatchingDetailsBankStatementMatchingBuffer."Amount Difference" = 0) and
-            (GetMaxTextScore(TempMatchingDetailsBankStatementMatchingBuffer) >= 75));
+            (GetMaxTextScore(TempMatchingDetailsBankStatementMatchingBuffer) >= 95));
     end;
 
     local procedure MatchingIsAcceptable(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempMatchingDetailsBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary): Boolean

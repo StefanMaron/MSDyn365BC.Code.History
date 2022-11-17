@@ -6,7 +6,11 @@ codeunit 64 "Sales-Get Shipment"
     var
         IsHandled: Boolean;
     begin
-       
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesHeader.Get("Document Type", "Document No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
@@ -46,7 +50,13 @@ codeunit 64 "Sales-Get Shipment"
         LineCount: Integer;
         TransferLine: Boolean;
         PrepmtAmtToDeductRounding: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateInvLines(SalesShptLine2, SalesHeader, SalesLine, SalesShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesShptLine2 do begin
             SetFilter("Qty. Shipped Not Invoiced", '<>0');
             OnCreateInvLinesOnBeforeFind(SalesShptLine2, SalesHeader);
@@ -119,7 +129,14 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     procedure SetSalesHeader(var SalesHeader2: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalesHeader(SalesHeader, SalesHeader2, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
     end;
@@ -345,6 +362,11 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateInvLines(var SalesShipmentLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertLines(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -356,6 +378,16 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetItemChargeAssgnt(var SalesShipmentLine: Record "Sales Shipment Line"; QtyToInvoice: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesHeader(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

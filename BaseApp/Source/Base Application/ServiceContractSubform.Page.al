@@ -227,7 +227,6 @@ page 6052 "Service Contract Subform"
     var
         Item: Record Item;
     begin
-        SetUpNewLine();
         if "Variant Code" = '' then
             VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
     end;

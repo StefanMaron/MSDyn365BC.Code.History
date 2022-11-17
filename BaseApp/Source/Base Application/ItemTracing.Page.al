@@ -58,6 +58,7 @@ page 6520 "Item Tracing"
                 }
                 field(PackageNoFilter; PackageNoFilter)
                 {
+                    ApplicationArea = ItemTracking;
                     Caption = 'Package No. Filter';
                     CaptionClass = '6,3';
                     ToolTip = 'Specifies the package number or a filter on the package numbers that you would like to trace.';

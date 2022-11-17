@@ -112,7 +112,7 @@ table 167 Job
                         ShouldDeleteReservationEntries := CheckReservationEntries();
                         repeat
                             if ShouldDeleteReservationEntries then
-                                JobPlanningLineReserve.DeleteLine(JobPlanningLine);
+                                JobPlanningLineReserve.DeleteLineInternal(JobPlanningLine, false);
                             JobPlanningLine.Validate(Status, Status);
                             JobPlanningLine.Modify();
                         until JobPlanningLine.Next() = 0;
@@ -1130,8 +1130,8 @@ table 167 Job
         EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This job''s Ending Date value';
         UpdateJobTaskDimQst: Label 'You have changed a dimension.\\Do you want to update the lines?';
         RunWIPFunctionsQst: Label 'You must run the %1 function to create completion entries for this job. \Do you want to run this function now?', Comment = '%1 = The name of the Job Calculate WIP report';
-        ReservationEntriesDeleteQst: Label 'Any reservation entries that exist for this job will be deleted. \Do you want to continue?';
-        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations on the job planning lines.', Comment = '%1=The job status name';
+        ReservEntriesItemTrackLinesDeleteQst: Label 'All reservation entries and item tracking lines for this job will be deleted. \Do you want to continue?';
+        ReservEntriesItemTrackLinesExistErr: Label 'You cannot set the status to %1 because the job has reservations or item tracking lines on the job planning lines.', Comment = '%1=The job status name';
         AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
         WhseCompletelyPickedErr: Label 'All of the items on the job planning lines are completely picked.';
         WhseNoItemsToPickErr: Label 'There are no items to pick on the job planning lines.';
@@ -1313,23 +1313,25 @@ table 167 Job
         end;
     end;
 
-    procedure JobLedgEntryExist(): Boolean
+    procedure JobLedgEntryExist() Result: Boolean
     var
         JobLedgEntry: Record "Job Ledger Entry";
     begin
         Clear(JobLedgEntry);
         JobLedgEntry.SetCurrentKey("Job No.");
         JobLedgEntry.SetRange("Job No.", "No.");
-        exit(not JobLedgEntry.IsEmpty());
+        Result := not JobLedgEntry.IsEmpty();
+        OnAfterJobLedgEntryExist(JobLedgEntry, Result);
     end;
 
-    procedure JobPlanningLineExist(): Boolean
+    procedure JobPlanningLineExist() Result: Boolean
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.Init();
         JobPlanningLine.SetRange("Job No.", "No.");
-        exit(not JobPlanningLine.IsEmpty());
+        Result := not JobPlanningLine.IsEmpty();
+        OnAfterJobPlanningLineExist(JobPlanningLine, Result);
     end;
 
     procedure UpdateBillToCust(ContactNo: Code[20])
@@ -1776,8 +1778,8 @@ table 167 Job
             ReservEntry.SetRange("Source ID", "No.");
             ReservationToDeleteExists := not ReservEntry.IsEmpty();
             if ReservationToDeleteExists then
-                if not ConfirmManagement.GetResponseOrDefault(ReservationEntriesDeleteQst, false) then
-                    Error(ReservationEntriesExistErr, Status);
+                if not ConfirmManagement.GetResponseOrDefault(ReservEntriesItemTrackLinesDeleteQst, false) then
+                    Error(ReservEntriesItemTrackLinesExistErr, Status);
         end;
 
         exit(ReservationToDeleteExists);
@@ -2350,7 +2352,7 @@ table 167 Job
 #if not CLEAN20
         OnAfterUpdateBillToCust(Job, BillToCustomer);
 #endif
-        OnAfterBillToCustomerNoUpdated(Job, xJob, BillToCustomer);
+        OnAfterBillToCustomerNoUpdated(Job, xJob, BillToCustomer, CurrFieldNo);
     end;
 
     local procedure CheckBillToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job)
@@ -2477,7 +2479,17 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBillToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; BillToCustomer: Record Customer)
+    local procedure OnAfterBillToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; BillToCustomer: Record Customer; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterJobLedgEntryExist(var JobLedgerEntry: Record "Job Ledger Entry"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterJobPlanningLineExist(var JobPlanningLine: Record "Job Planning Line"; var Result: Boolean)
     begin
     end;
 
@@ -2620,7 +2632,7 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSellToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeSellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

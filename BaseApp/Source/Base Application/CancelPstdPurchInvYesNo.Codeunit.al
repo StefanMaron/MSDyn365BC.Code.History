@@ -18,6 +18,7 @@ codeunit 1325 "Cancel PstdPurchInv (Yes/No)"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         CancelledDocument: Record "Cancelled Document";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        IsHandled: Boolean;
     begin
         CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
         if Confirm(CancelPostedInvoiceQst) then
@@ -25,11 +26,19 @@ codeunit 1325 "Cancel PstdPurchInv (Yes/No)"
                 if Confirm(OpenPostedCreditMemoQst) then begin
                     CancelledDocument.FindPurchCancelledInvoice(PurchInvHeader."No.");
                     PurchCrMemoHdr.Get(CancelledDocument."Cancelled By Doc. No.");
-                    PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                    IsHandled := false;
+                    OnBeforeShowPostedPurchaseCreditMemo(PurchCrMemoHdr, IsHandled);
+                    if not IsHandled then
+                        PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
                     exit(true);
                 end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
     end;
 }
 

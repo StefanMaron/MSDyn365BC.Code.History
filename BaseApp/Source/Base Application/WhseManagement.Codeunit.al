@@ -21,8 +21,38 @@ codeunit 5775 "Whse. Management"
     end;
 
     procedure GetWhseRqstSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Request Source Document"
+    var
+        WhseJournalSourceDocument: Enum "Warehouse Journal Source Document";
     begin
-        exit(GetSourceDocumentType(SourceType, SourceSubtype));
+        WhseJournalSourceDocument := GetSourceDocumentType(SourceType, SourceSubtype);
+        case WhseJournalSourceDocument of
+            "Warehouse Journal Source Document"::"S. Order":
+                SourceDocument := "Warehouse Request Source Document"::"Sales Order";
+            "Warehouse Journal Source Document"::"S. Return Order":
+                SourceDocument := "Warehouse Request Source Document"::"Sales Return Order";
+            "Warehouse Journal Source Document"::"P. Order":
+                SourceDocument := "Warehouse Request Source Document"::"Purchase Order";
+            "Warehouse Journal Source Document"::"P. Return Order":
+                SourceDocument := "Warehouse Request Source Document"::"Purchase Return Order";
+            "Warehouse Journal Source Document"::"Inb. Transfer":
+                SourceDocument := "Warehouse Request Source Document"::"Inbound Transfer";
+            "Warehouse Journal Source Document"::"Outb. Transfer":
+                SourceDocument := "Warehouse Request Source Document"::"Outbound Transfer";
+            "Warehouse Journal Source Document"::"Prod. Consumption":
+                SourceDocument := "Warehouse Request Source Document"::"Prod. Consumption";
+            "Warehouse Journal Source Document"::"Item Jnl.":
+                SourceDocument := "Warehouse Request Source Document"::"Prod. Output";
+            "Warehouse Journal Source Document"::"Serv. Order":
+                SourceDocument := "Warehouse Request Source Document"::"Service Order";
+            "Warehouse Journal Source Document"::"Assembly Order":
+                SourceDocument := "Warehouse Request Source Document"::"Assembly Order";
+            "Warehouse Journal Source Document"::"Assembly Consumption":
+                SourceDocument := "Warehouse Request Source Document"::"Assembly Consumption";
+            "Warehouse Journal Source Document"::"Job Usage":
+                SourceDocument := "Warehouse Request Source Document"::"Job Usage";
+            else
+                SourceDocument := WhseJournalSourceDocument;
+        end;
     end;
 
     procedure GetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Journal Source Document"

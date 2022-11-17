@@ -1985,6 +1985,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup Card - Action Stop - Method OnAction - NamedType SomethingWentWrongErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 494180900 - Property 2019332006" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New,Process,Report,Import/Export]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page BCPT Setup List - Property PromotedActionCategories)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 494180900 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[BCPT Suites]]></Val>

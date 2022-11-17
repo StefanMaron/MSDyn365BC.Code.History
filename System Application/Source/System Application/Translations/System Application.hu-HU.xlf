@@ -1983,6 +1983,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Action ActionFinish - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1105213220 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Manage,View</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="Page 1105213220 - NamedType 1965782370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to set data sensitivity to %1 on %2 fields?</source>
           <note from="Developer" annotates="general" priority="2">%1=Choosen sensitivity %2=total number of fields</note>
@@ -2552,6 +2557,11 @@
           <source>Specifies the logo of the extension, such as the logo of the service provider.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Logo Part - Control Logo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2005578726 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Details,Manage</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - NamedType 860257111" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 cannot be unpublished because it is installed.</source>
@@ -3617,31 +3627,6 @@
           <source>Table Information</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1919691214 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the company the table belongs to</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Company Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1919691214 - Control 2065755396 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The number of records in the table</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control No. of Records - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1919691214 - Control 3391158951 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>How much space the table occupies in the database (in kilobytes)</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Size (KB</note>
-        </trans-unit>
-        <trans-unit id="Page 1919691214 - Control 3808951907 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the table</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Table Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1919691214 - Control 3017471043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The ID number for the table</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Table No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1358710565 - Control 639974159 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The language to which the source text was translated.</source>

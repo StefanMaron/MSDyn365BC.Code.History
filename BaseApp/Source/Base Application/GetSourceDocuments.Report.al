@@ -23,7 +23,7 @@
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
-                        OnBeforeSalesLineOnAfterGetRecord("Sales Line", "Warehouse Request", RequestType, IsHandled);
+                        OnBeforeSalesLineOnAfterGetRecord("Sales Line", "Warehouse Request", RequestType, IsHandled, SkipBlockedItem);
                         if IsHandled then
                             CurrReport.Skip();
 
@@ -44,13 +44,16 @@
                                     end;
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromSalesLine2ShptLine("Sales Line") then begin
-                                        if Cust.Blocked <> Cust.Blocked::" " then begin
-                                            if not SalesHeaderCounted then begin
-                                                SkippedSourceDoc += 1;
-                                                SalesHeaderCounted := true;
+                                        IsHandled := false;
+                                        OnSalesLineOnAfterGetRecordOnBeforeCheckCustBlocked(Cust, IsHandled);
+                                        if not IsHandled then
+                                            if Cust.Blocked <> Cust.Blocked::" " then begin
+                                                if not SalesHeaderCounted then begin
+                                                    SkippedSourceDoc += 1;
+                                                    SalesHeaderCounted := true;
+                                                end;
+                                                CurrReport.Skip();
                                             end;
-                                            CurrReport.Skip();
-                                        end;
                                         IsHandled := false;
                                         OnSalesLineOnAfterGetRecordOnBeforeCreateShptHeader(
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
@@ -140,7 +143,7 @@
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
-                        OnBeforePurchaseLineOnAfterGetRecord("Purchase Line", "Warehouse Request", RequestType, IsHandled);
+                        OnBeforePurchaseLineOnAfterGetRecord("Purchase Line", "Warehouse Request", RequestType, IsHandled, SkipBlockedItem);
                         if IsHandled then
                             CurrReport.Skip();
 
@@ -902,12 +905,12 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSalesLineOnPreDataItem(var SalesLine: Record "Sales Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterServiceLineOnPreDataItem(var ServiceLine: Record "Service Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
@@ -917,7 +920,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPurchaseLineOnPreDataItem(var PurchaseLine: Record "Purchase Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
@@ -958,7 +961,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseLineOnAfterGetRecord(PurchaseLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    local procedure OnBeforePurchaseLineOnAfterGetRecord(PurchaseLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean; SkipBlockedItem: Boolean)
     begin
     end;
 
@@ -968,7 +971,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineOnAfterGetRecord(SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    local procedure OnBeforeSalesLineOnAfterGetRecord(SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean; SkipBlockedItem: Boolean)
     begin
     end;
 
@@ -1134,6 +1137,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnWarehouseRequestOnAfterOnPostDataItem(WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineOnAfterGetRecordOnBeforeCheckCustBlocked(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

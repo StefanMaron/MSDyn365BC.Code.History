@@ -189,7 +189,6 @@
         ICOutboxTransaction2: Record "IC Outbox Transaction";
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
-
         Text001: Label 'Transaction No. %2 is a copy of Transaction No. %1, which has already been set to Send to IC Partner.\Do you also want to send Transaction No. %2?';
         TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
     begin

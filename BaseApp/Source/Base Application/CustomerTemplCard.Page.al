@@ -292,7 +292,6 @@ page 1382 "Customer Templ. Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        NotBlank = true;
                         ToolTip = 'Specifies a code for the invoice discount terms that you have defined for the customer.';
                     }
                     field("Prices Including VAT"; Rec."Prices Including VAT")

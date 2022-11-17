@@ -257,7 +257,7 @@ table 730 "Standard Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromCustomerOnBeforeInsert(StandardAddress: Record "Standard Address"; var Customer: Record Customer)
+    local procedure OnCopyFromCustomerOnBeforeInsert(var StandardAddress: Record "Standard Address"; var Customer: Record Customer)
     begin
     end;
 }

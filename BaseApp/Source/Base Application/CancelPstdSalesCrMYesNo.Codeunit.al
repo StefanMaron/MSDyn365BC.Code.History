@@ -18,18 +18,27 @@ codeunit 1334 "Cancel PstdSalesCrM (Yes/No)"
         SalesInvHeader: Record "Sales Invoice Header";
         CancelledDocument: Record "Cancelled Document";
         CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
+        IsHandled: Boolean;
     begin
         CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
         if Confirm(CancelPostedCrMemoQst) then
             if CancelPostedSalesCrMemo.CancelPostedCrMemo(SalesCrMemoHeader) then
                 if Confirm(OpenPostedInvQst) then begin
                     CancelledDocument.FindSalesCancelledCrMemo(SalesCrMemoHeader."No.");
-                    SalesInvHeader.Get(CancelledDocument."Cancelled By Doc. No.");
+                    IsHandled := false;
+                    OnCancelInvoiceOnBeforePostedSalesInvoice(SalesInvHeader, IsHandled);
+                    if not IsHandled then
+                        SalesInvHeader.Get(CancelledDocument."Cancelled By Doc. No.");
                     PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
                     exit(true);
                 end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelInvoiceOnBeforePostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

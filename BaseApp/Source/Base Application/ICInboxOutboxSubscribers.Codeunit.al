@@ -42,12 +42,17 @@ codeunit 790 "IC Inbox Outbox Subscribers"
     var
         ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
         ICSetup.Get();
         ICPartner.ChangeCompany(PartnerCompanyName);
 
         if not ICPartner.Get(ICSetup."IC Partner Code") then
             exit;
+
+        FeatureTelemetry.LogUptake('0000IIX', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IIY', ICMapping.GetFeatureTelemetryName(), 'IC Inbox Transaction Created');
 
         if ICPartner."Auto. Accept Transactions" then
             if not IsICInboxTransactionReturnedByPartner(ICInboxTransaction."Transaction Source") then

@@ -43,16 +43,6 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = RelationshipMgmt;
             }
-#if not CLEAN21
-            part(Control2; "Power BI Report Spinner Part")
-            {
-                ApplicationArea = RelationshipMgmt;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = RelationshipMgmt;
@@ -66,6 +56,16 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN21
+            part(Control2; "Power BI Report Spinner Part")
+            {
+                ApplicationArea = RelationshipMgmt;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;

@@ -15,6 +15,7 @@ codeunit 10 "Type Helper"
         BitwiseOrTxt: Label 'BitwiseOr', Locked = true;
         BitwiseXorTxt: Label 'BitwiseXor', Locked = true;
         ObsoleteFieldErr: Label 'The field %1 of %2 table is obsolete and cannot be used.', Comment = '%1 - field name, %2 - table name';
+        ReadingDataSkippedMsg: Label 'Loading field %1 will be skipped because there was an error when reading the data.\To fix the current data, contact your administrator.\Alternatively, you can overwrite the current data by entering data in the field.', Comment = '%1=field caption';
 
     procedure Evaluate(var Variable: Variant; String: Text; Format: Text; CultureName: Text): Boolean
     begin
@@ -560,6 +561,13 @@ codeunit 10 "Type Helper"
         Content := ReadAsTextWithSeparator(InStream, LineSeparator);
     end;
 
+    procedure TryReadAsTextWithSepAndFieldErrMsg(InStream: InStream; LineSeparator: Text; FieldCaption: Text) Content: Text
+    begin
+        if not TryReadAsTextWithSeparator(InStream, LineSeparator, Content) then
+            Message(ReadingDataSkippedMsg, FieldCaption);
+        exit(Content);
+    end;
+
     procedure CRLFSeparator(): Text[2]
     var
         CRLF: Text[2];
@@ -649,7 +657,7 @@ codeunit 10 "Type Helper"
         exit(i3);
     end;
 
-    [Obsolete('Format() now supports formatting guids into different standards, see https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-format-property', '17.0')]
+    [Obsolete('Format() now supports formatting GUIDs into different standards, see https://go.microsoft.com/fwlink/?linkid=2206175', '17.0')]
     procedure GetGuidAsString(GuidValue: Guid): Text[36]
     begin
         // Converts guid to string

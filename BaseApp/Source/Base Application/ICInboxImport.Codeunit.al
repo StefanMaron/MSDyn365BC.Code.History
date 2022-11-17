@@ -22,10 +22,15 @@ codeunit 435 "IC Inbox Import"
         ICInboxDocDim: Record "IC Document Dimension";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         FileMgt: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         FileName: Text;
         FromICPartnerCode: Code[20];
         NewTableID: Integer;
     begin
+        FeatureTelemetry.LogUptake('0000IKQ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKR', ICMapping.GetFeatureTelemetryName(), 'IC Inbox Import');
+
         ICSetup.Get();
         ICSetup.TestField("IC Partner Code");
 

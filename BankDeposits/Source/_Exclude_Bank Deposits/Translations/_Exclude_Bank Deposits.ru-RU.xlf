@@ -453,12 +453,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Posted Bank Deposit Line - Field Shortcut Dimension 2 Code - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2857945177 - NamedType 640825212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You must either post or delete all bank deposits and bank account reconcililations before disabling Bank Deposits feature.</source>
-          <target state="translated">Перед отключением функции "Внесения на счет" необходимо учесть или удалить все внесения на счет и выверки банковских счетов.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Deposit Subscribers - NamedType EnableFeatureErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3915934517 - NamedType 483457420" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit Line  #2########\</source>
           <target state="translated">Строка внесения на счет #2########\</target>
@@ -632,6 +626,12 @@
           <target state="translated">Определяет дату создания комментария.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Acc. Comment Sheet - Control Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3073362426 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Posting,Bank Deposit</source>
+          <target state="translated">Новый,Процесс,Отчет,Учет,Внесение на счет</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3073362426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit</source>
@@ -872,6 +872,12 @@
           <target state="translated">Тестовый отчет по внесениям на счет</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit List - Action Bank Deposit Test Report - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1890430176 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Line,Functions</source>
+          <target state="translated">Новый,Процесс,Отчет,Строка,Функции</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposit Subform - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 1890430176 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Lines</source>
@@ -1196,6 +1202,12 @@
           <target state="translated">Тестовый отчет</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Deposits - Action TestReport - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1816704201 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Bank Deposit,Print/Send</source>
+          <target state="translated">Новый,Процесс,Отчет,Внесение на счет,Печать/отправить</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 1816704201 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posted Bank Deposit</source>
@@ -1652,6 +1664,12 @@
           <target state="translated">Внесение на счет</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit List - Action BankDeposit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3865959199 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Line,Functions</source>
+          <target state="translated">Новый,Процесс,Отчет,Строка,Функции</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Posted Bank Deposit Subform - Property PromotedActionCategories</note>
         </trans-unit>
         <trans-unit id="Page 3865959199 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posted Bank Deposit Subform</source>

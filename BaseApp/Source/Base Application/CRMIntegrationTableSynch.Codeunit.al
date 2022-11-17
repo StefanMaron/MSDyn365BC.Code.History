@@ -712,6 +712,7 @@ codeunit 5340 "CRM Integration Table Synch."
 
     local procedure SynchNAVTableToCRM(IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch.") LatestLocalModifiedOn: DateTime
     var
+        IntTableManualSubscribers: Codeunit "Int. Table Manual Subscribers";
         TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
         SourceRecordRef: RecordRef;
         RecordSystemId: Guid;
@@ -719,6 +720,7 @@ codeunit 5340 "CRM Integration Table Synch."
         FilterList: List of [Text];
         TableFilter: Text;
     begin
+        BindSubscription(IntTableManualSubscribers);
         LatestLocalModifiedOn := 0DT;
         SplitLocalTableFilter(IntegrationTableMapping, FilterList);
         CreateCRMIntegrationRecordClone(IntegrationTableMapping."Table ID", TempCRMIntegrationRecord);
@@ -739,6 +741,7 @@ codeunit 5340 "CRM Integration Table Synch."
 
         OnSynchNAVTableToCRMOnBeforeCheckLatestModifiedOn(SourceRecordRef, IntegrationTableMapping);
         SourceRecordRef.Close();
+        UnbindSubscription(IntTableManualSubscribers);
     end;
 
     procedure SyncNAVRecordToCRM(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary; var LatestLocalModifiedOn: DateTime)
@@ -767,6 +770,7 @@ codeunit 5340 "CRM Integration Table Synch."
 
     local procedure SynchCRMTableToNAV(IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var SourceRecordRef: RecordRef) LatestIntegrationModifiedOn: DateTime
     var
+        IntTableManualSubscribers: Codeunit "Int. Table Manual Subscribers";
         TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
         DestinationRecordRef: RecordRef;
         CloneSourceRecordRef: RecordRef;
@@ -774,6 +778,7 @@ codeunit 5340 "CRM Integration Table Synch."
         IgnoreRecord: Boolean;
         ForceModify: Boolean;
     begin
+        BindSubscription(IntTableManualSubscribers);
         LatestIntegrationModifiedOn := 0DT;
         CreateCRMIntegrationRecordClone(IntegrationTableMapping."Table ID", TempCRMIntegrationRecord);
         CacheFilteredCRMTable(SourceRecordRef, IntegrationTableMapping, TempCRMIntegrationRecord);
@@ -798,6 +803,7 @@ codeunit 5340 "CRM Integration Table Synch."
                     LatestIntegrationModifiedOn := IntegrationModifiedOn;
                 CloneSourceRecordRef.Close();
             until SourceRecordRef.Next() = 0;
+        UnbindSubscription(IntTableManualSubscribers);
     end;
 
     local procedure GetModifyByFieldNo(CRMTableID: Integer): Integer

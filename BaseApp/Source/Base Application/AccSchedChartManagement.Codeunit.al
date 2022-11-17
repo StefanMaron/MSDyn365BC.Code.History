@@ -458,6 +458,7 @@ codeunit 762 "Acc. Sched. Chart Management"
               AccSchedManagement.GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
             GLAccAnalysisView.SetFilter("Business Unit Filter", ColumnLayout."Business Unit Totaling");
             GLAccAnalysisView.FilterGroup(0);
+            OnDrillDownOnGLAccountOnBeforeRunChartOfAccsAnalysisView(GLAcc, ColumnLayout);
             Clear(ChartOfAccsAnalysisView);
             ChartOfAccsAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
             ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
@@ -501,6 +502,11 @@ codeunit 762 "Acc. Sched. Chart Management"
         end;
 
         exit(Round(Amount, GeneralLedgerSetup."Amount Rounding Precision"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownOnGLAccountOnBeforeRunChartOfAccsAnalysisView(var GLAccount: Record "G/L Account"; var ColumnLayout: Record "Column Layout")
+    begin
     end;
 }
 

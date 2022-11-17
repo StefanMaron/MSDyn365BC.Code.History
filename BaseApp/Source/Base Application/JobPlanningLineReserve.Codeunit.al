@@ -300,7 +300,6 @@
         Clear(CreateReservEntry);
         if NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::"Negative Adjmt." then
             if NewItemJnlLine.TrackingExists() then begin
-                CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
                 // Try to match against Item Tracking on the job planning line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
                 if OldReservEntry.IsEmpty() then
@@ -318,6 +317,10 @@
         if ReservEngineMgt.InitRecordSet(OldReservEntry, ItemTrackingSetup) then
             repeat
                 OldReservEntry.TestItemFields(JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Location Code");
+
+                if NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::"Negative Adjmt." then
+                    // Set the tracking for the item journal inside the loop as it is cleared within TransferReservEntry
+                    CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
 
                 TransferQty :=
                   CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
@@ -346,6 +349,11 @@
     end;
 
     procedure DeleteLine(var JobPlanningLine: Record "Job Planning Line")
+    begin
+        DeleteLineInternal(JobPlanningLine, true);
+    end;
+
+    internal procedure DeleteLineInternal(var JobPlanningLine: Record "Job Planning Line"; ConfirmFirst: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
     begin
@@ -354,9 +362,11 @@
         ReservEntry.InitSortingAndFilters(false);
         JobPlanningLine.SetReservationFilters(ReservEntry);
         if not ReservEntry.IsEmpty() then
-            if ReservMgt.DeleteItemTrackingConfirm() then
+            if ConfirmFirst then begin
+                if ReservMgt.DeleteItemTrackingConfirm() then
+                    ReservMgt.SetItemTrackingHandling(1);
+            end else
                 ReservMgt.SetItemTrackingHandling(1);
-
         ReservMgt.DeleteReservEntries(true, 0);
         JobPlanningLine.CalcFields("Reserved Qty. (Base)");
         AssignForPlanning(JobPlanningLine);

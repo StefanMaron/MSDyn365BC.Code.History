@@ -54,7 +54,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType LearnMoreTok</note>
         </trans-unit>
         <trans-unit id="Page 1107894685 - NamedType 3071455556" size-unit="char" translate="yes" xml:space="preserve">
-          <source>https://docs.microsoft.com/en-us/exchange/collaboration-exo/shared-mailboxes#which-permissions-should-you-use</source>
+          <source>https://go.microsoft.com/fwlink/?linkid=2206606</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType SharedMailboxesPermissionsURLTxt</note>
         </trans-unit>

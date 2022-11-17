@@ -290,6 +290,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
     local procedure CheckFAJnlLineDocumentNo()
     var
         IsHandled: Boolean;
+        CompareNextNo: Code[20];
     begin
         IsHandled := false;
         OnBeforeCheckFAJnlLineDocumentNo(FAJnlLine, FAJnlBatch, IsHandled);
@@ -300,8 +301,15 @@ codeunit 5633 "FA Jnl.-Post Batch"
             if not ("FA No." = '') and
                (FAJnlBatch."No. Series" <> '') and
                ("Document No." <> LastDocNo2)
-            then
-                TestField("Document No.", NoSeriesMgt.GetNextNo(FAJnlBatch."No. Series", "FA Posting Date", false));
+            then begin
+                CompareNextNo := NoSeriesMgt.GetNextNo(FAJnlBatch."No. Series", FAJnlLine."FA Posting Date", false);
+                if NoSeriesMgt.ManualNoAllowed(FAJnlBatch."No. Series") then
+                    if FAJnlLine."Document No." <> CompareNextNo then begin
+                        NoSeriesMgt.ClearNoSeriesLine();
+                        exit;
+                    end;
+                TestField("Document No.", CompareNextNo);
+            end
     end;
 
     [IntegrationEvent(false, false)]

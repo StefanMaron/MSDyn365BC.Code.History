@@ -1,4 +1,4 @@
-codeunit 5520 "Get Unplanned Demand"
+﻿codeunit 5520 "Get Unplanned Demand"
 {
     Permissions = TableData "Production Order" = r,
                   TableData "Prod. Order Component" = r,
@@ -11,15 +11,14 @@ codeunit 5520 "Get Unplanned Demand"
         if IncludeMetDemandForSpecificSalesOrderNo <> '' then
             SetFilterToSpecificSalesOrder();
 
-        DeleteAll();
+        Rec.DeleteAll();
         SalesLine.SetFilter("Document Type", '%1|%2', SalesLine."Document Type"::Order, SalesLine."Document Type"::"Return Order");
         ProdOrderComp.SetFilter(
             Status, '%1|%2|%3', ProdOrderComp.Status::Planned, ProdOrderComp.Status::"Firm Planned", ProdOrderComp.Status::Released);
         ServLine.SetRange("Document Type", ServLine."Document Type"::Order);
         AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
         JobPlanningLine.SetRange(Status, JobPlanningLine.Status::Order);
-
-        RecordCounter := SalesLine.Count + ProdOrderComp.Count + ServLine.Count + JobPlanningLine.Count;
+        RecordCounter := SalesLine.Count() + ProdOrderComp.Count() + ServLine.Count() + JobPlanningLine.Count() + AsmLine.Count();
         OnBeforeOpenPlanningWindow(RecordCounter, ProdOrderComp);
         OpenWindow(ProgressMsg, RecordCounter);
 
@@ -34,10 +33,10 @@ codeunit 5520 "Get Unplanned Demand"
         OnBeforeClosePlanningWindow(Rec, Window, NoOfRecords);
         Window.Close();
 
-        Reset();
-        SetCurrentKey("Demand Date", Level);
-        SetRange(Level, 1);
-        OpenWindow(ProgressMsg, Count);
+        Rec.Reset();
+        Rec.SetCurrentKey("Demand Date", Level);
+        Rec.SetRange(Level, 1);
+        OpenWindow(ProgressMsg, Rec.Count());
         CalcNeededDemands(Rec);
         Window.Close();
     end;

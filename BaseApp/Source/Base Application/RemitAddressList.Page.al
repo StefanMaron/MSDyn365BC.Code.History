@@ -6,6 +6,7 @@ page 2369 "Remit Address List"
     Editable = false;
     PageType = List;
     SourceTable = "Remit Address";
+    RefreshOnActivate = true;
 
     layout
     {
@@ -70,6 +71,12 @@ page 2369 "Remit Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor at this address.';
                     Visible = false;
+                }
+                field(Default; Default)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Use as default address';
+                    ToolTip = 'Specifies if this address is used by default for this vendor. Only one address can be set as the default.';
                 }
             }
         }

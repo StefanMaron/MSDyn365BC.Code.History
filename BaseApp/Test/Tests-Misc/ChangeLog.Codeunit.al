@@ -1665,6 +1665,8 @@ codeunit 139031 "Change Log"
         TearDown;
     end;
 
+#if not CLEAN22
+#pragma warning disable AL0432
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerFilterSet')]
     [Scope('OnPrem')]
@@ -1741,6 +1743,8 @@ codeunit 139031 "Change Log"
         // [THEN] The entries are deleted
         Assert.AreEqual(0, ChangeLogEntry.Count, 'Not all entries deleted');
     end;
+#pragma warning restore AL0432
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1956,6 +1960,7 @@ codeunit 139031 "Change Log"
         Assert.IsTrue(StrPos(MessageText, NothingToDeleteErr) > 0, '');
     end;
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
     [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
@@ -1992,6 +1997,7 @@ codeunit 139031 "Change Log"
     begin
         ChangeLogDelete.OK.Invoke;
     end;
+#endif
 
     local procedure CreateTenantPermission(var TenantPermission: Record "Tenant Permission"; AppID: Guid; RoleID: Code[20]; ObjectType: Option; ObjectID: Integer);
     begin

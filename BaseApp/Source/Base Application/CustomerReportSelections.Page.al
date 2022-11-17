@@ -38,6 +38,8 @@ page 9657 "Customer Report Selections"
                                 Rec.Usage := "Report Selection Usage"::Reminder;
                             "Custom Report Selection Sales"::Shipment:
                                 Rec.Usage := "Report Selection Usage"::"S.Shipment";
+                            "Custom Report Selection Sales"::"Pro Forma Invoice":
+                                Rec.Usage := "Report Selection Usage"::"Pro Forma S. Invoice";
                             else
                                 OnValidateUsage2OnCaseElse(Rec, Usage2.AsInteger());
                         end;
@@ -236,6 +238,8 @@ page 9657 "Customer Report Selections"
                 Usage2 := "Custom Report Selection Sales"::Reminder;
             "Report Selection Usage"::"S.Shipment":
                 Usage2 := "Custom Report Selection Sales"::Shipment;
+            "Report Selection Usage"::"Pro Forma S. Invoice":
+                Usage2 := "Custom Report Selection Sales"::"Pro Forma Invoice";
 #if not CLEAN21
             else begin
                     UsageOpt := Usage2.AsInteger();
@@ -251,7 +255,7 @@ page 9657 "Customer Report Selections"
     local procedure FilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
     begin
         ReportSelections.SetFilter(
-            Usage, '%1|%2|%3|%4|%5|%6|%7|%8',
+            Usage, '%1|%2|%3|%4|%5|%6|%7|%8|%9',
             "Report Selection Usage"::"S.Quote",
             "Report Selection Usage"::"S.Order",
             "Report Selection Usage"::"S.Invoice",
@@ -259,7 +263,8 @@ page 9657 "Customer Report Selections"
             "Report Selection Usage"::"C.Statement",
             "Report Selection Usage"::JQ,
             "Report Selection Usage"::Reminder,
-            "Report Selection Usage"::"S.Shipment");
+            "Report Selection Usage"::"S.Shipment",
+            "Report Selection Usage"::"Pro Forma S. Invoice");
 
         OnAfterFilterCustomerUsageReportSelections(ReportSelections);
     end;

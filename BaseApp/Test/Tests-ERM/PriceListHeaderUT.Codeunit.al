@@ -41,6 +41,10 @@ codeunit 134118 "Price List Header UT"
         MissingPriceListCodeErr: Label '%1 must have a value', Comment = '%1 - field caption.';
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
         IsInitialized: Boolean;
+        ResourceNoErr: Label 'Resource No. is not updated';
+        SourceNoErr: Label 'Invalid Source No.';
+        AssignToNoErr: Label 'Invalid Assign-to No.';
+        UnitCostErr: Label 'Invalid Unit Cost';
 
     [Test]
     procedure T001_ManualCode()
@@ -2263,6 +2267,121 @@ codeunit 134118 "Price List Header UT"
         Assert.AreNotEqual(DefaultPriceListCode[1], DefaultPriceListCode[2], 'Default price list code is not changed');
         PriceListLine.TestField("Price List Code", DefaultPriceListCode[2]);
         PriceListLine.TestField("Line No.", 10000);
+    end;
+
+    [Test]
+    procedure VerifyValuesOnPriceListHeaderAndPriceListLineWhenResourceAndJobTaskRename()
+    var
+        PriceListHeader: Array[2] of Record "Price List Header";
+        PriceListLine: Array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        Job: Array[2] of Record Job;
+        JobTask: Array[2] of Record "Job Task";
+        JobTask2: Record "Job Task";
+        OldNo: Code[20];
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 450480] The values on the sales Job Price list should be updated correctly.
+        Initialize();
+
+        // [GIVEN] Create 2 Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job[1]);
+        LibraryJob.CreateJob(Job[2]);
+        LibraryJob.CreateJobTask(Job[1], JobTask[1]);
+        LibraryJob.CreateJobTask(Job[2], JobTask[2]);
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] Create 1st Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[1], "Price Type"::Sale, PriceListHeader[1]."Source Type"::"Job Task", Job[1]."No.", JobTask[1]."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, ResourceNo);
+
+        // [GIVEN] Create 2nd Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[2], "Price Type"::Sale, PriceListHeader[2]."Source Type"::"Job Task", Job[2]."No.", JobTask[2]."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, ResourceNo);
+
+        // [WHEN] Rename the Resource No.
+        Resource.Get(ResourceNo);
+        Resource.Rename(LibraryUtility.GenerateGUID());
+
+        // [THEN] Verify Resource No. is updated in Price List Line.
+        PriceListLine[1].Find();
+        Assert.AreEqual(Resource."No.", PriceListLine[1]."Product No.", ResourceNoErr);
+
+        // [WHEN] Rename the Job Task No.
+        JobTask2.Get(JobTask[2]."Job No.", JobTask[2]."Job Task No.");
+        JobTask2.Rename(Job[2]."No.", LibraryUtility.GenerateGUID());
+
+        // [THEN] Verify the Job Task No. is not updated in 1st Price List Header.
+        Assert.AreNotEqual(PriceListHeader[1]."Source No.", JobTask2."Job Task No.", SourceNoErr);
+
+        // [THEN] Verify the Assign-to No. is updated in 2nd Price List Header.
+        Assert.AreEqual(PriceListHeader[2]."Source No.", PriceListHeader[2]."Assign-to No.", AssignToNoErr);
+    end;
+
+    [Test]
+    procedure VerifyUnitCostInJobJournalWhenUsingPurchasePriceList()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        JobJournalLine: Record "Job Journal Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        ScheduleFeatureDataUpdate: Page "Schedule Feature Data Update";
+        TestScheduleFeatureDataUpdate: TestPage "Schedule Feature Data Update";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        // [SCENARIO 450229] Purchase price list doesn't work in job journal
+        Initialize();
+
+        // [GIVEN] Enable the new sales pricing in feature management
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrices';
+        ScheduleFeatureDataUpdate.Set(FeatureDataUpdateStatus);
+        TestScheduleFeatureDataUpdate.Trap();
+        ScheduleFeatureDataUpdate.Run();
+
+        // [GIVEN] Create Price List Header
+        PriceListHeader.Code := LibraryUtility.GenerateGUID();
+        PriceListHeader."Price Type" := PriceListHeader."Price Type"::Purchase;
+        PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::"All Vendors");
+        PriceListHeader."Source Group" := PriceListHeader."Source Group"::Vendor;
+        PriceListHeader.Validate("Amount Type", PriceListHeader."Amount Type"::Price);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert(true);
+
+        // [GIVEN] Create Price List Line
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine."Line No." := 10000;
+        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
+        PriceListLine.Validate("Asset No.", LibraryResource.CreateResourceNo());
+        PriceListLine.Validate("Minimum Quantity", 4);
+        PriceListLine.Validate("Direct Unit Cost", 6);
+        PriceListLine.Validate("Unit Cost", 6);
+        PriceListLine."Source Group" := PriceListLine."Source Group"::Vendor;
+        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Vendors");
+        PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Insert(true);
+
+        // [GIVEN] Create Job, Job Task, Job Journal Line
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Type := JobJournalLine.Type::Resource;
+        JobJournalLine.Validate("No.", PriceListLine."Asset No.");
+
+        // [WHEN] Assign quanity in Job Journal Line
+        JobJournalLine.Validate(Quantity, 4);
+        JobJournalLine.Modify();
+
+        // [THEN] Verify unit cost are equal
+        Assert.AreEqual(JobJournalLine."Unit Cost", PriceListLine."Direct Unit Cost", UnitCostErr);
     end;
 
     local procedure Initialize()

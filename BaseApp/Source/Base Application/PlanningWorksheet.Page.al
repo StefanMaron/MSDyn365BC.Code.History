@@ -1003,7 +1003,13 @@ page 99000852 "Planning Worksheet"
     var
         PurchHeader: Record "Purchase Header";
         TransfHeader: Record "Transfer Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRefOrderNoOnFormat(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
                 if PurchHeader.Get(PurchHeader."Document Type"::Order, "Ref. Order No.") and
@@ -1054,6 +1060,11 @@ page 99000852 "Planning Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCarryOutActionMsg(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRefOrderNoOnFormat(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

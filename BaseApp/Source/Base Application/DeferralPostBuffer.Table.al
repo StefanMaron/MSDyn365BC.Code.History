@@ -175,6 +175,9 @@ table 1703 "Deferral Post. Buffer"
     {
     }
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     procedure PrepareSales(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         Clear(Rec);
@@ -195,7 +198,12 @@ table 1703 "Deferral Post. Buffer"
         "Deferral Doc. Type" := "Deferral Document Type"::Sales.AsInteger();
         "Document No." := DocumentNo;
     end;
+#endif
+#pragma warning restore AS0072
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     procedure ReverseAmounts()
     begin
         Amount := -Amount;
@@ -203,7 +211,12 @@ table 1703 "Deferral Post. Buffer"
         "Sales/Purch Amount" := -"Sales/Purch Amount";
         "Sales/Purch Amount (LCY)" := -"Sales/Purch Amount (LCY)";
     end;
+#endif
+#pragma warning restore AS0072
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     procedure PreparePurch(PurchLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         Clear(Rec);
@@ -224,7 +237,11 @@ table 1703 "Deferral Post. Buffer"
         "Deferral Doc. Type" := "Deferral Document Type"::Purchase.AsInteger();
         "Document No." := DocumentNo;
     end;
+#endif
+#pragma warning restore AS0072
 
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     local procedure PrepareRemainderAmounts(NewAmountLCY: Decimal; NewAmount: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
     begin
         "Amount (LCY)" := 0;
@@ -235,7 +252,11 @@ table 1703 "Deferral Post. Buffer"
         "Deferral Account" := DeferralAccount;
         "Partial Deferral" := true;
     end;
+#endif
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     procedure PrepareRemainderSales(SalesLine: Record "Sales Line"; NewAmountLCY: Decimal; NewAmount: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
     begin
         PrepareRemainderAmounts(NewAmountLCY, NewAmount, GLAccount, DeferralAccount);
@@ -245,7 +266,12 @@ table 1703 "Deferral Post. Buffer"
         "VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
         "Gen. Posting Type" := "Gen. Posting Type"::Sale;
     end;
+#endif
+#pragma warning restore AS0072
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     procedure PrepareRemainderPurchase(PurchaseLine: Record "Purchase Line"; NewAmountLCY: Decimal; NewAmount: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
     begin
         PrepareRemainderAmounts(NewAmountLCY, NewAmount, GLAccount, DeferralAccount);
@@ -255,7 +281,12 @@ table 1703 "Deferral Post. Buffer"
         "VAT Prod. Posting Group" := PurchaseLine."VAT Prod. Posting Group";
         "Gen. Posting Type" := "Gen. Posting Type"::Purchase;
     end;
+#endif
+#pragma warning restore AS0072
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replace with tab 1703 Deferral Posting Buffer', '20.0')]
     procedure PrepareInitialPair(InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
     var
         NewAmountLCY: Decimal;
@@ -272,5 +303,6 @@ table 1703 "Deferral Post. Buffer"
         "Amount (LCY)" := NewAmountLCY;
         Amount := NewAmount;
     end;
+#endif
+#pragma warning restore AS0072
 }
-

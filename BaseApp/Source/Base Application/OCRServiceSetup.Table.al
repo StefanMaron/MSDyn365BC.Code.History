@@ -184,6 +184,14 @@ table 1270 "OCR Service Setup"
         LogTelemetryWhenServiceCreated();
     end;
 
+    trigger OnModify()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        OCRServiceMgt: Codeunit "OCR Service Mgt.";
+    begin
+        FeatureTelemetry.LogUptake('0000IML', OCRServiceMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+    end;
+
     var
         MustBeEnabledErr: Label 'The OCR service is not enabled.\\In the OCR Service Setup window, select the Enabled check box.', Comment = 'OCR = Optical Character Recognition';
         JobQEntriesCreatedQst: Label 'Job queue entries for sending and receiving electronic documents have been created.\\Do you want to open the Job Queue Entries window?';

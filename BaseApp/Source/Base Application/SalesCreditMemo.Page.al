@@ -1581,8 +1581,11 @@ page 44 "Sales Credit Memo"
 
         if OfficeMgt.IsAvailable() then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-            if SalesCrMemoHeader.FindFirst() then
-                PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+            IsHandled := false;
+            OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader, IsHandled);
+            if not IsHandled then
+                if SalesCrMemoHeader.FindFirst() then
+                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                 ShowPostedConfirmationMessage(PreAssignedNo);
@@ -1688,13 +1691,18 @@ page 44 "Sales Credit Memo"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if SalesCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesCrMemoQst, SalesCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
-            then
-                InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Credit Memo");
+            then begin
+                IsHandled := false;
+                OnShowPostedConfirmationMessageOnBeforeShowPostedDocument(SalesCrMemoHeader, IsHandled);
+                if not IsHandled then
+                    InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Credit Memo");
+            end;
     end;
 
     procedure SetPostingGroupEditable()
@@ -1733,6 +1741,16 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowPostedConfirmationMessageOnBeforeShowPostedDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
     begin
     end;
 }

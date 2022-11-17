@@ -30,10 +30,16 @@ codeunit 1440 "RC Headlines Page Common"
                 RCHeadlinesUserData.Modify();
         end;
         GreetingText := Headlines.GetUserGreetingText();
-        DocumentationText := StrSubstNo(DocumentationTxt, PRODUCTNAME.Short());
+        DocumentationText := CreateDocumentationText();
         ComputeDefaultFieldsVisibility(RoleCenterPageID);
 
         Commit(); // not to mess up the other page parts that may do IF CODEUNIT.RUN()
+    end;
+
+    local procedure CreateDocumentationText() DocumentationText: Text[250]
+    begin
+        DocumentationText := StrSubstNo(DocumentationTxt, PRODUCTNAME.Short());
+        OnAfterCreateDocumentationText(DocumentationText);
     end;
 
     local procedure ShouldCreateAComputeJob(RCHeadlinesUserData: Record "RC Headlines User Data"): Boolean
@@ -55,9 +61,10 @@ codeunit 1440 "RC Headlines Page Common"
         UserGreetingVisible := Headlines.ShouldUserGreetingBeVisible();
     end;
 
-    procedure DocumentationUrlTxt(): Text
+    procedure DocumentationUrlTxt() Result: Text
     begin
-        exit('https://go.microsoft.com/fwlink/?linkid=2152979');
+        Result := 'https://go.microsoft.com/fwlink/?linkid=2152979';
+        OnAfterDocumentationUrlTxt(Result);
     end;
 
     procedure IsUserGreetingVisible(): Boolean
@@ -78,6 +85,16 @@ codeunit 1440 "RC Headlines Page Common"
     procedure GetDocumentationText(): Text
     begin
         exit(DocumentationText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDocumentationText(var DocumentationText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDocumentationUrlTxt(var Result: Text)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -147,6 +147,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Setup (Table</note>
         </trans-unit>
+        <trans-unit id="Table 2248772457 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Search Source Temp</source>
+          <target state="translated">Midlertidig datasøkkilde</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Source Temp - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2248772457 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Search Source Temp - Field Description - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4165554626 - NamedType 3390914320" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Navigation menu only.</source>
           <target state="translated">Bare navigasjonsmeny.</target>
@@ -158,6 +170,18 @@
           <target state="translated">(standard)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Search Defaults - NamedType BaseLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Search in company data</source>
+          <target state="translated">Om Søk i selskapsdata</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 3130159978 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter one or more search words in the search field. To see which tables are being searched, select Results | Show tables to search.</source>
+          <target state="translated">Skriv inn et eller flere søkeord i søkefeltet. Hvis du vil se hvilke tabeller det søkes i, velger du Resultater | Vis tabeller det skal søkes i.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - Property AboutText</note>
         </trans-unit>
         <trans-unit id="Page 3130159978 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Search in company data [Preview]</source>
@@ -601,6 +625,20 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
         </trans-unit>
+        <trans-unit id="PageExtension 3920336408 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søk på tvers av et forhåndsdefinert sett med tabeller for denne rollen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4109301636</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3920336408 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søk i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4109301636</note>
+        </trans-unit>
         <trans-unit id="PageExtension 1882099586 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Search across a predefined set of tables for this role.</source>
           <target state="translated">Søk på tvers av et forhåndsdefinert sett med tabeller for denne rollen.</target>
@@ -670,6 +708,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1267036282</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 24589904 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search across a predefined set of tables for this role.</source>
+          <target state="translated">Søk på tvers av et forhåndsdefinert sett med tabeller for denne rollen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3703463247</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 24589904 - Action 1846755250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Search in data</source>
+          <target state="translated">Søk i data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3703463247</note>
         </trans-unit>
         <trans-unit id="PageExtension 146764562 - Action 1846755250 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Search across a predefined set of tables for this role.</source>

@@ -739,6 +739,7 @@ page 7201 "CDS Connection Setup Wizard"
 
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
                     FeatureTelemetry.LogUptake('0000H7H', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
+                    FeatureTelemetry.LogUptake('0000IIO', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::"Set up");
                     SetupCompleted := true;
                     CurrPage.Close();
                 end;
@@ -767,6 +768,7 @@ page 7201 "CDS Connection Setup Wizard"
         if not CDSConnectionSetup.WritePermission() then
             Error(NoPermissionsErr);
         FeatureTelemetry.LogUptake('0000H7I', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000IIP', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::Discovered);
         CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
         if CDSConnectionSetup.Get() then begin

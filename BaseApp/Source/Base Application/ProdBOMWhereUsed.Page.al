@@ -107,7 +107,7 @@ page 99000811 "Prod. BOM Where-Used"
 
     var
         Item: Record Item;
-        ProdBOM: Record "Production BOM Header";
+        ProdBOMHeader: Record "Production BOM Header";
         WhereUsedMgt: Codeunit "Where-Used Management";
         CalculateDate: Date;
         [InDataSet]
@@ -116,9 +116,9 @@ page 99000811 "Prod. BOM Where-Used"
     protected var
         ShowLevel: Option Single,Multi;
 
-    procedure SetProdBOM(NewProdBOM: Record "Production BOM Header"; NewCalcDate: Date)
+    procedure SetProdBOM(NewProdBOMHeader: Record "Production BOM Header"; NewCalcDate: Date)
     begin
-        ProdBOM := NewProdBOM;
+        ProdBOMHeader := NewProdBOMHeader;
         CalculateDate := NewCalcDate;
     end;
 
@@ -130,16 +130,26 @@ page 99000811 "Prod. BOM Where-Used"
 
     procedure BuildForm()
     begin
-        if ProdBOM."No." <> '' then
-            WhereUsedMgt.WhereUsedFromProdBOM(ProdBOM, CalculateDate, ShowLevel = ShowLevel::Multi)
+        OnBeforeBuildForm(WhereUsedMgt, ShowLevel);
+        if ProdBOMHeader."No." <> '' then
+            WhereUsedMgt.WhereUsedFromProdBOM(ProdBOMHeader, CalculateDate, ShowLevel = ShowLevel::Multi)
         else
             WhereUsedMgt.WhereUsedFromItem(Item, CalculateDate, ShowLevel = ShowLevel::Multi);
+        OnAfterBuildForm(WhereUsedMgt, ShowLevel, Item, ProdBOMHeader, CalculateDate);
     end;
 
     procedure SetCaption(): Text
+    var
+        IsHandled: Boolean;
+        Result: Text;
     begin
-        if ProdBOM."No." <> '' then
-            exit(ProdBOM."No." + ' ' + ProdBOM.Description);
+        IsHandled := false;
+        OnBeforeSetCaption(Item, ProdBOMHeader, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
+        if ProdBOMHeader."No." <> '' then
+            exit(ProdBOMHeader."No." + ' ' + ProdBOMHeader.Description);
 
         exit(Item."No." + ' ' + Item.Description);
     end;
@@ -159,6 +169,21 @@ page 99000811 "Prod. BOM Where-Used"
     local procedure DescriptionOnFormat()
     begin
         DescriptionIndent := "Level Code" - 1;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBuildForm(var WhereUsedManagement: Codeunit "Where-Used Management"; ShowLevel: Option; Item: Record Item; ProductionBOMHeader: Record "Production BOM Header"; CalculateDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuildForm(var WhereUsedManagement: Codeunit "Where-Used Management"; ShowLevel: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCaption(Item: Record Item; ProdBOM: Record "Production BOM Header"; var Result: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

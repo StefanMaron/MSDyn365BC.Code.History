@@ -844,8 +844,9 @@ codeunit 1430 "Role Center Notification Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetSandboxNotificationId()) then
-            MyNotifications.InsertDefault(GetSandboxNotificationId(), SandboxNotificationNameTok, SandboxNotificationDescTok, false);
+        if MyNotifications.WritePermission then
+            if not MyNotifications.Disable(GetSandboxNotificationId()) then
+                MyNotifications.InsertDefault(GetSandboxNotificationId(), SandboxNotificationNameTok, SandboxNotificationDescTok, false);
     end;
 
     procedure DisableChangeToPremiumExpNotification(Notification: Notification)

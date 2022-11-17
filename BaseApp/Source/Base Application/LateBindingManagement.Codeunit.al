@@ -239,6 +239,7 @@ codeunit 6502 "Late Binding Management"
     local procedure MakeConnection(var SupplySurplusEntry: Record "Reservation Entry"; var DemandReservEntry: Record "Reservation Entry"; QtyToReshuffle: Decimal) RemainingQty: Decimal
     var
         NewEntryNo: Integer;
+        IsHandled: Boolean;
     begin
         if SupplySurplusEntry."Quantity (Base)" = 0 then
             exit(QtyToReshuffle);
@@ -275,7 +276,10 @@ codeunit 6502 "Late Binding Management"
             if SupplySurplusEntry."Entry No." > 0 then begin
                 TempReservEntryModify := SupplySurplusEntry;
                 TempReservEntryModify."Quantity (Base)" -= QtyToReshuffle;
-                TempReservEntryModify.Insert();
+                IsHandled := false;
+                OnMakeConnectionOnBeforeTempReservEntryModifyInsert(TempReservEntryModify, SupplySurplusEntry, QtyToReshuffle, IsHandled);
+                if not IsHandled then
+                    TempReservEntryModify.Insert();
             end;
 
             LastEntryNo := LastEntryNo + 1;
@@ -701,6 +705,11 @@ codeunit 6502 "Late Binding Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTempSupplyReservEntry(var TempSupplyReservEntry: Record "Reservation Entry" temporary; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeConnectionOnBeforeTempReservEntryModifyInsert(var TempReservEntryModify: Record "Reservation Entry" temporary; SupplySurplusEntry: Record "Reservation Entry"; QtyToReshuffle: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

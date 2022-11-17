@@ -5,7 +5,7 @@ page 108 "Financial Reports"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Print/Send';
     SourceTable = "Financial Report";
-    AdditionalSearchTerms = 'Account Schedules';
+    AdditionalSearchTerms = 'account schedule,finance reports,financial reporting';
     UsageCategory = Lists;
 
     layout

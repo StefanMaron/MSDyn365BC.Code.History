@@ -192,7 +192,8 @@ page 104 "Account Schedule"
 
     actions
     {
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
         area(navigation)
         {
             action(Overview)
@@ -205,7 +206,7 @@ page 104 "Account Schedule"
                 Visible = false;
                 ObsoleteReason = 'This page is now opened from Financial Reports Page instead (Overview action).';
                 ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
+                ObsoleteTag = '22.0';
 
                 trigger OnAction()
                 var
@@ -217,6 +218,7 @@ page 104 "Account Schedule"
             }
         }
 #endif
+#pragma warning restore AS0074
         area(processing)
         {
             action(Indent)
@@ -234,7 +236,7 @@ page 104 "Account Schedule"
                     CurrPage.SetSelectionFilter(AccScheduleLine);
                     if AccScheduleLine.FindSet() then
                         repeat
-                                AccScheduleLine.Indent();
+                            AccScheduleLine.Indent();
                             AccScheduleLine.Modify();
                         until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
@@ -254,10 +256,10 @@ page 104 "Account Schedule"
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleLine);
                     if AccScheduleLine.FindSet() then
-                            repeat
-                                AccScheduleLine.Outdent();
-                                AccScheduleLine.Modify();
-                            until AccScheduleLine.Next() = 0;
+                        repeat
+                            AccScheduleLine.Outdent();
+                            AccScheduleLine.Modify();
+                        until AccScheduleLine.Next() = 0;
                     CurrPage.Update(false);
                 end;
             }
@@ -316,7 +318,8 @@ page 104 "Account Schedule"
                         AccSchedManagement.InsertCostTypes(AccSchedLine);
                     end;
                 }
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
                 action(EditColumnLayoutSetup)
                 {
                     ApplicationArea = Basic, Suite;
@@ -328,22 +331,22 @@ page 104 "Account Schedule"
                     Visible = false;
                     ObsoleteReason = 'Relation to columns on a financial report are now stored on "Financial Report". This control is now replaced by the one on page Financial Reports, action EditColumnGroup.';
                     ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
             }
         }
-#if not CLEAN21
+#if not CLEAN22
         area(reporting)
         {
             ObsoleteReason = 'Reports are now accesible from the Financial Reports page. Extend that page instead.';
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
             action(Print)
             {
                 ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
                 ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
+                ObsoleteTag = '22.0';
                 ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Ellipsis = true;
@@ -366,20 +369,20 @@ page 104 "Account Schedule"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-#if not CLEAN21
+#if not CLEAN22
                 actionref(Overview_Promoted; Overview)
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This page is now opened from Financial Reports Page instead (Overview action).';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN22
                 actionref(Print_Promoted; Print)
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
                 actionref(Outdent_Promoted; Outdent)
@@ -388,14 +391,15 @@ page 104 "Account Schedule"
                 actionref(Indent_Promoted; Indent)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN22
                 actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Relation to columns on a financial report are now stored on "Financial Report". This control is now replaced by the one on page Financial Reports, action EditColumnGroup.';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
+#pragma warning restore AS0074
             }
             group(Category_Category4)
             {
@@ -420,12 +424,12 @@ page 104 "Account Schedule"
 
     trigger OnAfterGetRecord()
     begin
-       FormatLines();
+        FormatLines();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-       FormatLines();
+        FormatLines();
     end;
 
     trigger OnOpenPage()

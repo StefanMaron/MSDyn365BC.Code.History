@@ -6,6 +6,7 @@
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec);
         SalesHeader.Copy(Rec);
         Code();
         Rec := SalesHeader;
@@ -72,7 +73,7 @@
 
             SalesLine.Reset();
 
-            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified);
+            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified, SalesLine);
 
             SalesSetup.Get();
             if SalesSetup."Calc. Inv. Discount" then begin
@@ -364,7 +365,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
+    local procedure OnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -375,6 +376,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestSellToCustomerNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesHeader: Record "Sales Header")
     begin
     end;
 

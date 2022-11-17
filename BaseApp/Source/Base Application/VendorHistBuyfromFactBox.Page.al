@@ -180,8 +180,18 @@ page 9095 "Vendor Hist. Buy-from FactBox"
     }
 
     local procedure ShowDetails()
+    var
+        IsHandled: Boolean;
     begin
-        PAGE.Run(PAGE::"Vendor Card", Rec);
+        IsHandled := false;
+        OnBeforeShowDetails(Rec, IsHandled);
+        if not IsHandled then
+            PAGE.Run(PAGE::"Vendor Card", Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDetails(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
     end;
 }
 

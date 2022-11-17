@@ -37,11 +37,17 @@ codeunit 1216 "Incoming Doc. with Data. Exch."
         DataExchDef.ProcessDataExchange(DataExch);
     end;
 
-    local procedure SetSourceForDataExch(IncomingDocument: Record "Incoming Document"; var DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def"): Boolean
+    local procedure SetSourceForDataExch(IncomingDocument: Record "Incoming Document"; var DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def") Result: Boolean
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         Stream: InStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSourceForDataExch(IncomingDocument, DataExch, DataExchDef, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if DataExchDef."Ext. Data Handling Codeunit" <> 0 then begin
             DataExch."Related Record" := IncomingDocument.RecordId;
             exit(DataExch.ImportFileContent(DataExchDef))
@@ -81,6 +87,11 @@ codeunit 1216 "Incoming Doc. with Data. Exch."
 
         // force rollback (errors will be restored in IncomingDocument)
         Error('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSourceForDataExch(IncomingDocument: Record "Incoming Document"; var DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -72,8 +72,8 @@ codeunit 376 "Check Entry Set Recon.-No."
         BankAccLedgEntry.TestField("Statement Line No.", 0);
         BankAccLedgEntry."Statement Status" :=
           BankAccLedgEntry."Statement Status"::"Check Entry Applied";
-        BankAccLedgEntry."Statement No." := '';
-        BankAccLedgEntry."Statement Line No." := 0;
+        BankAccLedgEntry."Statement No." := BankAccReconLine."Statement No.";
+        BankAccLedgEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
         BankAccLedgEntry.Modify();
     end;
 
@@ -106,8 +106,8 @@ codeunit 376 "Check Entry Set Recon.-No."
             if Test then begin
                 BankAccLedgEntry.TestField(
                   "Statement Status", BankAccLedgEntry."Statement Status"::"Check Entry Applied");
-                BankAccLedgEntry.TestField("Statement No.", '');
-                BankAccLedgEntry.TestField("Statement Line No.", 0);
+                BankAccLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
+                BankAccLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
             end;
             BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
             BankAccLedgEntry."Statement No." := '';

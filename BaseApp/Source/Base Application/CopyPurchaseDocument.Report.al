@@ -1,4 +1,4 @@
-report 492 "Copy Purchase Document"
+﻿report 492 "Copy Purchase Document"
 {
     Caption = 'Copy Purchase Document';
     ProcessingOnly = true;
@@ -181,6 +181,8 @@ report 492 "Copy Purchase Document"
         OnPreReportOnBeforeCopyPurchaseDoc(CopyDocMgt, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines);
 
         CopyDocMgt.CopyPurchDoc(FromDocType, FromDocNo, PurchHeader);
+
+        OnAfterOnPreReport(FromDocType, FromDocNo, PurchHeader);
     end;
 
     var
@@ -304,7 +306,7 @@ report 492 "Copy Purchase Document"
 
     local procedure LookupDocNo()
     begin
-        OnBeforeLookupDocNo(PurchHeader);
+        OnBeforeLookupDocNo(PurchHeader, FromDocType, FromDocNo);
 
         case FromDocType of
             FromDocType::Quote,
@@ -376,6 +378,8 @@ report 492 "Copy Purchase Document"
     end;
 
     local procedure LookupPostedReceipt()
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeLookupPostedReceipt(FromPurchRcptHeader, PurchHeader);
 
@@ -385,11 +389,17 @@ report 492 "Copy Purchase Document"
                 FromPurchRcptHeader."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 if FromPurchRcptHeader.Find('=><') then;
             end;
-        if PAGE.RunModal(0, FromPurchRcptHeader) = ACTION::LookupOK then
-            FromDocNo := FromPurchRcptHeader."No.";
+
+        IsHandled := false;
+        OnLookupPostedReceiptOnBeforeOpenPage(PurchHeader, FromPurchRcptHeader, FromDocNo, IsHandled);
+        if not IsHandled then
+            if PAGE.RunModal(0, FromPurchRcptHeader) = ACTION::LookupOK then
+                FromDocNo := FromPurchRcptHeader."No.";
     end;
 
     local procedure LookupPostedInvoice()
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeLookupPostedInvoice(FromPurchInvHeader, PurchHeader);
 
@@ -402,11 +412,17 @@ report 492 "Copy Purchase Document"
         FromPurchInvHeader.FilterGroup(2);
         FromPurchInvHeader.SetRange("Prepayment Invoice", false);
         FromPurchInvHeader.FilterGroup(0);
-        if PAGE.RunModal(0, FromPurchInvHeader) = ACTION::LookupOK then
-            FromDocNo := FromPurchInvHeader."No.";
+
+        IsHandled := false;
+        OnLookupPostedInvoiceOnBeforeOpenPage(PurchHeader, FromPurchInvHeader, FromDocNo, IsHandled);
+        if not IsHandled then
+            if PAGE.RunModal(0, FromPurchInvHeader) = ACTION::LookupOK then
+                FromDocNo := FromPurchInvHeader."No.";
     end;
 
     local procedure LookupPostedCrMemo()
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeLookupPostedCrMemo(FromPurchCrMemoHeader, PurchHeader);
 
@@ -419,8 +435,12 @@ report 492 "Copy Purchase Document"
         FromPurchCrMemoHeader.FilterGroup(2);
         FromPurchCrMemoHeader.SetRange("Prepayment Credit Memo", false);
         FromPurchCrMemoHeader.FilterGroup(0);
-        if PAGE.RunModal(0, FromPurchCrMemoHeader) = ACTION::LookupOK then
-            FromDocNo := FromPurchCrMemoHeader."No.";
+
+        IsHandled := false;
+        OnLookupPostedCrMemoOnBeforeOpenPage(PurchHeader, FromPurchCrMemoHeader, FromDocNo, IsHandled);
+        if not IsHandled then
+            if PAGE.RunModal(0, FromPurchCrMemoHeader) = ACTION::LookupOK then
+                FromDocNo := FromPurchCrMemoHeader."No.";
     end;
 
     local procedure LookupPostedReturn()
@@ -458,6 +478,11 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreReport(PurchDocTypeFrom: Enum "Purchase Document Type From"; DocNo: Code[20]; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateIncludeHeader(var RecalculateLines: Boolean; IncludeHeader: Boolean)
     begin
     end;
@@ -468,7 +493,7 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupDocNo(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeLookupDocNo(var PurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; var FromDocNo: Code[20])
     begin
     end;
 
@@ -539,6 +564,21 @@ report 492 "Copy Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateDocNoOnAfterTransferFieldsFromReturnShipmentHeader(FromPurchHeader: Record "Purchase Header"; FromReturnShipmentHeader: Record "Return Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPostedReceiptOnBeforeOpenPage(var PurchHeader: Record "Purchase Header"; var FromPurchRcptHeader: Record "Purch. Rcpt. Header"; var DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPostedInvoiceOnBeforeOpenPage(var PurchHeader: Record "Purchase Header"; var FromPurchInvHeader: Record "Purch. Inv. Header"; var DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPostedCrMemoOnBeforeOpenPage(var PurchHeader: Record "Purchase Header"; var FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var DocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -101,7 +101,13 @@ codeunit 1215 "Data Exch. Type Selector"
     local procedure CheckContentHasValue(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     var
         LiveIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckContentHasValue(IncomingDocumentAttachment, IsHandled);
+        if IsHandled then
+            exit;
+
         // Is the data already loaded or is it in the db?
         LiveIncomingDocumentAttachment := IncomingDocumentAttachment;
         LiveIncomingDocumentAttachment.CalcFields(Content);
@@ -120,6 +126,11 @@ codeunit 1215 "Data Exch. Type Selector"
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchMapping.SetRange("Use as Intermediate Table", false);
         exit(not DataExchMapping.FindFirst());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContentHasValue(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IsHandled: Boolean)
+    begin
     end;
 }
 

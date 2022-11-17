@@ -492,6 +492,7 @@ page 1001 "Job Task Lines Subform"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         ClearTempDim();
+        StyleIsStrong := "Job Task Type" <> "Job Task Type"::Posting;
     end;
 
     var

@@ -231,7 +231,10 @@ table 1275 "Doc. Exch. Service Setup"
     end;
 
     trigger OnModify()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000IM7', DocExchServiceMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
         if IsEnabledChanged() then
             if Enabled then
                 EnableConnection()

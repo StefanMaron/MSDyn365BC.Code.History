@@ -182,6 +182,7 @@ table 981 "Payment Registration Buffer"
 
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange(Open, true);
+        OnPopulateTableOnAfterCustLedgerEntrySetFilters(CustLedgerEntry, Rec);
         if CustLedgerEntry.FindSet() then
             repeat
                 if Customer.Get(CustLedgerEntry."Customer No.") then begin
@@ -347,6 +348,11 @@ table 981 "Payment Registration Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnPopulateTableOnBeforeInsert(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateTableOnAfterCustLedgerEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
     begin
     end;
 

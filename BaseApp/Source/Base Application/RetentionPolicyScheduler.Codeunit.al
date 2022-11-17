@@ -1,7 +1,8 @@
 Codeunit 3998 "Retention Policy Scheduler"
 {
     Access = Internal;
-    Permissions = tabledata "Job Queue Category" = ri;
+    Permissions = tabledata "Job Queue Category" = ri,
+                  tabledata "Job Queue Entry" = rim;
 
     var
         JobQueueActivatedNotificationTxt: Label 'A Job Queue Entry to apply the retention policies has been scheduled to run.';
@@ -59,6 +60,9 @@ Codeunit 3998 "Retention Policy Scheduler"
         if GetCurrentModuleExecutionContext() <> ExecutionContext::Normal then
             exit(false);
 
+        if not TaskScheduler.CanCreateTask() then
+            exit(false);
+
         exit(true)
     end;
 
@@ -85,9 +89,15 @@ Codeunit 3998 "Retention Policy Scheduler"
                 JobQueueCategoryTok,
                 0, // no rerun attempts
                 NextRunDateFormula,
-                020000T); // 2am
+                020000T, // 2am
+                JobTimeout());
             RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JobQueueActivatedNotificationTxt);
         end;
+    end;
+
+    local procedure JobTimeout(): Duration
+    begin
+        exit(6 * 60 * 60 * 1000) // 6hr timeout
     end;
 
     local procedure UnScheduleRecurringRetentionPolicy()

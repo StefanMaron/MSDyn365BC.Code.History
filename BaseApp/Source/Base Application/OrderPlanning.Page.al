@@ -959,55 +959,59 @@ page 5522 "Order Planning"
         ServHeader: Record "Service Header";
         Job: Record Job;
         AsmHeader: Record "Assembly Header";
+        IsHandled: Boolean;
     begin
-        case "Demand Type" of
-            DATABASE::"Sales Line":
-                begin
-                    SalesHeader.Get("Demand Subtype", "Demand Order No.");
-                    case SalesHeader."Document Type" of
-                        SalesHeader."Document Type"::Order:
-                            PAGE.Run(PAGE::"Sales Order", SalesHeader);
-                        SalesHeader."Document Type"::"Return Order":
-                            PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
+        IsHandled := false;
+        OnBeforeShowDemandOrder(Rec, IsHandled);
+        if not IsHandled then
+            case Rec."Demand Type" of
+                DATABASE::"Sales Line":
+                    begin
+                        SalesHeader.Get("Demand Subtype", "Demand Order No.");
+                        case SalesHeader."Document Type" of
+                            SalesHeader."Document Type"::Order:
+                                PAGE.Run(PAGE::"Sales Order", SalesHeader);
+                            SalesHeader."Document Type"::"Return Order":
+                                PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
+                        end;
                     end;
-                end;
-            DATABASE::"Prod. Order Component":
-                begin
-                    ProdOrder.Get("Demand Subtype", "Demand Order No.");
-                    case ProdOrder.Status of
-                        ProdOrder.Status::Planned:
-                            PAGE.Run(PAGE::"Planned Production Order", ProdOrder);
-                        ProdOrder.Status::"Firm Planned":
-                            PAGE.Run(PAGE::"Firm Planned Prod. Order", ProdOrder);
-                        ProdOrder.Status::Released:
-                            PAGE.Run(PAGE::"Released Production Order", ProdOrder);
+                DATABASE::"Prod. Order Component":
+                    begin
+                        ProdOrder.Get("Demand Subtype", "Demand Order No.");
+                        case ProdOrder.Status of
+                            ProdOrder.Status::Planned:
+                                PAGE.Run(PAGE::"Planned Production Order", ProdOrder);
+                            ProdOrder.Status::"Firm Planned":
+                                PAGE.Run(PAGE::"Firm Planned Prod. Order", ProdOrder);
+                            ProdOrder.Status::Released:
+                                PAGE.Run(PAGE::"Released Production Order", ProdOrder);
+                        end;
                     end;
-                end;
-            DATABASE::"Assembly Line":
-                begin
-                    AsmHeader.Get("Demand Subtype", "Demand Order No.");
-                    case AsmHeader."Document Type" of
-                        AsmHeader."Document Type"::Order:
-                            PAGE.Run(PAGE::"Assembly Order", AsmHeader);
+                DATABASE::"Assembly Line":
+                    begin
+                        AsmHeader.Get("Demand Subtype", "Demand Order No.");
+                        case AsmHeader."Document Type" of
+                            AsmHeader."Document Type"::Order:
+                                PAGE.Run(PAGE::"Assembly Order", AsmHeader);
+                        end;
                     end;
-                end;
-            DATABASE::"Service Line":
-                begin
-                    ServHeader.Get("Demand Subtype", "Demand Order No.");
-                    case ServHeader."Document Type" of
-                        ServHeader."Document Type"::Order:
-                            PAGE.Run(PAGE::"Service Order", ServHeader);
+                DATABASE::"Service Line":
+                    begin
+                        ServHeader.Get("Demand Subtype", "Demand Order No.");
+                        case ServHeader."Document Type" of
+                            ServHeader."Document Type"::Order:
+                                PAGE.Run(PAGE::"Service Order", ServHeader);
+                        end;
                     end;
-                end;
-            DATABASE::"Job Planning Line":
-                begin
-                    Job.Get("Demand Order No.");
-                    case Job.Status of
-                        Job.Status::Open:
-                            PAGE.Run(PAGE::"Job Card", Job);
+                DATABASE::"Job Planning Line":
+                    begin
+                        Job.Get("Demand Order No.");
+                        case Job.Status of
+                            Job.Status::Open:
+                                PAGE.Run(PAGE::"Job Card", Job);
+                        end;
                     end;
-                end;
-        end;
+            end;
 
         OnAfterShowDemandOrder(Rec);
     end;
@@ -1260,6 +1264,11 @@ page 5522 "Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcPlanOnBeforeGetOrdersToPlan(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDemandOrder(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

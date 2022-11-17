@@ -326,7 +326,10 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetRange(IsInline, false);
         if not TempExchangeObject.IsEmpty() then
-            Page.RunModal(Page::"Office Attachments", TempExchangeObject);
+            if TempExchangeObject.Count = 1 then
+                SendToAttachments(TempExchangeObject)
+            else
+                Page.RunModal(Page::"Office Attachments", TempExchangeObject);
     end;
 
     procedure InitiateSendApprovalRequest(VendorNumber: Code[20])

@@ -234,20 +234,23 @@ codeunit 5750 "Whse.-Create Source Document"
               PurchLine."No.", PurchLine.Description, PurchLine."Description 2", PurchLine."Location Code",
               PurchLine."Variant Code", PurchLine."Unit of Measure Code", PurchLine."Qty. per Unit of Measure",
               PurchLine."Qty. Rounding Precision", PurchLine."Qty. Rounding Precision (Base)");
-            OnPurchLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
-            case PurchLine."Document Type" of
-                PurchLine."Document Type"::Order:
-                    begin
-                        Validate("Qty. Received", Abs(PurchLine."Quantity Received"));
-                        "Due Date" := PurchLine."Expected Receipt Date";
-                    end;
-                PurchLine."Document Type"::"Return Order":
-                    begin
-                        Validate("Qty. Received", Abs(PurchLine."Return Qty. Shipped"));
-                        "Due Date" := WorkDate();
-                    end;
+            IsHandled := false;
+            OnPurchLine2ReceiptLineOnAfterInitNewLine(WhseReceiptLine, WhseReceiptHeader, PurchLine, IsHandled);
+            if not IsHandled then begin
+                case PurchLine."Document Type" of
+                    PurchLine."Document Type"::Order:
+                        begin
+                            Validate("Qty. Received", Abs(PurchLine."Quantity Received"));
+                            "Due Date" := PurchLine."Expected Receipt Date";
+                        end;
+                    PurchLine."Document Type"::"Return Order":
+                        begin
+                            Validate("Qty. Received", Abs(PurchLine."Return Qty. Shipped"));
+                            "Due Date" := WorkDate();
+                        end;
+                end;
+                SetQtysOnRcptLine(WhseReceiptLine, Abs(PurchLine.Quantity), Abs(PurchLine."Quantity (Base)"));
             end;
-            SetQtysOnRcptLine(WhseReceiptLine, Abs(PurchLine.Quantity), Abs(PurchLine."Quantity (Base)"));
             OnPurchLine2ReceiptLineOnAfterSetQtysOnRcptLine(WhseReceiptLine, PurchLine);
             "Starting Date" := PurchLine."Planned Receipt Date";
             if "Location Code" = WhseReceiptHeader."Location Code" then
@@ -785,7 +788,7 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchLine2ReceiptLineOnAfterInitNewLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; WhseReceiptHeader: Record "Warehouse Receipt Header"; PurchaseLine: Record "Purchase Line")
+    local procedure OnPurchLine2ReceiptLineOnAfterInitNewLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; WhseReceiptHeader: Record "Warehouse Receipt Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

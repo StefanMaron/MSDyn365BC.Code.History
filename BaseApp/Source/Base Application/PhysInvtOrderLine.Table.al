@@ -579,6 +579,8 @@ table 5876 "Phys. Invt. Order Line"
             QtyExpected := ItemLedgEntry.Quantity;
             OnCalcQtyAndLastItemLedgExpectedOnAfterCalcItemLedgEntryQtyExpected(ItemLedgEntry, QtyExpected);
         end;
+
+        OnAfterCalcQtyAndLastItemLedgExpected(QtyExpected, LastItemLedgEntryNo);
     end;
 
     procedure ResetQtyExpected()
@@ -1162,6 +1164,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareLineArgs(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; ItemLedgEntry: Record "Item Ledger Entry"; WhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyAndLastItemLedgExpected(var QtyExpected: Decimal; var LastItemLedgEntryNo: Integer)
     begin
     end;
 }

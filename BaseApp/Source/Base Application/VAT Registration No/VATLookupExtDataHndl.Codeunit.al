@@ -44,6 +44,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         ResponseInStream: InStream;
         InStream: InStream;
         ResponseOutStream: OutStream;
+        IsHandled: Boolean;
     begin
         VATRegistrationURL := VATRegNoSrvConfig.GetVATRegNoURL();
 
@@ -68,8 +69,11 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
             Session.LogMessage('0000C3Q', ValidationSuccessfulMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EUVATRegNoValidationServiceTok);
         end else begin
             Session.LogMessage('0000C4S', ValidationFailureMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EUVATRegNoValidationServiceTok);
-            if ShowErrors then
-                SOAPWebServiceRequestMgt.ProcessFaultResponse('');
+            IsHandled := false;
+            OnSendRequestToVATRegistrationServiceBeforeShowErrors(VATRegistrationLog, IsHandled);
+            if not IsHandled then
+                if ShowErrors then
+                    SOAPWebServiceRequestMgt.ProcessFaultResponse('');
         end;
     end;
 
@@ -163,12 +167,17 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterLookupVatRegistrationFromWebService(VATRegistrationLog: Record "VAT Registration Log"; var RecVATRegistrationLog: Record "VAT Registration Log")
+    local procedure OnRunOnAfterLookupVatRegistrationFromWebService(var VATRegistrationLog: Record "VAT Registration Log"; var RecVATRegistrationLog: Record "VAT Registration Log")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnSendRequestToVatRegistrationServiceOnBeforeSendRequestToWebService(var SOAPWebServiceRequestMgt: Codeunit "SOAP Web Service Request Mgt."; var TempBlobBody: Codeunit "Temp Blob")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendRequestToVATRegistrationServiceBeforeShowErrors(var VATRegistrationLog: Record "VAT Registration Log"; var IsHandled: Boolean)
     begin
     end;
 }

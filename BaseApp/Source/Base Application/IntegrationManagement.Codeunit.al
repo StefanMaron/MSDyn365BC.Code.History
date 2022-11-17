@@ -650,13 +650,12 @@ codeunit 5150 "Integration Management"
     var
         JobQueueEntry: Record "Job Queue Entry";
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
-        JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
-        MomentForJobToBeReady: DateTime;
-        EarliestStartDateTime: DateTime;
+        NewEarliestStartDateTime: DateTime;
     begin
         if DataUpgradeMgt.IsUpgradeInProgress() then
             exit;
-        JobQueueEntry.FilterInactiveOnHoldEntries();
+        JobQueueEntry.Reset();
+        JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.IsEmpty() then
             exit;
@@ -664,19 +663,16 @@ codeunit 5150 "Integration Management"
             exit;
         if JobQueueEntry.FindSet(true) then
             repeat
-                // Restart only those jobs whose time to re-execute has nearly arrived.
-                // This postpones locking of the Job Queue Entries when restarting.
                 // The rescheduled task might start while the current transaction is not committed yet.
                 // Therefore the task will restart with a delay to lower a risk of use of "old" data.
-                MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
-                EarliestStartDateTime := CurrentDateTime() + 5000; // five seconds delay
-                if EarliestStartDateTime > MomentForJobToBeReady then
+                NewEarliestStartDateTime := CurrentDateTime() + 2000;
+                if (NewEarliestStartDateTime + 5000) < JobQueueEntry."Earliest Start Date/Time" then
                     if DoesJobActOnTable(JobQueueEntry, TableNo) then begin
                         JobQueueEntry.RefreshLocked();
                         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                        JobQueueEntry."Earliest Start Date/Time" := EarliestStartDateTime;
+                        JobQueueEntry."Earliest Start Date/Time" := NewEarliestStartDateTime;
                         JobQueueEntry.Modify();
-                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", EarliestStartDateTime) then;
+                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then;
                     end;
             until JobQueueEntry.Next() = 0;
     end;

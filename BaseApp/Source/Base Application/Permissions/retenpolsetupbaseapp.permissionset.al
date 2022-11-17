@@ -6,5 +6,7 @@ permissionset 650 "Reten. Pol. Setup - BaseApp"
     Permissions = tabledata "Error Message" = IMD,
                   tabledata "Error Message Register" = IMD,
                   tabledata "Job Queue Category" = ri,
-                  tabledata "Job Queue Log Entry" = IMD;
+                  tabledata "Job Queue Log Entry" = IMD,
+                  tabledata "Job Queue Entry" = rim,
+                  tabledata "Scheduled Task" = R;
 }

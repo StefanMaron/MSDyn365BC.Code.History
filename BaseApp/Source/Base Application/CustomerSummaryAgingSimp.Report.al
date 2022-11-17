@@ -128,11 +128,14 @@ report 109 "Customer - Summary Aging Simp."
             trigger OnAfterGetRecord()
             var
                 FilteredCustomer: Record Customer;
+                ShouldSkipCustomer: Boolean;
             begin
                 FilteredCustomer.CopyFilters(Customer);
                 FilteredCustomer.SetFilter("Date Filter", '..%1', StartDate);
                 FilteredCustomer.SetRange("No.", "No.");
-                if FilteredCustomer.IsEmpty() then
+                ShouldSkipCustomer := FilteredCustomer.IsEmpty();
+                OnCustomerOnAfterGetRecordOnAfterCalcShouldSkipCustomer(Customer, FilteredCustomer, DtldCustLedgEntry, CustBalanceDueLCY, PrintCust, ShouldSkipCustomer);
+                if ShouldSkipCustomer then
                     CurrReport.Skip();
 
                 PrintCust := false;
@@ -234,6 +237,11 @@ report 109 "Customer - Summary Aging Simp."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterDtldCustLedgEntrySetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustomerOnAfterGetRecordOnAfterCalcShouldSkipCustomer(Customer: Record Customer; var FilteredCustomer: Record Customer; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var CustBalanceDueLCY: array[5] of Decimal; var PrintCust: Boolean; var ShouldSkipCustomer: Boolean)
     begin
     end;
 }

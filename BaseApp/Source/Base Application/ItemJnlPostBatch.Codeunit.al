@@ -204,43 +204,44 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     local procedure CheckLines(var ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeCheckLines(ItemJnlLine, WindowIsOpen);
 
-        with ItemJnlLine do begin
-            LineCount := 0;
-            StartLineNo := "Line No.";
-            repeat
-                LineCount := LineCount + 1;
-                if WindowIsOpen then
-                    Window.Update(2, LineCount);
-                CheckRecurringLine(ItemJnlLine);
+        LineCount := 0;
+        StartLineNo := ItemJnlLine."Line No.";
+        repeat
+            LineCount := LineCount + 1;
+            if WindowIsOpen then
+                Window.Update(2, LineCount);
+            CheckRecurringLine(ItemJnlLine);
 
-                if (("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '')) or
-                   (("Invoiced Quantity" <> 0) and (Amount <> 0))
+            IsHandled := false;
+            OnBeforeCheckJnlLine(ItemJnlLine, SuppressCommit, IsHandled);
+            if not IsHandled then
+                if ((ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." = '')) or
+                    ((ItemJnlLine."Invoiced Quantity" <> 0) and (ItemJnlLine.Amount <> 0))
                 then begin
                     ItemJnlCheckLine.RunCheck(ItemJnlLine);
 
-                    if (Quantity <> 0) and
-                       ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
-                       ("Item Charge No." = '')
+                    if (ItemJnlLine.Quantity <> 0) and
+                        (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." = '')
                     then
                         CheckWMSBin(ItemJnlLine);
 
-                    if ("Value Entry Type" = "Value Entry Type"::Revaluation) and
-                       ("Inventory Value Per" = "Inventory Value Per"::" ") and
-                       "Partial Revaluation"
+                    if (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::Revaluation) and
+                        (ItemJnlLine."Inventory Value Per" = ItemJnlLine."Inventory Value Per"::" ") and ItemJnlLine."Partial Revaluation"
                     then
                         CheckRemainingQty();
 
                     OnAfterCheckJnlLine(ItemJnlLine, SuppressCommit);
                 end;
 
-                if Next() = 0 then
-                    FindFirst();
-            until "Line No." = StartLineNo;
-            NoOfRecords := LineCount;
-        end;
+            if ItemJnlLine.Next() = 0 then
+                ItemJnlLine.FindFirst();
+        until ItemJnlLine."Line No." = StartLineNo;
+        NoOfRecords := LineCount;
 
         OnAfterCheckLines(ItemJnlLine);
     end;
@@ -250,60 +251,63 @@ codeunit 23 "Item Jnl.-Post Batch"
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
+        IsHandled: Boolean;
     begin
         LastDocNo := '';
         LastDocNo2 := '';
         LastPostedDocNo := '';
-        with ItemJnlLine do begin
-            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
-            FindSet();
-            repeat
-                if not EmptyLine() and
-                   (ItemJnlBatch."No. Series" <> '') and
-                   ("Document No." <> LastDocNo2)
-                then
-                    TestField("Document No.", NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", "Posting Date", false));
-                if not EmptyLine() then
-                    LastDocNo2 := "Document No.";
-                MakeRecurringTexts(ItemJnlLine);
-                ConstructPostingNumber(ItemJnlLine);
 
-                OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
+        ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
+        ItemJnlLine.FindSet();
+        repeat
+            if not ItemJnlLine.EmptyLine() and (ItemJnlBatch."No. Series" <> '') and (ItemJnlLine."Document No." <> LastDocNo2) then
+                ItemJnlLine.TestField("Document No.", NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", ItemJnlLine."Posting Date", false));
+            if not ItemJnlLine.EmptyLine() then
+                LastDocNo2 := ItemJnlLine."Document No.";
+            MakeRecurringTexts(ItemJnlLine);
+            ConstructPostingNumber(ItemJnlLine);
 
-                if "Inventory Value Per" <> "Inventory Value Per"::" " then
-                    ItemJnlPostSumLine(ItemJnlLine)
-                else
-                    if (("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '')) or
-                       (("Invoiced Quantity" <> 0) and (Amount <> 0))
-                    then begin
-                        LineCount := LineCount + 1;
-                        if WindowIsOpen then begin
-                            Window.Update(3, LineCount);
-                            Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                        end;
-                        OriginalQuantity := Quantity;
-                        OriginalQuantityBase := "Quantity (Base)";
+            OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
+
+            if ItemJnlLine."Inventory Value Per" <> ItemJnlLine."Inventory Value Per"::" " then
+                ItemJnlPostSumLine(ItemJnlLine)
+            else
+                if ((ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." = '')) or
+                    ((ItemJnlLine."Invoiced Quantity" <> 0) and (ItemJnlLine.Amount <> 0))
+                then begin
+                    LineCount := LineCount + 1;
+                    if WindowIsOpen then begin
+                        Window.Update(3, LineCount);
+                        Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                    end;
+
+                    IsHandled := false;
+                    OnBeforePostJnlLine(ItemJnlLine, SuppressCommit, IsHandled);
+                    if not IsHandled then begin
+                        OriginalQuantity := ItemJnlLine.Quantity;
+                        OriginalQuantityBase := ItemJnlLine."Quantity (Base)";
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
                             ItemJnlPostLine.CheckItemTracking();
-                        if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
+                        if ItemJnlLine."Value Entry Type" <> "Cost Entry Type"::Revaluation then begin
                             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
                             OnPostLinesBeforePostWhseJnlLine(ItemJnlLine, SuppressCommit);
                             PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempTrackingSpecification);
                             OnPostLinesOnAfterPostWhseJnlLine(ItemJnlLine, SuppressCommit);
                         end;
                     end;
-
-                OnPostLinesOnAfterPostLine(ItemJnlLine, SuppressCommit);
-
-                if IsPhysInvtCount(ItemJnlTemplate, "Phys Invt Counting Period Code", "Phys Invt Counting Period Type") then begin
-                    if not PhysInvtCount then begin
-                        PhysInvtCountMgt.InitTempItemSKUList();
-                        PhysInvtCount := true;
-                    end;
-                    PhysInvtCountMgt.AddToTempItemSKUList("Item No.", "Location Code", "Variant Code", "Phys Invt Counting Period Type");
                 end;
-            until Next() = 0;
-        end;
+
+            OnPostLinesOnAfterPostLine(ItemJnlLine, SuppressCommit);
+
+            if IsPhysInvtCount(ItemJnlTemplate, ItemJnlLine."Phys Invt Counting Period Code", ItemJnlLine."Phys Invt Counting Period Type") then begin
+                if not PhysInvtCount then begin
+                    PhysInvtCountMgt.InitTempItemSKUList();
+                    PhysInvtCount := true;
+                end;
+                PhysInvtCountMgt.AddToTempItemSKUList(
+                    ItemJnlLine."Item No.", ItemJnlLine."Location Code", ItemJnlLine."Variant Code", ItemJnlLine."Phys Invt Counting Period Type");
+            end;
+        until ItemJnlLine.Next() = 0;
 
         OnAfterPostLines(ItemJnlLine, ItemRegNo);
     end;
@@ -400,30 +404,36 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     local procedure ConstructPostingNumber(var ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
     begin
-        with ItemJnlLine do
-            if "Posting No. Series" = '' then
-                "Posting No. Series" := ItemJnlBatch."No. Series"
-            else
-                if not EmptyLine() then
-                    if "Document No." = LastDocNo then
-                        "Document No." := LastPostedDocNo
-                    else begin
-                        if not TempNoSeries.Get("Posting No. Series") then begin
-                            NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
-                            if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
-                                Error(
-                                  Text006,
-                                  ArrayLen(NoSeriesMgt2));
-                            TempNoSeries.Code := "Posting No. Series";
-                            TempNoSeries.Description := Format(NoOfPostingNoSeries);
-                            TempNoSeries.Insert();
-                        end;
-                        LastDocNo := "Document No.";
-                        Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
-                        "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "Posting Date", false);
-                        LastPostedDocNo := "Document No.";
+        IsHandled := false;
+        OnBeforeConstructPostingNumber(ItemJnlLine, ItemJnlBatch, LastDocNo, LastPostedDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemJnlLine."Posting No. Series" = '' then
+            ItemJnlLine."Posting No. Series" := ItemJnlBatch."No. Series"
+        else
+            if not ItemJnlLine.EmptyLine() then
+                if ItemJnlLine."Document No." = LastDocNo then
+                    ItemJnlLine."Document No." := LastPostedDocNo
+                else begin
+                    if not TempNoSeries.Get(ItemJnlLine."Posting No. Series") then begin
+                        NoOfPostingNoSeries := NoOfPostingNoSeries + 1;
+                        if NoOfPostingNoSeries > ArrayLen(NoSeriesMgt2) then
+                            Error(
+                                Text006,
+                                ArrayLen(NoSeriesMgt2));
+                        TempNoSeries.Code := ItemJnlLine."Posting No. Series";
+                        TempNoSeries.Description := Format(NoOfPostingNoSeries);
+                        TempNoSeries.Insert();
                     end;
+                    LastDocNo := ItemJnlLine."Document No.";
+                    Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                    ItemJnlLine."Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo(ItemJnlLine."Posting No. Series", ItemJnlLine."Posting Date", false);
+                    LastPostedDocNo := ItemJnlLine."Document No.";
+                end;
 
         OnAfterConstructPostingNumber(ItemJnlLine);
     end;
@@ -1109,6 +1119,21 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleNonRecurringLineOnAfterCopyItemJnlLine3(var ItemJournalLine: Record "Item Journal Line"; var ItemJournalLine3: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJnlLine(var ItemJournalLine: Record "Item Journal Line"; SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostJnlLine(var ItemJournalLine: Record "Item Journal Line"; SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConstructPostingNumber(var ItemJournalLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch"; var LastDocNo: Code[20]; var LastPostedDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

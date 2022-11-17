@@ -1,3 +1,4 @@
+#if not CLEAN22
 report 510 "Change Log - Delete"
 {
     Caption = 'Change Log - Delete';
@@ -96,7 +97,6 @@ report 510 "Change Log - Delete"
         DialogMsg: Label 'Entries are being deleted...\\@1@@@@@@@@@@@@';
         CounterTotal: Integer;
         Counter: Integer;
-
         Text001: Label 'You have not defined a date filter. Do you want to continue?';
         Text002: Label 'Your date filter allows deletion of entries that are less than one year old. Do you want to continue?';
         NothingToDeleteErr: Label 'There are no entries within the filter.';
@@ -116,9 +116,11 @@ report 510 "Change Log - Delete"
                 if GuiAllowed then
                     Window.Update(1, Round(Counter / CounterTotal * 10000, 1));
                 Commit();
+#pragma warning disable AL0432
                 if not CODEUNIT.Run(CODEUNIT::"Change Log Entry - Delete", ChangeLogEntry) then
+#pragma warning restore AL0432
                     TempErrorMessage.LogLastError();
             until ChangeLogEntry.Next() = 0;
     end;
 }
-
+#endif

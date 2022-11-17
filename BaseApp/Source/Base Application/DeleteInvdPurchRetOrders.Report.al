@@ -157,7 +157,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
     end;

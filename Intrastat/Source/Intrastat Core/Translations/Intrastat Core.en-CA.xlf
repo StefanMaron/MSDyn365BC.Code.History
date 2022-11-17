@@ -1219,6 +1219,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup Wizard - Control StandardBanner - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3458657684 - Control 3749788842 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All VAT Reports Configuration records for Intrastat Report will be removed during the process.</source>
+          <target state="translated">All Tax Reports Configuration records for Intrastat Report will be removed during the process.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup Wizard - Control Important - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3458657684 - Control 3749788842 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Important</source>
+          <target state="translated">Important</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup Wizard - Control Important - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3458657684 - Control 3647570164 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Next to specify basic Intrastat reporting info.</source>
           <target state="translated">Choose Next to specify basic Intrastat reporting info.</target>

@@ -153,7 +153,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                 DeprAmount := Sign * CalculateDeprAmount();
 
                 IsHandled := false;
-                OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled);
+                OnAfterCalcFinalDeprAmount(FANo, FADeprBook, DeprBook, Sign, BookValue, DeprAmount, IsHandled, NumberOfDays);
                 if not IsHandled then
                     if Sign * DeprAmount > 0 then
                         DeprAmount := 0;
@@ -1027,14 +1027,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcFinalDeprAmount(
-        FANo: Code[20];
-        FADeprBook: Record "FA Depreciation Book";
-        DepreBook: Record "Depreciation Book";
-        Sign: Integer;
-        BookValue: Decimal;
-        var DeprAmount: Decimal;
-        var IsHandled: Boolean)
+    local procedure OnAfterCalcFinalDeprAmount(FANo: Code[20]; FADeprBook: Record "FA Depreciation Book"; DepreBook: Record "Depreciation Book"; Sign: Integer; BookValue: Decimal; var DeprAmount: Decimal; var IsHandled: Boolean; var NumberOfDays: Integer)
     begin
     end;
 

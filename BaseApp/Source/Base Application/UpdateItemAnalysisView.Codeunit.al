@@ -254,7 +254,7 @@ codeunit 7150 "Update Item Analysis View"
         TempItemAnalysisViewEntry."Dimension 3 Value Code" := DimValue3;
         TempItemAnalysisViewEntry."Entry No." := EntryNo;
 
-        OnAfterInitializeTempItemAnalysisViewEntry(TempItemAnalysisViewEntry, ItemAnalysisView, ItemAnalysisViewSource);
+        OnAfterInitializeTempItemAnalysisViewEntry(TempItemAnalysisViewEntry, ItemAnalysisView, ItemAnalysisViewSource, ValueEntry);
 
         if TempItemAnalysisViewEntry.Find() then begin
             if (ItemAnalysisViewSource.EntryType = ItemAnalysisViewSource.EntryType::"Direct Cost") and
@@ -564,7 +564,7 @@ codeunit 7150 "Update Item Analysis View"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitializeTempItemAnalysisViewEntry(var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary; ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewSource: Query "Item Analysis View Source")
+    local procedure OnAfterInitializeTempItemAnalysisViewEntry(var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary; ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewSource: Query "Item Analysis View Source"; var ValueEntry: Record "Value Entry")
     begin
     end;
 

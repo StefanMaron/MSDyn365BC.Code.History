@@ -1185,6 +1185,62 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandlerSimple,ConfirmHandlerAsTrue')]
+    procedure DirectTransferOrderWithInventoryPickDirectTransferPosting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        InventorySetup: Record "Inventory Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+        FromLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        DirectTransferHeader: Record "Direct Trans. Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseActivityRegister: Codeunit "Whse.-Activity-Register";
+    begin
+        // [FEATURE] [Direct Transfer] [Warehouse Shipment]
+        // [SCENARIO 325564] Direct Transfer from Required Shipment location (GREEN) to non warehouse location (BLUE) can be completely posted by posting of warehouse shipment
+        Initialize();
+
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        WarehouseSetup.Get();
+        WarehouseSetup."Shipment Posting Policy" :=
+            WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error";
+        WarehouseSetup.Modify();
+
+        // [GIVEN] Released Direct Transfer Order "T1"
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, true, false, false);
+
+        // [GIVEN] Post 10 pcs to inventory.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", FromLocation.Code, '', 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateAndReleaseDirectTransferOrder(TransferHeader, FromLocation.Code, LocationBlue.Code, Item."No.", 1);
+
+        // [WHEN] Create Inventory Pick for  this Transfer Order
+        LibraryWarehouse.CreateInvtPutPickMovement(
+            "Warehouse Request Source Document"::"Outbound Transfer", TransferHeader."No.", false, true, false);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick");
+
+        // [WHEN] Autofill and register Inventory Pick and fully post transfer order
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WarehouseActivityLine);
+
+        // [THEN] Direct transfer order is fully posted to posted direct transfer
+        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        DirectTransferHeader.FindFirst();
+        asserterror TransferHeader.Get(TransferHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure WhseReceiptAfterReleasedSalesReturnOrderExternalDocNoChanged()
     var
         SalesHeader: Record "Sales Header";

@@ -48,6 +48,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.ShowReservation();
 
         // 2. Exercise: Update Quantity on Service Line and Reserve again.
+        ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity + LibraryRandom.RandInt(10));  // Take Random to update the Quantity.
         QuantityOnServiceLine := ServiceLine.Quantity;  // Assign in global variable.
         ServiceLine.ShowReservation();
@@ -364,6 +365,7 @@ codeunit 136143 "Service Reservation II"
         UpdateProdOrderLine(ProductionOrder.Status, ProductionOrder."No.", ServiceLine."Needed by Date");
 
         // 2. Exercise.
+        ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity - LibraryUtility.GenerateRandomFraction);  // Using Random to modify Quantity.
 
         // 3. Verify: Verify Service Line for updated Reserved Quantity.

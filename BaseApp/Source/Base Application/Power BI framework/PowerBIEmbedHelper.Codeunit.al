@@ -242,7 +242,7 @@ codeunit 6299 "Power BI Embed Helper"
 
     procedure IsIgnoredEventUrl(EventUrl: Text): Boolean
     begin
-        // https://docs.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events
+        // https://go.microsoft.com/fwlink/?linkid=2205494
         exit(
             (StrPos(EventUrl, '/rendered') > 0) or
             (StrPos(EventUrl, '/renderingStarted') > 0) or

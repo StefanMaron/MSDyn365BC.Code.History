@@ -53,8 +53,8 @@ codeunit 1878 "Guided Experience Subscribers"
         TryWithYourOwnDataShortTitleTxt: Label 'Try with your own data';
         TryWithYourOwnDataDescriptionTxt: Label 'Try out Business Central in 30-day trial with your own data.';
         ReadyToGoTitleTxt: Label 'Want to get started or learn more?';
-        ReadyToGoShortTitleTxt: Label 'Ready to go?';
-        ReadyToGoDescriptionTxt: Label 'Excited? You can get more elaborate demos from Business Central resellers, called Microsoft Partners. They can also help you buy a subscription. Contact a reseller here.';
+        ReadyToGoShortTitleTxt: Label 'Get ready to go';
+        ReadyToGoDescriptionTxt: Label 'Microsoft Partners can give detailed Business Central demos to clarify whether it’s right for your business. They can also help you subscribe. Contact a partner here.';
         ReadyToGoLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2198402', Locked = true;
 
     procedure GetYourSalesWithinOutlookVideoLinkTxt(): Text

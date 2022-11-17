@@ -19,6 +19,7 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
     var
         HideDialog: Boolean;
         IsPosted: Boolean;
+        IsHandled: Boolean;
     begin
         HideDialog := false;
         IsPosted := false;
@@ -32,18 +33,19 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
                     if not Confirm(Text000, false) then
                         exit;
 
-            OnAfterConfirmPost(WhseReceiptLine);
-
-            WhsePostReceipt.Run(WhseReceiptLine);
-
-            OnAfterWhsePostReceiptRun(WhseReceiptLine, WhsePostReceipt);
-            WhsePostReceipt.GetResultMessage();
-            Clear(WhsePostReceipt);
+            IsHandled := false;
+            OnAfterConfirmPost(WhseReceiptLine, IsHandled);
+            if not IsHandled then begin
+                WhsePostReceipt.Run(WhseReceiptLine);
+                OnAfterWhsePostReceiptRun(WhseReceiptLine, WhsePostReceipt);
+                WhsePostReceipt.GetResultMessage();
+                Clear(WhsePostReceipt);
+            end;
         end;
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConfirmPost(WhseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnAfterConfirmPost(WhseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 

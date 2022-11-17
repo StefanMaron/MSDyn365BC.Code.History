@@ -194,6 +194,16 @@
     begin
     end;
 
+    procedure RunOnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader: Record "Purchase Header"; Currency: Record Currency; VATPostingSetup: Record "VAT Posting Setup"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader, Currency, VATPostingSetup, InvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader: Record "Purchase Header"; Currency: Record Currency; VATPostingSetup: Record "VAT Posting Setup"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+
     procedure RunOnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
         OnBeforeRunGenJnlPostLine(GenJnlLine, GenJnlPostLine);

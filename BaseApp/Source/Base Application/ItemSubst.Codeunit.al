@@ -37,7 +37,7 @@ codeunit 5701 "Item Subst."
         Text002: Label 'An Item Substitution does not exist for Item No. ''%1''';
 
     [Scope('OnPrem')]
-    procedure ItemSubstGet(var SalesLine: Record "Sales Line")
+    procedure ItemSubstGet(var SalesLine: Record "Sales Line") Found: Boolean
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
@@ -95,7 +95,8 @@ codeunit 5701 "Item Subst."
         end else
             Error(Text001, TempSalesLine."No.");
 
-        if (SalesLine."No." <> TempSalesLine."No.") or (SalesLine."Variant Code" <> TempSalesLine."Variant Code") then
+        Found := (SalesLine."No." <> TempSalesLine."No.") or (SalesLine."Variant Code" <> TempSalesLine."Variant Code");
+        if Found then
             SalesLineReserve.DeleteLine(SalesLine);
 
         SalesLine := TempSalesLine;

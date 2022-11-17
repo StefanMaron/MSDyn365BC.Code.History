@@ -18,6 +18,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         PurchaseHeader: Record "Purchase Header";
         SalesLine: Record "Sales Line";
         OptionNumber: Integer;
+        IsHandled: Boolean;
     begin
         OptionNumber := DIALOG.StrMenu(CreatePurchInvOptionQst, 1, CreatePurchInvInstructionTxt);
 
@@ -40,7 +41,10 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
             OnBeforeCreatePurchaseInvoice(SalesHeader, SalesLine);
             CreatePurchaseHeader(PurchaseHeader, SalesHeader, Vendor);
             CopySalesLinesToPurchaseLines(PurchaseHeader, SalesLine);
-            PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
+            IsHandled := false;
+            OnCreatePurchaseInvoiceOnBeforeOpenPage(PurchaseHeader, IsHandled);
+            if not IsHandled then
+                PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
         end;
     end;
 
@@ -267,6 +271,11 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeSupplyOrders(var TempManufacturingUserTemplate: Record "Manufacturing User Template" temporary; var TempDocumentEntry: Record "Document Entry" temporary; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchaseInvoiceOnBeforeOpenPage(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

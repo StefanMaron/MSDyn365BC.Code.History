@@ -413,7 +413,7 @@ codeunit 7017 "Price List Management"
             exit(PriceListHeader.Code);
     end;
 
-    procedure IsAllowedEditingActivePrice(PriceType: Enum "Price Type"): Boolean;
+    procedure IsAllowedEditingActivePrice(PriceType: Enum "Price Type") Result: Boolean;
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -421,11 +421,12 @@ codeunit 7017 "Price List Management"
         case PriceType of
             "Price Type"::Sale:
                 if SalesReceivablesSetup.Get() then
-                    exit(SalesReceivablesSetup."Allow Editing Active Price");
+                    Result := SalesReceivablesSetup."Allow Editing Active Price";
             "Price Type"::Purchase:
                 if PurchasesPayablesSetup.Get() then
-                    exit(PurchasesPayablesSetup."Allow Editing Active Price");
+                    Result := PurchasesPayablesSetup."Allow Editing Active Price";
         end;
+        OnAfterIsAllowedEditingActivePrice(PriceType, Result);
     end;
 
     procedure SendVerifyLinesNotification()
@@ -483,6 +484,7 @@ codeunit 7017 "Price List Management"
     procedure ActivateDraftLines(PriceListHeader: Record "Price List Header"): Boolean;
     var
         PriceListLine: Record "Price List Line";
+        SkipMessage: Boolean;
     begin
         if not PriceListHeader.HasDraftLines(PriceListLine) then
             exit;
@@ -492,8 +494,9 @@ codeunit 7017 "Price List Management"
             exit(false);
 
         PriceListLine.ModifyAll(Status, "Price Status"::Active);
-        OnActivateDraftLinesOnAfterPriceListLineModifyAll(PriceListHeader);
-        Message(AllLinesVerifiedMsg);
+        OnActivateDraftLinesOnAfterPriceListLineModifyAll(PriceListHeader, SkipMessage);
+        if not SkipMessage then
+            Message(AllLinesVerifiedMsg);
         exit(true);
     end;
 
@@ -504,6 +507,7 @@ codeunit 7017 "Price List Management"
             exit;
         VerifyLines(PriceListLine);
         ResolveDuplicatePrices(PriceListLine);
+        OnAfterActivateDraftLines(PriceListLine);
     end;
 
     procedure VerifyLines(var PriceListLine: Record "Price List Line")
@@ -900,7 +904,12 @@ codeunit 7017 "Price List Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnActivateDraftLinesOnAfterPriceListLineModifyAll(PriceListHeader: Record "Price List Header")
+    local procedure OnActivateDraftLinesOnAfterPriceListLineModifyAll(var PriceListHeader: Record "Price List Header"; var SkipMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterActivateDraftLines(PriceListLine: Record "Price List Line")
     begin
     end;
 
@@ -911,6 +920,11 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var PriceListLine: Record "Price List Line"; var Implemented: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAllowedEditingActivePrice(PriceType: Enum "Price Type"; var Result: Boolean)
     begin
     end;
 

@@ -208,8 +208,10 @@ codeunit 5923 "Service-Quote to Order"
                 ServOrderLine2."Document Type" := ServOrderHeader."Document Type";
                 ServOrderLine2."Document No." := ServOrderHeader."No.";
                 ServOrderLine2."Posting Date" := ServOrderHeader."Posting Date";
-                OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader);
-                ServOrderLine2.Insert();
+                IsHandled := false;
+                OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader, IsHandled);
+                if not IsHandled then
+                    ServOrderLine2.Insert();
                 OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
                 ServiceLineReserve.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
             until ServOrderLine.Next() = 0;
@@ -242,8 +244,10 @@ codeunit 5923 "Service-Quote to Order"
                 OnBeforeTransferQuoteLineToOrderLineLoop(ServiceQuoteLine, ServiceQuoteHeader, ServiceOrderHeader, IsHandled);
                 if not IsHandled then begin
                     ServiceOrderLine := ServiceQuoteLine;
-                    ServiceOrderLine.Validate("Reserved Qty. (Base)", 0);
+                    ServiceLineReserve.TransServLineToServLine(
+                      ServiceQuoteLine, ServiceOrderLine, ServiceQuoteLine."Outstanding Qty. (Base)");
                     ServiceOrderLine."Line No." := 0;
+                    ServiceOrderLine.Validate("Reserved Qty. (Base)");
                     if GuiAllowed then
                         if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
                             ItemCheckAvail.RaiseUpdateInterruptedError();
@@ -302,7 +306,7 @@ codeunit 5923 "Service-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServOrderLineInsert(var ServiceOrderLine2: Record "Service Line"; ServiceOrderLine: Record "Service Line"; ServOrderHeader: Record "Service Header")
+    local procedure OnBeforeServOrderLineInsert(var ServiceOrderLine2: Record "Service Line"; ServiceOrderLine: Record "Service Line"; ServOrderHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

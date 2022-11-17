@@ -714,7 +714,7 @@ codeunit 7321 "Create Inventory Put-away"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup, NextLineNo, ReservationFound, IsHandled);
+        OnBeforeInsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup, NextLineNo, ReservationFound, IsHandled, RemQtyToPutAway);
         if IsHandled then
             exit;
 
@@ -996,7 +996,7 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSNWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; NextLineNo: Integer; var ReservationFound: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeInsertSNWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; NextLineNo: Integer; var ReservationFound: Boolean; var IsHandled: Boolean; var RemQtyToPutAway: Decimal)
     begin
     end;
 

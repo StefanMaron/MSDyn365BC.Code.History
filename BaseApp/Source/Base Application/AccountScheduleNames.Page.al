@@ -23,17 +23,19 @@ page 103 "Account Schedule Names"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the row definition.';
                 }
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
                 field("Default Column Layout"; Rec."Default Column Layout")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a column layout name that you want to use as a default for this account schedule.';
                     ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group of the table Financial Reports';
                     ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                     Visible = false;
                 }
 #endif
+#pragma warning restore AS0074
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Suite;
@@ -76,12 +78,13 @@ page 103 "Account Schedule Names"
                     AccSchedule.Run();
                 end;
             }
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
             action(EditColumnLayoutSetup)
             {
                 ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group from the table Financial Report';
                 ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
+                ObsoleteTag = '22.0';
                 Visible = false;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit Column Definition';
@@ -98,6 +101,7 @@ page 103 "Account Schedule Names"
                 end;
             }
 #endif
+#pragma warning restore AS0074
             action(CopyAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
@@ -141,12 +145,13 @@ page 103 "Account Schedule Names"
                 end;
             }
         }
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
         area(navigation)
         {
             ObsoleteReason = 'AccScheduleOverview is now opened from FinancialReports page. Extend that page instead.';
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
             action(Overview)
             {
                 ApplicationArea = Basic, Suite;
@@ -157,7 +162,7 @@ page 103 "Account Schedule Names"
                 Visible = false;
                 ObsoleteReason = 'This page is now opened from Financial Reports Page intead (Overview action).';
                 ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
+                ObsoleteTag = '22.0';
                 trigger OnAction()
                 var
                     AccSchedOverview: Page "Acc. Schedule Overview";
@@ -171,7 +176,7 @@ page 103 "Account Schedule Names"
         {
             ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
             action(Print)
             {
                 ApplicationArea = Basic, Suite;
@@ -182,7 +187,7 @@ page 103 "Account Schedule Names"
                 Visible = false;
                 ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
                 ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
+                ObsoleteTag = '22.0';
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
                 trigger OnAction()
                 begin
@@ -197,25 +202,26 @@ page 103 "Account Schedule Names"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-#if not CLEAN21
+#if not CLEAN22
                 actionref(Overview_Promoted; Overview)
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This page is now opened from Financial Reports Page intead (Overview action).';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
                 actionref(EditAccountSchedule_Promoted; EditAccountSchedule)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN22
                 actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group from the table Financial Report';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
+#pragma warning restore AS0074
                 actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule)
                 {
                 }
@@ -229,15 +235,16 @@ page 103 "Account Schedule Names"
             group(Category_Category4)
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
-
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
                 actionref(Print_Promoted; Print)
                 {
                     ObsoleteState = Pending;
                     ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                 }
 #endif
+#pragma warning restore AS0074
             }
             group(Category_Report)
             {

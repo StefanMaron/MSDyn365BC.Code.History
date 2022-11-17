@@ -27,6 +27,8 @@ table 5406 "Prod. Order Line"
             TableRelation = Item WHERE(Type = CONST(Inventory));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 TestField("Finished Quantity", 0);
@@ -62,13 +64,15 @@ table 5406 "Prod. Order Line"
                     "Unit Cost" := Item."Unit Cost";
                     "Indirect Cost %" := Item."Indirect Cost %";
                     "Overhead Rate" := Item."Overhead Rate";
-                    OnValidateItemNoOnAfterAssignItemValues(Rec, Item);
-                    if "Item No." <> xRec."Item No." then begin
-                        Validate("Production BOM No.", Item."Production BOM No.");
-                        Validate("Routing No.", Item."Routing No.");
-                        ValidateUnitofMeasureCodeFromItem();
-                    end;
-                    OnAfterCopyFromItem(Rec, Item, xRec);
+                    IsHandled := false;
+                    OnValidateItemNoOnAfterAssignItemValues(Rec, Item, xRec, IsHandled);
+                    if not IsHandled then
+                        if "Item No." <> xRec."Item No." then begin
+                            Validate("Production BOM No.", Item."Production BOM No.");
+                            Validate("Routing No.", Item."Routing No.");
+                            ValidateUnitofMeasureCodeFromItem();
+                        end;
+                    OnAfterCopyFromItem(Rec, Item, xRec, CurrFieldNo);
                     if ProdOrder."Source Type" = ProdOrder."Source Type"::Family then
                         "Routing Reference No." := 0
                     else
@@ -220,8 +224,8 @@ table 5406 "Prod. Order Line"
                     exit;
 
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
-
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+                OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec);
 
                 "Remaining Quantity" := Quantity - "Finished Quantity";
                 if "Remaining Quantity" < 0 then
@@ -523,6 +527,8 @@ table 5406 "Prod. Order Line"
                 GetItem();
                 GetGLSetup();
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
+                OnValidateUnitOfMeasureCodeOnAfterWhseValidateSourceLine(Rec, xRec, CurrFieldNo);
+
                 "Unit Cost" := Item."Unit Cost";
 
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
@@ -1458,7 +1464,13 @@ table 5406 "Prod. Order Line"
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         LastProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowRouting(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderRoutingLine.SetRange(Status, Status);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
@@ -1529,7 +1541,7 @@ table 5406 "Prod. Order Line"
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
 
 #if not CLEAN20
@@ -1575,7 +1587,7 @@ table 5406 "Prod. Order Line"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ProdOrderLine: Record "Prod. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ProdOrderLine: Record "Prod. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
     begin
     end;
 
@@ -1597,7 +1609,7 @@ table 5406 "Prod. Order Line"
     end;
 #endif
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromItem(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; var xProdOrderLine: Record "Prod. Order Line")
+    local procedure OnAfterCopyFromItem(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; var xProdOrderLine: Record "Prod. Order Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -1737,7 +1749,7 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterAssignItemValues(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item)
+    local procedure OnValidateItemNoOnAfterAssignItemValues(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; xProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1748,6 +1760,21 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLocationCodeOnBeforeCreateDim(var Rec: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnAfterWhseValidateSourceLine(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowRouting(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcBaseQty(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

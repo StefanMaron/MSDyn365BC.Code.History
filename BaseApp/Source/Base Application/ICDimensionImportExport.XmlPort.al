@@ -101,8 +101,13 @@ xmlport 11 "IC Dimension Import/Export"
     var
         OrgICDim: Record "IC Dimension";
         OrgICDimVal: Record "IC Dimension Value";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         MsgTxt: Text[1024];
     begin
+        FeatureTelemetry.LogUptake('0000IKO', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUsage('0000IKP', ICMapping.GetFeatureTelemetryName(), 'IC Dimensions Import/Export');
+
         if XMLInbound then begin
             if TempICDimVal.Find('-') then
                 repeat

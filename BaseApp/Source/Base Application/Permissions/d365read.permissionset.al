@@ -658,7 +658,10 @@ permissionset 1044 "D365 READ"
                   tabledata "Inventory Report Entry" = R,
                   tabledata "Inventory Report Header" = R,
                   tabledata "Inventory Setup" = R,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = R,
+#endif
+                  tabledata "Invoice Posting Buffer" = R,
                   tabledata "Invoiced Booking Item" = R,
                   tabledata "Invt. Document Header" = R,
                   tabledata "Invt. Document Line" = R,

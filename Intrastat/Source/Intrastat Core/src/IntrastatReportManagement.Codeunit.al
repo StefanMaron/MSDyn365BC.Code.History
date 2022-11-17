@@ -727,7 +727,6 @@ codeunit 4810 IntrastatReportManagement
             NoSeriesLine.Init();
             NoSeriesLine."Series Code" := 'INTRA';
             NoSeriesLine."Line No." := 10000;
-            NoSeriesLine."Starting Date" := Today;
             NoSeriesLine.Validate("Starting No.", 'INTRA00001');
             NoSeriesLine.Insert(true);
             NoSeriesLine.Validate("Allow Gaps in Nos.", true);

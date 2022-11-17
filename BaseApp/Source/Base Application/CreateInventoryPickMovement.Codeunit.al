@@ -310,6 +310,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         RemQtyToPickBase: Decimal;
         IsHandled: Boolean;
     begin
+        OnBeforeCreatePickOrMoveFromSales(WhseActivHeader, SalesHeader, AutoCreation, HideDialog, SalesLine);
         with SalesLine do begin
             if not SetFilterSalesLine(SalesLine, SalesHeader) then begin
                 if not HideDialog then
@@ -768,6 +769,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if RemQtyToPickBase <= 0 then
             exit;
 
+        HasExpiredItems := false;
         OriginalRemQtyToPickBase := RemQtyToPickBase;
 
         QtyAvailToPickBase := CalcInvtAvailability(NewWhseActivLine, WhseItemTrackingSetup);
@@ -1201,11 +1203,12 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
 
         if LineCreated then begin
+            OnAutoCreatePickOrMoveOnBeforeWarehouseActivityHeaderModify(WhseActivHeader, WhseRequest, Location);
             WhseActivHeader.Modify();
             WhseActivHeaderNew := WhseActivHeader;
         end;
 
-        OnAfterAutoCreatePickOrMove(WhseRequest, LineCreated, WhseActivHeaderNew);
+        OnAfterAutoCreatePickOrMove(WhseRequest, LineCreated, WhseActivHeaderNew, Location, HideDialog);
     end;
 
     procedure SetReportGlobals(PrintDocument2: Boolean; ShowError2: Boolean)
@@ -1884,7 +1887,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAutoCreatePickOrMove(var WarehouseRequest: Record "Warehouse Request"; LineCreated: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    local procedure OnAfterAutoCreatePickOrMove(var WarehouseRequest: Record "Warehouse Request"; LineCreated: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean)
     begin
     end;
 
@@ -1965,6 +1968,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePickOrMoveLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LinesCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePickOrMoveFromSales(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header"; AutoCreation: Boolean; HideDialog: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -2297,6 +2305,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePickOrMoveFromTransferOnAfterCreatePickOrMoveLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TransferLine: Record "Transfer Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; ShowError: Boolean; AutoCreation: Boolean; var LineCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutoCreatePickOrMoveOnBeforeWarehouseActivityHeaderModify(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request"; Location: Record Location)
     begin
     end;
 }

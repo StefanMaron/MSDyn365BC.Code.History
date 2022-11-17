@@ -621,8 +621,7 @@ report 702 "Inventory Posting - Test"
                     No[1] := "Item No.";
                     TableID[2] := DATABASE::"Salesperson/Purchaser";
                     No[2] := "Salespers./Purch. Code";
-                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                        AddError(DimMgt.GetDimValuePostingErr());
+                    CheckDimValuePosting("Item Journal Line");
 
                     if (ItemJnlTemplate.Type in
                         [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Transfer]) or
@@ -892,6 +891,13 @@ report 702 "Inventory Posting - Test"
                 AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
     end;
 
+    local procedure CheckDimValuePosting(var ItemJournalLine: Record "Item Journal Line")
+    begin
+        OnBeforeCheckDimValuePosting(TableID, No, ItemJournalLine);
+        if not DimMgt.CheckDimValuePosting(TableID, No, ItemJournalLine."Dimension Set ID") then
+            AddError(DimMgt.GetDimValuePostingErr());
+    end;
+
     procedure AddError(Text: Text[250])
     begin
         ErrorCounter := ErrorCounter + 1;
@@ -914,6 +920,11 @@ report 702 "Inventory Posting - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemJnLLine(ItemJournalLine: Record "Item Journal Line"; Item: Record Item; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePosting(var TableID: array[10] of Integer; var No: array[10] of Code[20]; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

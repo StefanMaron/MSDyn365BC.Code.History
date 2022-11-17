@@ -76,8 +76,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 2164095947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The mailbox is not valid.\\A likely cause of this error is that the user does not have a valid license for Office 365. To read about other potential causes, visit https://docs.microsoft.com/exchange/troubleshoot/user-and-shared-mailboxes/rest-api-is-not-yet-supported-for-this-mailbox-error.</source>
-          <target state="translated">Postboksen er ikke gyldig.\\En sannsynlig årsak til denne feilen er at brukeren ikke har en gyldig lisens for Office 365. Hvis du vil lese om andre mulige årsaker, kan du gå til https://docs.microsoft.com/exchange/troubleshoot/user-and-shared-mailboxes/rest-api-is-not-yet-supported-for-this-mailbox-error.</target>
+          <source>The mailbox is not valid.\\A likely cause is that the user does not have a valid license for Office 365. To read about other potential causes, visit https://go.microsoft.com/fwlink/?linkid=2206177</source>
+          <target state="translated">Postboksen er ikke gyldig.\\En sannsynlig årsak er at brukeren ikke har en gyldig lisens for Office 365. Hvis du vil lese om andre mulige årsaker, kan du gå til https://go.microsoft.com/fwlink/?linkid=2206177</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType TheMailboxIsNotValidErr</note>
         </trans-unit>

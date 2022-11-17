@@ -70,6 +70,8 @@ page 99000882 "Change Status on Prod. Order"
 
     procedure Set(ProdOrder: Record "Production Order")
     begin
+        OnBeforeSet(ProdOrder);
+
         if ProdOrder.Status = ProdOrder.Status::Finished then
             ProdOrder.FieldError(Status);
 
@@ -119,6 +121,11 @@ page 99000882 "Change Status on Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetOnAfterCalcEditable(ProdOrder: Record "Production Order"; var FirmPlannedStatusEditable: Boolean; var ReleasedStatusEditable: Boolean; var FinishedStatusEditable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSet(var ProdOrder: Record "Production Order")
     begin
     end;
 }

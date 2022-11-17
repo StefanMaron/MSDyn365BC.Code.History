@@ -192,6 +192,33 @@ codeunit 7006 "Price Helper - V16"
             PriceWorksheetLine.ModifyAll("Source No.", SourceNo);
     end;
 
+    local procedure RenameSourceInPrices(SourceType: Enum "Price Source Type"; xSourceNo: Code[20]; SourceNo: Code[20]; JobNo: Code[20])
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        PriceListHeader.SetRange("Source Type", SourceType);
+        PriceListHeader.SetRange("Assign-to Parent No.", JobNo);
+        PriceListHeader.SetRange("Source No.", xSourceNo);
+        if PriceListHeader.FindFirst() then
+            repeat
+                PriceListHeader."Source No." := SourceNo;
+                PriceListHeader."Assign-to No." := SourceNo;
+                PriceListHeader.Modify();
+            until PriceListHeader.Next() = 0;
+
+        PriceListLine.SetRange("Source Type", SourceType);
+        PriceListLine.SetRange("Source No.", xSourceNo);
+        if not PriceListLine.IsEmpty() then
+            PriceListLine.ModifyAll("Source No.", SourceNo);
+
+        PriceWorksheetLine.SetRange("Source Type", SourceType);
+        PriceWorksheetLine.SetRange("Source No.", xSourceNo);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.ModifyAll("Source No.", SourceNo);
+    end;
+
     local procedure RenameUnitOfMeasureInPrices(xUnitOfMeasureCode: Code[20]; UnitOfMeasureCode: Code[20])
     var
         PriceListLine: Record "Price List Line";
@@ -657,7 +684,7 @@ codeunit 7006 "Price Helper - V16"
             exit;
 
         if RunTrigger then
-            RenameSourceInPrices(SourceType::"Job Task", xRec."Job Task No.", Rec."Job Task No.");
+            RenameSourceInPrices(SourceType::"Job Task", xRec."Job Task No.", Rec."Job Task No.", Rec."Job No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Unit of Measure", 'OnAfterRenameEvent', '', false, false)]

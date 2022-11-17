@@ -463,6 +463,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateProductionForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastName: Code[10]; ItemNo: Code[20]; LocationCode: Code[10]; ForecastDate: Date; ComponentForecast: Boolean)
     begin
+        Clear(ProductionForecastEntry);
         ProductionForecastEntry.Init();
         ProductionForecastEntry.Validate("Production Forecast Name", ProductionForecastName);
         ProductionForecastEntry.Validate("Item No.", ItemNo);

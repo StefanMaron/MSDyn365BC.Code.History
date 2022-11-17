@@ -40,6 +40,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         TheSerialNoInfoDoesNotExistErr: Label 'The Serial No. Information does not exist. Identification fields and values:';
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
+        InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
         CreateSNInfo: Boolean;
 
     [Test]
@@ -1448,6 +1449,74 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         WarehouseEntry.SetRange("Item No.", Item."No.");
         WarehouseEntry.FindFirst();
         WarehouseEntry.TestField("Expiration Date", ExpDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerValidateMessage')]
+    procedure CheckItemTrackingAvailabilityBeforePostingInvtPick()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNo: Code[50];
+    begin
+        // [FEATURE] [Availability] [Inventory Pick] [Item Tracking]
+        // [SCENARIO 438731] Check item tracking availability before posting inventory pick.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with required pick.
+        Location.Get(CreatePutawayPickLocation);
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.FindFirst();
+
+        // [GIVEN] Serial No.-tracked item.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        // [GIVEN] Post serial no. "S1" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, 1);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, SerialNo, '', 1);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order, release, create inventory pick.
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", Location.Code, 1);
+        CreateInventoryPickOnSalesLine(SalesLine);
+
+        // [GIVEN] Go to the pick line, set "Serial No." = "S2", which is not available in stock.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesLine."Document No.", WarehouseActivityLine."Activity Type"::"Invt. Pick", SalesLine."Location Code",
+          WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Serial No.", LibraryUtility.GenerateGUID());
+        WarehouseActivityLine.Modify(true);
+
+        // [WHEN] Try to post the inventory pick.
+        Commit();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] Error "Serial No. S2 is not available..." shows up.
+        Assert.ExpectedError(
+          StrSubstNo(InventoryNotAvailableErr, WarehouseActivityLine.FieldCaption("Serial No."), WarehouseActivityLine."Serial No."));
+
+        // [THEN] After you correct the serial no. to "S1", the inventory pick can be posted.
+        WarehouseActivityLine.Find();
+        WarehouseActivityLine.Validate("Serial No.", SerialNo);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityHeader.Find();
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", 1);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()

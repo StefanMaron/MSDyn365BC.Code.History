@@ -111,23 +111,59 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType CouldNotAuthenticateErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 962999263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot authenticate the credentials on server %1.</source>
-          <target state="translated">Die Anmeldeinformationen konnten auf dem Server %1 nicht authentifiziert werden.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = The SMTP server address</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType AuthenticationFailureErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 4032849293" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot connect to server %1.</source>
-          <target state="translated">Es wurde keine Verbindung zum Server %1 hergestellt.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = The SMTP server address</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType ConnectionFailureErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 1293915263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use SMTP to send emails.</source>
           <target state="translated">Verwenden Sie SMTP zum Senden von E-Mails.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType ConnectorDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 441163528" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not authenticate on the SMTP server.\\%1</source>
+          <target state="translated">Authentifizierung auf dem SMTP-Server nicht möglich. \ \ %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotAuthenticateErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 3828645481" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to the SMTP server.\\%1</source>
+          <target state="translated">Verbindung zum Server konnte nicht hergestellt werden.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotConnectErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2318586236" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The provided SMTP Server URL %1 is not valid.</source>
+          <target state="translated">Die angegebene SMTP-Server-URL %1 ist ungültig.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = server URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotRecogniseTheServerErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 3684459175" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email.\\%1</source>
+          <target state="translated">Die e-Mail konnte nicht gesendet werden. \ \ %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotSendErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 4034431664" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The SMTP server rejected the authentication request, as the authentication data is incorrect. Verify that your Username and Password are correct and that the SMTP server supports the specified authentication type (%1). SMTP error code: 535.</source>
+          <target state="translated">Der SMTP-Server lehnt die Authentifizierungsanforderung ab, da die Authentifizierungsdaten nicht korrekt sind. Stellen Sie sicher, dass Ihr Benutzername und das Kennwort korrekt sind und dass der SMTP-Server den angegebenen Authentifizierungstyp (%1) unterstützt. SMTP-Fehlercode: 535.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = authentication type (e. g. Basic)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType IncorrectAuthenticationDataErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 447844760" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email, as no recipients have been specified.</source>
+          <target state="translated">Die e-Mail konnte nicht gesendet werden, da keine Empfänger angegeben wurden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoRecipientsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 4203003612" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The SMTP server %1 did not respond to the connection request.</source>
+          <target state="translated">Der SMTP-Server %1 nicht auf die Verbindungsanforderung reagiert.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = server URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoResponseOnConnectErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1780013033 - NamedType 938971449" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email, as the sender has not been specified.</source>
+          <target state="translated">Die e-Mail konnte nicht gesendet werden, da der Absender nicht angegeben wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoSenderErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 1482857067" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We could not find the account. Typically, this is because the account has been deleted.</source>
@@ -136,16 +172,16 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NotRegisteredAccountErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 2880798304" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Can't send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
+          <source>Could not send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
           <target state="translated">Die E-Mail kann nicht gesendet werden. Das Konto %1 verfügt nicht über die Berechtigung „Senden als“ auf dem E-Mail-Server für das Konto %2.</target>
           <note from="Developer" annotates="general" priority="2">%1 = the email account sending the email, e.g. sales@cronus.com; %2 = the email account used for authentication, e.g. email@cronus.com</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendAsDeniedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 2425307403" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot send the email.</source>
-          <target state="translated">Die E-Mail wurde nicht gesendet.</target>
+        <trans-unit id="Codeunit 1780013033 - NamedType 156443413" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server URL field cannot be empty.</source>
+          <target state="translated">Das Feld ' Server-URL ' darf nicht leer sein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendingFailureErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType ServerCannotBeEmptyErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 3798978956" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email sent.</source>

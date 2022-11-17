@@ -735,73 +735,75 @@
         CurrencyDocument.Initialize(PurchHeader."Currency Code");
 
         if InvoicePostingBuffer.FindSet() then
-                repeat
-                    case InvoicePostingBuffer."VAT Calculation Type" of
-                        InvoicePostingBuffer."VAT Calculation Type"::"Reverse Charge VAT":
-                            begin
-                                VATPostingSetup.Get(InvoicePostingBuffer."VAT Bus. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
-                                PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup);
+            repeat
+                case InvoicePostingBuffer."VAT Calculation Type" of
+                    InvoicePostingBuffer."VAT Calculation Type"::"Reverse Charge VAT":
+                        begin
+                            VATPostingSetup.Get(InvoicePostingBuffer."VAT Bus. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
+                            PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup);
 
-                                VATBaseAmount := InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100);
-                                VATBaseAmountACY := InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100);
+                            VATBaseAmount := InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100);
+                            VATBaseAmountACY := InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100);
+
+                            if PurchHeader."Currency Code" <> '' then
+                                VATBaseAmount := CurrExchRate.ExchangeAmtLCYToFCY(
+                                    PurchHeader.GetUseDate(), PurchHeader."Currency Code",
+                                    VATBaseAmount, PurchHeader."Currency Factor");
+
+                            VATAmount := VATBaseAmount * VATPostingSetup."VAT %" / 100;
+                            VATAmountACY := VATBaseAmountACY * VATPostingSetup."VAT %" / 100;
+
+                            TempInvoicePostingBufferReverseCharge := InvoicePostingBuffer;
+                            if TempInvoicePostingBufferReverseCharge.Find() then begin
+                                VATAmountRemainder += VATAmount;
+                                InvoicePostingBuffer."VAT Amount" := Round(VATAmountRemainder, CurrencyDocument."Amount Rounding Precision");
+                                VATAmountRemainder -= InvoicePostingBuffer."VAT Amount";
 
                                 if PurchHeader."Currency Code" <> '' then
-                                    VATBaseAmount := CurrExchRate.ExchangeAmtLCYToFCY(
-                                        PurchHeader.GetUseDate(), PurchHeader."Currency Code",
-                                        VATBaseAmount, PurchHeader."Currency Factor");
+                                    InvoicePostingBuffer."VAT Amount" := Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                            PurchHeader.GetUseDate(), PurchHeader."Currency Code",
+                                            InvoicePostingBuffer."VAT Amount", PurchHeader."Currency Factor"));
 
-                                VATAmount := VATBaseAmount * VATPostingSetup."VAT %" / 100;
-                                VATAmountACY := VATBaseAmountACY * VATPostingSetup."VAT %" / 100;
+                                VATAmountACYRemainder += VATAmountACY;
+                                InvoicePostingBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
+                                VATAmountACYRemainder -= InvoicePostingBuffer."VAT Amount (ACY)";
 
-                                TempInvoicePostingBufferReverseCharge := InvoicePostingBuffer;
-                                if TempInvoicePostingBufferReverseCharge.Find() then begin
-                                    VATAmountRemainder += VATAmount;
-                                    InvoicePostingBuffer."VAT Amount" := Round(VATAmountRemainder, CurrencyDocument."Amount Rounding Precision");
-                                    VATAmountRemainder -= InvoicePostingBuffer."VAT Amount";
+                                InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
+                                InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
+                            end else begin
+                                if PurchHeader."Currency Code" <> '' then
+                                    VATAmount := Round(
+                                        CurrExchRate.ExchangeAmtFCYToLCY(PurchHeader.GetUseDate(), PurchHeader."Currency Code", VATAmount, PurchHeader."Currency Factor"))
+                                else
+                                    VATAmount := Round(VATAmount);
 
-                                    if PurchHeader."Currency Code" <> '' then
-                                        InvoicePostingBuffer."VAT Amount" := Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                                PurchHeader.GetUseDate(), PurchHeader."Currency Code",
-                                                InvoicePostingBuffer."VAT Amount", PurchHeader."Currency Factor"));
+                                InvoicePostingBuffer."VAT Amount" := VATAmount;
+                                InvoicePostingBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
 
-                                    VATAmountACYRemainder += VATAmountACY;
-                                    InvoicePostingBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
-                                    VATAmountACYRemainder -= InvoicePostingBuffer."VAT Amount (ACY)";
-
-                                    InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
-                                    InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
-                                end else begin
-                                    if PurchHeader."Currency Code" <> '' then
-                                        VATAmount := Round(
-                                            CurrExchRate.ExchangeAmtFCYToLCY(PurchHeader.GetUseDate(), PurchHeader."Currency Code", VATAmount, PurchHeader."Currency Factor"))
-                                    else
-                                        VATAmount := Round(VATAmount);
-
-                                    InvoicePostingBuffer."VAT Amount" := VATAmount;
-                                    InvoicePostingBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
-
-                                    InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
-                                    InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
-                                end;
-                                InvoicePostingBuffer.Modify();
+                                InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
+                                InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
-                        InvoicePostingBuffer."VAT Calculation Type"::"Sales Tax":
-                            if InvoicePostingBuffer."Use Tax" then begin
-                                InvoicePostingBuffer."VAT Amount" :=
-                                    Round(
-                                        SalesTaxCalculate.CalculateTax(
-                                            InvoicePostingBuffer."Tax Area Code", InvoicePostingBuffer."Tax Group Code",
-                                            InvoicePostingBuffer."Tax Liable", PurchHeader."Posting Date",
-                                            InvoicePostingBuffer.Amount, InvoicePostingBuffer.Quantity, 0));
-                                GLSetup.Get();
-                                if GLSetup."Additional Reporting Currency" <> '' then
-                                    InvoicePostingBuffer."VAT Amount (ACY)" :=
-                                        CurrExchRate.ExchangeAmtLCYToFCY(
-                                            PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
-                                            InvoicePostingBuffer."VAT Amount", 0);
-                            end;
-                    end;
-                until InvoicePostingBuffer.Next() = 0;
+                            PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader, CurrencyDocument, VATPostingSetup, InvoicePostingBuffer);
+                            InvoicePostingBuffer.Modify();
+                        end;
+                    InvoicePostingBuffer."VAT Calculation Type"::"Sales Tax":
+                        if InvoicePostingBuffer."Use Tax" then begin
+                            InvoicePostingBuffer."VAT Amount" :=
+                                Round(
+                                    SalesTaxCalculate.CalculateTax(
+                                        InvoicePostingBuffer."Tax Area Code", InvoicePostingBuffer."Tax Group Code",
+                                        InvoicePostingBuffer."Tax Liable", PurchHeader."Posting Date",
+                                        InvoicePostingBuffer.Amount, InvoicePostingBuffer.Quantity, 0));
+                            GLSetup.Get();
+                            if GLSetup."Additional Reporting Currency" <> '' then
+                                InvoicePostingBuffer."VAT Amount (ACY)" :=
+                                    CurrExchRate.ExchangeAmtLCYToFCY(
+                                        PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
+                                        InvoicePostingBuffer."VAT Amount", 0);
+                            InvoicePostingBuffer.Modify();
+                        end;
+                end;
+            until InvoicePostingBuffer.Next() = 0;
     end;
 
     local procedure PrepareDeferralLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20])
@@ -838,19 +840,19 @@
 
                 if TempDeferralLine.FindSet() then
                     repeat
-                            if (TempDeferralLine."Amount (LCY)" <> 0) or (TempDeferralLine.Amount <> 0) then begin
-                                DeferralPostingBuffer.PreparePurch(PurchLine, InvoicePostingParameters."Document No.");
-                                DeferralPostingBuffer.InitFromDeferralLine(TempDeferralLine);
-                                if PurchLine.IsCreditDocType() then
-                                    DeferralPostingBuffer.ReverseAmounts();
-                                DeferralPostingBuffer."G/L Account" := PurchAccount;
-                                DeferralPostingBuffer."Deferral Account" := DeferralAccount;
-                                DeferralPostingBuffer."Period Description" := DeferralTemplate."Period Description";
-                                DeferralPostingBuffer."Deferral Line No." := InvDefLineNo;
-                                PurchPostInvoiceEvents.RunOnPrepareDeferralLineOnAfterInitFromDeferralLine(DeferralPostingBuffer, TempDeferralLine, PurchLine, DeferralTemplate);
-                                DeferralPostingBuffer.Update(DeferralPostingBuffer);
-                            end else
-                                Error(ZeroDeferralAmtErr, PurchLine."No.", PurchLine."Deferral Code");
+                        if (TempDeferralLine."Amount (LCY)" <> 0) or (TempDeferralLine.Amount <> 0) then begin
+                            DeferralPostingBuffer.PreparePurch(PurchLine, InvoicePostingParameters."Document No.");
+                            DeferralPostingBuffer.InitFromDeferralLine(TempDeferralLine);
+                            if PurchLine.IsCreditDocType() then
+                                DeferralPostingBuffer.ReverseAmounts();
+                            DeferralPostingBuffer."G/L Account" := PurchAccount;
+                            DeferralPostingBuffer."Deferral Account" := DeferralAccount;
+                            DeferralPostingBuffer."Period Description" := DeferralTemplate."Period Description";
+                            DeferralPostingBuffer."Deferral Line No." := InvDefLineNo;
+                            PurchPostInvoiceEvents.RunOnPrepareDeferralLineOnAfterInitFromDeferralLine(DeferralPostingBuffer, TempDeferralLine, PurchLine, DeferralTemplate);
+                            DeferralPostingBuffer.Update(DeferralPostingBuffer);
+                        end else
+                            Error(ZeroDeferralAmtErr, PurchLine."No.", PurchLine."Deferral Code");
 
                     until TempDeferralLine.Next() = 0
 
@@ -899,32 +901,32 @@
                 PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
             if DeferralLine.FindSet() then begin
                 TotalDeferralCount := DeferralLine.Count();
-                                               repeat
-                                                   DeferralCount := DeferralCount + 1;
-                                                   TempDeferralLine.Init();
-                                                   TempDeferralLine := DeferralLine;
+                repeat
+                    DeferralCount := DeferralCount + 1;
+                    TempDeferralLine.Init();
+                    TempDeferralLine := DeferralLine;
 
-                                                   if DeferralCount = TotalDeferralCount then begin
-                                                       TempDeferralLine.Amount := TempDeferralHeader."Amount to Defer" - TotalAmount;
-                                                       TempDeferralLine."Amount (LCY)" := TempDeferralHeader."Amount to Defer (LCY)" - TotalAmountLCY;
-                                                   end else begin
-                                                       if PurchLine.Quantity <> PurchLine."Qty. to Invoice" then
-                                                           TempDeferralLine.Amount :=
-                                                               Round(TempDeferralLine.Amount *
-                                                                   PurchLine.GetDeferralAmount() / OriginalDeferralAmount, Currency."Amount Rounding Precision");
+                    if DeferralCount = TotalDeferralCount then begin
+                        TempDeferralLine.Amount := TempDeferralHeader."Amount to Defer" - TotalAmount;
+                        TempDeferralLine."Amount (LCY)" := TempDeferralHeader."Amount to Defer (LCY)" - TotalAmountLCY;
+                    end else begin
+                        if PurchLine.Quantity <> PurchLine."Qty. to Invoice" then
+                            TempDeferralLine.Amount :=
+                                Round(TempDeferralLine.Amount *
+                                    PurchLine.GetDeferralAmount() / OriginalDeferralAmount, Currency."Amount Rounding Precision");
 
-                                                       TempDeferralLine."Amount (LCY)" :=
-                                                           Round(
-                                                               CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                 PurchHeader.GetUseDate(), PurchHeader."Currency Code",
-                                                                 TempDeferralLine.Amount, PurchHeader."Currency Factor"));
-                                                       TotalAmount := TotalAmount + TempDeferralLine.Amount;
-                                                       TotalAmountLCY := TotalAmountLCY + TempDeferralLine."Amount (LCY)";
-                                                   end;
-                                                   PurchPostInvoiceEvents.RunOnBeforeTempDeferralLineInsert(
-                                                       TempDeferralLine, DeferralLine, PurchLine, DeferralCount, TotalDeferralCount);
-                                                   TempDeferralLine.Insert();
-                                               until DeferralLine.Next() = 0;
+                        TempDeferralLine."Amount (LCY)" :=
+                            Round(
+                                CurrExchRate.ExchangeAmtFCYToLCY(
+                                  PurchHeader.GetUseDate(), PurchHeader."Currency Code",
+                                  TempDeferralLine.Amount, PurchHeader."Currency Factor"));
+                        TotalAmount := TotalAmount + TempDeferralLine.Amount;
+                        TotalAmountLCY := TotalAmountLCY + TempDeferralLine."Amount (LCY)";
+                    end;
+                    PurchPostInvoiceEvents.RunOnBeforeTempDeferralLineInsert(
+                        TempDeferralLine, DeferralLine, PurchLine, DeferralCount, TotalDeferralCount);
+                    TempDeferralLine.Insert();
+                until DeferralLine.Next() = 0;
             end;
         end;
     end;
@@ -954,10 +956,10 @@
                 TempDeferralLine, "Deferral Document Type"::Purchase.AsInteger(), '', '',
                 PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
             if TempDeferralLine.FindSet() then
-                    repeat
-                        PostedDeferralLine.InitFromDeferralLine(
-                          TempDeferralLine, '', '', NewDocumentType, NewDocumentNo, NewLineNo, DeferralAccount);
-                    until TempDeferralLine.Next() = 0;
+                repeat
+                    PostedDeferralLine.InitFromDeferralLine(
+                      TempDeferralLine, '', '', NewDocumentType, NewDocumentNo, NewLineNo, DeferralAccount);
+                until TempDeferralLine.Next() = 0;
         end;
 
         PurchPostInvoiceEvents.RunOnAfterCreatePostedDeferralSchedule(PurchLine, PostedDeferralHeader);

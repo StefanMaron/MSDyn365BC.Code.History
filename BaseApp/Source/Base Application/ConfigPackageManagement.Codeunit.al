@@ -413,6 +413,7 @@
     var
         FieldRef: FieldRef;
         IsTemplate: Boolean;
+        SkipEvaluate: Boolean;
     begin
         if ConfigPackageField."Primary Key" or ConfigPackageField.AutoIncrement then
             exit;
@@ -437,10 +438,12 @@
                     ImportMediaSetFiles(ConfigPackageData, FieldRef, DoModify);
                 IsMediaFieldInternal(TempConfigPackageFieldCache."Processing Order"):
                     ImportMediaFiles(ConfigPackageData, FieldRef, DoModify);
-                else
-                    ConfigValidateMgt.EvaluateTextToFieldRef(
-                      ConfigPackageData.Value, FieldRef,
-                      ConfigPackageField."Validate Field" and ((ApplyMode = ApplyMode::NonKeyFields) or DelayInsert));
+                else begin
+                    SkipEvaluate := false;
+                    OnModifyRecordDataFieldOnBeforeEvaluateTextToFieldRef(ConfigPackageField, ConfigPackageData, ConfigPackageTable, DelayInsert, ApplyMode, FieldRef, SkipEvaluate);
+                    if not SkipEvaluate then
+                        ConfigValidateMgt.EvaluateTextToFieldRef(ConfigPackageData.Value, FieldRef, ConfigPackageField."Validate Field" and ((ApplyMode = ApplyMode::NonKeyFields) or DelayInsert));
+                end;
             end;
         end;
     end;
@@ -1762,8 +1765,7 @@
             repeat
                 ConfigLine.CheckBlocked();
                 if ConfigLine.Status <= ConfigLine.Status::"In Progress" then begin
-                    if ConfigLine."Line Type" = ConfigLine."Line Type"::Table then
-                    begin
+                    if ConfigLine."Line Type" = ConfigLine."Line Type"::Table then begin
                         ConfigLine.TestField("Table ID");
                         if ConfigPackageTable.Get(ConfigLine."Package Code", ConfigLine."Table ID") then begin
                             ConfigLine2.SetRange("Package Code", PackageCode);
@@ -1870,10 +1872,10 @@
                 TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
                 TempAllObj."Object ID" := ConfigLine."Table ID";
                 TempAllObj.Insert();
-                until ConfigLine.Next() = 0;
+            until ConfigLine.Next() = 0;
     end;
 
-        local procedure CreateConfigLineBuffer(var ConfigLineNew: Record "Config. Line"; var ConfigLineBuffer: Record "Config. Line"; PackageCode: Code[20])
+    local procedure CreateConfigLineBuffer(var ConfigLineNew: Record "Config. Line"; var ConfigLineBuffer: Record "Config. Line"; PackageCode: Code[20])
     var
         ConfigLine: Record "Config. Line";
     begin
@@ -2549,6 +2551,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateException(TableID: Integer; FieldID: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyRecordDataFieldOnBeforeEvaluateTextToFieldRef(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageTable: Record "Config. Package Table"; DelayedInsert: Boolean; ApplyMode: Option; FieldRef: FieldRef; var SkipEvaluate: Boolean)
     begin
     end;
 

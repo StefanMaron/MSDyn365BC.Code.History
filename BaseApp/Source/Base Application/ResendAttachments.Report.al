@@ -72,6 +72,7 @@ report 5183 "Resend Attachments"
                 TempDeliverySorter.Subject := Subject;
                 TempDeliverySorter."Send Word Docs. as Attmt." := "Send Word Docs. as Attmt.";
                 TempDeliverySorter."Language Code" := "Interaction Language Code";
+                OnBeforeDeliverySorterInsert(TempDeliverySorter, "Interaction Log Entry");
                 TempDeliverySorter.Insert();
             end;
 
@@ -147,5 +148,10 @@ report 5183 "Resend Attachments"
         Text000: Label '%1 must be specified.';
         Text001: Label 'The interaction log entries must always be from the same %1.';
         Text002: Label 'There is nothing to send.\\Only Microsoft Word documents can be resent.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeliverySorterInsert(var TempDeliverySorter: Record "Delivery Sorter" temporary; InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
 }
 

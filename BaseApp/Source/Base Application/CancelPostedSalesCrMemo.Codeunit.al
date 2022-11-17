@@ -42,18 +42,27 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     var
         SalesHeader: Record "Sales Header";
         SalesInvHeader: Record "Sales Invoice Header";
+        IsHandled: Boolean;
     begin
         TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
         if not CODEUNIT.Run(CODEUNIT::"Cancel Posted Sales Cr. Memo", SalesCrMemoHeader) then begin
             SalesInvHeader.SetRange("Applies-to Doc. No.", SalesCrMemoHeader."No.");
             if SalesInvHeader.FindFirst() then begin
-                if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedInvQst, GetLastErrorText)) then
-                    PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedInvQst, GetLastErrorText)) then begin
+                    IsHandled := false;
+                    OnBeforeShowPostedSalesInvoice(SalesInvHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                end
             end else begin
                 SalesHeader.SetRange("Applies-to Doc. No.", SalesCrMemoHeader."No.");
                 if SalesHeader.FindFirst() then begin
-                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenInvQst, GetLastErrorText)) then
-                        PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenInvQst, GetLastErrorText)) then begin
+                        IsHandled := false;
+                        OnBeforeShowSalesInvoice(SalesHeader, IsHandled);
+                        if not IsHandled then
+                            PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+                    end
                 end else
                     Error(CreatingInvFailedNothingCreatedErr, GetLastErrorText);
             end;
@@ -491,6 +500,16 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfUnapplied(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesInvoice(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostedSalesInvoice(var SalesInvHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 }

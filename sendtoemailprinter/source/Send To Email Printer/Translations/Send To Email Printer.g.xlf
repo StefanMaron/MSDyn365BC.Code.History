@@ -278,6 +278,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Action NewPrinter - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2148701171 - Property 2019332006" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1215073847">
+          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension Email Printer Management - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2148701171 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1215073847">
           <source>email printers,emailprint</source>
           <note from="Developer" annotates="general" priority="2"></note>

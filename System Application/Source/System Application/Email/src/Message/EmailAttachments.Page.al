@@ -141,11 +141,11 @@ page 8889 "Email Attachments"
     end;
 #endif
 
-    internal procedure UpdateValues(MessageId: Guid; EmailEditable: Boolean)
+    internal procedure UpdateValues(SourceEmailMessageImpl: Codeunit "Email Message Impl."; EmailEditable: Boolean)
     begin
-        EmailMessageId := MessageId;
+        EmailMessageId := SourceEmailMessageImpl.GetId();
+        EmailMessageImpl := SourceEmailMessageImpl;
 
-        EmailMessageImpl.Get(EmailMessageId);
         UpdateDeleteActionEnablement();
         IsEmailEditable := EmailEditable;
     end;

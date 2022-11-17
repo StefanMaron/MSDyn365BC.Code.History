@@ -143,6 +143,8 @@ codeunit 700 "Page Management"
                 exit(GetPurchaseHeaderPageID(RecRef));
             DATABASE::"Service Header":
                 exit(GetServiceHeaderPageID(RecRef));
+            DATABASE::"Service Contract Header":
+                exit(GetServiceContractHeaderPageID(RecRef));
             DATABASE::"Gen. Journal Batch":
                 exit(GetGenJournalBatchPageID(RecRef));
             DATABASE::"Gen. Journal Line":
@@ -264,6 +266,21 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Service Invoice");
             ServiceHeader."Document Type"::"Credit Memo":
                 exit(PAGE::"Service Credit Memo");
+        end;
+    end;
+
+    local procedure GetServiceContractHeaderPageID(RecRef: RecordRef): Integer
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+    begin
+        RecRef.SetTable(ServiceContractHeader);
+        case ServiceContractHeader."Contract Type" of
+            ServiceContractHeader."Contract Type"::Contract:
+                exit(PAGE::"Service Contract");
+            ServiceContractHeader."Contract Type"::Quote:
+                exit(PAGE::"Service Contract Quote");
+            ServiceContractHeader."Contract Type"::Template:
+                exit(PAGE::"Service Contract Template");
         end;
     end;
 

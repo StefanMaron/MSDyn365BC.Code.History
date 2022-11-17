@@ -818,6 +818,9 @@ table 77 "Report Selections"
         NumberOfReportsAttached: Integer;
         IsHandled: Boolean;
     begin
+        OnBeforeSaveAsDocumentAttachment(
+            Enum::"Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNo, AccountNo, ShowNotificationAction);
+
         RecRef.GETTABLE(RecordVariant);
         if not RecRef.Find() then
             exit;
@@ -826,6 +829,7 @@ table 77 "Report Selections"
             "Report Selection Usage".FromInteger(ReportUsage), AccountNo, TempAttachReportSelections, GetAccountTableId(RecRef.Number()));
         with TempAttachReportSelections do
             repeat
+                OnSaveAsDocumentAttachmentOnBeforeCanSaveReportAsPDF(TempAttachReportSelections, RecRef, DocumentNo, AccountNo, NumberOfReportsAttached);
                 if CanSaveReportAsPDF(TempAttachReportSelections."Report ID") then begin
                     Clear(TempBlob);
                     SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", "Report Selection Usage".FromInteger(ReportUsage));
@@ -927,10 +931,10 @@ table 77 "Report Selections"
                     O365DocumentSentHistory.SetStatusAsFailed();
                     UpdateDocumentSentHistory := true;
                 end;
-		    
+
                 if SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, CustNo) and UpdateDocumentSentHistory then
                     O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-		    
+
                 exit;
             end;
 #endif
@@ -1005,10 +1009,10 @@ table 77 "Report Selections"
                     O365DocumentSentHistory.SetStatusAsFailed();
                     UpdateDocumentSentHistory := true;
                 end;
-		    
+
                 if SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, CustNo) and UpdateDocumentSentHistory then
                     O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-		    
+
                 exit;
             end;
 #endif
@@ -1103,10 +1107,10 @@ table 77 "Report Selections"
                     O365DocumentSentHistory.SetStatusAsFailed();
                     UpdateDocumentSentHistory := true;
                 end;
-		    
+
                 if SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, VendorNo) and UpdateDocumentSentHistory then
                     O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-		    
+
                 exit;
             end;
 #endif
@@ -1196,10 +1200,10 @@ table 77 "Report Selections"
                     O365DocumentSentHistory.SetStatusAsFailed();
                     UpdateDocumentSentHistory := true;
                 end;
-		    
+
                 if SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, VendorNo) and UpdateDocumentSentHistory then
                     O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-		    
+
                 exit;
             end;
 #endif
@@ -2117,7 +2121,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
+    local procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; var RecVarToPrint: Variant; var IsHandled: Boolean)
     begin
     end;
 
@@ -2235,6 +2239,16 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSendToZipForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var DataCompression: Codeunit "Data Compression")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveAsDocumentAttachment(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocumentNo: Code[20]; AccountNo: Code[20]; ShowNotificationAction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAsDocumentAttachmentOnBeforeCanSaveReportAsPDF(var TempAttachReportSelections: Record "Report Selections" temporary; RecRef: RecordRef; DocumentNo: Code[20]; AccountNo: Code[20]; NumberOfReportsAttached: Integer)
     begin
     end;
 }

@@ -67,6 +67,8 @@ codeunit 410 "Update Analysis View"
         LastGLEntryNo := GLEntry.GetLastEntryNo();
         LastBudgetEntryNo := GLBudgetEntry.GetLastEntryNo();
         LastEntryNoIsInitialized := true;
+
+        OnAfterInitLastEntryNo(LastGLEntryNo);
     end;
 
     procedure UpdateAll(Which: Option "Ledger Entries","Budget Entries",Both; DirectlyFromPosting: Boolean)
@@ -83,7 +85,6 @@ codeunit 410 "Update Analysis View"
             exit;
 
         InitLastEntryNo();
-        OnAfterInitLastEntryNo(LastGLEntryNo);
 
         if DirectlyFromPosting then
             AnalysisView2.SetFilter("Last Entry No.", '<%1', LastGLEntryNo);
@@ -647,7 +648,7 @@ codeunit 410 "Update Analysis View"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateOneOnBeforeUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; var Updated: Boolean)
     begin
     end;

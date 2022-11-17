@@ -211,7 +211,7 @@ table 9651 "Report Layout Selection"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHasNormalCustomLayoutSelection(ReportID, Result, IsHandled);
+        OnBeforeHasNormalCustomLayoutSelection(ReportID, Result, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -247,7 +247,7 @@ table 9651 "Report Layout Selection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHasNormalCustomLayoutSelection(ReportID: Integer; var Result: Integer; var Handled: Boolean)
+    local procedure OnBeforeHasNormalCustomLayoutSelection(ReportID: Integer; var Result: Integer; var Handled: Boolean; var ReportLayoutSelectionRec: Record "Report Layout Selection")
     begin
     end;
 }

@@ -484,7 +484,7 @@ page 9800 Users
         if UserCard.DeleteUserIsAllowed(Rec) then
             exit(true);
         if not UserCard.ManageUsersIsAllowed() then
-            Error('');
+            Error(DeleteUserInSaaSErr);
     end;
 
     trigger OnInit()
@@ -499,7 +499,7 @@ page 9800 Users
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if not UserCard.ManageUsersIsAllowed() then
-            Error('');
+            Error(CreateUserInSaaSErr);
         if "User Name" = '' then
             Error(Text004Err, FieldCaption("User Name"));
     end;
@@ -534,6 +534,8 @@ page 9800 Users
         Text002Err: Label 'The account %1 already exists.', Comment = '%1=user name';
         Text003Err: Label 'The account %1 is not allowed.', Comment = '%1=user name';
         Text004Err: Label '%1 cannot be empty.', Comment = '%1=user name';
+        CreateUserInSaaSErr: Label 'Creating users is not allowed in the online environment.';
+        DeleteUserInSaaSErr: Label 'Deleting users is not allowed in the online environment.';
         NoUserExists: Boolean;
         CreateQst: Label 'Do you want to create %1 as super user?', Comment = '%1=user name, e.g. europe\myaccountname';
         [InDataSet]

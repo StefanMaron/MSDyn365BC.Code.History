@@ -28,8 +28,15 @@ codeunit 379 "Transfer Old Ext. Text Lines"
         TempLineNumberBuffer.DeleteAll();
     end;
 
-    procedure TransferExtendedText(OldLineNo: Integer; NewLineNo: Integer; AttachedLineNo: Integer): Integer
+    procedure TransferExtendedText(OldLineNo: Integer; NewLineNo: Integer; AttachedLineNo: Integer) Result: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferExtendedText(OldLineNo, NewLineNo, AttachedLineNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         InsertLineNumbers(OldLineNo, NewLineNo);
         if AttachedLineNo <> 0 then
             exit(GetNewLineNumber(AttachedLineNo));
@@ -40,6 +47,11 @@ codeunit 379 "Transfer Old Ext. Text Lines"
     procedure GetLineNoBuffer(var TempLineNumberBuffer: Record "Line Number Buffer" temporary)
     begin
         TempLineNumberBuffer.Copy(TempLineNumberBuffer, true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferExtendedText(OldLineNo: Integer; NewLineNo: Integer; AttachedLineNo: Integer; var Result: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

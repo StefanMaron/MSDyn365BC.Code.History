@@ -73,6 +73,10 @@ table 2224 "Remit Address"
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
         }
+        field(10; Default; Boolean)
+        {
+            Caption = 'Default Address';
+        }
         field(35; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';

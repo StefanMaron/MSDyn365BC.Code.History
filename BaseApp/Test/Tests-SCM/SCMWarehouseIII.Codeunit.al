@@ -4512,6 +4512,70 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    procedure NotExpiredItemsAreNotExcludedFromInventoryPick()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        ExpiredItem: Record Item;
+        GoodItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [FEFO] [Item Tracking] [Inventory Movement] [Assembly]
+        // [SCENARIO 445492] Creating inventory pick must include items that are not expired and skip expired ones.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Location set up for bin mandatory, bin according to FEFO, and required put-away and pick.
+        CreateAndUpdateLocation(Location, true, true, true, false, false, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        Location.Validate("To-Assembly Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Lot-tracked item "E" with required expiration date.
+        CreateTrackedItem(ExpiredItem, true, false, true, false, true);
+
+        // [GIVEN] Item "G".
+        LibraryInventory.CreateItem(GoodItem);
+
+        // [GIVEN] Post item "E" to inventory, assign lot number and set "Expiration Date" < WorkDate, so it is expired.
+        PostItemJournalLineWithLotNoExpiration(
+          ExpiredItem."No.", Location.Code, Bin[1].Code, LibraryUtility.GenerateGUID(), Qty, CalcDate('<-1W>', WorkDate()));
+
+        // [GIVEN] Post item "G" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, GoodItem."No.", Location.Code, Bin[1].Code, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Assembly order with two components - "E" and "G", release.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ExpiredItem."No.", ExpiredItem."Base Unit of Measure", Qty, Qty, '');
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, GoodItem."No.", GoodItem."Base Unit of Measure", Qty, Qty, '');
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [WHEN] Create inventory movement for the assembly order.
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          "Warehouse Request Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
+
+        // [THEN] Item "G" is included to the new inventory movement.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Item No.", GoodItem."No.");
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
+
+        // [THEN] Expired item "E" is not included.
+        WarehouseActivityLine.SetRange("Item No.", ExpiredItem."No.");
+        Assert.RecordIsEmpty(WarehouseActivityLine);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -446,12 +446,19 @@ report 121 "Customer - Balance to Date"
     begin
         if CustLedgerEntry.Get(EntryNo) and (CustLedgerEntry."Posting Date" <= MaxDate) then begin
             CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
-            CustLedgerEntry.CalcFields("Remaining Amount");
+            CustLedgerEntry.CalcFields("Remaining Amount", "Original Amount", Amount);
             if CustLedgerEntry."Remaining Amount" <> 0 then
                 exit(true);
-            if ShowEntriesWithZeroBalance then
+            if ShowEntriesWithZeroBalance then begin
                 if ClosingCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
                     exit(ClosingCustLedgerEntry."Posting Date" <= MaxDate);
+                if (CustLedgerEntry.Amount = 0) and
+                   (CustLedgerEntry."Original Amount" = 0) and
+                   not CustLedgerEntry.Open and
+                   (CustLedgerEntry."Posting Date" <= MaxDate) then
+                    exit(true);
+            end;
+
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));
         end;

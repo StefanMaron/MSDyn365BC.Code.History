@@ -16,15 +16,20 @@ report 5881 "Make Phys. Invt. Recording"
                 RequestFilterFields = "Item No.", "Location Code", "Bin Code", "Shelf No.", "Inventory Posting Group";
 
                 trigger OnAfterGetRecord()
+                var
+                    ShouldInsertHeader: Boolean;
                 begin
                     if CheckOrderLine("Phys. Invt. Order Line") then begin
-                        if not HeaderInserted then begin
+                        ShouldInsertHeader := not HeaderInserted;
+                        OnPhysInvtOrderLineOnAfterCalcShouldInsertHeader("Phys. Invt. Order Header", "Phys. Invt. Order Line", ShouldInsertHeader);
+                        if ShouldInsertHeader then begin
                             InsertRecordingHeader("Phys. Invt. Order Header");
                             HeaderInserted := true;
                             NextLineNo := 10000;
                             HeaderCount := HeaderCount + 1;
                         end;
                         InsertRecordingLine("Phys. Invt. Order Line");
+                        OnPhysInvtOrderLineOnAfterInsertRecordingLine("Phys. Invt. Order Header", "Phys. Invt. Order Line", PhysInvtRecordHeader, PhysInvtRecordLine);
                     end;
                 end;
 
@@ -199,13 +204,23 @@ report 5881 "Make Phys. Invt. Recording"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertRecordingHeaderOnBeforeInsert(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforePostReport(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var HeaderCount: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPhysInvtOrderLineOnAfterCalcShouldInsertHeader(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ShouldInsertHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPhysInvtOrderLineOnAfterInsertRecordingLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
     end;
 }

@@ -46,6 +46,11 @@ page 4815 "Intrastat Report Setup Wizard"
                     Caption = 'Let''s go!';
                     InstructionalText = 'Choose Next to specify basic Intrastat reporting info.';
                 }
+                group("Important")
+                {
+                    Caption = 'Important';
+                    InstructionalText = 'All VAT Reports Configuration records for Intrastat Report will be removed during the process.';
+                }
             }
             group(Step2)
             {
@@ -418,7 +423,13 @@ page 4815 "Intrastat Report Setup Wizard"
     end;
 
     local procedure FinishAction();
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
     begin
+        VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+        if VATReportsConfiguration.FindSet() then
+            VATReportsConfiguration.DeleteAll(true);
+
         SetupFinished := true;
         CurrPage.Close();
     end;

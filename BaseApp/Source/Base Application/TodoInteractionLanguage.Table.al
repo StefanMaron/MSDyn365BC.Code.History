@@ -159,8 +159,10 @@ table 5196 "To-do Interaction Language"
         Attachment: Record Attachment;
         FileName: Text[1024];
     begin
-        if Attachment.Get("Attachment No.") then
+        if Attachment.Get("Attachment No.") then begin
+            OnBeforeExportAttachmentToClientFile(Attachment);
             Attachment.ExportAttachmentToClientFile(FileName);
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -174,6 +176,11 @@ table 5196 "To-do Interaction Language"
                 Modify();
                 exit(true);
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportAttachmentToClientFile(var Attachment: Record Attachment)
+    begin
     end;
 }
 

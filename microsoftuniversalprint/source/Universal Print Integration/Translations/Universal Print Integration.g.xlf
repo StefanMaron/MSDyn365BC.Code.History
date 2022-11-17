@@ -568,6 +568,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Control PaperTray - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Property 2019332006" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1215073847">
+          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension Universal Printer Management - Property PromotedActionCategories</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1215073847">
           <source>universal printers,universalprint</source>
           <note from="Developer" annotates="general" priority="2"></note>

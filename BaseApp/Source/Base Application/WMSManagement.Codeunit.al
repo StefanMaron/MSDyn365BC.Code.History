@@ -74,7 +74,7 @@ codeunit 7302 "WMS Management"
             else
                 WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Job Journal";
             WhseJnlLine."Reference No." := "Document No.";
-            TransferWhseItemTrkg(WhseJnlLine, ItemJnlLine);
+            TransferWhseItemTracking(WhseJnlLine, ItemJnlLine);
             WhseJnlLine.Description := Description;
             OnAfterCreateWhseJnlLine(WhseJnlLine, ItemJnlLine, ToTransfer);
             exit(true);
@@ -100,7 +100,7 @@ codeunit 7302 "WMS Management"
             WhseJnlLine.SetWhseDocument(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
             WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
             WhseJnlLine."Reference No." := "Order No.";
-            TransferWhseItemTrkg(WhseJnlLine, ItemJnlLine);
+            TransferWhseItemTracking(WhseJnlLine, ItemJnlLine);
             OnAfterCreateWhseJnlLineFromOutputJnl(WhseJnlLine, ItemJnlLine);
         end;
     end;
@@ -122,7 +122,7 @@ codeunit 7302 "WMS Management"
             WhseJnlLine.SetWhseDocument(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
             WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
             WhseJnlLine."Reference No." := "Order No.";
-            TransferWhseItemTrkg(WhseJnlLine, ItemJnlLine);
+            TransferWhseItemTracking(WhseJnlLine, ItemJnlLine);
             OnAfterCreateWhseJnlLineFromConsumJnl(WhseJnlLine, ItemJnlLine);
         end;
     end;
@@ -926,6 +926,8 @@ codeunit 7302 "WMS Management"
                 "Unit of Measure Code" := GetBaseUOM(ItemJnlLine."Item No.");
                 "Qty. per Unit of Measure" := 1;
             end;
+            OnInitWhseJnlLineOnAfterGetQuantity(ItemJnlLine, WhseJnlLine, Location);
+
             "Qty. (Base)" := QuantityBase;
             "Qty. (Absolute)" := Abs(Quantity);
             "Qty. (Absolute, Base)" := Abs(QuantityBase);
@@ -1462,11 +1464,18 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
-    local procedure TransferWhseItemTrkg(var WhseJnlLine: Record "Warehouse Journal Line"; ItemJnlLine: Record "Item Journal Line")
+    local procedure TransferWhseItemTracking(var WhseJnlLine: Record "Warehouse Journal Line"; ItemJnlLine: Record "Item Journal Line")
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
+        IsHandled: Boolean;
     begin
         ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.", WhseItemTrackingSetup);
+
+        IsHandled := false;
+        OnBeforeTransferWhseItemTracking(WhseJnlLine, ItemJnlLine, WhseItemTrackingSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         if not WhseItemTrackingSetup.TrackingRequired() then
             exit;
 
@@ -1497,6 +1506,7 @@ codeunit 7302 "WMS Management"
 
     local procedure SetZoneAndBins(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"; ToTransfer: Boolean)
     var
+        IsDirectedPutAwayAndPick: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1517,7 +1527,9 @@ codeunit 7302 "WMS Management"
                     WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::Movement
                 else
                     WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::"Positive Adjmt.";
-                if Location."Directed Put-away and Pick" then
+                IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
+                OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJnlLine, Location, IsDirectedPutAwayAndPick);
+                if IsDirectedPutAwayAndPick then
                     if "Entry Type" in ["Entry Type"::"Assembly Output", "Entry Type"::"Assembly Consumption"] then
                         WhseJnlLine."To Bin Code" := "Bin Code"
                     else
@@ -1542,7 +1554,9 @@ codeunit 7302 "WMS Management"
                         WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::Movement
                     else
                         WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::"Negative Adjmt.";
-                    if Location."Directed Put-away and Pick" then
+                    IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
+                    OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJnlLine, Location, IsDirectedPutAwayAndPick);
+                    if IsDirectedPutAwayAndPick then
                         if "Entry Type" in ["Entry Type"::"Assembly Output", "Entry Type"::"Assembly Consumption"] then
                             WhseJnlLine."From Bin Code" := "Bin Code"
                         else
@@ -2419,6 +2433,21 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetZoneAndBinsForConsumption(ItemJnlLine: Record "Item Journal Line"; var ProdOrderCompLine: Record "Prod. Order Component"; var WhseJnlLine: Record "Warehouse Journal Line"; Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeTransferWhseItemTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJnlLine: Record "Item Journal Line"; Location: Record Location; var IsDirectedPutAwayAndPick: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitWhseJnlLineOnAfterGetQuantity(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"; Location: Record Location)
     begin
     end;
 }

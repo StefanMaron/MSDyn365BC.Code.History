@@ -38,7 +38,7 @@ codeunit 136312 "Job Reservation"
         VendorNoIsNotMatchErr: Label 'Vendor No. is not match.';
         VendorItemNoErr: Label 'Vendor Item No. should be %1';
         NotCreateReservationEntryErr: Label 'The Reservation Entry should not be created.';
-        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations on the job planning lines.', Comment = '%1=The job status name';
+        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations', Comment = '%1=The job status name';
         AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
 
     [Test]

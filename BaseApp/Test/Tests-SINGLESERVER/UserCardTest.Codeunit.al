@@ -822,6 +822,36 @@ codeunit 132903 UserCardTest
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UserGroupEmptyDefaultProfileIDValidation()
+    var
+        UserGroup: Record "User Group";
+        UserGroups: TestPage "User Groups";
+    begin
+        // [SCENARIO] No error thrown when User Group's Default Profile ID is set to empty ('')
+        Initialize();
+
+        // [GIVEN] UserGroup "TEST" with empty Default Profile ID ('')
+        LibraryPermissions.CreateUserGroup(UserGroup, 'TEST');
+
+        // [WHEN] UserGroup's Default Profile ID set to 'ACCOUNTANT' (valid profile)
+        UserGroups.OpenEdit;
+        UserGroups.filter.SetFilter(Code, UserGroup.Code);
+        UserGroups.YourProfileID.Value := 'ACCOUNTANT';
+        UserGroups.Close();
+
+        // [THEN] No error thrown (validation succeeds)
+
+        // [WHEN] UserGroup's Default Profile ID set to empty ('')
+        UserGroups.OpenEdit;
+        UserGroups.filter.SetFilter(Code, UserGroup.Code);
+        UserGroups.YourProfileID.Value := '';
+        UserGroups.Close();
+
+        // [THEN] No error thrown (validation succeeds)
+    end;
+
     local procedure AddUserHelper(UserName: Code[50])
     var
         UserCardPage: TestPage "User Card";

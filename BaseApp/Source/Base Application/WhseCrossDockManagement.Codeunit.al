@@ -703,7 +703,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateQtyToCrossDock(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;

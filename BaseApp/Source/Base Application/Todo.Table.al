@@ -1040,7 +1040,6 @@ table 5080 "To-do"
         TaskInteractLanguage2: Record "To-do Interaction Language";
         TempAttendee: Record Attendee temporary;
         Task: Record "To-do";
-        TeamSalesperson: Record "Team Salesperson";
         Attendee2: Record Attendee;
         Window: Dialog;
         AttendeeCounter: Integer;
@@ -1097,21 +1096,8 @@ table 5080 "To-do"
 
                 Task2.Insert(true);
                 TaskNo := Task2."No.";
-                if Task2."System To-do Type" = "System To-do Type"::Team then begin
-                    TeamSalesperson.SetRange("Team Code", Task2."Team Code");
-                    if TeamSalesperson.Find('-') then
-                        repeat
-                            TempAttendee.CreateAttendee(
-                              TempAttendee,
-                              Task2."No.", 10000,
-                              TempAttendee."Attendance Type"::"To-do Organizer",
-                              TempAttendee."Attendee Type"::Salesperson,
-                              TeamSalesperson."Salesperson Code",
-                              true);
-                            CreateSubTask(TempAttendee, Task2);
-                            TempAttendee.DeleteAll();
-                        until TeamSalesperson.Next() = 0
-                end;
+                if Task2."System To-do Type" = "System To-do Type"::Team then
+                    CreateOrganizerTask(Task2, TempAttendee, Task2."No.");
                 if Attendee.Find('-') then
                     repeat
                         CreateSubTask(Attendee, Task2);
@@ -1133,19 +1119,7 @@ table 5080 "To-do"
                             TempAttendee.Insert();
                             CreateSubTask(TempAttendee, Task);
                             TempAttendee.DeleteAll();
-                            TeamSalesperson.SetRange("Team Code", Task."Team Code");
-                            if TeamSalesperson.Find('-') then
-                                repeat
-                                    TempAttendee.CreateAttendee(
-                                      TempAttendee,
-                                      "No.", 10000,
-                                      TempAttendee."Attendance Type"::"To-do Organizer",
-                                      TempAttendee."Attendee Type"::Salesperson,
-                                      TeamSalesperson."Salesperson Code",
-                                      true);
-                                    CreateSubTask(TempAttendee, Task);
-                                    TempAttendee.DeleteAll();
-                                until TeamSalesperson.Next() = 0
+                            CreateOrganizerTask(Task, TempAttendee, "No.");
                         end else begin
                             Task.Init();
                             Task := Task2;
@@ -1172,7 +1146,32 @@ table 5080 "To-do"
         if not CommentLineInserted then
             CreateCommentLines(RMCommentLine, Task2."No.");
 
-        OnAfterInsertTaskAndRelatedData(Task2);
+        OnAfterInsertTaskAndRelatedData(Task2, TaskNo);
+    end;
+
+    local procedure CreateOrganizerTask(Task: Record "To-do"; var TempAttendee: Record Attendee temporary; TaskNo: Code[20])
+    var
+        TeamSalesperson: Record "Team Salesperson";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateOrganizerTask(Task, TempAttendee, TaskNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        TeamSalesperson.SetRange("Team Code", Task."Team Code");
+        if TeamSalesperson.Find('-') then
+            repeat
+                TempAttendee.CreateAttendee(
+                    TempAttendee,
+                    TaskNo, 10000,
+                    TempAttendee."Attendance Type"::"To-do Organizer",
+                    TempAttendee."Attendee Type"::Salesperson,
+                    TeamSalesperson."Salesperson Code",
+                    true);
+                CreateSubTask(TempAttendee, Task);
+                TempAttendee.DeleteAll();
+            until TeamSalesperson.Next() = 0
     end;
 
     procedure CreateSubTask(var Attendee: Record Attendee; Task: Record "To-do"): Code[20]
@@ -1526,7 +1525,7 @@ table 5080 "To-do"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetDuration(Rec, IsHandled);
+        OnBeforeSetDuration(Rec, IsHandled, EndingDate, EndingTime);
         if IsHandled then
             exit;
 
@@ -3068,7 +3067,7 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetDuration(var Task: Record "To-do"; var IsHandled: Boolean)
+    local procedure OnBeforeSetDuration(var Task: Record "To-do"; var IsHandled: Boolean; EndingDate: Date; EndingTime: Time)
     begin
     end;
 
@@ -3149,7 +3148,7 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTaskAndRelatedData(var Task2: Record "To-do")
+    local procedure OnAfterInsertTaskAndRelatedData(var Task2: Record "To-do"; TaskNo: Code[20])
     begin
     end;
 
@@ -3160,6 +3159,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnStartWizard2OnBeforeInsert(var Task: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateOrganizerTask(Task: Record "To-do"; var TempAttendee: Record Attendee temporary; TaskNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

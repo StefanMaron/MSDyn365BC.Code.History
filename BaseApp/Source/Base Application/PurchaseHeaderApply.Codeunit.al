@@ -57,7 +57,7 @@ codeunit 402 "Purchase Header Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnRunOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

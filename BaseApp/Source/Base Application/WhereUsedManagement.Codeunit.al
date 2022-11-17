@@ -61,6 +61,7 @@ codeunit 99000770 "Where-Used Management"
         ItemAssembly: Record Item;
         ProdBOMComponent: Record "Production BOM Line";
     begin
+        OnBeforeBuildWhereUsedList(Type, No, MultiLevel);
         if Level > 30 then
             exit;
 
@@ -112,7 +113,7 @@ codeunit 99000770 "Where-Used Management"
                      ProdBOMComponent."Production BOM No.", CalcDate, true) =
                    ProdBOMComponent."Version Code"
                 then begin
-                    OnBuildWhereUsedListOnLoopProdBomComponent(ProdBOMComponent);
+                    OnBuildWhereUsedListOnLoopProdBomComponent(ProdBOMComponent, TempWhereUsedList, NextWhereUsedEntryNo, No, CalcDate, Level);
                     if IsActiveProductionBOM(ProdBOMComponent) then
                         BuildWhereUsedList(
                           2,
@@ -168,12 +169,17 @@ codeunit 99000770 "Where-Used Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuildWhereUsedList(Type: Option; No: Code[20]; var Multilevel: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhereUsedListInsert(var WhereUsedLine: Record "Where-Used Line"; var ItemAssembly: Record Item; var CalcDate: Date; var Quantity: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBuildWhereUsedListOnLoopProdBomComponent(var ProductionBOMLine: Record "Production BOM Line")
+    local procedure OnBuildWhereUsedListOnLoopProdBomComponent(var ProductionBOMLine: Record "Production BOM Line"; var TempWhereUsedLine: Record "Where-Used Line" temporary; var NextWhereUsedEntryNo: Integer; No: Code[20]; CalcDate: Date; var Level: Integer)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 550 "VAT Rate Change Conversion"
+﻿codeunit 550 "VAT Rate Change Conversion"
 {
     Permissions = TableData "VAT Rate Change Log Entry" = i;
 
@@ -412,7 +412,7 @@ codeunit 550 "VAT Rate Change Conversion"
             exit;
 
         IsHandled := false;
-        OnBeforeUpdateSales(VATRateChangeSetup, IsHandled);
+        OnBeforeUpdateSales(VATRateChangeSetup, IsHandled, SalesHeader);
         if IsHandled then
             exit;
 
@@ -443,7 +443,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                      ConvertVATProdPostingGroup)
                                 then
                                     if (SalesLine."Shipment No." = '') and (SalesLine."Return Receipt No." = '') and
-                                       IncludeLine(SalesLine.Type.AsInteger(), SalesLine."No.")
+                                       IncludeSalesLine(SalesLine.Type, SalesLine."No.")
                                     then
                                         if SalesLine.Quantity = SalesLine."Outstanding Quantity" then begin
                                             OnUpdateSalesOnBeforeChangeSalesLine(SalesLine);
@@ -520,6 +520,7 @@ codeunit 550 "VAT Rate Change Conversion"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
+            OnCanUpdateSalesOnAfterSalesLineSetFilters(SalesLine);
             if FindSet() then
                 repeat
                     DescriptionTxt := '';
@@ -809,7 +810,7 @@ codeunit 550 "VAT Rate Change Conversion"
             exit;
 
         IsHandled := false;
-        OnBeforeUpdatePurchase(VATRateChangeSetup, IsHandled);
+        OnBeforeUpdatePurchase(VATRateChangeSetup, IsHandled, PurchaseHeader);
         if IsHandled then
             exit;
 
@@ -839,7 +840,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                      ConvertVATProdPostingGroup)
                                 then
                                     if (PurchaseLine."Receipt No." = '') and
-                                       (PurchaseLine."Return Shipment No." = '') and IncludeLine(PurchaseLine.Type.AsInteger(), PurchaseLine."No.")
+                                       (PurchaseLine."Return Shipment No." = '') and IncludePurchLine(PurchaseLine.Type, PurchaseLine."No.")
                                     then
                                         if PurchaseLine.Quantity = PurchaseLine."Outstanding Quantity" then begin
                                             OnUpdatePurchaseOnBeforeChangePurchaseLine(PurchaseLine);
@@ -872,8 +873,10 @@ codeunit 550 "VAT Rate Change Conversion"
                                                 IsModified := true;
                                             end;
                                             OnUpdatePurchaseOnBeforeModifyPurchaseLine(PurchaseLine, IsModified);
-                                            if IsModified then
+                                            if IsModified then begin
                                                 PurchaseLine.Modify(true);
+                                                OnUpdatePurchaseOnAfterPurchaseLineModify(VATRateChangeSetup, PurchaseHeader, PurchaseLine, PurchaseLineOld);
+                                            end;
                                         end else
                                             if VATRateChangeSetup."Perform Conversion" and (PurchaseLine."Outstanding Quantity" <> 0) then begin
                                                 NewVATProdPotingGroup := PurchaseLine."VAT Prod. Posting Group";
@@ -921,6 +924,7 @@ codeunit 550 "VAT Rate Change Conversion"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
+            OnCanUpdatePurchaseOnAfterPurchaseLineSetFilters(PurchaseLine);
             if FindSet() then
                 repeat
                     DescriptionTxt := '';
@@ -1012,6 +1016,8 @@ codeunit 550 "VAT Rate Change Conversion"
             "Amt. Rcd. Not Invoiced (LCY)" := 0;
             "Return Shpd. Not Invd." := 0;
             "Return Shpd. Not Invd. (LCY)" := 0;
+            OnAddNewPurchaseLineOnAfterNewPurchaseLineInit(OldPurchaseLine, NewPurchaseLine);
+
             if (GenProdPostingGroup <> '') and ConvertGenProdPostGrp(VATRateChangeSetup."Update Purchase Documents") then
                 Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
             if (VATProdPostingGroup <> '') and ConvertVATProdPostGrp(VATRateChangeSetup."Update Purchase Documents") then
@@ -1036,6 +1042,8 @@ codeunit 550 "VAT Rate Change Conversion"
                 Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost");
 
             Validate("Line Discount %", PurchaseLine."Line Discount %");
+
+            OnAddNewPurchaseLineOnBeforeInsertNewLine(PurchaseLine, NewPurchaseLine);
             Insert();
             OnAddNewPurchaseLineOnAfterInsertNewLine(PurchaseLine, NewPurchaseLine);
 
@@ -1652,6 +1660,50 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(true);
     end;
 
+    procedure IncludeSalesLine(Type: Enum "Sales Line Type"; No: Code[20]): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        case Type of
+            "Sales Line Type"::"G/L Account":
+                exit(IncludeGLAccount(No));
+            "Sales Line Type"::Item:
+                exit(IncludeItem(No));
+            "Sales Line Type"::Resource:
+                exit(IncludeRes(No));
+            else begin
+                IsHandled := false;
+                OnIncludeSalesLineOnTypeElse(Type, Result, IsHandled);
+                if IsHandled then
+                    exit(Result);
+            end;
+        end;
+        exit(true);
+    end;
+
+    procedure IncludePurchLine(Type: Enum "Purchase Line Type"; No: Code[20]): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        case Type of
+            "Purchase Line Type"::"G/L Account":
+                exit(IncludeGLAccount(No));
+            "Purchase Line Type"::Item:
+                exit(IncludeItem(No));
+            "Purchase Line Type"::Resource:
+                exit(IncludeRes(No));
+            else begin
+                IsHandled := false;
+                OnIncludePurchLineOnTypeElse(Type, Result, IsHandled);
+                if IsHandled then
+                    exit(Result);
+            end;
+        end;
+        exit(true);
+    end;
+
     local procedure IncludeGLAccount(No: Code[20]): Boolean
     var
         GLAccount: Record "G/L Account";
@@ -1784,7 +1836,7 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSales(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateSales(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -1794,7 +1846,7 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdatePurchase(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdatePurchase(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -1884,6 +1936,11 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddNewPurchaseLineOnBeforeInsertNewLine(var PurchaseLine: Record "Purchase Line"; var NewPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAddNewSalesLineOnAfterInsertNewLine(var SalesLine: Record "Sales Line"; var NewSalesLine: Record "Sales Line")
     begin
     end;
@@ -1929,8 +1986,37 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnUpdateRecOnBeforeValidateGenProdPostingGroup(var RecRef: RecordRef; FldRef: FieldRef; VatRateChangeConversion: Record "VAT Rate Change Conversion"; IsHandled: Boolean)
+    local procedure OnUpdateRecOnBeforeValidateGenProdPostingGroup(var RecRef: RecordRef; FldRef: FieldRef; VatRateChangeConversion: Record "VAT Rate Change Conversion"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddNewPurchaseLineOnAfterNewPurchaseLineInit(var OldPurchaseLine: Record "Purchase Line"; var NewPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchaseOnAfterPurchaseLineModify(VATRateChangeSetup: Record "VAT Rate Change Setup"; PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchaseLineOld: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnIncludePurchLineOnTypeElse(Type: Enum "Purchase Line Type"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnIncludeSalesLineOnTypeElse(Type: Enum "Sales Line Type"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanUpdatePurchaseOnAfterPurchaseLineSetFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanUpdateSalesOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
     begin
     end;
 }
-

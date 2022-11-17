@@ -133,6 +133,7 @@ page 7200 "CDS Connection Setup"
                         CurrPage.Update(true);
                         if "Is Enabled" then begin
                             FeatureTelemetry.LogUptake('0000H7J', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
+                            FeatureTelemetry.LogUptake('0000IIM', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                             if "Ownership Model" = "Ownership Model"::Person then
                                 if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
@@ -888,6 +889,7 @@ page 7200 "CDS Connection Setup"
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         FeatureTelemetry.LogUptake('0000H7K', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000IIN', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::Discovered);
         if not Get() then begin
             Init();
             InitializeDefaultAuthenticationType();

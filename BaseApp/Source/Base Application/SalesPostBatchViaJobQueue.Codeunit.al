@@ -191,6 +191,8 @@ codeunit 85 "Sales Post Batch via Job Queue"
     var
         ReportInbox: Record "Report Inbox";
         OStream: OutStream;
+        IsSuccess: Boolean;
+        IsHandled: Boolean;
     begin
         ReportInbox.Init();
         ReportInbox."User ID" := JobQueueEntry."User ID";
@@ -198,7 +200,12 @@ codeunit 85 "Sales Post Batch via Job Queue"
         ReportInbox."Report ID" := ReportID;
         ReportInbox.Description := CopyStr(StrSubstNo(PrintingDescriptionTxt, SalesHeader."Document Type", SalesHeader."No."), 1, MaxStrLen(ReportInbox.Description));
         ReportInbox."Report Output".CreateOutStream(OStream);
-        if not Report.SaveAs(ReportId, '', ReportFormat::Pdf, OStream, RecRef) then
+        IsHandled := false;
+        IsSuccess := false;
+        OnPrintToPDFOnBeforeReportRun(ReportId, RecRef, OStream, IsSuccess, IsHandled);
+        if not IsHandled then
+            IsSuccess := Report.SaveAs(ReportId, '', ReportFormat::Pdf, OStream, RecRef);
+        if not IsSuccess then
             exit(false);
         ReportInbox."Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
         ReportInbox.Insert(true);
@@ -228,6 +235,11 @@ codeunit 85 "Sales Post Batch via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintToPDFOnAfterReportInboxInsert(var ReportInbox: Record "Report Inbox"; var SalesHeader: Record "Sales Header"; var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintToPDFOnBeforeReportRun(ReportId: Integer; RecRef: RecordRef; var OStream: OutStream; var IsSuccess: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

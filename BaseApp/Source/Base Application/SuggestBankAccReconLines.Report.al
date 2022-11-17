@@ -24,12 +24,12 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                 EOFBankAccLedgEntries := not BankAccLedgEntry.Find('-');
 
                 while not EOFBankAccLedgEntries do begin
-                    InsertBankAccLine(BankAccLedgEntry);
-                    if BankAccLedgEntry."Check Ledger Entries" <> 0 then begin
-                        LocalCheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
-                        if LocalCheckLedgerEntry.FindFirst() then
-                            OnInsertCheckLineOnBeforeBankAccReconLineInsert(BankAccReconLine, LocalCheckLedgerEntry);
-                    end;
+                    InsertBankAccReconciliationLine(BankAccLedgEntry);
+                    LocalCheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
+                    if LocalCheckLedgerEntry.FindFirst() then
+                        MatchCLEToBankAccReconciliationLine(BankAccReconLine, LocalCheckLedgerEntry)
+                    else
+                        MatchBLEToBankAccReconciliationLine(BankAccReconLine, BankAccLedgEntry);
                     EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                 end;
             end;
@@ -116,6 +116,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccSetStmtNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
+        CheckEntrySetReconNo: Codeunit "Check Entry set Recon.-No.";
         StartDate: Date;
         EndDate: Date;
         IncludeChecks: Boolean;
@@ -130,24 +131,45 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         EndDate := BankAccRecon."Statement Date";
     end;
 
-    local procedure InsertBankAccLine(var BankAccLedgEntry2: Record "Bank Account Ledger Entry")
-    var
-        BankAccount: Record "Bank Account";
+    local procedure InsertBankAccReconciliationLine(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         BankAccReconLine.Init();
         BankAccReconLine."Statement Line No." := BankAccReconLine."Statement Line No." + 10000;
-        BankAccReconLine."Transaction Date" := BankAccLedgEntry2."Posting Date";
-        BankAccReconLine.Description := BankAccLedgEntry2.Description;
-        BankAccReconLine."Document No." := BankAccLedgEntry2."Document No.";
-        BankAccReconLine."Statement Amount" := BankAccLedgEntry2."Remaining Amount";
-        if BankAccount.Get(BankAccLedgEntry2."Bank Account No.") then
-            if not BankAccount."Disable Automatic Pmt Matching" then begin
-                BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
-                BankAccReconLine."Applied Entries" := 1;
-                BankAccSetStmtNo.SetReconNo(BankAccLedgEntry2, BankAccReconLine);
-            end;
-        OnBeforeInsertBankAccReconLine(BankAccReconLine, BankAccLedgEntry2);
+        BankAccReconLine."Transaction Date" := BankAccountLedgerEntry."Posting Date";
+        BankAccReconLine.Description := BankAccountLedgerEntry.Description;
+        BankAccReconLine."Document No." := BankAccountLedgerEntry."Document No.";
+        BankAccReconLine."Statement Amount" := BankAccountLedgerEntry."Remaining Amount";
+
+        OnBeforeInsertBankAccReconLine(BankAccReconLine, BankAccountLedgerEntry);
         BankAccReconLine.Insert();
+    end;
+
+    local procedure MatchCLEToBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgerEntry: Record "Check Ledger Entry")
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        if BankAccount.Get(CheckLedgerEntry."Bank Account No.") then
+            if not BankAccount."Disable Automatic Pmt Matching" then begin
+                BankAccReconciliationLine."Applied Amount" := BankAccReconciliationLine."Statement Amount";
+                BankAccReconciliationLine."Check No." := CheckLedgerEntry."Check No.";
+                BankAccReconciliationLine."Applied Entries" := 1;
+                CheckEntrySetReconNo.SetReconNo(CheckLedgerEntry, BankAccReconciliationLine);
+            end;
+        OnInsertCheckLineOnBeforeBankAccReconLineInsert(BankAccReconciliationLine, CheckLedgerEntry);
+        BankAccReconciliationLine.Modify();
+    end;
+
+    local procedure MatchBLEToBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        if BankAccount.Get(BankAccountLedgerEntry."Bank Account No.") then
+            if not BankAccount."Disable Automatic Pmt Matching" then begin
+                BankAccReconciliationLine."Applied Amount" := BankAccReconciliationLine."Statement Amount";
+                BankAccReconciliationLine."Applied Entries" := 1;
+                BankAccSetStmtNo.SetReconNo(BankAccountLedgerEntry, BankAccReconciliationLine);
+            end;
+        BankAccReconciliationLine.Modify();
     end;
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewIncludeChecks: Boolean)
