@@ -135,6 +135,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireApplicationToken(ClientID: Text; ClientSecret: Text; Authority: Text; ResourceUri: Text) AccessToken: Text
     begin
         CheckProvider();
@@ -142,6 +143,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetSaasClientId() ClientID: Text
     begin
         CheckProvider();

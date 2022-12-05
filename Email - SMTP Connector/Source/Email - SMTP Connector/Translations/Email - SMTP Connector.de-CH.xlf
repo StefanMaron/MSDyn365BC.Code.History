@@ -227,7 +227,7 @@
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the email address to show as the sender on email messages. This field is available if you choose Specific Account in the Sender Email Account field. For example, this lets all emails appear to come from the same account, such as sales@cronus.com. This account must have the Send As permission on your mail server to the account in the User Name field.</source>
-          <target state="translated">Gibt die E-Mail-Adresse an, die als Absender in E-Mail-Nachrichten angezeigt wird. Dieses Feld ist verfügbar, wenn Sie im Feld Feld „Absender-E-Mail-Konto“  die Option Feld „Bestimmtes Konto“ auswählen. So können z. B. alle E-Mails aus demselben Konto stammen, z. B. Sales@Cronus.com. Für dieses Konto muss die Berechtigung Feld „Senden als“  auf dem E-Mail-Server für das Konto im Feld Feld „Benutzername“ verfügen.</target>
+          <target state="translated">Gibt die E-Mail-Adresse an, die als Absender in E-Mail-Nachrichten angezeigt wird. Dieses Feld ist verfügbar, wenn Sie im Feld „Absender-E-Mail-Konto“ die Option Feld „Bestimmtes Konto“ auswählen. So können z. B. alle E-Mails aus demselben Konto stammen, z. B. Sales@Cronus.com. Für dieses Konto muss die Berechtigung Feld „Senden als“ auf dem E-Mail-Server für das Konto im Feld „Benutzername“ verfügen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property ToolTip</note>
         </trans-unit>
@@ -275,7 +275,7 @@
         </trans-unit>
         <trans-unit id="Page 4170592685 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a name to add in front of the sender email address on emails. The name depends on the Sender Email Address field. For Current User, this is the name from the account you used to sign in. For Specific Account, this can be any name. For example, if you enter Stan, and the address in the Email Address field is stan@cronus.coml, the sender name will appear as Stan stan@cronus.com.</source>
-          <target state="translated">Gibt einen Namen an, der vor der Absender-E-Mail-Adresse in E-Mails hinzugefügt werden soll. Der Name hängt vom Feld „Absender-E-Mail-Adresse“ ab. Für „Aktueller Benutzer“ ist dies der Name von Ihrem Konto. Für „Bestimmtes Konto“ kann dies ein beliebiger Name sein, den Sie angeben. Wenn Sie beispielsweise „Stan“ eingeben und das Feld „Absender-E-Mail-Adresse“  stan@cronus.com lautet, wird der Absendername als „Stan stan@cronus.com“ angezeigt.</target>
+          <target state="translated">Gibt einen Namen an, der vor der Absender-E-Mail-Adresse in E-Mails hinzugefügt werden soll. Der Name hängt vom Feld „Absender-E-Mail-Adresse“ ab. Für „Aktueller Benutzer“ ist dies der Name von Ihrem Konto. Für „Bestimmtes Konto“ kann dies ein beliebiger Name sein, den Sie angeben. Wenn Sie beispielsweise „Stan“ eingeben und das Feld „Absender-E-Mail-Adresse“ stan@cronus.com lautet, wird der Absendername als „Stan stan@cronus.com“ angezeigt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property ToolTip</note>
         </trans-unit>

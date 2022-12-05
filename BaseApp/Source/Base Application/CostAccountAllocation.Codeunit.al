@@ -183,7 +183,13 @@ codeunit 1104 "Cost Account Allocation"
     local procedure CalcEmployeeCountShare(CostAllocationTarget: Record "Cost Allocation Target")
     var
         Employee: Record Employee;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcEmployeeCountShare(CostAllocationTarget, TotalShare, StartDate, EndDate, IsHandled);
+        if IsHandled then
+            exit;
+
         Employee.SetCurrentKey(Status);
         Employee.SetRange(Status, Employee.Status::Active);
         Employee.SetFilter("Cost Center Code", CostAllocationTarget."Cost Center Filter");
@@ -435,5 +441,9 @@ codeunit 1104 "Cost Account Allocation"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcEmployeeCountShare(CostAllocationTarget: Record "Cost Allocation Target"; var TotalShare: Decimal; StartDate: Date; EndDate: Date; var IsHandled: Boolean)
+    begin
+    end;
 }
 

@@ -313,6 +313,8 @@
         ClassifyEmailError();
         ClassifyEmailOutbox();
         ClassifySentEmail();
+        ClassifyEmailScenarioAttachments();
+        ClassifyRateLimit();
         ClassifyEmailMessage();
         ClassifyEmailRecipient();
         ClassifyEmailMessageAttachment();
@@ -697,6 +699,7 @@
         SetTableFieldsToNormal(DATABASE::"Data Exch. Mapping");
         SetTableFieldsToNormal(DATABASE::"Data Exch. Field Grouping");
         SetTableFieldsToNormal(DATABASE::"Data Exch. Field Mapping");
+        SetTableFieldsToNormal(DATABASE::"Data Exch. Table Filter");
         SetTableFieldsToNormal(DATABASE::"Payment Export Data");
         SetTableFieldsToNormal(DATABASE::"Data Exch. Line Def");
         SetTableFieldsToNormal(DATABASE::"Payment Jnl. Export Error Text");
@@ -4025,6 +4028,17 @@
     begin
         SetFieldToPersonal(8889, 6); // Description / Email subject
         SetFieldToPersonal(8889, 13); // Send from
+    end;
+
+    local procedure ClassifyEmailScenarioAttachments()
+    begin
+        SetFieldToPersonal(8911, 3); // Attachment Name
+        SetFieldToPersonal(8911, 4); // Email Attachment
+    end;
+
+    local procedure ClassifyRateLimit()
+    begin
+        SetFieldToPersonal(8912, 2); // Email Address
     end;
 
     local procedure ClassifyEmailLookup()

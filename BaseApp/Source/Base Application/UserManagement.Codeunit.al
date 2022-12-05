@@ -148,6 +148,7 @@ codeunit 418 "User Management"
     var
         User: Record User;
         ConfirmManagement: Codeunit "Confirm Management";
+        CheckForWindowsUserName: Boolean;
     begin
         if NewUser."User Name" <> OldUser."User Name" then begin
             User.SetRange("User Name", NewUser."User Name");
@@ -155,7 +156,9 @@ codeunit 418 "User Management"
             if User.FindFirst() then
                 Error(Text002Err, NewUser."User Name");
 
-            if NewUser."Windows Security ID" <> '' then
+            CheckForWindowsUserName := NewUser."Windows Security ID" <> '';
+            OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser, WindowsUserName, CheckForWindowsUserName);
+            if CheckForWindowsUserName then
                 NewUser.TestField("User Name", WindowsUserName);
 
             if OldUser."User Name" <> '' then
@@ -510,6 +513,11 @@ codeunit 418 "User Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser: Record User; WindowsUserName: Text; var CheckForWindowsUserName: Boolean)
     begin
     end;
 }

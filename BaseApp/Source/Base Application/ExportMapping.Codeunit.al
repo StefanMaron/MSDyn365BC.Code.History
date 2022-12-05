@@ -46,6 +46,7 @@ codeunit 1269 "Export Mapping"
         FieldRef, SourceFieldRef : FieldRef;
         GroupingExists: Boolean;
         DecValue, SourceDecValue : Decimal;
+        IsHandled: Boolean;
     begin
         DataExchFieldGrouping.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExchFieldGrouping.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
@@ -115,8 +116,11 @@ codeunit 1269 "Export Mapping"
         if DataExchMapping."Key Index" <> 0 then
             RecRef.CurrentKeyIndex(DataExchMapping."Key Index");
 
-        if not RecRef.FindSet() then
-            Error(RecordsNotFoundErr, RecRef.Number(), RecRef.GetView);
+        if not RecRef.FindSet() then begin
+            OnBeforeCheckRecRefCount(IsHandled);
+            If not IsHandled then
+                Error(RecordsNotFoundErr, RecRef.Number(), RecRef.GetView);
+        end;
     end;
 
     local procedure ReadTableFilters(DataExch: Record "Data Exch.") TableFilters: Text
@@ -197,5 +201,10 @@ codeunit 1269 "Export Mapping"
             TempField := Field;
             TempField.Insert();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRecRefCount(var IsHandled: Boolean)
+    begin
     end;
 }

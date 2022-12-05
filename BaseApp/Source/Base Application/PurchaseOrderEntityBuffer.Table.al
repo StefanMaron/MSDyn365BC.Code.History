@@ -169,7 +169,7 @@ table 5496 "Purchase Order Entity Buffer"
         {
             Caption = 'Purchaser Code';
             DataClassification = CustomerContent;
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {

@@ -289,6 +289,10 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                         {
                             Occurrence = Optional;
                         }
+                        fieldattribute(ExportIfNotBlank; "Data Exch. Column Def"."Export If Not Blank")
+                        {
+                            Occurrence = Optional;
+                        }
                     }
                     tableelement("Data Exch. Mapping"; "Data Exch. Mapping")
                     {
@@ -627,6 +631,10 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 fieldelement(Direction; TempTransformationRuleRec.Direction)
                                 {
                                 }
+                                fieldelement(ExportFromDateType; TempTransformationRuleRec."Extract From Date Type")
+                                {
+                                    MinOccurs = Zero;
+                                }
                                 trigger OnAfterInsertRecord()
                                 var
                                     TransformationRuleRec: Record "Transformation Rule";
@@ -635,6 +643,8 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                         TransformationRuleRec := TempTransformationRuleRec;
                                         TransformationRuleRec.Insert();
                                     end;
+                                    FindValue := '';
+                                    ReplaceValue := '';
                                 end;
                             }
 

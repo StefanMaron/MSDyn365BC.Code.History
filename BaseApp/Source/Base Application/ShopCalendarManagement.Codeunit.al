@@ -177,6 +177,24 @@ codeunit 99000755 "Shop Calendar Management"
         exit(99991230D);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Work Center", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyWorkCenter(var Rec: Record "Work Center"; var xRec: Record "Work Center"; RunTrigger: Boolean)
+    begin
+        Clear(WorkCenter);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Shop Calendar Holiday", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyShopCalendarHoliday(var Rec: Record "Shop Calendar Holiday"; var xRec: Record "Shop Calendar Holiday"; RunTrigger: Boolean)
+    begin
+        Clear(ShopCalendarHoliday);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Capacity Unit of Measure", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyCapacityUnitOfMeasure(var Rec: Record "Capacity Unit of Measure"; var xRec: Record "Capacity Unit of Measure"; RunTrigger: Boolean)
+    begin
+        Clear(CapUnitOfMeasure);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterTimeFactor(Var CapUnitOfMeasure: Record "Capacity Unit of Measure"; var Factor: Decimal)
     begin

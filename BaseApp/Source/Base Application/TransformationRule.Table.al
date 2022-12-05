@@ -224,6 +224,10 @@ table 1237 "Transformation Rule"
         {
             Caption = 'Direction';
         }
+        field(70; "Extract From Date Type"; Enum "Extract From Date Type")
+        {
+            Caption = 'Extract From Date Type';
+        }
     }
 
     keys
@@ -403,6 +407,8 @@ table 1237 "Transformation Rule"
                 NewValue := FieldLookup(OldValue);
             "Transformation Type"::Round:
                 NewValue := RoundValue(OldValue);
+            "Transformation Type"::"Extract From Date":
+                NewValue := ExtractFromDate(OldValue);
             "Transformation Type"::Custom:
                 OnTransformation(Code, OldValue, NewValue);
         end;
@@ -597,6 +603,14 @@ table 1237 "Transformation Rule"
         TestField(Precision);
         TestField(Direction);
         exit(Format(Round(DecVar, Precision, Direction)));
+    end;
+
+    local procedure ExtractFromDate(OldValue: Text): Text
+    var
+        DateVar: Date;
+    begin
+        Evaluate(DateVar, OldValue);
+        exit(Format(Date2DMY(DateVar, "Extract From Date Type".AsInteger())));
     end;
 
     local procedure Substring(OldValue: Text): Text

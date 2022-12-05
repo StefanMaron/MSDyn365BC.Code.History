@@ -649,7 +649,7 @@ page 5530 "Item Availability by Event"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInitialize(var Item: Record Item; var ForecastName: Code[10]; var IncludeBlanketOrders: Boolean; var IncludePlanningSuggestions: Boolean; var IsHandled: Boolean)
     begin
     end;

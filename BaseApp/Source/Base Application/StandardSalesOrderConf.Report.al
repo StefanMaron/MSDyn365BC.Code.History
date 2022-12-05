@@ -727,7 +727,7 @@ report 1305 "Standard Sales - Order Conf."
                 column(Code_VATClauseLine_Lbl; VATClause.FieldCaption(Code))
                 {
                 }
-                column(Description_VATClauseLine; VATClause.Description)
+                column(Description_VATClauseLine; VATClauseText)
                 {
                 }
                 column(Description2_VATClauseLine; VATClause."Description 2")
@@ -748,7 +748,7 @@ report 1305 "Standard Sales - Order Conf."
                         CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
                         CurrReport.Skip();
-                    VATClause.GetDescription(Header);
+                    VATClauseText := VATClause.GetDescriptionText(Header);
                 end;
             }
             dataitem(ReportTotalsLine; "Report Totals Buffer")
@@ -1079,6 +1079,7 @@ report 1305 "Standard Sales - Order Conf."
         ExchangeRateText: Text;
         VATBaseLCY: Decimal;
         VATAmountLCY: Decimal;
+        VATClauseText: Text;
         TotalVATBaseLCY: Decimal;
         TotalVATAmountLCY: Decimal;
         PrevLineAmount: Decimal;

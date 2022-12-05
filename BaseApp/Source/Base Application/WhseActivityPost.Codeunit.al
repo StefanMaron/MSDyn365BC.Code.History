@@ -138,7 +138,7 @@ codeunit 7324 "Whse.-Activity-Post"
             if WhseActivLine.Find('-') then
                 repeat
                     ForceDelete := false;
-                    OnBeforeWhseActivLineDelete(WhseActivLine, ForceDelete);
+                    OnBeforeWhseActivLineDelete(WhseActivLine, ForceDelete, HideDialog);
                     if (WhseActivLine."Qty. Outstanding" = WhseActivLine."Qty. to Handle") or ForceDelete then
                         WhseActivLine.Delete()
                     else begin
@@ -463,6 +463,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 PurchLine.Validate("Qty. to Invoice", -"Qty. to Handle");
                         end;
                         PurchLine."Bin Code" := "Bin Code";
+                        OnUpdateSourceDocumentOnBeforePurchLineModify(PurchLine, TempWhseActivLine);
                         PurchLine.Modify();
                         OnAfterPurchLineModify(PurchLine);
                         OnUpdateSourceDocumentOnAfterPurchLineModify(PurchLine, TempWhseActivLine);
@@ -492,6 +493,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             ATOLink.UpdateQtyToAsmFromInvtPickLine(TempWhseActivLine);
                             ATOLink.UpdateAsmBinCodeFromInvtPickLine(TempWhseActivLine);
                         end;
+                        OnUpdateSourceDocumentOnBeforeSalesLineModify(SalesLine, TempWhseActivLine);
                         OnAfterSalesLineModify(SalesLine);
                         OnUpdateSourceDocumentOnAfterSalesLineModify(SalesLine, TempWhseActivLine);
                     end;
@@ -512,6 +514,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 TransLine."Qty. to Receive (Base)" := "Qty. to Handle (Base)";
                             end;
                         end;
+                        OnUpdateSourceDocumentOnBeforeTransLineModify(TransLine, TempWhseActivLine);
                         TransLine.Modify();
                         OnUpdateSourceDocumentOnAfterTransLineModify(TransLine, TempWhseActivLine);
                     end;
@@ -1403,7 +1406,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseActivLineDelete(WarehouseActivityLine: Record "Warehouse Activity Line"; var ForceDelete: Boolean)
+    local procedure OnBeforeWhseActivLineDelete(var WarehouseActivityLine: Record "Warehouse Activity Line"; var ForceDelete: Boolean; HideDialog: Boolean)
     begin
     end;
 
@@ -1514,6 +1517,21 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceDocumentOnAfterTransLineModify(var TransferLine: Record "Transfer Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceDocumentOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceDocumentOnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceDocumentOnBeforeTransLineModify(var TransferLine: Record "Transfer Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 

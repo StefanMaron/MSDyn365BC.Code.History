@@ -689,6 +689,7 @@
         PlanningLineNo: Integer;
         NoOfComponents: Integer;
         ShouldExit: Boolean;
+        ThrowLineSpacingError: Boolean;
     begin
         if PlanningLevel < 0 then
             exit;
@@ -724,7 +725,9 @@
 
         if PlanningComp.Find('-') then
             repeat
-                if LineSpacing[PlanningLevel + 1] = 0 then begin
+                ThrowLineSpacingError := LineSpacing[PlanningLevel + 1] = 0;
+                OnCheckMultiLevelStructureOnAfterCalcThrowLineSpacingError(ReqLine2, LineSpacing, PlanningLineNo, ThrowLineSpacingError);
+                if ThrowLineSpacingError then begin
                     if PlanningResiliency then
                         TempPlanningErrorLog.SetError(Text015, DATABASE::"Requisition Line", ReqLine.GetPosition());
                     Error(Text002);
@@ -1068,6 +1071,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckMultiLevelStructureOnAfterPlanningCompSetFilters(var PlanningComponent: Record "Planning Component"; RequisitionLine2: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckMultiLevelStructureOnAfterCalcThrowLineSpacingError(RequisitionLine: Record "Requisition Line"; var LineSpacing: array[50] of Integer; var PlanningLineNo: Integer; var ThrowLineSpacingError: Boolean)
     begin
     end;
 

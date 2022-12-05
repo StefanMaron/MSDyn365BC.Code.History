@@ -79,7 +79,13 @@ table 5943 "Troubleshooting Header"
     procedure ShowForServItemLine(ServItemLine: Record "Service Item Line")
     var
         TblshtFound: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowForServItemLine(Rec, ServItemLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item");
         TblshtgSetup.SetRange("No.", ServItemLine."Service Item No.");
@@ -168,6 +174,11 @@ table 5943 "Troubleshooting Header"
         Tblshtg.Editable := false;
         Tblshtg.Run();
         TblshtgHeader2.Reset();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowForServItemLine(var TroubleshootingHeader: Record "Troubleshooting Header"; ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

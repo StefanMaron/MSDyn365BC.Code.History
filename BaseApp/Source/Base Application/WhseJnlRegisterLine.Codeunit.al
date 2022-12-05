@@ -69,6 +69,7 @@
     var
         ToBinContent: Record "Bin Content";
         IsHandled: Boolean;
+        ShouldDeleteFromBinContent: Boolean;
     begin
         WhseEntryNo := WhseEntryNo + 1;
 
@@ -147,9 +148,12 @@
                             UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
                     OnInitWhseEntryOnAfterGetToBinContent(WhseEntry, ItemTrackingMgt, WhseJnlLine, WhseReg, WhseEntryNo, Bin);
                 end
-            end else
-                if BinCode <> Location."Adjustment Bin Code" then
+            end else begin
+                ShouldDeleteFromBinContent := BinCode <> Location."Adjustment Bin Code";
+                OnInitWhseEntryOnAfterCalcShouldDeleteFromBinContent(WhseJnlLine, Location, ShouldDeleteFromBinContent);
+                if ShouldDeleteFromBinContent then
                     DeleteFromBinContent(WhseEntry);
+            end;
     end;
 
     local procedure DeleteFromBinContent(var WhseEntry: Record "Warehouse Entry")
@@ -260,8 +264,6 @@
     local procedure InsertWhseEntry(var WhseEntry: Record "Warehouse Entry")
     var
         ItemTrackingCode: Record "Item Tracking Code";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        ExistingExpDate: Date;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -284,19 +286,7 @@
                             Error(Text001, "Serial No.");
                 end;
 
-            if ItemTrackingCode."Man. Expir. Date Entry Reqd." and ("Entry Type" = "Entry Type"::"Positive Adjmt.") and
-               ItemTrackingCode.IsWarehouseTracking()
-            then begin
-                TestField("Expiration Date");
-                ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
-                ItemTrackingMgt.GetWhseExpirationDate("Item No.", "Variant Code", Location, ItemTrackingSetup, ExistingExpDate);
-                if (ExistingExpDate <> 0D) and ("Expiration Date" <> ExistingExpDate) then begin
-                    IsHandled := false;
-                    OnInsertWhseEntryOnBeforeTestFieldExpirationDate(WhseEntry, ExistingExpDate, IsHandled);
-                    if not IsHandled then
-                        TestField("Expiration Date", ExistingExpDate);
-                end;
-            end;
+            CheckExpiration(WhseEntry, ItemTrackingCode);
 
             OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
             Insert();
@@ -305,6 +295,30 @@
         end;
 
         OnAfterInsertWhseEntry(WhseEntry, WhseJnlLine);
+    end;
+
+    local procedure CheckExpiration(var WarehouseEntry: Record "Warehouse Entry"; ItemTrackingCode: Record "Item Tracking Code")
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        ExistingExpDate: Date;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckExpiration(WarehouseEntry, ItemTrackingCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemTrackingCode."Man. Expir. Date Entry Reqd." and (WarehouseEntry."Entry Type" = WarehouseEntry."Entry Type"::"Positive Adjmt.") and ItemTrackingCode.IsWarehouseTracking() then begin
+            WarehouseEntry.TestField("Expiration Date");
+            ItemTrackingSetup.CopyTrackingFromWhseEntry(WarehouseEntry);
+            ItemTrackingMgt.GetWhseExpirationDate(WarehouseEntry."Item No.", WarehouseEntry."Variant Code", Location, ItemTrackingSetup, ExistingExpDate);
+            if (ExistingExpDate <> 0D) and (WarehouseEntry."Expiration Date" <> ExistingExpDate) then begin
+                IsHandled := false;
+                OnInsertWhseEntryOnBeforeTestFieldExpirationDate(WarehouseEntry, ExistingExpDate, IsHandled);
+                if not IsHandled then
+                    WarehouseEntry.TestField("Expiration Date", ExistingExpDate);
+            end;
+        end;
     end;
 
     local procedure UpdateBinEmpty(NewWarehouseEntry: Record "Warehouse Entry")
@@ -536,6 +550,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitWhseEntryOnAfterCalcShouldDeleteFromBinContent(WarehouseJournalLine: Record "Warehouse Journal Line"; Location: Record Location; var ShouldDeleteFromBinContent: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseEntryNo: Integer)
     begin
     end;
@@ -547,6 +566,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBinContentInsert(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckExpiration(var WarehouseEntry: Record "Warehouse Entry"; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
     begin
     end;
 

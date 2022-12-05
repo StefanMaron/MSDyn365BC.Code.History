@@ -389,7 +389,13 @@ codeunit 5632 "FA Jnl.-Post Line"
     var
         FA2: Record "Fixed Asset";
         FAPostingType2: Enum "FA Ledger Entry FA Posting Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostBudgetAsset(FALedgEntry, BudgetNo, IsHandled);
+        if IsHandled then
+            exit;
+
         FA2.Get(BudgetNo);
         FA2.TestField(Blocked, false);
         FA2.TestField(Inactive, false);
@@ -588,6 +594,11 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal; NextTransactionNo: Integer; NextGLEntryNo: Integer; GLRegisterNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostBudgetAsset(var FALedgerEntry: Record "FA Ledger Entry"; BudgetNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

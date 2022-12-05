@@ -3702,6 +3702,7 @@
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
         JobQueueEntry: Record "Job Queue Entry";
+        ScheduledTask: Record "Scheduled Task";
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
         NewEarliestStartDateTime: DateTime;
         Enabled: Boolean;
@@ -3734,13 +3735,14 @@
             // Therefore the task will restart with a delay to lower a risk of use of "old" data.
             NewEarliestStartDateTime := CurrentDateTime() + 2000;
             if (NewEarliestStartDateTime + 5000) < JobQueueEntry."Earliest Start Date/Time" then
-                if DoesJobActOnTable(JobQueueEntry, TableNo) then begin
-                    JobQueueEntry.RefreshLocked();
-                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                    JobQueueEntry."Earliest Start Date/Time" := NewEarliestStartDateTime;
-                    JobQueueEntry.Modify();
-                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then;
-                end;
+                if DoesJobActOnTable(JobQueueEntry, TableNo) then
+                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then
+                        if ScheduledTask.Get(JobQueueEntry."System Task ID") then begin
+                            JobQueueEntry.RefreshLocked();
+                            JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                            JobQueueEntry."Earliest Start Date/Time" := ScheduledTask."Not Before";
+                            JobQueueEntry.Modify();
+                        end;
         until JobQueueEntry.Next() = 0;
     end;
 

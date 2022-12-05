@@ -1039,7 +1039,14 @@ page 5510 "Production Journal"
     end;
 
     local procedure PostingDateOnAfterValidate()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostingDateOnAfterValidate(Rec, PostingDate, xPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if PostingDate = 0D then
             PostingDate := xPostingDate;
 
@@ -1164,6 +1171,11 @@ page 5510 "Production Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActualConsumpQty(ProdOrderComponent: Record "Prod. Order Component"; Item: Record Item; var ActualConsumpQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostingDateOnAfterValidate(var ItemJournalLine: Record "Item Journal Line"; PostingDate: Date; xPostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

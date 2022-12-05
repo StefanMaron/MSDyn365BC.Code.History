@@ -33,7 +33,7 @@ codeunit 137287 "SCM Inventory Costing II"
         ItemJnlLineCountErr: Label 'There should be %1 Item Journal Line(s) for Item %2.';
         CostAmountNonInvtblErr: Label 'Function NonInvtblCostAmt returned wrong value.';
         ActualCostErr: Label 'Incorrect Actual Cost LCY';
-        ItemTrackingMode: Option AssignSerialNos,SelectEntries;
+        ItemTrackingMode: Option AssignSerialNos,SelectEntries,CreateThreeLots;
 
     [Test]
     [Scope('OnPrem')]
@@ -2047,6 +2047,230 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeDistributionByLotNosPurchaseInvoice_RoundingPrecisionLCY()
+    var
+        Item: Record Item;
+        ItemCharge: array[3] of Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineItemCharge: array[3] of Record "Purchase Line";
+        ItemChargeAssignmentPurch: array[3] of Record "Item Charge Assignment (Purch)";
+        ValueEntry: Record "Value Entry";
+        ItemQuantity: Decimal;
+        ItemUnitCost: Decimal;
+        ItemChargeUnitCost: array[3] of Decimal;
+    begin
+        // [FEATURE] [Item Charge] [Item Tracking] [Purchase] [Invoice]
+        // [SCENARIO 447218] When Item Charge is distributed to multiple Item entries by Lots, the total distributed Amount is precisely equal to the Item Charge Amount (rounded).
+        // [SCENARIO 447218] Item Charges are distributed to Item line in Purchase Invoice.
+        // [SCENARIO 447218] There are three Item Charge lines.
+        Initialize();
+        ItemQuantity := 3;
+        ItemUnitCost := 4.6375;
+        ItemChargeUnitCost[1] := 4.6375;
+        ItemChargeUnitCost[2] := 9.275;
+        ItemChargeUnitCost[3] := 7.374;
+
+        // [GIVEN] Remove Additional Reporting Currency (ACY).
+        LibraryERM.SetAddReportingCurrency('');
+
+        // [GIVEN] Create "Item" with Lots as "Item Tracking"
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create three "Item Charges".
+        LibraryInventory.CreateItemCharge(ItemCharge[1]);
+        LibraryInventory.CreateItemCharge(ItemCharge[2]);
+        LibraryInventory.CreateItemCharge(ItemCharge[3]);
+
+        // [GIVEN] Create Purchase Invoice with 4 lines: 1 Item line and 3 Item Charges lines.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+
+        // [GIVEN] 1st line: Type = Item, No. = Item."No.", Quantity = 3, Unit Cost = 4.6375.
+        CreatePurchaseLine(PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.", ItemQuantity, ItemUnitCost);
+        // [GIVEN] Split to 3 Lots.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::CreateThreeLots);
+        PurchaseLineItem.OpenItemTrackingLines();
+
+        // [GIVEN] 2nd line: Type = Item Charge, No. = ItemCharge[1]."No.", Quantity = 1, Unit Cost = 4.6375.
+        CreatePurchaseLine(PurchaseLineItemCharge[1], PurchaseHeader, PurchaseLineItemCharge[1].Type::"Charge (Item)", ItemCharge[1]."No.", 1, ItemChargeUnitCost[1]);
+        // [GIVEN] Assign the Item Charge to the Item line.
+        LibraryInventory.CreateItemChargeAssignPurchase(
+            ItemChargeAssignmentPurch[1], PurchaseLineItemCharge[1], ItemChargeAssignmentPurch[1]."Applies-to Doc. Type"::Invoice,
+            PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", Item."No.");
+
+        // [GIVEN] 3rd line: Type = Item Charge, No. = ItemCharge[2]."No.", Quantity = 1, Unit Cost = 9.275.
+        CreatePurchaseLine(PurchaseLineItemCharge[2], PurchaseHeader, PurchaseLineItemCharge[2].Type::"Charge (Item)", ItemCharge[2]."No.", 1, ItemChargeUnitCost[2]);
+        // [GIVEN] Assign the Item Charge to the Item line.
+        LibraryInventory.CreateItemChargeAssignPurchase(
+            ItemChargeAssignmentPurch[2], PurchaseLineItemCharge[2], ItemChargeAssignmentPurch[2]."Applies-to Doc. Type"::Invoice,
+            PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", Item."No.");
+
+        // [GIVEN] 4th line: Type = Item Charge, No. = ItemCharge[3]."No.", Quantity = 1, Unit Cost = 7.374.
+        CreatePurchaseLine(PurchaseLineItemCharge[3], PurchaseHeader, PurchaseLineItemCharge[3].Type::"Charge (Item)", ItemCharge[3]."No.", 1, ItemChargeUnitCost[3]);
+        // [GIVEN] Assign the Item Charge to the Item line.
+        LibraryInventory.CreateItemChargeAssignPurchase(
+            ItemChargeAssignmentPurch[3], PurchaseLineItemCharge[3], ItemChargeAssignmentPurch[3]."Applies-to Doc. Type"::Invoice,
+            PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", Item."No.");
+
+        // [WHEN] Receive and Invoice the Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] ItemCharge[1] - The sum of "Cost Amount (Actual)" is equal to 4.64.
+        Clear(ValueEntry);
+        ValueEntry.SetRange("Item Charge No.", ItemCharge[1]."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", Round(ItemChargeUnitCost[1], LibraryERM.GetAmountRoundingPrecision()));
+
+        // [THEN] ItemCharge[1] - The difference between the sum of "Cost Amount (Actual)" and the precise cost is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange("Cost Amount (Actual)",
+            Round(ItemChargeUnitCost[1] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(ItemChargeUnitCost[1] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, ItemQuantity);
+
+        // [THEN] ItemCharge[2] - The sum of "Cost Amount (Actual)" is equal to 9.28.
+        Clear(ValueEntry);
+        ValueEntry.SetRange("Item Charge No.", ItemCharge[2]."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", Round(ItemChargeUnitCost[2], LibraryERM.GetAmountRoundingPrecision()));
+
+        // [THEN] ItemCharge[2] - The difference between the sum of "Cost Amount (Actual)" and the precise cost is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange("Cost Amount (Actual)",
+            Round(ItemChargeUnitCost[2] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(ItemChargeUnitCost[2] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, ItemQuantity);
+
+        // [THEN] ItemCharge[3] - The sum of "Cost Amount (Actual)" is equal to 7.37.
+        Clear(ValueEntry);
+        ValueEntry.SetRange("Item Charge No.", ItemCharge[3]."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", Round(ItemChargeUnitCost[3], LibraryERM.GetAmountRoundingPrecision()));
+
+        // [THEN] ItemCharge[3] - The difference between the sum of "Cost Amount (Actual)" and the precise cost is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange("Cost Amount (Actual)",
+            Round(ItemChargeUnitCost[3] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(ItemChargeUnitCost[3] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, ItemQuantity);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,ItemTrackingSummaryModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeDistributionByLotNosSalesInvoice_RoundingPrecisionLCY()
+    var
+        Item: Record Item;
+        ItemCharge: array[3] of Record "Item Charge";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineItemCharge: array[3] of Record "Sales Line";
+        ItemChargeAssignmentSales: array[3] of Record "Item Charge Assignment (Sales)";
+        ValueEntry: Record "Value Entry";
+        ItemQuantity: Decimal;
+        ItemUnitPrice: Decimal;
+        ItemChargeUnitPrice: array[3] of Decimal;
+    begin
+        // [FEATURE] [Item Charge] [Item Tracking] [Sales] [Invoice]
+        // [SCENARIO 447218] When Item Charge is distributed to multiple Item entries by Lots, the total distributed Amount is precisely equal to the Item Charge Amount (rounded).
+        // [SCENARIO 447218] Item Charges are distributed to Item line in Sales Invoice.
+        // [SCENARIO 447218] There are three Item Charge lines.
+        Initialize();
+        ItemQuantity := 3;
+        ItemUnitPrice := 4.6375;
+        ItemChargeUnitPrice[1] := 4.6375;
+        ItemChargeUnitPrice[2] := 9.275;
+        ItemChargeUnitPrice[3] := 7.374;
+
+        // [GIVEN] Remove Additional Reporting Currency (ACY).
+        LibraryERM.SetAddReportingCurrency('');
+
+        // [GIVEN] Disable Invoice Rounding
+        LibrarySales.SetInvoiceRounding(false);
+
+        // [GIVEN] Create "Item" with Lots as "Item Tracking"
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create three "Item Charges".
+        LibraryInventory.CreateItemCharge(ItemCharge[1]);
+        LibraryInventory.CreateItemCharge(ItemCharge[2]);
+        LibraryInventory.CreateItemCharge(ItemCharge[3]);
+
+        // [GIVEN] Post ItemQuantity of Item to inventory. Assign 3 Lots.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', ItemQuantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::CreateThreeLots);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Sales Invoice with 4 lines: 1 Item line and 3 Item Charges lines.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [GIVEN] 1st line: Type = Item, No. = Item."No.", Quantity = 3, Unit Price = 4.6375.
+        CreateSalesLine(SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Item."No.", ItemQuantity, ItemUnitPrice);
+        // [GIVEN] Select 3 Lots.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        SalesLineItem.OpenItemTrackingLines();
+
+        // [GIVEN] 2nd line: Type = Item Charge, No. = ItemCharge[1]."No.", Quantity = 1, Unit Price = 4.6375.
+        CreateSalesLine(SalesLineItemCharge[1], SalesHeader, SalesLineItemCharge[1].Type::"Charge (Item)", ItemCharge[1]."No.", 1, ItemChargeUnitPrice[1]);
+        // [GIVEN] Assign the Item Charge to the Item line.
+        LibraryInventory.CreateItemChargeAssignment(
+            ItemChargeAssignmentSales[1], SalesLineItemCharge[1], ItemChargeAssignmentSales[1]."Applies-to Doc. Type"::Invoice,
+            SalesLineItem."Document No.", SalesLineItem."Line No.", Item."No.");
+
+        // [GIVEN] 3rd line: Type = Item Charge, No. = ItemCharge[2]."No.", Quantity = 1, Unit Price = 9.275.
+        CreateSalesLine(SalesLineItemCharge[2], SalesHeader, SalesLineItemCharge[1].Type::"Charge (Item)", ItemCharge[2]."No.", 1, ItemChargeUnitPrice[2]);
+        // [GIVEN] Assign the Item Charge to the Item line.
+        LibraryInventory.CreateItemChargeAssignment(
+            ItemChargeAssignmentSales[2], SalesLineItemCharge[2], ItemChargeAssignmentSales[2]."Applies-to Doc. Type"::Invoice,
+            SalesLineItem."Document No.", SalesLineItem."Line No.", Item."No.");
+
+        // [GIVEN] 4th line: Type = Item Charge, No. = ItemCharge[3]."No.", Quantity = 1, Unit Price = 7.374.
+        CreateSalesLine(SalesLineItemCharge[3], SalesHeader, SalesLineItemCharge[3].Type::"Charge (Item)", ItemCharge[3]."No.", 1, ItemChargeUnitPrice[3]);
+        // [GIVEN] Assign the Item Charge to the Item line.
+        LibraryInventory.CreateItemChargeAssignment(
+            ItemChargeAssignmentSales[3], SalesLineItemCharge[3], ItemChargeAssignmentSales[3]."Applies-to Doc. Type"::Invoice,
+            SalesLineItem."Document No.", SalesLineItem."Line No.", Item."No.");
+
+        // [WHEN] Ship and Invoice the Sales Invoice.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] ItemCharge[1] - The sum of "Sales Amount (Actual)" is equal to 4.64.
+        Clear(ValueEntry);
+        ValueEntry.SetRange("Item Charge No.", ItemCharge[1]."No.");
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField("Sales Amount (Actual)", Round(ItemChargeUnitPrice[1], LibraryERM.GetAmountRoundingPrecision()));
+
+        // [THEN] ItemCharge[1] - The difference between the sum of "Sales Amount (Actual)" and the precise Sales Amount is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange("Sales Amount (Actual)",
+            Round(ItemChargeUnitPrice[1] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(ItemChargeUnitPrice[1] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, ItemQuantity);
+
+        // [THEN] ItemCharge[2] - The sum of "Sales Amount (Actual)" is equal to 9.28.
+        Clear(ValueEntry);
+        ValueEntry.SetRange("Item Charge No.", ItemCharge[2]."No.");
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField("Sales Amount (Actual)", Round(ItemChargeUnitPrice[2], LibraryERM.GetAmountRoundingPrecision()));
+
+        // [THEN] ItemCharge[2] - The difference between the sum of "Sales Amount (Actual)" and the precise Sales Amount is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange("Sales Amount (Actual)",
+            Round(ItemChargeUnitPrice[2] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(ItemChargeUnitPrice[2] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, ItemQuantity);
+
+        // [THEN] ItemCharge[3] - The sum of "Sales Amount (Actual)" is equal to 7.37.
+        Clear(ValueEntry);
+        ValueEntry.SetRange("Item Charge No.", ItemCharge[3]."No.");
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField("Sales Amount (Actual)", Round(ItemChargeUnitPrice[3], LibraryERM.GetAmountRoundingPrecision()));
+
+        // [THEN] ItemCharge[3] - The difference between the sum of "Sales Amount (Actual)" and the precise Sales Amount is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange("Sales Amount (Actual)",
+            Round(ItemChargeUnitPrice[3] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(ItemChargeUnitPrice[3] / ItemQuantity, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, ItemQuantity);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2992,6 +3216,21 @@ codeunit 137287 "SCM Inventory Costing II"
         Assert.IsTrue(StrPos(ActualMsg, ExpectedMsg) > 0, ActualMsg);
     end;
 
+    local procedure CreateLotsOnItemTrackingLines(var ItemTrackingLines: TestPage "Item Tracking Lines"; LotsCount: Integer);
+    var
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        if LotsCount <= 0 then
+            exit;
+
+        repeat
+            ItemTrackingLines."Lot No.".SetValue(UpperCase(LibraryRandom.RandText(MaxStrLen(TrackingSpecification."Lot No."))));
+            ItemTrackingLines."Quantity (Base)".SetValue(1.0);
+            ItemTrackingLines.Next();
+            LotsCount -= 1;
+        until LotsCount = 0;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
@@ -3091,6 +3330,10 @@ codeunit 137287 "SCM Inventory Costing II"
                 end;
             ItemTrackingMode::SelectEntries:
                 ItemTrackingLines."Select Entries".Invoke();
+            ItemTrackingMode::CreateThreeLots:
+                begin
+                    CreateLotsOnItemTrackingLines(ItemTrackingLines, 3);
+                end;
         end;
     end;
 

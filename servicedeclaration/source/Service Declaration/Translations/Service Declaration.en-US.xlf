@@ -171,6 +171,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Line - Field Service Transaction Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2713885285 - Field 1631535830 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Registration No.</source>
+          <target state="translated">Tax Registration No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Line - Field VAT Reg. No. - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2713885285 - Field 617267791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Registration No.</source>
           <target state="translated">Tax Registration No.</target>
@@ -189,6 +195,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Buy-From/Pay-To Vendor No. - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3454677590 - Field 2065359991 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cust. VAT Reg. No. Type</source>
+          <target state="translated">Cust. Tax Reg. No. Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Cust. VAT Reg. No. Type - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3454677590 - Field 1659701640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Exch. Def. Code</source>
           <target state="translated">Data Exch. Def. Code</target>
@@ -200,6 +212,24 @@
           <target state="translated">Declaration No. Series</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Declaration No. Series - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3454677590 - Field 3356511014 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Def. Customer/Vendor VAT No.</source>
+          <target state="translated">Def. Customer/Vendor Tax No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Def. Customer/Vendor VAT No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3454677590 - Field 2903705327 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Def. Private Person VAT No.</source>
+          <target state="translated">Def. Private Person VAT No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Def. Private Person VAT No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3454677590 - Field 1686663054 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable Service Transaction Types</source>
+          <target state="translated">Enable Service Transaction Types</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Enable Serv. Trans. Types - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3454677590 - Field 3687851416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enable VAT Registration No.</source>
@@ -224,6 +254,18 @@
           <target state="translated">Sell-To/Bill-To Customer No.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Sell-To/Bill-To Customer No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3454677590 - Field 1315280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Serv. Devl. Overview</source>
+          <target state="translated">Show Serv. Devl. Overview</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Show Serv. Decl. Overview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3454677590 - Field 3276852527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vend. VAT Reg. No. Type</source>
+          <target state="translated">Vend. Tax Reg. No. Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Setup - Field Vend. VAT Reg. No. Type - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 894930515 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type</source>
@@ -251,6 +293,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2714038767 - NamedType 1689235809" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Service Declaration it easy to export the servide declaration in the format that the authorities in your country require.</source>
+          <target state="translated">The Service Declaration it easy to export the servide declaration in the format that the authorities in your country require.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType AssistedSetupDescriptionTxt</note>
         </trans-unit>
@@ -285,8 +328,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType TransactionTypeCodeNotSpecifiedInLineErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2714038767 - Method 521467892 - NamedType 1547380350" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;root&gt;  &lt;DataExchDef Code="SERVDECL-2022" Name="SERVICEDECLARATION" Type="5" ReadingWritingXMLport="1231" ExternalDataHandlingCodeunit="1277" ColumnSeparator="5" CustomColumnSeparator=";" FileType="1" ReadingWritingCodeunit="1276"&gt;    &lt;DataExchLineDef LineType="1" Code="DEFAULT" Name="DEFAULT" ColumnCount="5"&gt;      &lt;DataExchColumnDef ColumnNo="1" Name="" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="2" Name="" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="3" Name="" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="4" Name="" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="5" Name="" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchMapping TableId="5024" Name="" MappingCodeunit="1269"&gt;        &lt;DataExchFieldMapping ColumnNo="1" FieldID="5" /&gt;        &lt;DataExchFieldMapping ColumnNo="2" FieldID="6" /&gt;        &lt;DataExchFieldMapping ColumnNo="3" FieldID="7" /&gt;        &lt;DataExchFieldMapping ColumnNo="4" FieldID="10" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldMapping ColumnNo="5" FieldID="11" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldGrouping FieldID="5" /&gt;        &lt;DataExchFieldGrouping FieldID="6" /&gt;        &lt;DataExchFieldGrouping FieldID="7" /&gt;      &lt;/DataExchMapping&gt;    &lt;/DataExchLineDef&gt;  &lt;/DataExchDef&gt;&lt;/root&gt;</source>
-          <target state="translated">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;root&gt;  &lt;DataExchDef Code="SERVDECL-2022" Name="SERVICEDECLARATION" Type="5" ReadingWritingXMLport="1231" ExternalDataHandlingCodeunit="1277" ColumnSeparator="5" CustomColumnSeparator=";" FileType="1" ReadingWritingCodeunit="1276"&gt;    &lt;DataExchLineDef LineType="1" Code="DEFAULT" Name="DEFAULT" ColumnCount="5"&gt;      &lt;DataExchColumnDef ColumnNo="1" Name="" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="2" Name="" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="3" Name="" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="4" Name="" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchColumnDef ColumnNo="5" Name="" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" /&gt;      &lt;DataExchMapping TableId="5024" Name="" MappingCodeunit="1269"&gt;        &lt;DataExchFieldMapping ColumnNo="1" FieldID="5" /&gt;        &lt;DataExchFieldMapping ColumnNo="2" FieldID="6" /&gt;        &lt;DataExchFieldMapping ColumnNo="3" FieldID="7" /&gt;        &lt;DataExchFieldMapping ColumnNo="4" FieldID="10" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldMapping ColumnNo="5" FieldID="11" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldGrouping FieldID="5" /&gt;        &lt;DataExchFieldGrouping FieldID="6" /&gt;        &lt;DataExchFieldGrouping FieldID="7" /&gt;      &lt;/DataExchMapping&gt;    &lt;/DataExchLineDef&gt;  &lt;/DataExchDef&gt;&lt;/root&gt;</target>
+          <source>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;root&gt;  &lt;DataExchDef Code="SERVDECL-2022" Name="SERVICEDECLARATION" Type="5" ReadingWritingXMLport="1231" ExternalDataHandlingCodeunit="1277" ColumnSeparator="5" CustomColumnSeparator=";" FileType="1" ReadingWritingCodeunit="1276"&gt;    &lt;DataExchLineDef LineType="1" Code="DEFAULT" Name="DEFAULT" ColumnCount="5"&gt;      &lt;DataExchColumnDef ColumnNo="1" Name="Service Transaction Type" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="2" Name="Country/Region Code" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="3" Name="Currency Code" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="4" Name="Sales Amount" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="5" Name="Purchase Amount" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchMapping TableId="5024" Name="" MappingCodeunit="1269"&gt;        &lt;DataExchFieldMapping ColumnNo="1" FieldID="5" /&gt;        &lt;DataExchFieldMapping ColumnNo="2" FieldID="6" /&gt;        &lt;DataExchFieldMapping ColumnNo="3" FieldID="7" /&gt;        &lt;DataExchFieldMapping ColumnNo="4" FieldID="10" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;            &lt;ExportFromDateType&gt;0&lt;/ExportFromDateType&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldMapping ColumnNo="5" FieldID="11" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;            &lt;ExportFromDateType&gt;0&lt;/ExportFromDateType&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldGrouping FieldID="5" /&gt;        &lt;DataExchFieldGrouping FieldID="6" /&gt;        &lt;DataExchFieldGrouping FieldID="7" /&gt;      &lt;/DataExchMapping&gt;    &lt;/DataExchLineDef&gt;  &lt;/DataExchDef&gt;&lt;/root&gt;</source>
+          <target state="translated">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;root&gt;  &lt;DataExchDef Code="SERVDECL-2022" Name="SERVICEDECLARATION" Type="5" ReadingWritingXMLport="1231" ExternalDataHandlingCodeunit="1277" ColumnSeparator="5" CustomColumnSeparator=";" FileType="1" ReadingWritingCodeunit="1276"&gt;    &lt;DataExchLineDef LineType="1" Code="DEFAULT" Name="DEFAULT" ColumnCount="5"&gt;      &lt;DataExchColumnDef ColumnNo="1" Name="Service Transaction Type" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="2" Name="Country/Region Code" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="3" Name="Currency Code" Show="false" DataType="0" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="4" Name="Sales Amount" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchColumnDef ColumnNo="5" Name="Purchase Amount" Show="false" DataType="2" DataFormat="&amp;lt;Sign&amp;gt;&amp;lt;Integer&amp;gt;&amp;lt;Decimals&amp;gt;" DataFormattingCulture="en-US" TextPaddingRequired="false" Justification="0" UseNodeNameAsValue="false" BlankZero="false" ExportIfNotBlank="false" /&gt;      &lt;DataExchMapping TableId="5024" Name="" MappingCodeunit="1269"&gt;        &lt;DataExchFieldMapping ColumnNo="1" FieldID="5" /&gt;        &lt;DataExchFieldMapping ColumnNo="2" FieldID="6" /&gt;        &lt;DataExchFieldMapping ColumnNo="3" FieldID="7" /&gt;        &lt;DataExchFieldMapping ColumnNo="4" FieldID="10" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;            &lt;ExportFromDateType&gt;0&lt;/ExportFromDateType&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldMapping ColumnNo="5" FieldID="11" Optional="true" TransformationRule="ROUNDNEAR1"&gt;          &lt;TransformationRules&gt;            &lt;Code&gt;ROUNDNEAR1&lt;/Code&gt;            &lt;Description&gt;Rounding decimal nearest to 1&lt;/Description&gt;            &lt;TransformationType&gt;14&lt;/TransformationType&gt;            &lt;FindValue /&gt;            &lt;ReplaceValue /&gt;            &lt;StartPosition&gt;0&lt;/StartPosition&gt;            &lt;Length&gt;0&lt;/Length&gt;            &lt;DataFormat /&gt;            &lt;DataFormattingCulture /&gt;            &lt;NextTransformationRule /&gt;            &lt;TableID&gt;0&lt;/TableID&gt;            &lt;SourceFieldID&gt;0&lt;/SourceFieldID&gt;            &lt;TargetFieldID&gt;0&lt;/TargetFieldID&gt;            &lt;FieldLookupRule&gt;0&lt;/FieldLookupRule&gt;            &lt;Precision&gt;1.00&lt;/Precision&gt;            &lt;Direction&gt;=&lt;/Direction&gt;            &lt;ExportFromDateType&gt;0&lt;/ExportFromDateType&gt;          &lt;/TransformationRules&gt;        &lt;/DataExchFieldMapping&gt;        &lt;DataExchFieldGrouping FieldID="5" /&gt;        &lt;DataExchFieldGrouping FieldID="6" /&gt;        &lt;DataExchFieldGrouping FieldID="7" /&gt;      &lt;/DataExchMapping&gt;    &lt;/DataExchLineDef&gt;  &lt;/DataExchDef&gt;&lt;/root&gt;</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - Method AssignDataExchDefToServDeclSetup - NamedType DataExchangeXMLTxt</note>
         </trans-unit>
@@ -355,6 +398,7 @@
         </trans-unit>
         <trans-unit id="Page 1204715772 - Control 1156881414 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>In some EU countries, authorities require reporting for exporting services to the other EU countries. This feature enables collecting EU service’s intertrade and its reporting to the authorities. Even this feature is primarily created for Belgian, French and Italian markets, it can be used in all EU countries if needed as reporting is configurable.</source>
+          <target state="translated">In some EU countries, authorities require reporting for exporting services to the other EU countries. This feature enables collecting EU service’s intertrade and its reporting to the authorities. Even this feature is primarily created for Belgian, French and Italian markets, it can be used in all EU countries if needed as reporting is configurable.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Welcome to Intrastat Report Setup - Property InstructionalText</note>
         </trans-unit>
@@ -376,6 +420,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Buy-From/Pay-To Vendor No. - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 1204715772 - Control 2065359991 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how a customer's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
+          <target state="translated">Specifies how a customer's Tax registration number exports to the file. 0 is the value of the Tax Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Cust. VAT Reg. No. Type - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 1204715772 - Control 1659701640 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the data exchange definition code used to generate the exported file for the service declaration.</source>
           <target state="translated">Specifies the data exchange definition code used to generate the exported file for the service declaration.</target>
@@ -387,6 +437,18 @@
           <target state="translated">Specifies the no. series for the service declarations.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Declaration No. Series - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1204715772 - Control 3356511014 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT registration number that will be used if customer or vendor company does not have its own VAT registration number.</source>
+          <target state="translated">Specifies the Tax registration number that will be used if customer or vendor company does not have its own Tax registration number.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Def. Customer/Vendor VAT No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1204715772 - Control 2903705327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT registration number that will be used if customer or vendor private person does not have its own VAT registration number.</source>
+          <target state="translated">Specifies the Tax registration number that will be used if customer or vendor private person does not have its own VAT registration number.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Def. Private Person VAT No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1204715772 - Control 3687851416 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the VAT Registration No. is enabled for the service declaration.</source>
@@ -405,6 +467,12 @@
           <target state="translated">Specifies which customer must be taken to compare his country code with the country code from the Company Information page. Only documents where these two codes are different will be considered for the service declaration. Bill-To.: The country code will be taken from the Bill-to Customer. Sell-To. : The country code will be taken from the Sell-to Customer.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Sell-To/Bill-To Customer No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1204715772 - Control 3276852527 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how a vendor's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
+          <target state="translated">Specifies how a vendor's Tax registration number exports to the file. 0 is the value of the Tax Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Vend. VAT Reg. No. Type - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1204715772 - Control 737911913 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specify a list of service transaction types to be used for the sales and purchase documents.</source>
@@ -491,8 +559,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action CreateFile - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4184400519 - Action 2246317104 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Suggests Intrastat transactions to be reported and fills in the journal.</source>
-          <target state="translated">Suggests Intrastat transactions to be reported and fills in the journal.</target>
+          <source>Suggests transactions to be reported and fills in the journal.</source>
+          <target state="translated">Suggests transactions to be reported and fills in the journal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action GetEntries - Property ToolTip</note>
         </trans-unit>
@@ -562,6 +630,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Buy-From/Pay-To Vendor No. - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 3454677590 - Control 2065359991 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how a customer's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
+          <target state="translated">Specifies how a customer's Tax registration number exports to the file. 0 is the value of the Tax Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Cust. VAT Reg. No. Type - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3454677590 - Control 1659701640 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the data exchange definition code used to generate the exported file for the service declaration.</source>
           <target state="translated">Specifies the data exchange definition code used to generate the exported file for the service declaration.</target>
@@ -573,6 +647,18 @@
           <target state="translated">Specifies the no. series for the service declarations.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Declaration No. Series - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3454677590 - Control 3356511014 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT registration number that will be used if customer or vendor company does not have its own VAT registration number.</source>
+          <target state="translated">Specifies the Tax registration number that will be used if customer or vendor company does not have its own Tax registration number.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Def. Customer/Vendor VAT No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3454677590 - Control 2903705327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT registration number that will be used if customer or vendor private person does not have its own VAT registration number.</source>
+          <target state="translated">Specifies the Tax registration number that will be used if customer or vendor private person does not have its own VAT registration number.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Def. Private Person VAT No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3454677590 - Control 3687851416 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the VAT Registration No. is enabled for the service declaration.</source>
@@ -591,6 +677,12 @@
           <target state="translated">Specifies which customer must be taken to compare his country code with the country code from the Company Information page. Only documents where these two codes are different will be considered for the service declaration. Bill-To.: The country code will be taken from the Bill-to Customer. Sell-To. : The country code will be taken from the Sell-to Customer.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Sell-To/Bill-To Customer No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3454677590 - Control 3276852527 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how a vendor's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
+          <target state="translated">Specifies how a vendor's Tax registration number exports to the file. 0 is the value of the Tax Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Vend. VAT Reg. No. Type - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 816629217 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Lines</source>
@@ -651,6 +743,12 @@
           <target state="translated">Specifies the service transaction code of the source entry.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Subform - Control Service Transaction Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 816629217 - Control 1631535830 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT registration No. of the customer or vendor associated with a source entry.</source>
+          <target state="translated">Specifies the Tax registration No. of the customer or vendor associated with a source entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Subform - Control VAT Reg. No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 816629217 - Control 617267791 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the VAT registration No. of the customer or vendor associated with a source entry.</source>
@@ -756,6 +854,34 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2420212404</note>
         </trans-unit>
+        <trans-unit id="PageExtension 3496570137 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a document is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether a document is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4222048109</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1888742921 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether an item or resource is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether an item or resource is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1187328241</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1888742921 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Specifies the code for a service transaction type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1187328241</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2261445661 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a document is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether a document is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1778940791</note>
+        </trans-unit>
         <trans-unit id="PageExtension 3285418303 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether an item or resource is applicable for a service declaration.</source>
           <target state="translated">Specifies whether an item or resource is applicable for a service declaration.</target>
@@ -783,6 +909,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1257057922</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3931440427 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether an item or resource is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether an item or resource is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2649920062</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3931440427 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Specifies the code for a service transaction type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2649920062</note>
         </trans-unit>
         <trans-unit id="PageExtension 3380279556 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether a document is applicable for a service declaration.</source>
@@ -952,6 +1092,69 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1598289728</note>
         </trans-unit>
+        <trans-unit id="PageExtension 1403789762 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a document is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether a document is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2832910486</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 841638472 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether an item or resource is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether an item or resource is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1751478268</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 841638472 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Specifies the code for a service transaction type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1751478268</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1866117966 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a document is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether a document is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1224914752</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1063442196 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether an item or resource is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether an item or resource is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 754151050</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1063442196 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Specifies the code for a service transaction type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 754151050</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4210987759 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a document is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether a document is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2145436509</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1492592113 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether an item or resource is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether an item or resource is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 997019036</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1492592113 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Specifies the code for a service transaction type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 997019036</note>
+        </trans-unit>
         <trans-unit id="PageExtension 1634945047 - Control 2326494239 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether an item must be excluded from the service declaration.</source>
           <target state="translated">Specifies whether an item must be excluded from the service declaration.</target>
@@ -979,6 +1182,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 200707616</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2661934884 - Control 1771796126 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a document is applicable for a service declaration.</source>
+          <target state="translated">Specifies whether a document is applicable for a service declaration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 997740791</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2661934884 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Specifies the code for a service transaction type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 997740791</note>
         </trans-unit>
         <trans-unit id="PageExtension 3816452574 - Control 2326494239 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether a resource must be excluded from the service declaration.</source>
@@ -1064,6 +1281,27 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 552782286</note>
         </trans-unit>
+        <trans-unit id="TableExtension 2724191044 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3250149650</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2724191044 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Transaction Type Code</source>
+          <target state="translated">Service Transaction Type Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3250149650</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3039032707 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3471029625</note>
+        </trans-unit>
         <trans-unit id="TableExtension 2300690243 - Field 2326494239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude From Service Declaration</source>
           <target state="translated">Exclude From Service Declaration</target>
@@ -1148,6 +1386,34 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1519909599</note>
         </trans-unit>
+        <trans-unit id="TableExtension 118093026 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 118093026 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Transaction Type Code</source>
+          <target state="translated">Service Transaction Type Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3429814826 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3429814826 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Transaction Type Code</source>
+          <target state="translated">Service Transaction Type Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
+        </trans-unit>
         <trans-unit id="TableExtension 1002602554 - Field 2326494239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude From Service Declaration</source>
           <target state="translated">Exclude From Service Declaration</target>
@@ -1204,6 +1470,48 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2574427010</note>
         </trans-unit>
+        <trans-unit id="TableExtension 3706489081 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3610197182</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3823450500 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3117283677</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3594866411 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2228141878</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3594866411 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Transaction Type Code</source>
+          <target state="translated">Service Transaction Type Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2228141878</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 668202130 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applicable For Service Declaration</source>
+          <target state="translated">Applicable For Service Declaration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2682833765</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 668202130 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Transaction Type Code</source>
+          <target state="translated">Service Transaction Type Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2682833765</note>
+        </trans-unit>
         <trans-unit id="TableExtension 2017102725 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
           <target state="translated">Applicable For Service Declaration</target>
@@ -1217,6 +1525,24 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 467645625</note>
+        </trans-unit>
+        <trans-unit id="Enum 363159866 - EnumValue 424953456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Country Code + VAT Reg. No.</source>
+          <target state="translated">Country Code + Tax Reg. No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. VAT Reg. No. Type - EnumValue Country Code + VAT Reg. No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 363159866 - EnumValue 1631535830 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Reg. No.</source>
+          <target state="translated">Tax Reg. No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. VAT Reg. No. Type - EnumValue VAT Reg. No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 363159866 - EnumValue 3216616316 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Reg. No. Without Country Code</source>
+          <target state="translated">Tax Reg. No. Without Country Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. VAT Reg. No. Type - EnumValue VAT Reg. No. w/o Country Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="EnumExtension 3472035958 - EnumValue 4184400519 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Declaration</source>

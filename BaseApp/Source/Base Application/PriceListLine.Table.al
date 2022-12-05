@@ -33,7 +33,7 @@ table 7001 "Price List Line"
         }
         field(4; "Source No."; Code[20])
         {
-            Caption = 'Assign-to No.';
+            Caption = 'Assign-to No. (custom)';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -59,7 +59,7 @@ table 7001 "Price List Line"
         }
         field(5; "Parent Source No."; Code[20])
         {
-            Caption = 'Assign-to Parent No.';
+            Caption = 'Assign-to Parent No. (custom)';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -119,7 +119,7 @@ table 7001 "Price List Line"
         }
         field(8; "Asset No."; Code[20])
         {
-            Caption = 'Product No.';
+            Caption = 'Product No. (custom)';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -148,6 +148,7 @@ table 7001 "Price List Line"
         }
         field(9; "Variant Code"; Code[10])
         {
+            Caption = 'Variant Code (custom)';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -230,6 +231,7 @@ table 7001 "Price List Line"
         }
         field(15; "Unit of Measure Code"; Code[10])
         {
+            Caption = 'Unit of Measure Code (custom)';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -641,11 +643,12 @@ table 7001 "Price List Line"
         Result := (Status = Status::Draft) and IsHeaderActive();
     end;
 
-    local procedure IsAllowedEditingActivePrice(): Boolean;
+    local procedure IsAllowedEditingActivePrice() Result: Boolean;
     var
         PriceListManagement: Codeunit "Price List Management";
     begin
-        exit(PriceListManagement.IsAllowedEditingActivePrice("Price Type"));
+        Result := PriceListManagement.IsAllowedEditingActivePrice("Price Type");
+        OnAfterIsAllowedEditingActivePrice(Rec, Result);
     end;
 
     procedure IsUOMSupported() Result: Boolean;
@@ -841,6 +844,7 @@ table 7001 "Price List Line"
         if FindSet() then
             repeat
                 TempPriceListLine := Rec;
+                OnCopyFilteredLinesToTemporaryBufferOnBeforeInsert(TempPriceListLine);
                 if TempPriceListLine.Insert() then
                     Copied := true;
             until Next() = 0;
@@ -1072,6 +1076,11 @@ table 7001 "Price List Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAllowedEditingActivePrice(PriceListLine: Record "Price List Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     procedure OnAfterIsUOMSupported(PriceListLine: Record "Price List Line"; var Result: Boolean)
     begin
     end;
@@ -1083,6 +1092,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerify(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFilteredLinesToTemporaryBufferOnBeforeInsert(var TempPriceListLine: Record "Price List Line" temporary)
     begin
     end;
 }

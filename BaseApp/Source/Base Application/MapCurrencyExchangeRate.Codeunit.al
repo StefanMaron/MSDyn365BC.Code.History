@@ -29,12 +29,12 @@ codeunit 1280 "Map Currency Exchange Rate"
 
         CurrentLineNo := -1;
         if DataExchField.FindSet() then
-                repeat
-                    if CurrentLineNo <> DataExchField."Line No." then begin
-                        CurrentLineNo := DataExchField."Line No.";
-                        if UpdateCurrencyExchangeRate(CurrencyExchangeRate, DataExchField) then;
-                    end;
-                until DataExchField.Next() = 0;
+            repeat
+                if CurrentLineNo <> DataExchField."Line No." then begin
+                    CurrentLineNo := DataExchField."Line No.";
+                    if UpdateCurrencyExchangeRate(CurrencyExchangeRate, DataExchField) then;
+                end;
+            until DataExchField.Next() = 0;
 
         OnAfterMapCurrencyExchangeRates(DataExch, CurrencyExchangeRate);
     end;
@@ -69,6 +69,7 @@ codeunit 1280 "Map Currency Exchange Rate"
         if not GetAndAssignValue(RecordRef, CurrencyExchangeRate.FieldNo("Relational Exch. Rate Amount"), DefinitionDataExchField, 0) then
             exit(false);
 
+        OnSetFieldsOnBeforeCurrencyExchangeRateSetTable(RecordRef, DefinitionDataExchField, CurrencyExchangeRate);
         RecordRef.SetTable(CurrencyExchangeRate);
         if not GetAndAssignValue(
              RecordRef, CurrencyExchangeRate.FieldNo("Adjustment Exch. Rate Amount"), DefinitionDataExchField,
@@ -280,21 +281,21 @@ codeunit 1280 "Map Currency Exchange Rate"
         CurrExchRateUpdateSetup.SetupService();
 
         if CurrExchRateUpdateSetup.FindSet() then
-                repeat
-                    RecRef.GetTable(CurrExchRateUpdateSetup);
-                    ServiceConnection.Status := ServiceConnection.Status::Disabled;
-                    if CurrExchRateUpdateSetup.Enabled then
-                        ServiceConnection.Status := ServiceConnection.Status::Enabled;
-                    CurrExchRateUpdateSetup.CalcFields("Web Service URL");
-                    if CurrExchRateUpdateSetup."Web Service URL".HasValue() then begin
-                        CurrExchRateUpdateSetup."Web Service URL".CreateInStream(InStream);
-                        InStream.Read(ServiceURL);
-                    end;
+            repeat
+                RecRef.GetTable(CurrExchRateUpdateSetup);
+                ServiceConnection.Status := ServiceConnection.Status::Disabled;
+                if CurrExchRateUpdateSetup.Enabled then
+                    ServiceConnection.Status := ServiceConnection.Status::Enabled;
+                CurrExchRateUpdateSetup.CalcFields("Web Service URL");
+                if CurrExchRateUpdateSetup."Web Service URL".HasValue() then begin
+                    CurrExchRateUpdateSetup."Web Service URL".CreateInStream(InStream);
+                    InStream.Read(ServiceURL);
+                end;
 
-                    with CurrExchRateUpdateSetup do
-                        ServiceConnection.InsertServiceConnection(
-                          ServiceConnection, RecRef.RecordId, Description, ServiceURL, PAGE::"Curr. Exch. Rate Service Card");
-                until CurrExchRateUpdateSetup.Next() = 0;
+                with CurrExchRateUpdateSetup do
+                    ServiceConnection.InsertServiceConnection(
+                      ServiceConnection, RecRef.RecordId, Description, ServiceURL, PAGE::"Curr. Exch. Rate Service Card");
+            until CurrExchRateUpdateSetup.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -304,6 +305,11 @@ codeunit 1280 "Map Currency Exchange Rate"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertOrModifyRecordRef(var RecordRef: RecordRef; DefinitionDataExchField: Record "Data Exch. Field"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFieldsOnBeforeCurrencyExchangeRateSetTable(var RecordRef: RecordRef; var DefinitionDataExchField: Record "Data Exch. Field"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 }

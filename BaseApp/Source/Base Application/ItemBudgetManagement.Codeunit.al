@@ -18,7 +18,7 @@ codeunit 7130 "Item Budget Management"
         Text004: Label '%1 is not a valid line definition.';
         Text005: Label '%1 is not a valid column definition.';
         Text006: Label 'Do you want to delete the budget entries shown?';
-        Text007: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
+        Text007: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
 
     procedure BudgetNameSelection(CurrentAnalysisArea: Option; var CurrentItemBudgetName: Code[10]; var ItemBudgetName: Record "Item Budget Name"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var BudgetDim1Filter: Text; var BudgetDim2Filter: Text; var BudgetDim3Filter: Text)
     begin

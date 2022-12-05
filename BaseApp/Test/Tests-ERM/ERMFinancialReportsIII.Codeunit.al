@@ -1071,6 +1071,201 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[2].Amount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrintVendorPrePaymentJournal_SameDocumentNoAndOneVendor_WithoutApplications()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorPrePaymentJournal: Report "Vendor Pre-Payment Journal";
+        DocumentNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [Vendor Pre-Payment Journal]
+        // [SCENARIO 448581] "Vendor Pre-Payment Journal" report prints one line with combined amounts when there are three lines with the same ("Document No", "Account Type", "Account No.") combination.
+        Initialize();
+
+        // [GIVEN] Generate "Document No."
+        DocumentNo := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(DocumentNo));
+
+        // [GIVEN] Create Vendor
+        CreateVendor(Vendor);
+
+        // Clear "Gen. Journal Lines"
+        ClearGeneralJournalLines(GenJournalBatch);
+
+        // [GIVEN] Create 1st "Gen. Journal Line"
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[1], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[1]."Document Type"::Payment,
+          GenJournalLine[1]."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[1]."Document No." := DocumentNo;
+        GenJournalLine[1].Modify(true);
+
+        // [GIVEN] Create 2nd "Gen. Journal Line"
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[2], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[2]."Document Type"::Payment,
+          GenJournalLine[2]."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[2]."Document No." := DocumentNo;
+        GenJournalLine[2].Modify(true);
+
+        // [GIVEN] Create 3rd "Gen. Journal Line"
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[3], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[3]."Document Type"::Payment,
+          GenJournalLine[3]."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[3]."Document No." := DocumentNo;
+        GenJournalLine[3].Modify(true);
+
+        // [WHEN] Run report 317 "Vendor Pre-Payment Journal"
+        Commit();
+        GenJournalBatch.SetRange("Journal Template Name", GenJournalLine[1]."Journal Template Name");
+        GenJournalBatch.SetRange(Name, GenJournalLine[1]."Journal Batch Name");
+        Clear(VendorPrePaymentJournal);
+        LibraryReportDataset.RunReportAndLoad(Report::"Vendor Pre-Payment Journal", GenJournalBatch, RequestPageXML);
+
+        // [THEN] Verify vales in DataSet
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Account_No__', Vendor."No.");
+        // 'Gen__Journal_Line_Amount' must have values of all Amounts from "Gen. Journal Line"
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[3].Amount);
+        // 'TotalAmount' must have have values of cumulative sum of Amounts from "Gen. Journal Line"
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount + GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount + GenJournalLine[2].Amount + GenJournalLine[3].Amount);
+        // 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied' must also have have values of cumulative sum of Amounts from "Gen. Journal Line"
+        LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount + GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount + GenJournalLine[2].Amount + GenJournalLine[3].Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrintVendorPrePaymentJournal_SameDocumentNoAndTwoVendors_WithApplications()
+    var
+        Vendor: array[2] of Record Vendor;
+        GenJournalLine: array[5] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorLedgerEntry: array[4] of Record "Vendor Ledger Entry";
+        VendorPrePaymentJournal: Report "Vendor Pre-Payment Journal";
+        DocumentNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [Vendor Pre-Payment Journal]
+        // [SCENARIO 448581] "Vendor Pre-Payment Journal" report prints two lines with combined amounts when there are five lines with two ("Document No", "Account Type", "Account No.") combinations. Some lines have Vendor Ledger Entries Applied.
+        Initialize();
+
+        // [GIVEN] Generate "Document No."
+        DocumentNo := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(DocumentNo));
+        ClearGeneralJournalLines(GenJournalBatch);
+
+        // [GIVEN] Create Vendor[1]
+        CreateVendor(Vendor[1]);
+
+        // [GIVEN] Create Vendor[2]
+        CreateVendor(Vendor[2]);
+
+        // [GIVEN] Post 1st Purchase Invoice, for Vendor[1]
+        ReturnVendorLedgerEntryForCreatedAndPostedPurchaseInvoice(VendorLedgerEntry[1], Vendor[1]."No.");
+
+        // [GIVEN] Post 2nd Purchase Invoice, for Vendor[1]
+        ReturnVendorLedgerEntryForCreatedAndPostedPurchaseInvoice(VendorLedgerEntry[2], Vendor[1]."No.");
+
+        // [GIVEN] Post 3rd Purchase Invoice, for Vendor[1]
+        ReturnVendorLedgerEntryForCreatedAndPostedPurchaseInvoice(VendorLedgerEntry[3], Vendor[1]."No.");
+
+        // [GIVEN] Post 4th Purchase Invoice, for Vendor[2]
+        ReturnVendorLedgerEntryForCreatedAndPostedPurchaseInvoice(VendorLedgerEntry[4], Vendor[2]."No.");
+
+        // [GIVEN] Create 1st "Gen. Journal Line", for Vendor[1]
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[1], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[1]."Document Type"::Payment,
+          GenJournalLine[1]."Account Type"::Vendor, Vendor[1]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[1]."Document No." := DocumentNo;
+        GenJournalLine[1].Modify(true);
+
+        // [GIVEN] Create 2nd "Gen. Journal Line", for Vendor[2]
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[2], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[2]."Document Type"::Payment,
+          GenJournalLine[2]."Account Type"::Vendor, Vendor[2]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[2]."Document No." := DocumentNo;
+        GenJournalLine[2].Modify(true);
+
+        // [GIVEN] Apply created GenJournalLine[2] to VendorLedgerEntry[4] in full "Amount"
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry[4]);
+        VendorLedgerEntry[4].Validate("Amount to Apply", -GenJournalLine[2].Amount);
+        VendorLedgerEntry[4].Modify(true);
+        GenJournalLine[2].Validate("Applies-to ID", UserId());
+        GenJournalLine[2].Modify(true);
+
+        // [GIVEN] Create 3rd "Gen. Journal Line", for Vendor[1]
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[3], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[3]."Document Type"::Payment,
+          GenJournalLine[3]."Account Type"::Vendor, Vendor[1]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[3]."Document No." := DocumentNo;
+        GenJournalLine[3].Modify(true);
+
+        // [GIVEN] Apply created GenJournalLine[3] to VendorLedgerEntry[1] using "Applies-to Doc. Type" and "Applies-to Doc. No." in "Gen. Journal Line".
+        GenJournalLine[3].Validate("Applies-to Doc. Type", GenJournalLine[3]."Applies-to Doc. Type"::Invoice);
+        GenJournalLine[3].Validate("Applies-to Doc. No.", VendorLedgerEntry[1]."Document No.");
+        GenJournalLine[3].Modify(true);
+
+        // [GIVEN] Create 4th "Gen. Journal Line", for Vendor[1]
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[4], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[4]."Document Type"::Payment,
+          GenJournalLine[4]."Account Type"::Vendor, Vendor[1]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[4]."Document No." := DocumentNo;
+        GenJournalLine[4].Modify(true);
+
+        // [GIVEN] Apply created GenJournalLine[4] to VendorLedgerEntry[2] in 1/2 of "Amount"
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry[2]);
+        VendorLedgerEntry[2].Validate("Amount to Apply", -(GenJournalLine[4].Amount - Round(GenJournalLine[4].Amount / 2)));
+        VendorLedgerEntry[2].Modify(true);
+        GenJournalLine[4].Validate("Applies-to ID", UserId());
+        GenJournalLine[4].Modify(true);
+
+        // [GIVEN] Create 5th "Gen. Journal Line", for Vendor[1]
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[5], GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine[5]."Document Type"::Payment,
+          GenJournalLine[5]."Account Type"::Vendor, Vendor[1]."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine[5]."Document No." := DocumentNo;
+        GenJournalLine[5].Modify(true);
+
+        // [GIVEN] Apply created GenJournalLine[5] to VendorLedgerEntry[3] 3/4 of "Amount"
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry[3]);
+        VendorLedgerEntry[3].Validate("Amount to Apply", -(GenJournalLine[5].Amount - Round(GenJournalLine[5].Amount / 4)));
+        VendorLedgerEntry[3].Modify(true);
+        GenJournalLine[5].Validate("Applies-to ID", UserId());
+        GenJournalLine[5].Modify(true);
+
+        // [WHEN] Run report 317 "Vendor Pre-Payment Journal"
+        Commit();
+        GenJournalBatch.SetRange("Journal Template Name", GenJournalLine[1]."Journal Template Name");
+        GenJournalBatch.SetRange(Name, GenJournalLine[1]."Journal Batch Name");
+        Clear(VendorPrePaymentJournal);
+        LibraryReportDataset.RunReportAndLoad(Report::"Vendor Pre-Payment Journal", GenJournalBatch, RequestPageXML);
+
+        // [THEN] Verify vales in DataSet
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Account_No__', Vendor[1]."No.");
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line__Account_No__', Vendor[2]."No.");
+        // 'Gen__Journal_Line_Amount' must have values of all Amounts from "Gen. Journal Line"
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[3].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[4].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Amount', GenJournalLine[5].Amount);
+        // 'TotalAmount' must have have values of cumulative sum of Amounts from "Gen. Journal Line" per ("Document No", "Account Type", "Account No.") combinations
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount + GenJournalLine[3].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount + GenJournalLine[3].Amount + GenJournalLine[4].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[1].Amount + GenJournalLine[3].Amount + GenJournalLine[4].Amount + GenJournalLine[5].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine[2].Amount);
+        // 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied' must have have values of cumulative sum of unapplied Amounts from "Gen. Journal Line" per ("Document No", "Account Type", "Account No.") combinations
+        LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[1].Amount + (GenJournalLine[4].Amount + VendorLedgerEntry[2]."Amount to Apply") + (GenJournalLine[5].Amount + VendorLedgerEntry[3]."Amount to Apply"));
+        LibraryReportDataset.AssertElementWithValueExists('Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied', GenJournalLine[2].Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports III");
@@ -1822,6 +2017,21 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertElementWithValueExists(AmountPmtToleranceCapTxt, ToleranceAmount);
         LibraryReportDataset.AssertElementWithValueExists('AmountDue', AmountDue);
         LibraryReportDataset.AssertElementWithValueExists('TotalAmount', TotalAmount);
+    end;
+
+    local procedure ReturnVendorLedgerEntryForCreatedAndPostedPurchaseInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     [RequestPageHandler]

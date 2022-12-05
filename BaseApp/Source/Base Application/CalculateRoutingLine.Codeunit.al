@@ -193,6 +193,7 @@ codeunit 99000774 "Calculate Routing Line"
                     CalendarEntry."Ending Time",
                     Round(AvQtyBase * 100 / RelevantEfficiency / ConCurrCap, 1, '>'));
                 RemainNeedQtyBase := RemainNeedQtyBase - AvQtyBase;
+                OnCreateLoadBackOnBeforeCheckWrite(ProdOrderRoutingLine, TimeType, RelevantEfficiency, RemainNeedQtyBase, RemainNeedQty, CurrentRounding, Write);
                 if Write then begin
                     RemainNeedQty := Round(RemainNeedQtyBase / CurrentTimeFactor, CurrentRounding);
                     CreateCapNeed(
@@ -296,6 +297,7 @@ codeunit 99000774 "Calculate Routing Line"
 
                 if AvQtyBase * LoadFactor >= 0 then
                     RemainNeedQtyBase := RemainNeedQtyBase - AvQtyBase * LoadFactor;
+                OnCreateLoadForwardOnBeforeCheckWrite(ProdOrderRoutingLine, TimeType, RelevantEfficiency, RemainNeedQtyBase, RemainNeedQty, CurrentRounding, Write);
                 if Write then begin
                     RemainNeedQty := Round(RemainNeedQtyBase / CurrentTimeFactor, CurrentRounding);
                     CreateCapNeed(
@@ -938,7 +940,7 @@ codeunit 99000774 "Calculate Routing Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcRoutingLineForward(ProdOrderRoutingLine, CalculateStartDate, IsHandled);
+        OnBeforeCalcRoutingLineForward(ProdOrderRoutingLine, CalculateStartDate, IsHandled, TempProdOrderRoutingLine, SendAheadLotSize, MaxLotSize, TotalLotSize, RemainNeedQty, UpdateDates);
         if IsHandled then
             exit;
 
@@ -2105,7 +2107,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcRoutingLineForward(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalculateStartDate: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCalcRoutingLineForward(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalculateStartDate: Boolean; var IsHandled: Boolean; var TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary; var SendAheadLotSize: Decimal; MaxLotSize: Decimal; var TotalLotSize: Decimal; var RemainNeedQty: Decimal; var UpdateDates: Boolean)
     begin
     end;
 
@@ -2146,6 +2148,16 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateLoadForwardOnBeforeEndStopLoop(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; var StopLoop: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateLoadForwardOnBeforeCheckWrite(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; var RelevantEfficiency: Decimal; var RemainNeedQtyBase: Decimal; var RemainNeedQty: Decimal; CurrentRounding: Decimal; Write: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateLoadBackOnBeforeCheckWrite(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; var RelevantEfficiency: Decimal; var RemainNeedQtyBase: Decimal; var RemainNeedQty: Decimal; CurrentRounding: Decimal; Write: Boolean)
     begin
     end;
 

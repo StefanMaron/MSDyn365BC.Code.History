@@ -297,7 +297,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             exit;
         end;
 
-        if FindNewValueForSpecialMapping(SourceFieldRef, DestinationFieldRef, NewValue) then begin
+        if CRMSynchHelper.FindNewValueForSpecialMapping(SourceFieldRef, DestinationFieldRef, NewValue) then begin
             IsValueFound := true;
             NeedsConversion := false;
             exit;
@@ -345,21 +345,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     exit(CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Team);
                 end;
         exit(false);
-    end;
-
-    local procedure FindNewValueForSpecialMapping(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant) IsValueFound: Boolean
-    var
-        TempOpportunity: Record Opportunity temporary;
-        TempCRMOpportunity: Record "CRM Opportunity" temporary;
-    begin
-        if SourceFieldRef.Number() = TempOpportunity.FieldNo("Contact Company No.") then
-            if DestinationFieldRef.Number() = TempCRMOpportunity.FieldNo(ParentAccountId) then
-                if SourceFieldRef.Record().Number() = Database::Opportunity then
-                    if DestinationFieldRef.Record().Number() = Database::"CRM Opportunity" then begin
-                        NewValue := FindParentCRMAccountForOpportunity(SourceFieldRef.Record());
-                        IsValueFound := true;
-                        exit;
-                    end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterTransferRecordFields', '', false, false)]
@@ -1255,7 +1240,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
             if not CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId) then
                 if not CRMSynchHelper.SynchRecordIfMappingExists(Database::Customer, Database::"CRM Account", Customer.RecordId()) then
-                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
+                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName())
+                else
+                    if not CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId) then
+                        Error(RecordMustBeCoupledErr, Customer.TableCaption(), Customer."No.", CRMProductName.CDSServiceName());
+
             CRMInvoice.CustomerId := AccountId;
             CRMInvoice.CustomerIdType := CRMInvoice.CustomerIdType::account;
             if not CRMSynchHelper.FindCRMPriceListByCurrencyCode(CRMPricelevel, SalesInvoiceHeader."Currency Code") then
@@ -2103,21 +2092,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         exit(false);
     end;
 
-    local procedure FindParentCRMAccountForOpportunity(SourceRecordRef: RecordRef) AccountId: Guid
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-        Customer: Record Customer;
-        CRMIntegrationRecord: Record "CRM Integration Record";
-    begin
-        if not CRMSynchHelper.FindOpportunityRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then
-            exit;
-
-        if not Customer.Get(ContactBusinessRelation."No.") then
-            Error(RecordNotFoundErr, Customer.TableCaption(), ContactBusinessRelation."No.");
-
-        CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
-    end;
-
     local procedure InitializeCRMInvoiceLineFromCRMHeader(var CRMInvoicedetail: Record "CRM Invoicedetail"; CRMInvoiceId: Guid)
     var
         CRMInvoice: Record "CRM Invoice";
@@ -2382,8 +2356,17 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SalesInvLine: Record "Sales Invoice Line";
         Item: Record Item;
         Resource: Record Resource;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMInvoiceId: Guid;
     begin
         SourceRecordRef.SetTable(SalesInvHeader);
+
+        // if invoice is coupled already, then skip this check
+        if SalesInvHeader."Coupled to CRM" then
+            exit;
+        if CRMIntegrationRecord.FindIDFromRecordID(SalesInvHeader.RecordId(), CRMInvoiceId) then
+            exit;
+
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
         SalesInvLine.SetFilter(Type, '%1|%2', SalesInvLine.Type::Item, SalesInvLine.Type::Resource);
         if SalesInvLine.FindSet() then

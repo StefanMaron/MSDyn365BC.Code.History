@@ -14,6 +14,8 @@ codeunit 1310 "O365 Activities Dictionary"
         results.Add(ActivitiesCue.FieldName("Top 10 Customer Sales YTD"), Format(ActivitiesMgt.CalcTop10CustomerSalesYTD()));
         results.Add(ActivitiesCue.FieldName("Average Collection Days"), Format(ActivitiesMgt.CalcAverageCollectionDays()));
 
+        OnRunOnBeforeSetBackgroundTaskResult(results, ActivitiesCue);
+
         Page.SetBackgroundTaskResult(results);
     end;
 
@@ -33,5 +35,17 @@ codeunit 1310 "O365 Activities Dictionary"
 
         if DataList.ContainsKey(ActivitiesCue.FieldName("Average Collection Days")) then
             Evaluate(ActivitiesCue."Average Collection Days", DataList.Get(ActivitiesCue.FieldName("Average Collection Days")));
+
+        OnAfterFillActivitiesCue(DataList, ActivitiesCue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillActivitiesCue(DataList: Dictionary of [Text, Text]; var ActivitiesCue: record "Activities Cue")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeSetBackgroundTaskResult(var Results: Dictionary of [Text, Text]; ActivitiesCue: Record "Activities Cue")
+    begin
     end;
 }

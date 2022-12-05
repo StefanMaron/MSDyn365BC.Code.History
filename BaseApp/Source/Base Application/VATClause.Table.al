@@ -101,6 +101,8 @@ table 560 "VAT Clause"
         end;
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by GetDescriptionText()', '22.0')]
     procedure GetDescription(RecRelatedVariant: Variant)
     var
         DocumentType: Enum "VAT Clause Document Type";
@@ -114,6 +116,7 @@ table 560 "VAT Clause"
 
         OnAfterGetDescription(Rec, DocumentType, LanguageCode)
     end;
+#endif
 
     procedure GetDescriptionText(RecRelatedVariant: Variant) Result: Text
     var
@@ -125,11 +128,7 @@ table 560 "VAT Clause"
             exit(Result);
 
         if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then begin
-            TranslateDescription(LanguageCode);
-            exit(Description + ' ' + "Description 2");
-        end;
-
-        if TryFindDescriptionByDocumentType(DocumentType, LanguageCode) then begin
+            TryFindDescriptionByDocumentType(DocumentType, LanguageCode);
             TranslateDescription(LanguageCode);
             exit(Description + ' ' + "Description 2");
         end;
@@ -284,10 +283,10 @@ table 560 "VAT Clause"
                     exit(true);
                 end;
             else begin
-                IsHandled := false;
-                OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
-                exit(IsHandled);
-            end;
+                    IsHandled := false;
+                    OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
+                    exit(IsHandled);
+                end;
         end;
     end;
 

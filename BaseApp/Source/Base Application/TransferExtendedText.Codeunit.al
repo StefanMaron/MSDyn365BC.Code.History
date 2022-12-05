@@ -636,6 +636,7 @@ codeunit 378 "Transfer Extended Text"
         ServiceLine2.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine2.SetRange("Document No.", ServiceLine."Document No.");
         ServiceLine2.SetRange("Attached to Line No.", ServiceLine."Line No.");
+        OnDeleteServiceLinesOnAfterSetFilers(ServiceLine2, ServiceLine);
         ServiceLine2 := ServiceLine;
         if ServiceLine2.Find('>') then begin
             repeat
@@ -728,7 +729,7 @@ codeunit 378 "Transfer Extended Text"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertSalesExtTextRetLastOnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
+    local procedure OnInsertSalesExtTextRetLastOnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; var SalesLine: Record "Sales Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -756,6 +757,11 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeletePurchLinesOnAfterSetFilters(var ToPurchaseLine: Record "Purchase Line"; FromPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteServiceLinesOnAfterSetFilers(var ServiceLine2: Record "Service Line"; var ServiceLine: Record "Service Line")
     begin
     end;
 

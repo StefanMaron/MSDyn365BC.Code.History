@@ -65,6 +65,24 @@ page 9834 "User Group Permission Sets"
 
     actions
     {
+        area(processing)
+        {
+            action(SelectPermissionSets)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Select Permission Sets';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more permission sets.';
+
+                trigger OnAction()
+                var
+                    ManageUserPlansAndGroups: Codeunit "Manage User Plans And Groups";
+                begin
+                    ManageUserPlansAndGroups.SelectUserGroups(Rec);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()

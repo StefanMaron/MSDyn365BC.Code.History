@@ -218,9 +218,7 @@ table 7320 "Warehouse Shipment Header"
                 if "Shipment Date" <> xRec."Shipment Date" then begin
                     WhseShptLine.SetRange("No.", "No.");
                     if not WhseShptLine.IsEmpty() then
-                        if Confirm(
-                             StrSubstNo(Text008, FieldCaption("Shipment Date")), false)
-                        then
+                        if ConfirmModification() then
                             WhseShptLine.ModifyAll("Shipment Date", "Shipment Date");
                 end;
             end;
@@ -373,6 +371,18 @@ table 7320 "Warehouse Shipment Header"
         end;
 
         OnAfterAssistEdit(OldWhseShptHeader);
+    end;
+
+    local procedure ConfirmModification() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmModification(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := Confirm(StrSubstNo(Text008, Rec.FieldCaption("Shipment Date")), false);
     end;
 
     procedure SortWhseDoc()
@@ -738,6 +748,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShipmentLinesEditable(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsEditable: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmModification(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

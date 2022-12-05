@@ -2079,6 +2079,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [GIVEN] Clear "Components at Location" in Manufacturing Setup.
         UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+        UpdateUseForecastOnLocationsInManufacturingSetup(true);
 
         // [GIVEN] Sales order for 100 pcs of item "P". This is the demand for planning.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -3068,6 +3069,15 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Components at Location", ComponentsAtLocation);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure UpdateUseForecastOnLocationsInManufacturingSetup(UseForecastOnLocations: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
         ManufacturingSetup.Modify(true);
     end;
 

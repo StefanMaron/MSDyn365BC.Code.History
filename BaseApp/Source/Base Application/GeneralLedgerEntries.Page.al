@@ -642,8 +642,15 @@ page 20 "General Ledger Entries"
         AmountVisible := true;
     end;
 
-    trigger OnModifyRecord(): Boolean
+    trigger OnModifyRecord() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModifyRecord(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CODEUNIT.Run(CODEUNIT::"G/L Entry-Edit", Rec);
         exit(false);
     end;
@@ -737,6 +744,11 @@ page 20 "General Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCaption(GLEntry: Record "G/L Entry"; GLAccount: Record "G/L Account"; var RetCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModifyRecord(GLEntry: Record "G/L Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

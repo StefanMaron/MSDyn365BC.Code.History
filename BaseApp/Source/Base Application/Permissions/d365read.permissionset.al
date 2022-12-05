@@ -379,6 +379,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Data Exch. Field Grouping" = R,
                   tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = R,
+				  tabledata "Data Exch. Table Filter" = R,
                   tabledata "Data Migration Entity" = R,
                   tabledata "Data Migration Error" = R,
                   tabledata "Data Migration Parameters" = R,
@@ -906,7 +907,10 @@ permissionset 1044 "D365 READ"
                   tabledata "Payable Employee Ledger Entry" = R,
                   tabledata "Payable Vendor Ledger Entry" = R,
                   tabledata "Payment Application Proposal" = R,
+#if not CLEAN22
                   tabledata "Payment Buffer" = R,
+#endif
+                  tabledata "Vendor Payment Buffer" = R,
                   tabledata "Payment Export Data" = R,
                   tabledata "Payment Export Remittance Text" = R,
                   tabledata "Payment Jnl. Export Error Text" = R,

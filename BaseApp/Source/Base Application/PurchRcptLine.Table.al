@@ -811,7 +811,13 @@ table 121 "Purch. Rcpt. Line"
         ExtTextLine: Boolean;
         IsHandled: Boolean;
         DirectUnitCost: Decimal;
+        ShouldProcessAsRegularLine: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertInvLineFromRcptLineProcedure(Rec, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Document No.", "Document No.");
 
         TempPurchLine := PurchLine;
@@ -823,24 +829,25 @@ table 121 "Purch. Rcpt. Line"
         if PurchInvHeader."No." <> TempPurchLine."Document No." then
             PurchInvHeader.Get(TempPurchLine."Document Type", TempPurchLine."Document No.");
 
-        OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(Rec, PurchLine, TempPurchLine, NextLineNo);
-
-        if PurchLine."Receipt No." <> "Document No." then begin
-            PurchLine.Init();
-            PurchLine."Line No." := NextLineNo;
-            PurchLine."Document Type" := TempPurchLine."Document Type";
-            PurchLine."Document No." := TempPurchLine."Document No.";
-            TranslationHelper.SetGlobalLanguageByCode(PurchInvHeader."Language Code");
-            PurchLine.Description := StrSubstNo(Text000, "Document No.");
-            TranslationHelper.RestoreGlobalLanguage();
-            IsHandled := false;
-            OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, IsHandled);
-            if not IsHandled then begin
-                PurchLine.Insert();
-                OnAfterDescriptionPurchaseLineInsert(PurchLine, Rec, NextLineNo, TempPurchLine);
-                NextLineNo := NextLineNo + 10000;
+        IsHandled := false;
+        OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(Rec, PurchLine, TempPurchLine, NextLineNo, IsHandled);
+        if not IsHandled then
+            if PurchLine."Receipt No." <> "Document No." then begin
+                PurchLine.Init();
+                PurchLine."Line No." := NextLineNo;
+                PurchLine."Document Type" := TempPurchLine."Document Type";
+                PurchLine."Document No." := TempPurchLine."Document No.";
+                TranslationHelper.SetGlobalLanguageByCode(PurchInvHeader."Language Code");
+                PurchLine.Description := StrSubstNo(Text000, "Document No.");
+                TranslationHelper.RestoreGlobalLanguage();
+                IsHandled := false;
+                OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, IsHandled);
+                if not IsHandled then begin
+                    PurchLine.Insert();
+                    OnAfterDescriptionPurchaseLineInsert(PurchLine, Rec, NextLineNo, TempPurchLine);
+                    NextLineNo := NextLineNo + 10000;
+                end;
             end;
-        end;
 
         TransferOldExtLines.ClearLineNumbers();
         OnInsertInvLineFromRcptLineOnAfterTransferOldExtLinesClearLineNumbers(Rec);
@@ -886,7 +893,9 @@ table 121 "Purch. Rcpt. Line"
 
             CopyFromPurchRcptLine(PurchLine, PurchOrderLine, TempPurchLine, NextLineNo);
 
-            if not ExtTextLine then begin
+            ShouldProcessAsRegularLine := not ExtTextLine;
+            OnInsertInvLineFromRcptLineOnAfterCalcShouldProcessAsRegularLine(Rec, ShouldProcessAsRegularLine);
+            if ShouldProcessAsRegularLine then begin
                 IsHandled := false;
                 OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled, PurchInvHeader);
                 if not IsHandled then
@@ -1272,6 +1281,11 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInvLineFromRcptLineProcedure(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; var NextLineNo: Integer; var Handled: Boolean)
     begin
     end;
@@ -1282,12 +1296,17 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnAfterCalcShouldProcessAsRegularLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var ShouldProcessAsRegularLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnAfterCalcQuantities(var PurchaseLine: Record "Purchase Line"; PurchaseOrderLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line"; var NextLineNo: Integer)
+    local procedure OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line"; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

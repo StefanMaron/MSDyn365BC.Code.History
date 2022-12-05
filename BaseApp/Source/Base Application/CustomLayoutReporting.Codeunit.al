@@ -75,6 +75,7 @@ codeunit 8800 "Custom Layout Reporting"
         ForTok: Label ' for %1', Comment = '%1: customer name, Sample: Statement for Stan as of 21/02/2020';
         AsOfTok: Label ' as of %1', Comment = '%1: date, Sample: Statement for Stan as of 21/02/2020';
         TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for %1, %2. //Choose the Document Layouts action on the customer or vendor card to specify the email address.', Comment = '%1 - Source Data RecordID, %2 - Usage';
+        DifferentThanFilterTxt: Label '<>%1', Locked = true;
 
     procedure GetLayoutIteratorKeyFilter(var FilterRecordRef: RecordRef; var FilterRecordKeyFieldRef: FieldRef; CustomReportLayoutCode: Code[20])
     var
@@ -349,21 +350,20 @@ codeunit 8800 "Custom Layout Reporting"
             exit;
 
         AndFilterCharacter := '&';
-        SafeNumberOfFilterStatements := SelectionFilterManagement.GetMaximumNumberOfParametersInSQLQuery() / 2;
+
+        // Previous implementation was using filter groups to exclude reported objects. 
+        // Platform ignores more than 255 filter groups silently, so we would run the report on reported objects twice if there were more than 255 reported objects (maximum number of filter groups).
+        // The current implementation supports up to 2000 reported objects (Limit to SQL statements). If there are more objects than that we will run report twice. 
+        SafeNumberOfFilterStatements := SelectionFilterManagement.GetMaximumNumberOfParametersInSQLQuery();
 
         repeat
-            if ReportedObjects.Contains(Format(TempRecordKeyFieldRef.Value)) then begin
-                if FilterStatementsCount < SafeNumberOfFilterStatements then begin
-                    ExclusionFilter += StrSubstNo('<>%1', Format(TempRecordKeyFieldRef.Value)) + AndFilterCharacter;
-                    FilterStatementsCount += 1;
-                end else begin
-                    ExclusionFilter := ExclusionFilter.TrimEnd(AndFilterCharacter);
-                    SetNextGroupFilter(TempRecordRef, TempRecordKeyFieldRef, ExclusionFilter);
-                    Clear(ExclusionFilter);
-                    Clear(FilterStatementsCount);
-                end;
+            if ReportedObjects.Contains(Format(TempRecordKeyFieldRef.Value)) and (FilterStatementsCount < SafeNumberOfFilterStatements) then begin
+#pragma warning disable AA0005
+                ExclusionFilter += StrSubstNo(DifferentThanFilterTxt, SelectionFilterManagement.AddQuotes((TempRecordKeyFieldRef.Value))) + AndFilterCharacter;
+                FilterStatementsCount += 1;
             end;
-        until TempRecordRef.Next() = 0;
+#pragma warning enable AA0005            
+        until (TempRecordRef.Next() = 0) or (FilterStatementsCount = SafeNumberOfFilterStatements);
 
         if ExclusionFilter <> '' then begin
             ExclusionFilter := ExclusionFilter.TrimEnd(AndFilterCharacter);

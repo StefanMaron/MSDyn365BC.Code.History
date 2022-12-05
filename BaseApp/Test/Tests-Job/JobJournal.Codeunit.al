@@ -2662,6 +2662,52 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.TestField("Direct Unit Cost (LCY)", UnitCostLCY);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUnitCostLCYOnJobJournalLine()
+    var
+        Resource: Record Resource;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ResourceNo: Code[20];
+        CurrencyCode: Code[10];
+        UnitCost: Decimal;
+    begin
+        // [SCENARIO 445152] The Unit Cost (LCY) gets updated incorrectly in case of a posting involving a Job in a different currency than the local one and different exchange rates.
+        Initialize();
+
+        // [GIVEN] Create Currency code and exchange rates for 2days. and save unit cost in variable
+        CurrencyCode := SetupCurrencyWithExchRates();
+        UnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create Job with task and update currency code.
+        CreateJobWithJobTask(JobTask);
+        Job.Get(JobTask."Job No.");
+        Job.Validate("Currency Code", CurrencyCode);
+        Job.Modify();
+
+        // [GIVEN] Create Resource as person and update unit cost
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
+        Resource.Get(ResourceNo);
+        Resource.Validate(Type, Resource.Type::Person);
+        Resource.Validate("Unit Cost", UnitCost);
+        Resource.Modify();
+
+        // [WHEN] Creating Job Journal Line with created Resource. Validate Posting date wirh Resource no.
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::" ", JobJournalLine.Type::Resource, JobTask, JobJournalLine);  // Use 0 for Resource.
+        JobJournalLine.Validate("Posting Date", WorkDate());
+        JobJournalLine.Validate("No.", ResourceNo);
+
+        // [THEN] Validate the posting date for changing the Exch. rate on Job Journal line. 
+        JobJournalLine.Validate("Posting Date", WorkDate() + 1);
+        JobJournalLine.Modify();
+        JobJournalLine."Unit Cost (LCY)" := Round(JobJournalLine."Unit Cost (LCY)", 0.001);
+
+        // [VERIFY] Verify Unit Cost (LCY) after changing the posting date. Unit Cost will update Correctly.
+        JobJournalLine.TestField("Unit Cost (LCY)", Resource."Unit Cost");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3495,6 +3541,23 @@ codeunit 136305 "Job Journal"
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, No, Type);
         JobPlanningLine.Validate("Unit Price", UnitPrice);
         JobPlanningLine.Modify(true);
+    end;
+
+    local procedure SetupCurrencyWithExchRates(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrExchRateAmount: Decimal;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Unit-Amount Rounding Precision", 0.001);
+        Currency.Modify(true);
+
+        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate + 1, 1 / (CurrExchRateAmount - 1), 1 / (CurrExchRateAmount - 1));
+        exit(Currency.Code);
     end;
 
     [ConfirmHandler]

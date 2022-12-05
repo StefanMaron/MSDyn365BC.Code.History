@@ -5,7 +5,7 @@ page 957 "Time Sheet Status FactBox"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             field(Comment; Comment)
             {
@@ -17,6 +17,7 @@ page 957 "Time Sheet Status FactBox"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Open';
+                DecimalPlaces = 2 : 2;
                 Editable = false;
                 ToolTip = 'Specifies the sum of time sheet hours for open time sheets.';
             }
@@ -24,6 +25,7 @@ page 957 "Time Sheet Status FactBox"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Submitted';
+                DecimalPlaces = 2 : 2;
                 Editable = false;
                 ToolTip = 'Specifies the sum of time sheet hours for submitted time sheets.';
             }
@@ -31,6 +33,7 @@ page 957 "Time Sheet Status FactBox"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Rejected';
+                DecimalPlaces = 2 : 2;
                 Editable = false;
                 ToolTip = 'Specifies the sum of time sheet hours for rejected time sheets.';
             }
@@ -38,6 +41,7 @@ page 957 "Time Sheet Status FactBox"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Approved';
+                DecimalPlaces = 2 : 2;
                 Editable = false;
                 ToolTip = 'Specifies the sum of time sheet hours for approved time sheets.';
             }
@@ -45,15 +49,17 @@ page 957 "Time Sheet Status FactBox"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Total';
+                DecimalPlaces = 2 : 2;
                 Editable = false;
                 Style = Strong;
-                StyleExpr = TRUE;
+                StyleExpr = true;
                 ToolTip = 'Specifies the sum of time sheet hours for time sheets of all statuses.';
             }
             field(PostedQty; PostedQty)
             {
                 ApplicationArea = Jobs;
                 Caption = 'Posted';
+                DecimalPlaces = 2 : 2;
                 Editable = false;
                 ToolTip = 'Specifies the sum of time sheet hours for posted time sheets.';
             }
@@ -66,13 +72,13 @@ page 957 "Time Sheet Status FactBox"
 
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
-        OpenQty: Decimal;
-        SubmittedQty: Decimal;
-        RejectedQty: Decimal;
-        ApprovedQty: Decimal;
-        PostedQty: Decimal;
-        TotalQuantity: Decimal;
         Comment: Boolean;
+        ApprovedQty: Decimal;
+        OpenQty: Decimal;
+        PostedQty: Decimal;
+        RejectedQty: Decimal;
+        SubmittedQty: Decimal;
+        TotalQuantity: Decimal;
 
     procedure UpdateData(TimeSheetHeader: Record "Time Sheet Header")
     begin

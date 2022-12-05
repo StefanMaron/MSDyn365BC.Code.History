@@ -789,6 +789,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control General - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 879680616 - Control 556262972 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that you use an additional reporting currency in the general ledger and that you want to report Intrastat in this currency.</source>
+          <target state="translated">Specifica che si utilizza una valuta contabile addizionale nella contabilità generale e che si desidera ottenere un report Intrastat in tale valuta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Amounts in Add. Currency - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 879680616 - Control 215497968 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a code that identifies the currency of the Intrastat report.</source>
+          <target state="translated">Specifica il codice identificativo della valuta del report Intrastat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Currency Identifier - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 879680616 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies some information about the Intrastat Report.</source>
           <target state="translated">Specifica alcune informazioni sul report Intrastat.</target>
@@ -820,7 +832,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Reported - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Depending on your country, enter either the month first and then the year, or vice versa. For example, enter either 1706 or 0617 for June, 2017.</source>
+          <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
           <target state="translated">Specifica il mese di cui presentare i dati. Immettere il periodo come numero di quattro cifre, senza spazi o simboli. A seconda del paese, immettere prima il mese e poi l'anno o viceversa. Ad esempio immettere 1706 o 0617 per giugno 2017.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
@@ -1948,6 +1960,20 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1434786627</note>
         </trans-unit>
+        <trans-unit id="PageExtension 1246386290 - Control 3678710499 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the conversion factor for the tariff number.</source>
+          <target state="translated">Specifica il fattore di conversione per la nomenclatura combinata.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1688820690</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1246386290 - Control 2959979021 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unit of measure for the tariff number.</source>
+          <target state="translated">Specifica l'unità di misura per la nomenclatura combinata.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1688820690</note>
+        </trans-unit>
         <trans-unit id="PageExtension 374427272 - Control 2506657454 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Intrastat</source>
           <target state="translated">Intrastat</target>
@@ -2052,6 +2078,27 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 3276313895</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2092778747 - NamedType 1370509651" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You have modified %1.\Do you want to update related items?</source>
+          <target state="translated">%1 è stato modificato.\Aggiornare gli articoli correlati?</target>
+          <note from="Developer" annotates="general" priority="2">%1=Changed Field Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">TableExtension 2092778747</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2092778747 - Field 3678710499 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Conversion Factor</source>
+          <target state="translated">Fattore di conversione</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3279488167</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2092778747 - Field 2959979021 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit of Measure</source>
+          <target state="translated">Unità di misura</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3279488167</note>
         </trans-unit>
         <trans-unit id="TableExtension 1323922556 - Field 447700159 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Transport Method</source>

@@ -94,7 +94,13 @@ page 9153 "My Accounts"
     local procedure SyncFieldsWithGLAccount()
     var
         MyAccount: Record "My Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSyncFieldsWithGLAccount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(GLAccount);
         if GLAccount.Get("Account No.") then begin
             GLAccount.CalcFields(Balance);
@@ -105,6 +111,11 @@ page 9153 "My Accounts"
                     Modify();
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSyncFieldsWithGLAccount(var MyAccount: Record "My Account"; var IsHandled: Boolean)
+    begin
     end;
 }
 

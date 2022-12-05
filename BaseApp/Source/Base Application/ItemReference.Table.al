@@ -127,7 +127,14 @@ table 5777 "Item Reference"
         BlankReferenceTypeErr: Label 'You cannot enter a Reference Type No. for a blank Reference Type.';
 
     procedure CreateItemVendor()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateItemVendorProcedure(Rec, ItemVend, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Reference Type" = "Reference Type"::Vendor) and
            ItemVend.WritePermission()
         then begin
@@ -248,6 +255,11 @@ table 5777 "Item Reference"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateItemVendor(var ItemReference: Record "Item Reference"; var ItemVendor: Record "Item Vendor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateItemVendorProcedure(var ItemReference: Record "Item Reference"; var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
     begin
     end;
 

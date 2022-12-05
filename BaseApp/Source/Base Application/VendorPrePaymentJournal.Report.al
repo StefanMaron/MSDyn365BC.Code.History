@@ -107,7 +107,7 @@ report 317 "Vendor Pre-Payment Journal"
                 {
                     DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                     DataItemLinkReference = "Gen. Journal Batch";
-                    DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
+                    DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.", "Account Type", "Account No.");
                     RequestFilterFields = "Posting Date";
                     column(Gen__Journal_Line__Posting_Date_; "Posting Date")
                     {
@@ -182,7 +182,7 @@ report 317 "Vendor Pre-Payment Journal"
                     column(TotalAmount; TotalAmount)
                     {
                     }
-                    column(Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied; Amount + TotalAmountDiscounted + TotalAmountPmtDiscTolerance + TotalAmountPmtTolerance + AmountApplied)
+                    column(Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied; TotalAmount + TotalAmountDiscounted + TotalAmountPmtDiscTolerance + TotalAmountPmtTolerance + AmountApplied)
                     {
                         AutoFormatExpression = "Currency Code";
                         AutoFormatType = 1;
@@ -387,6 +387,11 @@ report 317 "Vendor Pre-Payment Journal"
                                ("Gen. Journal Line"."Applies-to ID" = '')
                             then
                                 CurrReport.Break();
+
+                            if CheckIfExistProcessedCustVendLedgerEntryApplicationGroup("Gen. Journal Line") then
+                                CurrReport.Break()
+                            else
+                                AddProcessedCustVendLedgerEntryApplicationGroup("Gen. Journal Line");
                         end;
                     }
                     dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -497,6 +502,11 @@ report 317 "Vendor Pre-Payment Journal"
                                ("Gen. Journal Line"."Applies-to ID" = '')
                             then
                                 CurrReport.Break();
+
+                            if CheckIfExistProcessedCustVendLedgerEntryApplicationGroup("Gen. Journal Line") then
+                                CurrReport.Break()
+                            else
+                                AddProcessedCustVendLedgerEntryApplicationGroup("Gen. Journal Line");
                         end;
                     }
                     dataitem(ErrorLoop; "Integer")
@@ -519,6 +529,9 @@ report 317 "Vendor Pre-Payment Journal"
 
                         trigger OnPreDataItem()
                         begin
+                            if ErrorCounter <= 0 then
+                                CurrReport.Break();
+
                             SetRange(Number, 1, ErrorCounter);
                         end;
                     }
@@ -539,8 +552,6 @@ report 317 "Vendor Pre-Payment Journal"
 
                         if "Currency Code" = '' then
                             "Amount (LCY)" := Amount;
-
-                        // UpdateLineBalance;
 
                         AccName := '';
                         BalAccName := '';
@@ -574,17 +585,18 @@ report 317 "Vendor Pre-Payment Journal"
                             end;
                         end else
                             CalcAppliesToIDTotals();
-                            case "Account Type" of
-                                "Account Type"::Customer:
-                                    if Cust.Get("Account No.") then
-                                        CustVendName := Cust.Name;
-                                "Account Type"::Vendor:
-                                    if Vend.Get("Account No.") then
-                                        CustVendName := Vend.Name;
-                                "Account Type"::"Bank Account":
-                                    if BankAcc.Get("Account No.") then
-                                        CustVendName := BankAcc.Name;
-                            end;
+                        case "Account Type" of
+                            "Account Type"::Customer:
+                                if Cust.Get("Account No.") then
+                                    CustVendName := Cust.Name;
+                            "Account Type"::Vendor:
+                                if Vend.Get("Account No.") then
+                                    CustVendName := Vend.Name;
+                            "Account Type"::"Bank Account":
+                                if BankAcc.Get("Account No.") then
+                                    CustVendName := BankAcc.Name;
+                        end;
+
                         LastDocumentNo := "Document No.";
                         LastAccountNo := "Account No.";
                         LastAccountType := "Account Type";
@@ -696,6 +708,8 @@ report 317 "Vendor Pre-Payment Journal"
             trigger OnAfterGetRecord()
             begin
                 GenJnlTemplate.Get("Journal Template Name");
+
+                ClearProcessedCustVendLedgerEntryApplicationGroups();
             end;
 
             trigger OnPreDataItem()
@@ -758,6 +772,7 @@ report 317 "Vendor Pre-Payment Journal"
         TempGLAccNetChange: Record "G/L Account Net Change" temporary;
         CompanyInformation: Record "Company Information";
         CurrExchRate: Record "Currency Exchange Rate";
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups: Record "Gen. Journal Line" temporary;
         GenJnlLineFilter: Text;
         AllowFAPostingFrom: Date;
         AllowFAPostingTo: Date;
@@ -2355,6 +2370,35 @@ report 317 "Vendor Pre-Payment Journal"
                 LastEntrdDate := "Posting Date";
             end;
         end;
+    end;
+
+    local procedure CheckIfExistProcessedCustVendLedgerEntryApplicationGroup(var GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        if (GenJournalLine."Document No." = '') or (GenJournalLine."Account No." = '') or (GenJournalLine."Applies-to ID" = '') then
+            exit(false);
+
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.Reset();
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.SetRange("Document No.", GenJournalLine."Document No.");
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.SetRange("Account Type", GenJournalLine."Account Type");
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.SetRange("Account No.", GenJournalLine."Account No.");
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+        exit(not TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.IsEmpty());
+    end;
+
+    local procedure AddProcessedCustVendLedgerEntryApplicationGroup(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        if (GenJournalLine."Document No." = '') or (GenJournalLine."Account No." = '') or (GenJournalLine."Applies-to ID" = '') then
+            exit;
+
+        Clear(TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups);
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.Init();
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups := GenJournalLine;
+        if TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.Insert() then;
+    end;
+
+    local procedure ClearProcessedCustVendLedgerEntryApplicationGroups()
+    begin
+        TempGenJnlLineForProcessedCustVendLedgerEntryApplicationGroups.DeleteAll();
     end;
 }
 

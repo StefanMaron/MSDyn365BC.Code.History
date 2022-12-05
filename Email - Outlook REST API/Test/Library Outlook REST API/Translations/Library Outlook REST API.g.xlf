@@ -2,7 +2,13 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Library Outlook REST API">
     <body>
-      <group id="body" />
+      <group id="body">
+        <trans-unit id="Codeunit 3929733566 - NamedType 2917787611" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email because the user is external.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Outlook API Helper Tests - NamedType SendEmailExternalUserErr</note>
+        </trans-unit>
+      </group>
     </body>
   </file>
 </xliff>

@@ -585,17 +585,21 @@ codeunit 1012 "Job Jnl.-Post Line"
         end;
     end;
 
-    local procedure JobPlanningReservationExists(ItemNo: Code[20]; JobNo: Code[20]): Boolean
+    local procedure JobPlanningReservationExists(ItemNo: Code[20]; JobNo: Code[20]) Result: Boolean
     var
         ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", DATABASE::"Job Planning Line");
-            SetRange("Source Subtype", Job.Status::Open);
-            SetRange("Source ID", JobNo);
-            exit(not IsEmpty);
-        end;
+        IsHandled := false;
+        OnBeforeJobPlanningReservationExists(ItemNo, JobNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
+        ReservationEntry.SetRange("Source Subtype", Job.Status::Open);
+        ReservationEntry.SetRange("Source ID", JobNo);
+        Result := not ReservationEntry.IsEmpty();
     end;
 
     local procedure GetJobConsumptionValueEntry(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line") Result: Boolean
@@ -714,6 +718,11 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobLedgEntryInsert(var JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobPlanningReservationExists(ItemNo: Code[20]; JobNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

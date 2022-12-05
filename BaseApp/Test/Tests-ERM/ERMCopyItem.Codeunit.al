@@ -33,6 +33,7 @@ codeunit 134462 "ERM Copy Item"
         NoOfRecordsMismatchErr: Label 'Number of target records does not match the number of source records';
         TargetItemNoTxt: Label 'Target Item No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
+        CustomerNameErr: Label 'Invalid Customer Name';
 
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
@@ -1431,6 +1432,31 @@ codeunit 134462 "ERM Copy Item"
         CopyItemParameters.TestField("Item References", true);
 
         NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesOrderCreationForCustomerWhenRecurringSalesLinesIsAutoInsert()
+    var
+        SalesHeader: Record "Sales Header";
+        StandardSalesLine: Record "Standard Sales Line";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        Customer: Record Customer;
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 452461] The Sales Header does not exist. Identification fields and values: Document Type='Order',No.='X' when creating a Sales Order for a Customer with Recurring Lines setup to be inserted automatically.
+        Initialize();
+
+        // [GIVEN] Creation of Recurring Sales Lines & Customer with Std. Sales Code where Insert Rec. Lines On Orders = Automatic
+        CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
+        Customer.Get(StandardCustomerSalesCode."Customer No.");
+
+        // [WHEN] Open new sales order & Set customer name.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] Verify the sell-to customer name assigned without any error.
+        Assert.AreEqual(SalesOrder."Sell-to Customer Name".Value, Customer.Name, CustomerNameErr);
     end;
 
     local procedure Initialize()

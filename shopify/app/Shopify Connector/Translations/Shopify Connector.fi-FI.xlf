@@ -413,7 +413,7 @@
         </trans-unit>
         <trans-unit id="Table 3502972403 - Field 3318218501 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Status</source>
-          <target state="translated">Projektin tila</target>
+          <target state="translated">Työn tila</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Status - Property Caption</note>
         </trans-unit>
@@ -3491,7 +3491,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2066436824 - NamedType 288678031" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Easily set basic connection and synchronization settings. You can control how data flows to and from your shop on Shopify.</source>
-          <target state="translated">Määritä yhteyden ja synkronoinnin perusasetukset helposti. Voit määrittää, miten tieto virtaa Shopify-kauppaan ja sieltä pois.</target>
+          <target state="translated">Määritä yhteyden ja synkronoinnin perus helposti. Voit määrittää, miten tieto virtaa Shopify-kauppaan ja sieltä pois.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopDescriptionTxt</note>
         </trans-unit>
@@ -3683,7 +3683,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Connector Setup</source>
-          <target state="translated">Shopify-liittimen asetukset</target>
+          <target state="translated">Shopify-liittimen määritys</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Property Caption</note>
         </trans-unit>
@@ -3773,7 +3773,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - NamedType 3651316694" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open shop settings</source>
-          <target state="translated">Avaa kaupan asetukset</target>
+          <target state="translated">Avaa kaupan </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ShopCardLbl</note>
         </trans-unit>
@@ -3879,7 +3879,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 2734658265 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to Shopify Connector Setup</source>
-          <target state="translated">Tervetuloa Shopify-liittimen asetuksiin</target>
+          <target state="translated">Tervetuloa Shopify-liittimen määritykseen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Welcome to Shopify Connector Setup - Property Caption</note>
         </trans-unit>
@@ -3963,7 +3963,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 458536043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Import products from Shopify.</source>
-          <target state="translated">Tuo tuotteita Shopfysta.</target>
+          <target state="translated">Tuo tuotteita Shopifysta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Products From Shopify - Property ToolTip</note>
         </trans-unit>
@@ -3999,7 +3999,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 2782961714 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Here are the important settings for getting started.</source>
-          <target state="translated">Tässä ovat tärkeät asetukset alkuun pääsemiseksi.</target>
+          <target state="translated">Tässä ovat tärkeät  alkuun pääsemiseksi.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control9 - Property InstructionalText</note>
         </trans-unit>

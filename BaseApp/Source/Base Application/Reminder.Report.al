@@ -504,7 +504,7 @@ report 117 Reminder
                     column(VATClauseCode; TempVATAmountLine."VAT Clause Code")
                     {
                     }
-                    column(VATClauseDescription; VATClause.Description)
+                    column(VATClauseDescription; VATClauseText)
                     {
                     }
                     column(VATClauseDescription2; VATClause."Description 2")
@@ -530,7 +530,7 @@ report 117 Reminder
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
                             CurrReport.Skip();
-                        VATClause.GetDescription("Issued Reminder Header");
+                        VATClauseText := VATClause.GetDescriptionText("Issued Reminder Header");
                     end;
 
                     trigger OnPreDataItem()
@@ -860,6 +860,7 @@ report 117 Reminder
         Interest: Decimal;
         VALVATBase: Decimal;
         VALVATAmount: Decimal;
+        VATClauseText: Text;
         NNC_InterestAmount: Decimal;
         NNC_Total: Decimal;
         NNC_VATAmount: Decimal;

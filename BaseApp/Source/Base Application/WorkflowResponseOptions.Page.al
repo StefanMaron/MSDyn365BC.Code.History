@@ -397,6 +397,7 @@ page 1523 "Workflow Response Options"
         ShowApprovalLimitType := "Approver Type" <> "Approver Type"::"Workflow User Group";
         ShowApproverUserId := ShowApprovalLimitType and ("Approver Limit Type" = "Approver Limit Type"::"Specific Approver");
         ShowResponseUserID := "Response Type" = "Response Type"::"User ID";
+        OnAfterSetVisibilityOptions(Rec, ShowApprovalLimitType, ShowApproverUserId, ShowResponseUserID);
     end;
 
     local procedure LookupFieldCaption(TableNoFilter: Text; FieldNoFilter: Text): Text
@@ -475,6 +476,11 @@ page 1523 "Workflow Response Options"
             "Field No." := 0;
 
         CurrPage.Update(true);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetVisibilityOptions(var WorkflowStepArgument: Record "Workflow Step Argument"; var ShowApprovalLimitType: Boolean; var ShowApproverUserId: Boolean; var ShowResponseUserID: Boolean)
+    begin
     end;
 }
 

@@ -262,6 +262,7 @@ table 5895 "Inventory Adjustment Buffer"
             end;
             "Valued By Average Cost" := ValueEntry."Valued By Average Cost";
             "Valuation Date" := ValueEntry."Valuation Date";
+            OnAddActualCostBufOnBeforeInsert(Rec, ValueEntry);
             Insert();
         end;
     end;
@@ -322,6 +323,11 @@ table 5895 "Inventory Adjustment Buffer"
         if FindLast() then
             LastNo := "Entry No.";
         Copy(CopyOfInvtAdjmtBuf);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddActualCostBufOnBeforeInsert(var InventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer"; ValueEntry: Record "Value Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

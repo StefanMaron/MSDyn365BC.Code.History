@@ -334,11 +334,7 @@ table 1103 "Cost Type"
         CostEntry: Record "Cost Entry";
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        // Message if balance  <> 0
-        if Type = Type::"Cost Type" then begin
-            CalcFields(Balance);
-            TestField(Balance, 0);
-        end;
+        CheckBalance();
 
         // Error if movement in not closed fiscal year
         CostEntry.SetRange("Cost Type No.", "No.");
@@ -389,6 +385,22 @@ table 1103 "Cost Type"
         "Modified By" := UserId;
     end;
 
+    local procedure CheckBalance()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBalance(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        // Message if balance  <> 0
+        if Rec.Type = Rec.Type::"Cost Type" then begin
+            Rec.CalcFields(Balance);
+            Rec.TestField(Balance, 0);
+        end;
+    end;
+
     procedure LookupGLAccFilter(var Text: Text): Boolean
     var
         GLAccList: Page "G/L Account List";
@@ -411,6 +423,11 @@ table 1103 "Cost Type"
             exit(true);
         end;
         exit(false)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalance(var CostType: Record "Cost Type"; var IsHandled: Boolean)
+    begin
     end;
 }
 

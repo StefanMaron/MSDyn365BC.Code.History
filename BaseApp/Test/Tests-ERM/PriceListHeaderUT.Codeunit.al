@@ -34,10 +34,14 @@ codeunit 134118 "Price List Header UT"
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
         ParentSourceJobErr: Label 'Parent Source No. must be blank for Job source type.';
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
+        CustomParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (custom) must have a value';
+        JobsParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (jobs) must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. (jobs) must be equal to ''''';
         ProductNoMustBeFilledErr: Label 'Product No. must have a value';
         SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
+        SourceNoCustomMustBeFilledErr: Label 'Assign-to No. (custom) must have a value';
         SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
+        SourceNoCustomMustBeBlankErr: Label 'Assign-to No. (custom) must be equal to ''''';
         MissingPriceListCodeErr: Label '%1 must have a value', Comment = '%1 - field caption.';
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
         IsInitialized: Boolean;
@@ -1021,8 +1025,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to No. must be equal to ''''"
-        Assert.ExpectedError(SourceNoMustBeBlankErr);
+        // [THEN] Error: "Assign-to No. (custom) must be equal to ''''"
+        Assert.ExpectedError(SourceNoCustomMustBeBlankErr);
     end;
 
     [Test]
@@ -1041,8 +1045,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to No. must have a value"
-        Assert.ExpectedError(SourceNoMustBeFilledErr);
+        // [THEN] Error: "Assign-to No. (custom) must have a value"
+        Assert.ExpectedError(SourceNoCustomMustBeFilledErr);
     end;
 
     [Test]
@@ -1067,8 +1071,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Parent Assign-to No. must have a value"
-        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
+        // [THEN] Error: "Parent Assign-to No. (jobs) must have a value"
+        Assert.ExpectedError(JobsParentSourceNoMustBeFilledErr);
     end;
 
     [Test]
@@ -1154,8 +1158,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Assign-to No. must have a value"
-        Assert.ExpectedError(SourceNoMustBeFilledErr);
+        // [THEN] Error message: "Assign-to No. (custom) must have a value"
+        Assert.ExpectedError(SourceNoCustomMustBeFilledErr);
     end;
 
     [Test]
@@ -1186,8 +1190,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Assign-to Parent No. must have a value"
-        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
+        // [THEN] Error message: "Assign-to Parent No. (custom) must have a value"
+        Assert.ExpectedError(CustomParentSourceNoMustBeFilledErr);
     end;
 
     [Test]
@@ -1241,8 +1245,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to No. must be equal to ''''"
-        Assert.ExpectedError(SourceNoMustBeBlankErr);
+        // [THEN] Error: "Assign-to No. (custom) must be equal to ''''"
+        Assert.ExpectedError(SourceNoCustomMustBeBlankErr);
     end;
 
     [Test]
@@ -1263,8 +1267,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to No. must have a value"
-        Assert.ExpectedError(SourceNoMustBeFilledErr);
+        // [THEN] Error: "Assign-to No. (custom) must have a value"
+        Assert.ExpectedError(SourceNoCustomMustBeFilledErr);
     end;
 
     [Test]
@@ -1285,7 +1289,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to Parent No. must be equal to ''''"
+        // [THEN] Error: "Assign-to Parent No. (custom) must be equal to ''''"
         Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
     end;
 
@@ -1305,8 +1309,8 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Assign-to Parent No. must have a value"
-        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
+        // [THEN] Error: "Assign-to Parent No. (jobs) must have a value"
+        Assert.ExpectedError(JobsParentSourceNoMustBeFilledErr);
     end;
 
     [Test]

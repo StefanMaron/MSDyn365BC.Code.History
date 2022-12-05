@@ -628,6 +628,11 @@ table 5065 "Interaction Log Entry"
                     SalesHeader.Get(SalesHeader."Document Type"::Order, "Document No.");
                     PAGE.Run(PAGE::"Sales Order", SalesHeader);
                 end;
+            "Document Type"::"Sales Draft Invoice":
+                begin
+                    SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Document No.");
+                    PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+                end;
             "Document Type"::"Sales Inv.":
                 begin
                     SalesInvHeader.Get("Document No.");

@@ -87,6 +87,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 1408747468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <target state="translated">Företagsnamn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control companyName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 3529320009 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consolidate</source>
+          <target state="translated">Konsolidera</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control consolidate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 2684058382 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consolidation %</source>
+          <target state="translated">Konsolideringsgrad %</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control consolidationPercentage - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <target state="translated">Företagsnamn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control currencyCode - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3815513967 - Control 2786197837 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ending Date</source>
           <target state="translated">Slutdatum</target>
@@ -110,6 +134,12 @@
           <target state="translated">Senast ändrad, datum och tid</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3815513967 - Control 572749973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Run</source>
+          <target state="translated">Senaste körningen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Business Unit - Control lastRun - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3815513967 - Control 1751904704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Starting Date</source>

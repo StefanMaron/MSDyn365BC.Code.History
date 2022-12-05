@@ -85,6 +85,8 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ResourcePrice.TableCaption(), StartDateTime);
 
+        OnUpdateDataOnBeforeUpdateAmountTypeOnHeaders(FeatureDataUpdateStatus);
+
         UpdateAmountTypeOnHeaders();
     end;
 
@@ -317,6 +319,11 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetListOfTables(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDataOnBeforeUpdateAmountTypeOnHeaders(FeatureDataUpdateStatus: Record "Feature Data Update Status")
     begin
     end;
 }

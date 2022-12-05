@@ -655,7 +655,14 @@ table 9650 "Custom Report Layout"
 
     [Scope('OnPrem')]
     procedure CanBeModified(): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanBeModified(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not "Built-In" then
             exit(true);
 
@@ -1006,6 +1013,11 @@ table 9650 "Custom Report Layout"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanBeModified(var CustomReportLayout: Record "Custom Report Layout"; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLayout(var LayoutUpdated: Boolean; var IsHandled: Boolean)

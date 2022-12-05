@@ -747,10 +747,15 @@
         SalesLine: Record "Sales Line";
         DeferralTemplate: Record "Deferral Template";
         DeferralAccount: Code[20];
+        IsHandled: Boolean;
     begin
         SalesLine := SalesLineVar;
 
         if SalesLine."Deferral Code" = '' then
+            exit;
+
+        SalesPostInvoiceEvents.RunOnBeforeCreatePostedDeferralSchedule(SalesLine, IsHandled);
+        if IsHandled then
             exit;
 
         if DeferralTemplate.Get(SalesLine."Deferral Code") then

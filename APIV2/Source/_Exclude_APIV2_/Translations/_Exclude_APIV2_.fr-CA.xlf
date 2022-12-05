@@ -765,6 +765,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Upload - Control schedule - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 981369751 - Control 1017159239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Schema Sync Mode</source>
+          <target state="translated">Mode de synchronisation des schémas</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Upload - Control schemaSyncMode - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 981369751 - Control 3092263724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>System Id</source>
           <target state="translated">Code système</target>

@@ -180,71 +180,75 @@ table 172 "Standard Customer Sales Code"
         StdSalesCode: Record "Standard Sales Code";
         SalesLine: Record "Sales Line";
         Factor: Integer;
+        IsHandled: Boolean;
     begin
-        Currency.Initialize(SalesHeader."Currency Code");
+        IsHandled := false;
+        OnBeforeApplyStdCodesToSalesLinesProcedure(SalesHeader, StdCustSalesCode, IsHandled);
+        if not IsHandled then begin
+            Currency.Initialize(SalesHeader."Currency Code");
 
-        StdCustSalesCode.TestField(Code);
-        StdCustSalesCode.TestField("Customer No.", SalesHeader."Sell-to Customer No.");
-        StdSalesCode.Get(StdCustSalesCode.Code);
-        StdSalesCode.TestField("Currency Code", SalesHeader."Currency Code");
-        StdSalesLine.SetRange("Standard Sales Code", StdCustSalesCode.Code);
-        SalesLine."Document Type" := SalesHeader."Document Type";
-        SalesLine."Document No." := SalesHeader."No.";
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesHeader."Prices Including VAT" then
-            Factor := 1
-        else
-            Factor := 0;
+            StdCustSalesCode.TestField(Code);
+            StdCustSalesCode.TestField("Customer No.", SalesHeader."Sell-to Customer No.");
+            StdSalesCode.Get(StdCustSalesCode.Code);
+            StdSalesCode.TestField("Currency Code", SalesHeader."Currency Code");
+            StdSalesLine.SetRange("Standard Sales Code", StdCustSalesCode.Code);
+            SalesLine."Document Type" := SalesHeader."Document Type";
+            SalesLine."Document No." := SalesHeader."No.";
+            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            if SalesHeader."Prices Including VAT" then
+                Factor := 1
+            else
+                Factor := 0;
 
-        OnBeforeApplyStdCodesToSalesLinesLoop(StdSalesLine, SalesLine, SalesHeader, StdSalesCode);
+            OnBeforeApplyStdCodesToSalesLinesLoop(StdSalesLine, SalesLine, SalesHeader, StdSalesCode);
 
-        SalesLine.LockTable();
-        StdSalesLine.LockTable();
-        if StdSalesLine.Find('-') then
-            repeat
-                SalesLine.Init();
-                SalesLine.SetSalesHeader(SalesHeader);
-                SalesLine."Line No." := 0;
-                SalesLine.Validate(Type, StdSalesLine.Type);
-                if StdSalesLine.Type = StdSalesLine.Type::" " then begin
-                    SalesLine.Validate("No.", StdSalesLine."No.");
-                    SalesLine.Description := StdSalesLine.Description;
-                    SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
-                end else
-                    if not StdSalesLine.EmptyLine() then begin
-                        StdSalesLine.TestField("No.");
+            SalesLine.LockTable();
+            StdSalesLine.LockTable();
+            if StdSalesLine.Find('-') then
+                repeat
+                    SalesLine.Init();
+                    SalesLine.SetSalesHeader(SalesHeader);
+                    SalesLine."Line No." := 0;
+                    SalesLine.Validate(Type, StdSalesLine.Type);
+                    if StdSalesLine.Type = StdSalesLine.Type::" " then begin
                         SalesLine.Validate("No.", StdSalesLine."No.");
-                        if StdSalesLine."Variant Code" <> '' then
-                            SalesLine.Validate("Variant Code", StdSalesLine."Variant Code");
-                        SalesLine.Validate(Quantity, StdSalesLine.Quantity);
-                        if StdSalesLine."Unit of Measure Code" <> '' then
-                            SalesLine.Validate("Unit of Measure Code", StdSalesLine."Unit of Measure Code");
-                        if StdSalesLine.Description <> '' then
-                            SalesLine.Validate(Description, StdSalesLine.Description);
-                        if (StdSalesLine.Type = StdSalesLine.Type::"G/L Account") or
-                           (StdSalesLine.Type = StdSalesLine.Type::"Charge (Item)")
-                        then
-                            SalesLine.Validate(
-                              "Unit Price",
-                              Round(StdSalesLine."Amount Excl. VAT" *
-                                (SalesLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
+                        SalesLine.Description := StdSalesLine.Description;
+                        SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
+                    end else
+                        if not StdSalesLine.EmptyLine() then begin
+                            StdSalesLine.TestField("No.");
+                            SalesLine.Validate("No.", StdSalesLine."No.");
+                            if StdSalesLine."Variant Code" <> '' then
+                                SalesLine.Validate("Variant Code", StdSalesLine."Variant Code");
+                            SalesLine.Validate(Quantity, StdSalesLine.Quantity);
+                            if StdSalesLine."Unit of Measure Code" <> '' then
+                                SalesLine.Validate("Unit of Measure Code", StdSalesLine."Unit of Measure Code");
+                            if StdSalesLine.Description <> '' then
+                                SalesLine.Validate(Description, StdSalesLine.Description);
+                            if (StdSalesLine.Type = StdSalesLine.Type::"G/L Account") or
+                               (StdSalesLine.Type = StdSalesLine.Type::"Charge (Item)")
+                            then
+                                SalesLine.Validate(
+                                  "Unit Price",
+                                  Round(StdSalesLine."Amount Excl. VAT" *
+                                    (SalesLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
+                        end;
+
+                    SalesLine."Shortcut Dimension 1 Code" := StdSalesLine."Shortcut Dimension 1 Code";
+                    SalesLine."Shortcut Dimension 2 Code" := StdSalesLine."Shortcut Dimension 2 Code";
+
+                    CombineDimensions(SalesLine, StdSalesLine);
+                    OnBeforeApplyStdCodesToSalesLines(SalesLine, StdSalesLine);
+                    if StdSalesLine.InsertLine() then begin
+                        SalesLine."Line No." := GetNextLineNo(SalesLine);
+                        SalesLine.Insert(true);
+                        OnAfterSalesLineInsert(StdSalesLine, SalesLine);
+                        SalesLine.AutoAsmToOrder();
+                        InsertExtendedText(SalesLine, SalesHeader);
                     end;
-
-                SalesLine."Shortcut Dimension 1 Code" := StdSalesLine."Shortcut Dimension 1 Code";
-                SalesLine."Shortcut Dimension 2 Code" := StdSalesLine."Shortcut Dimension 2 Code";
-
-                CombineDimensions(SalesLine, StdSalesLine);
-                OnBeforeApplyStdCodesToSalesLines(SalesLine, StdSalesLine);
-                if StdSalesLine.InsertLine() then begin
-                    SalesLine."Line No." := GetNextLineNo(SalesLine);
-                    SalesLine.Insert(true);
-                    OnAfterSalesLineInsert(StdSalesLine, SalesLine);
-                    SalesLine.AutoAsmToOrder();
-                    InsertExtendedText(SalesLine, SalesHeader);
-                end;
-            until StdSalesLine.Next() = 0;
-
+                until StdSalesLine.Next() = 0;
+        end;
         OnAfterApplyStdCodesToSalesLinesLoop(StdSalesLine, SalesLine, SalesHeader, StdSalesCode);
     end;
 
@@ -386,6 +390,11 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesLineInsert(var StdSalesLine: Record "Standard Sales Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyStdCodesToSalesLinesProcedure(var SalesHeader: Record "Sales Header"; StandardCustomerSalesCode: Record "Standard Customer Sales Code"; var IsHandled: Boolean)
     begin
     end;
 }

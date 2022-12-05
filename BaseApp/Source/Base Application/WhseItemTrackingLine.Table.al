@@ -174,6 +174,7 @@ table 6550 "Whse. Item Tracking Line"
         field(91; "Qty. Registered (Base)"; Decimal)
         {
             Caption = 'Qty. Registered (Base)';
+            DecimalPlaces = 0 : 5;
         }
         field(92; "Put-away Qty. (Base)"; Decimal)
         {
@@ -188,6 +189,7 @@ table 6550 "Whse. Item Tracking Line"
                                                                                          "Package No." = FIELD("Package No."),
                                                                                          "Action Type" = FILTER(" " | Take)));
             Caption = 'Put-away Qty. (Base)';
+            DecimalPlaces = 0 : 5;
             FieldClass = FlowField;
         }
         field(93; "Pick Qty. (Base)"; Decimal)
@@ -203,6 +205,7 @@ table 6550 "Whse. Item Tracking Line"
                                                                                          "Package No." = FIELD("Package No."),
                                                                                          "Action Type" = FILTER(" " | Place)));
             Caption = 'Pick Qty. (Base)';
+            DecimalPlaces = 0 : 5;
             FieldClass = FlowField;
         }
         field(94; "Created by Whse. Activity Line"; Boolean)

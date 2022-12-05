@@ -6,7 +6,7 @@ codeunit 1336 "Item Templ. Mgt."
 
     var
         VATPostingSetupErr: Label 'VAT Posting Setup does not exist. "VAT Bus. Posting Group" = %1, "VAT Prod. Posting Group" = %2.', Comment = '%1 - vat bus. posting group code; %2 - vat prod. posting group code';
-        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data. Do you want to continue?';
         OpenBlankCardQst: Label 'Do you want to open the blank item card?';
 
     procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean) Result: Boolean
@@ -63,6 +63,7 @@ codeunit 1336 "Item Templ. Mgt."
         i: Integer;
         FieldExclusionList: List of [Integer];
         FieldValidationList: List of [Integer];
+        IsHandled: Boolean;
     begin
         CheckItemTemplRoundingPrecision(ItemTempl);
         ItemRecRef.GetTable(Item);
@@ -108,8 +109,11 @@ codeunit 1336 "Item Templ. Mgt."
             Item.Validate("Price Includes VAT", ItemTempl."Price Includes VAT");
         end;
         Item.Validate("Item Category Code", ItemTempl."Item Category Code");
-        OnApplyTemplateOnBeforeItemModify(Item, ItemTempl);
-        Item.Modify(true);
+        Item.Validate("Indirect Cost %", ItemTempl."Indirect Cost %");
+        IsHandled := false;
+        OnApplyTemplateOnBeforeItemModify(Item, ItemTempl, IsHandled);
+        if not IsHandled then
+            Item.Modify(true);
     end;
 
     local procedure SelectItemTemplate(var ItemTempl: Record "Item Templ."): Boolean
@@ -149,7 +153,12 @@ codeunit 1336 "Item Templ. Mgt."
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
                 if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
-                    DestDefaultDimension.Insert(true);
+                    DestDefaultDimension.Insert(true)
+                else
+                    if DestDefaultDimension."Value Posting" = DestDefaultDimension."Value Posting"::" " then begin
+                        DestDefaultDimension."Value Posting" := SourceDefaultDimension."Value Posting";
+                        DestDefaultDimension.Modify(true);
+                    end;
             until SourceDefaultDimension.Next() = 0;
     end;
 
@@ -476,7 +485,7 @@ codeunit 1336 "Item Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeItemModify(var Item: Record Item; ItemTempl: Record "Item Templ.")
+    local procedure OnApplyTemplateOnBeforeItemModify(var Item: Record Item; ItemTempl: Record "Item Templ."; var IsHandled: Boolean)
     begin
     end;
 

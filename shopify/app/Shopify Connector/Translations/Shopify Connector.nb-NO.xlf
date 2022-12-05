@@ -395,13 +395,13 @@
         </trans-unit>
         <trans-unit id="Table 3502972403 - Field 3983787601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Queue Entry ID</source>
-          <target state="translated">Post-ID for prosjektkø</target>
+          <target state="translated">Oppførings-ID for prosjektkø</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3502972403 - Field 2498855570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Queue Entry Status</source>
-          <target state="translated">Status for jobbkøpost</target>
+          <target state="translated">Status for prosjektkøoppføring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry Status - Property Caption</note>
         </trans-unit>
@@ -413,7 +413,7 @@
         </trans-unit>
         <trans-unit id="Table 3502972403 - Field 3318218501 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Status</source>
-          <target state="translated">Jobbstatus</target>
+          <target state="translated">Prosjektstatus</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Status - Property Caption</note>
         </trans-unit>

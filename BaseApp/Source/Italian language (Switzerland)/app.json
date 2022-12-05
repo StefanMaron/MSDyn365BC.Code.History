@@ -2,7 +2,7 @@
     "id":  "a5d61952-f432-4ee6-8686-e8aa5d3dedc0",
     "name":  "Italian language (Switzerland)",
     "publisher":  "Microsoft",
-    "version":  "21.1.48363.48638",
+    "version":  "21.2.49946.49990",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "21.1.0.0"
+    "application":  "21.2.0.0"
 }

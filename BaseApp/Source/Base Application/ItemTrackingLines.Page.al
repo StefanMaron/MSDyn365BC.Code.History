@@ -2355,6 +2355,8 @@ page 6510 "Item Tracking Lines"
         TempTrackingSpecification.CalcSums("Quantity (Base)");
         CurrentQtyBase := TempTrackingSpecification."Quantity (Base)";
         MaxQtyBase := CurrentSignFactor * SourceQuantityArray[1];
+        if CurrentQtyBase = MaxQtyBase then
+            exit;
 
         ItemEntryRelation.SetCurrentKey("Order No.", "Order Line No.");
         ItemEntryRelation.SetRange("Order No.", TrackingSpecification."Source ID");
@@ -2377,7 +2379,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
                 TempTrackingSpecification.InitQtyToShip();
 
-                if Abs(TempTrackingSpecification."Quantity (Base)") > Abs(MaxQtyBase - CurrentQtyBase) then
+                if TempTrackingSpecification."Quantity (Base)" * CurrentSignFactor > Abs(MaxQtyBase - CurrentQtyBase) then
                     TempTrackingSpecification."Quantity (Base)" := MaxQtyBase - CurrentQtyBase;
                 CurrentQtyBase += TempTrackingSpecification."Quantity (Base)";
 

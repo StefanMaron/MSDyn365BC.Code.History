@@ -599,7 +599,7 @@ page 5871 "Item Availability by BOM Level"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRefreshPageOnBeforeCheckItemHasBOM(Item: Record Item; var IsHandled: Boolean)
+    local procedure OnRefreshPageOnBeforeCheckItemHasBOM(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

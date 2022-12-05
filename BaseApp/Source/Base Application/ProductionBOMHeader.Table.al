@@ -86,7 +86,7 @@ table 99000771 "Production BOM Header"
             begin
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
                     ProdBOMLineRec.SetLoadFields(Type, "No.", "Variant Code");
-                    ProdBOMLineRec.SetFilter("Production BOM No.", "No.");
+                    ProdBOMLineRec.SetRange("Production BOM No.", "No.");
                     while ProdBOMLineRec.Next() <> 0 do begin
                         if Item.IsVariantMandatory(ProdBOMLineRec.Type = ProdBOMLineRec.Type::Item, ProdBOMLineRec."No.") then
                             ProdBOMLineRec.TestField("Variant Code");

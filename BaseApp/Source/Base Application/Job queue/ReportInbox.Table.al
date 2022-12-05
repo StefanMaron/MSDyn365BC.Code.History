@@ -115,7 +115,7 @@ table 477 "Report Inbox"
         end;
     end;
 
-    local procedure Suffix(): Text
+    local procedure Suffix() Result: Text
     begin
         case "Output Type" of
             "Output Type"::PDF:
@@ -126,6 +126,8 @@ table 477 "Report Inbox"
                 exit('.xlsx');
             "Output Type"::Zip:
                 exit('.zip');
+            else
+                OnSuffixCaseElse(Rec, Result);
         end;
     end;
 
@@ -182,6 +184,11 @@ table 477 "Report Inbox"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReport(var ReportInbox: Record "Report Inbox"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuffixCaseElse(ReportInbox: Record "Report Inbox"; var Result: Text)
     begin
     end;
 }

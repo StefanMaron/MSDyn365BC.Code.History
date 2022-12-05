@@ -778,23 +778,26 @@ codeunit 900 "Assembly-Post"
         if not Location."Bin Mandatory" then
             exit;
 
-        if ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.") then
-            if ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification) then
-                if TempTrackingSpecification.FindSet() then
-                    repeat
-                        case ItemJnlLine."Entry Type" of
-                            ItemJnlLine."Entry Type"::"Assembly Consumption":
-                                TempTrackingSpecification."Source Type" := DATABASE::"Assembly Line";
-                            ItemJnlLine."Entry Type"::"Assembly Output":
-                                TempTrackingSpecification."Source Type" := DATABASE::"Assembly Header";
-                        end;
-                        TempTrackingSpecification."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
-                        TempTrackingSpecification."Source ID" := AssemblyHeader."No.";
-                        TempTrackingSpecification."Source Batch Name" := '';
-                        TempTrackingSpecification."Source Prod. Order Line" := 0;
-                        TempTrackingSpecification."Source Ref. No." := ItemJnlLine."Order Line No.";
-                        TempTrackingSpecification.Modify();
-                    until TempTrackingSpecification.Next() = 0;
+        IsHandled := false;
+        OnPostWhseJnlLineOnBeforeGetWhseItemTrkgSetup(ItemJnlLine, IsHandled);
+        if not IsHandled then
+            if ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.") then
+                if ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification) then
+                    if TempTrackingSpecification.FindSet() then
+                        repeat
+                            case ItemJnlLine."Entry Type" of
+                                ItemJnlLine."Entry Type"::"Assembly Consumption":
+                                    TempTrackingSpecification."Source Type" := DATABASE::"Assembly Line";
+                                ItemJnlLine."Entry Type"::"Assembly Output":
+                                    TempTrackingSpecification."Source Type" := DATABASE::"Assembly Header";
+                            end;
+                            TempTrackingSpecification."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
+                            TempTrackingSpecification."Source ID" := AssemblyHeader."No.";
+                            TempTrackingSpecification."Source Batch Name" := '';
+                            TempTrackingSpecification."Source Prod. Order Line" := 0;
+                            TempTrackingSpecification."Source Ref. No." := ItemJnlLine."Order Line No.";
+                            TempTrackingSpecification.Modify();
+                        until TempTrackingSpecification.Next() = 0;
 
         CreateWhseJnlLine(Location, TempWhseJnlLine, AssemblyHeader, ItemJnlLine);
         ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempTrackingSpecification, false);
@@ -1701,6 +1704,11 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostLinesOnAfterGetLineQtys(var LineQty: Decimal; var LineQtyBase: Decimal; var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseJnlLineOnBeforeGetWhseItemTrkgSetup(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

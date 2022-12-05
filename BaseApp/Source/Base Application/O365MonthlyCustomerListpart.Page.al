@@ -143,10 +143,16 @@ page 2105 "O365 Monthly Customer Listpart"
             Customer.CalcFields("Net Change (LCY)");
             TransferFields(Customer, true);
             "Inv. Amounts (LCY)" := Customer."Net Change (LCY)";
+            OnInsertDataOnBeforeInsert(Rec, Customer);
             Insert(true);
         until Customer.Next() = 0;
 
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDataOnBeforeInsert(var CustomerRec: Record Customer; var Customer: Record Customer)
+    begin
     end;
 }
 #endif

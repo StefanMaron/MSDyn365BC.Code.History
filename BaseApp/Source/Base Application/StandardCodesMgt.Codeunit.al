@@ -18,10 +18,10 @@ codeunit 170 "Standard Codes Mgt."
         if not CanCreatePurchRecurringLines(PurchHeader) then
             exit;
 
-        IF NOT TryFindFirstStandardPurchCodeToAdd(PurchHeader, StandardVendorPurchaseCode) THEN
+        if not TryFindFirstStandardPurchCodeToAdd(PurchHeader, StandardVendorPurchaseCode) then
             exit;
 
-        IF (StandardVendorPurchaseCode.Count = 1) AND
+        if (StandardVendorPurchaseCode.Count = 1) and
            StandardVendorPurchaseCode.IsInsertRecurringLinesOnDocumentAutomatic(PurchHeader)
         then
             StandardVendorPurchaseCode.ApplyStdCodesToPurchaseLines(PurchHeader, StandardVendorPurchaseCode)
@@ -33,13 +33,13 @@ codeunit 170 "Standard Codes Mgt."
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
-        IF NOT CanCreateSalesRecurringLines(SalesHeader) THEN
+        if not CanCreateSalesRecurringLines(SalesHeader) then
             exit;
 
-        IF NOT TryFindFirstStandardSalesCodeToAdd(SalesHeader, StandardCustomerSalesCode) THEN
+        if not TryFindFirstStandardSalesCodeToAdd(SalesHeader, StandardCustomerSalesCode) then
             exit;
 
-        IF (StandardCustomerSalesCode.Count = 1) AND
+        if (StandardCustomerSalesCode.Count = 1) and
            StandardCustomerSalesCode.IsInsertRecurringLinesOnDocumentAutomatic(SalesHeader)
         then
             StandardCustomerSalesCode.ApplyStdCodesToSalesLines(SalesHeader, StandardCustomerSalesCode)
@@ -280,7 +280,7 @@ codeunit 170 "Standard Codes Mgt."
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
-        IF not CanCreateSalesRecurringLines(SalesHeader) then
+        if not CanCreateSalesRecurringLines(SalesHeader) then
             exit;
 
         StandardCustomerSalesCode.SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader);

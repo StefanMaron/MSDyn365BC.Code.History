@@ -30,6 +30,7 @@ permissionset 184 "BaseApp Login - Objects"
 #if not CLEAN19
                   page "My Settings" = X,
 #endif
+                  tabledata "Onboarding Signal" = rimd,
                   table "Assisted Company Setup Status" = X,
                   table "License Agreement" = X,
                   table "Company Information" = X,

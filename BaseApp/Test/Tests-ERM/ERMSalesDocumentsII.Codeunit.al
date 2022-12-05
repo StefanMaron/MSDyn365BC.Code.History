@@ -33,6 +33,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        ItemTrackingHandlerAction: Option AssignRandomSN,AssignSpecificLot;
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Field Name, %2 = Amount, %3 = Table Name';
         UnknownErr: Label 'Unknown error.';
@@ -3961,6 +3962,161 @@ codeunit 134386 "ERM Sales Documents II"
 
         // [THEN] Number of confirmation questions = 2
         Assert.AreEqual(2, LibraryVariableStorage.DequeueInteger(), 'Number of confirmations is incorrect');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure MakeInvoiceFromQuoteTransfersLotTracking()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuoteHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Header";
+        SalesQuoteLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Line";
+        SalesQuoteTestPage: TestPage "Sales Quote";
+        SalesInvoiceTestPage: TestPage "Sales Invoice";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        ReservationStatus: Enum "Reservation Status";
+    begin
+        // [SCENARIO 451374] Makes Invoice action transfers tracking details from Sales Quote to Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Sales Quote with 1 line and Lot tracking
+        LibrarySales.CreateCustomer(Customer);
+        LibraryItemTracking.CreateLotItem(Item);
+        LibrarySales.CreateSalesHeader(SalesQuoteHeader, SalesQuoteHeader."Document Type"::Quote, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesQuoteLine, SalesQuoteHeader, SalesQuoteLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Assign a random lot number.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignSpecificLot);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandText(10));
+        LibraryVariableStorage.Enqueue(SalesQuoteLine.Quantity);
+        SalesQuoteLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
+
+        // [THEN] Prospect Reservation Entries are created
+        VerifyReservationEntry(SalesQuoteLine, 1, -SalesQuoteLine.Quantity, ReservationStatus::Prospect);
+
+        // [WHEN] Make Sales Invoice
+        SalesQuoteTestPage.OpenEdit();
+        SalesQuoteTestPage.GoToRecord(SalesQuoteHeader);
+
+        SalesInvoiceTestPage.Trap(); //ConfirmHandlerYes opens the newly created sales invoice.
+        SalesQuoteTestPage.MakeInvoice.Invoke();
+
+        // [THEN] Reservation Entries are transferred to Sales Invoice and Reservation Status is updated to Surplus. 1 Reservation entry is created for Assigned Lot with Quantity = Quantity on Sales Quote/Invoice Line.
+        SalesInvoiceHeader.Get(SalesInvoiceHeader."Document Type"::Invoice, SalesInvoiceTestPage."No.".Value);
+        SalesInvoiceLine.SetRange("Document Type", SalesInvoiceHeader."Document Type");
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst();
+        VerifyReservationEntry(SalesInvoiceLine, 1, -SalesQuoteLine.Quantity, ReservationStatus::Surplus);
+
+        // [THEN] No Reservation Entries exist for the Sales Quote.
+        VerifyReservationEntry(SalesQuoteLine, 0, 0, ReservationStatus::Prospect);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure MakeInvoiceFromQuoteTransfersSNTracking()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesQuoteHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Header";
+        SalesQuoteLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Line";
+        SalesQuoteTestPage: TestPage "Sales Quote";
+        SalesInvoiceTestPage: TestPage "Sales Invoice";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        ReservationStatus: Enum "Reservation Status";
+    begin
+        // [SCENARIO 451374] Makes Invoice action transfers tracking details from Sales Quote to Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Sales Quote with 1 line and SN tracking
+        LibrarySales.CreateCustomer(Customer);
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibrarySales.CreateSalesHeader(SalesQuoteHeader, SalesQuoteHeader."Document Type"::Quote, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesQuoteLine, SalesQuoteHeader, SalesQuoteLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
+
+        // [WHEN] Assign random serial numbers.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignRandomSN);
+        LibraryVariableStorage.Enqueue(SalesQuoteLine.Quantity);
+        SalesQuoteLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
+
+        // [THEN] Prospect Reservation Entries are created
+        VerifyReservationEntry(SalesQuoteLine, SalesQuoteLine.Quantity, -1, ReservationStatus::Prospect);
+
+        // [WHEN] Make Sales Invoice
+        SalesQuoteTestPage.OpenEdit();
+        SalesQuoteTestPage.GoToRecord(SalesQuoteHeader);
+
+        SalesInvoiceTestPage.Trap(); //ConfirmHandlerYes opens the newly created sales invoice.
+        SalesQuoteTestPage.MakeInvoice.Invoke();
+
+        // [THEN] Reservation Entries are transferred to Sales Invoice and Reservation Status is updated to Surplus. 1 Reservation entry is created for Assigned Lot with Quantity = Quantity on Sales Quote/Invoice Line.
+        SalesInvoiceHeader.Get(SalesInvoiceHeader."Document Type"::Invoice, SalesInvoiceTestPage."No.".Value);
+        SalesInvoiceLine.SetRange("Document Type", SalesInvoiceHeader."Document Type");
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst();
+        VerifyReservationEntry(SalesInvoiceLine, SalesQuoteLine.Quantity, -1, ReservationStatus::Surplus);
+
+        // [THEN] No Reservation Entries exist for the Sales Quote.
+        VerifyReservationEntry(SalesQuoteLine, 0, 0, ReservationStatus::Prospect);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ActionOption: Integer;
+        LotNo: Text;
+        HowMany: Integer;
+        Counter: Integer;
+    begin
+        ActionOption := LibraryVariableStorage.DequeueInteger();
+        case ActionOption of
+            ItemTrackingHandlerAction::AssignRandomSN:
+                begin
+                    HowMany := LibraryVariableStorage.DequeueInteger();
+                    if HowMany > 0 then begin
+                        ItemTrackingLines.First();
+                        for Counter := 1 to HowMany do begin
+                            ItemTrackingLines."Serial No.".SetValue(LibraryRandom.RandText(5));
+                            ItemTrackingLines."Quantity (Base)".SetValue(1);
+                            ItemTrackingLines.Next();
+                        end;
+                    end;
+                end;
+            ItemTrackingHandlerAction::AssignSpecificLot:
+                begin
+                    LotNo := LibraryVariableStorage.DequeueText();
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Lot No.".SetValue(LotNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    local procedure VerifyReservationEntry(var SalesLine: Record "Sales Line"; ExpectedCount: Integer; ExpectedQty: Decimal; ReservationStatus: Enum "Reservation Status")
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Item No.", SalesLine."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
+        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
+        ReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
+        ReservationEntry.SetRange("Reservation Status", ReservationStatus);
+        Assert.RecordCount(ReservationEntry, ExpectedCount);
+        if ExpectedCount > 0 then begin
+            ReservationEntry.FindSet();
+            repeat
+                Assert.AreEqual(ExpectedQty, ReservationEntry.Quantity, StrSubstNo('The Quantity on the Reservation Entry should be equal to %1', ExpectedQty));
+            until ReservationEntry.Next() = 0;
+        end;
     end;
 
     local procedure Initialize()

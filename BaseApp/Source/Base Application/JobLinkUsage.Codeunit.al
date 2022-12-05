@@ -111,11 +111,13 @@ codeunit 1026 "Job Link Usage"
                     TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
 
         JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgerEntry);
+        OnHandleMatchUsageSpecifiedJobPlanningLineOnBeforeJobPlanningLineUse(JobPlanningLine, JobJournalLine, JobLedgerEntry);
         JobPlanningLine.Use(
             UOMMgt.CalcQtyFromBase(
                 JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
                 JobLedgerEntry."Quantity (Base)", JobPlanningLine."Qty. per Unit of Measure"),
             JobLedgerEntry."Total Cost", JobLedgerEntry."Line Amount", JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
+        OnHandleMatchUsageSpecifiedJobPlanningLineOnAfterJobPlanningLineUse(JobPlanningLine, JobJournalLine, JobLedgerEntry);
         JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
     end;
 
@@ -259,6 +261,16 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMatchUsageSpecified(var JobPlanningLine: Record "Job Planning Line"; var JobJournalLine: Record "Job Journal Line"; var JobLedgerEntry: Record "Job Ledger Entry"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleMatchUsageSpecifiedJobPlanningLineOnAfterJobPlanningLineUse(var JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; JobLedgerEntry: Record "Job Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleMatchUsageSpecifiedJobPlanningLineOnBeforeJobPlanningLineUse(var JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; JobLedgerEntry: Record "Job Ledger Entry");
     begin
     end;
 

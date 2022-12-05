@@ -252,7 +252,7 @@ page 5708 "Get Shipment Lines"
         IsHandled := false;
         OnBeforeOnQueryClosePage(CloseAction, Result, IsHandled, Rec);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
             CreateLines();
@@ -274,7 +274,7 @@ page 5708 "Get Shipment Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetSalesHeader(SalesHeader2, IsHandled);
+        OnBeforeSetSalesHeader(SalesHeader2, IsHandled, SalesHeader);
         if IsHandled then
             exit;
 
@@ -333,7 +333,7 @@ page 5708 "Get Shipment Lines"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetSalesHeader(SalesHeader2: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSetSalesHeader(var SalesHeader2: Record "Sales Header"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

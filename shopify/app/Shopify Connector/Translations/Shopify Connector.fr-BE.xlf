@@ -395,13 +395,13 @@
         </trans-unit>
         <trans-unit id="Table 3502972403 - Field 3983787601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Queue Entry ID</source>
-          <target state="translated">ID écriture file d’attente des travaux</target>
+          <target state="translated">ID écriture file projets</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3502972403 - Field 2498855570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Queue Entry Status</source>
-          <target state="translated">Statut écriture file d’attente des travaux</target>
+          <target state="translated">Statut écriture file projets</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Initial Import Line - Field Job Queue Entry Status - Property Caption</note>
         </trans-unit>
@@ -3879,7 +3879,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 2734658265 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to Shopify Connector Setup</source>
-          <target state="translated">Bienvenue dans le programme d’installation du connecteur Shopify</target>
+          <target state="translated">Bienvenue dans la configuration du connecteur Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Welcome to Shopify Connector Setup - Property Caption</note>
         </trans-unit>

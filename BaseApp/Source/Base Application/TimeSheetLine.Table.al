@@ -416,7 +416,13 @@ table 951 "Time Sheet Line"
         TimeSheetLineServiceDetail: Page "Time Sheet Line Service Detail";
         TimeSheetLineAssembDetail: Page "Time Sheet Line Assemb. Detail";
         TimeSheetLineAbsenceDetail: Page "Time Sheet Line Absence Detail";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowLineDetails(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case Type of
             Type::Resource:
                 begin
@@ -498,6 +504,11 @@ table 951 "Time Sheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSetApproverIDFromResource(Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowLineDetails(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
     begin
     end;
 

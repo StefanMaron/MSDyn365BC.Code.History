@@ -671,7 +671,7 @@
                         if OneCheckPrVendor then begin
                             ApplyMethod := ApplyMethod::MoreLinesOneEntry;
                             GenJnlLine2.Reset();
-                            GenJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
+                            GenJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.", "Remit-to Code");
                             GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
                             GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
                             GenJnlLine2.SetRange("Posting Date", "Posting Date");
@@ -681,6 +681,7 @@
                             GenJnlLine2.SetRange("Bal. Account Type", "Bal. Account Type");
                             GenJnlLine2.SetRange("Bal. Account No.", "Bal. Account No.");
                             GenJnlLine2.SetRange("Bank Payment Type", "Bank Payment Type");
+                            GenJnlLine2.SetRange("Remit-to Code", "Remit-to Code");
                             GenJnlLine2.Find('-');
                             RemainingAmount := 0;
                         end else

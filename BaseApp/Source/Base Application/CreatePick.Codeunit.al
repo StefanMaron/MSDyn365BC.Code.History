@@ -1544,6 +1544,9 @@ codeunit 7312 "Create Pick"
                             if TempWhseActivLine."Qty. (Base)" >= PickQtyBase then begin
                                 WhseActivLine.Quantity := WhseActivLine.Quantity + PickQty;
                                 WhseActivLine."Qty. (Base)" := WhseActivLine."Qty. (Base)" + PickQtyBase;
+                                TempWhseActivLine.Quantity -= PickQty;
+                                TempWhseActivLine."Qty. (Base)" -= PickQtyBase;
+                                TempWhseActivLine.Modify();
                                 PickQty := 0;
                                 PickQtyBase := 0;
                             end else begin
@@ -1669,6 +1672,11 @@ codeunit 7312 "Create Pick"
                   WhseAvailMgt.CalcLineReservedQtyOnInvt(
                     DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
                     AssemblyLine."Line No.", 0, true, TempWhseActivLine);
+            CreatePickParameters."Whse. Document"::Job:
+                LineReservedQty :=
+                  WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                    Database::Job, 2, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+                    JobPlanningLine."Line No.", true, TempWhseActivLine);
         end;
 
         QtyReservedOnPickShip := WhseAvailMgt.CalcReservQtyOnPicksShips(Location.Code, ItemNo, VariantCode, TempWhseActivLine);
@@ -2772,6 +2780,7 @@ codeunit 7312 "Create Pick"
         WhseSource2: Option;
         ShouldCalcMaxQty: Boolean;
     begin
+        OnBeforeCreateTempActivityLine(BinCode, QtyToPick, QtyToPickBase, ActionType);
         if Location."Directed Put-away and Pick" then
             GetBin(LocationCode, BinCode);
 
@@ -3282,7 +3291,7 @@ codeunit 7312 "Create Pick"
                         SetRange("Source Type", SourceType);
                         SetRange("Source Subtype", SourceSubType);
                     end;
-                Database::Job:
+                Database::Job, Database::"Job Planning Line":
                     begin
                         SetRange("Source Ref. No.", SourceLineNo);
                         SetRange("Source Type", Database::"Job Planning Line");
@@ -3357,12 +3366,14 @@ codeunit 7312 "Create Pick"
                     WarehouseEntry.SetRange("Variant Code", "Variant Code");
                     WarehouseEntry.SetTrackingFilterFromBinContentBuffer(TempBinContentBuffer);
                     GetLocation("Location Code");
-                    if Location."Adjustment Bin Code" <> '' then begin
-                        WarehouseEntry.FilterGroup(2);
-                        WarehouseEntry.SetFilter("Bin Code", '<>%1', Location."Adjustment Bin Code");
-                        WarehouseEntry.FilterGroup(0);
+                    if Location."Directed Put-away and Pick" then begin
+                        if Location."Adjustment Bin Code" <> '' then begin
+                            WarehouseEntry.FilterGroup(2);
+                            WarehouseEntry.SetFilter("Bin Code", '<>%1', Location."Adjustment Bin Code");
+                            WarehouseEntry.FilterGroup(0);
+                        end;
+                        WarehouseEntry.SetFilter("Bin Type Code", '<>%1', GetBinTypeFilter(0));
                     end;
-                    WarehouseEntry.SetFilter("Bin Type Code", '<>%1', GetBinTypeFilter(0));
                     WhseItemTrackingSetup.CopyTrackingFromBinContentBuffer(TempBinContentBuffer);
                     if WarehouseEntry.FindSet() then
                         repeat
@@ -3675,6 +3686,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempItemTrkgLines(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; var TotalQtytoPickBase: Decimal; HasExpiryDate: Boolean; var IsHandled: Boolean; var WhseItemTrackingFEFO: Codeunit "Whse. Item Tracking FEFO"; WhseShptLine: Record "Warehouse Shipment Line"; WhseWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer)
     begin
     end;
 

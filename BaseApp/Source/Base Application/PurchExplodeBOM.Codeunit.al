@@ -31,7 +31,7 @@ codeunit 73 "Purch.-Explode BOM"
               Text001,
               "No.");
 
-        Selection := StrMenu(Text005, 2);
+        Selection := GetSelection(Rec);
         if Selection = 0 then
             exit;
 
@@ -46,6 +46,7 @@ codeunit 73 "Purch.-Explode BOM"
             TransferExtendedText.InsertPurchExtText(ToPurchLine);
 
         ExplodeBOMCompLines(Rec);
+        ClearSpecialSalesOrderLineValuesOnExplodeBOM(Rec);
 
         OnAfterOnRun(ToPurchLine, Rec);
     end;
@@ -66,6 +67,18 @@ codeunit 73 "Purch.-Explode BOM"
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
         Selection: Integer;
+
+    local procedure GetSelection(PurchaseLine: Record "Purchase Line") Result: Integer
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetSelection(PurchaseLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := StrMenu(Text005, 2);
+    end;
 
     procedure CallExplodeBOMCompLines(PurchLine: Record "Purchase Line")
     begin
@@ -182,6 +195,22 @@ codeunit 73 "Purch.-Explode BOM"
         end;
     end;
 
+    local procedure ClearSpecialSalesOrderLineValuesOnExplodeBOM(PurchLine: Record "Purchase Line")
+    var
+        SalesOrderLine: Record "Sales Line";
+    begin
+        if PurchLine."Special Order" then begin
+            SalesOrderLine.LockTable();
+            if SalesOrderLine.Get(
+                 SalesOrderLine."Document Type"::Order, PurchLine."Special Order Sales No.", PurchLine."Special Order Sales Line No.")
+            then begin
+                SalesOrderLine."Special Order Purchase No." := '';
+                SalesOrderLine."Special Order Purch. Line No." := 0;
+                SalesOrderLine.Modify();
+            end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(ToPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line")
     begin
@@ -189,6 +218,11 @@ codeunit 73 "Purch.-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSelection(PurchaseLine: Record "Purchase Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

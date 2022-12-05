@@ -1571,7 +1571,7 @@ page 5050 "Contact Card"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOnNewRecord(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;

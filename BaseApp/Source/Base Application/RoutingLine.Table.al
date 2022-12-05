@@ -237,6 +237,7 @@ table 99000764 "Routing Line"
                         RtngTool."Line No." := StdTaskTool."Line No.";
                         RtngTool."No." := StdTaskTool."No.";
                         RtngTool.Description := StdTaskTool.Description;
+                        OnValidateStandardTaskCodeOnBeforeRtngToolInsert(RtngTool, StdTaskTool);
                         RtngTool.Insert();
                     until StdTaskTool.Next() = 0;
 
@@ -250,6 +251,7 @@ table 99000764 "Routing Line"
                         RtngPersonnel."Line No." := StdTaskPersonnel."Line No.";
                         RtngPersonnel."No." := StdTaskPersonnel."No.";
                         RtngPersonnel.Description := StdTaskPersonnel.Description;
+                        OnValidateStandardTaskCodeOnBeforeRtngPersonnelInsert(RtngPersonnel, StdTaskPersonnel);
                         RtngPersonnel.Insert();
                     until StdTaskPersonnel.Next() = 0;
 
@@ -266,6 +268,7 @@ table 99000764 "Routing Line"
                         RtngQltyMeasure."Min. Value" := StdTaskQltyMeasure."Min. Value";
                         RtngQltyMeasure."Max. Value" := StdTaskQltyMeasure."Max. Value";
                         RtngQltyMeasure."Mean Tolerance" := StdTaskQltyMeasure."Mean Tolerance";
+                        OnValidateStandardTaskCodeOnBeforeRtngQltyMeasureInsert(RtngQltyMeasure, StdTaskQltyMeasure);
                         RtngQltyMeasure.Insert();
                     until StdTaskQltyMeasure.Next() = 0;
 
@@ -553,6 +556,21 @@ table 99000764 "Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCertifiedRoutingVersionExistsOnBeforeCalculate(var RtngVersionCode: Code[20]; var RtngHeaderNo: Code[20]; CalculationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStandardTaskCodeOnBeforeRtngQltyMeasureInsert(var RoutingQualityMeasure: Record "Routing Quality Measure"; StandardTaskQualityMeasure: Record "Standard Task Quality Measure")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStandardTaskCodeOnBeforeRtngPersonnelInsert(var RoutingPersonnel: Record "Routing Personnel"; StandardTaskPersonnel: Record "Standard Task Personnel")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStandardTaskCodeOnBeforeRtngToolInsert(var RoutingTool: Record "Routing Tool"; StandardTaskTool: Record "Standard Task Tool")
     begin
     end;
 

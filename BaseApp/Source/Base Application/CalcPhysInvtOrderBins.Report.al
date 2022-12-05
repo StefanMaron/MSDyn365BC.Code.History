@@ -33,27 +33,28 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
                 WhseEntry.SetRange("Location Code", "Location Code");
                 WhseEntry.SetRange("Bin Code", Code);
                 if WhseEntry.Find('-') then
-                        repeat
-                            if Item.Get(WhseEntry."Item No.") then
-                                if not Item.Blocked then
-                                    if IsNewWhseEntryGroup() then begin
-                                        LastWhseEntry := WhseEntry;
-                                        IsHandled := false;
-                                        OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
-                                          Item, WhseEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText, NextLineNo,
-                                          CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
-                                        if not IsHandled then begin
-                                            PhysInvtOrderLineArgs.PrepareLineArgs(WhseEntry);
-                                            if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                                                 PhysInvtOrderLineArgs,
-                                                 ErrorText,
-                                                 PhysInvtOrderLine) = 0
-                                            then
-                                                CreateNewPhysInvtOrderLine();
-                                        end;
-                                    end else
-                                        ItemsBlocked := true;
-                        until WhseEntry.Next() = 0;
+                    repeat
+                        if Item.Get(WhseEntry."Item No.") then 
+                            if not Item.Blocked then begin
+                                if IsNewWhseEntryGroup() then begin
+                                    LastWhseEntry := WhseEntry;
+                                    IsHandled := false;
+                                    OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
+                                      Item, WhseEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText, NextLineNo,
+                                      CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
+                                    if not IsHandled then begin
+                                        PhysInvtOrderLineArgs.PrepareLineArgs(WhseEntry);
+                                        if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                                             PhysInvtOrderLineArgs,
+                                             ErrorText,
+                                             PhysInvtOrderLine) = 0
+                                        then
+                                            CreateNewPhysInvtOrderLine();
+                                    end;
+                                end;
+                            end else
+                                ItemsBlocked := true;
+                    until WhseEntry.Next() = 0;
             end;
 
             trigger OnPostDataItem()
@@ -225,4 +226,3 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
     begin
     end;
 }
-

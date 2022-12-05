@@ -54,6 +54,7 @@ codeunit 137400 "SCM Inventory - Orders"
         OrderPromisingQtyErr: Label 'Incorrect Quantity on Order Promising Line.';
         OrderPromisingUnavailQtyErr: Label 'Incorrect Unavailable Quantity on Order Promising Line';
         AmountToAssignItemChargeErr: Label 'Amount to Assign does not correspond to Qty. to Assign on item charge assignment.';
+        QtyToInvoiceMustHaveValueErr: Label 'Qty. to Invoice must have a value';
 
     [Test]
     [Scope('OnPrem')]
@@ -2384,6 +2385,104 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemChargeAssignmentSales.Find();
         ItemChargeAssignmentSales.TestField("Qty. to Assign", 0);
         ItemChargeAssignmentSales.TestField("Amount to Assign", 0);
+    end;
+
+    [Test]
+    procedure CannotDeleteItemChargeAssignmentSalesForInvoicedCharge()
+    var
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: array[2] of Record "Sales Line";
+        SalesLineCharge: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        i: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Sales] [Order]
+        // [SCENARIO 439173] Stan cannot delete item charge assignment (sales) when the item charge has already been invoiced.
+        Initialize(false);
+
+        // [GIVEN] Item charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Sales order with two item lines and an item charge line.
+        // [GIVEN] Assign the item charge evenly to the item lines.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLine(
+          SalesLineCharge, SalesHeader, SalesLineCharge.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        for i := 1 to 2 do begin
+            CreateSalesLine(
+              SalesLineItem[i], SalesHeader, SalesLineItem[i].Type::Item, LibraryInventory.CreateItemNo(),
+              LibraryRandom.RandInt(10));
+            LibraryInventory.CreateItemChargeAssignment(
+              ItemChargeAssignmentSales, SalesLineCharge, SalesLineItem[i]."Document Type", SalesLineItem[i]."Document No.",
+              SalesLineItem[i]."Line No.", SalesLineItem[i]."No.");
+            ItemChargeAssignmentSales.Validate("Qty. to Assign", SalesLineCharge.Quantity / 2);
+            ItemChargeAssignmentSales.Modify(true);
+        end;
+
+        // [GIVEN] Set "Qty. to Ship" = 0 on the item charge line and ship the item lines.
+        UpdateQtyToShipOnSalesLine(SalesLineCharge, 0);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Set "Qty. to Invoice" on the second item line and post the sales order.
+        UpdateQtyToInvoiceOnSalesLine(SalesLineItem[2], 0);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Try to delete the item charge assignment.
+        ItemChargeAssignmentSales.Find();
+        asserterror ItemChargeAssignmentSales.Delete(true);
+
+        // [THEN] Error. Cannot delete assignment when the item charge is invoiced.
+        Assert.ExpectedError(QtyToInvoiceMustHaveValueErr);
+    end;
+
+    [Test]
+    procedure CannotDeleteItemChargeAssignmentPurchForInvoicedCharge()
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: array[2] of Record "Purchase Line";
+        PurchaseLineCharge: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        i: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Purchase] [Order]
+        // [SCENARIO 439173] Stan cannot delete item charge assignment (purchase) when the item charge has already been invoiced.
+        Initialize(false);
+
+        // [GIVEN] Item charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Purchase order with two item lines and an item charge line.
+        // [GIVEN] Assign the item charge evenly to the item lines.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLine(
+          PurchaseHeader, PurchaseLineCharge, PurchaseLineCharge.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        for i := 1 to 2 do begin
+            CreatePurchaseLine(
+              PurchaseHeader, PurchaseLineItem[i], PurchaseLineItem[i].Type::Item, LibraryInventory.CreateItemNo(),
+              LibraryRandom.RandInt(10));
+            LibraryInventory.CreateItemChargeAssignPurchase(
+              ItemChargeAssignmentPurch, PurchaseLineCharge, PurchaseLineItem[i]."Document Type", PurchaseLineItem[i]."Document No.",
+              PurchaseLineItem[i]."Line No.", PurchaseLineItem[i]."No.");
+            ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchaseLineCharge.Quantity / 2);
+            ItemChargeAssignmentPurch.Modify(true);
+        end;
+
+        // [GIVEN] Set "Qty. to Receive" = 0 on the item charge line and receive the item lines.
+        UpdateQtyToReceiveOnPurchaseLine(PurchaseLineCharge, 0);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Set "Qty. to Invoice" on the second item line and post the purchase order.
+        UpdateQtyToInvoiceOnPurchaseLine(PurchaseLineItem[2], 0);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Try to delete the item charge assignment.
+        ItemChargeAssignmentPurch.Find();
+        asserterror ItemChargeAssignmentPurch.Delete(true);
+
+        // [THEN] Error. Cannot delete assignment when the item charge is invoiced.
+        Assert.ExpectedError(QtyToInvoiceMustHaveValueErr);
     end;
 
     local procedure Initialize(Enable: Boolean)

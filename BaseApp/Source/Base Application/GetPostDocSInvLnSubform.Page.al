@@ -280,7 +280,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -288,7 +288,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -307,24 +307,32 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        if not Visible then
+        if not IsVisible then
             exit(false);
 
-        if Find(Which) then begin
+        IsHandled := false;
+        OnFindRecordOnBeforeFind(Rec, Which, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if Rec.Find(Which) then begin
             SalesInvLine := Rec;
             while true do begin
                 ShowRec := IsShowRec(Rec);
                 if ShowRec then
                     exit(true);
-                if Next(1) = 0 then begin
+                if Rec.Next(1) = 0 then begin
                     Rec := SalesInvLine;
-                    if Find(Which) then
+                    if Rec.Find(Which) then
                         while true do begin
                             ShowRec := IsShowRec(Rec);
                             if ShowRec then
                                 exit(true);
-                            if Next(-1) = 0 then
+                            if Rec.Next(-1) = 0 then
                                 exit(false);
                         end;
                 end;
@@ -343,7 +351,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
 
         SalesInvLine := Rec;
         repeat
-            NextSteps := Next(Steps / Abs(Steps));
+            NextSteps := Rec.Next(Steps / Abs(Steps));
             ShowRec := IsShowRec(Rec);
             if ShowRec then begin
                 RealSteps := RealSteps + NextSteps;
@@ -351,7 +359,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := SalesInvLine;
-        Find();
+        Rec.Find();
         exit(RealSteps);
     end;
 
@@ -370,7 +378,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
         LineAmount: Decimal;
         RevQtyFilter: Boolean;
         FillExactCostReverse: Boolean;
-        Visible: Boolean;
+        IsVisible: Boolean;
         ShowRec: Boolean;
 
     protected var
@@ -386,13 +394,13 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
     begin
         TempSalesInvLine.Reset();
         TempSalesInvLine.CopyFilters(Rec);
-        TempSalesInvLine.SetRange("Document No.", "Document No.");
+        TempSalesInvLine.SetRange("Document No.", Rec."Document No.");
         if not TempSalesInvLine.FindFirst() then begin
             SalesInvHeader2 := SalesInvHeader;
             QtyNotReturned2 := QtyNotReturned;
             RevUnitCostLCY2 := RevUnitCostLCY;
             SalesInvLine2.CopyFilters(Rec);
-            SalesInvLine2.SetRange("Document No.", "Document No.");
+            SalesInvLine2.SetRange("Document No.", Rec."Document No.");
             if not SalesInvLine2.FindSet() then
                 exit(false);
             repeat
@@ -407,13 +415,13 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
             RevUnitCostLCY := RevUnitCostLCY2;
         end;
 
-        if "Document No." <> SalesInvHeader."No." then
-            SalesInvHeader.Get("Document No.");
+        if Rec."Document No." <> SalesInvHeader."No." then
+            SalesInvHeader.Get(Rec."Document No.");
 
-        UnitPrice := "Unit Price";
-        LineAmount := "Line Amount";
+        UnitPrice := Rec."Unit Price";
+        LineAmount := Rec."Line Amount";
 
-        exit("Line No." = TempSalesInvLine."Line No.");
+        exit(Rec."Line No." = TempSalesInvLine."Line No.");
     end;
 
     local procedure IsShowRec(SalesInvLine2: Record "Sales Invoice Line"): Boolean
@@ -449,8 +457,8 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
 
     local procedure GetQtyReturned(): Decimal
     begin
-        if (Type = Type::Item) and (Quantity - QtyNotReturned > 0) then
-            exit(Quantity - QtyNotReturned);
+        if (Rec.Type = Rec.Type::Item) and (Rec.Quantity - QtyNotReturned > 0) then
+            exit(Rec.Quantity - QtyNotReturned);
         exit(0);
     end;
 
@@ -459,9 +467,9 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
         ToSalesHeader := NewToSalesHeader;
         RevQtyFilter := NewRevQtyFilter;
         FillExactCostReverse := NewFillExactCostReverse;
-        Visible := NewVisible;
+        IsVisible := NewVisible;
 
-        if Visible then begin
+        if IsVisible then begin
             TempSalesInvLine.Reset();
             TempSalesInvLine.DeleteAll();
         end;
@@ -496,6 +504,11 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsShowRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesInvoiceLine2: Record "Sales Invoice Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordOnBeforeFind(var SalesInvoiceLine: Record "Sales Invoice Line"; var Which: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

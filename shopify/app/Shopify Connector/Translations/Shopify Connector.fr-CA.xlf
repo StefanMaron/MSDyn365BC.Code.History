@@ -3879,7 +3879,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 2734658265 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to Shopify Connector Setup</source>
-          <target state="translated">Bienvenue dans le programme d’installation du connecteur Shopify</target>
+          <target state="translated">Bienvenue dans la configuration du connecteur Shopify</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Welcome to Shopify Connector Setup - Property Caption</note>
         </trans-unit>

@@ -649,13 +649,14 @@ page 6306 "Power BI Report FactBox"
     var
         PowerBIUserConfiguration: Record "Power BI User Configuration";
     begin
-        // Initialize Factbox and make it visibile only if the user has a Power BI License
-        if PowerBiServiceMgt.CheckForPowerBILicenseInForeground() then begin
+        // If you've never used PowerBi, there is no config, so we'll skip the license check
+        if SetPowerBIUserConfig.SetUserConfig(PowerBIUserConfiguration, PageId) then begin
+            // If PowerBIVisibility is set to true, then initialize Factbox and make it visibile only if the user has a Power BI License
 #if not CLEAN19
             SetNameFilter(PageCaption);
 #endif
+            PowerBIVisible := PowerBiServiceMgt.CheckForPowerBILicenseInForeground();
             SetContext(PageId);
-            PowerBIVisible := SetPowerBIUserConfig.SetUserConfig(PowerBIUserConfiguration, PageId);
         end;
         IsVisible := PowerBIVisible;
     end;

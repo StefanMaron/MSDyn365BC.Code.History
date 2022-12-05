@@ -279,9 +279,7 @@ page 5146 "Assign Activity"
         Text000: Label 'untitled';
         Text005: Label '(Multiple)';
 
-    procedure Caption(): Text
-    var
-        CaptionStr: Text;
+    procedure Caption() CaptionStr: Text
     begin
         if Cont.Get(GetFilter("Contact Company No.")) then
             CaptionStr := CopyStr(Cont."No." + ' ' + Cont.Name, 1, MaxStrLen(CaptionStr));
@@ -298,13 +296,18 @@ page 5146 "Assign Activity"
         if CaptionStr = '' then
             CaptionStr := Text000;
 
-        exit(CaptionStr);
+        OnAfterCaption(Rec, CaptionStr);
     end;
 
     local procedure WizardContactNameOnFormat(Text: Text[1024])
     begin
         if SegHeader.Get(GetFilter("Segment No.")) then
             Text := Text005;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCaption(Todo: Record "To-do"; var CaptionStr: Text)
+    begin
     end;
 }
 

@@ -758,6 +758,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Quote] [Sales]
         // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Quote's line
+        Initialize();
+
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote);
         SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -777,6 +779,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Order] [Sales]
         // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Order's line
+        Initialize();
+
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -796,6 +800,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Invoice] [Sales]
         // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Invoice's line
+        Initialize();
+
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -816,6 +822,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Credit Memo] [Sales]
         // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Credit Memo's line
+        Initialize();
+
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -836,6 +844,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Blanket Order] [Sales]
         // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Blanket Order's line
+        Initialize();
+
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -856,6 +866,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Return Order] [Sales]
         // [SCENARIO 346194] "Sales Line Details" factbox updates when item's "No." is specified on Sales Return Order's line
+        Initialize();
+
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -876,6 +888,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Quote] [Purchase]
         // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Quote's line
+        Initialize();
+
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -895,6 +909,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Order] [Purchase]
         // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Order's line
+        Initialize();
+
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -914,6 +930,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Invoice] [Purchase]
         // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Invoice's line
+        Initialize();
+
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -934,6 +952,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Credit Memo] [Purchase]
         // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Credit Memo's line
+        Initialize();
+
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -954,6 +974,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Blanket Order] [Purchase]
         // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Blanket Order's line
+        Initialize();
+
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
         BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -974,6 +996,8 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [UI] [Return Order] [Purchase]
         // [SCENARIO 346194] "Purchase Line Details" factbox updates when item's "No." is specified on Purchase Return Order's line
+        Initialize();
+
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
         PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");

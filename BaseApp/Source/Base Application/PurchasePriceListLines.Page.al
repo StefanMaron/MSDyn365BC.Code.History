@@ -19,7 +19,7 @@ page 7011 "Purchase Price List Lines"
                 {
                     ApplicationArea = All;
                     Caption = 'Assign-to Type';
-                    Visible = not IsJobGroup and AllowUpdatingDefaults;
+                    Visible = SourceTypeVisible;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
@@ -31,7 +31,7 @@ page 7011 "Purchase Price List Lines"
                 {
                     ApplicationArea = All;
                     Caption = 'Assign-to Type';
-                    Visible = IsJobGroup and AllowUpdatingDefaults;
+                    Visible = JobSourceTypeVisible;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
@@ -338,21 +338,25 @@ page 7011 "Purchase Price List Lines"
         [InDataSet]
         PriceMandatory: Boolean;
         [InDataSet]
-        PriceVisible: Boolean;
-        [InDataSet]
         GLAccountAsset: Boolean;
         [InDataSet]
         AssignToNoVisible: Boolean;
         [InDataSet]
         AssignToParentNoVisible: Boolean;
         [InDataSet]
-        ParentSourceNoVisible: Boolean;
+        JobSourceTypeVisible: Boolean;
+        [InDataSet]
+        SourceTypeVisible: Boolean;
         [InDataSet]
         SourceNoVisible: Boolean;
+        [InDataSet]
+        PriceVisible: Boolean;
         [InDataSet]
         ResourceAsset: Boolean;
         [InDataSet]
         SourceNoEnabled: Boolean;
+        [InDataSet]
+        ParentSourceNoVisible: Boolean;
         [InDataSet]
         LineToVerify: Boolean;
         [InDataSet]
@@ -380,10 +384,6 @@ page 7011 "Purchase Price List Lines"
         ResourceAsset := Rec.IsAssetResource();
         GLAccountAsset := Rec."Asset Type" = "Price Asset Type"::"G/L Account";
         UnitCostEditable := AmountEditable and (ResourceAsset or GLAccountAsset);
-        AssignToNoVisible := AllowUpdatingDefaults and not UseCustomLookup;
-        AssignToParentNoVisible := IsJobGroup and AssignToNoVisible;
-        SourceNoVisible := AllowUpdatingDefaults and UseCustomLookup;
-        ParentSourceNoVisible := IsJobGroup and SourceNoVisible;
     end;
 
     local procedure SetMandatoryAmount()
@@ -400,6 +400,12 @@ page 7011 "Purchase Price List Lines"
         AmountTypeIsVisible := ViewAmountType = ViewAmountType::Any;
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
+        AssignToNoVisible := AllowUpdatingDefaults and not UseCustomLookup;
+        AssignToParentNoVisible := IsJobGroup and AssignToNoVisible;
+        SourceNoVisible := AllowUpdatingDefaults and UseCustomLookup;
+        ParentSourceNoVisible := IsJobGroup and SourceNoVisible;
+        JobSourceTypeVisible := IsJobGroup and AllowUpdatingDefaults;
+        SourceTypeVisible := not IsJobGroup and AllowUpdatingDefaults;
     end;
 
     procedure SetHeader(NewPriceListHeader: Record "Price List Header")
@@ -425,6 +431,7 @@ page 7011 "Purchase Price List Lines"
         else
             Rec.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
         Rec.FilterGroup(0);
+        UpdateSourceType();
         UpdateColumnVisibility();
         CurrPage.Update(false);
     end;

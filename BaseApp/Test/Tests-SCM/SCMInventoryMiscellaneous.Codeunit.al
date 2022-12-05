@@ -1446,7 +1446,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         // [THEN] Report output file created
         LibraryReportValidation.SetFullFileName(ShipmentFileName);
-        LibraryReportValidation.VerifyCellValueByRef('I', 24, 1, FindShipmentNoByLocation(TransferHeader."Transfer-from Code"));
+        LibraryReportValidation.VerifyCellValueByRef('H', 20, 1, FindShipmentNoByLocation(TransferHeader."Transfer-from Code"));
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -2398,6 +2398,15 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BinContent.FindFirst();
         BinContent.CalcFields(Quantity);
         BinContent.TestField(Quantity, Quantity);
+    end;
+
+    local procedure FindTransferToFromPostedShipmentByLocation(LocationCode: Code[10]): Code[20]
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        TransferShipmentHeader.SetRange("Transfer-from Code", LocationCode);
+        TransferShipmentHeader.FindFirst();
+        exit(TransferShipmentHeader."Transfer-to Code");
     end;
 
     [ConfirmHandler]

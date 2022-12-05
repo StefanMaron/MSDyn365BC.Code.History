@@ -91,7 +91,13 @@ codeunit 48 PostingSetupManagement
     procedure CheckVATPostingSetupSalesAccount(VATBusGroupCode: Code[20]; VATProdGroupCode: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckVATPostingSetupSalesAccount(VATBusGroupCode, VATProdGroupCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsPostingSetupNotificationEnabled() then
             exit;
 
@@ -457,6 +463,11 @@ codeunit 48 PostingSetupManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckInvtPostingSetupInventoryAccount(var LocationCode: Code[10]; var PostingGroup: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVATPostingSetupSalesAccount(VATBusGroupCode: Code[20]; VATProdGroupCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

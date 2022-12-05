@@ -1673,6 +1673,36 @@ codeunit 5342 "CRM Synch. Helper"
             CRMOptionMapping.Rename(NewRecId);
     end;
 
+    internal procedure FindNewValueForSpecialMapping(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant) IsValueFound: Boolean
+    var
+        TempOpportunity: Record Opportunity temporary;
+        TempCRMOpportunity: Record "CRM Opportunity" temporary;
+    begin
+        if SourceFieldRef.Number() = TempOpportunity.FieldNo("Contact Company No.") then
+            if DestinationFieldRef.Number() = TempCRMOpportunity.FieldNo(ParentAccountId) then
+                if SourceFieldRef.Record().Number() = Database::Opportunity then
+                    if DestinationFieldRef.Record().Number() = Database::"CRM Opportunity" then begin
+                        NewValue := FindParentCRMAccountForOpportunity(SourceFieldRef.Record());
+                        IsValueFound := true;
+                        exit;
+                    end;
+    end;
+
+    local procedure FindParentCRMAccountForOpportunity(SourceRecordRef: RecordRef) AccountId: Guid
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Customer: Record Customer;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        if not FindOpportunityRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then
+            exit;
+
+        if not Customer.Get(ContactBusinessRelation."No.") then
+            Error(RecordNotFoundErr, Customer.TableCaption(), ContactBusinessRelation."No.");
+
+        CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
+    end;
+
     local procedure IsTableMappedToCRMOption(NAVFieldRef: FieldRef; CRMFieldRef: FieldRef): Boolean
     var
         CRMOptionMapping: Record "CRM Option Mapping";

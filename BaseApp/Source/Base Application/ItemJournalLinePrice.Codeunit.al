@@ -52,7 +52,7 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
         exit(CurrPriceType);
     end;
 
-    procedure IsPriceUpdateNeeded(AmountType: enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
+    procedure IsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
     begin
         if FoundPrice then
             Result := true
@@ -69,6 +69,7 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
                             not ((CalledByFieldNo = ItemJournalLine.FieldNo(Quantity)) or
                                 ((CalledByFieldNo = ItemJournalLine.FieldNo("Variant Code")) and not IsSKU))
                 end;
+        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, ItemJournalLine, Result);
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -200,6 +201,11 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
     begin
     end;
 

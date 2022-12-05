@@ -599,8 +599,13 @@
             CopyShiptoCodeFromInvToCrMemo(ToSalesHeader, FromSalesInvHeader, FromDocType);
             CopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader);
             OnAfterCopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader, MoveNegLines, IncludeHeader, FromDocType);
-            if RecalculateLines then
+            if RecalculateLines then begin
+                if IncludeHeader then
+                    SavedDimSetId := ToSalesHeader."Dimension Set ID";
                 CreateDimFromDefaultDim(0);
+                if IncludeHeader then
+                    ToSalesHeader."Dimension Set ID" := SavedDimSetId;
+            end;
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
@@ -1102,8 +1107,13 @@
 
             CopyFieldsFromOldPurchHeader(ToPurchHeader, OldPurchHeader);
             OnAfterCopyFieldsFromOldPurchHeader(ToPurchHeader, OldPurchHeader, MoveNegLines, IncludeHeader);
-            if RecalculateLines then
+            if RecalculateLines then begin
+                if IncludeHeader then
+                    SavedDimSetId := ToPurchHeader."Dimension Set ID";
                 CreateDimFromDefaultDim(0);
+                if IncludeHeader then
+                    ToPurchHeader."Dimension Set ID" := SavedDimSetId;
+            end;
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';

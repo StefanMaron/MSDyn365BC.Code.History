@@ -230,10 +230,9 @@ codeunit 456 "Job Queue Management"
             if JobQueueEntry.FindSet() then
                 repeat
                     // Check if job is still running or stale
-                    // JQE is stale if it has no task and no active session
+                    // JQE is stale if it has task no longer exists
                     // If stale, set to error
-                    if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") and
-                        HasNoActiveSession(JobQueueEntry."User Service Instance ID", JobQueueEntry."User Session ID") then begin
+                    if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then begin
                         JobQueueEntry.SetError(JobSomethingWentWrongMsg);
 
                         StaleJobQueueEntryTelemetry(JobQueueEntry);
@@ -265,11 +264,12 @@ codeunit 456 "Job Queue Management"
 
     local procedure HasNoActiveSession(ServerInstanceID: Integer; SessionID: Integer): Boolean
     var
-        ActiveSession: Record "Active Session";
+        SessionEvent: Record "Session Event";
     begin
-        ActiveSession.Setrange("Server Instance ID", ServerInstanceID);
-        ActiveSession.Setrange("Session ID", SessionID);
-        exit(ActiveSession.IsEmpty());
+        SessionEvent.SetRange("Server Instance ID", ServerInstanceID);
+        SessionEvent.SetRange("Session ID", SessionID);
+        SessionEvent.SetRange("Event Type", SessionEvent."Event Type"::Logoff);
+        exit(not SessionEvent.IsEmpty());
     end;
 
     local procedure StaleJobQueueEntryTelemetry(JobQueueEntry: Record "Job Queue Entry")

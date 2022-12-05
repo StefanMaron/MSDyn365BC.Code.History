@@ -230,6 +230,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         CDSConnectionSetup: Record "CDS Connection Setup";
+        Item: Record Item;
+        Resource: Record Resource;
+        PriceListLine: Record "Price List Line";
+        CRMProduct: Record "CRM Product";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         DestinationRecRef: RecordRef;
         OriginalDestinationFieldValue: Variant;
         IsClearValueOnFailedSync: Boolean;
@@ -302,6 +307,34 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 IsValueFound := true;
                 NeedsConversion := false;
                 exit;
+            end;
+        end;
+
+        if CRMSynchHelper.FindNewValueForSpecialMapping(SourceFieldRef, DestinationFieldRef, NewValue) then begin
+            IsValueFound := true;
+            NeedsConversion := false;
+            exit;
+        end;
+
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
+            if ((SourceFieldRef.Record().Number() = Database::Item) and (SourceFieldRef.Number() = Item.FieldNo("Base Unit of Measure"))) or
+            ((SourceFieldRef.Record().Number() = Database::Resource) and (SourceFieldRef.Number() = Resource.FieldNo("Base Unit of Measure"))) or
+            ((SourceFieldRef.Record().Number() = Database::"Price List Line") and (SourceFieldRef.Number() = PriceListLine.FieldNo("Unit of Measure Code"))) then begin
+                CRMSynchHelper.ConvertBaseUnitOfMeasureToUomId(SourceFieldRef, DestinationFieldRef, NewValue);
+                IsValueFound := true;
+                NeedsConversion := false;
+                exit;
+            end;
+            if (SourceFieldRef.Record().Number() = Database::"CRM Product") and (SourceFieldRef.Number() = CRMProduct.FieldNo(DefaultUoMId)) then begin
+                CRMSynchHelper.ConvertUomIdToBaseUnitOfMeasure(SourceFieldRef, DestinationFieldRef, NewValue);
+                IsValueFound := true;
+                NeedsConversion := false;
+                exit;
+            end;
+            if SourceFieldRef.Record().Number() = Database::"Unit Group" then begin
+                CRMSynchHelper.PrefixUnitGroupCode(SourceFieldRef, NewValue);
+                IsValueFound := true;
+                NeedsConversion := false;
             end;
         end;
 
@@ -982,14 +1015,20 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         end;
     end;
 
-    local procedure FindParentCRMAccountForContact(SourceRecordRef: RecordRef; Silent: Boolean; var AccountId: Guid): Boolean
+    local procedure FindParentCRMAccountForContact(SourceRecordRef: RecordRef; Silent: Boolean; var AccountId: Guid) Result: Boolean
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         Contact: Record Contact;
         Customer: Record Customer;
         Vendor: Record Vendor;
         CRMIntegrationRecord: Record "CRM Integration Record";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindParentCRMAccountForContact(SourceRecordRef, Silent, AccountId, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then begin
             if Customer.Get(ContactBusinessRelation."No.") then begin
                 CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
@@ -1486,5 +1525,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             CDSConnectionSetup."Authentication Type"::AD, CDSConnectionSetup."Authentication Type"::IFD:
                 CDSSystemuser.SetRange(DomainName, CDSConnectionSetup."User Name");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindParentCRMAccountForContact(SourceRecordRef: RecordRef; Silent: Boolean; var AccountId: Guid; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }

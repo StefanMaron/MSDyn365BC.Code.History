@@ -373,6 +373,7 @@ codeunit 431 "IC Outbox Export"
                                     SalesHeader.Modify();
                                 end;
                         end;
+                OnUpdateICStatusOnAfterLoopIteration(ICOutboxTransaction);
             until ICOutboxTransaction.Next() = 0
     end;
 
@@ -422,6 +423,11 @@ codeunit 431 "IC Outbox Export"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendToExternalPartner(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateICStatusOnAfterLoopIteration(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 

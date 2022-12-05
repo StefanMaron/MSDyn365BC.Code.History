@@ -97,6 +97,20 @@ page 8887 "Email Accounts"
                     ToolTip = 'Specifies the type of email extension that the account is added to.';
                     Visible = false;
                 }
+
+                field(EmailRateLimit; RateLimit)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Email Rate Limit';
+                    ToolTip = 'Set rate limit per minute for the email account.';
+                    Visible = true;
+
+                    trigger OnDrillDown()
+                    var
+                    begin
+                        EmailRateLimitImpl.UpdateRateLimit(Rec);
+                    end;
+                }
             }
         }
 
@@ -212,6 +226,24 @@ page 8887 "Email Accounts"
                 end;
             }
 
+            action(SetUpRateLimit)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = Setup;
+                Caption = 'Set email rate limit';
+                ToolTip = 'Sets a limit on how many emails can be sent from the account per minute.';
+                Visible = (not LookupMode) and CanUserManageEmailSetup;
+                Enabled = HasEmailAccount;
+
+                trigger OnAction()
+                begin
+                    EmailRateLimitImpl.UpdateRateLimit(Rec);
+                end;
+            }
+
             action(Delete)
             {
                 ApplicationArea = All;
@@ -299,6 +331,19 @@ page 8887 "Email Accounts"
                     EmailScenarioSetup.Run();
                 end;
             }
+
+            action(EmailScenarioAttachments)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Category4;
+                Image = Documents;
+                Caption = 'Email Scenario Attachments';
+                ToolTip = 'Assign attachments to email scenarios.';
+                Visible = not LookupMode;
+                RunObject = page "Email Scenario Attach Setup";
+            }
         }
     }
 
@@ -320,6 +365,8 @@ page 8887 "Email Accounts"
             UpdateAccounts := false;
             UpdateEmailAccounts();
         end;
+
+        RateLimit := EmailRateLimitImpl.GetRateLimit(Rec."Account Id", Rec.Connector, Rec."Email Address");
 
         DefaultTxt := '';
 
@@ -397,8 +444,11 @@ page 8887 "Email Accounts"
     var
         DefaultEmailAccount: Record "Email Account";
         EmailAccountImpl: Codeunit "Email Account Impl.";
+        EmailRateLimitImpl: Codeunit "Email Rate Limit Impl.";
         [InDataSet]
         IsDefault: Boolean;
+        [InDataSet]
+        RateLimit: Integer;
         CanUserManageEmailSetup: Boolean;
         DefaultTxt: Text;
         UpdateAccounts: Boolean;

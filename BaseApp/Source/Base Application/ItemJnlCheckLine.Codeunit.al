@@ -39,6 +39,7 @@
         IsHandled: Boolean;
         ShouldCheckDiscountAmount: Boolean;
         ShouldCheckLocationCode: Boolean;
+        ShouldCheckItemNo: Boolean;
     begin
         GLSetup.Get();
         InvtSetup.Get();
@@ -149,7 +150,9 @@
             then begin
                 TestField("Source No.", ErrorInfo.Create());
                 TestField("Order Type", "Order Type"::Production, ErrorInfo.Create());
-                if not CalledFromAdjustment and ("Entry Type" = "Entry Type"::Output) then
+                ShouldCheckItemNo := not CalledFromAdjustment and ("Entry Type" = "Entry Type"::Output);
+                OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJnlLine, ProdOrderLine, CalledFromAdjustment, ShouldCheckItemNo);
+                if ShouldCheckItemNo then
                     if CheckFindProdOrderLine(ProdOrderLine, "Order No.", "Order Line No.") then begin
                         TestField("Item No.", ProdOrderLine."Item No.", ErrorInfo.Create());
                         OnAfterCheckFindProdOrderLine(ItemJnlLine, ProdOrderLine);
@@ -698,6 +701,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var ItemJnlLine: Record "Item Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; CalledFromAdjustment: Boolean; var ShouldCheckItemNo: Boolean)
     begin
     end;
 

@@ -1190,6 +1190,7 @@ report 5606 "Fixed Asset - Book Value 02"
                         ReclassTotalEndingAmounts[J] :=
                           ReclassStartAmounts[J] + ReclassNetChangeAmounts[J] + ReclassDisposalAmounts[J];
                 end;
+                OnOnAfterGetRecordOnBeforeCalculateBookValues(StartingDate, EndingDate, "Fixed Asset", StartAmounts, NetChangeAmounts, TotalEndingAmounts);
                 BookValueAtEndingDate := 0;
                 BookValueAtStartingDate := 0;
                 for J := 1 to NumberOfTypes do begin
@@ -1607,6 +1608,11 @@ report 5606 "Fixed Asset - Book Value 02"
             FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnAfterGetRecordOnBeforeCalculateBookValues(StartingDate: Date; EndingDate: Date; var FixedAsset: Record "Fixed Asset"; var StartAmounts: array[6] of Decimal; var NetChangeAmounts: array[6] of Decimal; var TotalEndingAmounts: array[7] of Decimal)
+    begin
     end;
 }
 

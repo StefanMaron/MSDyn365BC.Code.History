@@ -2418,6 +2418,63 @@ codeunit 134922 "ERM Budget"
         // [THEN] No "The filter expression applied..." error
     end;
 
+    [Test]
+    procedure InsertBudgetedSalesAmountOnSalesBudgetOverviewMatrixWithRoundingFactor()
+    var
+        ItemBudgetName: Record "Item Budget Name";
+        ItemBudgetEntry: Record "Item Budget Entry";
+        AnalysisRoundingFactor: Enum "Analysis Rounding Factor";
+        BudgetNamesSales: TestPage "Budget Names Sales";
+        SalesBudgetOverview: TestPage "Sales Budget Overview";
+        ItemNo: Code[20];
+        Quantity: array[2] of Decimal;
+        BudgetAmount: array[2] of Decimal;
+        CostAmount: array[2] of Decimal;
+        SalesAmount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Item Budget]
+        // [SCENARIO 421720] Insert Budgeted Sales Amount on page Sales Budget Overview Matrix with a rounding factor of 1000.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Initialized values of Quantity, Cost Amount, Sales Amount.
+        Quantity[1] := LibraryRandom.RandDecInRange(10, 20, 1);
+        Quantity[2] := LibraryRandom.RandDecInRange(1, 5, 1);
+        CostAmount[1] := LibraryRandom.RandDecInRange(100, 200, 1);
+        CostAmount[2] := LibraryRandom.RandDecInRange(10, 50, 1);
+        SalesAmount[1] := LibraryRandom.RandDecInRange(1000, 2000, 1);
+        SalesAmount[2] := LibraryRandom.RandDecInRange(100, 500, 1);
+
+        // [GIVEN] Sales Budget "B" with two Item Budget Entries with Item "I", Quantity "Q1","Q2", Cost Amount "C1","C2", Sales Amount "S1","S2".
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryERM.CreateItemBudgetName(ItemBudgetName, "Analysis Area Type"::Sales);
+
+        LibraryInventory.CreateItemBudgetEntry(ItemBudgetEntry, ItemBudgetName."Analysis Area", ItemBudgetName.Name, WorkDate(), ItemNo);
+        UpdateQtyCostSalesAmountOnItemBudgetEntry(ItemBudgetEntry, Quantity[1], CostAmount[1], SalesAmount[1]);
+
+        LibraryInventory.CreateItemBudgetEntry(ItemBudgetEntry, ItemBudgetName."Analysis Area", ItemBudgetName.Name, WorkDate() + 1, ItemNo);
+        UpdateQtyCostSalesAmountOnItemBudgetEntry(ItemBudgetEntry, Quantity[2], CostAmount[2], SalesAmount[2]);
+
+        // [GIVEN] Opened page "Sales Budgets".
+        BudgetNamesSales.OpenEdit();
+        BudgetNamesSales.Filter.SetFilter(Name, ItemBudgetName.Name);
+
+        // [WHEN] Run "Edit Budget" for Budget "B" and then filter by Item "I" on opened "Sales Budget Overview" page and set rounding factor to 1000.
+
+        SalesBudgetOverview.Trap();
+        BudgetNamesSales.EditBudget.Invoke();
+        SalesBudgetOverview.RoundingFactor.SetValue(AnalysisRoundingFactor::"1000".AsInteger());
+        SalesBudgetOverview.ItemFilter.SetValue(ItemNo);
+
+        // [THEN] Sales Budget Overview Matrix has values: Budgeted Quantity = "Q1" + "Q2"; Budgeted Sales Amount = "S1" + "S2"; Budgeted Cost Amount = "C1" + "C2".
+        Assert.AreEqual(Format(Quantity[1] + Quantity[2]), SalesBudgetOverview.MATRIX.Quantity.Value, StrSubstNo('%1 expected but got %2', Quantity[1] + Quantity[2], SalesBudgetOverview.MATRIX.Quantity.Value));
+        Assert.AreEqual(Format(CostAmount[1] + CostAmount[2]), SalesBudgetOverview.MATRIX.CostAmount.Value, StrSubstNo('%1 expected but got %2', Quantity[1] + Quantity[2], SalesBudgetOverview.MATRIX.Quantity.Value));
+        Assert.AreEqual(Format(SalesAmount[1] + SalesAmount[2]), SalesBudgetOverview.MATRIX.Amount.Value, StrSubstNo('%1 expected but got %2', Quantity[1] + Quantity[2], SalesBudgetOverview.MATRIX.Quantity.Value));
+
+        SalesBudgetOverview.Close();
+        BudgetNamesSales.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3673,4 +3730,3 @@ codeunit 134922 "ERM Budget"
         DimensionValueList.OK.Invoke;
     end;
 }
-

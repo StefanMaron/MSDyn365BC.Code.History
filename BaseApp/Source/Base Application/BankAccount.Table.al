@@ -184,7 +184,7 @@ table 270 "Bank Account"
         field(29; "Our Contact Code"; Code[20])
         {
             Caption = 'Our Contact Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(35; "Country/Region Code"; Code[10])
         {

@@ -4760,7 +4760,7 @@
         </trans-unit>
         <trans-unit id="Page 4023966537 - Control 3318218501 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the import job. </source>
-          <target state="translated">Especifica el estado del trabajo de importación. </target>
+          <target state="translated">Especifica el estado del proyecto de importación. </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Initial Import - Control Job Status - Property ToolTip</note>
         </trans-unit>

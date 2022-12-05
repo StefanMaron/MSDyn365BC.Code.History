@@ -1963,25 +1963,25 @@
                 }
                 action(Action37)
                 {
-                    ApplicationArea = Advanced;
-                    Caption = 'Orders';
+                    ApplicationArea = Suite;
+                    Caption = 'Sales Orders';
                     Image = Document;
                     RunObject = Page "Sales Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'View a list of ongoing orders for the item.';
+                    ToolTip = 'View a list of ongoing sales orders for the item.';
                 }
                 action("Returns Orders")
                 {
-                    ApplicationArea = Advanced;
-                    Caption = 'Returns Orders';
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Sales Returns Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Sales Return Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'View ongoing sales or purchase return orders for the item.';
+                    ToolTip = 'View ongoing sales return orders for the item.';
                 }
             }
             group(Purchases)
@@ -2040,24 +2040,24 @@
                 action(Action40)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Orders';
+                    Caption = 'Purchase Orders';
                     Image = Document;
                     RunObject = Page "Purchase Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'View a list of ongoing orders for the item.';
+                    ToolTip = 'View a list of ongoing purchase orders for the item.';
                 }
                 action("Return Orders")
                 {
-                    ApplicationArea = SalesReturnOrder;
-                    Caption = 'Return Orders';
+                    ApplicationArea = PurchReturnOrder;
+                    Caption = 'Purchase Return Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Purchase Return Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'Open the list of ongoing return orders for the item.';
+                    ToolTip = 'Open the list of ongoing purchase return orders for the item.';
                 }
                 action("Ca&talog Items")
                 {

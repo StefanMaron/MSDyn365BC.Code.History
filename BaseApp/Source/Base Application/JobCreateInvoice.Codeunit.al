@@ -122,6 +122,7 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLine.Copy(JobPlanningLineSource);
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
 
+        OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineFindSet(JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, CreditMemo);
         if JobPlanningLine.FindSet() then
             repeat
                 if TransferLine(JobPlanningLine) then begin
@@ -382,6 +383,11 @@ codeunit 1002 "Job Create-Invoice"
         if PostingDate <> 0D then
             SalesHeader.Validate("Posting Date", PostingDate);
 
+        if Job."External Document No." <> '' then
+            SalesHeader.Validate("External Document No.", Job."External Document No.");
+
+        SalesHeader."Your Reference" := Job."Your Reference";
+
         IsHandled := false;
         OnCreateSalesHeaderOnBeforeUpdateSalesHeader(SalesHeader, Job, IsHandled, JobPlanningLine);
         if not IsHandled then
@@ -489,6 +495,7 @@ codeunit 1002 "Job Create-Invoice"
             SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
             OnBeforeModifySalesLine(SalesLine, SalesHeader, Job, JobPlanningLine);
             SalesLine.Modify();
+            OnCreateSalesLineOnAfterSalesLineModify(SalesLine, SalesHeader, Job, JobPlanningLine);
             JobPlanningLine."VAT Unit Price" := SalesLine."Unit Price";
             JobPlanningLine."VAT Line Discount Amount" := SalesLine."Line Discount Amount";
             JobPlanningLine."VAT Line Amount" := SalesLine."Line Amount";
@@ -1071,7 +1078,17 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnAfterSalesLineModify(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnAfterValidateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var LastError: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineFindSet(var JobPlanningLine: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean)
     begin
     end;
 

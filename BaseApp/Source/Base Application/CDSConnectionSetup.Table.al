@@ -378,6 +378,7 @@ table 7200 "CDS Connection Setup"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetAccessToken(): Text
     begin
         if IsTemporary() then

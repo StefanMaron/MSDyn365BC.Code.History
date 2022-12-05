@@ -1722,7 +1722,13 @@
     var
         TempAssemblyHeader: Record "Assembly Header" temporary;
         TempAssemblyLine: Record "Assembly Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDueDateBeforeWorkDateMsg(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         AssemblyLineMgt.CopyAssemblyData(Rec, TempAssemblyHeader, TempAssemblyLine);
         if TempAssemblyLine.FindSet() then
             repeat
@@ -1971,6 +1977,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDueDateBeforeWorkDateMsg(AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 

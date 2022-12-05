@@ -1622,6 +1622,7 @@ codeunit 137908 "SCM Assembly Order"
     begin
         // [SCENARIO] When using assemble-to-order for an assembly item containing non-inventory items in its BOM,
         // the location code is set for the generated assembly lines.
+        Initialize();
 
         // [GIVEN] an assemble-to-order item with an assembly BOM containing a non-inventory item.
         LibraryInventory.CreateItem(AssemblyItem);

@@ -349,6 +349,7 @@
                         CheckLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
                         CheckLedgEntry.Open := false;
                         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
+                        OnCloseBankAccLedgEntryOnBeforeCheckLedgEntryModify(CheckLedgEntry, BankAccReconLine);
                         CheckLedgEntry.Modify();
                     until CheckLedgEntry.Next() = 0;
             until BankAccLedgEntry.Next() = 0;
@@ -844,6 +845,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCloseBankAccLedgEntryOnBeforeBankAccLedgEntryModify(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseBankAccLedgEntryOnBeforeCheckLedgEntryModify(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 

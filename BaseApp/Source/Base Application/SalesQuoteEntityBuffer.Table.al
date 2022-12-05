@@ -184,7 +184,7 @@ table 5505 "Sales Quote Entity Buffer"
         {
             Caption = 'Salesperson Code';
             DataClassification = CustomerContent;
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {

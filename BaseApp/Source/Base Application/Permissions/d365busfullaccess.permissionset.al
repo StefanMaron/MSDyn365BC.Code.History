@@ -509,7 +509,10 @@
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
+#if not CLEAN22
                   tabledata "Payment Buffer" = RIMD,
+#endif
+                  tabledata "Vendor Payment Buffer" = RIMD,
                   tabledata "Payment Export Data" = Rimd,
                   tabledata "Payment Export Remittance Text" = RIMD,
                   tabledata "Payment Jnl. Export Error Text" = RIMD,

@@ -3615,6 +3615,61 @@ codeunit 137077 "SCM Supply Planning -IV"
         ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
     end;
 
+    [Test]
+    procedure PlanningTwoSKUEachCrossesReorderPoint()
+    var
+        Item: Record Item;
+        ItemVariant: array[2] of Record "Item Variant";
+        SKU: Record "Stockkeeping Unit";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ReorderQty: Decimal;
+        SalesQty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Reorder Point] [SKU]
+        // [SCENARIO 444268] Separate exception planning lines must be created for each SKU that crosses reorder point.
+        Initialize();
+        ReorderQty := LibraryRandom.RandInt(10);
+        SalesQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item with "Reordering Policy" = "Fixed Qty." and "Reorder Quantity" = 1.
+        CreateAndUpdateItem(Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Fixed Reorder Qty.", 0, '');
+        Item.Validate("Reorder Quantity", ReorderQty);
+        Item.Modify(true);
+
+        // [GIVEN] Create two item variants.
+        // [GIVEN] Create two stockkeeping units.
+        // [GIVEN] Create sales order with two lines, one per each variant. Quantity = 4.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        for i := 1 to ArrayLen(ItemVariant) do begin
+            LibraryInventory.CreateItemVariant(ItemVariant[i], Item."No.");
+            CreateSKUFromItem(SKU, Item, '', ItemVariant[i].Code);
+
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", SalesQty);
+            SalesLine.Validate("Variant Code", ItemVariant[i].Code);
+            SalesLine.Modify(true);
+        end;
+
+        // [WHEN] Calculate regenerative plan.
+        Item.Reset();
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [THEN] Two planning lines have been created for each variant -
+        // [THEN] one for 4 pcs that fulfills the sales demand,
+        // [THEN] one for 1 pc to respect the reorder quantity.
+        for i := 1 to ArrayLen(ItemVariant) do begin
+            RequisitionLine.SetRange("Variant Code", ItemVariant[i].Code);
+            SelectRequisitionLine(RequisitionLine, Item."No.");
+            RequisitionLine.CalcSums(Quantity);
+
+            Assert.RecordCount(RequisitionLine, 2);
+            RequisitionLine.TestField(Quantity, SalesQty + ReorderQty);
+        end;
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -3834,6 +3889,13 @@ codeunit 137077 "SCM Supply Planning -IV"
         StockkeepingUnit.Validate("Reordering Policy", ReorderingPolicy);
         StockkeepingUnit.Validate("Transfer-from Code", TransferFromCode);
         StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure CreateSKUFromItem(var SKU: Record "Stockkeeping Unit"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10])
+    begin
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, LocationCode, Item."No.", VariantCode);
+        SKU.CopyFromItem(Item);
+        SKU.Modify(true);
     end;
 
     local procedure RunOrderPromisingFromSalesHeader(SalesHeader: Record "Sales Header")

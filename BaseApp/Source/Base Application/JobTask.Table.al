@@ -94,7 +94,14 @@ table 1001 "Job Task"
             TableRelation = "Job Posting Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobPostingGroup(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Job Posting Group" <> '' then
                     TestField("Job Task Type", "Job Task Type"::Posting);
             end;
@@ -448,7 +455,14 @@ table 1001 "Job Task"
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModify(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("Schedule (Total Cost)", "Usage (Total Cost)");
         Job.UpdateOverBudgetValue("Job No.", true, "Usage (Total Cost)");
         Job.UpdateOverBudgetValue("Job No.", false, "Schedule (Total Cost)");
@@ -573,6 +587,12 @@ table 1001 "Job Task"
             PurchLine.SetFilter("Job Task No.", Totaling)
         else
             PurchLine.SetRange("Job Task No.", JobTaskNo);
+        OnAfterApplyPurchaseLineFilters(Rec, PurchLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyPurchaseLineFilters(var JobTask: Record "Job Task"; var PurchaseLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -591,9 +611,20 @@ table 1001 "Job Task"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateJobTaskNo(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobPostingGroup(var JobTask: Record "Job Task"; xJobTask: Record "Job Task"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; JobTask2: Record "Job Task")

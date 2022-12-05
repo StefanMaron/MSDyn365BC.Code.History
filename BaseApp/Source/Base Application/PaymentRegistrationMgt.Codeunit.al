@@ -584,6 +584,7 @@ codeunit 980 "Payment Registration Mgt."
                     GenJnlLine.SetRange("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
                 end;
         end;
+        OnCalculateBalanceOnAfterSetPostedBalance(PostedBalance, GLAccount, BankAccount);
 
         GenJnlLine.SetRange("Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
         GenJnlLine.CalcSums(Amount);
@@ -676,6 +677,11 @@ codeunit 980 "Payment Registration Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateBalanceOnAfterSetPostedBalance(var PostedBalance: Decimal; GLAccount: Record "G/L Account"; BankAccount: Record "Bank Account")
     begin
     end;
 

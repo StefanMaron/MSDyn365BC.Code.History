@@ -366,7 +366,14 @@ table 99000829 "Planning Component"
             Caption = 'Calculation Formula';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCalculationFormula(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 case "Calculation Formula" of
                     "Calculation Formula"::" ":
                         Quantity := "Quantity per";
@@ -1333,6 +1340,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PlanningComponent: Record "Planning Component"; var xPlanningComponent: Record "Planning Component"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCalculationFormula(var PlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
     begin
     end;
 

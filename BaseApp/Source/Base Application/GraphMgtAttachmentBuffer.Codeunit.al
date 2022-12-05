@@ -962,17 +962,19 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                     exit(AttachmentEntityBufferDocType::"Sales Invoice");
 
             IncomingDocument."Document Type"::"Purchase Invoice":
-                exit(AttachmentEntityBufferDocType::"Purchase Invoice");
+                begin
+                    if PurchaseHeader.GetBySystemId(DocumentId) then
+                        if PurchaseHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then
+                            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
+                                exit(AttachmentEntityBufferDocType::"Purchase Order");
+
+                    exit(AttachmentEntityBufferDocType::"Purchase Invoice");
+                end;
 
             IncomingDocument."Document Type"::" ":
                 begin
                     if GLEntry.Get(IncomingDocument."Related Record ID") then
                         exit(AttachmentEntityBufferDocType::Journal);
-
-                    if PurchaseHeader.GetBySystemId(DocumentId) then
-                        if PurchaseHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then
-                            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
-                                exit(AttachmentEntityBufferDocType::"Purchase Order");
 
                     exit(AttachmentEntityBufferDocType::" ");
                 end;
@@ -1351,12 +1353,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if DocumentRecordRef.Number = DATABASE::"Purchase Header" then begin
             DocumentRecordRef.SetTable(PurchaseHeader);
             IncomingDocument.Description := CopyStr(PurchaseHeader."Buy-from Vendor Name", 1, MaxStrLen(IncomingDocument.Description));
-
-            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Invoice then
-                IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Invoice";
-            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
-                IncomingDocument."Document Type" := IncomingDocument."Document Type"::" ";
-
+            IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Invoice";
             IncomingDocument."Document No." := PurchaseHeader."No.";
             IncomingDocument.Insert(true);
             PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
@@ -1617,15 +1614,17 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                     TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Invoice";
 
             IncomingDocument."Document Type"::"Purchase Invoice":
-                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Invoice";
-
-            IncomingDocument."Document Type"::" ":
                 if PurchaseHeader.Get(IncomingDocument."Related Record ID") then begin
                     if PurchaseHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then
                         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
-                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Order";
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Order"
+                        else
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Invoice";
                 end else
-                    TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
+                    TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Invoice";
+
+            IncomingDocument."Document Type"::" ":
+                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
         end;
     end;
 }

@@ -129,7 +129,7 @@
 
                 CounterSourceDocTotal := CounterSourceDocTotal + 1;
 
-                OnBeforePostSourceDocument(WhseShptLine, PurchHeader, SalesHeader, TransHeader, ServiceHeader);
+                OnBeforePostSourceDocument(WhseShptLine, PurchHeader, SalesHeader, TransHeader, ServiceHeader, SuppressCommit);
                 PostSourceDocument(WhseShptLine);
                 WhseJnlRegisterLine.LockTables();
 
@@ -495,7 +495,7 @@
                         PurchPost.SetWhseShptHeader(WhseShptHeader);
                         PurchPost.SetSuppressCommit(SuppressCommit);
                         IsHandled := false;
-                        OnPostSourceDocumentOnBeforePostPurchHeader(PurchPost, PurchHeader, WhseShptHeader, CounterSourceDocOK, IsHandled);
+                        OnPostSourceDocumentOnBeforePostPurchHeader(PurchPost, PurchHeader, WhseShptHeader, CounterSourceDocOK, IsHandled, SuppressCommit);
                         if not IsHandled then
                             case WhseSetup."Shipment Posting Policy" of
                                 WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
@@ -1267,14 +1267,14 @@
                             SalesLine.Validate("Qty. to Invoice", 0);
                         end;
                     end;
-                    OnBeforeSalesLineModify(SalesLine, WhseShptLine, ModifyLine, Invoice);
+                    OnBeforeSalesLineModify(SalesLine, WhseShptLine, ModifyLine, Invoice, WhseShptHeader);
                     if ModifyLine then
                         SalesLine.Modify();
-                    OnHandleSalesLineOnAfterSalesLineModify(SalesLine, ModifyLine);
+                    OnHandleSalesLineOnAfterSalesLineModify(SalesLine, ModifyLine, WhseShptHeader);
                 until SalesLine.Next() = 0;
         end;
 
-        OnAfterHandleSalesLine(WhseShptLine, SalesHeader, Invoice);
+        OnAfterHandleSalesLine(WhseShptLine, SalesHeader, Invoice, WhseShptHeader);
     end;
 
     local procedure UpdateSaleslineQtyToShip(var SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line"; var ATOWhseShptLine: Record "Warehouse Shipment Line"; var NonATOWhseShptLine: Record "Warehouse Shipment Line"; var ATOLineFound: Boolean; var NonATOLineFound: Boolean; SumOfQtyToShip: Decimal; SumOfQtyToShipBase: Decimal)
@@ -1570,7 +1570,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterHandleSalesLine(var WhseShipmentLine: Record "Warehouse Shipment Line"; SalesHeader: Record "Sales Header"; var Invoice: Boolean)
+    local procedure OnAfterHandleSalesLine(var WhseShipmentLine: Record "Warehouse Shipment Line"; SalesHeader: Record "Sales Header"; var Invoice: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -1650,7 +1650,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; Invoice: Boolean)
+    local procedure OnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; Invoice: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -1750,7 +1750,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostSourceDocument(var WhseShptLine: Record "Warehouse Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header"; var ServiceHeader: Record "Service Header")
+    local procedure OnBeforePostSourceDocument(var WhseShptLine: Record "Warehouse Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header"; var ServiceHeader: Record "Service Header"; SuppressCommit: Boolean)
     begin
     end;
 
@@ -1835,7 +1835,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnHandleSalesLineOnAfterSalesLineModify(var SalesLine: Record "Sales Line"; ModifyLine: Boolean)
+    local procedure OnHandleSalesLineOnAfterSalesLineModify(var SalesLine: Record "Sales Line"; ModifyLine: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -2035,7 +2035,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforePostPurchHeader(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    local procedure OnPostSourceDocumentOnBeforePostPurchHeader(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean; SuppressCommit: Boolean)
     begin
     end;
 }

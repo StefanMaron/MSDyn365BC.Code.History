@@ -220,6 +220,7 @@
                             end;
                             ToProdOrderLine.BlockDynamicTracking(true);
                             ToProdOrderLine.Validate(Quantity);
+                            OnTransProdOrderLineOnBeforeTransferPOLineToPOLine(FromProdOrderLine, ToProdOrderLine, NewStatus);
                             ProdOrderLineReserve.TransferPOLineToPOLine(FromProdOrderLine, ToProdOrderLine, 0, true);
                         end;
                         ToProdOrderLine.Validate("Unit Cost", "Unit Cost");
@@ -1272,6 +1273,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderCompOnBeforeToProdOrderCompInsert(var FromProdOrderComp: Record "Prod. Order Component"; var ToProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderLineOnBeforeTransferPOLineToPOLine(FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status")
     begin
     end;
 

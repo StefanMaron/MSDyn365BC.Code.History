@@ -184,10 +184,7 @@ page 6013 "Resource Capacity Settings"
                     if not Confirm(Text004, false, TableCaption(), "No.") then
                         exit;
 
-                    if CompanyInformation.Get() then begin
-                        CompanyInformation.TestField("Base Calendar Code");
-                        CalendarMgmt.SetSource(CompanyInformation, CustomizedCalendarChange);
-                    end;
+                    SetCalendar(CustomizedCalendarChange);
 
                     ResCapacityEntry.Reset();
                     ResCapacityEntry.SetCurrentKey("Resource No.", Date);
@@ -304,10 +301,30 @@ page 6013 "Resource Capacity Settings"
         end;
     end;
 
+    local procedure SetCalendar(var CustomizedCalendarChange: Record "Customized Calendar Change")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetCalendar(Rec, CustomizedCalendarChange, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CompanyInformation.Get() then begin
+            CompanyInformation.TestField("Base Calendar Code");
+            CalendarMgmt.SetSource(CompanyInformation, CustomizedCalendarChange);
+        end;
+    end;
+
     local procedure SumWeekTotal()
     begin
         WeekTotal := WorkTemplateRec.Monday + WorkTemplateRec.Tuesday + WorkTemplateRec.Wednesday +
           WorkTemplateRec.Thursday + WorkTemplateRec.Friday + WorkTemplateRec.Saturday + WorkTemplateRec.Sunday;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCalendar(var Resource: Record Resource; var CustomizedCalendarChange: Record "Customized Calendar Change"; var IsHandled: Boolean)
+    begin
     end;
 }
 

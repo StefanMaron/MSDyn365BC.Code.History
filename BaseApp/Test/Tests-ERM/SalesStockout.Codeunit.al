@@ -13,6 +13,7 @@ codeunit 136132 "Sales Stockout"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
@@ -355,6 +356,55 @@ codeunit 136132 "Sales Stockout"
         PurchaseLine.TestField("Variant Code", ItemVariant.Code);
         PurchaseLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
         PurchaseLine.TestField(Quantity, SaleQuantity);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemAvailabilityCheckModalPageHandler,RecallNotificationHandler')]
+    procedure UnitOfMeasureWhenCreatePurchaseOrderFromAssemblyOrderViaItemAvailCheckPage()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseLine: Record "Purchase Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        AssemblyOrder: TestPage "Assembly Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Assembly Order]
+        // [SCENARIO 449322] Unit of Measure Code is copied from Assembly Order line to Purchase Order line via Item Availability Check page.
+        Initialize();
+
+        // [GIVEN] Item "I" with Vendor and alternate Unit of Measure "UOM".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Assembly Order with line containing Item "I" with Unit of Measure "UOM" and Quantity Per 0.
+        LibraryAssembly.CreateAssemblyHeader(
+            AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), '', LibraryRandom.RandIntInRange(10, 20), '');
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", ItemUnitOfMeasure.Code, AssemblyHeader.Quantity, 0, '');
+
+        // [GIVEN] Opened Assembly Order page. Quantity Per is updated on Assembly Line to 10.
+        // [GIVEN] Availability Warning is shown for Assembly Line.
+        // [WHEN] Drill down field "Avail. Warning" of Assembly Line and then "Create Purchase Order" on the Item Availability Check page.
+        PurchaseOrder.Trap();
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.Filter.SetFilter("No.", AssemblyHeader."No.");
+        AssemblyOrder.Lines."Quantity per".SetValue(10);
+        AssemblyOrder.Lines."Avail. Warning".Drilldown();
+        PurchaseOrder.Close();
+
+        // [THEN] Purchase Order was created.
+        // [THEN] It has Purchase Line with Item No. = "I", Unit of Measure Code = "UOM".
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", Item."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
 
         NotificationLifecycleMgt.RecallAllNotifications();
     end;

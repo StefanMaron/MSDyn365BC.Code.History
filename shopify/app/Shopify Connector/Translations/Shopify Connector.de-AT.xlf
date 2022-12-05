@@ -3701,13 +3701,13 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - NamedType 3734137583" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify customer template</source>
-          <target state="translated">Shopify-Kundenvorlage</target>
+          <target state="translated">Shopify-Debitorenvorlage</target>
           <note from="Developer" annotates="general" priority="2">Shopify must not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType CustomerConfigTemplateDescLbl</note>
         </trans-unit>
         <trans-unit id="Page 3918578631 - NamedType 192460646" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No customer template was found, please visit Configuration Templates page to create a customer template.</source>
-          <target state="translated">Es wurde keine Kundenvorlage gefunden. Bitte besuchen Sie die Seite „Konfigurationsvorlagen", um eine Kundenvorlage zu erstellen.</target>
+          <target state="translated">Es wurde keine Debitorenvorlage gefunden. Bitte besuchen Sie die Seite „Konfigurationsvorlagen", um eine Debitorenvorlage zu erstellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType CustomerTemplateNotFoundErr</note>
         </trans-unit>
@@ -3755,7 +3755,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - NamedType 4203578975" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Template %1 is not a customer template.</source>
-          <target state="translated">Vorlage %1 ist keine Kundenvorlage.</target>
+          <target state="translated">Vorlage %1 ist keine Debitorenvorlage.</target>
           <note from="Developer" annotates="general" priority="2">%1 = template name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType SelectedTemplateNotCustomerErr</note>
         </trans-unit>
@@ -3939,7 +3939,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 2614052691 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This guide can help you quickly get started with Business Central. You can import the products and customers from Shopify that you want to manage in Business Central. You can use this guide only one time</source>
-          <target state="translated">Mit dieser Anleitung können Sie schnell mit Business Central arbeiten. Sie können die Produkte und Kunden aus Shopify importieren, die Sie in Business Central verwalten möchten. Sie können diese Anleitung nur einmal verwenden</target>
+          <target state="translated">Mit dieser Anleitung können Sie schnell mit Business Central arbeiten. Sie können die Produkte und Debitoren aus Shopify importieren, die Sie in Business Central verwalten möchten. Sie können diese Anleitung nur einmal verwenden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control6 - Property InstructionalText</note>
         </trans-unit>
@@ -3951,13 +3951,13 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 353560050 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Import customers from Shopify.</source>
-          <target state="translated">Kunden aus Shopify importieren.</target>
+          <target state="translated">Debitoren aus Shopify importieren.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Customers From Shopify - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 353560050 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Import Customers From Shopify</source>
-          <target state="translated">Kunden aus Shopify importieren</target>
+          <target state="translated">Debitoren aus Shopify importieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Import Customers From Shopify - Property Caption</note>
         </trans-unit>
@@ -4029,25 +4029,25 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 106324946 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You've chosen to import customers. Here are some important settings that define how to create them in Business Central.</source>
-          <target state="translated">Sie haben sich für den Import von Kunden entschieden. Hier finden Sie einige wichtige Einstellungen, die festlegen, wie Sie diese in Business Central erstellen.</target>
+          <target state="translated">Sie haben sich für den Import von Debitoren entschieden. Hier finden Sie einige wichtige Einstellungen, die festlegen, wie Sie diese in Business Central erstellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control10 - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 106324946 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specify how to create customers</source>
-          <target state="translated">Legen Sie fest, wie Kunden erstellt werden sollen.</target>
+          <target state="translated">Legen Sie fest, wie Debitoren erstellt werden sollen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control10 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 3763595625 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You should only import customers for whom you want to track order activity in Business Central. For example, the customers that you often do business with.</source>
-          <target state="translated">Sie sollten nur Kunden importieren, für die Sie die Auftragsaktivitäten in Business Central verfolgen möchten. Das sind zum Beispiel die Kunden, mit denen Sie häufig Geschäfte machen.</target>
+          <target state="translated">Sie sollten nur Debitoren importieren, für die Sie die Auftragsaktivitäten in Business Central verfolgen möchten. Das sind zum Beispiel die Debitoren, mit denen Sie häufig Geschäfte machen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control11 - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 509464483 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the customer template to use to create unknown customers. These are customers in Shopify that don't already exist in Business Central.</source>
-          <target state="translated">Gibt die Kundenvorlage an, die zum Erstellen unbekannter Kunden verwendet werden soll. Dies sind Kunden in Shopify, die nicht bereits in Business Central vorhanden sind.</target>
+          <target state="translated">Gibt die Debitorenvorlage an, die zum Erstellen unbekannter Debitoren verwendet werden soll. Dies sind Debitoren in Shopify, die nicht bereits in Business Central vorhanden sind.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Customer Template Code - Property ToolTip</note>
         </trans-unit>

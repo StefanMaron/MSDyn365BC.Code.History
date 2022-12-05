@@ -153,8 +153,7 @@ codeunit 228 "Test Report-Print"
         PurchHeader := NewPurchHeader;
         PurchHeader.SetRecFilter();
         CalcPurchDiscount(PurchHeader);
-        ReportSelection.PrintWithDialogWithCheckForVend(
-          ReportSelection.Usage::"P.Test", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+        ReportSelection.PrintWithCheckForVend(ReportSelection.Usage::"P.Test", PurchHeader, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure PrintPurchHeaderPrepmt(NewPurchHeader: Record "Purchase Header")
@@ -163,8 +162,7 @@ codeunit 228 "Test Report-Print"
     begin
         PurchHeader := NewPurchHeader;
         PurchHeader.SetRecFilter();
-        ReportSelection.PrintWithDialogWithCheckForVend(
-          ReportSelection.Usage::"P.Test Prepmt.", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+        ReportSelection.PrintWithCheckForVend(ReportSelection.Usage::"P.Test Prepmt.", PurchHeader, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure PrintBankAccRecon(NewBankAccRecon: Record "Bank Acc. Reconciliation")

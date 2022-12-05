@@ -47,6 +47,8 @@ codeunit 136306 "Job Invoicing"
         CancelPostedInvoiceQst: Label 'The posted sales invoice will be canceled, and a sales credit memo will be created and posted, which reverses the posted sales invoice.\ \Do you want to continue?';
         CorrectPostedInvoiceQst: Label 'The posted sales invoice will be canceled, and a new version of the sales invoice will be created so that you can make the correction.\ \Do you want to continue?';
         JobMustNotBeBlockedErr: Label 'Job %1 must not be blocked', Comment = '%1 - Job No.';
+        ExtDocNoErr: Label 'The actual %1 External Document No. and the expected %2 External Document No. are not equal', Comment = '%1 = Job, %2 = Sales Header';
+        YourReferenceErr: Label 'The actual %1 Your Reference and the expected %2 Your Reference are not equal', Comment = '%1 = Job, %2 = Sales Header';
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
 
     [Test]
@@ -2999,6 +3001,41 @@ codeunit 136306 "Job Invoicing"
         // [SCENARIO] Calculate WIP without posting to G/L when consumed quantity on a task is returned
         Initialize();
         CalculateWIPWithReturnedJobUsage(1, -1, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,TransferToInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyJobExternalDocNoAndYourReferenceFieldOnSalesInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 453005] External Document No. and Your Reference field in the Job Card are not transferred to Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create Job with Job Planning Lines with G/L Accounts
+        CreateJob(Job, '', false);
+        Job.Validate("External Document No.", CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(Job."External Document No.")));
+        Job.Validate("Your Reference", CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(Job."Your Reference")));
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+        JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        Commit();
+
+        // [WHEN] Create Sales Invoice
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+
+        // [VERIFY] Verify External Document No. and Your Reference on Sales Invoice        
+        Assert.AreEqual(Job."External Document No.", SalesHeader."External Document No.", StrSubstNo(ExtDocNoErr, Job.TableCaption(), SalesHeader.TableCaption));
+        Assert.AreEqual(Job."Your Reference", SalesHeader."Your Reference", StrSubstNo(YourReferenceErr, Job.TableCaption(), SalesHeader.TableCaption));
     end;
 
     procedure CalculateWIPWithReturnedJobUsage(QuantityOnInvoice: Integer; QuantityOnCreditmemo: Integer; PostToGL: Boolean)

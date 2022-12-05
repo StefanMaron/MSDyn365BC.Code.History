@@ -230,7 +230,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -249,24 +249,32 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
         if not Visible then
             exit(false);
 
-        if Find(Which) then begin
+        IsHandled := false;
+        OnFindRecordOnBeforeFind(Rec, Which, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if Rec.Find(Which) then begin
             SalesShptLine := Rec;
             while true do begin
                 ShowRec := IsShowRec(Rec);
                 if ShowRec then
                     exit(true);
-                if Next(1) = 0 then begin
+                if Rec.Next(1) = 0 then begin
                     Rec := SalesShptLine;
-                    if Find(Which) then
+                    if Rec.Find(Which) then
                         while true do begin
                             ShowRec := IsShowRec(Rec);
                             if ShowRec then
                                 exit(true);
-                            if Next(-1) = 0 then
+                            if Rec.Next(-1) = 0 then
                                 exit(false);
                         end;
                 end;
@@ -416,6 +424,11 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsShowRec(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesShipmentLine2: Record "Sales Shipment Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordOnBeforeFind(var SalesShipmentLine: Record "Sales Shipment Line"; var Which: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

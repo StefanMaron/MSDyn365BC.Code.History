@@ -31,12 +31,14 @@ page 381 "Apply Bank Acc. Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the document type on the bank account entry. The document type will be Payment, Refund, or the field will be blank.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the document number on the bank account entry.';
                 }
                 field(Description; Description)
@@ -50,6 +52,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the amount of the entry denominated in the applicable foreign currency.';
                     Visible = AmountVisible;
                 }
@@ -251,6 +254,11 @@ page 381 "Apply Bank Acc. Ledger Entries"
             until BankAccLedgerEntry.Next() = 0;
     end;
 
+    procedure CopyCurrentFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+        BankAccountLedgerEntry.CopyFilters(Rec);
+    end;
+
     procedure SetUserInteractions()
     begin
         StyleTxt := '';
@@ -258,7 +266,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             if (OpenedBankAccReconBankAccountNo = Rec."Bank Account No.") and (OpenedBankAccReconStatementNo = Rec."Statement No.") then
                 StyleTxt := 'Favorable'
             else
-                StyleTxt := 'Ambiguous';
+                StyleTxt := 'AttentionAccent';
     end;
 
     local procedure CalcBalance()

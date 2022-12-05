@@ -790,6 +790,7 @@ report 7305 "Whse.-Source - Create Document"
         AssemblyHeader.Copy(AssemblyHeader2);
         WhseDoc := WhseDoc::Assembly;
         SourceTableCaption := AssemblyHeader.TableCaption();
+        OnAfterSetAssemblyOrder(AssemblyHeader, SortActivity);
     end;
 
     procedure SetJob(var Job2: Record Job)
@@ -797,6 +798,7 @@ report 7305 "Whse.-Source - Create Document"
         JobHeader.Copy(Job2);
         WhseDoc := WhseDoc::Job;
         SourceTableCaption := JobHeader.TableCaption();
+        OnAfterSetJob(JobHeader, SortActivity);
     end;
 
     procedure GetActivityHeader(var WhseActivityHeader: Record "Warehouse Activity Header"; TypeToFilter: Option " ","Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement")
@@ -1276,6 +1278,16 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostedWhseReceiptLineOnPostDataItem(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var SortActivity: Enum "Whse. Activity Sorting Method")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetJob(var Job: Record Job; var SortActivity: Enum "Whse. Activity Sorting Method")
     begin
     end;
 

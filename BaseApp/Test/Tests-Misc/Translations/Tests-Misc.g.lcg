@@ -7736,6 +7736,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Clause - NamedType VATClauseDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4122365620 - NamedType 51287082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong VATClauseText on VAT Clause %1! Expected ID: %2, Actual ID: %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Clause - NamedType VATClauseTextErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1827349365 - NamedType 3651482053" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong work date ]]></Val>

@@ -75,6 +75,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 571534387 - NamedType 2917787611" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email because the user is external.</source>
+          <target state="translated">Die E-Mail konnte nicht gesendet werden, da der Benutzer extern ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailExternalUserErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 2164095947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The mailbox is not valid.\\A likely cause is that the user does not have a valid license for Office 365. To read about other potential causes, visit https://go.microsoft.com/fwlink/?linkid=2206177</source>
           <target state="translated">Das Postfach ist ungültig.\\Eine wahrscheinliche Ursache dieses Fehlers ist, dass der Benutzer keine gültige Lizenz für Office 365 besitzt. Um weitere mögliche Ursachen zu ermitteln, navigieren Sie zu https://docs.microsoft.com/exchange/troubleshoot/user-and-shared-mailboxes/rest-api-is-not-yet-supported-for-this-mailbox-error.</target>

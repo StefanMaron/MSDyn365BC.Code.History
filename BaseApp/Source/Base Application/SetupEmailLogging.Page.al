@@ -691,6 +691,7 @@ page 1811 "Setup Email Logging"
         MarketingSetup: Record "Marketing Setup";
         EnvironmentInfo: Codeunit "Environment Information";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        [NonDebuggable]
         ClientSecretLocal: Text;
     begin
         LoadTopBanners();
@@ -753,9 +754,13 @@ page 1811 "Setup Email Logging"
         ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
         AdminOAuthCredentials: DotNet OAuthCredentials;
         Step: Option Intro,Client,OAuth2,Email,PublicFolders,Done;
+        [NonDebuggable]
         UserEmail: Text[80];
+        [NonDebuggable]
         Password: Text[30];
+        [NonDebuggable]
         ClientId: Text[250];
+        [NonDebuggable]
         ClientSecret: Text[250];
         RedirectURL: Text[2048];
         RootQueueStorageFolder: Text;

@@ -34,7 +34,13 @@ codeunit 1006 "Copy Job"
     )
     var
         TargetJob: Record Job;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyJob(SourceJob, TargetJobNo, TargetJobDescription, TargetJobSellToCustomer, TargetJobBillToCustomer, CopyDimensions, CopyPrices, IsHandled);
+        if IsHandled then
+            exit;
+
         TargetJob.SetHideValidationDialog(true);
         TargetJob."No." := TargetJobNo;
         TargetJob.TransferFields(SourceJob, false);
@@ -64,7 +70,7 @@ codeunit 1006 "Copy Job"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCopyJobTasks(SourceJob, TargetJob, IsHandled);
+        OnBeforeCopyJobTasks(SourceJob, TargetJob, IsHandled, CopyDimensions, CopyQuantity, CopyPrices, JobTaskRangeFrom, JobTaskRangeTo, JobPlanningLineSource, JobLedgerEntryType);
         if IsHandled then
             exit;
 
@@ -165,7 +171,9 @@ codeunit 1006 "Copy Job"
                     "Qty. to Invoice" := 0;
                     "Ledger Entry No." := 0;
                     "Ledger Entry Type" := "Ledger Entry Type"::" ";
+                    OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
                     Insert(true);
+                    OnCopyJobPlanningLinesOnAfterTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
                     if Type <> Type::Text then begin
                         ExchangeJobPlanningLineAmounts(TargetJobPlanningLine, SourceJob."Currency Code");
                         if not CopyQuantity then
@@ -374,6 +382,11 @@ codeunit 1006 "Copy Job"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyJob(SourceJob: Record Job; TargetJobNo: Code[20]; TargetJobDescription: Text[100]; TargetJobSellToCustomer: Code[20]; TargetJobBillToCustomer: Code[20]; CopyDimensions: Boolean; CopyPrices: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyJobTask(var TargetJobTask: Record "Job Task"; SourceJobTask: Record "Job Task"; CopyPrices: Boolean; CopyQuantity: Boolean)
     begin
     end;
@@ -393,8 +406,8 @@ codeunit 1006 "Copy Job"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyJobTasks(var SourceJob: Record Job; var TargetJob: Record Job; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyJobTasks(var SourceJob: Record Job; var TargetJob: Record Job; var IsHandled: Boolean; CopyDimensions: Boolean; CopyQuantity: Boolean; CopyPrices: Boolean; JobTaskRangeFrom: Code[20]; JobTaskRangeTo: Code[20]; JobPlanningLineSource: Option; JobLedgerEntryType: Option)
     begin
     end;
 
@@ -410,6 +423,16 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(var SourceJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobPlanningLinesOnAfterTargetJobPlanningLineInsert(var TargetJobPlanningLine: Record "Job Planning Line"; SourceJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(var TargetJobPlanningLine: Record "Job Planning Line"; SourceJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

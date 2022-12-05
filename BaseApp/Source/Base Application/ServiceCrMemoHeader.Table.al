@@ -815,7 +815,13 @@ table 5994 "Service Cr.Memo Header"
         DummyReportSelections: Record "Report Selections";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         DocumentTypeTxt: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendProfile(Rec, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.Send(
           DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, "No.", "Bill-to Customer No.",
@@ -892,6 +898,11 @@ table 5994 "Service Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendProfile(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
     begin
     end;
 

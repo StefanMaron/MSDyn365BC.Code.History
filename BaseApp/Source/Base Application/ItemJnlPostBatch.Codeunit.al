@@ -475,6 +475,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         IncludeExpectedCost: Boolean;
         PostingDate: Date;
         IsLastEntry: Boolean;
+        ThrowPostingsExistError: Boolean;
     begin
         DistributeCosts := true;
         RemAmountToDistribute := ItemJnlLine.Amount;
@@ -546,7 +547,9 @@ codeunit 23 "Item Jnl.-Post Batch"
                                         repeat
                                             if IncludeEntryInCalc(ItemLedgEntry4, PostingDate, IncludeExpectedCost) then begin
                                                 RemQuantity := CalculateRemQuantity("Entry No.", ItemJnlLine."Posting Date");
-                                                if RemQuantity > 0 then
+                                                ThrowPostingsExistError := RemQuantity > 0;
+                                                OnItemJnlPostSumLineOnAfterCalcThrowPostingsExistError(ItemJnlLine, RemQuantity, ThrowPostingsExistError);
+                                                if ThrowPostingsExistError then
                                                     Error(Text008 + Text009, ItemJnlLine4."Item No.");
                                             end;
                                         until Next() = 0;
@@ -1059,6 +1062,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemJnlPostSumLineOnAfterGetItem(var Item: Record Item; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostSumLineOnAfterCalcThrowPostingsExistError(var ItemJournalLine: Record "Item Journal Line"; RemQuantity: Decimal; var ThrowPostingsExistError: Boolean)
     begin
     end;
 

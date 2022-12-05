@@ -908,6 +908,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Address Lookup - Field Source Table Number - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 761349018 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Attachments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 761349018 - Field 1024873738 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachment Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Attachments - Field Attachment Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 761349018 - Field 683882146 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AttachmentDefaultStatus</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Attachments - Field AttachmentDefaultStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 761349018 - Field 2517427471 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Attachments - Field Email Attachment - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 761349018 - Field 415504711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Attachments - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 761349018 - Field 910027226 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Attachments - Field Scenario - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1993094577 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Connector</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1123,6 +1153,31 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Outbox - Field User Security Id - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3143285109 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Rate Limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Rate Limit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3143285109 - Field 3856268488 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Rate Limit - Field Account Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3143285109 - Field 3083306301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connector</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Rate Limit - Field Connector - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3143285109 - Field 90141998 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Rate Limit - Field Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3143285109 - Field 3588218969 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rate Limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Rate Limit - Field Rate Limit - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 474016873 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Recipient</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1222,6 +1277,36 @@
           <source>Scenario</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario - Field Scenario - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4275131692 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenario Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario Attachments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4275131692 - Field 1024873738 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachment Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario Attachments - Field Attachment Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4275131692 - Field 683882146 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AttachmentDefaultStatus</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario Attachments - Field AttachmentDefaultStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4275131692 - Field 2517427471 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario Attachments - Field Email Attachment - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4275131692 - Field 415504711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario Attachments - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4275131692 - Field 910027226 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Scenario Attachments - Field Scenario - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 50758251 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email View Policy</source>
@@ -3778,21 +3863,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Helper Library - Method GetXmlDocumentFromResponse - NamedType ReadingAsXmlErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1555353944 - Method 3801949817 - NamedType 3368247536" size-unit="char" translate="yes" xml:space="preserve">
-          <source>bytes=%1-%2</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Start Range; %2 = End Range</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Optional Parameters - Method Range - NamedType RangeBytesLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1555353944 - Method 1050077758 - NamedType 3368247536" size-unit="char" translate="yes" xml:space="preserve">
-          <source>bytes=%1-%2</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Start Range; %2 = End Range</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS Optional Parameters - Method SourceRange - NamedType RangeBytesLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2480824916 - Method 2825432122 - NamedType 438715022" size-unit="char" translate="yes" xml:space="preserve">
-          <source>restype</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ABS URI Helper - Method AppendRestTypeIfNecessary - NamedType RestTypeLbl</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2480824916 - Method 1340944587 - NamedType 4132244079" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 can not be empty</source>
           <note from="Developer" annotates="general" priority="2">%1 = Variable Name</note>
@@ -4588,6 +4658,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Message Impl. - NamedType NoAccountErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1685527521 - NamedType 1722522343" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add attachment to selected email scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Scenario Attach Impl. - NamedType AddeFileToScenariosMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1685527521 - NamedType 3870982870" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add attachment to current email scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Scenario Attach Impl. - NamedType AddFileToCurrentScenarioMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1685527521 - NamedType 1170614061" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to add the selected attachments?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Scenario Attach Impl. - NamedType ConfirmUploadEmailQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1685527521 - NamedType 170933452" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This page is for adding additional, non-default attachments to the scenario. Do you want to add an attachment?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Scenario Attach Impl. - NamedType ConfirmUploadNotDefaultToListQst</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2918810872 - NamedType 2230688874" size-unit="char" translate="yes" xml:space="preserve">
           <source>Change e-mail account used for the selected scenarios</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4627,6 +4717,11 @@
           <source>Test email has been sent to %1.\Check your email for messages to make sure that the email was delivered successfully.</source>
           <note from="Developer" annotates="general" priority="2">%1 is an email address.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Test Mail - NamedType TestEmailSuccessMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2091346909 - NamedType 84139891" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email is not sent because the sent emails exceed the rate limit for the email account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Test Mail - NamedType TestExceedsRateLimitMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 50758251 - NamedType 2507396449" size-unit="char" translate="yes" xml:space="preserve">
           <source>The default user email policy cannot be deleted.</source>
@@ -5153,6 +5248,16 @@
           <note from="Developer" annotates="general" priority="2">%1 = the type of the existing permission</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Impl. - NamedType PermissionAlreadyExistsWithDifferentTypeErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2592325759 - NamedType 889771585" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select object to add</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Impl. - NamedType SelectObjectLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2592325759 - NamedType 2509307536" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select objects to add</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Impl. - NamedType SelectObjectsLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4236785502 - NamedType 539863752" size-unit="char" translate="yes" xml:space="preserve">
           <source>Permission set already exists.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5602,6 +5707,11 @@
           <source>Progress: @1@@@@@@@@@@</source>
           <note from="Developer" annotates="general" priority="2">The string should always end with @1@@@@@@@@@@.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Table Information Cache Impl. - NamedType ProgressDialogLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4114771133 - NamedType 2720302725" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Element count must be positive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Temp Blob List Impl. - NamedType ElementCountMustBePositiveErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4114771133 - NamedType 1642655653" size-unit="char" translate="yes" xml:space="preserve">
           <source>There are not enough objects available to fulfill the request.</source>
@@ -7833,6 +7943,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - NamedType LearnMoreTok</note>
         </trans-unit>
+        <trans-unit id="Page 3756518970 - NamedType 286665424" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - NamedType NoLimitTxt</note>
+        </trans-unit>
         <trans-unit id="Page 3756518970 - Control 3030799777 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use caution when adding email accounts. Depending on your setup, accounts can be available to all users.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -7972,6 +8087,21 @@
           <source>Set as default</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control DefaultField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3756518970 - Control 1470853660 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control SetUpRateLimit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3756518970 - Control 617774859 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the maximum number of emails per minute the account can send. A rate limit of 0 indicates no limit.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control EmailRateLimitDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3756518970 - Control 617774859 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rate Limit per Minute</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control EmailRateLimitDisplay - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 1144586632 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Navigate to AppSource.</source>
@@ -8123,6 +8253,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control EmailConnector - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 30176885 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set rate limit per minute for the email account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control EmailRateLimit - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 30176885 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Rate Limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control EmailRateLimit - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3389183890 - Control 3141900483 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the logo for the type of email account.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -8172,6 +8312,16 @@
           <source>View</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action View - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Action 32936156 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assign attachments to email scenarios.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action EmailScenarioAttachments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Action 32936156 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenario Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action EmailScenarioAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3389183890 - Action 2263682359 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assign scenarios to the email accounts.</source>
@@ -8242,6 +8392,16 @@
           <source>Send Test Email</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action SendTestMail - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Action 1470853660 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sets a limit on how many emails can be sent from the account per minute.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action SetUpRateLimit - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Action 1470853660 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set email rate limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action SetUpRateLimit - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3158499545 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Status</source>
@@ -8349,7 +8509,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileName - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 761349018 - Control 989751795 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Filename</source>
+          <source>File Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileName - Property Caption</note>
         </trans-unit>
@@ -8383,8 +8543,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action Upload - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 761349018 - Action 2912722189 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add additional attachments from default email attachments. These files are not attached by default.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action UploadFromScenario - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Action 2912722189 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add Files from Default Selection</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action UploadFromScenario - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 761349018 - Action 970153994 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Create and Attach a document using a Word Template.</source>
+          <source>Create and attach a document using a Word Template.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action WordTemplate - Property ToolTip</note>
         </trans-unit>
@@ -8392,6 +8562,36 @@
           <source>Add File from Word Template</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action WordTemplate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add the attachments from the scenario to the email.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Additional Attachments from Scenarios</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Control 989751795 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control FileName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Control 989751795 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control FileName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Control 910027226 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Which Emails Scenario does the attachment come from</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control Scenario - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Control 910027226 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control Scenario - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2282749623 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Compose an Email</source>
@@ -8578,6 +8778,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - NamedType EmailConnectorHasBeenUninstalledMsg</note>
         </trans-unit>
+        <trans-unit id="Page 1251581097 - NamedType 3318074931" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your emails are being throttled due to the rate limit set on an account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - NamedType EmailThrottledMsg</note>
+        </trans-unit>
         <trans-unit id="Page 1251581097 - Control 3083306301 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the extension that will be used to send the email.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -8678,6 +8883,61 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action SendEmail - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3344272628 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assign email rate limit for an account</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set Email Rate Limit per Minute</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - NamedType 286665424" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - NamedType NoLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 2814033574 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email address for the current email account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 2814033574 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailAddress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 274605909 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email account name for the current account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 274605909 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Account Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 617774859 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the maximum number of emails per minute the account can send. A rate limit of 0 indicates no limit.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailRateLimitDisplay - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 617774859 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rate Limit per Minute</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailRateLimitDisplay - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Action 1178809860 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the rate limit.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Action Done - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Action 1178809860 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Action Done - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 240224259 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Related Attachments</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -8727,6 +8987,81 @@
           <source>Source Record</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Relation Picker - Control Source Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assign email attachments for email scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenario Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - NamedType 2367821945" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Go ahead and delete?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - NamedType DeleteQst</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Control 3160323516 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether to automatically attach the file to emails sent from processes related to this scenario. You can manually attach files that are not default.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control File Attachments Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Control 3160323516 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attach by Default</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control File Attachments Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Control 989751795 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control FileName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Control 989751795 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control FileName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Control 910027226 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenario that the attachment came from. Attachments set as default for email scenarios are automatically attached to emails that are sent from processes related to the scenario.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control Scenario - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Control 910027226 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control Scenario - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 2565898759 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add files, such as documents or images, to the email.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action AddToCurrentScenario - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 2565898759 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add File</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action AddToCurrentScenario - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 2477294019 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete the selected row.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Delete - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 2477294019 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Delete - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 884106764 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose a email scenario and add files, such as documents or images, to the email.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action SetScenarioAndAddFile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 884106764 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add File to Scenario</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action SetScenarioAndAddFile - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3368492679 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assign email scenarios</source>
@@ -8787,6 +9122,16 @@
           <source>Reassign</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Setup - Action ChangeAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3368492679 - Action 1860324021 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attach one or more files that can be attached to emails for this scenario.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Setup - Action SetDefaultAttachments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3368492679 - Action 1860324021 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set Scenario Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Setup - Action SetDefaultAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3368492679 - Action 640341854 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unassign the selected scenarios. Afterward, the default email account will be used to send emails for the scenarios.</source>
@@ -10963,6 +11308,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Objects - Control Object Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4035890834 - Control 3804014811 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the subtype of the object.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Objects - Control Object Subtype - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4035890834 - Control 3804014811 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Object Subtype</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Objects - Control Object Subtype - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4035890834 - Control 1085746399 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the object type.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -11362,6 +11717,16 @@
           <source>Type</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Control Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3414198013 - Action 21227494 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add two or more permission sets.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Action SelectPermissionSets - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3414198013 - Action 21227494 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Permission Sets</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Subform - Action SelectPermissionSets - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3414198013 - Action 282965274 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>View a flat list of the permissions in the set.</source>
@@ -13447,6 +13812,16 @@
           <source>Add Read Permission to Related Tables</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Action AddRelatedTablesAction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2622225351 - Action 1882529452 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add two or more objects.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Action SelectPermissions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2622225351 - Action 1882529452 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Objects</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Action SelectPermissions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2148009262 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Time Zones</source>

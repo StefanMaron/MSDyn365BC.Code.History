@@ -429,6 +429,9 @@ table 254 "VAT Entry"
 
             trigger OnValidate()
             begin
+                if not IsValidVATReportingDate("VAT Reporting Date") then
+                    Error('');
+
                 FeatureTelemetry.LogUsage('0000I9D', VATDateFeatureTok, 'VAT Date field populated');
                 UpdateGLEntries("VAT Reporting Date");
                 UpdatePostedDocuments("VAT Reporting Date");
@@ -502,6 +505,8 @@ table 254 "VAT Entry"
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
+        VATReturnStatusWarningMsg: Label 'VAT Return for chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.'; 
+        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     local procedure UpdatePostedDocuments(NewDate: Date)
     var
@@ -932,6 +937,23 @@ table 254 "VAT Entry"
         "Realized Base" := 0;
         "Add.-Curr. Realized Amount" := 0;
         "Add.-Curr. Realized Base" := 0;
+    end;
+
+    local procedure IsValidVATReportingDate(VATReportingDate: Date): Boolean
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if VATReturnPeriod.FindVATPeriodByDate(VATReportingDate) then begin
+            if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
+                Error(VATDateNotChangedErr);
+
+            VATReturnPeriod.CalcFields("VAT Return Status");
+            if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then
+                exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
+
+        end;
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

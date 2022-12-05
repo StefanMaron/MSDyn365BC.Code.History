@@ -1192,7 +1192,7 @@ codeunit 6154 "API Webhook Notification Send"
         Token: Text;
     begin
         if CDSConnectionSetup.Get() then
-            CDSIntegrationImpl.GetBusinessEventAccessToken(CDSConnectionSetup."Server Address", true, Token);
+            CDSIntegrationImpl.GetBusinessEventAccessToken(CDSConnectionSetup."Server Address", false, Token);
         HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
     end;
 

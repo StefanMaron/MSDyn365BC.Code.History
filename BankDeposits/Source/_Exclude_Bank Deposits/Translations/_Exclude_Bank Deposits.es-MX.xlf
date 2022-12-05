@@ -453,6 +453,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Posted Bank Deposit Line - Field Shortcut Dimension 2 Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2857945177 - NamedType 640825212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must either post or delete all bank deposits and bank account reconciliations for company %1 and every company on this environment before disabling Bank Deposits feature.</source>
+          <target state="translated">Debe registrar o eliminar todos los depósitos bancarios y las conciliaciones de cuentas para la empresa %1 y todas las empresas de este entorno antes de deshabilitar la característica Depósitos bancarios.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Name of the company</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Deposit Subscribers - NamedType EnableFeatureErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3915934517 - NamedType 483457420" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Deposit Line  #2########\</source>
           <target state="translated">Lín. depósito bancario  #2########\</target>

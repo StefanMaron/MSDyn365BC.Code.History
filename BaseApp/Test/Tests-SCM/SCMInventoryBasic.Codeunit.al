@@ -157,6 +157,37 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseCreditMemoWithItemTracking(false, true, 1, GlobalItemTracking::AssignSerialNo); // Take Quantity 1 as this is not important.
     end;
 
+    [Test]
+    [HandlerFunctions('SelectItemTemplateHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyIndirectCostOnItemCard()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        ItemValueLbl: Label 'Item indirect cost % must be same as Item Template';
+    begin
+        // [SCENARIO 454745] "Indirect Cost %" is not updated for an item when applying an item template with Indirect Code % = 0
+        Initialize();
+
+        // [GIVEN] Creation of Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Creation of Item Template with Item category code & Indirect cost% value in the record.
+        ItemTemplate.SetRange(Code, SelectItemTemplateCode);
+        ItemTemplate.FindFirst();
+        ItemTemplate.Validate("Item Category Code", '');
+        ItemTemplate.Validate("Indirect Cost %", 0);
+        ItemTemplate.Modify();
+
+        // [WHEN] Apply new item template on existing item.
+        LibraryVariableStorage.Enqueue(ItemTemplate.Code);
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
+
+        // [THEN] The indirect cost% value must be same on Item card as Item template.
+        Assert.AreEqual(Item."Indirect Cost %", ItemTemplate."Indirect Cost %", ItemValueLbl);
+    end;
+
     local procedure PurchaseCreditMemoWithItemTracking(LotSpecific: Boolean; SerialSpecific: Boolean; Quantity: Decimal; TrackingOption: Option)
     var
         Item: Record Item;

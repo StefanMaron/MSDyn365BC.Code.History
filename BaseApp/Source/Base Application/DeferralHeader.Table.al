@@ -77,6 +77,7 @@ table 1701 "Deferral Header"
             var
                 AccountingPeriod: Record "Accounting Period";
                 GenJnlBatch: Record "Gen. Journal Batch";
+                ThrowScheduleOutOfBoundError: Boolean;
             begin
                 if GenJnlBatch.Get("Gen. Jnl. Template Name", "Gen. Jnl. Batch Name") then
                     GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
@@ -87,7 +88,9 @@ table 1701 "Deferral Header"
                     exit;
 
                 AccountingPeriod.SetFilter("Starting Date", '>=%1', "Start Date");
-                if AccountingPeriod.IsEmpty() then
+                ThrowScheduleOutOfBoundError := AccountingPeriod.IsEmpty();
+                OnValidateStartDateOnAfterCalcThrowScheduleOutOfBoundError(Rec, ThrowScheduleOutOfBoundError);
+                if ThrowScheduleOutOfBoundError then
                     Error(DeferSchedOutOfBoundsErr);
             end;
         }
@@ -149,6 +152,7 @@ table 1701 "Deferral Header"
         DeferralUtilities.FilterDeferralLines(
           DeferralLine, "Deferral Doc. Type".AsInteger(), "Gen. Jnl. Template Name", "Gen. Jnl. Batch Name",
           "Document Type", "Document No.", "Line No.");
+        OnDeleteOnBeforeDeleteAll(Rec, DeferralLine);
         DeferralLine.DeleteAll();
     end;
 
@@ -182,6 +186,16 @@ table 1701 "Deferral Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSchedule(var DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeDeleteAll(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartDateOnAfterCalcThrowScheduleOutOfBoundError(DeferralHeader: Record "Deferral Header"; var ThrowScheduleOutOfBoundError: Boolean)
     begin
     end;
 }

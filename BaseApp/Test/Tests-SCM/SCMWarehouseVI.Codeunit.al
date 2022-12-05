@@ -3651,6 +3651,82 @@ codeunit 137408 "SCM Warehouse VI"
         VerifyWarehouseActivityLines(WarehouseActivityLine, Bin[2].Code, LotNos[2], '', 5);
     end;
 
+    [Test]
+    procedure NoOverPickOnPlaceLineInWarehousePickWithBreakbulk()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Bin: array[2] of Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+        QtyPer: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Breakbulk] [UoM]
+        // [SCENARIO 440120] No overpick on place line in warehouse pick with breakbulk.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+        QtyPer := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        CreateFullWarehouseSetup(Location);
+
+        // [GIVEN] Item with base unit of measure = "PCS" and alternate UoM = "BOX" = 20 "PCS".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPer);
+
+        // [GIVEN] Locate bins "B1" and "B2".
+        FindBin(Bin[1], Location.Code);
+        FindAnotherBinInZone(Bin[2], Bin[1]);
+
+        // [GIVEN] Post inventory via the warehouse journal: 2 "BOX" + 2 "PCS" into each bin.
+        // [GIVEN] That makes 2 * (2 * 20 + 2) = 84 "PCS" in total.
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        for i := 1 to ArrayLen(Bin) do begin
+            LibraryWarehouse.CreateWhseJournalLine(
+              WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+              Location.Code, Bin[i]."Zone Code", Bin[i].Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+            WarehouseJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+            WarehouseJournalLine.Modify();
+
+            LibraryWarehouse.CreateWhseJournalLine(
+              WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+              Location.Code, Bin[i]."Zone Code", Bin[i].Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+        end;
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name",
+          WarehouseJournalLine."Location Code", true);
+        LibraryWarehouse.PostWhseAdjustment(Item);
+
+        // [GIVEN] Create sales order for 50 "PCS", release.
+        Item.CalcFields(Inventory);
+        CreateAndReleaseSalesOrder(
+          SalesHeader, SalesLine, Item."No.", Location.Code, LibraryRandom.RandIntInRange(Item.Inventory / 2, Item.Inventory));
+
+        // [WHEN] Create shipment and pick.
+        CreatePickFromSalesHeader(SalesHeader);
+
+        // [THEN] Sum of quantity to take = sum of quantity to place = 50 "PCS" in the warehouse pick.
+        WarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Item."No.");
+        WarehouseActivityLine.CalcSums(Quantity, "Qty. (Base)");
+        WarehouseActivityLine.TestField(Quantity, SalesLine.Quantity);
+        WarehouseActivityLine.TestField("Qty. (Base)", SalesLine."Quantity (Base)");
+
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Place, Item."No.");
+        WarehouseActivityLine.CalcSums(Quantity, "Qty. (Base)");
+        WarehouseActivityLine.TestField(Quantity, SalesLine.Quantity);
+        WarehouseActivityLine.TestField("Qty. (Base)", SalesLine."Quantity (Base)");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

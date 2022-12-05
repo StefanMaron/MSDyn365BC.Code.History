@@ -292,6 +292,47 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CancelPurchCrMemoWithGLAccInLine()
+    var
+        GenBusPostingGroup: Record "Gen. Business Posting Group";
+        GenPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        PostedPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        PostedPurchInvoiceHeader: Record "Purch. Inv. Header";
+    begin
+        // [SCENARIO] Bug 444060 Check of General Posting Setup in CancelPostedPurchCrMemo
+        Initialize();
+
+        // [GIVEN] A G/L Account 
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] A General Business Posting Group and a General Posting Setup using that group
+        LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GenPostingSetup, GenBusPostingGroup.Code, GLAccount."Gen. Prod. Posting Group");
+        GenPostingSetup.SuggestSetupAccounts();
+
+        // [GIVEN] The General Posting Setup has no value for Purchase
+        GenPostingSetup."Purch. Account" := '';
+        GenPostingSetup.Modify();
+
+        // [GIVEN] A vendor with the given General Business Posting Group
+        LibrarySmallBusiness.CreateVendor(Vendor);
+
+        // [GIVEN] A purchase invoice is posted for this Vendor specifying a G/L account in the line
+        CreateAndPostGlAccPurchInv(PostedPurchInvoiceHeader, Vendor."No.", GLAccount);
+
+        // [GIVEN] The invoice is corrected 
+        CancelInvoice(PostedPurchCrMemoHeader, PostedPurchInvoiceHeader);
+
+        // [WHEN] The related Posted Purchase Credit Memo is cancelled
+        CancelCrMemo(PostedPurchCrMemoHeader);
+
+        // [THEN] No errors occur on cancelling
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CancelCorrectiveCreditMemo()
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -925,6 +966,28 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Purch. Correct Cr. Memo");
+    end;
+
+    local procedure CreateAndPostGlAccPurchInv(var PostedPurchInvoiceHeader: Record "Purch. Inv. Header"; VendorNo: Code[20]; var GLAccount: Record "G/L Account")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Ensure that Purchase & Payables Setup has a No. Code for Posted Invoices
+        LibraryPurchase.SetPostedNoSeriesInSetup();
+
+        // Create a purchase invoice with one line of type G/L Account
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, "Purchase Line Type"::"G/L Account");
+        PurchaseLine.Validate("No.", GLAccount."No.");
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1);
+        PurchaseLine.Modify();
+
+        // Post the Purchase Invoice
+        PostedPurchInvoiceHeader."No." := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        PostedPurchInvoiceHeader.Find();
     end;
 
     local procedure CancelInvoiceByCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")

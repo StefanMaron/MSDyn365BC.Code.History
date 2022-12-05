@@ -120,7 +120,6 @@ codeunit 380 "Bank Acc. Recon. Test"
         GLEntries.SetRange("G/L Account No.", BankAccPostingGroup."G/L Account No.");
         if (StatementDate <> 0D) then
             GLEntries.SetFilter("Posting Date", '<= %1', StatementDate);
-        GLEntries.SetFilter("Source No.", '''''| %1', BankAcc."No.");
 
         if GLEntries.IsEmpty() then
             exit(0);

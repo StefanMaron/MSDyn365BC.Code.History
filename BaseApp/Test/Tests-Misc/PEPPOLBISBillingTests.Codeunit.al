@@ -17,6 +17,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         WrongFileNameErr: Label 'File name should be: %1', Comment = '%1 - Client File Name';
@@ -1120,8 +1121,10 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         CompanyInfo: Record "Company Information";
     begin
         LibrarySetupStorage.Restore();
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"PEPPOL BIS BillingTests");
 
         if not IsInitialized then begin
+            LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"PEPPOL BIS BillingTests");
             CompanyInfo.Get();
             CompanyInfo.Validate(IBAN, 'GB29NWBK60161331926819');
             CompanyInfo.Validate("SWIFT Code", 'MIDLGB22Z0K');
@@ -1146,6 +1149,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             LibrarySetupStorage.Save(DATABASE::"Company Information");
 
             IsInitialized := true;
+            LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"PEPPOL BIS BillingTests");
         end;
     end;
 

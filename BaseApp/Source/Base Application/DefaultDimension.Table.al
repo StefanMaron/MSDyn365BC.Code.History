@@ -286,7 +286,13 @@
     trigger OnRename()
     var
         DimValuePerAccount: Record "Dim. Value per Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRename(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Table ID" <> xRec."Table ID") or ("Dimension Code" <> xRec."Dimension Code") then
             Error(Text000, TableCaption);
 
@@ -1198,6 +1204,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(var DefaultDimension: Record "Default Dimension"; var DimensionManagement: Codeunit DimensionManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
     begin
     end;
 

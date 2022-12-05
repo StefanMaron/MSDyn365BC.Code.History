@@ -21,6 +21,7 @@ permissionset 3439 "SEPA Credit Transfers - Edit"
                   tabledata "Data Exch. Field Grouping" = R,
                   tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
+				  tabledata "Data Exch. Table Filter" = Rimd,
                   tabledata "Intermediate Data Import" = Rimd,
                   tabledata "Ledger Entry Matching Buffer" = RIMD,
                   tabledata "Outstanding Bank Transaction" = RIMD,

@@ -257,86 +257,31 @@ table 1173 "Document Attachment"
 
     procedure InitFieldsFromRecRef(RecRef: RecordRef)
     var
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         FieldRef: FieldRef;
         RecNo: Code[20];
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        FieldNo: Integer;
         LineNo: Integer;
     begin
         Validate("Table ID", RecRef.Number);
 
-        case RecRef.Number of
-            DATABASE::Customer,
-            DATABASE::Vendor,
-            DATABASE::Item,
-            DATABASE::Employee,
-            DATABASE::"Fixed Asset",
-            DATABASE::Resource,
-            DATABASE::Job,
-            DATABASE::"VAT Report Header":
-                begin
-                    FieldRef := RecRef.Field(1);
-                    RecNo := FieldRef.Value;
-                    Validate("No.", RecNo);
-                end;
+        if DocumentAttachmentMgmt.TableHasNumberFieldPrimayKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            RecNo := FieldRef.Value();
+            Validate("No.", RecNo);
         end;
 
-        case RecRef.Number of
-            DATABASE::"Sales Header",
-            DATABASE::"Purchase Header",
-            DATABASE::"Sales Line",
-            DATABASE::"Purchase Line":
-                begin
-                    FieldRef := RecRef.Field(1);
-                    DocType := FieldRef.Value;
-                    Validate("Document Type", DocType);
-
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
-                    Validate("No.", RecNo);
-                end;
+        if DocumentAttachmentMgmt.TableHasDocTypePrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            DocType := FieldRef.Value();
+            Validate("Document Type", DocType);
         end;
 
-        case RecRef.Number of
-            DATABASE::"Sales Line",
-            DATABASE::"Purchase Line":
-                begin
-                    FieldRef := RecRef.Field(4);
-                    LineNo := FieldRef.Value;
-                    Validate("Line No.", LineNo);
-                end;
-        end;
-
-        case RecRef.Number of
-            DATABASE::"Sales Invoice Header",
-            DATABASE::"Sales Cr.Memo Header",
-            DATABASE::"Purch. Inv. Header",
-            DATABASE::"Purch. Cr. Memo Hdr.":
-                begin
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
-                    Validate("No.", RecNo);
-                end;
-        end;
-
-        case RecRef.Number of
-            DATABASE::"Sales Invoice Line",
-            DATABASE::"Sales Cr.Memo Line",
-            DATABASE::"Purch. Inv. Line",
-            DATABASE::"Purch. Cr. Memo Line":
-                begin
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
-                    Validate("No.", RecNo);
-
-                    FieldRef := RecRef.Field(4);
-                    LineNo := FieldRef.Value;
-                    Validate("Line No.", LineNo);
-                end;
-        end;
-
-        if RecRef.Number = DATABASE::"VAT Report Header" then begin
-            FieldRef := RecRef.Field(2);
-            Validate("VAT Report Config. Code", FieldRef.Value);
+        if DocumentAttachmentMgmt.TableHasLineNumberPrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            LineNo := FieldRef.Value();
+            Validate("Line No.", LineNo);
         end;
 
         OnAfterInitFieldsFromRecRef(Rec, RecRef);

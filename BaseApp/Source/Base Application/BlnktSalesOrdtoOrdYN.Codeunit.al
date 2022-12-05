@@ -10,9 +10,8 @@ codeunit 84 "Blnkt Sales Ord. to Ord. (Y/N)"
             exit;
 
         TestField("Document Type", "Document Type"::"Blanket Order");
-        if GuiAllowed then
-            if not Confirm(CreateConfirmQst, false) then
-                exit;
+        if ShouldExit(Rec) then
+            exit;
 
         BlanketSalesOrderToOrder.Run(Rec);
         BlanketSalesOrderToOrder.GetSalesOrderHeader(SalesOrderHeader);
@@ -36,6 +35,20 @@ codeunit 84 "Blnkt Sales Ord. to Ord. (Y/N)"
         exit(IsHandled);
     end;
 
+    local procedure ShouldExit(var SalesHeader: Record "Sales Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShouldExit(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if GuiAllowed then
+            if not Confirm(CreateConfirmQst, false) then
+                Result := true;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesOrder(var SalesHeader: Record "Sales Header"; var SkipMessage: Boolean)
     begin
@@ -43,6 +56,11 @@ codeunit 84 "Blnkt Sales Ord. to Ord. (Y/N)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShouldExit(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

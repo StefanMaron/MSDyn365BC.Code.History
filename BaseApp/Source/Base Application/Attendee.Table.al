@@ -195,7 +195,14 @@ table 5199 Attendee
         Text011: Label 'You cannot set %1 as organizer because he/she does not have email address.', Comment = '%1 = Sales / Purchaseer person name';
 
     procedure ValidateAttendee(AttendeeRec: Record Attendee; var Attendee: Record Attendee)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateAttendee(AttendeeRec, Attendee, IsHandled);
+        if IsHandled then
+            exit;
+
         AttendeeRec.TestField("Attendee No.");
         ValidateOrganizer(AttendeeRec."Attendee No.", AttendeeRec."Attendance Type", AttendeeRec."Attendee Type", AttendeeRec."To-do No.");
 
@@ -257,6 +264,11 @@ table 5199 Attendee
         if Task2.Get(TodoNo) then;
         if (SalesPurchPerson."E-Mail" = '') and (Task2.Type <> Task2.Type::"Phone Call") then
             Error(Text011, SalesPurchPerson.Name);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAttendee(AttendeeRec: Record Attendee; var Attendee: Record Attendee; var IsHandled: Boolean)
+    begin
     end;
 }
 

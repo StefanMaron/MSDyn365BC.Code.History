@@ -282,123 +282,17 @@ page 1173 "Document Attachment Details"
 
     procedure OpenForRecRef(RecRef: RecordRef)
     var
-        FieldRef: FieldRef;
-        RecNo: Code[20];
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
-        LineNo: Integer;
-        VATRepConfigType: Enum "VAT Report Configuration";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
     begin
-        Reset();
+        Rec.Reset();
 
         FromRecRef := RecRef;
 
-        SetRange("Table ID", RecRef.Number);
+        SalesDocumentFlow := DocumentAttachmentMgmt.IsSalesDocumentFlow(RecRef.Number);
+        PurchaseDocumentFlow := DocumentAttachmentMgmt.IsPurchaseDocumentFlow(RecRef.Number);
+        FlowFieldsEditable := DocumentAttachmentMgmt.IsFlowFieldsEditable(RecRef.Number);
 
-        if RecRef.Number = DATABASE::Item then begin
-            SalesDocumentFlow := true;
-            PurchaseDocumentFlow := true;
-        end;
-
-        case RecRef.Number of
-            DATABASE::Customer,
-          DATABASE::"Sales Header",
-          DATABASE::"Sales Line",
-          DATABASE::"Sales Invoice Header",
-          DATABASE::"Sales Invoice Line",
-          DATABASE::"Sales Cr.Memo Header",
-          DATABASE::"Sales Cr.Memo Line":
-                SalesDocumentFlow := true;
-            DATABASE::Vendor,
-          DATABASE::"Purchase Header",
-          DATABASE::"Purchase Line",
-          DATABASE::"Purch. Inv. Header",
-          DATABASE::"Purch. Inv. Line",
-          DATABASE::"Purch. Cr. Memo Hdr.",
-          DATABASE::"Purch. Cr. Memo Line":
-                PurchaseDocumentFlow := true;
-        end;
-
-        case RecRef.Number of
-            DATABASE::Customer,
-            DATABASE::Vendor,
-            DATABASE::Item,
-            DATABASE::Employee,
-            DATABASE::"Fixed Asset",
-            DATABASE::Job,
-            DATABASE::Resource,
-            DATABASE::"VAT Report Header":
-                begin
-                    FieldRef := RecRef.Field(1);
-                    RecNo := FieldRef.Value;
-                    SetRange("No.", RecNo);
-                end;
-        end;
-
-        case RecRef.Number of
-            DATABASE::"Sales Header",
-            DATABASE::"Sales Line",
-            DATABASE::"Purchase Header",
-            DATABASE::"Purchase Line":
-                begin
-                    FieldRef := RecRef.Field(1);
-                    DocType := FieldRef.Value;
-                    SetRange("Document Type", DocType);
-
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
-                    SetRange("No.", RecNo);
-
-                    FlowFieldsEditable := false;
-                end;
-        end;
-
-        case RecRef.Number of
-            DATABASE::"Sales Line",
-            DATABASE::"Purchase Line":
-                begin
-                    FieldRef := RecRef.Field(4);
-                    LineNo := FieldRef.Value;
-                    SetRange("Line No.", LineNo);
-                end;
-        end;
-
-        case RecRef.Number of
-            DATABASE::"Sales Invoice Header",
-            DATABASE::"Sales Cr.Memo Header",
-            DATABASE::"Purch. Inv. Header",
-            DATABASE::"Purch. Cr. Memo Hdr.":
-                begin
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
-                    SetRange("No.", RecNo);
-
-                    FlowFieldsEditable := false;
-                end;
-        end;
-
-        case RecRef.Number of
-            DATABASE::"Sales Invoice Line",
-            DATABASE::"Sales Cr.Memo Line",
-            DATABASE::"Purch. Inv. Line",
-            DATABASE::"Purch. Cr. Memo Line":
-                begin
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
-                    SetRange("No.", RecNo);
-
-                    FieldRef := RecRef.Field(4);
-                    LineNo := FieldRef.Value;
-                    SetRange("Line No.", LineNo);
-
-                    FlowFieldsEditable := false;
-                end;
-        end;
-
-        if RecRef.Number = Database::"VAT Report Header" then begin
-            FieldRef := RecRef.Field(2);
-            VATRepConfigType := FieldRef.Value;
-            SetRange("VAT Report Config. Code", VATRepConfigType);
-        end;
+        DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef);
 
         OnAfterOpenForRecRef(Rec, RecRef, FlowFieldsEditable);
     end;

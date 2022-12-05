@@ -238,13 +238,14 @@ page 1872 "Item Availability Check"
     end;
 
     [Scope('OnPrem')]
-    procedure InitializeFromData(ItemNo: Code[20]; UnitOfMeasureCode: Code[20]; InventoryQty2: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity2: Decimal; EarliestAvailDate: Date; LocationCode2: Code[10])
+    procedure InitializeFromData(ItemNo: Code[20]; NewUnitOfMeasureCode: Code[20]; InventoryQty2: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity2: Decimal; EarliestAvailDate: Date; LocationCode2: Code[10])
     begin
         Get(ItemNo);
         SetRange("No.", ItemNo);
         TotalQuantity := TotalQuantity2;
         InventoryQty := InventoryQty2;
         LocationCode := LocationCode2;
+        UnitOfMeasureCode := NewUnitOfMeasureCode;
 
         CurrPage.AvailabilityCheckDetails.PAGE.SetUnitOfMeasureCode(UnitOfMeasureCode);
         CurrPage.AvailabilityCheckDetails.PAGE.SetGrossReq(GrossReq);
